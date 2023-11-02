@@ -1,0 +1,107 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Devices\Storage\Device;
+use Phoundation\Os\Devices\Storage\Exception\StorageException;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Process;
+
+
+/**
+ * Script tools/devices/storage/shred
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$restrictions = Restrictions::new('/dev', true);
+
+Documentation::usage('./pho tools devices storage shred');
+
+Documentation::help('The shred script will shred the specified device by copying random data over it with 
+(optionally and by default) multiple passes 
+
+NOTE: This will irreparably destroy all information on the specified device. Proceed with caution, here be dragons!
+
+
+ARGUMENTS
+
+
+DEVICE                                  The device file to be shredded
+
+-p,--passes                             The amount of passes it should make over the disk to completely scramble it');
+
+Documentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan($word . '*'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan('*'); },
+        ],
+    ],
+    'arguments' => [
+        '-p,--passes' => true,
+    ]
+]);
+
+
+// Validate data
+$argv = ArgvValidator::new()
+    ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))
+    ->select('-p,--passes')->isOptional(3)->isNatural(false)->isBetween(1, 10)
+    ->validate();
+
+
+// Ensure this is a device that can be shredded
+try {
+    $device = Device::new($argv['device'])->checkUnmounted();
+
+} catch (StorageException $e) {
+    throw $e->makeWarning();
+}
+
+
+// Have user confirm that they're sure
+CliCommand::requestConfirmation(tr('This will irreparably destroy all information on device ":device", please type YES in all uppercase to continue:', [
+    ':device' => $argv['device']
+]));
+
+
+// Shred!
+Log::information(tr('Shredding device ":device" in ":pass" passes. Depending on device size this may take a while...', [
+    ':pass' => $argv['passes'],
+    ':device' => $argv['device']
+]));
+
+for ($i = 1; $i <= $argv['passes']; $i++) {
+    Log::warning(tr('Shredding device ":device", pass ":pass". Depending on device size this may take a while...', [
+        ':pass' => $i,
+        ':device' => $argv['device']
+    ]));
+
+    // Ensure this is a device that can be shredded
+    try {
+        Device::new($argv['device'])->scramble();
+
+    } catch (StorageException $e) {
+        throw $e->makeWarning();
+    }
+}
+
+
+// Done!
+Log::success(tr('Finished shredding device ":device"', [
+    ':device' => $argv['device']
+]));

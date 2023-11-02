@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
+use Stringable;
+
 /**
  * Trait DataEntryUrl
  *
@@ -24,18 +26,18 @@ trait DataEntryUrl
      */
     public function getUrl(): ?string
     {
-        return $this->getDataValue('string', 'url');
+        return $this->getSourceFieldValue('string', 'url');
     }
 
 
     /**
      * Sets the url for this object
      *
-     * @param string|null $url
+     * @param Stringable|string|null $url
      * @return static
      */
-    public function setUrl(?string $url): static
+    public function setUrl(Stringable|string|null $url): static
     {
-        return $this->setDataValue('url', $url);
+        return $this->setSourceValue('url', (string) $url);
     }
 }

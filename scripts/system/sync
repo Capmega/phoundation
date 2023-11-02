@@ -4,10 +4,9 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Documentation;
-use Phoundation\Cli\Script;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Sync;
-
 
 
 /**
@@ -29,42 +28,45 @@ Documentation::help('This script will synchronize either the specified environme
 With this, a production environment can easily be tested locally, for example
 
 
-
 ARGUMENTS
 
 
+-f / --from ENVIRONMENT                 The single source environment from which the data will be synced
 
-[-f / --from]                           If specified
+[-i / --no-init]                        If specified, will NOT execute the system initialization right after the sync
+                                        process has finished
 
-[-i / --init]
+[-t / --to]                             If specified, will sync not FROM, but TO the specified environment
 
-[-l / --lock]                           If specified
-
-[-t / --target]                         If specified
-
-[-t / --to]                             If specified');
-
+[-l / --lock]                           If specified, will readonly lock the target environment until sync has 
+                                        finished');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
+    ->select('-f,--from', true)->isVariable()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
-    ->select('-i,--init')->isOptional(true)->isBoolean()
+    ->select('-i,--no-init')->isOptional(false)->isBoolean()
     ->select('-t,--to', true)->isOptional()->isVariable()
-    ->select('-f,--from', true)->xor('to')->isVariable()
-    ->select('-t,--target')->isOptional(null)->isName()
-    ->noArgumentsLeft()
     ->validate();
-
 
 
 // Sync environments
 $sync = Sync::new()
     ->setLock($argv['lock'])
-    ->setInit($argv['init']);
+    ->setInit(!$argv['no_init']);
 
 if ($argv['to']) {
-    $sync->toEnvironment($argv['target']);
+    $sync->toEnvironment($argv['to']);
+
+    Log::Success(tr('Finished syncing process to environment ":environment"', [
+        ':environment' => $argv['environment']
+    ]));
+
 } else {
-    $sync->fromEnvironment($argv['target']);
+    $sync->fromEnvironment($argv['from']);
+
+    Log::Success(tr('Finished syncing process from environment ":environment"', [
+        ':environment' => $argv['environment']
+    ]));
 }

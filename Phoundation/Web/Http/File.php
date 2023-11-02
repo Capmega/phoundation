@@ -15,6 +15,7 @@ use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Stringable;
 
 
@@ -32,12 +33,8 @@ use Stringable;
  */
 class File
 {
-    /**
-     * The server object
-     *
-     * @var Restrictions $restrictions
-     */
-    protected Restrictions $restrictions;
+    use DataRestrictions;
+
 
     /**
      * If true, files will be transferred using compression
@@ -119,30 +116,6 @@ class File
     public static function new(RestrictionsInterface|array|string|null $restrictions = null): static
     {
         return new static($restrictions);
-    }
-
-
-    /**
-     * Sets the file access restrictions
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
-     */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
-    {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
-        return $this;
-    }
-
-
-    /**
-     * Returns the file access restrictions
-     *
-     * @return Restrictions
-     */
-    public function getRestrictions(): Restrictions
-    {
-        return $this->restrictions;
     }
 
 
@@ -400,7 +373,7 @@ Log::checkpoint();
 
         // Terminate process?
         if ($this->die) {
-            Page::die();
+            Page::exit();
         }
     }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\Mdb\Html\Components;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
@@ -15,7 +15,7 @@ use Phoundation\Web\Page;
 /**
  * MDB Plugin ProfileImage class
  *
- * 
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

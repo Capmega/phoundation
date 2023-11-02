@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Widgets\Boxes;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Widgets\Widget;
+use Phoundation\Web\Http\Html\Html;
 
 
 /**
@@ -21,6 +23,9 @@ use Phoundation\Web\Http\Html\Components\Widgets\Widget;
  */
 abstract class Box extends Widget
 {
+    use DataTitle;
+
+
     /**
      * The icon to display on this infobox
      *
@@ -49,13 +54,6 @@ abstract class Box extends Widget
      */
     #[ExpectedValues(null, 'shadow-sm', 'shadow', 'shadow-lg')]
     protected ?string $shadow = null;
-
-    /**
-     * The title to display on this infobox
-     *
-     * @var string|null $title
-     */
-    protected ?string $title = null;
 
     /**
      * The description to display on this infobox
@@ -160,11 +158,17 @@ abstract class Box extends Widget
      * Sets the value for this infobox
      *
      * @param string $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setValue(string $value): static
+    public function setValue(string $value, bool $make_safe = true): static
     {
-        $this->value = $value;
+        if ($make_safe) {
+            $this->value = Html::safe($value);
+        } else {
+            $this->value = $value;
+        }
+
         return $this;
     }
 
@@ -195,30 +199,6 @@ abstract class Box extends Widget
         }
 
         $this->progress = $progress;
-        return $this;
-    }
-
-
-    /**
-     * Returns the title for this infobox
-     *
-     * @return string
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * Sets the title for this infobox
-     *
-     * @param string $title
-     * @return static
-     */
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
         return $this;
     }
 

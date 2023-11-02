@@ -24,7 +24,7 @@ trait DataEntryType
      */
     public function getType(): ?string
     {
-        return $this->getDataValue('string', 'type');
+        return $this->getSourceFieldValue('string', 'type');
     }
 
 
@@ -36,6 +36,6 @@ trait DataEntryType
      */
     public function setType(?string $type): static
     {
-        return $this->setDataValue('type', $type);
+        return $this->setSourceValue('type', $type);
     }
 }

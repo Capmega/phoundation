@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.6';
+        return '0.0.15';
     }
 
 
@@ -97,6 +97,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_security_puks_keys_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_security_puks_keys_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.0.15', function () {
+            sql()->schema()
+                ->table('security_incidents')->alter()
+                    ->changeColumn('`severity`', '`severity` ENUM("notice", "low", "medium", "high", "severe") NULL');
         });
     }
 }

@@ -2,11 +2,22 @@
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Core\Config;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+
+
+/**
+ * Sign in page
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
 
 
 // Only show sign-in page if we're a guest user
@@ -40,7 +51,7 @@ Page::setBuildBody(false);
       <!-- /.login-logo -->
       <div class="card card-outline card-info">
         <div class="card-header text-center">
-          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Phoun</span>dation'); ?></a>
+          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Medi</span>web'); ?></a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
@@ -117,6 +128,9 @@ Page::setBuildBody(false);
                             </p>';
                 }
         ?>
+        <div class="login-footer text-center">
+            <?= 'Copyright © ' . Config::getString('project.copyright', '2023') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
+            All rights reserved        </div>
         </div>
         <!-- /.card-body -->
       </div>

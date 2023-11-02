@@ -24,7 +24,7 @@ trait DataEntryIpAddress
      */
     public function getIpAddress(): ?string
     {
-        return $this->getDataValue('string', 'ip_address');
+        return $this->getSourceFieldValue('string', 'ip_address');
     }
 
 
@@ -36,8 +36,8 @@ trait DataEntryIpAddress
      */
     public function setIpAddress(?string $ip_address): static
     {
-        $this->setDataValue('net_len', strlen($ip_address));
-        $this->setDataValue('ip_address', $ip_address);
-        return $this->setDataValue('ip_address_human', $ip_address);
+        $this->setSourceValue('net_len', strlen($ip_address));
+        $this->setSourceValue('ip_address', $ip_address);
+        return $this->setSourceValue('ip_address_human', $ip_address);
     }
 }

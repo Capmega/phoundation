@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Developer\Debug;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -50,7 +48,14 @@ class TopPanel extends Panel
     public function __construct()
     {
         // Set the default menu for top panels
-        $this->source['menu'] = Menu::new()->addSource([(string) UrlBuilder::getCurrent() => tr('Home')]);
+        $this->source['menu'] = Menu::new()->addSource([
+            (string) UrlBuilder::getCurrentDomainRootUrl() => tr('Home')
+        ]);
+
+        if (Session::getUser()->hasAllRights('demos')) {
+            $this->source['menu']->add((string) UrlBuilder::getWww('demos.html'), tr('Demos'));
+        }
+
         parent::__construct();
     }
 

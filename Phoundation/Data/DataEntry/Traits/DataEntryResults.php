@@ -24,7 +24,7 @@ trait DataEntryResults
      */
     public function getResults(): ?string
     {
-        return $this->getDataValue('string', 'results');
+        return $this->getSourceFieldValue('string', 'results');
     }
 
 
@@ -36,6 +36,6 @@ trait DataEntryResults
      */
     public function setResults(?string $results): static
     {
-        return $this->setDataValue('results', $results);
+        return $this->setSourceValue('results', $results);
     }
 }

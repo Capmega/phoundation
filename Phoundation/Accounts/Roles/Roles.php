@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
-use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
@@ -15,11 +13,11 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Stringable;
 
 
 /**
@@ -27,7 +25,7 @@ use Phoundation\Web\Http\Html\Components\Input\InputSelect;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -92,12 +90,13 @@ class Roles extends DataList implements RolesInterface
 
 
     /**
-     * Set the entries to the specified list
+     * Set the new roles for the current parents to the specified list
      *
      * @param array|null $list
+     * @param string|null $column
      * @return static
      */
-    public function set(?array $list): static
+    public function setRoles(?array $list, ?string $column = null): static
     {
         $this->ensureParent('save entries');
 
@@ -115,11 +114,11 @@ class Roles extends DataList implements RolesInterface
             $diff = Arrays::valueDiff(array_keys($this->source), $roles_list);
 
             foreach ($diff['add'] as $role) {
-                $this->addRole($role);
+                $this->addRole($role, $column);
             }
 
-            foreach ($diff['remove'] as $role) {
-                $this->remove($role);
+            foreach ($diff['delete'] as $role) {
+                $this->deleteEntries($role);
             }
         }
 
@@ -131,22 +130,24 @@ class Roles extends DataList implements RolesInterface
      * Add the specified role to the data list
      *
      * @param RoleInterface|array|string|int|null $role
+     * @param string|null $column
      * @return static
+     * @throws OutOfBoundsExceptionInterface
      */
-    public function addRole(RoleInterface|array|string|int|null $role): static
+    public function addRole(RoleInterface|array|string|int|null $role, ?string $column = null): static
     {
-        $this->ensureParent('add entry to parent');
+        $this->ensureParent('add Role entry to parent');
 
         if ($role) {
             if (is_array($role)) {
                 // Add multiple rights
                 foreach ($role as $entry) {
-                    $this->addRole($entry);
+                    $this->addRole($entry, $column);
                 }
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                $role = Role::get($role);
+                $role = Role::get($role, $column);
 
                 // Role already exists for this parent?
                 if ($this->hasRole($role)) {
@@ -159,7 +160,7 @@ class Roles extends DataList implements RolesInterface
                     Log::action(tr('Adding role ":role" to user ":user"', [
                         ':user' => $this->parent->getLogId(),
                         ':role' => $role->getLogId()
-                    ]));
+                    ]), 3);
 
                     sql()->dataEntryInsert('accounts_users_roles', [
                         'users_id' => $this->parent->getId(),
@@ -178,7 +179,7 @@ class Roles extends DataList implements RolesInterface
                     Log::action(tr('Adding right ":right" to role ":role"', [
                         ':right' => $this->parent->getLogId(),
                         ':role'  => $role->getLogId()
-                    ]));
+                    ]), 3);
 
                     sql()->dataEntryInsert('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
@@ -203,10 +204,10 @@ class Roles extends DataList implements RolesInterface
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|array|string|int|null $role
+     * @param RoleInterface|Stringable|array|string|float|int $role
      * @return static
      */
-    public function remove(RoleInterface|array|string|int|null $role): static
+    public function deleteEntries(RoleInterface|Stringable|array|string|float|int $role): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -214,7 +215,7 @@ class Roles extends DataList implements RolesInterface
             if (is_array($role)) {
                 // Add multiple rights
                 foreach ($role as $entry) {
-                    $this->remove($entry);
+                    $this->deleteEntries($entry);
                 }
 
             } else {
@@ -227,35 +228,44 @@ class Roles extends DataList implements RolesInterface
                         ':role' => $role->getLogId()
                     ]));
 
-                    sql()->dataEntrydelete('accounts_users_roles', [
+                    sql()->dataEntryDelete('accounts_users_roles', [
                         'users_id' => $this->parent->getId(),
                         'roles_id' => $role->getId()
                     ]);
 
-                    // Delete right from internal list
-                    $this->delete($role);
+                    // Delete role from internal list
+                    parent::deleteAll($role->getId());
 
+                    // Remove the rights related to this role
                     foreach ($role->getRights() as $right) {
-                        $this->parent->getRights()->remove($right);
+                        // Ensure this right isn't also given by another role
+                        foreach ($right->getRoles() as $check_role) {
+                            if ($this->hasRole($check_role)) {
+                                // Don't remove this right, another role gives it too.
+                                continue 2;
+                            }
+                        }
+
+                        $this->parent->getRights()->deleteEntries($right);
                     }
 
                 } elseif ($this->parent instanceof RightInterface) {
-                    Log::action(tr('Removing right ":right" from role ":role"', [
+                    Log::action(tr('Removing role ":role" from right ":right"', [
                         ':right' => $this->parent->getLogId(),
                         ':role'  => $role->getLogId()
-                    ]));
+                    ]), 3);
 
-                    sql()->dataEntrydelete('accounts_roles_rights', [
+                    sql()->dataEntryDelete('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
                         'roles_id'  => $role->getId()
                     ]);
 
-                    // Add right to internal list
-                    $this->delete($role);
+                    // Remove right from internal list
+                    parent::deleteAll($role->getId());
 
                     // Update all users with this right to remove the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->remove($this->parent);
+                        User::get($user)->getRights()->deleteEntries($this->parent);
                     }
                 }
             }
@@ -319,7 +329,7 @@ class Roles extends DataList implements RolesInterface
         } elseif ($this->parent instanceof RightInterface) {
             Log::action(tr('Removing right ":right" from all roles', [
                 ':right' => $this->parent->getLogId(),
-            ]));
+            ]), 3);
 
             sql()->query('DELETE FROM `accounts_roles_rights` WHERE `rights_id` = :rights_id', [
                 'rights_id'  => $this->parent->getId()
@@ -333,18 +343,16 @@ class Roles extends DataList implements RolesInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = 'roles_id'): static
+    public function load(): static
     {
-        if (!$id_column) {
-            $id_column = 'roles_id';
-        }
 
         if ($this->parent) {
             if ($this->parent instanceof UserInterface) {
-                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, `accounts_roles`.*
+                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, 
+                                                          `accounts_roles`.*,
+                                                          CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
                                                    FROM   `accounts_users_roles` 
                                                    JOIN   `accounts_roles` 
                                                    ON     `accounts_users_roles`.`roles_id`  = `accounts_roles`.`id`
@@ -353,7 +361,9 @@ class Roles extends DataList implements RolesInterface
                 ]);
 
             } elseif ($this->parent instanceof RightInterface) {
-                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, `accounts_roles`.* 
+                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`, 
+                                                          `accounts_roles`.*, 
+                                                          CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
                                                    FROM   `accounts_roles_rights` 
                                                    JOIN   `accounts_roles` 
                                                    ON     `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
@@ -402,7 +412,7 @@ class Roles extends DataList implements RolesInterface
         $builder->addFrom('`accounts_roles`');
 
         // Add ordering
-        foreach ($order_by as $column => $direction) {
+       foreach ($order_by as $column => $direction) {
             $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
         }
 
@@ -431,7 +441,8 @@ class Roles extends DataList implements RolesInterface
 
         if ($users) {
             // Add roles information to each user
-            foreach ($return as $id => &$item) {
+
+           foreach ($return as $id => &$item) {
                 $item['users'] = sql()->list('SELECT `email`
                                               FROM   `accounts_users`
                                               JOIN   `accounts_users_roles`
@@ -475,34 +486,34 @@ class Roles extends DataList implements RolesInterface
      */
     public function save(): static
     {
-        $this->ensureParent('save parent entries');
-
-        if ($this->parent instanceof UserInterface) {
-            // Delete the current list
-            sql()->query('DELETE FROM `accounts_users_roles` 
-                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
-                ':users_id' => $this->parent->getId()
-            ]);
-
-            // Add the new list
-            sql()->query('DELETE FROM `accounts_users_roles` 
-                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
-                ':users_id' => $this->parent->getId()
-            ]);
-
-        } elseif ($this->parent instanceof RightInterface) {
-            // Delete the current list
-            sql()->query('DELETE FROM `accounts_roles_rights` 
-                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
-                ':rights_id' => $this->parent->getId()
-            ]);
-
-            // Add the new list
-            sql()->query('DELETE FROM `accounts_roles_rights` 
-                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
-                ':rights_id' => $this->parent->getId()
-            ]);
-        }
+//        $this->ensureParent('save parent entries');
+//
+//        if ($this->parent instanceof UserInterface) {
+//            // Delete the current list
+//            sql()->query('DELETE FROM `accounts_users_roles`
+//                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
+//                ':users_id' => $this->parent->getId()
+//            ]);
+//
+//            // Add the new list
+//            sql()->query('DELETE FROM `accounts_users_roles`
+//                                WHERE       `accounts_users_roles`.`users_id` = :users_id', [
+//                ':users_id' => $this->parent->getId()
+//            ]);
+//
+//        } elseif ($this->parent instanceof RightInterface) {
+//            // Delete the current list
+//            sql()->query('DELETE FROM `accounts_roles_rights`
+//                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
+//                ':rights_id' => $this->parent->getId()
+//            ]);
+//
+//            // Add the new list
+//            sql()->query('DELETE FROM `accounts_roles_rights`
+//                                WHERE       `accounts_roles_rights`.`rights_id` = :rights_id', [
+//                ':rights_id' => $this->parent->getId()
+//            ]);
+//        }
 
         return $this;
     }
@@ -514,13 +525,13 @@ class Roles extends DataList implements RolesInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC'): SelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC'): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('roles_id')
             ->setNone(tr('Select a role'))
-            ->setEmpty(tr('No roles available'));
+            ->setObjectEmpty(tr('No roles available'));
     }
 }

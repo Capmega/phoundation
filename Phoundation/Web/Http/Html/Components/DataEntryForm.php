@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
 
 
@@ -23,9 +24,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * The key metadata for the specified data
      *
-     * @var Definitions $definitions
+     * @var Definitions|null $definitions
      */
-    protected Definitions $definitions;
+    protected ?Definitions $definitions = null;
 
     /**
      * Optional class for input elements
@@ -74,6 +75,30 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
 
     /**
+     * Returns if meta information is visible at all, or not
+     *
+     * @return bool
+     */
+    public function getMetaVisible(): bool
+    {
+        return $this->definitions->getMetaVisible();
+    }
+
+
+    /**
+     * Sets if meta information is visible at all, or not
+     *
+     * @param bool $meta_visible
+     * @return static
+     */
+    public function setMetaVisible(bool $meta_visible): static
+    {
+        $this->definitions->setMetaVisible($meta_visible);
+        return $this;
+    }
+
+
+    /**
      * Returns the element that will receive autofocus
      *
      * @return string|null
@@ -105,7 +130,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function inputTypeSupported(string $input): bool
     {
-        return in_array($input, self::$supported_input);
+        return in_array($input, static::$supported_input);
     }
 
 
@@ -136,9 +161,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Returns the data fields for this DataEntryForm
      *
-     * @return Definitions
+     * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): Definitions
+    public function getDefinitions(): ?DefinitionsInterface
     {
         return $this->definitions;
     }

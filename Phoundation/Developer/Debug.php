@@ -13,9 +13,10 @@ use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
@@ -34,6 +35,18 @@ use Throwable;
  * @package Phoundation\Developer
  */
 class Debug {
+    /**
+     * @var bool $enabled
+     */
+    protected static bool $enabled;
+
+    /**
+     * If true will return the opposite of $enabled
+     *
+     * @var bool $switched
+     */
+    protected static bool $switched = false;
+
     /**
      * If true, will clean up debug data string before returning them.
      *
@@ -57,39 +70,60 @@ class Debug {
 
 
     /**
-     * Sets or returns if the system is running in debug mode or not
+     * Returns if the system is running in debug mode or not
      *
-     * @param bool|null $enabled
      * @return bool
      */
-    public static function enabled(?bool $enabled = null): bool
+    public static function getEnabled(): bool
     {
         static $loop = false;
 
-        if ($loop) {
-            // We're in a loop!
+        if (Core::inStartupState()) {
+            // Can't read config and as such neither the debug configuration
             return false;
         }
 
-        $loop = true;
+        if (!isset(static::$enabled)) {
+            // Avoid endless loops
+            if ($loop) {
+                // We're in a loop!
+                return false;
+            }
 
-        if (Core::initState()) {
-            // System startup has not yet completed, disable debug!
-            return false;
+            $loop = true;
+            static::$enabled = Config::getBoolean('debug.enabled', false);
+            $loop = false;
         }
 
-        if ($enabled === null) {
-            // Return the setting
-            $return = Config::getBoolean('debug.enabled', false);
-            $loop   = false;
-
-            return $return;
+        if (static::$switched) {
+            // Return the opposite
+            return !static::$enabled;
         }
 
-        // Make the setting
-        Config::set('debug.enabled', $enabled);
-        $loop = false;
-        return $enabled;
+        return static::$enabled;
+    }
+
+
+    /**
+     * Sets or returns if the system is running in debug mode or not
+     *
+     * @param bool|null $enabled
+     * @return void
+     */
+    public static function setEnabled(?bool $enabled = null): void
+    {
+        static::$enabled = $enabled;
+    }
+
+
+    /**
+     * This will switch the current "enabled" setting to its opposite
+     *
+     * @return bool
+     */
+    public static function switch(): bool
+    {
+        return static::$switched = !static::$switched;
     }
 
 
@@ -157,18 +191,32 @@ class Debug {
     /**
      * Returns a backtrace
      *
-     * @param int $start
+     * @param string|int $start
      * @param array|string[] $remove_sections
      * @return array
      */
-    public static function backtrace(int $start = 1, array|string $remove_sections = ['args', 'object']): array
+    public static function backtrace(string|int $start = 1, array|string $remove_sections = ['args', 'object']): array
     {
         $trace           = [];
         $remove_sections = Arrays::force($remove_sections);
 
         foreach (debug_backtrace() as $key => $value) {
-            if ($start and ($key < $start)) {
-                continue;
+            if ($start) {
+                if (is_string($start)) {
+                    if ($start === 'auto') {
+                        if (str_contains($value['file'], 'functions.php') and str_contains($value['function'], 'include(')) {
+                            break;
+                        }
+
+                    } else {
+                        throw new OutOfBoundsException(tr('Invalid backtrace start ":start" specified. Must be a positive integer or "auto"', [
+                            ':start' => $start
+                        ]));
+                    }
+                } elseif ($key < $start) {
+                    // Start building backtrace at specified entry
+                    continue;
+                }
             }
 
             foreach ($remove_sections as $section) {
@@ -291,116 +339,136 @@ class Debug {
      * @param mixed $value
      * @param int $trace_offset
      * @param bool $quiet
+     * @param bool|null $full_backtrace If true will dump full backtraces. If false, will dump limited backtraces
+     *                                  starting from the executed script. If NULL, will determine true or false from
+     *                                  config path "debug.backtrace.full"
      * @return mixed
      */
-    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false): mixed
+    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
     {
-        if (!static::enabled()) {
+        if (!static::getEnabled()) {
             return null;
         }
 
-        Core::unregisterShutdown('route[postprocess]');
-
-        if (Debug::production()) {
-            // This is not usually something you want to happen!
-            Notification::new()
-                ->setMode(DisplayMode::exception)
-                ->setTitle('Debug mode enabled on production environment!')
-                ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
-                ->setRoles('developer')
-                ->send();
+        if ($full_backtrace === null) {
+            // Show debug backtraces starting from scripts or full?
+            $full_backtrace = Config::getBoolean('debug.backtrace.full', false);
         }
 
-        // Filter secure data
-        if (is_array($value)) {
-            $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
-        }
+        try {
+            Core::unregisterShutdown('route[postprocess]');
 
-        if (Core::readyState() and PLATFORM_HTTP) {
-            if (empty($core->register['debug_plain'])) {
-                switch (Core::getRequestType()) {
-                    case EnumRequestTypes::api:
-                        // no-break
-                    case EnumRequestTypes::ajax:
-                        $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
-                            ':type' => gettype($value),
-                            ':file' => static::currentFile($trace_offset - 1),
-                            ':line' => static::currentLine($trace_offset - 1),
-                            ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                        ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
-
-                        if (!headers_sent()) {
-                            Page::setContentType('text/html');
-                            Page::sendHttpHeaders(Page::buildHttpHeaders($output));
-                        }
-
-                        break;
-
-                    default:
-                        // Force HTML content type, and show HTML data
-                        $output = static::showHtml($value, tr('Unknown'), $trace_offset);
-                }
-
-                // Show output on web
-                if (!headers_sent()) {
-                    Page::setContentType('text/html');
-                    Page::sendHttpHeaders(Page::buildHttpHeaders($output));
-                }
-
-                echo $output;
-
-                ob_flush();
-                flush();
-
-            } else {
-                echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
-                    ':type' => gettype($value),
-                    ':file' => static::currentFile($trace_offset),
-                    ':line' => static::currentLine($trace_offset),
-                    ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                ]) . PHP_EOL;;
-                print_r($value, true) . PHP_EOL;
-                flush();
-                ob_flush();
+            if (Debug::production()) {
+                // This is not usually something you want to happen!
+                Notification::new()
+                    ->setUrl('developer/incidents.html')
+                    ->setMode(DisplayMode::exception)
+                    ->setTitle('Debug mode enabled on production environment!')
+                    ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
+                    ->setRoles('developer')
+                    ->send();
             }
 
-        } else {
-            $return = '';
-
-            if (PLATFORM_HTTP) {
-                // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
-                echo '<pre>';
+            // Filter secure data
+            if (is_array($value)) {
+                $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
             }
 
-            // Show output on CLI console
-            if (is_scalar($value)) {
-                $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
-                    ':type' => gettype($value),
-                    ':file' => static::currentFile($trace_offset),
-                    ':line' => static::currentLine($trace_offset),
-                    ':size' => strlen((string) $value)
-                    ])) . $value . PHP_EOL;
+            if (Core::readyState() and PLATFORM_HTTP) {
+                if (empty($core->register['debug_plain'])) {
+                    switch (Core::getRequestType()) {
+                        case EnumRequestTypes::api:
+                            // no-break
+                        case EnumRequestTypes::ajax:
+                            $output = PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                                ':type' => gettype($value),
+                                ':file' => static::currentFile($trace_offset - 1),
+                                ':line' => static::currentLine($trace_offset - 1),
+                                ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                            ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
 
-            } else {
-                // Sort if is array for easier reading
-                if (is_array($value)) {
-                    ksort($value);
-                }
+                            if (!headers_sent()) {
+                                Page::setContentType('text/html');
+                                Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                            }
 
-                if (!$quiet) {
-                    $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                            break;
+
+                        default:
+                            // Force HTML content type, and show HTML data
+                            $output = static::showHtml($value, tr('Unknown'), $trace_offset, $full_backtrace);
+                    }
+
+                    // Show output on web
+                    if (!headers_sent()) {
+                        Page::setContentType('text/html');
+                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                    }
+
+                    echo $output;
+
+                    ob_flush();
+                    flush();
+
+                } else {
+                    echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
-                        ':size' => ($value === null ? 'NULL' : count((array) $value))
-                    ]) . PHP_EOL;
+                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                    ]) . PHP_EOL;;
+                    print_r($value, true) . PHP_EOL;
+                    flush();
+                    ob_flush();
                 }
 
-                $return .= print_r($value, true);
-                $return .= PHP_EOL;
+            } else {
+                $return = '';
+
+                if (PLATFORM_HTTP) {
+                    // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
+                    echo '<pre>';
+                }
+
+                // Show output on CLI console
+                if (is_scalar($value)) {
+                    $return .= ($quiet ? '' : tr('DEBUG SHOW (:file@:line) [:type :size] ', [
+                        ':type' => gettype($value),
+                        ':file' => static::currentFile($trace_offset),
+                        ':line' => static::currentLine($trace_offset),
+                        ':size' => strlen((string) $value)
+                        ])) . $value . PHP_EOL;
+
+                } else {
+                    // Sort if is array for easier reading
+                    if (is_array($value)) {
+                        ksort($value);
+                    }
+
+                    if (!$quiet) {
+                        $return .= tr('DEBUG SHOW (:file@:line) [:type :size]', [
+                            ':type' => gettype($value),
+                            ':file' => static::currentFile($trace_offset),
+                            ':line' => static::currentLine($trace_offset),
+                            ':size' => ($value === null ? 'NULL' : count((array) $value))
+                        ]) . PHP_EOL;
+                    }
+
+                    $return .= print_r($value, true);
+                    $return .= PHP_EOL;
+                }
+
+                echo $return;
             }
 
-            echo $return;
+        } catch (Throwable $e) {
+            if (php_sapi_name() !== 'cli') {
+                // Only add this on browsers
+                echo '<pre>' . PHP_EOL . '"';
+            }
+
+            echo 'Debug::show() call failed with following exception';
+            print_r($e);
         }
 
         return $value;
@@ -421,10 +489,22 @@ class Debug {
      */
     #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
     {
-        if (static::enabled()) {
-            static::show($value, $trace_offset, $quiet);
-            Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
-            die();
+        if (static::getEnabled()) {
+            try {
+                static::show($value, $trace_offset, $quiet);
+                Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+
+            } catch (Throwable $e) {
+                if (php_sapi_name() !== 'cli') {
+                    // Only add this on browsers
+                    echo '<pre>' . PHP_EOL . '"';
+                }
+
+                echo 'Debug::showDie() call failed with following exception';
+                print_r($e);
+            }
+
+            Core::exit(sig_kill: true);
         }
     }
 
@@ -448,9 +528,10 @@ class Debug {
      * @param mixed $value
      * @param string|null $key
      * @param int $trace_offset
+     * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0): string
+    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0, bool $full_backtrace = false): string
     {
         static $style;
 
@@ -493,7 +574,7 @@ class Debug {
         return $return . '  <table class="debug">
                               <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
                               <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>
-                              '.static::showHtmlRow($value, $key) . '
+                              '.static::showHtmlRow($value, $key, $full_backtrace) . '
                             </table>';
     }
 
@@ -503,9 +584,10 @@ class Debug {
      *
      * @param mixed $value
      * @param string|null $key
+     * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtmlRow(mixed $value, ?string $key = null): string
+    protected static function showHtmlRow(mixed $value, ?string $key = null, bool $full_backtrace = false): string
     {
         if ($key === null) {
             $key = tr('Unknown');
@@ -542,15 +624,15 @@ class Debug {
 
             case 'double':
                 return '<tr>
-                    <td>'.htmlentities((string) $key) . '</td>
+                    <td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.strlen((string) $value) . '</td>
-                    <td class="value">'.nl2br(htmlentities((string) $value)) . '</td>
+                    <td class="value">'.nl2br(htmlspecialchars((string) $value)) . '</td>
                 </tr>';
 
             case 'boolean':
                 return '<tr>
-                    <td>'.htmlentities((string) $key) . '</td>
+                    <td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>1</td>
                     <td class="value">'.($value ? tr('true') : tr('false')) . '</td>
@@ -565,7 +647,7 @@ class Debug {
                 </tr>';
 
             case 'resource':
-                return '<tr><td>'.htmlentities((string) $key) . '</td>
+                return '<tr><td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>?</td>
                     <td class="value">' . $value.'</td>
@@ -575,7 +657,7 @@ class Debug {
                 // no-break
 
             case 'property':
-                return '<tr><td>'.htmlentities((string) $key) . '</td>
+                return '<tr><td>'.htmlspecialchars((string) $key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.strlen((string) $value) . '</td>
                     <td class="value">' . $value.'</td>
@@ -587,11 +669,11 @@ class Debug {
                 ksort($value);
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= static::showHtmlRow($subvalue, (string) $subkey);
+                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $full_backtrace);
                 }
 
                 return '<tr>
-                    <td>'.htmlentities($key) . '</td>
+                    <td>'.htmlspecialchars($key) . '</td>
                     <td>' . $type.'</td>
                     <td>'.count($value) . '</td>
                     <td style="padding:0">
@@ -609,25 +691,31 @@ class Debug {
 
                     if ($value instanceof Exception) {
                         foreach ($value->getMessages() as $message) {
-                            $exception .= htmlentities((string) $message) . '<br>';
+                            $exception .= htmlspecialchars((string) $message) . '<br>';
                         }
                     }else {
-                        $exception .= htmlentities((string) $value->getMessage()) . '<br>';
+                        $exception .= htmlspecialchars((string) $value->getMessage()) . '<br>';
                     }
 
-                    $exception .= '<br>' . tr('Location: ') . htmlentities($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
+                    $exception .= '<br>' . tr('Location: ') . htmlspecialchars($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
 
                     foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
-                        $exception .= htmlentities((string) $line) . '<br>';
+                        if (!$full_backtrace) {
+                            if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
+                                break;
+                            }
+                        }
+
+                        $exception .= htmlspecialchars((string) $line) . '<br>';
                     }
 
                     $exception .= '<br><br>' . tr('Data: ') . '<br>';
 
                     if ($value instanceof Exception) {
-                        $exception .= htmlentities((string)print_r($value->getData() ?? '-', true)) . '<br>';
+                        $exception .= htmlspecialchars((string)print_r($value->getData() ?? '-', true)) . '<br>';
 
                     } else {
-                        $exception .= htmlentities('-') . '<br>';
+                        $exception .= htmlspecialchars('-') . '<br>';
                     }
 
                     $value = $exception;
@@ -671,7 +759,7 @@ class Debug {
                     <td>' . $key . '</td>
                     <td>' . tr('Unknown') . '</td>
                     <td>???</td>
-                    <td class="value">' . htmlentities((string) $value) . '</td>
+                    <td class="value">' . htmlspecialchars((string) $value) . '</td>
                 </tr>';
         }
     }
@@ -744,7 +832,7 @@ class Debug {
         }
 
         // Debug::enabled() already logs the query, don't log it again
-        if (!Debug::enabled()) {
+        if (!Debug::getEnabled()) {
             Log::printr(Strings::endsWith($query, ';'));
         }
 
@@ -766,7 +854,7 @@ class Debug {
      */
     function debugTrace(array|string|null $filters = 'args', bool $skip_own = true): array
     {
-        if (!Debug::enabled()) {
+        if (!Debug::getEnabled()) {
             return [];
         }
 
@@ -796,7 +884,7 @@ class Debug {
      */
     function debugBar(): ?string
     {
-        if (!Debug::enabled()) return '';
+        if (!Debug::getEnabled()) return '';
 
         $enabled = Config::get('debug.bar.enabled', false);
 
@@ -962,7 +1050,7 @@ class Debug {
             // Ensure that the shutdown function doesn't try to show the 404 page
             Core::unregisterShutdown('route[postprocess]');
 
-            die(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
+            exit(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
     }
 

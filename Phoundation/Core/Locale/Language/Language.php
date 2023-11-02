@@ -69,7 +69,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_1(): ?string
     {
-        return $this->getDataValue('string', 'code_639_1');
+        return $this->getSourceFieldValue('string', 'code_639_1');
     }
 
 
@@ -81,7 +81,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_1(?string $code_639_1): static
     {
-        return $this->setDataValue('code_639_1', $code_639_1);
+        return $this->setSourceValue('code_639_1', $code_639_1);
     }
 
 
@@ -92,7 +92,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_2_b(): ?string
     {
-        return $this->getDataValue('string', 'code_639_2_b');
+        return $this->getSourceFieldValue('string', 'code_639_2_b');
     }
 
 
@@ -104,7 +104,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_2_b(?string $code_639_2_b): static
     {
-        return $this->setDataValue('code_639_2_b', $code_639_2_b);
+        return $this->setSourceValue('code_639_2_b', $code_639_2_b);
     }
 
 
@@ -115,7 +115,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_2_t(): ?string
     {
-        return $this->getDataValue('string', 'code_639_2_t');
+        return $this->getSourceFieldValue('string', 'code_639_2_t');
     }
 
 
@@ -127,7 +127,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_2_t(?string $code_639_2_t): static
     {
-        return $this->setDataValue('code_639_2_t', $code_639_2_t);
+        return $this->setSourceValue('code_639_2_t', $code_639_2_t);
     }
 
 
@@ -138,7 +138,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_3(): ?string
     {
-        return $this->getDataValue('string', 'code_639_3');
+        return $this->getSourceFieldValue('string', 'code_639_3');
     }
 
 
@@ -150,7 +150,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function setCode_639_3(?string $code_639_3): static
     {
-        return $this->setDataValue('code_639_3', $code_639_3);
+        return $this->setSourceValue('code_639_3', $code_639_3);
     }
 
 
@@ -159,7 +159,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(DefinitionFactory::getName($this)

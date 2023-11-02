@@ -3,17 +3,9 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Color;
 use Phoundation\Cli\Documentation;
-use Phoundation\Core\Config;
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Debug;
-use Phoundation\Processes\Task;
-use Phoundation\Utils\Json;
+use Phoundation\Os\Processes\Task;
 
 
 /**
@@ -40,7 +32,7 @@ ARGUMENTS
 
 $argv = ArgvValidator::new()
     ->select('-t,--task', true)->isInteger()
-    ->noArgumentsLeft();
+    ->validate();
 
 
 if (empty($argv['task'])) {

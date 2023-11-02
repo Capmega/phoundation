@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Exception;
 
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryExceptionInterface;
 use Phoundation\Data\Exception\DataException;
 
 
@@ -17,6 +18,6 @@ use Phoundation\Data\Exception\DataException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class DataEntryException extends DataException
+class DataEntryException extends DataException implements DataEntryExceptionInterface
 {
 }

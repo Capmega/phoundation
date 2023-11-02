@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Modals;
 
 use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Components\Modal;
 use Phoundation\Web\Http\Html\Components\Script;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
 use Phoundation\Web\Http\Html\Forms\SignInForm;

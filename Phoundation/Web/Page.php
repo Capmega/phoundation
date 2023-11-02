@@ -9,35 +9,44 @@ use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
+use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Numbers;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
+use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Date\Date;
+use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Exception\Http405Exception;
+use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
@@ -47,6 +56,7 @@ use Phoundation\Web\Http\Html\Menus\Menus;
 use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Interfaces\PageInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
@@ -57,15 +67,22 @@ use Throwable;
 /**
  * Class Page
  *
- * This class contains methods to assist in building web pages
+ * This class manages the execution and processing of web pages, AJAX and API requests.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Page
+class Page implements PageInterface
 {
+    /**
+     * Classes to apply on default sections of the page
+     *
+     * @var array $page_classes
+     */
+    protected static array $page_classes = [];
+
     /**
      * Singleton
      *
@@ -114,12 +131,13 @@ class Page
      * @note IMPORTANT: Since flush() and ob_flush() will NOT lock headers until the buffers are actually flushed, and
      *                  they will neither actually flush the buffers as long as the process is running AND the buffers
      *                  are not full yet, weird things can happen. With a buffer of 4096 bytes (typically), echo 100
-     *                  characters, and then execute static::sendHeaders(), then ob_flush() and flush() and headers_sent()
-     *                  will STILL be false, and REMAIN false until the buffer has reached 4096 characters OR the
-     *                  process ends. This variable just keeps track if static::sendHeaders() has been executed (and it
-     *                  won't execute again), but headers might still be sent out manually. This is rather messed up,
-     *                  because it really shows as if information was sent, the buffers are flushed, yet nothing is
-     *                  actually flushed, so the headers are also not sent. This is just messed up PHP.
+     *                  characters, and then execute static::sendHeaders(), then ob_flush() and flush() and
+     *                  headers_sent() will STILL be false, and REMAIN false until the buffer has reached 4096
+     *                  characters OR the process ends. This variable just keeps track if static::sendHeaders() has been
+     *                  executed (and it won't execute again), but headers might still be sent out manually. This is
+     *                  rather messed up, because it really shows as if information was sent, the buffers are flushed,
+     *                  yet nothing is actually flushed, so the headers are also not sent. This is just messed up PHP.
+     *
      * @var bool $http_headers_sent
      */
     protected static bool $http_headers_sent = false;
@@ -539,6 +557,46 @@ class Page
 
 
     /**
+     * Sets the class for the given page section
+     *
+     * @param string $class
+     * @param string $section
+     * @return void
+     */
+    public static function setClass(string $class, string $section): void
+    {
+        static::$page_classes[$section] = $class;
+    }
+
+
+    /**
+     * Sets the class for the given page section
+     *
+     * @param string $class
+     * @param string $section
+     * @return void
+     */
+    public static function defaultClass(string $class, string $section): void
+    {
+        if (empty(static::$page_classes[$section])) {
+            static::$page_classes[$section] = $class;
+        }
+    }
+
+
+    /**
+     * Returns the class for the given section, if available
+     *
+     * @param string $section
+     * @return string|null
+     */
+    public static function getClass(string $section): ?string
+    {
+        return isset_get(static::$page_classes[$section]);
+    }
+
+
+    /**
      * Returns the request method for this page
      *
      * @param bool $default If true, if no referer is available, the current page URL will be returned instead. If
@@ -736,7 +794,7 @@ class Page
     public static function requiresNotGuest(string|int|null $new_target = 'sign-in'): void
     {
         if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
+            throw AuthenticationException::new(tr('You have to sign in to view this page'))
                 ->setNewTarget($new_target);
         }
     }
@@ -753,11 +811,6 @@ class Page
     public static function requiresAllRights(array|Stringable|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::requiresNotGuest();
-
-        if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You have to sign in to view this page'))
-                ->setNewTarget($guest_target);
-        }
 
         if (!Session::getUser()->hasAllRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
@@ -777,11 +830,6 @@ class Page
     public static function requiresSomeRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
     {
         static::requiresNotGuest();
-
-        if (Session::getUser()->isGuest()) {
-            throw AccessDeniedException::new(tr('You have to sign in to view this page'))
-                ->setNewTarget($guest_target);
-        }
 
         if (!Session::getUser()->hasSomeRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
@@ -886,6 +934,17 @@ class Page
 
 
     /**
+     * Returns the <head>ers to be sent
+     *
+     * @return array
+     */
+    public static function getHeaders(): array
+    {
+        return static::$headers;
+    }
+
+
+    /**
      * Returns the current tab index and automatically increments it
      *
      * @return string
@@ -922,12 +981,12 @@ class Page
     /**
      * Sets the browser page title
      *
-     * @param string $page_title
+     * @param Stringable|string|float|int|null $page_title
      * @return void
      */
-    public static function setPageTitle(string $page_title): void
+    public static function setPageTitle(Stringable|string|float|int|null $page_title): void
     {
-        static::$page_title = strip_tags($page_title);
+        static::$page_title = strip_tags((string) $page_title);
     }
 
 
@@ -968,15 +1027,15 @@ class Page
     /**
      * Sets the page header title
      *
-     * @param string|null $header_title
+     * @param Stringable|string|float|int|null $header_title
      * @return void
      */
-    public static function setHeaderTitle(?string $header_title): void
+    public static function setHeaderTitle(Stringable|string|float|int|null $header_title): void
     {
-        static::$header_title = $header_title;
+        static::$header_title = (string) $header_title;
 
         if (!static::$page_title) {
-            static::$page_title = Config::get('project.name', 'Phoundation') . $header_title;
+            static::$page_title = Config::get('project.name', 'Phoundation') . ' - ' . $header_title;
         }
     }
 
@@ -995,12 +1054,12 @@ class Page
     /**
      * Sets the page header subtitle
      *
-     * @param string|null $header_sub_title
+     * @param Stringable|string|float|int|null $header_sub_title
      * @return void
      */
-    public static function setHeaderSubTitle(?string $header_sub_title): void
+    public static function setHeaderSubTitle(Stringable|string|float|int|null $header_sub_title): void
     {
-        static::$header_sub_title = $header_sub_title;
+        static::$header_sub_title = get_null((string) $header_sub_title);
     }
 
 
@@ -1055,22 +1114,23 @@ class Page
      *
      * @param array|string $rights
      * @param string $target
-     * @param string|null $rights_redirect
- * @param string|null $guest_redirect
+     * @param int|null $rights_redirect
+     * @param string|null $guest_redirect
      * @return void
      */
-    public static function hasRightsOrRedirects(array|string $rights, string $target, ?string $rights_redirect = null, ?string $guest_redirect = null): void
+    public static function hasRightsOrRedirects(array|string $rights, string $target, ?int $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
+            // Well then, all fine and dandy!
             return;
         }
 
         if (!$target) {
-            // If target wasn't specified we can safely assume it's the same as the real target.
+            // If target wasn't specified we can safely assume it's the same as the page target.
             $target = static::$target;
         }
 
-        // Oops! Is this a system page though? System pages require no rights to be viewed.
+        // Is this a system page though? System pages require no rights to be viewed.
         $system = dirname($target);
         $system = basename($system);
 
@@ -1079,6 +1139,7 @@ class Page
             return;
         }
 
+        // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
         if (Session::getUser()->isGuest()) {
             // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
@@ -1086,11 +1147,11 @@ class Page
             }
 
             $guest_redirect = (string) UrlBuilder::getWww($guest_redirect)
-                                    ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
+                ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
 
             Incident::new()
-                ->setType('401 - unauthorized')->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"), redirecting to ":redirect"', [
+                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to "system/:redirect"', [
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
                     ':redirect'    => $guest_redirect,
@@ -1105,12 +1166,32 @@ class Page
                 ])
                 ->save();
 
+            if (Core::isRequestType(EnumRequestTypes::api)) {
+                // This method will exit
+                Json::reply([
+                    '__system' => [
+                        'http_code' => 401
+                    ]
+                ]);
+            }
+
+            if (Core::isRequestType(EnumRequestTypes::ajax)) {
+                // This method will exit
+                Json::reply([
+                    '__system' => [
+                        'http_code' => 401,
+                        'location'  => (string) UrlBuilder::getWww('/sign-in.html')
+                    ]
+                ]);
+            }
+
+            // This method will exit
             Page::redirect($guest_redirect);
         }
 
         // This user is missing rights
         if (!$rights_redirect) {
-            $rights_redirect = '403';
+            $rights_redirect = 403;
         }
 
         // Do the specified rights exist at all? If they aren't defined then no wonder this user doesn't have them
@@ -1118,7 +1199,7 @@ class Page
             // One or more of the rights do not exist
             Incident::new()
                 ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system! Redirecting to ":redirect"', [
+                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to "system/:redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => Strings::from(static::$target, PATH_ROOT),
                     ':real_target' => Strings::from($target, PATH_ROOT),
@@ -1132,32 +1213,34 @@ class Page
                     'rights'         => $rights,
                     'missing_rights' => Rights::getNotExist($rights)
                 ])
+                ->notifyRoles('accounts')
                 ->save();
 
-            Page::redirect($rights_redirect);
+        } else {
+            // Registered user does not have the required rights
+            Incident::new()
+                ->setType('403 - Forbidden')
+                ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
+                    ':user'        => Session::getUser()->getLogId(),
+                    ':rights'      => Session::getUser()->getMissingRights($rights),
+                    ':target'      => Strings::from(static::$target, PATH_ROOT),
+                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':redirect'    => $rights_redirect
+                ]))
+                ->setDetails([
+                    'user'        => Session::getUser()->getLogId(),
+                    'uri'         => Page::getUri(),
+                    'target'      => Strings::from(static::$target, PATH_ROOT),
+                    'real_target' => Strings::from($target, PATH_ROOT),
+                    ':rights'      => Session::getUser()->getMissingRights($rights),
+                ])
+                ->notifyRoles('accounts')
+                ->save();
         }
 
-        // Registered user does not have the required rights
-        Incident::new()
-            ->setType('403 - forbidden')
-            ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-            ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"), redirecting to ":redirect"', [
-                ':user'        => Session::getUser()->getLogId(),
-                ':rights'      => $rights,
-                ':target'      => Strings::from(static::$target, PATH_ROOT),
-                ':real_target' => Strings::from($target, PATH_ROOT),
-                ':redirect'    => $rights_redirect
-            ]))
-            ->setDetails([
-                'user'         => Session::getUser()->getLogId(),
-                'uri'          => Page::getUri(),
-                'target'       => Strings::from(static::$target, PATH_ROOT),
-                ':real_target' => Strings::from($target, PATH_ROOT),
-                'rights'       => $rights
-            ])
-            ->save();
-
-        Page::redirect($rights_redirect);
+        // This method will exit
+        Route::executeSystem($rights_redirect);
     }
 
 
@@ -1192,7 +1275,7 @@ class Page
             Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
-            // Execute the specified targetwww
+            // Execute the specified target file
             // Build the headers, cache output and headers together, then send the headers
             // TODO Work on the HTTP headers, lots of issues here still, like content-length!
             $output  = static::executeTarget($target);
@@ -1214,48 +1297,27 @@ class Page
             $output = static::filterOutput($output);
             static::sendOutputToClient($output, $target, $attachment);
 
-        } catch (ValidationFailedException $e) {
-            // TODO Improve this uncaught validation failure handling
-            Log::warning('Page did not catch the following "ValidationFailedException" warning, showing "system/400"');
-            Log::warning($e);
+        } catch (ValidationFailedExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
-            switch (Core::getRequestType()) {
-                case EnumRequestTypes::ajax:
-                    // no break
-                case EnumRequestTypes::api:
-                    Page::setHttpCode(400);
-                    Json::reply($e->getData());
+        } catch (AuthenticationExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 401, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
-                default:
-                    static::getFlashMessages()->addMessage($e);
-                    Route::executeSystem(400);
-            }
+        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
 
-        } catch (AuthenticationException $e) {
-            Log::warning('Page did not catch the following "AuthenticationException" warning, showing "system/401"');
-            Log::warning($e);
+        } catch (DataEntryNotExistsExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead'));
 
-            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
-            static::getFlashMessages()->addMessage($e);
-            Route::executeSystem(401);
+        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
 
-        } catch (IncidentsException $e) {
-            // TODO Should we also catch AccessDenied exception here?
-            Log::warning('Page did not catch the following "IncidentsException" warning, showing "system/401"');
-            Log::warning($e);
-
-            // Todo: Remove AJAX flash messages from general flash messages! Might require tagging flash messages with request types?
-            static::getFlashMessages()->addMessage($e);
-            Route::executeSystem(403);
-
-        } catch (DataEntryNotExistsException $e) {
-            Log::warning('Page did not catch the following "DataEntryNotExistsException" warning, showing "system/404"');
-            Log::warning($e);
-
-            // Show a 404 page instead
-            Route::executeSystem(404);
+        } catch (Http409Exception $e) {
+            Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Exception $e) {
+            // This will cause a 500 page on non debug environments, core dump on debug environments
+            // TODO Test if this assumption is correct!
             Notification::new()
                 ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
                     ':type'     => Core::getRequestType()->value,
@@ -1267,6 +1329,27 @@ class Page
 
             throw $e;
         }
+    }
+
+
+    /**
+     * Executes the specified system page after a page had an exception
+     *
+     * @param int $page
+     * @param Throwable $e
+     * @param string $message
+     * @return void
+     */
+    #[NoReturn] protected static function executeSystemAfterPageException(Throwable $e, int $page, string $message): void
+    {
+        Log::warning($message);
+        Log::warning($e);
+
+        // Clear flash messages
+        Session::getFlashMessages()->clear();
+
+        Core::writeRegister($e, 'e');
+        Route::executeSystem($page);
     }
 
 
@@ -1316,7 +1399,7 @@ class Page
      * @see UrlBuilder::addQueries()
      *
      */
-    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 301, ?int $time_delay = null): never
+    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null): never
     {
         if (!PLATFORM_HTTP) {
             throw new WebException(tr('Page::redirect() can only be called on web sessions'));
@@ -1360,6 +1443,7 @@ class Page
             case 301:
                 $http_code = 301;
                 break;
+
             case 302:
                 // no-break
             case 303:
@@ -1388,7 +1472,7 @@ class Page
             header('Location:' . $redirect, true, $http_code);
         }
 
-        static::die();
+        exit();
     }
 
 
@@ -1564,7 +1648,21 @@ class Page
         ob_flush();
         flush();
 
-        Log::success(tr('Sent ":length" bytes of HTML to client', [':length' => $length]), 4);
+        // Headers have been sent, from here we know if its a 200 or something else
+        if (static::$http_code === 200) {
+            Log::success(tr('Sent :http with ":length bytes" for URL ":url"', [
+                ':length' => $length,
+                ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+            ]), 4);
+
+        } else {
+            Log::warning(tr('Sent ":http" with ":length bytes" for URL ":url"', [
+                ':length' => $length,
+                ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+            ]));
+        }
     }
 
 
@@ -1619,14 +1717,17 @@ class Page
         try {
             if (!$url) {
                 $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
+                $url  = static::versionFile($url, 'img');
                 $file = Filesystem::absolute(LANGUAGE . '/' . $url, PATH_CDN);
 
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => UrlBuilder::getImg($url),
-                    'type' => File::new($file)->mimetype()
+                    'type' => File::new($file)->getMimetype()
                 ];
             } else {
+                $url = static::versionFile($url, 'img');
+
                 // Unknown (likely remote?) link
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
@@ -1664,7 +1765,10 @@ class Page
 
         $scripts = [];
 
+        // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, ',') as $url) {
+            $url = static::versionFile($url, 'js');
+
             $scripts[$url] = [
                 'type' => 'text/javascript',
                 'src'  => UrlBuilder::getJs($url)
@@ -1700,7 +1804,10 @@ class Page
     {
         $scripts = [];
 
+        // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, '') as $url) {
+            $url = static::versionFile($url, 'css');
+
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
                 'href' => UrlBuilder::getCss($url),
@@ -1726,7 +1833,7 @@ class Page
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
         if (static::$page_title) {
-            $return .= '<title>' . static::$page_title . '</title>' . PHP_EOL;
+            $return .= '<title>' . (Core::isProduction() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
 
         foreach (static::$headers['meta'] as $key => $value) {
@@ -1758,6 +1865,10 @@ class Page
         Log::warning('TODO Reminder: Page::buildFooters() should be upgraded to using Javascript / Css objects');
 
         $return = '';
+
+        if (isset_get(static::$footers['html'])) {
+            $return .= implode('', static::$footers['html']);
+        }
 
         foreach (static::$footers['javascript'] as $footer) {
             if (isset($footer['src'])) {
@@ -1951,18 +2062,6 @@ class Page
             // Set correct headers
             http_response_code(static::$http_code);
 
-            if (static::$http_code === 200) {
-                Log::success(tr('Phoundation sent :http for URL ":url"', [
-                    ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
-                    ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-                ]), 4);
-            } else {
-                Log::warning(tr('Phoundation sent ":http" for URL ":url"', [
-                    ':http' => (static::$http_code ? 'HTTP' . static::$http_code : 'HTTP0'),
-                    ':url'  => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-                ]));
-            }
-
             // Send all available headers
             foreach ($headers as $header) {
                 $length += strlen($header);
@@ -1988,16 +2087,17 @@ class Page
     /**
      * Kill this web page script process
      *
-     * @note Even if $kill_message was specified, the normal shutdown functions will still be called
-     * @param string|null $kill_message If specified, this message will be displayed and the process will be terminated
+     * @note Even if $exit_message was specified, the normal shutdown functions will still be called
+     * @param string|null $exit_message If specified, this message will be displayed and the process will be terminated
+     * @param bool $sig_kill
      * @return never
      * @todo Implement this and add required functionality
      */
-    #[NoReturn] public static function die(?string $kill_message = null): never
+    #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
     {
         // If something went really, really wrong...
-        if ($kill_message) {
-            die($kill_message);
+        if ($sig_kill) {
+            exit($exit_message);
         }
 
         // POST requests should always show a flash message for feedback!
@@ -2007,9 +2107,26 @@ class Page
             }
         }
 
+        if (static::$http_code === 200) {
+            Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                ':httpcode' => static::$http_code
+            ]));
+
+        } else {
+            Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                ':httpcode' => static::$http_code
+            ]));
+        }
+
         // Normal kill request
         Log::action(tr('Killing web page process'), 2);
-        die();
+        exit();
     }
 
 
@@ -2032,10 +2149,10 @@ class Page
      *
      * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
      * @param string $key
-     * @param array $entry
+     * @param array|string $entry
      * @return void
      */
-    public static function addToFooter(string $key, array $entry): void
+    public static function addToFooter(string $key, array|string $entry): void
     {
         static::$footers[$key][] = $entry;
     }
@@ -2177,7 +2294,7 @@ class Page
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
-                die();
+                exit();
             }
         }
 
@@ -2244,7 +2361,14 @@ class Page
         }
 
         // Ensure we have an absolute target
-        $target = static::getAbsoluteTarget($target);
+        try {
+            $target = static::getAbsoluteTarget($target);
+
+        } catch (FileNotExistException $e) {
+            throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
+                ':target' => $target
+            ]), $e)->addData(['target' => $target]);
+        }
 
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
@@ -2253,7 +2377,7 @@ class Page
         static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
-        if (Core::stateIs('script')) {
+        if (Core::isState('script')) {
             Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }
     }
@@ -2326,6 +2450,7 @@ class Page
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
+                    ->setUrl('developer/incidents.html')
                     ->setMode(DisplayMode::warning)
                     ->setCode('unsupported-languages-requested')
                     ->setRoles('developers')
@@ -2430,7 +2555,7 @@ class Page
             static::send($output);
         }
 
-        static::die();
+        exit();
     }
 
 
@@ -2443,5 +2568,37 @@ class Page
     protected static function getAbsoluteTarget(string $target): string
     {
         return Filesystem::absolute($target, PATH_WWW . 'pages/');
+    }
+
+
+    /**
+     * Will automatically add the timestamp of the specified file as a versioning string
+     *
+     * This is done for efficient caching where you can pretty much set cache to 10 years as changes are picked up by
+     * updated versions of the files
+     *
+     * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
+     *
+     * @param string $url
+     * @param string $type
+     * @return string
+     */
+    protected static function versionFile(string $url, string $type): string
+    {
+        static $minified;
+
+        if (!isset($minified)) {
+            // All files are minified or none are
+            $minified = (Config::get('web.minified', true) ? '.min' : '');
+        }
+
+        if (Config::getBoolean('cache.version-files', true)) {
+            // Determine the absolute file path
+            // then get timestamp and inject it into the given file
+            $file = PATH_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
+            $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
+        }
+
+        return $url;
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components;
 
 use Iterator;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
@@ -51,10 +53,10 @@ class Buttons extends ElementsBlock implements Iterator
     /**
      * Adds multiple buttons to button list
      *
-     * @param array $buttons
+     * @param ArrayableInterface|array $buttons
      * @return static
      */
-    public function addButtons(array $buttons): static
+    public function addButtons(ArrayableInterface|array $buttons): static
     {
         foreach ($buttons as $button) {
             $this->addButton($button);
@@ -116,7 +118,18 @@ class Buttons extends ElementsBlock implements Iterator
 
         }
 
-        $this->source[] = $button;
+        if (empty($button->getValue())) {
+            if (empty($button->getContent())) {
+                throw new OutOfBoundsException(tr('No name specified for button ":button"', [
+                    ':button' => $button
+                ]));
+            }
+
+            $this->source[$button->getContent()] = $button;
+        } else {
+            $this->source[$button->getValue()] = $button;
+        }
+
         return $this;
     }
 

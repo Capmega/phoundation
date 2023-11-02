@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Validate;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
-use Throwable;
 
 
 /**
@@ -143,40 +142,113 @@ abstract class Updates
 
 
     /**
-     * Returns the next version available for execution, if any
+     * Returns if the specified database version exists for this library, or not
      *
-     * @return string|null The next version available for init execution, or NULL if none.
+     * @param string|int $version
+     * @return bool
      */
-    public function getNextInitVersion(): ?string
+    public function databaseVersionExists(string|int $version): bool
     {
-        if ($this->isFuture(array_key_first($this->updates))) {
-            // The first available init version is already future version and will not be executed!
-            return null;
+        if (!$this->versionsTableExists()) {
+            return false;
         }
 
+        if (!is_int($version)) {
+            // Get the integer version of the version
+            $version = Version::getInteger($version);
+        }
+
+        return (bool) sql()->getColumn('SELECT `version`
+                                              FROM   `core_versions`
+                                              WHERE  `library` = :library
+                                              AND    `version` = :version', [
+                                                  ':library' => $this->library,
+                                                  ':version' => $version
+        ]);
+    }
+
+
+    /**
+     * Returns the next version available for execution, if any
+     *
+     * @param string|null $version
+     * @return string|null The next version available for init execution, or NULL if none.
+     */
+    public function getNextInitVersion(?string $version = null): ?string
+    {
         // Get the current version for the database
-        $version = $this->getDatabaseVersion();
+        $version = $version ?? $this->getDatabaseVersion();
 
         if (($version === null) or ($version === '0.0.0')) {
             // There is no version registered in the database at all, so the first available init is it!
-            return array_key_first($this->updates);
-        }
-
-        try {
-            // Get the next available version
-            $version = Arrays::nextKey($this->updates, $version);
-
-            if ($this->isFuture($version)) {
-                // The next available version is a future version and will not be executed
-                return null;
+            if ($this->updates) {
+                return array_key_first($this->updates);
             }
 
-            return $version;
-
-        } catch (OutOfBoundsException) {
-            // There is no next available!
+            // Err, the update file contains no updates!
             return null;
         }
+
+        // Get the next available update version in the updates file. NULL if there are no versions
+        $next_version = $this->getNextVersion($this->updates, $version);
+//Log::warning('Next version for ' . $this->library . ' after ' . $version . ' is ' . $next_version);
+
+        if ($next_version) {
+            if ($this->isFuture($next_version)) {
+                // The next available init version is beyond the current version and will not be executed!
+                return null;
+            }
+        }
+
+        // This is the next version that should be executed
+        return $next_version;
+    }
+
+
+    /**
+     * Returns the next key right after specified $key
+     *
+     * @param array $source
+     * @param string|int $current_version
+     * @return string|null
+     * @throws OutOfBoundsException Thrown if the specified $current_version does not exist
+     * @throws OutOfBoundsException Thrown if the specified $current_version does exist, but only at the end of the
+     *                              specified array, so there is no next key
+     */
+    protected function getNextVersion(array &$source, string|int $current_version): ?string
+    {
+        $found = null;
+
+        foreach ($source as $version => $callback) {
+            if ($version === 'post_always') {
+                // Ignore here, we'll execute that manually
+                continue;
+            }
+
+            switch (Version::compare($version, $current_version)) {
+                case -1:
+                    // This is a previous version, ignore it.
+                    break;
+
+                case 0:
+                    // It's the same version, ignore it
+                    break;
+
+                case 1:
+                    // This IS a higher version! But is it the next? Let's see...
+                    // Either it's the first we found ($found ie empty) or it's lower than the currently found one.
+                    if (!$found or Version::compare($version, $found) === -1) {
+                        // This is the lowest version, yay!
+                        $found = $version;
+                    }
+            }
+        }
+
+        // Return the found version. Versions post_* will always be ignored here
+        return match ($found) {
+            'post_once', 'post_always' => null,
+            default => $found
+        };
     }
 
 
@@ -193,7 +265,7 @@ abstract class Updates
         if (array_key_exists($version, $this->updates)) {
             throw new DoubleVersionException(tr('The version ":version" is specified twice in the init file ":file"', [
                 ':version' => $version,
-                ':file' => $this->file
+                ':file'    => $this->file
             ]));
         }
 
@@ -219,14 +291,31 @@ abstract class Updates
         $version = $this->getNextInitVersion();
 
         // Execute this init, register the version as executed, and return the next version
-        Log::action(tr('Updating ":library" library to version ":version"', [
-            ':library' => $this->library,
-            ':version' => $version
-        ]));
+        switch ($version) {
+            case 'post_once':
+                // no break
+
+            case 'post_always':
+                Log::action(tr('Executing ":library" ":version" init', [
+                    ':library' => $this->library,
+                    ':version' => $version
+                ]));
+                break;
+
+            default:
+                Log::action(tr('Updating ":library" library to version ":version"', [
+                    ':library' => $this->library,
+                    ':version' => $version
+                ]));
+        }
 
         // Execute the update and clear the versions_exists as after any update, the versions table should exist
         try {
-            $this->updates[$version]();
+            if (!TEST or (in_array($this->library, ['accounts', 'core', 'meta', 'geo']))) {
+                // In TEST mode only execute Core, Geo, Accounts, and Meta libraries
+                $this->updates[$version]();
+            }
+
             unset($this->versions_exists);
 
         } catch (Exception $e) {
@@ -237,7 +326,46 @@ abstract class Updates
 
         // Register the version update and return the next available init
         $this->addVersion($version, $comments);
-        return $this->getNextInitVersion();
+        return $this->getNextInitVersion($version);
+    }
+
+
+    /**
+     * Execute the post init files
+     *
+     * @param string|null $comments
+     * @return bool True if any post_* files were executed
+     */
+    public function initPost(?string $comments = null): bool
+    {
+        $result = false;
+
+        // Only execute post_* files if we're not in TEST mode
+        // Execute the post_once
+        if (array_key_exists('post_once', $this->updates)) {
+            if (!$this->databaseVersionExists('post_once')) {
+                // This post_once has not yet been executed, do so now and register
+                Log::action(tr('Executing "post_once" for library ":library"', [
+                    ':library' => $this->library,
+                ]));
+
+                $this->updates['post_once']();
+                $this->addVersion('post_once', $comments);
+                $result = true;
+            }
+        }
+
+        // Execute the post_always
+        if (array_key_exists('post_always', $this->updates)) {
+            Log::action(tr('Executing "post_always" for library ":library"', [
+                ':library' => $this->library,
+            ]));
+
+            $this->updates['post_always']();
+            $result = true;
+        }
+
+        return $result;
     }
 
 
@@ -250,6 +378,11 @@ abstract class Updates
      */
     protected function addVersion(string $version, ?string $comments = null): void
     {
+        if ($version === 'post_always') {
+            // Never register this in the versions table as this one is ALWAYS executed
+            return;
+        }
+
         sql()->dataEntryInsert('core_versions', [
             'library'  => $this->library,
             'version'  => Version::getInteger($version),
@@ -307,7 +440,16 @@ abstract class Updates
      */
     protected function isFuture(string $version): bool
     {
-        $result = version_compare($version, $this->code_version);
+        switch ($version) {
+            case 'post_once':
+                // no break
+
+            case 'post_always':
+                // These are never future versions
+                return false;
+        }
+
+        $result = Version::compare($version, $this->code_version);
 
         switch ($result) {
             case -1:

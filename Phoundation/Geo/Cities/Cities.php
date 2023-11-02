@@ -9,8 +9,10 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Geo\States\State;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
-use Phoundation\Web\Http\Html\Components\Table;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Components\HtmlTable;
+use Phoundation\Web\Http\Html\Enums\TableIdColumn;
 
 
 /**
@@ -75,12 +77,13 @@ class Cities extends DataList
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
      */
-    public function getHtmlTable(): Table
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         $table = parent::getHtmlTable();
-        $table->setCheckboxSelectors(true);
+        $table->setTableIdColumn(TableIdColumn::checkbox);
 
         return $table;
     }
@@ -92,13 +95,13 @@ class Cities extends DataList
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('cities_id')
             ->setNone(tr('Select a city'))
-            ->setEmpty(tr('No cities available'));
+            ->setObjectEmpty(tr('No cities available'));
     }
 }

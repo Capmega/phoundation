@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Json;
@@ -98,7 +99,7 @@ class Http
         foreach ($_GET as $key => &$value) {
             if (!is_scalar($value)) {
                 if ($value) {
-                    throw new HttpException(tr('The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', [
+                    throw new ValidationFailedException(tr('The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', [
                         ':key'     => $key,
                         ':content' => $value
                     ]));
@@ -274,12 +275,12 @@ class Http
 //        if ($time_delay) {
 //            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [':time' => $time_delay, ':url' => $url]));
 //            header('Refresh: ' . $time_delay.';' . $url, true, $http_code);
-//            die();
+//            exit();
 //        }
 //
 //        Log::action(tr('Redirecting to url ":url"', [':url' => $url]));
 //        header('Location:' . Page::redirect($url), true, $http_code);
-//        die();
+//        exit();
 //    }
 
 
@@ -576,5 +577,4 @@ class Http
 
         return $count;
     }
-
 }

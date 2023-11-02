@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Strings;
 
 
 /**
@@ -71,7 +72,7 @@ class TableAlter extends SchemaAbstract
     public function addColumn(string $column, string $after): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD COLUMN ' . $column . ' ' . $after);
+            $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . $column . ' ' . $after);
         }
 
         return $this;
@@ -87,6 +88,9 @@ class TableAlter extends SchemaAbstract
     public function dropColumn(string $column): static
     {
         if ($column) {
+            $column = Strings::startsNotWith($column, '`');
+            $column = Strings::EndsNotWith($column  , '`');
+
             $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
         }
 
@@ -104,7 +108,10 @@ class TableAlter extends SchemaAbstract
     public function modifyColumn(string $column, string $to_definition): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' MODIFY COLUMN `' . $column . '` ' . $to_definition);
+            $column = Strings::startsNotWith($column, '`');
+            $column = Strings::EndsNotWith($column  , '`');
+
+            $this->sql->query('ALTER TABLE `' . $this->name .  '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
         }
 
         return $this;
@@ -121,7 +128,10 @@ class TableAlter extends SchemaAbstract
     public function changeColumn(string $column, string $to_definition): static
     {
         if ($column) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' CHANGE COLUMN `' . $column . '` ' . $to_definition);
+            $column = Strings::startsNotWith($column, '`');
+            $column = Strings::EndsNotWith($column  , '`');
+
+            $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
         }
 
         return $this;
@@ -174,7 +184,7 @@ class TableAlter extends SchemaAbstract
     public function dropIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP KEY `' . $index . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP KEY `' . Strings::endsNotWith(Strings::startsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;
@@ -227,7 +237,7 @@ class TableAlter extends SchemaAbstract
     public function dropForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP FOREIGN KEY `' . $foreign_key . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP FOREIGN KEY `' . Strings::endsNotWith(Strings::startsNotWith($foreign_key, '`'), '`') . '`');
         }
 
         return $this;

@@ -72,7 +72,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getDataValue('int', 'parents_id');
+        return $this->getSourceFieldValue('int', 'parents_id');
     }
 
 
@@ -84,7 +84,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function setParentsId(?int $parents_id): static
     {
-        return $this->setDataValue('parents_id', $parents_id);
+        return $this->setSourceValue('parents_id', $parents_id);
     }
 
 
@@ -95,7 +95,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParent(): ?Category
     {
-        $parents_id = $this->getDataValue('int', 'parents_id');
+        $parents_id = $this->getSourceFieldValue('int', 'parents_id');
 
         if ($parents_id) {
             return new static($parents_id);
@@ -112,7 +112,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsName(): ?string
     {
-        return $this->getDataValue('string', 'parents_name');
+        return $this->getSourceFieldValue('string', 'parents_name');
     }
 
 
@@ -124,7 +124,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function setParentsName(?string $parents_name): static
     {
-        return $this->setDataValue('parents_name', $parents_name);
+        return $this->setSourceValue('parents_name', $parents_name);
     }
 
 
@@ -134,7 +134,7 @@ class Category extends DataEntry implements CategoryInterface
      * @param DefinitionsInterface $definitions
      * @return void
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'parents_id')
@@ -156,7 +156,7 @@ class Category extends DataEntry implements CategoryInterface
                 ->setVirtual(true)
                 ->setCliField('--parent PARENT CATEGORY NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {

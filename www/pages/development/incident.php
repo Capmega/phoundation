@@ -26,14 +26,14 @@ $incident = Incident::get($get['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton(tr('Back'), DisplayMode::secondary, '/development/incidents.html', true);
+    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/incidents.html'), true);
 
 
 // Build the incident form
 $incident_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getTitle()]))
-    ->setContent($incident->getHtmlForm()->render())
+    ->setContent($incident->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 
@@ -61,7 +61,7 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);

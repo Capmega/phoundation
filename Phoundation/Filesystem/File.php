@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\Sha256MismatchException;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Processes\Commands\FilesystemCommands;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Gzip;
+use Phoundation\Os\Processes\Commands\Sha256;
+use Phoundation\Os\Processes\Commands\Tar;
+use Phoundation\Os\Processes\Commands\Zip;
 use Throwable;
 
 
@@ -40,124 +43,6 @@ class File extends FileBasics implements FileInterface
      * @var int|null $buffer_size
      */
     protected ?int $buffer_size = null;
-
-
-    /**
-     * Returns the configured file buffer size
-     *
-     * @return int
-     */
-    public function getBufferSize(): int
-    {
-        $required  = Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
-        $available = Core::getMemoryAvailable();
-
-        if ($required > $available) {
-            // The required file buffer is larger than the available memory, oops...
-            if (Config::get('filesystem.buffer.auto', false)) {
-                throw new FilesystemException(tr('Failed to set file buffer of ":required", only ":available" memory available', [
-                    ':required'  => $required,
-                    ':available' => $available
-                ]));
-            }
-
-            // Just auto adjust to half of the available memory
-            Log::warning(tr('File buffer of ":required" requested but only ":available" memory available. Created buffer of ":size" instead', [
-                ':required'  => $required,
-                ':available' => $available,
-                ':size'      => floor($available * .5)
-            ]));
-
-            $required = floor($available * .5);
-        }
-
-        return $required;
-    }
-
-
-    /**
-     * Sets the configured file buffer size
-     *
-     * @param int|null $buffer_size
-     * @return static
-     */
-    public function setBufferSize(?int $buffer_size): static
-    {
-        $this->buffer_size = $buffer_size;
-        return $this;
-    }
-
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function append(string $data): static
-    {
-        return $this->write($data, 'a');
-    }
-
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function create(string $data): static
-    {
-        return $this->write($data, 'w');
-    }
-
-
-    /**
-     * Concatenates a list of files to a target file
-     *
-     * @param string|array $sources The source files
-     * @return static
-     */
-    public function appendFiles(string|array $sources): static
-    {
-        // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
-
-        // Ensure the target path exists
-        Path::new(dirname($this->file), $this->restrictions)->ensure();
-
-        // Open target file
-        try {
-            $target_h = $this->open('a');
-        } catch (Throwable $e) {
-            // Failed to open the target file
-            $this->checkReadable('target', $e);
-        }
-
-        // Open each source file
-        foreach (Arrays::force($sources, null) as $source) {
-            try {
-                $source_h = File::new($source, $this->restrictions)->open('r');
-
-                while (!feof($source_h)) {
-                    $data = fread($source_h, 8192);
-                    fwrite($target_h, $data);
-                }
-
-                fclose($source_h);
-            } catch (Throwable $e) {
-                // Failed to open one of the sources, get rid of the partial target file
-                $this->delete();
-                $this->checkReadable('source', $e);
-            }
-        }
-
-        fclose($target_h);
-
-        return $this;
-    }
 
 
     /**
@@ -189,7 +74,7 @@ class File extends FileBasics implements FileInterface
         }
 
         is_file($source);
-        Path::new($destination)->ensure();
+        Directory::new($destination)->ensure();
 
         // Ensure we're not overwriting anything!
         if (file_exists($destination . $real)) {
@@ -226,11 +111,11 @@ class File extends FileBasics implements FileInterface
 
         $this->restrictions->check($path, true);
 
-        Path::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
+        Directory::new(dirname($this->file), $this->restrictions)->ensure($pattern_mode);
 
         if (!file_exists($this->file)) {
             // Create the file
-            Path::new(dirname($this->file), $this->restrictions)->execute()
+            Directory::new(dirname($this->file), $this->restrictions)->execute()
                 ->setMode(0770)
                 ->onPathOnly(function () use ($mode) {
                     Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
@@ -266,7 +151,7 @@ class File extends FileBasics implements FileInterface
      */
     public function isBinary(): bool
     {
-        $mimetype = $this->mimetype();
+        $mimetype = $this->getMimetype();
         return Filesystem::isBinary(Strings::until($mimetype, '/'), Strings::from($mimetype, '/'));
     }
 
@@ -291,17 +176,17 @@ class File extends FileBasics implements FileInterface
     /**
      * Copy a file with progress notification
      *
-     * @
+     * @param string $target
+     * @param callable $callback
+     * @return static
      * @example:
-     * function stream_notification_callback($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
-     *     if ($notification_code == STREAM_Notification_PROGRESS) {
-     *         // save $bytes_transferred and $bytes_max to file or database
-     *     }
-     * }
-     *
-     * file_copy_progress($source, $target, 'stream_notification_callback');
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
      */
-    public function copyProgress(string $target, callable $callback): static
+    public function copy(string $target, callable $callback): static
     {
         $this->restrictions->check($this->file, true);
         $this->restrictions->check($target, false);
@@ -314,52 +199,6 @@ class File extends FileBasics implements FileInterface
 
         copy($this->file, $target, $context);
         return new static($target, $this->restrictions);
-    }
-
-
-    /**
-     * This is an fopen() wrapper with some built-in error handling
-     *
-     * @param string $mode
-     * @param resource $context
-     * @return resource
-     */
-    public function open(#[ExpectedValues(values: ['r', 'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+'])] string $mode, $context = null)
-    {
-        if (!$mode) {
-            throw new OutOfBoundsException(tr('No file open mode specified'));
-        }
-
-        $this->restrictions->check($this->file, ($mode[0] !== 'r'));
-
-        // Check filesystem restrictions
-        $handle = fopen($this->file, $mode, false, $context);
-
-        if (!$handle) {
-            // Check if the mode is valid and if the file can be opened for the requested mode
-            $method = match ($mode) {
-                'r' => FileBasics::READ,
-                'r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+', 'ce+' => FileBasics::WRITE,
-                default => throw new FilesystemException(tr('Could not open file ":file"', [
-                    ':file' => $this->file
-                ])),
-            };
-
-            // Mode is valid, check if file is accessible.
-            switch ($method) {
-                case FileBasics::READ:
-                    $this->checkReadable();
-                    break;
-
-                case FileBasics::WRITE:
-                    $this->checkWritable();
-                    break;
-            }
-
-            throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->file]));
-        }
-
-        return $handle;
     }
 
 
@@ -432,43 +271,22 @@ class File extends FileBasics implements FileInterface
 
 
     /**
-     * Returns if the link target exists or not
-     *
-     * @return bool
-     */
-    public function linkTargetExists(): bool
-    {
-        throw new UnderConstructionException();
-        if (file_exists($this->file)) {
-            return false;
-        }
-
-        if (is_link()) {
-            throw new FilesystemException(tr('Symlink ":source" has non existing target ":target"', [
-                'source' => $this->file,
-                ':target' => readlink()
-            ]));
-        }
-
-        throw new FilesystemException(tr('Symlink ":source" has non existing target ":target"', [
-            'source' => $this->file,
-            ':target' => readlink()
-        ]));
-    }
-
-
-    /**
      * Search / replace the object files
      *
-     * @param string $target
      * @param array $replaces The list of keys that will be replaced by values
+     * @param string|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(string $target, array $replaces, bool $regex = false): static
+    public function replace(array $replaces, ?string $target, bool $regex = false): static
     {
+        if (!$target) {
+            // Default to replacing within the same file
+            $target = $this->file;
+        }
+
         // Check filesystem restrictions and if file exists
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->file, false);
         $this->restrictions->check($target, true);
 
         // Source file and target path exist?
@@ -618,12 +436,12 @@ class File extends FileBasics implements FileInterface
         }
 
         // Open the file and start scanning each line
-        $handle = $this->open('r');
+        $this->ensureClosed('grep')->open(EnumFileOpenMode::readOnly);
+
         $count  = 0;
         $return = [];
-        $buffer = $this->getBufferSize();
 
-        while (($line = fgets($handle, $buffer)) !== false) {
+        while (($line = $this->readLine()) !== false) {
             foreach ($filters as $filter) {
                 if (str_contains($line, $filter)) {
                     $return[$filter][] = $line;
@@ -636,41 +454,8 @@ class File extends FileBasics implements FileInterface
             }
         }
 
-        fclose($handle);
+        $this->close();
         return $return;
-    }
-
-
-    // GARBAGE BELOW, REIMPLEMENT
-    /**
-     * Create a target, but don't put anything in it
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
-    {
-        return $this->moveToTarget('', $path, $extension, $singledir, $length);
-    }
-
-
-    /**
-     * Create a target, but don't put anything in it, and return path+filename without extension
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string
-    {
-        return str_replace($extension, '', $this->moveToTarget('', $path, $extension, $singledir, $length));
     }
 
 
@@ -726,7 +511,7 @@ class File extends FileBasics implements FileInterface
             throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->file]));
         }
 
-        $path     = Path::new($path, $this->restrictions)->ensure();
+        $path = Directory::new($path, $this->restrictions)->ensure();
         $this->filename = basename($this->file);
 
         if (!$this->filename) {
@@ -785,7 +570,7 @@ class File extends FileBasics implements FileInterface
 
                 } else {
                     rename($target);
-                    Path::new(dirname($this->file))->clear(false);
+                    Directory::new(dirname($this->file))->clear();
                 }
             }
         }
@@ -1295,7 +1080,7 @@ class File extends FileBasics implements FileInterface
      */
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static
     {
-        $file_sha = FilesystemCommands::new($this->restrictions)->sha256($this->file);
+        $file_sha = Sha256::new($this->restrictions)->sha256($this->file);
 
         if ($sha256 !== $file_sha) {
             if (!$ignore_sha_fail) {
@@ -1320,19 +1105,19 @@ class File extends FileBasics implements FileInterface
      */
     public function tar(): static
     {
-        return File::new(FilesystemCommands::new($this->restrictions)->tar($this->file), $this->restrictions);
+        return File::new(Tar::new($this->restrictions)->tar($this->file), $this->restrictions);
     }
 
 
     /**
      * Untars the file
      *
-     * @return Path
+     * @return Directory
      */
-    public function untar(): Path
+    public function untar(): Directory
     {
-        FilesystemCommands::new($this->restrictions)->untar($this->file);
-        return Path::new(dirname($this->file), $this->restrictions);
+        Tar::new($this->restrictions)->untar($this->file);
+        return Directory::new(dirname($this->file), $this->restrictions);
     }
 
 
@@ -1343,7 +1128,7 @@ class File extends FileBasics implements FileInterface
      */
     public function gzip(): static
     {
-        $file = FilesystemCommands::new($this->restrictions)->gzip($this->file);
+        $file = Gzip::new($this->restrictions)->gzip($this->file);
         return File::new($file, $this->restrictions);
     }
 
@@ -1355,30 +1140,8 @@ class File extends FileBasics implements FileInterface
      */
     public function gunzip(): static
     {
-        $file = FilesystemCommands::new($this->restrictions)->gunzip($this->file);
+        $file = Gzip::new($this->restrictions)->gunzip($this->file);
         return File::new($file, $this->restrictions);
-    }
-
-
-    /**
-     * Returns the contents of this file as a string
-     *
-     * @return string
-     */
-    public function getContentsAsString(): string
-    {
-        return file_get_contents($this->file);
-    }
-
-
-    /**
-     * Returns the contents of this file as an array
-     *
-     * @return array
-     */
-    public function getContentsAsArray(): array
-    {
-        return file($this->file);
     }
 
 
@@ -1389,61 +1152,7 @@ class File extends FileBasics implements FileInterface
      */
     public function unzip(): static
     {
-        FilesystemCommands::new($this->restrictions)->unzip($this->file);
-        return $this;
-    }
-
-
-    /**
-     * Write the specified data to this file with the requested file mode
-     *
-     * @param string $data
-     * @param string $filemode
-     * @return $this
-     */
-    protected function write(string $data, string $filemode): static
-    {
-        // Validate the specified filemode
-        switch (substr($filemode, 0, 1)) {
-            case 'w':
-                // no break
-            case 'a':
-                // no break
-            case 'x':
-                // no break
-            case 'c':
-                break;
-
-            default:
-                throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
-                    ':mode' => $filemode
-                ]));
-        }
-
-        switch (substr($filemode, 1, 1)) {
-            case '+':
-                // no break
-            case null:
-                // All fine
-                break;
-
-            default:
-                throw new FilesystemException(tr('Invalid file mode ":mode" specified, please use one of "w", "w+", "a", "a+", "c", "c+", , "x", or "x+"', [
-                    ':mode' => $filemode
-                ]));
-        }
-
-        // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
-
-        // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
-        // PARENT directory IN the PARENT directory OF the PARENT!
-        Path::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
-
-        $h = $this->open($filemode);
-        fwrite($h, $data);
-        fclose($h);
-
+        Zip::new($this->restrictions)->unzip($this->file);
         return $this;
     }
 }

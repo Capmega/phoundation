@@ -23,11 +23,12 @@ $get = GetValidator::new()
 
 // Build the page content
 $incident = Incident::get($get['id']);
-$form     = $incident->getHtmlForm();
+$form     = $incident->getHtmlDataEntryForm();
 $card     = Card::new()
-    ->setTitle(tr('Edit data for incident :name', [':name' => $incident->getTitle()]))
+    ->setTitle($incident->getTitle())
+    ->setMaximizeSwitch(true)
     ->setContent($form->render())
-    ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, '/security/incidents.html', true));
+    ->setButtons(Buttons::new()->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/security/incidents.html'), true));
 
 
 // Build relevant links
@@ -45,7 +46,7 @@ $documentation = Card::new()
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($card, DisplaySize::nine)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
@@ -55,9 +56,9 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Incident'));
-Page::setHeaderSubTitle($incident->getTitle());
+Page::setHeaderSubTitle($incident->getId());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
     '/security/incidents.html' => tr('Incidents'),
-    ''                         => $incident->getTitle()
+    ''                         => $incident->getId()
 ]));

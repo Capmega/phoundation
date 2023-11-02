@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 
@@ -20,7 +21,7 @@ use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Input extends Element implements Interfaces\Input
+abstract class Input extends Element implements Interfaces\InputInterface
 {
     use InputElement;
 
@@ -34,30 +35,6 @@ abstract class Input extends Element implements Interfaces\Input
 
         $this->requires_closing_tag = false;
         $this->element              = 'input';
-    }
-
-
-    /**
-     * Returns a new input element from
-     *
-     * @param DefinitionInterface $field
-     * @return static
-     */
-    public static function newFromDAtaEntryField(DefinitionInterface $field): static
-    {
-        $element    = new static();
-        $attributes = $field->getRules();
-
-        // Set all attributes from the definitions file
-        foreach($attributes as $key => $value) {
-            $method = 'set' . Strings::capitalize($key);
-
-            if (method_exists($element, $method)) {
-                $element->$method($value);
-            }
-        }
-
-        return $element;
     }
 
 

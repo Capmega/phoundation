@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -13,8 +15,15 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
+use Throwable;
 
 
 /**
@@ -42,6 +51,14 @@ class Incident extends DataEntry
      * @var bool
      */
     protected bool $log = true;
+
+
+    /**
+     * Sets if this incident will cause a notification to the specified groups
+     *
+     * @var IteratorInterface $notify_roles
+     */
+    protected IteratorInterface $notify_roles;
 
 
     /**
@@ -102,13 +119,59 @@ class Incident extends DataEntry
 
 
     /**
+     * Sets who will be notified about this incident directly without accessing the roles object
+     *
+     * @param IteratorInterface|array|string|null $roles
+     * @return Incident
+     */
+    public function notifyRoles(IteratorInterface|array|string|null $roles): static
+    {
+        if (is_string($roles)) {
+            // Ensure the source is not a string, at least an array
+            $roles = Arrays::force($roles);
+        }
+
+        $this->getNotifyRoles()->addSource($roles);
+        return $this;
+    }
+
+
+    /**
+     * Returns the roles iterator containing who will be notified about this incident
+     *
+     * @return IteratorInterface
+     */
+    public function getNotifyRoles(): IteratorInterface
+    {
+        if (empty($this->notify_roles)) {
+            $this->notify_roles = new Iterator();
+        }
+
+        return $this->notify_roles;
+    }
+
+
+    /**
+     * Sets the roles iterator containing who will be notified about this incident
+     *
+     * @param IteratorInterface|array $notify_roles
+     * @return static
+     */
+    public function setNotifyRoles(IteratorInterface|array $notify_roles): static
+    {
+        $this->notify_roles = $notify_roles;
+        return $this;
+    }
+
+
+    /**
      * Returns the severity for this object
      *
      * @return string
      */
     public function getSeverity(): string
     {
-        return $this->getDataValue('string', 'severity', Severity::unknown->value);
+        return $this->getSourceFieldValue('string', 'severity', Severity::unknown->value);
     }
 
 
@@ -124,21 +187,22 @@ class Incident extends DataEntry
             $severity = Severity::from($severity);
         }
 
-        return $this->setDataValue('severity', $severity->value);
+        return $this->setSourceValue('severity', $severity->value);
     }
 
 
     /**
      * Saves the incident to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static
+    public function save(bool $force = false, ?string $comments = null): static
     {
-        if ($this->log) {
-            $severity = strtolower($this->getSeverity());
+        $severity = strtolower($this->getSeverity());
 
+        if ($this->log) {
             switch ($severity){
                 case 'notice':
                     Log::warning(tr('Security notice: :message', [
@@ -165,7 +229,40 @@ class Incident extends DataEntry
             }
         }
 
-        return parent::save();
+        // Save the incident
+        $incident = parent::save($force, $comments);
+
+        // Notify anybody?
+        if (isset($this->notify_roles)) {
+            // Notify the specified roles
+            $notification = Notification::new();
+
+            switch ($severity) {
+                case 'notice':
+                    // no break
+                case 'low':
+                    $notification->setMode(DisplayMode::notice);
+                    break;
+
+                case 'medium':
+                    $notification->setMode(DisplayMode::warning);
+                    break;
+
+                default:
+                    $notification->setMode(DisplayMode::danger);
+                    break;
+            }
+
+            $notification
+                ->setUrl('security/incident-' . $this->getId() . '.html')
+                ->setRoles($this->notify_roles)
+                ->setTitle($this->getType())
+                ->setMessage($this->getTitle())
+                ->setDetails($this->getDetails())
+                ->send();
+        }
+
+        return $incident;
     }
 
 
@@ -176,7 +273,7 @@ class Incident extends DataEntry
      */
     #[NoReturn] public function throw(): never
     {
-        throw IncidentsException::new($this->getTitle(), $this->getDetails());
+        throw IncidentsException::new($this->getTitle())->addData(['details' => $this->getDetails()]);
     }
 
 
@@ -185,7 +282,7 @@ class Incident extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'type')
@@ -218,6 +315,30 @@ class Incident extends DataEntry
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)
                 ->setSize(12)
-                ->setMaxlength(65_535));
+                ->setMaxlength(65_535)
+                ->setDisplayCallback(function(mixed $value, array $source) {
+                    // Since the details almost always have an array encoded in JSON, decode it and display it using
+                    // print_r
+                    if (!$value) {
+                        return null;
+                    }
+
+                    try {
+                        $return  = '';
+                        $details = Json::decode($value);
+                        $largest = Arrays::getLongestKeySize($details);
+
+                        foreach ($details as $key => $value) {
+                            $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                        }
+
+                        return $return;
+
+                    } catch (JsonException $e) {
+                        // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
+                        Log::warning($e);
+                        return $value;
+                    }
+                }));
     }
 }

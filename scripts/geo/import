@@ -60,7 +60,6 @@ $argv = ArgvValidator::new()
     ->select('-l,--no-download')->isOptional(false)->isBoolean()
     ->select('-i,--no-import')->isOptional(false)->isBoolean()
     ->select('--ignore-sha-fail')->isOptional(false)->isBoolean()
-    ->noArgumentsLeft()
     ->validate();
 
 

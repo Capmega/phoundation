@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Template;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Element;
@@ -146,35 +147,56 @@ abstract class Template
      */
     public function getRendererClass(Element|ElementsBlock|string $class): ?string
     {
-        if (is_object($class)) {
-            $class = get_class($class);
-        }
-
-        $component = Strings::from($class, 'Html\\', 0, true);
-
-        if (!$component) {
-            // Check the parent class
-            $parent = get_parent_class($class);
-
-            if (!$parent) {
-                throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
-                    ':class' => $class
-                ]));
+        while (true) {
+            if (is_object($class)) {
+                $class = get_class($class);
             }
 
-            return $this->getRendererClass($parent);
-        }
+            $class_path = Strings::from($class, 'Html\\', 0, true);
 
-        $file   = str_replace('\\', '/', $component);
-        $file   = $this->getPath() . 'Html/' . $file . '.php';
+            if (!$class_path) {
+                // This class is not an HTML class. Maybe its an object that extends an HTML class, so check the parent
+                // class and see if that one works
+                $parent = get_parent_class($class);
 
-        $class  = Strings::untilReverse(get_class($this), '\\');
-        $class .= '\\Html\\' . $component;
+                if (!$parent) {
+                    throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
+                        ':class' => $class
+                    ]));
+                }
 
-        if (file_exists($file)) {
-            // Include the file and return the class path
-            include_once($file);
-            return $class;
+                $class = $parent;
+                continue;
+            }
+
+            if (($class_path === 'Components\Element') or ($class_path === 'Components\ElementsBlock')) {
+                // These are the lowest element types, from here there are no renderers available
+                return null;
+            }
+
+            // Find the file to include
+            $include_file   = str_replace('\\', '/', $class_path);
+            $include_file   = $this->getPath() . 'Html/' . $include_file . '.php';
+
+            // Find the class path that is in the file, we will return this as the class that should be used for
+            // rendering
+            $include_class  = Strings::untilReverse(get_class($this), '\\');
+            $include_class .= '\\Html\\' . $class_path;
+
+            if (file_exists($include_file)) {
+                // Include the file and return the class path
+                include_once($include_file);
+                return $include_class;
+            }
+
+            // So at this point, we did not find a file. Try the parent of this class, see if that one perhaps has a
+            // renderer available?
+            $class = get_parent_class($class);
+
+            if (!$class) {
+                // There was no parent
+                break;
+            }
         }
 
         return null;

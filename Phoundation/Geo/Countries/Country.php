@@ -69,7 +69,7 @@ class Country extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getDataValue('int', 'timezones_id'));
+        return new Timezone($this->getSourceFieldValue('int', 'timezones_id'));
     }
 
 
@@ -80,7 +80,7 @@ class Country extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getDataValue('int', 'continents_id'));
+        return new Continent($this->getSourceFieldValue('int', 'continents_id'));
     }
 
 
@@ -100,7 +100,7 @@ class Country extends DataEntry
             ])
             ->setName($name)
             ->setNone(tr('Select a state'))
-            ->setEmpty(tr('No states available'));
+            ->setObjectEmpty(tr('No states available'));
     }
 
 
@@ -109,7 +109,7 @@ class Country extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions;
 

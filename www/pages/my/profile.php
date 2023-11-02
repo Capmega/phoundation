@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
@@ -124,7 +124,7 @@ $buttons = Buttons::new()
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your profile information here'))
-    ->setContent($user->getHtmlForm()->render())
+    ->setContent($user->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 
@@ -140,6 +140,7 @@ $column = GridColumn::new()
 $picture = Card::new()
     ->setTitle(tr('My profile picture'))
     ->setContent(Img::new()
+        ->addClass('w100')
         ->setSrc($user->getPicture())
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
         ->setAlt(tr('My profile picture')));
@@ -164,7 +165,7 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);

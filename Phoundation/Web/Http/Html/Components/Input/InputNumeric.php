@@ -23,7 +23,7 @@ class InputNumeric extends Input
      */
     public function __construct()
     {
-        $this->type = InputType::numeric;
+        $this->type = InputType::number;
         parent::__construct();
     }
 

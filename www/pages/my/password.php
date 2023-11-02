@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
@@ -41,7 +41,7 @@ if (Page::isPostRequestMethod()) {
             $user->setPassword($post['password'], $post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
-            Page::redirect(UrlBuilder::getWww('prev'));
+            Page::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
 
         } catch (AuthenticationException $e) {
             // Oops! Current password was wrong
@@ -61,14 +61,14 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton(tr('Save'))
-    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getWww('prev'), true);
+    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/my/profile.html'), true);
 
 
 // Build the user form
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Change your password'))
-    ->setContent($password->getHtmlForm()->render())
+    ->setContent($password->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 
@@ -98,7 +98,7 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);

@@ -24,7 +24,7 @@ trait DataEntryNumber
      */
     public function getNumber(): ?int
     {
-        return $this->getDataValue('int', 'number');
+        return $this->getSourceValue('int', 'number');
     }
 
 
@@ -36,6 +36,6 @@ trait DataEntryNumber
      */
     public function setNumber(?string $number): static
     {
-        return $this->setDataValue('number', $number);
+        return $this->setSourceValue('number', $number);
     }
 }

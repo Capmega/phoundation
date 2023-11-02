@@ -2,9 +2,8 @@
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Core\Config;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -20,7 +19,7 @@ if (Page::isPostRequestMethod()) {
     try {
         $post = Session::validateSignIn();
         Session::signIn($post['email'], $post['password']);
-        Page::redirect('prev');
+        Page::redirect(UrlBuilder::getPrevious('/sign-in.html'));
 
     } catch (ValidationFailedException) {
         Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('Please specify a valid email and password'));

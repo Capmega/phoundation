@@ -170,7 +170,26 @@ interface DefinitionInterface
      * @return bool
      * @see Definition::getVisible()
      */
-    public function getMeta(): bool;
+    public function isMeta(): bool;
+
+    /**
+     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @return bool|null
+     *@see Definition::getVisible()
+     */
+    public function getDirectUpdate(): ?bool;
+
+    /**
+     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setDirectUpdate(?bool $value): static;
 
     /**
      * Returns if this field is virtual
@@ -225,9 +244,10 @@ interface DefinitionInterface
      * Sets the HTML client element to be used for this field
      *
      * @param callable|string|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setContent(callable|string|null $value): static;
+    public function setContent(callable|string|null $value, bool $make_safe = false): static;
 
     /**
      * Return the type of input element.
@@ -379,10 +399,9 @@ interface DefinitionInterface
     /**
      * Returns the alternative CLI field names for this field
      *
-     * @param ValidatorInterface|null $validator
      * @return string|null
      */
-    public function getCliField(?ValidatorInterface $validator = null): ?string;
+    public function getCliField(): ?string;
 
     /**
      * Sets the alternative CLI field names for this field
@@ -724,4 +743,36 @@ interface DefinitionInterface
      * @return static
      */
     public function setVariables(array|null $value): static;
+
+    /**
+     * Returns the display_callback for this field
+     *
+     * @return callable|null
+     */
+    public function getDisplayCallback(): ?callable;
+
+    /**
+     * Sets the display_callback for this field
+     *
+     * @param callable|null $value
+     * @return static
+     */
+    public function setDisplayCallback(?callable $value): static;
+
+    /**
+     * Returns if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getHidden(): ?bool;
+
+    /**
+     * Sets if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setHidden(?bool $value): static;
 }

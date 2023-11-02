@@ -8,6 +8,8 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -30,9 +32,9 @@ abstract class Element implements ElementInterface
     /**
      * The element type
      *
-     * @var string $element
+     * @var string|null $element
      */
-    protected string $element;
+    protected ?string $element;
 
     /**
      * If true, will produce <element></element> instead of <element />
@@ -56,15 +58,21 @@ abstract class Element implements ElementInterface
     /**
      * Sets the type of element to display
      *
-     * @param string $element
+     * @param string|null $element
      * @return static
      */
-    public function setElement(string $element): static
+    public function setElement(?string $element): static
     {
-        $this->requires_closing_tag = match ($element) {
-            'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
-            default => true,
-        };
+        if ($element) {
+            $this->requires_closing_tag = match ($element) {
+                'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
+                default => true,
+            };
+        } elseif ($element !== null) {
+            throw new OutOfBoundsException(tr('Invalid element ":element" specified, must be NULL or valid HTML element', [
+                ':element' => $element
+            ]));
+        }
 
         $this->element = $element;
         return $this;
@@ -83,7 +91,7 @@ abstract class Element implements ElementInterface
 
 
     /**
-     * Renders and returns the HTML for this object using the template renderer if avaialable
+     * Renders and returns the HTML for this object using the template renderer if available
      *
      * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
@@ -97,12 +105,27 @@ abstract class Element implements ElementInterface
     public function render(): ?string
     {
         if (!$this->element) {
+            if ($this->element === null) {
+                // This is a NULL element, only return the contents
+                return $this->content;
+            }
+
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
+        }
+
+        $postfix = null;
+
+        if (isset_get($this->attributes['auto_submit'])) {
+            // Add javascript to automatically submit on change
+            $postfix .= Script::new()
+                ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
+                ->setJavascriptWrapper(JavascriptWrappers::window);
+            unset($this->attributes['auto_submit']);
         }
 
         $renderer_class  = Page::getTemplate()->getRendererClass($this);
 
-        $render_function = function () {
+        $render_function = function () use ($postfix) {
             $attributes  = $this->buildAttributes();
             $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::FILTER_NULL);
             $attributes .= $this->extra;
@@ -121,7 +144,7 @@ abstract class Element implements ElementInterface
             $render       = $this->render . ' />';
             $this->render = null;
 
-            return $render;
+            return $render . $postfix;
         };
 
         if ($renderer_class) {
@@ -129,7 +152,7 @@ abstract class Element implements ElementInterface
 
             return $renderer_class::new($this)
                 ->setParentRenderFunction($render_function)
-                ->render();
+                ->render() . $postfix;
         }
 
         // The template component does not exist, return the basic Phoundation version
@@ -137,7 +160,7 @@ abstract class Element implements ElementInterface
             ':component' => get_class($this)
         ]), 3);
 
-        return $render_function();
+        return $render_function() . $postfix;
     }
 
 

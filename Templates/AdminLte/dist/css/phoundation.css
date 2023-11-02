@@ -27,3 +27,16 @@ li div.ui-state-active {
 .btn.float-right {
     margin-left: 4px;
 }
+
+.w100
+{
+    width: 100%;
+}
+
+ul.ui-autocomplete li.ui-menu-item {
+    list-style-type: none;
+}
+
+div.row {
+    overflow-x: auto;
+}

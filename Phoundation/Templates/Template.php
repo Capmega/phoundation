@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Templates;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Storage\Page;
+use Phoundation\Templates\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -18,7 +20,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Templates
  */
-class Template
+class Template extends Page implements TemplateInterface
 {
     /**
      * The template text
@@ -29,33 +31,12 @@ class Template
 
 
     /**
-     * Template class constructor
-     */
-    public function __construct(string $text = null)
-    {
-        $this->text = $text;
-    }
-
-
-    /**
-     * Returns a new Template object
-     *
-     * @param string|null $text
-     * @return static
-     */
-    public static function new(string $text = null): static
-    {
-        return new static($text);
-    }
-
-
-    /**
      * Returns a new Template object
      */
     public static function page(string $page_name = null): Template
     {
         $text = static::getPage($page_name);
-        return static::new($text);
+        return static::new()->setText($text);
     }
 
 

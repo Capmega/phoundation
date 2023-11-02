@@ -45,6 +45,18 @@ class Json
      */
     #[NoReturn] public static function reply(array|Stringable|string|null $data = null, JsonAfterReplyInterface $action_after = JsonAfterReply::die): void
     {
+        // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
+        if (is_array($data)) {
+            $data = array_map(function ($value) {
+                if (is_numeric($value)) {
+                    return strval($value);
+                }
+
+                return $value;
+
+            }, $data);
+        }
+
         if (!is_string($data)) {
             if (is_object($data)) {
                 // Stringable object
@@ -56,14 +68,15 @@ class Json
             }
         }
 
-        Page::buildHttpHeaders($data);
+        Page::setContentType('application/json');
+        Page::sendHttpHeaders(Page::buildHttpHeaders($data));
 
         echo $data;
 
         switch ($action_after) {
             case JsonAfterReply::die:
                 // We're done, kill the connection % process (default)
-                die();
+                exit();
 
             case JsonAfterReply::continue:
                 // Continue running, keep the HTTP connection open
@@ -86,7 +99,7 @@ class Json
     /**
      * Send JSON error to client
      *
-     * @param string|array $message
+     * @param string|array|null $message
      * @param mixed $data
      * @param mixed $result
      * @param int $http_code The HTTP code to send out with Json::reply()
@@ -102,7 +115,7 @@ class Json
      * @note Uses Json::reply() to send the error to the client
      * @todo Fix $data and $result parameters. Are they used correctly? They are sometimes overwritten in the method
      */
-    public static function error(string|array $message, $data = null, $result = null, int $http_code = 500): void
+    public static function error(string|array|null $message, $data = null, $result = null, int $http_code = 500): void
     {
         if (!$message) {
             $message = '';
@@ -167,7 +180,7 @@ class Json
 
                 $code = $message->getCode();
 
-                if (Debug::enabled()) {
+                if (Debug::getEnabled()) {
                     /*
                      * This is a user visible message
                      */
@@ -197,7 +210,7 @@ class Json
                     $data = $message->getMessage();
 
                 } else {
-                    if (Debug::enabled()) {
+                    if (Debug::getEnabled()) {
                         // This is a user visible message
                         $messages = $message->getMessages();
 
@@ -229,11 +242,11 @@ class Json
     /**
      * Send a JSON message
      *
-     * @param int|string|object $code
+     * @param string|int|object $code
      * @param mixed $data
      * @return void
      */
-    public static function message(int|string|object $code, mixed $data = null): void
+    public static function message(string|int|object $code, mixed $data = null): void
     {
         if (is_object($code)) {
             if (!$code instanceof Throwable) {
@@ -360,7 +373,7 @@ class Json
                     ->setTitle('Unknown message specified')
                     ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]));
 
-                Json::error(null, (Debug::enabled() ? $data : null), 'ERROR', 500);
+                Json::error(null, (Debug::getEnabled() ? $data : null), 'ERROR', 500);
         }
     }
 

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
+use Phoundation\Cli\Exception\NoTtyException;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Numbers;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -140,6 +142,7 @@ class Cli
 
             // Display header
             foreach ($headers as $column => $header) {
+                $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
                 Log::cli(Color::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
             }
 
@@ -163,7 +166,9 @@ class Cli
                         $column = $id_column;
                     }
 
-                    Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                    if (array_key_exists($column, $headers)) {
+                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                    }
                 }
 
                 Log::cli();
@@ -243,6 +248,8 @@ class Cli
      */
     public static function readPassword(string $prompt): ?string
     {
+        static::checkTty(STDIN, 'stdin');
+
         if (static::$show_passwords) {
             // We show passwords!
             return static::readInput($prompt);
@@ -269,6 +276,8 @@ class Cli
      */
     public static function readInput(string $prompt, ?string $default = null): ?string
     {
+        static::checkTty(STDIN, 'stdin');
+
         $prompt = Strings::endsWith($prompt, ' ');
 
         if ($default) {
@@ -283,4 +292,55 @@ class Cli
 
         return $return;
     }
+
+
+    /**
+     * Checks if we have a TTY and throws exception if we don't
+     *
+     * @param mixed $file_descriptor
+     * @param string $tty_name
+     * @return void
+     */
+    public static function checkTty(mixed $file_descriptor, string $tty_name): void
+    {
+        if (!PLATFORM_CLI) {
+            throw new NoTtyException(tr('Cannot access TTY ":tty", the platform ":platform" is not supported for this', [
+                ':platform' => PLATFORM,
+                ':tty' => $tty_name
+            ]));
+        }
+
+        if (!stream_isatty($file_descriptor)) {
+            throw new NoTtyException(tr('Cannot access stream ":tty", the file descriptor is not a TTY', [
+                ':tty' => $tty_name
+            ]));
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

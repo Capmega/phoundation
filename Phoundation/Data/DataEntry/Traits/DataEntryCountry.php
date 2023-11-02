@@ -29,7 +29,7 @@ trait DataEntryCountry
      */
     public function getCountriesId(): ?int
     {
-        return $this->getDataValue('int', 'countries_id');
+        return $this->getSourceFieldValue('int', 'countries_id');
     }
 
 
@@ -41,7 +41,7 @@ trait DataEntryCountry
      */
     public function setCountriesId(?int $countries_id): static
     {
-        return $this->setDataValue('countries_id', $countries_id);
+        return $this->setSourceValue('countries_id', $countries_id);
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryCountry
      */
     public function getCountry(): ?Country
     {
-        $countries_id = $this->getDataValue('int', 'countries_id');
+        $countries_id = $this->getSourceFieldValue('int', 'countries_id');
 
         if ($countries_id) {
             return new Country($countries_id);
@@ -69,7 +69,7 @@ trait DataEntryCountry
      */
     public function getCountriesName(): ?string
     {
-        return $this->getDataValue('string', 'countries_name');
+        return $this->getSourceFieldValue('string', 'countries_name');
     }
 
 
@@ -81,6 +81,6 @@ trait DataEntryCountry
      */
     public function setCountriesName(?string $countries_name): static
     {
-        return $this->setDataValue('countries_name', $countries_name);
+        return $this->setSourceValue('countries_name', $countries_name);
     }
 }

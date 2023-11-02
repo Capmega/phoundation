@@ -9,7 +9,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 
 
-
 /**
  * Script project/check
  *
@@ -24,7 +23,17 @@ Documentation::usage('./pho system deploy
 ./pho system deploy TARGET --
 ');
 
-Documentation::help('This script will check - and report - (and optionally fix) the project and its systems
+Documentation::help('This script will deploy your project from this machine to the target environment
+
+Most options are configured in a per-target basis and can be specified on the command line to override this
+configuration in a do or do not way. For example, the "production" environment can have "execute-hooks" enabled with
+true, but this can be overridden on the command line by using --no-execute-hooks. Please note that modifiers specified
+on the command line apply on all specified targets. If you wish to use different modifiers for different targets, then
+execute an individual deploy process for each target
+
+The general deployment configuration is stored in config/deploy/deploy.yml. Every target environment must have its own
+deployment configuration file named config/deploy/ENVIRONMENT.yml where ENVIRONMENT is the name of the target
+environment. If the required target environment has no configuration file, you will not be able to deploy to it.
 
 
 
@@ -39,11 +48,18 @@ TARGET                                  - The target name to which to deploy
 -t / --targets                          - List all available deployment targets
 
 
--i / --ignore-changes                   - Ignore git status, don\'t check for uncommitted changes
+--do-ignore-changes                     - Do not ignore git status, check for uncommitted changes
+--no-ignore-changes                     - Ignore git status, don\'t check for uncommitted changes
 
---do-content-check                      - Check content files
+--do-content-check                      - Do check content files
 
---no-hook / --no-hooks                  - Do not execute hooks
+--no-content-check                      - Do not check content files
+
+--do-execute-hooks                      - Do execute hooks
+
+--no-execute-hooks                      - Do not execute hooks
+
+--do-init                               - Do execute an init on the target server
 
 --no-init                               - Do not execute an init on the target server
 
@@ -74,9 +90,6 @@ TARGET                                  - The target name to which to deploy
 --do-backup                             - Execute a site / database backup, even if per configuration, a backup should 
                                           not be done
 
---stash                                 - Execute a \"git stash\" before and \"git stash pop\" after deploy, in case the WT
-                                          contained changes
-
 --update-sitemap                        - rsync the www/LANG/sitemap file as well (Normally always skipped)
 
 -F / --force                            - Force a deploy, even when it should be stopped due to (for example) git changes
@@ -86,16 +99,59 @@ TARGET                                  - The target name to which to deploy
 --test-unit                             - Do PHP unit tests ');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-r,--repair')->isOptional()->isBoolean()
-    ->noArgumentsLeft()
+    ->select('--targets', true)->isOptional()->sanitizeForceArray(',')->each()->isVariable()
+    ->select('-c,--categories', true)->isOptional()->isVariable()
+    ->select('--do-ignore-changes')->isOptional()->isBoolean()
+    ->select('--no-ignore-changes')->isOptional()->isBoolean()
+    ->select('--do-content-check')->isOptional()->isBoolean()
+    ->select('--no-content-check')->isOptional()->isBoolean()
+    ->select('--do-execute-hooks')->isOptional()->isBoolean()
+    ->select('--no-execute-hooks')->isOptional()->isBoolean()
+    ->select('--do-init')->isOptional()->isBoolean()
+    ->select('--no-init')->isOptional()->isBoolean()
+    ->select('--do-notify')->isOptional()->isBoolean()
+    ->select('--no-notify')->isOptional()->isBoolean()
+    ->select('--do-compress')->isOptional()->isBoolean()
+    ->select('--no-compress')->isOptional()->isBoolean()
+    ->select('--do-push')->isOptional()->isBoolean()
+    ->select('--no-push')->isOptional()->isBoolean()
+    ->select('--do-parallel')->isOptional()->isBoolean()
+    ->select('--no-parallel')->isOptional()->isBoolean()
+    ->select('--do-translate')->isOptional()->isBoolean()
+    ->select('--no-translate')->isOptional()->isBoolean()
+    ->select('--do-bom-check')->isOptional()->isBoolean()
+    ->select('--no-bom-check')->isOptional()->isBoolean()
+    ->select('--do-backup')->isOptional()->isBoolean()
+    ->select('--no-backup')->isOptional()->isBoolean()
+    ->select('--do-stash')->isOptional()->isBoolean()
+    ->select('--no-stash')->isOptional()->isBoolean()
+    ->select('--do-update-sitemap')->isOptional()->isBoolean()
+    ->select('--no-update-sitemap')->isOptional()->isBoolean()
+    ->select('--do-test-syntax')->isOptional()->isBoolean()
+    ->select('--no-test-syntax')->isOptional()->isBoolean()
+    ->select('--do-test-unit')->isOptional()->isBoolean()
+    ->select('--no-test-unit')->isOptional()->isBoolean()
     ->validate();
 
 
-Log::information('Checking your system. Please wait, this may take a few seconds...');
-Project::deploy()
-    ->setTarget()
-    ->setTarget()
+Log::information('Starting deployment process');
+
+Project::new()->getDeploy($argv['targets'])
+    ->setIgnoreChanges($argv['do_ignore_changes'], $argv['no_ignore_changes'])
+    ->setExecuteHooks($argv['do_execute_hooks'], $argv['no_execute_hooks'])
+    ->setContentCheck($argv['do_content_check'], $argv['no_content_check'])
+    ->setInit($argv['do_init'], $argv['no_init'])
+    ->setNotify($argv['do_notify'], $argv['no_notify'])
+    ->setCompress($argv['do_compress'], $argv['no_compress'])
+    ->setPush($argv['do_push'], $argv['no_push'])
+    ->setParallel($argv['do_parallel'], $argv['no_parallel'])
+    ->setUpdateSitemap($argv['do_update_sitemap'], $argv['no_update_sitemap'])
+    ->setTranslate($argv['do_translate'], $argv['no_translate'])
+    ->setBomCheck($argv['do_bom_check'], $argv['no_bom_check'])
+    ->setBackup($argv['do_backup'], $argv['no_backup'])
+    ->setStash($argv['do_stash'], $argv['no_stash'])
+    ->setTestSyntax($argv['do_test_syntax'], $argv['no_test_syntax'])
+    ->setTestUnit($argv['no_test_unit'], $argv['no_test_unit'])
     ->execute();

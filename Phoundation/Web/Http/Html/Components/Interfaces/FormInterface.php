@@ -53,17 +53,17 @@ interface FormInterface
     /**
      * Sets the form no_validate
      *
-     * @return string|null
+     * @return bool
      */
-    public function getNoValidate(): ?string;
+    public function getNoValidate(): bool;
 
     /**
      * Sets the form no_validate
      *
-     * @param string $no_validate
+     * @param bool $no_validate
      * @return static
      */
-    public function setNoValidate(string $no_validate): static;
+    public function setNoValidate(bool $no_validate): static;
 
     /**
      * Sets the form auto_complete

@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Data\Traits\DataNewTarget;
+use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
+use Throwable;
+
 
 /**
  * Class AccessDeniedException
@@ -12,36 +16,20 @@ namespace Phoundation\Exception;
  *
  * @package Phoundation\Exception
  */
-class AccessDeniedException extends Exception
+class AccessDeniedException extends Exception implements AccessDeniedExceptionInterface
 {
-    /**
-     * The new target that should be executed because of this access denied
-     *
-     * @var string|int|null
-     */
-    protected string|int|null $new_target;
+    use DataNewTarget;
 
 
     /**
-     * Returns the new target
+     * AccessDeniedException class constructor
      *
-     * @return string|int|null
+     * @param Throwable|array|string|null $messages
+     * @param Throwable|null $previous
      */
-    public function getNewTarget(): string|int|null
+    public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {
-        return $this->new_target;
-    }
-
-
-    /**
-     * Sets the new target
-     *
-     * @param string|int|null $new_target
-     * @return AccessDeniedException
-     */
-    public function setNewTarget(string|int|null $new_target): static
-    {
-        $this->new_target = $new_target;
-        return $this;
+        parent::__construct($messages, $previous);
+        $this->makeWarning();
     }
 }

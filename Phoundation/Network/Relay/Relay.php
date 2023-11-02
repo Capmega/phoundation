@@ -189,6 +189,6 @@ class Relay
         flush();
 
         echo $data;
-        die();
+        exit();
     }
 }

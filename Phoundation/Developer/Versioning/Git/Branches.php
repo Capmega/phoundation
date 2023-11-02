@@ -7,7 +7,7 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Cli\Cli;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 
 
 /**

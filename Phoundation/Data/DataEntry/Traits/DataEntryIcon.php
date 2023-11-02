@@ -27,7 +27,7 @@ trait DataEntryIcon
      */
     public function getIcon(): ?string
     {
-        $return = $this->getDataValue('string', 'icon');
+        $return = $this->getSourceFieldValue('string', 'icon');
 
         if (!$return) {
             // Assign default icon
@@ -51,13 +51,13 @@ trait DataEntryIcon
      */
     public function setIcon(?string $icon): static
     {
-        if (strlen($icon) > 32) {
+        if (strlen((string) $icon) > 32) {
             throw new OutOfBoundsException(tr('Specified icon ":icon" is invalid, the string should be no longer than 32 characters', [
                 ':icon' => $icon
             ]));
         }
 
-        return $this->setDataValue('icon', $icon);
+        return $this->setSourceValue('icon', $icon);
     }
 }
 

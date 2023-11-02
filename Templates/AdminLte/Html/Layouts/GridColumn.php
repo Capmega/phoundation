@@ -37,7 +37,8 @@ class GridColumn extends Renderer
      */
     public function render(): ?string
     {
-        $this->render = '   <div class="col' . (Html::safe($this->render_object->getTier()->value) ? '-' . Html::safe($this->render_object->getTier()->value) : '') . '-' . Html::safe($this->render_object->getSize()->value) . '">';
+        $class        = $this->render_object->getClass();
+        $this->render = '   <div class="col' . (Html::safe($this->render_object->getTier()->value) ? '-' . Html::safe($this->render_object->getTier()->value) : '') . '-' . Html::safe($this->render_object->getSize()->value) . ($class ? ' ' . $class : '') . '">';
 
         if ($this->render_object->getForm()) {
             // Return column content rendered in a form

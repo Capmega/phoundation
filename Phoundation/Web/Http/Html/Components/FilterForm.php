@@ -6,7 +6,13 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Web\Http\Html\Enums\InputElement;
+use Phoundation\Web\Http\UrlBuilder;
+use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -27,15 +33,58 @@ class FilterForm extends DataEntryForm
     public function __construct()
     {
         parent::__construct();
+        $this->setId('filters');
+        $this->useForm(true)->getForm()->setMethod('GET')->setAction(UrlBuilder::getWww());
+    }
 
-        $this->definitions = Definitions::new()
-            ->addDefinition(Definition::new(null, 'type[]')
-                ->setLabel(tr('Type'))
-                ->setSize(6)
-                ->setElement(InputElement::select)
-                ->setSource([]))
-            ->addDefinition(Definition::new(null, 'filter[]')
-                ->setLabel(tr('Filter'))
-                ->setSize(6));
+
+    /**
+     * Returns value for the specified key
+     *
+     * @note This is the standard Iterator::getSourceKey, but here $exception is by default false
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getSourceKey(Stringable|string|float|int $key, bool $exception = false): mixed
+    {
+        return parent::getSourceKey($key, $exception);
+    }
+
+
+    /**
+     * Apply the filters from the Validator
+     *
+     * @param bool $clear_source
+     * @return $this
+     */
+    public function apply(bool $clear_source = true): static
+    {
+        $validator = Validator::get();
+
+        // Go over each field and let the field definition do the validation since it knows the specs
+        foreach ($this->definitions as $definition) {
+//            if ($definition->getReadonly() or $definition->getDisabled()) {
+//                // This field cannot be modified and should not be validated, unless its new or has a static value
+//                if (!$this->isNew() and !$definition->getValue()) {
+//                    $validator->removeSourceKey($definition->getField());
+//                    continue;
+//                }
+//            }
+//
+            $definition->validate($validator, null);
+        }
+
+        try {
+            // Execute the validate method to get the results of the validation
+            $this->source = $validator->validate($clear_source);
+
+        } catch (ValidationFailedException $e) {
+            // Add the DataEntry object type to the exception message
+            throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
+        }
+
+        return $this;
     }
 }

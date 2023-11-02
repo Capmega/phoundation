@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions;
 
+use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
+use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Sessions\Config;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -37,6 +40,22 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
 class DefinitionFactory
 {
     /**
+     * Returns Definition object for any database id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getDatabaseId(DataEntryInterface $data_entry, ?string $field = 'id'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputTypeExtended::dbid)
+            ->setSize(3);
+    }
+
+
+    /**
      * Returns Definition object for column categories_id
      *
      * @param DataEntryInterface $data_entry
@@ -51,6 +70,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Categories::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -64,7 +85,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column category
+     * Returns Definition object for column categories_name
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -80,7 +101,7 @@ class DefinitionFactory
             ->setLabel(tr('Category'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Categories::new()->filteredList($word);
+                    return Categories::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Categories::new()->getSource();
@@ -90,6 +111,40 @@ class DefinitionFactory
                 // Ensure category exists and that its a category id or category name
                 $validator->or('categories_id')->isName()->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
             });
+    }
+
+
+    /**
+     * Returns Definition object for column parents_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getParentsId(DataEntryInterface $data_entry, ?string $field = 'parents_id'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setSize(6)
+            ->setLabel(tr('Parent'));
+    }
+
+
+    /**
+     * Returns Definition object for column parents_name
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getParent(DataEntryInterface $data_entry, ?string $field = 'parents_name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setVisible(false)
+            ->setVirtual(true)
+            ->setCliField('-p,--parent PARENT-NAME')
+            ->setLabel(tr('Parent'));
     }
 
 
@@ -108,6 +163,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Companies::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -137,7 +194,7 @@ class DefinitionFactory
             ->setLabel(tr('Company'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Companies::new()->filteredList($word);
+                    return Companies::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Companies::new()->getSource();
@@ -166,6 +223,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Languages::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -199,7 +258,7 @@ class DefinitionFactory
             ->setLabel(tr('Language'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Languages::new()->filteredList($word);
+                    return Languages::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Languages::new()->getSource();
@@ -227,6 +286,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Providers::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -255,7 +316,7 @@ class DefinitionFactory
             ->setLabel(tr('Provider'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Providers::new()->filteredList($word);
+                    return Providers::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Providers::new()->getSource();
@@ -283,6 +344,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Customers::new()->getHtmlSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -311,7 +374,7 @@ class DefinitionFactory
             ->setLabel(tr('Customer'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Customers::new()->filteredList($word);
+                    return Customers::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Customers::new()->getSource();
@@ -339,7 +402,10 @@ class DefinitionFactory
             ->setInputType(InputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Timezones::new()->getHtmlSelect()
-                    ->setSelected(isset_get($source['timezones_id']))
+                    ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
+                    ->setSelected(isset_get($source[$key]))
                     ->render();
             })
             ->setCliField('--timezones-id TIMEZONE-DATABASE-ID')
@@ -372,7 +438,7 @@ class DefinitionFactory
             ->setLabel(tr('Timezone'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Timezones::new()->filteredList($word);
+                    return Timezones::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Timezones::new()->getSource();
@@ -401,6 +467,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Countries::getHtmlCountriesSelect()
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -431,7 +499,7 @@ class DefinitionFactory
             ->setLabel(tr('Country'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Countries::new()->filteredList($word);
+                    return Countries::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Countries::new()->getSource();
@@ -460,6 +528,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return Country::get($source['countries_id'])->getHtmlStatesSelect($key)
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -490,7 +560,7 @@ class DefinitionFactory
             ->setLabel(tr('State'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return States::new()->filteredList($word);
+                    return States::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return States::new()->getSource();
@@ -519,6 +589,8 @@ class DefinitionFactory
             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters) {
                 return State::get($source['states_id'])->getHtmlCitiesSelect($key)
                     ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -549,7 +621,7 @@ class DefinitionFactory
             ->setLabel(tr('City'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Cities::new()->filteredList($word);
+                    return Cities::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Cities::new()->getSource();
@@ -581,6 +653,8 @@ class DefinitionFactory
                 return Users::new()->getHtmlSelect()
                     ->setId($field)
                     ->setName($field)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
                     ->setSelected(isset_get($source[$key]))
                     ->render();
             })
@@ -608,7 +682,7 @@ class DefinitionFactory
             ->setLabel(tr('User'))
             ->setCliAutoComplete([
                 'word' => function ($word) {
-                    return Users::new()->filteredList($word);
+                    return Users::new()->getMatchingKeys($word);
                 },
                 'noword' => function () {
                     return Users::new()->getSource();
@@ -616,6 +690,66 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->or('users_id')->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
+            });
+    }
+
+
+    /**
+     * Returns Definition object for column roles_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @param array|null $filters
+     * @return DefinitionInterface
+     */
+    public static function getRolesId(DataEntryInterface $data_entry, ?string $field = 'roles_id', array $filters = null): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputTypeExtended::dbid)
+            ->setSize(3)
+            ->setCliAutoComplete(true)
+            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) use ($filters, $field) {
+                return Roles::new()->getHtmlSelect()
+                    ->setId($field)
+                    ->setName($field)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
+                    ->setSelected(isset_get($source[$key]))
+                    ->render();
+            })
+            ->addValidationFunction(function (ValidatorInterface $validator) use ($field) {
+                $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_roles` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $field]);
+            });
+    }
+
+
+    /**
+     * Returns Definition object for column roles_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getRolesName(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setVisible(false)
+            ->setVirtual(true)
+            ->setInputType(InputTypeExtended::name)
+            ->setCliField('-r,--role EMAIL')
+            ->setLabel(tr('Role'))
+            ->setCliAutoComplete([
+                'word' => function ($word) {
+                    return Roles::new()->getMatchingKeys($word);
+                },
+                'noword' => function () {
+                    return Roles::new()->getSource();
+                },
+            ])
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->or('roles_id')->setColumnFromQuery('roles_id', 'SELECT `id` FROM `accounts_roles` WHERE `name` = :name', [':name' => '$name']);
             });
     }
 
@@ -775,7 +909,7 @@ class DefinitionFactory
             ->setInputType(InputType::url)
             ->setMaxlength(2048)
             ->setCliAutoComplete(true)
-            ->setCliField('--w,--website WEBSITE-URL')
+            ->setCliField('-w,--website WEBSITE-URL')
             ->setLabel(tr('Website URL'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isOptional()->isUrl();
@@ -797,7 +931,10 @@ class DefinitionFactory
             ->setInputType(InputTypeExtended::phone)
             ->setLabel(tr('Phone number'))
             ->setCliField(tr('-p,--phone-number PHONE-NUMBER'))
-            ->setMaxlength(16);
+            ->setMaxlength(22)
+            ->setDisplayCallback(function (mixed $value, array $source) {
+                return CoreLocale::formatPhoneNumber($value);
+            });
     }
 
 
@@ -860,6 +997,26 @@ class DefinitionFactory
             ->setCliField('-d,--description "DESCRIPTION"')
             ->setCliAutoComplete(true)
             ->setLabel(tr('Description'));
+    }
+
+
+    /**
+     * Returns Definition object for column content
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getContent(DataEntryInterface $data_entry, ?string $field = 'content'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputType::text)
+            ->setSize(12)
+            ->setMaxlength(16_777_215)
+            ->setCliField('--content "CONTENT"')
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('Content'));
     }
 
 

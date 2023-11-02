@@ -27,7 +27,7 @@ trait DataEntryEmployee
      */
     public function getEmployeesId(): ?int
     {
-        return $this->getDataValue('int', 'employees_id');
+        return $this->getSourceValue('int', 'employees_id');
     }
 
 
@@ -39,7 +39,7 @@ trait DataEntryEmployee
      */
     public function setEmployeesId(?int $employees_id): static
     {
-        return $this->setDataValue('employees_id', $employees_id);
+        return $this->setSourceValue('employees_id', $employees_id);
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryEmployee
      */
     public function getEmployee(): ?Employee
     {
-        $employees_id = $this->getDataValue('int', 'employees_id');
+        $employees_id = $this->getSourceValue('int', 'employees_id');
 
         if ($employees_id) {
             return new Employee($employees_id);
@@ -67,7 +67,7 @@ trait DataEntryEmployee
      */
     public function getEmployeesName(): ?string
     {
-        return $this->getDataValue('string', 'employees_name');
+        return $this->getSourceValue('string', 'employees_name');
     }
 
 
@@ -79,6 +79,6 @@ trait DataEntryEmployee
      */
     public function setEmployeesName(?string $employees_name): static
     {
-        return $this->setDataValue('employees_name', $employees_name);
+        return $this->setSourceValue('employees_name', $employees_name);
     }
 }

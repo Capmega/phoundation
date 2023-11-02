@@ -26,7 +26,7 @@ class Modal extends Renderer
     /**
      * Modal class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Modal $element)
+    public function __construct(\Phoundation\Web\Http\Html\Components\Modals\Modal $element)
     {
         parent::__construct($element);
     }

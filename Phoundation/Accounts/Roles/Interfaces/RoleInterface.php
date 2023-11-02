@@ -5,7 +5,8 @@ namespace Phoundation\Accounts\Roles\Interfaces;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 
 
@@ -37,9 +38,10 @@ interface RoleInterface extends DataEntryInterface
     public function getUsers(): UsersInterface;
 
     /**
-     * Creates and returns an HTML for the fir
+     * * Creates and returns an HTML DataEntry form
      *
-     * @return FormInterface
+     * @param string $name
+     * @return DataEntryFormInterface
      */
-    public function getRightsHtmlForm(): FormInterface;
+    public function getRightsHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;
 }

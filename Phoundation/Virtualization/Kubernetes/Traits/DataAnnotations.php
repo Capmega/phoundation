@@ -80,10 +80,10 @@ trait DataAnnotations
      * Adds the specified annotation
      *
      * @param string $key
-     * @param int|string $value
+     * @param string|int $value
      * @return static
      */
-    public function addAnnotation(string $key, int|string $value): static
+    public function addAnnotation(string $key, string|int $value): static
     {
         $this->annotations[$key] = $value;
         return $this;

@@ -6,6 +6,7 @@ namespace Phoundation\Exception\Interfaces;
 
 use Phoundation\Exception\Exception;
 use Phoundation\Notifications\Notification;
+use Throwable;
 
 
 /**
@@ -18,7 +19,7 @@ use Phoundation\Notifications\Notification;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Exception
  */
-interface ExceptionInterface
+interface ExceptionInterface extends Throwable
 {
     /**
      * Return the exception related data
@@ -31,9 +32,10 @@ interface ExceptionInterface
      * Set the exception data
      *
      * @param mixed $data
+     * @param string|null $key
      * @return static
      */
-    public function setData(mixed $data): static;
+    public function addData(mixed $data, ?string $key = null): static;
 
     /**
      * Returns the exception messages
@@ -49,6 +51,22 @@ interface ExceptionInterface
      * @return Exception
      */
     public function addMessages(array $messages): static;
+
+    /**
+     * Changes the exception messages list to the specified messages
+     *
+     * @param array $messages
+     * @return static
+     */
+    public function setMessages(array $messages): static;
+
+    /**
+     * Changes the exception message to the specified message
+     *
+     * @param string $message
+     * @return static
+     */
+    public function setMessage(string $message): static;
 
     /**
      * Returns the warning setting for this exception. If true, the exception message may be displayed completely

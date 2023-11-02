@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Exception;
 
+use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
+use Phoundation\Data\Traits\DataNewTarget;
 use Throwable;
 
 
@@ -17,8 +19,17 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class AuthenticationException extends UsersException
+class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
+    use DataNewTarget;
+
+
+    /**
+     * AuthenticationException class constructor
+     *
+     * @param Throwable|array|string|null $messages
+     * @param Throwable|null $previous
+     */
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {
         parent::__construct($messages, $previous);

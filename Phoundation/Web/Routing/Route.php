@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Exception;
+use GeoIp2\Model\Domain;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\DateTime;
-use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -25,6 +24,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Url;
@@ -51,6 +51,13 @@ class Route
      * @var Route
      */
     protected static Route $instance;
+
+    /**
+     * Keeps track if the routing system has been initialized
+     *
+     * @var bool $init
+     */
+    protected static bool $init = false;
 
     /**
      * The temporary template to use while routing ONLY for the current try
@@ -117,22 +124,13 @@ class Route
          */
         static::$method = ($_POST ? 'POST' : 'GET');
         static::$ip     = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
+        static::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
         static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri                   , '?');
-        static::$query  = Strings::from($_SERVER['REQUEST_URI']         , '?');
-
-        if (strlen(static::$uri) > 2048) {
-            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
-                ':uri'   => static::$uri,
-                ':count' => strlen(static::$uri)
-            ]));
-
-            static::executeSystem(400);
-        }
 
         // Start the Core object, hide $_GET & $_POST
         try {
-            if (Core::stateIs('init')) {
+            if (Core::isState(null)) {
                 Core::startup();
                 GetValidator::hideData();
                 PostValidator::hideData();
@@ -153,8 +151,44 @@ class Route
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]));
 
-        Core::registerShutdown('route[shutdown]'   , ['\Phoundation\Web\Routing\Route', 'shutdown']);
         Core::registerShutdown('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
+    }
+
+
+
+    /**
+     * Will execute a few initial checks
+     *
+     * @return void
+     */
+    protected static function init(): void
+    {
+        if (Core::getMaintenanceMode()) {
+            // We're running in maintenance mode, show the maintenance page
+            Log::warning('WARNING: Not processing routes, system is in maintenance mode');
+            static::executeSystem(503);
+        }
+
+        // URI may not be more than 2048 bytes
+        if (strlen(static::$uri) > 2048) {
+            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
+                ':uri'   => static::$uri,
+                ':count' => strlen(static::$uri)
+            ]));
+
+            static::executeSystem(400);
+        }
+
+        // Check for double // anywhere in the URL, this is automatically rejected with a 404, not found
+        // NOTE: This is checked on $_SERVER['REQUEST_URI'] and not static::$uri because static::$uri already has the
+        // first slash(es) stripped during the __construct() phase
+        if (str_contains($_SERVER['REQUEST_URI'], '//')) {
+            Log::warning(tr('Requested URI ":uri" contains one or multiple double slashes, automatically rejecting this with a 404 page', [
+                ':uri' => $_SERVER['REQUEST_URI']
+            ]));
+
+            static::executeSystem(404);
+        }
     }
 
 
@@ -165,8 +199,17 @@ class Route
      */
     public static function getInstance(): static
     {
-        if (!isset(static::$instance)) {
+        if (empty(static::$instance)) {
             static::$instance = new static();
+        }
+
+        // We should execute the initialisation only once
+        if (!static::$init) {
+            // Only initialise when parameters list has been set, since init may cause this list to be needed
+            if (isset(static::$parameters)) {
+                static::$init = true;
+                static::init();
+            }
         }
 
         return static::$instance;
@@ -325,14 +368,9 @@ class Route
         static $count = 1;
 
         static::getInstance();
+        static::validateHost();
 
         try {
-            // Double slash (//) in the URL is automatically 4o4
-            if (str_contains(static::$uri, '//')) {
-                Log::warning('Encountered double slash in URL, automatically 404-ing');
-                static::executeSystem(404);
-            }
-
             if (!$url_regex) {
                 // Match an empty string
                 $url_regex = '/^$/';
@@ -433,7 +471,7 @@ class Route
                 return;
             }
 
-            if (Debug::enabled()) {
+            if (Debug::getEnabled()) {
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
                     ':count'   => $count,
                     ':regex'   => $url_regex,
@@ -585,6 +623,7 @@ class Route
                     case 'H':
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
                         Notification::new()
+                            ->setUrl('security/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('hack')
                             ->setRoles('security')
@@ -898,7 +937,7 @@ class Route
 
             if ($block) {
                 // Block the request by dying
-                Page::die();
+                exit();
             }
 
         } catch (Exception $e) {
@@ -927,7 +966,7 @@ class Route
             static::execute($page, $attachment);
 
         } catch (FileNotExistException $e) {
-            Log::warning(tr('Page ":page" does not exist', [':page' => $page]));
+            Log::warning(tr('Page ":page" does not exist', [':page' => $e->getDataKey('target') ?? $page]));
 
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route[postprocess]');
@@ -989,38 +1028,6 @@ class Route
     /**
      * Shutdown the URL routing
      *
-     * @see Route::postProcess()
-     * @return void
-     */
-    public static function shutdown(?int $http_code = null): void
-    {
-        if (!$http_code) {
-            // Use page HTTP code
-            $http_code = Page::getHttpCode();
-        }
-
-        if ($http_code === 200) {
-            Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':httpcode' => $http_code
-            ]));
-
-        } else {
-            Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':httpcode' => $http_code
-            ]));
-        }
-    }
-
-
-    /**
-     * Shutdown the URL routing
-     *
      * @note: This function typically is called automatically
      *
      * @see Route::try()
@@ -1073,10 +1080,10 @@ class Route
             ]));
         }
 
-        // Route the requested system page. The called method will die(), so the following die() call is there more to
+        // Route the requested system page. The called method will exit(), so the following exit() call is there more to
         // make the static analyzers shut up :)
         RouteSystem::new(static::getParameters()->select(static::$uri, true))->$method();
-        die();
+        exit();
     }
 
 
@@ -1154,7 +1161,7 @@ class Route
             include($target);
         }
 
-        Page::die();
+        exit();
     }
 
 
@@ -1220,5 +1227,54 @@ class Route
 //
 //        return FirewallEntry;
 //        return $route;
+    }
+
+
+    /**
+     * Ensure that the requested host name is valid
+     *
+     * @todo implement
+     * @return void
+     */
+    protected static function validateHost(): void
+    {
+        // Check only once
+        static $validated = false;
+return;
+
+        if (!$validated) {
+            $validated = true;
+
+            // Check that the domain doesn't start or end with a dot (.) if it does, redirect to the domain without the .
+            // In principle, this should already cause a shitload of other issues, like SSL certs not working, etc. but
+            // still, just to be sure
+            if (empty($_SERVER['HTTP_HOST'])) {
+                // No host name WTF? Redirect to the main site
+                Page::setRoutingParameters(static::getParameters()->select(UrlBuilder::getRootDomainRootUrl()));
+                Page::redirect(UrlBuilder::getRootDomainRootUrl());
+            }
+
+            if (str_starts_with($_SERVER['HTTP_HOST'], '.') or str_ends_with($_SERVER['HTTP_HOST'], '.')) {
+                Log::warning(tr('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
+                    ':host' => $_SERVER['HTTP_HOST']
+                ]));
+
+                // Remove dots, whitespaces, etc.
+                $domain = trim(trim($_SERVER['HTTP_HOST'], '.'));
+
+                if (Domains::isConfigured($domain)) {
+                    Log::warning(tr('HTTP HOST ":host" is not configured, redirecting to main site main page', [
+                        ':host' => $_SERVER['HTTP_HOST']
+                    ]));
+
+                    Page::setRoutingParameters(static::getParameters()->select(UrlBuilder::getRootDomainRootUrl()));
+                    Page::redirect(UrlBuilder::getRootDomainRootUrl());
+                }
+
+                // Redirect to correct page
+                Page::setRoutingParameters(static::getParameters()->select(UrlBuilder::getRootDomainUrl()));
+                Page::redirect(UrlBuilder::getRootDomainUrl());
+            }
+        }
     }
 }

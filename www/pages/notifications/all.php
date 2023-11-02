@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
@@ -33,7 +33,7 @@ $notifications = Notifications::new()
     ->markSeverityColumn();
 
 $notifications->getQueryBuilder()
-    ->addSelect('`id`, `title`, `mode` AS `severity`, `priority`, `created_on`')
+    ->addSelect('`id`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
     ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUser()->getId()])
     ->addOrderBy('`created_by` ASC');
 
@@ -62,9 +62,16 @@ $filters = Card::new()
 
 
 // Build notifications table
-$table = $notifications->getHtmlDataTable()
-    ->setRowUrl('/notifications/notification-:ROW.html');
+$table = $notifications
+    ->getHtmlDataTable()
+        ->setRowUrl('/notifications/notification-:ROW.html')
+        ->setAnchorClasses('notification open-modal');
 
+$table->getAnchorDataAttributes()->add(':ROW', 'id');
+;
+
+
+// Build notifications card
 $notifications = Card::new()
     ->setTitle('Active notifications')
     ->setSwitches('reload')
@@ -93,7 +100,7 @@ $documentation = Card::new()
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($filters->render() . $notifications->render(), DisplaySize::nine)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
+
 
 /**
  * Class OutOfBoundsException
@@ -13,6 +15,6 @@ namespace Phoundation\Exception;
  *
  * @package Phoundation\Exception
  */
-class OutOfBoundsException extends Exception
+class OutOfBoundsException extends Exception implements OutOfBoundsExceptionInterface
 {
 }

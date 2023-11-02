@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
@@ -39,16 +42,40 @@ $notification = Notification::get($get['id']);
 $notification->setStatus('READ');
 
 
+// Validate POST and submit
+if (Page::isPostRequestMethod()) {
+    try {
+        switch (PostValidator::getSubmitButton()) {
+            case tr('Mark unread'):
+                $notification->setStatus('UNREAD');
+                Page::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [':notification' => $notification->getTitle()]));
+        }
+
+    } catch (ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on page
+        Page::getFlashMessages()->addMessage($e);
+    }
+}
+
+
+// Do we have a URL?
+if ($notification->getUrl()) {
+    $go = Button::new()
+        ->setRight(true)
+        ->setValue(tr('Go'))
+        ->setAnchorUrl($notification->getUrl());
+}
+
 // Build the notification form
 $notification_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
-    ->setTitle(tr('Display data for notification ":name"', [':name' => $notification->getTitle()]))
-    ->setContent($notification->getHtmlForm()->render())
+    ->setTitle($notification->getTitle())
+    ->setContent($notification->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/notifications.html', true)
-        ->addButton(isset_get($delete))
-        ->addButton(isset_get($impersonate)));
+        ->addButton(tr('Mark unread'))
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
+        ->addButton(isset_get($go)));
 
 
 // Build relevant links
@@ -71,18 +98,21 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($notification_card, DisplaySize::nine)
+    ->addColumn($notification_card, DisplaySize::nine, true)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Notification'));
-Page::setHeaderSubTitle($notification->getTitle());
+Page::setHeaderSubTitle($notification->getId());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                       => tr('Home'),
     '/notifications/all.html' => tr('Notifications'),
-    ''                        => $notification->getTitle()
+    ''                        => tr(':id [:title]', [
+        ':title' => $notification->getTitle(),
+        ':id'    => $notification->getId()
+    ])
 ]));

@@ -24,7 +24,7 @@ trait DataEntryTitle
      */
     public function getTitle(): ?string
     {
-        return $this->getDataValue('string', 'title');
+        return $this->getSourceFieldValue('string', 'title');
     }
 
 
@@ -36,6 +36,6 @@ trait DataEntryTitle
      */
     public function setTitle(?string $title): static
     {
-        return $this->setDataValue('title', $title);
+        return $this->setSourceValue('title', $title);
     }
 }

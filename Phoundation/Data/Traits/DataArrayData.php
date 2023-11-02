@@ -68,10 +68,10 @@ trait DataArrayData
      * Adds the specified data
      *
      * @param array|string|null $key
-     * @param int|string|null $value
+     * @param string|int|null $value
      * @return static
      */
-    public function addData(array|string|null $key, int|string|null $value = null): static
+    public function addData(array|string|null $key, string|int|null $value = null): static
     {
         if (is_array($key)) {
             $data = $key;

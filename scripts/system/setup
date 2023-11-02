@@ -63,7 +63,6 @@ $argv = ArgvValidator::new()
     ->select('--demo')->isOptional(false)->isBoolean()
     ->select('--min', true)->isOptional(0)->isNatural()
     ->select('--max', true)->isOptional(100)->isNatural()
-    ->noArgumentsLeft()
     ->validate();
 
 

@@ -6,9 +6,9 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
-use Phoundation\Data\Traits\UsesNew;
+use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Json;
+use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
 
@@ -24,7 +24,7 @@ use Stringable;
  */
 trait ElementAttributes
 {
-    use UsesNew;
+    use NewSource;
 
 
     /**
@@ -96,6 +96,13 @@ trait ElementAttributes
      * @var bool $disabled
      */
     protected bool $disabled = false;
+
+    /**
+     * The HTML required attribute
+     *
+     * @var bool $required
+     */
+    protected bool $required = false;
 
     /**
      * The tabindex for this element
@@ -200,7 +207,7 @@ trait ElementAttributes
      * @param bool $id_too
      * @return static
      */
-    public function setName(?string $name, bool $id_too = true): static
+    public function setName(?string $name, bool $id_too = false): static
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
@@ -627,27 +634,27 @@ trait ElementAttributes
     {
         if ($auto_focus) {
             if (static::$autofocus !== null) {
-                if (static::$autofocus !== $this->id) {
-                    throw new OutOfBoundsException(tr('Cannot set autofocus on element ":id", its already being used by id ":already"', [
-                        ':id'      => $this->id,
+                if (static::$autofocus !== $this->name) {
+                    throw new OutOfBoundsException(tr('Cannot set autofocus on element ":name", its already being used by HTML element name ":already"', [
+                        ':name'      => $this->name,
                         ':already' => static::$autofocus
                     ]));
                 }
             }
 
-            if (!$this->id) {
-                throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no id specified yet'));
+            if (!$this->name) {
+                throw new OutOfBoundsException(tr('Cannot set autofocus on element, it has no HTML element name specified yet'));
             }
 
-            static::$autofocus = $this->id;
+            static::$autofocus = $this->name;
 
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
                 // Some element has auto focus, is it this one?
-                if (static::$autofocus === $this->id) {
-                    throw new OutOfBoundsException(tr('Cannot remove autofocus from element ":id", it does not have autofocus', [
-                        ':id' => $this->id
+                if (static::$autofocus === $this->name) {
+                    throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
+                        ':name' => $this->name
                     ]));
                 }
 
@@ -668,19 +675,30 @@ trait ElementAttributes
      */
     public function getAutofocus(): bool
     {
-        return static::$autofocus and (static::$autofocus === $this->id);
+        return static::$autofocus and (static::$autofocus === $this->name);
     }
 
 
     /**
-     * Set the HTML disabled element attribute
+     * Returns the HTML required element attribute
      *
-     * @param bool $disabled
+     * @return bool
+     */
+    public function getRequired(): bool
+    {
+        return $this->required;
+    }
+
+
+    /**
+     * Set the HTML required element attribute
+     *
+     * @param bool $required
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setRequired(bool $required): static
     {
-        $this->disabled = $disabled;
+        $this->required = $required;
         return $this;
     }
 
@@ -697,14 +715,21 @@ trait ElementAttributes
 
 
     /**
-     * Set the HTML readonly element attribute
+     * Set the HTML disabled element attribute
      *
-     * @param bool $readonly
+     * @param bool $disabled
      * @return static
      */
-    public function setReadonly(bool $readonly): static
+    public function setDisabled(bool $disabled): static
     {
-        $this->readonly = $readonly;
+        if ($disabled) {
+            $this->addClass('disabled');
+
+        } else {
+            $this->removeClass('disabled');
+        }
+
+        $this->disabled = $disabled;
         return $this;
     }
 
@@ -717,6 +742,26 @@ trait ElementAttributes
     public function getReadonly(): bool
     {
         return $this->readonly;
+    }
+
+
+    /**
+     * Set the HTML readonly element attribute
+     *
+     * @param bool $readonly
+     * @return static
+     */
+    public function setReadonly(bool $readonly): static
+    {
+        if ($readonly) {
+            $this->addClass('readonly');
+
+        } else {
+            $this->removeClass('readonly');
+        }
+
+        $this->readonly = $readonly;
+        return $this;
     }
 
 
@@ -797,12 +842,13 @@ trait ElementAttributes
      * Sets the content of the element
      *
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = null;
-        return $this->addContent($content);
+        return $this->addContent($content, $make_safe);
     }
 
 
@@ -810,14 +856,20 @@ trait ElementAttributes
      * Adds the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content): static
+    public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             static::canRenderHtml($content);
-            $content = $content->render();
+            $content   = $content->render();
+            $make_safe = false;
+        }
+
+        if ($make_safe) {
+            $content = Html::safe($content);
         }
 
         $this->content .= $content;

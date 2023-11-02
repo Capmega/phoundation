@@ -37,7 +37,6 @@ ARGUMENTS
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('server')->hasMinCharacters(2)->hasMaxCharacters(255)
-    ->noArgumentsLeft()
     ->validate();
 
 

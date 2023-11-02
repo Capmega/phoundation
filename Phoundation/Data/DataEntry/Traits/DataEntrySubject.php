@@ -24,7 +24,7 @@ trait DataEntrySubject
      */
     public function getSubject(): ?string
     {
-        return $this->getDataValue('string', 'subject');
+        return $this->getSourceValue('string', 'subject');
     }
 
 
@@ -36,6 +36,6 @@ trait DataEntrySubject
      */
     public function setSubject(?string $number): static
     {
-        return $this->setDataValue('subject', $number);
+        return $this->setSourceValue('subject', $number);
     }
 }

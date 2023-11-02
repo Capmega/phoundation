@@ -30,7 +30,7 @@ trait DataEntryMode
      */
     public function getMode(): DisplayModeInterface
     {
-        return DisplayMode::from((string) $this->getDataValue('string', 'mode', 'primary'));
+        return DisplayMode::from((string) $this->getSourceFieldValue('string', 'mode', 'primary'));
     }
 
 
@@ -47,6 +47,6 @@ trait DataEntryMode
         }
 
         // Ensure we have primary display mode
-        return $this->setDataValue('mode', $mode->getPrimary($mode)->value);
+        return $this->setSourceValue('mode', $mode->getPrimary($mode)->value);
     }
 }

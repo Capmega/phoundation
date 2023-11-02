@@ -7,8 +7,7 @@ namespace Phoundation\Web\Routing;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
@@ -16,7 +15,6 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\Protocols;
 use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
 
@@ -50,9 +48,9 @@ class RoutingParameters
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var Restrictions|array|string $restrictions
+     * @var Restrictions|array|string|null $restrictions
      */
-    protected Restrictions|array|string $restrictions;
+    protected Restrictions|array|string|null $restrictions = null;
 
     /**
      * Sets the default base URL for all links generated
@@ -376,16 +374,11 @@ class RoutingParameters
     /**
      * Returns the server restrictions
      *
-     * @return RestrictionsInterface|array|string|null
+     * @return RestrictionsInterface
      */
-    public function getRestrictions(): RestrictionsInterface|array|string|null
+    public function getRestrictions(): RestrictionsInterface
     {
-        if (!isset($this->restrictions)) {
-            // Set default server restrictions
-            $this->restrictions = Core::ensureRestrictions(PATH_WWW, false, 'Route');
-        }
-
-        return $this->restrictions;
+        return Restrictions::default($this->restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
     }
 
 
@@ -397,7 +390,7 @@ class RoutingParameters
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = Core::ensureRestrictions($restrictions, PATH_WWW, 'Route');
+        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
         return $this;
     }
 

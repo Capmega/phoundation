@@ -7,6 +7,7 @@ use DateTime;
 use PDOStatement;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Stringable;
 use UnitEnum;
 
 /**
@@ -43,7 +44,7 @@ interface ValidatorInterface
      *
      * @return mixed
      */
-    public function getSourceValue(): mixed;
+    public function getSelectedValue(): mixed;
 
     /**
      * Allow the validator to check each element in a list of values.
@@ -633,29 +634,32 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $exists_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isPath(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isPath(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param string|null $exists_in_path
+     * @param Stringable|string|null $check_in_path
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isDirectory(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isDirectory(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param string|null $exists_in_path
+     * @param Stringable|string|null $check_in_directory
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param bool $exists
      * @return static
      */
-    public function isFile(?string $exists_in_path = null, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function isFile(Stringable|string|null $check_in_directory = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid description
@@ -813,6 +817,14 @@ interface ValidatorInterface
      * @see trim()
      */
     public function sanitizeHtmlEntities(): static;
+
+    /**
+     * Sanitize the selected value by applying htmlspecialchars()
+     *
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeHtmlSpecialChars(): static;
 
     /**
      * Sanitize the selected value by trimming whitespace
@@ -1055,8 +1067,8 @@ interface ValidatorInterface
     /**
      * Selects the specified key within the array that we are validating
      *
-     * @param int|string $field The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
      * @return static
      */
-    public function standardSelect(int|string $field): static;
+    public function standardSelect(string|int $field): static;
 }

@@ -26,7 +26,7 @@ trait DataEntryPhone
      */
     public function getPhone(): ?string
     {
-        return $this->getDataValue('string', 'phone');
+        return $this->getSourceFieldValue('string', 'phone');
     }
 
 
@@ -38,6 +38,6 @@ trait DataEntryPhone
      */
     public function setPhone(array|string|null $phone): static
     {
-        return $this->setDataValue('phone', Strings::force($phone));
+        return $this->setSourceValue('phone', Strings::force($phone));
     }
 }

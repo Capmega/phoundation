@@ -6,9 +6,8 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -145,6 +144,49 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
+     * Returns a complete www URL for the previous page, or the specified URL
+     *
+     * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
+     * or if they are the current page, then the specified URL will be sent instead.
+     *
+     * @param UrlBuilder|string|null $url The URL to build if no valid previous page is available
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     * @return static
+     */
+    public static function getPrevious(UrlBuilder|string|null $url = null, bool $use_configured_root = false): static
+    {
+        if (empty($_SERVER['HTTP_REFERER'])) {
+            if (empty($_GET['previous'])) {
+                if (!empty($_GET['redirect'])) {
+                    $option = $_GET['redirect'];
+                }
+
+            } else {
+                $option = $_GET['previous'];
+            }
+
+        } else {
+            $option = $_SERVER['HTTP_REFERER'];
+        }
+
+        if (!empty($option)) {
+            // We found an option, yay!
+            $option  = static::getWww($option, $use_configured_root);
+            $current = static::getWww(null, $use_configured_root);
+
+            if ((string) $current !== (string) $option) {
+                // Option is not current page, return it!
+                return $option;
+            }
+        }
+
+        // No URL found in any of the options, or option was current page. use the specified URL
+        return static::getWww($url, $use_configured_root);
+    }
+
+
+    /**
      * Returns a CDN URL
      *
      * @param Stringable|string $url
@@ -230,6 +272,18 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
+     * Returns the current URL for the specified domain
+     *
+     * @param string $domain
+     * @return static
+     */
+    public static function getDomainCurrentUrl(string $domain): static
+    {
+        return new static($domain . Page::getUri());
+    }
+
+
+    /**
      * Returns the root URL for the primary domain
      *
      * @return static
@@ -269,7 +323,7 @@ class UrlBuilder implements UrlBuilderInterface
 
         } catch (ValidationFailedException) {
             Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
-                ':url' => GetValidator::new()->getSourceKey('redirect')
+                ':url' => GetValidator::new()->getSourceValue('redirect')
             ]));
         }
 
@@ -485,7 +539,7 @@ class UrlBuilder implements UrlBuilderInterface
             ]));
         }
 
-        sql()->dataEntrydelete('url_cloaks', [':cloak' => $this->url]);
+        sql()->dataEntryDelete('url_cloaks', [':cloak' => $this->url]);
         return $this;
     }
 
@@ -574,19 +628,23 @@ class UrlBuilder implements UrlBuilderInterface
             }
 
             $key = Strings::until($query, '=');
+            $value = Strings::from($query, '=');
+
+            $key = urlencode($key);
+            $value = urlencode($value);
 
             if (!str_contains($this->url, '?')) {
                 // This URL has no query yet, begin one
-                $this->url .= '?' . $query;
+                $this->url .= '?' . $key . '=' . $value;
 
             } elseif (str_contains($this->url, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
                 $replace   = Strings::cut($this->url, $key . '=', '&');
-                $this->url = str_replace($key . '=' . $replace, $key . '=' . Strings::from($query, '='), $this->url);
+                $this->url = str_replace($key . '=' . $replace, $key . '=' . $value, $this->url);
 
             } else {
                 // Append the query to the URL
-                $this->url .= '&' . $query;
+                $this->url .= '&' . $key . '=' . $value;
             }
         }
 
@@ -784,6 +842,7 @@ throw new UnderConstructionException();
             return new static($url);
         }
 
+        $url  = Strings::from($url,'data/content/cdn/');
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
         $base = Strings::endsWith($base, '/');
         $url  = Strings::startsNotWith($url, '/');
@@ -807,7 +866,7 @@ throw new UnderConstructionException();
         return match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
-            'prev', 'previous', 'referer' => static::getReferer(),
+            'prev', 'previous', 'referer' => static::getPrevious(),
             default                       => new static($url),
         };
 

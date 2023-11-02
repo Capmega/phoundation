@@ -73,7 +73,7 @@ class SshAccount extends DataEntry
      */
     public function getSshKey(): ?string
     {
-        return $this->getDataValue('string', 'ssh_key');
+        return $this->getSourceFieldValue('string', 'ssh_key');
     }
 
 
@@ -85,7 +85,7 @@ class SshAccount extends DataEntry
      */
     public function setSshKey(?string $ssh_key): static
     {
-        return $this->setDataValue('ssh_key', $ssh_key);
+        return $this->setSourceValue('ssh_key', $ssh_key);
     }
 
 
@@ -94,7 +94,7 @@ class SshAccount extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(DefinitionFactory::getName($this)

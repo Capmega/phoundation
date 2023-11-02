@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images;
 
 use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Servers\Traits\UsesRestrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 
 
 /**
@@ -21,7 +21,7 @@ use Phoundation\Servers\Traits\UsesRestrictions;
  */
 trait UsesImage
 {
-    use UsesRestrictions;
+    use DataRestrictions;
 
 
     /**

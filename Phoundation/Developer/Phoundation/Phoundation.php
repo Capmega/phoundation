@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Phoundation;
 
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Phoundation\Exception\IsPhoundationException;
 use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
+use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
@@ -18,6 +23,8 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Cp;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 
 /**
@@ -107,45 +114,58 @@ class Phoundation extends Project
                 continue;
             }
 
-            // The main phoundation directory should be called either phoundation or Phoundation.
-            foreach (['phoundation', 'Phoundation'] as $name) {
-                $path = $path . $name . '/';
-                $this->restrictions = Restrictions::new(dirname($path));
+            $names = [
+                'phoundation',
+                'Phoundation',
+                'phoundation/phoundation',
+                'Phoundation/phoundation',
+                'Phoundation/Phoundation',
+                'phoundation/Phoundation'
+            ];
 
-                if (!file_exists($path)) {
+            // The main phoundation directory should be called either phoundation or Phoundation.
+            foreach ($names as $name) {
+                $test_path = $path . $name . '/';
+                $this->restrictions = Restrictions::new(dirname($test_path));
+
+                if (!file_exists($test_path)) {
+                    Log::warning(tr('Ignoring path ":path", it does not exist', [
+                        ':path' => $test_path,
+                    ]), 2);
+
                     continue;
                 }
 
-                if (!$this->isPhoundationProject($path)) {
+                if (!$this->isPhoundationProject($test_path)) {
                     // This is not a Phoundation type project directory
                     Log::warning(tr('Ignoring path ":path", it has the name ":name" but is not a Phoundation project', [
-                        ':path' => $path,
+                        ':path' => $test_path,
                         ':name' => $name
                     ]));
 
                     continue;
                 }
 
-                if (!$this->isPhoundation($path)) {
+                if (!$this->isPhoundation($test_path)) {
                     // This is not the Phoundation directory
                     Log::warning(tr('Ignoring path ":path", it has the name ":name" and is a Phoundation project but is not a Phoundation core project', [
-                        ':path' => $path,
+                        ':path' => $test_path,
                         ':name' => $name
                     ]));
 
                     continue;
                 }
 
-                if ($path == PATH_ROOT) {
+                if ($test_path == PATH_ROOT) {
                     throw new IsPhoundationException(tr('This project IS your Phoundation core installation', [
                         ':file' => $location
                     ]));
                 }
 
-                Log::success(tr('Found Phoundation installation in ":path"', [':path' => $path]));
+                Log::success(tr('Found Phoundation installation in ":path"', [':path' => $test_path]));
 
-                $this->path = $path;
-                return $path;
+                $this->path = $test_path;
+                return $test_path;
             }
         }
 
@@ -154,6 +174,8 @@ class Phoundation extends Project
 
 
     /**
+     * Switch the Phoundation project to the specified branch
+     *
      * @param string|null $branch
      * @return $this
      */
@@ -180,6 +202,53 @@ class Phoundation extends Project
 
 
     /**
+     * Returns either the specified branch or the current Phoundation branch as default
+     *
+     * @param string|null $branch
+     * @return string
+     */
+    protected function defaultBranch(?string $branch): string
+    {
+        if (!$branch) {
+            // Select the current branch
+            $branch = $this->git->getBranch();
+
+            Log::notice(tr('Trying to patch updates on Phoudation using current project branch ":branch"', [
+                ':branch' => $branch
+            ]));
+        }
+
+        return $branch;
+    }
+
+
+    /**
+     * Copies only the specified file back to Phoundation
+     *
+     * @param string $file
+     * @param string|null $branch
+     * @param bool $require_no_changes
+     * @return void
+     */
+    public function copy(string $file, ?string $branch, bool $require_no_changes = true): void
+    {
+        $this->selectPhoundationBranch($this->defaultBranch($branch));
+        $this->ensureNoChanges(!$require_no_changes);
+
+        $source = Filesystem::absolute($file, PATH_ROOT);
+        $file = Strings::from($source, PATH_ROOT);
+
+        if (!file_exists($source)) {
+            throw new FileNotExistException(tr('The specified file ":file" does not exist', [
+                ':file' => $file
+            ]));
+        }
+
+        Cp::new()->archive($source, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath(), true));
+    }
+
+
+    /**
      * Copies all phoundation updates from your current project back to Phoundation
      *
      * @param string|null $branch
@@ -191,35 +260,103 @@ class Phoundation extends Project
     public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
     {
         if ($sign === null) {
-            $sign = Config::getBoolean('developer.phoundation.patch');
+            $sign = Config::getBoolean('developer.phoundation.patch.sign', true);
         }
 
-        Log::information(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
+        $branch = $this->defaultBranch($branch);
+
+        Log::action(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
             ':branch' => $branch
         ]));
 
         // Update the local project
-        $sections = ['Phoundation', 'scripts'];
-        $project  = Project::new();
-        $project->updateLocal($branch, $message, $sign);
+        Project::new()->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
-        $this->selectBranch($branch);
+        $this->selectPhoundationBranch($branch)->ensureNoChanges();
 
         try {
             // Execute the patching
+            $stash    = new Iterator();
+            $sections = ['Phoundation', 'scripts'];
+
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
-                StatusFiles::new(PATH_ROOT . $section)->patch($this->getPath() . $section);
+                while(true) {
+                    try {
+                        StatusFiles::new()
+                            ->setPath(PATH_ROOT . $section)
+                            ->patch($this->getPath() . $section);
+
+                        // All okay!
+                        break;
+
+                    } catch (ProcessFailedException $e) {
+                        // Fork me, the patch failed! What file? Stash the little forker and retry without, then unstash it
+                        // after for manual review / copy
+                        $output = $e->getDataKey('output');
+                        $output = Arrays::match($output, 'patch failed', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+
+                        if ($output) {
+                            Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
+                                ':count' => count($output),
+                                ':files' => $output
+                            ]));
+
+                            foreach ($output as $file) {
+                                $file = Strings::fromReverse($file, ' ');
+                                $file = Strings::untilReverse($file, ':');
+
+                                $stash->add($file);
+
+                                Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
+                                Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                            }
+
+                        } else {
+                            // There are no problematic files found, look for other issues.
+                            $output = $e->getDataKey('output');
+                            $output = Arrays::match($output, 'already exists in working directory', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+
+                            if ($output) {
+                                // Found already existing files that cannot be merged. Delete on this side
+                                foreach ($output as $file) {
+                                    $file = Strings::untilReverse($file, ':');
+                                    $file = Strings::from($file, ':');
+                                    $file = trim($file);
+
+                                    Log::warning(tr('Stashing already existing and unmergable file ":file"', [':file' => $file]));
+                                    Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                                }
+                            } else {
+                                // Other unknown error
+                                throw new GitPatchException(tr('Encountered unknown patch exception'), $e);
+                            }
+                        }
+                    }
+                }
             }
 
             if ($checkout) {
-                // Checkout files locally so that these changes are removed from the local project
-                Git::new(PATH_ROOT)->checkout($sections);
+                // Checkout files locally in the specified sections so that these changes are removed from the project
+                // Clean files locally in the specified sections so that new files are removed from the project
+                Git::new(PATH_ROOT)
+                    ->checkout($sections)
+                    ->clean($sections, true, true);
             }
 
-            if ($this->phoundation_branch) {
-                $this->selectBranch($this->phoundation_branch);
+            if ($stash->getCount()) {
+                $bad_files = clone $stash;
+
+                // Whoopsie, we have shirts in stash, meaning some file was naughty.
+                foreach ($stash as $key => $file) {
+                    Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
+                    Git::new(PATH_ROOT)->getStash()->pop();
+                    $stash->deleteAll($key);
+                }
+
+                throw PatchPartiallySuccessfulException::new(tr('Phoundating patch was partially successful, some files failed'))
+                    ->addData(['files' => $bad_files]);
             }
 
         } catch (GitHasChangesException $e) {
@@ -255,16 +392,21 @@ class Phoundation extends Project
     /**
      * Ensures that the Phoundation installation has no changes
      *
-     * @return void
+     * @param bool $force
+     * @return static
      */
-    protected function ensureNoChanges(): void
+    protected function ensureNoChanges(bool $force = false): static
     {
         // Ensure Phoundation has no changes
         if ($this->git->hasChanges()) {
-            throw GitHasChangesException::new(tr('Cannot copy changes, your Phoundation installation ":path" has uncommitted changes', [
-                ':path' => $this->path
-            ]))->makeWarning();
+            if (!$force) {
+                throw GitHasChangesException::new(tr('Cannot copy changes, your Phoundation installation ":path" has uncommitted changes', [
+                    ':path' => $this->path
+                ]))->makeWarning();
+            }
         }
+
+        return $this;
     }
 
 
@@ -274,10 +416,10 @@ class Phoundation extends Project
      * @param string|null $branch
      * @return void
      */
-    protected function selectBranch(?string $branch): void
+    protected function selectPhoundationBranch(?string $branch): static
     {
         if (!$branch) {
-            return;
+            return $this;
         }
 
         // Ensure phoundation is on the right branch
@@ -293,6 +435,8 @@ class Phoundation extends Project
 
             $this->git->checkout($branch);
         }
+
+        return $this;
     }
 
 

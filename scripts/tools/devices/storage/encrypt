@@ -1,0 +1,130 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Config;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validate;
+use Phoundation\Developer\Debug;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Devices\Storage\Device;
+use Phoundation\Os\Devices\Storage\Exception\StorageException;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Process;
+
+
+/**
+ * Script tools/devices/storage/encrypt
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$restrictions = Restrictions::new('/dev', true);
+
+Documentation::usage('./pho tools devices storage encrypt
+echo PASSWORD | ./pho tools devices storage encrypt -s');
+
+Documentation::help('The encrypt script will encrypt the specified device by reformatting it and applying full disk encryption
+
+NOTE: This will irreparably destroy all information on the specified device. Proceed with caution, here be dragons!
+
+NOTE: This script is interactive as it asks the password for the user on the command line! 
+
+NOTE This can run into non-interactive mode and accept the password through a CLI pipe. See USAGE for an example of this 
+
+
+ARGUMENTS
+
+
+DEVICE                                  The device file to be encrypted
+
+--key-file                              The file containing the encryption key 
+
+-s,--scramble                           Scrambles the disk with random data before encrypting it, more secure');
+
+Documentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan($word . '*'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan('*'); },
+        ],
+    ],
+    'arguments' => [
+        '--key-file' => true,
+        '-s,--scramble' => false,
+    ]
+]);
+
+
+// Validate data
+$argv = ArgvValidator::new()
+    ->select('device')->hasMaxCharacters(64)->isFile('/dev/', new Restrictions('/dev', true))->sanitizeCallback(function(mixed $value, array $source) { return '/dev/' . $value; })
+    ->select('-s,--scramble')->isOptional()->isBoolean()
+    ->select('--key-file', true)->isOptional()->isFile('/', '/')
+    ->validate();
+
+
+// Ensure this is a device that can be encrypted
+try {
+    $device = Device::new($argv['device'])->checkUnmounted();
+
+} catch (StorageException $e) {
+    throw $e->makeWarning();
+}
+
+
+// Read password from stdin stream?
+if (empty($argv['key_file'])) {
+    if (CliCommand::hasStdInStream()) {
+        $argv['password'] = CliCommand::readStdInStream();
+        $argv['password_validate'] = $argv['password'];
+
+        if (!FORCE) {
+            throw new ValidationFailedException(tr('Sending password through a pipe disables the TTY and requires "-F,--force" to be specified for safety'));
+        }
+
+    } else {
+        // Read password in interactive mode instead
+        $argv['password'] = Cli::readPassword(tr('Please type the users password:'));
+        $argv['password_validate'] = Cli::readPassword(tr('Please re-type the users password:'));
+    }
+
+    $argv['password'] = Validate::new($argv['password'])->isPassword($argv['password_validate'])->getSource();
+}
+
+
+// Have user confirm that they're sure
+CliCommand::requestConfirmation(tr('This will irreparably destroy all information on device ":device", please type YES in all uppercase to continue:', [
+    ':device' => $argv['device']
+]));
+
+
+// Scramble?
+if ($argv['scramble']) {
+    Log::warning(tr('Scrambling device ":device". Depending on device size this may take a while...', [
+        ':device' => $argv['device']
+    ]));
+
+    $device->scramble();
+}
+
+
+// Encrypt!
+$device->encrypt($argv['password'], $argv['key_file']);
+
+
+// Done!
+Log::success(tr('Finished encrypting device ":device"', [
+    ':device' => $argv['device']
+]));

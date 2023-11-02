@@ -7,11 +7,13 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Path;
-use Phoundation\Processes\Process;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Os\Processes\Process;
 
 
 /**
@@ -24,7 +26,7 @@ use Phoundation\Processes\Process;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Git extends Versioning
+class Git extends Versioning implements GitInterface
 {
     /**
      * The path that will be checked
@@ -167,7 +169,7 @@ class Git extends Versioning
      */
     public function getRepositories(): RemoteRepositories
     {
-        return RemoteRepositories::new($this->path);
+        return RemoteRepositories::new()->setPath($this->path);
     }
 
 
@@ -178,7 +180,7 @@ class Git extends Versioning
      */
     public function getBranches(): Branches
     {
-        return Branches::new($this->path);
+        return Branches::new()->setPath($this->path);
     }
 
 
@@ -187,9 +189,9 @@ class Git extends Versioning
      *
      * @return Stash
      */
-    public function stash(): Stash
+    public function getStash(): Stash
     {
-        return Stash::new($this->path);
+        return Stash::new()->setPath($this->path);
     }
 
 
@@ -204,6 +206,29 @@ class Git extends Versioning
         $output = $this->git
             ->clearArguments()
             ->addArgument('checkout')
+            ->addArguments($branches_or_paths)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Checks out the specified branches or paths for this git path
+     *
+     * @param array|string $branches_or_paths
+     * @param bool $files
+     * @param bool $directories
+     * @return static
+     */
+    public function clean(array|string $branches_or_paths, bool $files, bool $directories): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('clean')
+            ->addArgument($files       ? '-f' : null)
+            ->addArgument($directories ? '-d' : null)
             ->addArguments($branches_or_paths)
             ->executeReturnArray();
 
@@ -286,7 +311,9 @@ class Git extends Versioning
      */
     public function getStatus(?string $path = null): StatusFiles
     {
-        return new StatusFiles($path ?? $this->path);
+        return StatusFiles::new()
+            ->setPath($path ?? $this->path)
+            ->scanChanges();
     }
 
 
@@ -336,9 +363,10 @@ class Git extends Versioning
         $diff = $this->getDiff($files, $cached);
 
         if ($diff) {
-            $file = Path::getTemporary() . sha1(Strings::force($files, '-')) . '.patch';
-            file_put_contents($file, $diff . PHP_EOL);
-            return $file;
+            return File::newTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
+                ->putContents($diff . PHP_EOL)
+                ->getFile();
+
         }
 
         Log::warning(tr('Files ":files" has / have no diff', [':files' => $files]));

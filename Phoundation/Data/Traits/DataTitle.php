@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Web\Http\Html\Html;
+
 
 /**
  * Trait DataTitle
@@ -40,10 +42,15 @@ trait DataTitle
      * Sets the title
      *
      * @param string|null $title
+     * @param bool $make_safe
      * @return static
      */
-    public function setTitle(?string $title): static
+    public function setTitle(?string $title, bool $make_safe = true): static
     {
+        if ($make_safe) {
+            $title = Html::safe($title);
+        }
+
         $this->title = $title;
         return $this;
     }

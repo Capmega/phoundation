@@ -28,7 +28,7 @@ trait DataEntryPicture
      */
     public function getPicture(): ImageInterface
     {
-        $picture = get_null($this->getDataValue('string', 'picture')) ?? 'img/profiles/default.png';
+        $picture = get_null($this->getSourceFieldValue('string', 'picture')) ?? 'img/profiles/default.png';
 
         return Image::new($picture)
             ->setDescription(tr('Profile picture for :customer', [':customer' => $this->getName()]));
@@ -48,6 +48,6 @@ trait DataEntryPicture
             $picture = Image::new($picture);
         }
 
-        return $this->setDataValue('picture', Strings::from(get_null($picture)?->getFile(), PATH_CDN));
+        return $this->setSourceValue('picture', Strings::from(get_null($picture)?->getFile(), PATH_CDN));
     }
 }

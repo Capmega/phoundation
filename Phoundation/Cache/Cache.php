@@ -70,7 +70,7 @@ class Cache
      */
     public static function read(string $key, ?string $namespace = null): ?string
     {
-        if (!Core::stateIs('script')) {
+        if (!Core::isState('script')) {
             // When core is NOT in script state, cache will be disabled
             return null;
         }
@@ -101,7 +101,7 @@ class Cache
      */
     public static function delete(string $key, ?string $namespace = null): void
     {
-        static::driver()->dataEntrydelete($key, $namespace);
+        static::driver()->dataEntryDelete($key, $namespace);
     }
 
 

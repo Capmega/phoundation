@@ -27,7 +27,7 @@ trait DataEntryMessage
      */
     public function getMessage(): ?string
     {
-        return $this->getDataValue('string', 'message');
+        return $this->getSourceFieldValue('string', 'message');
     }
 
 
@@ -39,12 +39,12 @@ trait DataEntryMessage
      */
     public function setMessage(?string $message): static
     {
-        if (strlen($message) > 65536) {
+        if (strlen((string) $message) > 65536) {
             throw new OutOfBoundsException(tr('Specified message length ":length" is invalid, it should be 65536 characters or less', [
                 ':length' => strlen($message)
             ]));
         }
 
-        return $this->setDataValue('message', $message);
+        return $this->setSourceValue('message', $message);
     }
 }

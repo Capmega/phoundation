@@ -110,7 +110,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `address` varchar(255) DEFAULT NULL,
                     `zipcode` varchar(8) DEFAULT NULL,
                     `verification_code` varchar(128) DEFAULT NULL,
-                    `verified_on` datetime DEFAULT NULL,
+                    `verified_on` datetime NULL DEFAULT NULL,
                     `priority` int DEFAULT NULL,
                     `latitude` decimal(18,15) DEFAULT NULL,
                     `longitude` decimal(18,15) DEFAULT NULL,
@@ -125,7 +125,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `gender` varchar(16) DEFAULT NULL,
                     `birthdate` date DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
-                    `verified_on` datetime DEFAULT NULL,
+                    `verified_on` datetime NULL DEFAULT NULL,
                     `verification_code` varchar(128) DEFAULT NULL,
                     `description` text DEFAULT NULL,
                     `comments` mediumtext DEFAULT NULL

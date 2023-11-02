@@ -6,7 +6,10 @@ namespace Phoundation\Core;
 
 use Enum;
 use Phoundation\Core\Enums\EnumMatchMode;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
@@ -25,6 +28,14 @@ use UnitEnum;
  * @package Phoundation\Core
  */
 class Arrays {
+    const MATCH_ALL      = 1;
+    const MATCH_ANY      = 2;
+    const MATCH_BEGIN    = 4;
+    const MATCH_END      = 8;
+    const MATCH_ANYWHERE = 16;
+    const MATCH_NO_CASE  = 32;
+
+
     /**
      * If set, will filter NULL values
      */
@@ -72,14 +83,14 @@ class Arrays {
      * Returns the next key right after specified $key
      *
      * @param array $source
-     * @param int|string $current_key
+     * @param string|int $current_key
      * @param bool $delete
-     * @return int|string
+     * @return string|int
      * @throws OutOfBoundsException Thrown if the specified $current_key does not exist
      * @throws OutOfBoundsException Thrown if the specified $current_key does exist, but only at the end of the
      *                              specified array, so there is no next key
      */
-    public static function nextKey(array &$source, int|string $current_key, bool $delete = false): int|string
+    public static function nextKey(array &$source, string|int $current_key, bool $delete = false): string|int
     {
         // Scan for the specified $current_key
         $next = false;
@@ -163,7 +174,7 @@ class Arrays {
      *
      * @param mixed $params A parameters array
      * @param string|null $string_key
-     * @param string $numeric_key
+     * @param string|null $numeric_key
      * @param bool|null $default The default value for the non-selected key
      * @return void
      *
@@ -172,9 +183,8 @@ class Arrays {
      *       is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as
      *       "compare to null"
      * @version 2.5.119: Added function and documentation
-     *
      */
-    public static function params(mixed &$params, string $string_key = null, string $numeric_key = null, ?bool $default = false): void
+    public static function params(mixed &$params, string $string_key = null, ?string $numeric_key = null, ?bool $default = false): void
     {
         if(!$params) {
             // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
@@ -221,7 +231,7 @@ class Arrays {
      * values are each initialized with specific values, if they do not exist yet
      *
      * @param array $source The array that is being worked on
-     * @param int|string $key The key that must exist in the $source array
+     * @param string|int $key The key that must exist in the $source array
      * @param mixed $default The default value in case $source[$key] does not exist
      * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
      * @see Arrays::ensure()
@@ -237,7 +247,7 @@ class Arrays {
      * code
      * array('foo' => 'bar')
      */
-    public static function default(array &$source, int|string $key, mixed $default): mixed
+    public static function default(array &$source, string|int $key, mixed $default): mixed
     {
         if (!isset($source[$key])) {
             $source[$key] = $default;
@@ -422,6 +432,7 @@ class Arrays {
     /**
      * Limit the specified array to the specified amount of entries
      *
+     * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      * @param array $source
      * @param int $count
      * @param bool $return_source
@@ -499,10 +510,10 @@ class Arrays {
      * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
      *
      * @param int $count
-     * @param int|string $base_value_name
+     * @param string|int $base_value_name
      * @return array
      */
-    public static function sequentialValues(int $count, int|string $base_value_name): array
+    public static function sequentialValues(int $count, string|int $base_value_name): array
     {
         if ($count < 1) {
             throw new OutOfBoundsException(tr('Invalid count specified. Make sure count is numeric, and greater than 0'));
@@ -522,14 +533,15 @@ class Arrays {
      * Return the source array with the keys all replaced by sequential values based on base_keyname
      *
      * @param array $source
-     * @param int|string $base_key_name
+     * @param string|int $base_key_name
      * @param bool $filter_null
      * @param bool $null_string
+     * @param int $start
      * @return array
      */
-    public static function sequentialKeys(array $source, int|string $base_key_name, bool $filter_null = false, bool $null_string = false): array
+    public static function sequentialKeys(array $source, string|int $base_key_name, bool $filter_null = false, bool $null_string = false, int $start = 0): array
     {
-        $i      = 0;
+        $i      = $start;
         $return = [];
 
         foreach ($source as $value) {
@@ -547,7 +559,7 @@ class Arrays {
                 }
             }
 
-            $return[$base_key_name.$i++] = $value;
+            $return[$base_key_name . $i++] = $value;
         }
 
         return $return;
@@ -618,12 +630,12 @@ class Arrays {
      * Return all array parts from (but without) the specified key
      *
      * @param array $source
-     * @param int|string $from_key
+     * @param string|int $from_key
      * @param bool $delete
      * @param bool $skip
      * @return array
      */
-    public static function from(array &$source, int|string $from_key, bool $delete = false, bool $skip = true): array
+    public static function from(array &$source, string|int $from_key, bool $delete = false, bool $skip = true): array
     {
         $return = [];
         $add    = false;
@@ -662,11 +674,11 @@ class Arrays {
      * Return all array parts until (but without) the specified key
      *
      * @param array $source
-     * @param int|string $until_key
+     * @param string|int $until_key
      * @param bool $delete
      * @return array
      */
-    public static function until(array $source, int|string $until_key, bool $delete = false): array
+    public static function until(array $source, string|int $until_key, bool $delete = false): array
     {
         $return = [];
 
@@ -687,39 +699,14 @@ class Arrays {
 
 
     /**
-     * Merge two arrays together, using the values of array1 as keys, and the values of array2 as values
-     *
-     * @param array $keys
-     * @param array $values
-     * @return array
-     */
-    public static function mergeKeysValues(array $keys, array $values): array
-    {
-        $return = [];
-
-        foreach ($keys as $key) {
-            if (!isset($next)) {
-                $next = true;
-                $return[$key] = reset($values);
-
-            } else {
-                $return[$key] = next($values);
-            }
-        }
-
-        return $return;
-    }
-
-
-    /**
      * Prefix all keys in this array with the specified prefix
      *
      * @param array $source
-     * @param int|string $prefix
+     * @param string|int $prefix
      * @param bool $auto
      * @return array
      */
-    public static function prefix(array $source, int|string $prefix, bool $auto = false): array
+    public static function prefix(array $source, string|int $prefix, bool $auto = false): array
     {
         $count  = 0;
         $return = [];
@@ -743,10 +730,10 @@ class Arrays {
      * NOTE: Non string values will be quietly ignored!
      *
      * @param array $array
-     * @param int|string $keyword
+     * @param string|int $keyword
      * @return array
      */
-    public static function find(array $array, int|string $keyword): array
+    public static function find(array $array, string|int $keyword): array
     {
         $return = [];
 
@@ -791,10 +778,10 @@ class Arrays {
      * Return an array with all the values in the specified column
      *
      * @param array $source
-     * @param int|string $column
+     * @param string|int $column
      * @return array
      */
-    public static function getColumn(array $source, int|string $column): array
+    public static function getColumn(array $source, string|int $column): array
     {
         $return = [];
 
@@ -1167,11 +1154,11 @@ class Arrays {
      * @version 2.7.100: Added function and documentation
      *
      * @param array $source
-     * @param int|string $old_key
-     * @param int|string $new_key
+     * @param string|int $old_key
+     * @param string|int $new_key
      * @return array The array with the specified key renamed
      */
-    public static function renameKey(array $source, int|string $old_key, int|string $new_key): array
+    public static function renameKey(array $source, string|int $old_key, string|int $new_key): array
     {
         if (!array_key_exists($old_key, $source)) {
             throw new OutOfBoundsException(tr('Specified $old_key does not exist in the specified source array'));
@@ -1298,13 +1285,13 @@ class Arrays {
 
         if (!is_array($source)) {
             if (!is_string($source)) {
-                if (!is_object($source) or !($source instanceof Stringable)) {
+                if (!is_object($source) or !($source instanceof ArrayableInterface)) {
                     // Unknown datatype
                     return [$source];
                 }
 
                 // This is an object that can convert to string
-                $source = (string) $source;
+                return $source->__toArray();
             }
 
             if (!$separator) {
@@ -1578,38 +1565,75 @@ class Arrays {
      *
      * @param array $source1
      * @param array $source2
+     * @param bool $keep If true, the result array will also contain a "keep" column with entries that exists in both
+     *                   and should not be added nor deleted (but perhaps updated, for example)
      * @return array
      */
-    public static function valueDiff(array $source1, array $source2): array
+    public static function valueDiff(array $source1, array $source2, bool $keep = false): array
     {
         $return = [
             'add'    => [],
-            'remove' => []
+            'delete' => []
         ];
 
-        foreach ($source1 as $value) {
+        $keep_list = [];
+
+        foreach ($source1 as $key => $value) {
             if ($value and !is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Can only take diffs from scalar values while source 1 has a non-scalar value'));
             }
 
-            if (!in_array($value, $source2)) {
+            if (in_array($value, $source2)) {
+                $keep_list[$key] = $value;
+            } else {
                 // Key doesn't exist in source2, add it
-                $return['remove'][] = $value;
+                $return['delete'][$key] = $value;
             }
         }
 
-        foreach ($source2 as $value) {
-            if (!is_scalar($value)) {
+        foreach ($source2 as $key => $value) {
+            if ($value and !is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Only scalar values are supported while source 2 has a non-scalar value'));
             }
 
             if (!in_array($value, $source1)) {
                 // Key doesn't exist in source1, add it and next
-                $return['add'][] = $value;
+                $return['add'][$key] = $value;
             }
         }
 
+        if ($keep) {
+            $return['keep'] = $keep_list;
+        }
+
         return $return;
+    }
+
+
+    /**
+     * Compares the given source list to the add / keep / remove diff and places all entries in remove that are marked
+     * with "delete", or "remove" keys
+     *
+     * @param array $diff
+     * @param array $source
+     * @return array
+     */
+    public static function deleteDiff(array $diff, array $source): array
+    {
+        foreach ($source as $id => $entry) {
+            if (array_key_exists('delete', $entry)) {
+                if ($entry['delete']) {
+                    $key = array_search($id, $diff['keep']);
+
+                    if ($key) {
+                        $diff['delete'][$key] = $diff['keep'][$key];
+                        unset($diff['keep'][$key]);
+                    }
+                }
+            }
+        }
+
+        return $diff;
     }
 
 
@@ -2052,5 +2076,257 @@ class Arrays {
         }
 
         return null;
+    }
+
+
+    /**
+     * Returns all array values from the haystack that matches the needle(s)
+     *
+     * @param array|string $needles
+     * @param array $haystack
+     * @param int $options          Flags that will modify this functions behaviour. Current flags are one of
+     *                              Arrays::MATCH_ALL, Arrays::MATCH_BEGIN, Arrays::MATCH_END, or Arrays::MATCH_ANYWHERE
+     *                              Arrays::MATCH_ANY
+     *
+     * Arrays::MATCH_NO_CASE:  Will match entries in case-insensitive mode
+     * Arrays::MATCH_ALL:      Will match entries that contain all the specified needles
+     * Arrays::MATCH_ANY:      Will match entries that contain any of the specified needles
+     * Arrays::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Arrays::MATCH_END, Arrays::MATCH_ANYWHERE
+     * Arrays::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
+     *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
+     * Arrays::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
+     * @return array
+     */
+    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE): array
+    {
+        if (!$needles) {
+            throw new OutOfBoundsException(tr('No needles specified'));
+        }
+
+        // Decode options
+        $match_no_case  = (bool) ($options & self::MATCH_NO_CASE);
+        $match_all      = (bool) ($options & self::MATCH_ALL);
+        $match_any      = (bool) ($options & self::MATCH_ANY);
+        $match_begin    = (bool) ($options & self::MATCH_BEGIN);
+        $match_end      = (bool) ($options & self::MATCH_END);
+        $match_anywhere = (bool) ($options & self::MATCH_ANYWHERE);
+
+        // Validate options
+        if ($match_begin) {
+            if ($match_end or $match_anywhere) {
+                throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_BEGIN with MATCH_END or MATCH_ANYWHERE, they are mutually exclusive'));
+            }
+
+        } else {
+            if ($match_end and $match_anywhere) {
+                throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_END with MATCH_ANYWHERE, they are mutually exclusive'));
+            }
+
+            if (!$match_end and !$match_anywhere) {
+                throw new OutOfBoundsException(tr('No match location flag specified. One of MATCH_BEGIN, MATCH_END, or MATCH_ANYWHERE must be specified'));
+            }
+        }
+
+        if ($match_all) {
+            if ($match_any) {
+                throw new OutOfBoundsException(tr('Cannot mix combination flags MATCH_ALL with MATCH_ANY, they are mutually exclusive'));
+            }
+
+        } else {
+            if (!$match_any) {
+                throw new OutOfBoundsException(tr('No match combination flag specified. Either one of MATCH_ALL or MATCH_ANY must be specified'));
+            }
+        }
+
+        $needles = Arrays::force($needles);
+
+        // In case of caseless compare, prepare the needles
+        if ($match_no_case) {
+            foreach ($needles as &$needle) {
+                $needle = strtolower((string) $needle);
+            }
+
+            unset($needle);
+        }
+
+        $return = [];
+
+        foreach ($haystack as $key => $value) {
+            if (!$value) {
+                // Ignore empty lines
+                continue;
+            }
+
+            if (!is_scalar($value)) {
+                Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
+                    ':key'   => $key,
+                    ':value' => $value
+                ]));
+                continue;
+            }
+
+            // Caseless match? Compare lowercase
+            if ($match_no_case) {
+                $test_value = strtolower((string) $value);
+
+            } else {
+                $test_value = $value;
+            }
+
+            $match = true;
+
+            // Compare to each needle
+            foreach ($needles as $needle) {
+                if ($match_begin) {
+                    if (str_starts_with($test_value, $needle)) {
+                        // This needle matched
+                        if ($match_any) {
+                            $match = true;
+                            break;
+                        }
+
+                        // This needle matched
+                        continue;
+                    }
+
+                } elseif ($match_end) {
+                    if (str_ends_with($test_value, $needle)) {
+                        // This needle matched
+                        if ($match_any) {
+                            $match = true;
+                            break;
+                        }
+
+                        continue;
+                    }
+
+                } else {
+                    if (str_contains($test_value, $needle)) {
+                        // This needle matched
+                        if ($match_any) {
+                            $match = true;
+                            break;
+                        }
+
+                        continue;
+                    }
+                }
+
+                $match = false;
+
+                if ($match_all) {
+                    // This needle failed, no need to check other needles
+                    break;
+                }
+            }
+
+            if ($match) {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the highest key found in the given source
+     *
+     * @param array $source
+     * @return string|float|int|null
+     */
+    public static function getHighestKey(array $source): string|float|int|null
+    {
+        $highest = null;
+
+        foreach ($source as $key => $value) {
+            if ($key > $highest) {
+                $highest = $key;
+            }
+        }
+
+        return $highest;
+    }
+
+
+    /**
+     * Returns an array with all values uppercase strings
+     *
+     * @note Non scalar values (except NULL) will cause OutOfBoundsException
+     * @note NULL values will remain NULL
+     * @param array $source
+     * @return array
+     */
+    public static function lowercase(array $source): array
+    {
+        foreach ($source as &$value) {
+            if (!is_scalar($value)) {
+                if ($value) {
+                    throw OutOfBoundsException::new(tr('Cannot lowercase the specified array, the value ":value" is not scalar', [
+                        ':value' => $value
+                    ]));
+                }
+
+                // Value is just null, continue
+                continue;
+            }
+
+            $value = strtolower($value);
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Returns an array with all values uppercase strings
+     *
+     * @note Non scalar values (except NULL) will cause OutOfBoundsException
+     * @note NULL values will remain NULL
+     * @param array $source
+     * @return array
+     */
+    public static function uppercase(array $source): array
+    {
+        foreach ($source as &$value) {
+            if (!is_scalar($value)) {
+                if ($value) {
+                    throw OutOfBoundsException::new(tr('Cannot lowercase the specified array, the value ":value" is not scalar', [
+                        ':value' => $value
+                    ]));
+                }
+
+                // Value is just null, continue
+                continue;
+            }
+
+            $value = strtoupper($value);
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Renames the keys in the specified source
+     *
+     *
+     * $rename must be an array with FROM_KEY => TO_KEY, FROM_KEY => TO_KEY, ...
+     * @param array $source
+     * @param array $rename
+     * @return array
+     */
+    public static function renameKeys(array $source, array $rename): array
+    {
+        foreach ($rename as $from => $to) {
+            $source[$to] = $source[$from];
+            unset($source[$from]);
+        }
+
+        return $source;
     }
 }

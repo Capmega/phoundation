@@ -6,7 +6,6 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\Categories\Category;
 use Phoundation\Data\Categories\Interfaces\CategoryInterface;
-use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -28,7 +27,7 @@ trait DataEntryCategory
      */
     public function getCategoriesId(): ?int
     {
-        return $this->getDataValue('int', 'categories_id');
+        return $this->getSourceFieldValue('int', 'categories_id');
     }
 
 
@@ -40,7 +39,7 @@ trait DataEntryCategory
      */
     public function setCategoriesId(?int $categories_id): static
     {
-        return $this->setDataValue('categories_id', $categories_id);
+        return $this->setSourceValue('categories_id', $categories_id);
     }
 
 
@@ -51,7 +50,7 @@ trait DataEntryCategory
      */
     public function getCategory(): ?CategoryInterface
     {
-        $categories_id = $this->getDataValue('int', 'categories_id');
+        $categories_id = $this->getSourceFieldValue('int', 'categories_id');
 
         if ($categories_id) {
             return new Category($categories_id);
@@ -68,7 +67,7 @@ trait DataEntryCategory
      */
     public function getCategoriesName(): ?string
     {
-        return $this->getDataValue('string', 'categories_name');
+        return $this->getSourceFieldValue('string', 'categories_name');
     }
 
 
@@ -80,6 +79,6 @@ trait DataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->setDataValue('categories_name', $categories_name);
+        return $this->setSourceValue('categories_name', $categories_name);
     }
 }

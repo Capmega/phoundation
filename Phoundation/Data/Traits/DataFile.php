@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Stringable;
+
 /**
  * Trait DataFile
  *
@@ -24,6 +26,7 @@ trait DataFile
      */
     protected ?string $file = null;
 
+
     /**
      * Returns the file
      *
@@ -38,12 +41,12 @@ trait DataFile
     /**
      * Sets the file
      *
-     * @param string|null $file
+     * @param Stringable|string|null $file
      * @return static
      */
-    public function setFile(?string $file): static
+    public function setFile(Stringable|string|null $file): static
     {
-        $this->file = get_null($file);
+        $this->file = get_null((string) $file);
         return $this;
     }
 }

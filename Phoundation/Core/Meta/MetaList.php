@@ -7,7 +7,10 @@ namespace Phoundation\Core\Meta;
 use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Components\DataTable;
+use Phoundation\Web\Http\Html\Components\HtmlDataTable;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Url;
 
 
@@ -55,9 +58,10 @@ class MetaList
     /**
      * Returns a DataTable object
      *
-     * @return DataTable
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): DataTable
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
     {
         // Create and return the table
         $in     = Sql::in($this->meta_list);
@@ -93,7 +97,7 @@ class MetaList
 
                 foreach ($row['data']['to'] as &$value) {
                     if ($value) {
-                        $value = '<span class="success">' . htmlentities($value) . '</span>';
+                        $value = '<span class="success">' . Html::safe($value) . '</span>';
                     }
                 }
 
@@ -102,7 +106,7 @@ class MetaList
                 if (isset_get($row['data']['from'])) {
                     foreach ($row['data']['from'] as &$value) {
                         if ($value) {
-                            $value = '<span class="danger">' . htmlentities($value) . '</span>';
+                            $value = '<span class="danger">' . Html::safe($value) . '</span>';
                         }
                     }
 
@@ -123,17 +127,20 @@ class MetaList
 
         unset($row);
 
-        return DataTable::new()
+         $table = HtmlDataTable::new()
             ->setId('meta')
             ->setProcessEntities(false)
-            ->setColumnHeaders([
-                tr('Date'),
-                tr('User'),
-                tr('Action'),
-                tr('Source'),
-                tr('Comments'),
-                tr('Data'),
-            ])
             ->setSource($source);
+
+         $table->getHeaders()->setSource([
+             tr('Date'),
+             tr('User'),
+             tr('Action'),
+             tr('Source'),
+             tr('Comments'),
+             tr('Data'),
+         ]);
+
+        return $table;
     }
 }

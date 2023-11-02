@@ -5,11 +5,13 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
-use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
-use Phoundation\Web\Http\Html\Components\Form;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Stringable;
 
 
 /**
@@ -68,14 +70,6 @@ interface UserInterface extends DataEntryInterface
      * @return string|null
      */
     public function getName(): ?string;
-
-    /**
-     * Sets the name for this user
-     *
-     * @param string|null $name
-     * @return static
-     */
-    public function setName(?string $name): static;
 
     /**
      * Returns the first_names for this user
@@ -424,10 +418,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the redirect for this user
      *
-     * @param string|null $redirect
+     * @param Stringable|string|null $redirect
      * @return static
      */
-    public function setRedirect(?string $redirect = null): static;
+    public function setRedirect(Stringable|string|null $redirect = null): static;
 
     /**
      * Returns the gender for this user
@@ -492,6 +486,20 @@ interface UserInterface extends DataEntryInterface
     function getDisplayId(): string;
 
     /**
+     * Returns the extra email addresses for this user
+     *
+     * @return EmailsInterface
+     */
+    public function getEmails(): EmailsInterface;
+
+    /**
+     * Returns the extra phones for this user
+     *
+     * @return PhonesInterface
+     */
+    public function getPhones(): PhonesInterface;
+
+    /**
      * Returns the roles for this user
      *
      * @return RolesInterface
@@ -530,20 +538,21 @@ interface UserInterface extends DataEntryInterface
     public function hasSomeRights(array|string $rights): bool;
 
     /**
-     * Creates and returns an HTML for the fir
+     * Creates and returns an HTML DataEntry form
      *
      * @param string $name
-     * @return FormInterface
+     * @return DataEntryFormInterface
      */
-    public function getRolesHtmlForm(string $name = 'roles_id[]'): FormInterface;
+    public function getRolesHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;
 
     /**
      * Save the user to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static;
+    public function save(bool $force = false, ?string $comments = null): static;
 
     /**
      * Update this session so that it impersonates this person
@@ -571,4 +580,26 @@ interface UserInterface extends DataEntryInterface
      * @return bool
      */
     public function canBeStatusChanged(): bool;
+
+    /**
+     * Returns the notifications_hash for this user
+     *
+     * @return string|null
+     */
+    public function getNotificationsHash(): ?string;
+
+    /**
+     * Sets the notifications_hash for this user
+     *
+     * @param string|null $notifications_hash
+     * @return static
+     */
+    public function setNotificationsHash(string|null $notifications_hash): static;
+
+    /**
+     * Send a notification to only this user.
+     *
+     * @return NotificationInterface
+     */
+    public function notify(): NotificationInterface;
 }

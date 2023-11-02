@@ -1,7 +1,9 @@
 #!/usr/bin/php
 <?php
 
-declare(strict_types=1);/**
+declare(strict_types=1);
+
+/**
  * This is the init script for the project. Run this script to ensure that the
  * database is running with the same version as the code
  *
@@ -33,7 +35,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 // Ensure no arguments
-$argv = ArgvValidator::new()->noArgumentsLeft();
+$argv = ArgvValidator::new()->validate();
 
 
 

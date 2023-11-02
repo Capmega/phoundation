@@ -26,7 +26,6 @@ Documentation::help('This script creates a Kubernetes ingress using a ingress fi
 $argv = ArgvValidator::new()
     ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
     ->select('-s,--selectors', true)->sanitizeForceArray()->each()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
-    ->noArgumentsLeft()
     ->validate();
 
 

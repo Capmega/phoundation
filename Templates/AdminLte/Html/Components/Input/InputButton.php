@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Input;
 
-use Phoundation\Web\Http\Html\Renderer;
 
 
 /**
@@ -18,7 +17,7 @@ use Phoundation\Web\Http\Html\Renderer;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class InputButton extends Renderer
+class InputButton extends Input
 {
     /**
      * InputButton class constructor

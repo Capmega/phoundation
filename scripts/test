@@ -14,3 +14,13 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+use Phoundation\Os\Devices\Storage\Device;
+use Phoundation\Os\Processes\Commands\Lsblk;
+
+//show(Lsblk::new()->getStorageDevices()->getSource());
+//show(Lsblk::new()->isStorageDevice('/dev/sdb'));
+
+show(Device::new('/dev/sdb')->isMounted());
+show(Device::new('/dev/nvme0n1')->isMounted());
+show(Device::new('/dev/ttyS4'));

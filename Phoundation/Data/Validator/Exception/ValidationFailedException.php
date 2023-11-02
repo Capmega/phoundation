@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
+use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Throwable;
 
 
@@ -17,7 +18,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class ValidationFailedException extends ValidatorException
+class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {

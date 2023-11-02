@@ -7,7 +7,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Databases;
@@ -54,6 +54,18 @@ function is_version(string $version): bool
     }
 
     return (bool) $return;
+}
+
+
+/**
+ * Sleep for the specified amount of milliseconds
+ *
+ * @param int $milliseconds
+ * @return void
+ */
+function msleep(int $milliseconds): void
+{
+    usleep($milliseconds * 1000);
 }
 
 
@@ -339,7 +351,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
                 ':types'    => $types,
-            ]))->setData(['variable' => $variable]);
+            ]))->addData(['variable' => $variable]);
         }
 
         // Don't throw an exception, return null instead.
@@ -394,29 +406,21 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 function force_natural(mixed $source, int $default = 1, int $start = 1): int
 {
     if (!is_numeric($source)) {
-        /*
-         * This isn't even a number
-         */
+        // This isn't even a number
         return $default;
     }
 
     if ($source < $start) {
-        /*
-         * Natural numbers have to be > 1 (by detault, $start might be adjusted where needed)
-         */
+        // Natural numbers have to be > 1 (by default, $start might be adjusted where needed)
         return $default;
     }
 
     if (!is_int($source)) {
-        /*
-         * This is a nice integer
-         */
+        // This is a nice integer
         return (integer) $source;
     }
 
-    /*
-     * Natural numbers must be integer numbers. Round to the nearest integer
-     */
+    // Natural numbers must be integer numbers. Round to the nearest integer
     return (integer) round($source);
 }
 
@@ -605,11 +609,15 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  */
 function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    if (Core::scriptStarted()) {
-        return Debug::show($source, $trace_offset, $quiet);
+    if (Debug::getEnabled()) {
+        if (Core::scriptStarted()) {
+            return Debug::show($source, $trace_offset, $quiet);
+        }
+
+        return show_system($source, false);
     }
 
-    return show_system($source, false);
+    return null;
 }
 
 
@@ -623,8 +631,12 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  */
 function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    $source = bin2hex($source);
-    return show($source, $trace_offset);
+    if (Debug::getEnabled()) {
+        $source = bin2hex($source);
+        return show($source, $trace_offset);
+    }
+
+    return null;
 }
 
 
@@ -638,13 +650,17 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  */
 function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
 {
-    $backtrace = Debug::backtrace();
+    if (Debug::getEnabled()) {
+        $backtrace = Debug::backtrace();
 
-    if ($count) {
-        $backtrace = Arrays::limit($backtrace, $count);
+        if ($count) {
+            $backtrace = Arrays::limit($backtrace, $count);
+        }
+
+        return show($backtrace, $trace_offset, $quiet);
     }
 
-    return show($backtrace, $trace_offset, $quiet);
+    return null;
 }
 
 
@@ -654,15 +670,17 @@ function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = fal
  * @param mixed $source
  * @param int $trace_offset
  * @param bool $quiet
- * @return never
+ * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): never
+#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
 {
-    if (Core::scriptStarted()) {
-        Debug::showdie($source, $trace_offset, $quiet);
-    }
+    if (Debug::getEnabled()) {
+        if (Core::scriptStarted()) {
+            Debug::showdie($source, $trace_offset, $quiet);
+        }
 
-    show_system($source);
+        show_system($source);
+    }
 }
 
 
@@ -698,12 +716,90 @@ function get_null(mixed $source): mixed
 
 
 /**
+ * Returns if the specified variable (string or not) is actually an integer, or not
+ *
+ * @param mixed $source
+ * @param int|null $larger_than
+ * @return bool
+ */
+function is_really_integer(mixed $source, ?int $larger_than = null): bool
+{
+    if ($source != (int) $source) {
+        return false;
+    }
+
+    if ($larger_than === null) {
+        return true;
+    }
+
+    // The number must be larger than...
+    return $source > $larger_than;
+}
+
+
+/**
+ * Returns if the specified variable (string or not) is actually an integer, or not
+ *
+ * @param mixed $source
+ * @param bool $allow_zero
+ * @return bool
+ */
+function is_really_natural(mixed $source, bool $allow_zero = false): bool
+{
+    return is_really_integer($source, $allow_zero ? 0 : 1);
+}
+
+
+/**
+ * Ensures the specified source either is NULL or INT value. Non NULL/INT values will cause an exception
+ *
+ * @param mixed $source
+ * @param bool $allow_null
+ * @return int|null
+ */
+function get_integer(mixed $source, bool $allow_null = true): ?int
+{
+    if (is_integer($source)) {
+        // Well that was easy!
+        return $source;
+    }
+
+    if (!is_string($source)) {
+        throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
+            ':source' => $source
+        ]));
+    }
+
+    if ($source === '') {
+        if ($allow_null) {
+            // Interpret this as a NULL value
+            return null;
+        }
+
+        return 0;
+
+    } else {
+        $old_source = $source;
+        $source     = (int) $source;
+
+        if ($old_source != $source) {
+            throw new OutOfBoundsException(tr('Specified data ":source" is not an integer value', [
+                ':source' => $old_source
+            ]));
+        }
+    }
+
+    return $source;
+}
+
+
+/**
  * Return the value quoted if non-numeric string
  *
- * @param int|string $value
- * @return int|string
+ * @param string|int $value
+ * @return string|int
  */
-function quote(int|string $value): int|string
+function quote(string|int $value): string|int
 {
     if (!is_numeric($value) and is_string($value)) {
         return '"' . $value . '"';
@@ -716,12 +812,12 @@ function quote(int|string $value): int|string
 /**
  * Returns either the specified value if it exists in the array, or the default vaule if it does not
  *
- * @param int|string $value
+ * @param string|int $value
  * @param array $array
  * @param mixed $default
  * @return mixed
  */
-function ensure_value(int|string $value, array $array, mixed $default): mixed
+function ensure_value(string|int $value, array $array, mixed $default): mixed
 {
     if (in_array($value, $array)) {
         return $value;
@@ -940,7 +1036,7 @@ function has_trait(string $trait, object|string $class): bool
     echo '"' . PHP_EOL;
 
     if ($die) {
-        die('die-'.random_int(1,10000) . PHP_EOL);
+        exit('die-'.random_int(1,10000) . PHP_EOL);
     }
 
     return $source;

@@ -2,15 +2,18 @@
 
 namespace Phoundation\Data\DataEntry\Interfaces;
 
-
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
+
 
 /**
  * Class DataEntry
@@ -22,7 +25,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-interface DataEntryInterface
+interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
      * Returns if this DataEntry will validate data before saving
@@ -125,9 +128,17 @@ interface DataEntryInterface
     public function getLogId(): string;
 
     /**
+     * Returns true if this DataEntry has the specified status
+     *
+     * @param string|null $status
+     * @return bool
+     */
+    public function isStatus(?string $status): bool;
+
+    /**
      * Returns status for this database entry
      *
-     * @return ?String
+     * @return ?string
      */
     public function getStatus(): ?string;
 
@@ -143,7 +154,7 @@ interface DataEntryInterface
     /**
      * Returns the meta state for this database entry
      *
-     * @return ?String
+     * @return ?string
      */
     public function getMetaState(): ?string;
 
@@ -189,9 +200,9 @@ interface DataEntryInterface
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return User|null
+     * @return UserInterface|null
      */
-    public function getCreatedBy(): ?User;
+    public function getCreatedBy(): ?UserInterface;
 
     /**
      * Returns the object that created this data entry
@@ -206,9 +217,11 @@ interface DataEntryInterface
      *
      * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
      *       yet
-     * @return Meta|null
+     *
+     * @param bool $load
+     * @return MetaInterface|null
      */
-    public function getMeta(): ?Meta;
+    public function getMeta(bool $load = false): ?MetaInterface;
 
     /**
      * Returns the meta id for this entry
@@ -268,21 +281,31 @@ interface DataEntryInterface
     public function getSource(): array;
 
     /**
+     * Returns only the specified key from the source of this DataEntry
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
+     * @return array
+     */
+    public function getSourceValue(string $key): mixed;
+
+    /**
      * Sets the value for the specified data key
      *
      * @param string $field
      * @param mixed $value
      * @return static
      */
-    public function addDataValue(string $field, mixed $value): static;
+    public function addSourceValue(string $field, mixed $value): static;
 
     /**
      * Will save the data from this data entry to database
      *
+     * @param bool $force
      * @param string|null $comments
      * @return static
      */
-    public function save(?string $comments = null): static;
+    public function save(bool $force = false, ?string $comments = null): static;
 
     /**
      * Creates and returns a CLI table for the data in this entry
@@ -298,7 +321,7 @@ interface DataEntryInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlForm(): DataEntryFormInterface;
+    public function getHtmlDataEntryForm(): DataEntryFormInterface;
 
     /**
      * Load all data directly from the specified array.
@@ -314,7 +337,30 @@ interface DataEntryInterface
     /**
      * Returns the definitions for the fields in this table
      *
-     * @return DefinitionsInterface
+     * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): DefinitionsInterface;
+    public function getDefinitions(): ?DefinitionsInterface;
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string;
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string;
+
+
+    /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueField(): ?string;
 }

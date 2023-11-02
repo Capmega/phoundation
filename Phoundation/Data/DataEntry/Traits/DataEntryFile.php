@@ -26,7 +26,7 @@ trait DataEntryFile
      */
     public function getFile(): ?string
     {
-        return $this->getDataValue('string', 'file');
+        return $this->getSourceFieldValue('string', 'file');
     }
 
 
@@ -38,12 +38,12 @@ trait DataEntryFile
      */
     public function setFile(?string $file): static
     {
-        if (strlen($file) > 2048) {
+        if (strlen((string) $file) > 2048) {
             throw new OutOfBoundsException(tr('Specified file ":file" is invalid, the string should be no longer than 2048 characters', [
                 ':file' => $file
             ]));
         }
 
-        return $this->setDataValue('file', $file);
+        return $this->setSourceValue('file', $file);
     }
 }

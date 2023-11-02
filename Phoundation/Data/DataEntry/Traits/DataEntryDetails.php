@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 
 
@@ -27,7 +28,15 @@ trait DataEntryDetails
      */
     public function getDetails(): array|string|null
     {
-        return Json::decode($this->getDataValue('string', 'details'));
+        try {
+            return Json::decode($this->getSourceFieldValue('string', 'details'));
+
+        } catch (JsonException $e) {
+            Log::warning(tr('Failed to decode details because of following exception'));
+            Log::warning(tr('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
+            Log::error($e);
+            return $this->getSourceFieldValue('string', 'details');
+        }
     }
 
 
@@ -39,6 +48,10 @@ trait DataEntryDetails
      */
     public function setDetails(array|string|null $details): static
     {
-        return $this->setDataValue('details', Json::encode($details));
+        if (is_array($details)) {
+            $details = Json::encode($details);
+        }
+
+        return $this->setSourceValue('details', $details);
     }
 }

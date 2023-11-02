@@ -45,7 +45,7 @@ if (Page::isPostRequestMethod()) {
             $user->setPassword($post['password'] ,$post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
-            Page::redirect(UrlBuilder::getWww('prev'));
+            Page::redirect(UrlBuilder::getPrevious('accounts/user-' . $user->getId() . '.html'));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
@@ -61,14 +61,14 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton(tr('Save'))
-    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getWww('prev'), true);
+    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true);
 
 
 // Build the user form
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Change password for :name', [':name' => $user->getDisplayName()]))
-    ->setContent($password->getHtmlForm()->render())
+    ->setContent($password->getHtmlDataEntryForm()->render())
     ->setButtons($buttons);
 
 
@@ -97,7 +97,7 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);

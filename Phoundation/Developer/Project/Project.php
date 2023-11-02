@@ -10,33 +10,35 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Data\Validator\Validator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
+use Phoundation\Developer\Project\Interfaces\DeployInterface;
+use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Traits\Git;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
-use Phoundation\Processes\Commands\Command;
-use Phoundation\Processes\Commands\Rsync;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Rsync;
+use Phoundation\Os\Processes\Process;
 use Throwable;
 
 
 /**
  * Project class
  *
- * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
-class Project
+class Project implements ProjectInterface
 {
     use DataRestrictions;
     use Git {
@@ -77,7 +79,7 @@ class Project
 
 
     /**
-     * Phoundation constructor
+     * Project constructor
      *
      * @param string|null $path
      */
@@ -129,11 +131,23 @@ class Project
     /**
      * Returns the git object for this project
      *
-     * @return \Phoundation\Developer\Versioning\Git\Git
+     * @return GitInterface
      */
-    protected function getGit(): \Phoundation\Developer\Versioning\Git\Git
+    public function getGit(): GitInterface
     {
         return $this->git;
+    }
+
+
+    /**
+     * Returns the deploy object for this project
+     *
+     * @param array|null $target_environments
+     * @return DeployInterface
+     */
+    public function getDeploy(array|null $target_environments): DeployInterface
+    {
+        return new Deploy($this, $target_environments);
     }
 
 
@@ -217,7 +231,7 @@ class Project
     public function isPhoundationProject(string $path): bool
     {
         // Is the path readable?
-        $path = Path::new($path, $this->restrictions)->checkReadable()->getFile();
+        $path = Directory::new($path, $this->restrictions)->checkReadable()->getFile();
 
         // All these files and directories must be available.
         $files = [
@@ -228,7 +242,6 @@ class Project
             'scripts',
             'Templates',
             'tests',
-            'vendor',
             'www',
             'pho',
         ];
@@ -446,15 +459,11 @@ class Project
      *
      * @todo Change hard coded www-data to configurable option
      */
-    public static function fix(): void
+    public static function fixFileModes(): void
     {
         // Don't check for root user, check if we have sudo access to these commands individually, perhaps the user has
         // it?
-        Command::new()->sudoAvailable('chown', true);
-        Command::new()->sudoAvailable('chmod', true);
-        Command::new()->sudoAvailable('mkdir', true);
-        Command::new()->sudoAvailable('touch', true);
-        Command::new()->sudoAvailable('rm'   , true);
+        Command::sudoAvailable('chown,chmod,mkdir,touch,rm', Restrictions::new('/bin,/usr/bin'), true);
 
         // Fix file modes, first make everything readonly
         Process::new('chmod')
@@ -463,7 +472,7 @@ class Project
             ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
             ->executePassthru();
 
-        // All directories must have execute bit for users and groups
+        // All directories must have the "execute" bit for users and groups
         Process::new('find')
             ->setExecutionPath(PATH_ROOT)
             ->setSudo(true)
@@ -518,18 +527,26 @@ class Project
      * @param string|null $phoundation_path
      * @return static
      */
-    public function updateLocal(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null): static
+    public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null): static
     {
+        if (!$branch) {
+            $branch = $this->git->getBranch();
+
+            Log::notice(tr('Trying to pull updates from Phoudation using current project branch ":branch"', [
+                ':branch' => $branch
+            ]));
+        }
+
+        Log::information('Updating your project from a local Phoundation repository');
+
+        // Ensure that the local Phoundation has no changes
+        Phoundation::new()->ensureNoChanges();
+
         try {
-            Log::information('Updating your project from a local Phoundation repository');
-
-            // Ensure that the local Phoundation has no changes
-            Phoundation::new()->ensureNoChanges();
-
             // Add all files to index to ensure everything will be stashed
             if ($this->git->getStatus()->getCount()) {
                 $this->git->add(PATH_ROOT);
-                $this->git->stash()->stash();
+                $this->git->getStash()->stash();
                 $stash = true;
             }
 
@@ -552,7 +569,7 @@ class Project
 
             // Stash pop the previous changes and reset HEAD to ensure index is empty
             if (isset($stash)) {
-                $this->git->stash()->pop();
+                $this->git->getStash()->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -561,7 +578,7 @@ class Project
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
-                $this->git->stash()->pop();
+                $this->git->getStash()->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -649,6 +666,8 @@ class Project
     /**
      * Copy all files from the local phoundation installation.
      *
+     * @note This method will actually delete Phoundation system files! Because of this, it will manually include some
+     *       required library files to avoid crashes when these files are needed during this time of deletion
      * @param string|null $path
      * @param string $branch
      * @return void
@@ -662,19 +681,28 @@ class Project
         $rsync       = Rsync::new();
         $phoundation = Phoundation::new($path)->switchBranch($branch);
 
+        // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
+        // finding files they require, include them here so that we have them available in memory
+        include_once(PATH_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
+        include_once(PATH_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
+
         // Move /Phoundation and /scripts out of the way
         try {
-            $files['phoundation'] = Path::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
-            $files['scripts']     = Path::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true))->move(PATH_ROOT . 'data/garbage/');
+            Directory::new(PATH_ROOT . 'data/garbage/', Restrictions::new(PATH_ROOT . 'data/', true, tr('Project management')))->delete();
 
-            // Copy new versions
+            $files['scripts']     = Directory::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
+            $files['phoundation'] = Directory::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
+
+            // Copy new script versions
             $rsync
-                ->setSource($phoundation->getPath() . 'Phoundation/')->setTarget(PATH_ROOT . 'Phoundation/')
+                ->setSource($phoundation->getPath() . 'scripts/')
+                ->setTarget(PATH_ROOT . 'scripts/')
                 ->execute();
 
-            // Copy new versions
+            // Copy new core library versions
             $rsync
-                ->setSource($phoundation->getPath() . 'scripts/')->setTarget(PATH_ROOT . 'scripts/')
+                ->setSource($phoundation->getPath() . 'Phoundation/')
+                ->setTarget(PATH_ROOT . 'Phoundation/')
                 ->execute();
 
             // All is well? Get rid of the garbage

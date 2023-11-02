@@ -98,7 +98,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getDataValue('bool', 'enabled', false);
+        return $this->getSourceFieldValue('bool', 'enabled', false);
     }
 
 
@@ -116,7 +116,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setDataValue('enabled', (bool) $enabled);
+        return $this->setSourceValue('enabled', (bool) $enabled);
     }
 
 
@@ -153,7 +153,7 @@ class Plugin extends DataEntry implements PluginInterface
         $path = $this->getPath();
 
         if ($path) {
-            return Library::getClassPath($path . 'Plugin.php');
+            return Library::getClassPath(PATH_ROOT . $path . 'Plugin.php');
         }
 
         return null;
@@ -168,7 +168,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setClass(?string $class): static
     {
-        return $this->setDataValue('class', $class);
+        return $this->setSourceValue('class', $class);
     }
 
 
@@ -206,7 +206,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        return dirname(Library::getClassFile($this)) . '/';
+        return Strings::from(dirname(Library::getClassFile($this)) . '/', PATH_ROOT);
     }
 
 
@@ -259,7 +259,7 @@ class Plugin extends DataEntry implements PluginInterface
         // Register the plugin
         $plugin
             ->setName($name)
-            ->setPath(Strings::from($plugin->getPath(), PATH_ROOT))
+            ->setPath($plugin->getPath())
             ->setClass($plugin->getClass())
             ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
@@ -277,7 +277,7 @@ class Plugin extends DataEntry implements PluginInterface
     public function unregister(?string $comments = null): void
     {
         static::unlinkScripts();
-        sql()->dataEntrydelete('core_plugins', [':seo_name' => $this->getName()], $comments);
+        sql()->dataEntryDelete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
 
@@ -344,7 +344,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'disabled')

@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Core\Libraries;
 
 use Error;
+use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
 use Phoundation\Core\Libraries\Exception\LibrariesException;
+use Phoundation\Core\Libraries\Exception\LibraryExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 
 
@@ -47,6 +51,13 @@ class Library
      * @var Updates|null
      */
     protected ?Updates $updates = null;
+
+    /**
+     * Tracks if the structure check has been executed and what the result was
+     *
+     * @var bool|null
+     */
+    protected bool|null $structure_ok = null;
 
 
     /**
@@ -147,14 +158,42 @@ class Library
 
         if ($this->updates === null) {
             // This library has no Init available, skip!
-            Log::warning(tr('Not processing library ":library", it has no versioning control available', [
+            Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
                 ':library' => $this->library
-            ]));
+            ]), 3);
             return false;
         }
 
         $this->updates->init($comments);
         return true;
+    }
+
+
+    /**
+     * Executes POST init files for this library
+     *
+     * @param string|null $comments
+     * @return bool True if the library had updates applied
+     */
+    public function initPost(?string $comments): bool
+    {
+        // TODO Check later if we should be able to let init initialize itself
+        if ($this->library === 'libraries') {
+            // Never initialize the Init library itself!
+            Log::warning(tr('Not initializing library "library", it has no versioning control available'));
+            return false;
+        }
+
+        if ($this->updates === null) {
+            // This library has no Init available, skip!
+            Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
+                ':library' => $this->library
+            ]), 3);
+
+            return false;
+        }
+
+        return $this->updates->initPost($comments);
     }
 
 
@@ -277,7 +316,7 @@ class Library
      */
     public function getSize(): int
     {
-        return Path::new($this->path, PATH_ROOT)->treeFileSize();
+        return Directory::new($this->path, PATH_ROOT)->treeFileSize();
     }
 
 
@@ -310,7 +349,7 @@ class Library
      */
     public function getPhpStatistics(): array
     {
-        return Path::new($this->getPath(), [PATH_WWW, PATH_ROOT . '/scripts/', LIBRARIES::CLASS_PATH_SYSTEM, LIBRARIES::CLASS_PATH_PLUGINS, LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+        return Directory::new($this->getPath(), [PATH_WWW, PATH_ROOT . '/scripts/', LIBRARIES::CLASS_PATH_SYSTEM, LIBRARIES::CLASS_PATH_PLUGINS, LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
     }
 
 
@@ -329,7 +368,8 @@ class Library
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->grep(['namespace ', 'class '], 100);
+        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])
+            ->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
         foreach ($results['namespace '] as $line) {
@@ -392,14 +432,98 @@ class Library
     /**
      * Get the .php file for the specified class path
      *
-     * @param string $class_path
-     * @return void
+     * @param object|string $class_path
+     * @param bool $check_php
+     * @return string
      */
-    public static function loadClassFile(string $class_path): void
+    public static function loadClassFile(object|string $class_path, bool $check_php = true): string
     {
-        $file = static::getClassFile($class_path);
+        $file = Library::getClassFile($class_path, $check_php);
         Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
         include_once($file);
+        return $class_path;
+    }
+
+
+    /**
+     * Update the version registration for this version to be the specified version
+     *
+     * @param string $version
+     * @param string|null $comments
+     * @return void
+     */
+    public function setVersion(string $version, ?string $comments = null): void
+    {
+        Log::action(tr('Forcing version for library ":library" to ":version"', [
+            ':library' => $this->getName(),
+            ':version' => $version
+        ]));
+
+        $int_version = Version::getInteger($version);
+
+        // Delete any version that is higher than the specified version
+        sql()->query('DELETE FROM `core_versions` WHERE `library` = :library AND `version` > :version', [
+            ':library' => $this->getName(),
+            ':version' => $int_version
+        ]);
+
+        // Get the highest version. If it's lower than requested, insert the requested version so that we're exactly at
+        // the right version
+        $int_current = sql()->getColumn('SELECT MAX(`version`) FROM `core_versions` WHERE `library` = :library', [
+            ':library' => $this->getName(),
+        ]);
+
+        if ($int_current < $int_version) {
+            if ($comments === null) {
+                // Default comment
+                $comments = tr('Forced library to this version');
+            }
+
+            sql()->dataEntryInsert('core_versions', [
+                'library'  => $this->library,
+                'version'  => $int_version,
+                'comments' => $comments
+            ]);
+        }
+    }
+
+
+    /**
+     * Creates a new library of the specified type
+     *
+     * @param string $name
+     * @param EnumLibraryTypeInterface $type
+     * @return static
+     */
+    public static function create(string $name, EnumLibraryTypeInterface $type): static
+    {
+        // Library names must be CamelCased
+        if (!Strings::isCamelCase($name)) {
+            throw new OutOfBoundsException(tr('Invalid library name ":name" specified, the library name must be CamelCase', [
+                ':name' => $name
+            ]));
+        }
+
+        if (file_exists(PATH_ROOT . $type->value . $name)) {
+            throw new LibraryExistsException(tr('Cannot create ":type" type library ":name", it already exists', [
+                ':type' => $type,
+                ':name' => $name
+            ]));
+        }
+
+        // Copy the library from the TemplateLibrary and run a search / replace
+        Cp::new()->archive(PATH_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(PATH_ROOT . 'Phoundation/'), PATH_ROOT . $type->value . $name, Restrictions::new(PATH_ROOT . $type->value, true));
+
+        foreach (['.Library.php', 'Updates.php'] as $file) {
+            File::new(PATH_ROOT . $type->value . $name . '/.Library/' . $file, Restrictions::new(PATH_ROOT . $type->value, true))
+                ->replace([
+                    ':type' => $type,
+                    ':name' => $name
+            ]);
+        }
+
+        // Done, return the library as an object
+        return Library::get($name);
     }
 
 
@@ -451,10 +575,28 @@ class Library
      * This method will check the structure of the library and make sure everything is in working order
      *
      * @param string|null $comments
-     * @return void
+     * @return bool
      */
-    protected function checkStructure(?string $comments)
+    protected function checkStructure(?string $comments): bool
     {
+        if ($this->structure_ok === null) {
+            // Execute the structural check for this library
+            // TODO IMPLEMENT
 
+            $this->structure_ok = true;
+        }
+
+        return $this->structure_ok;
+    }
+
+
+    /**
+     * Returns true if the structure for this library is okay, false otherwise
+     *
+     * @return bool
+     */
+    public function getStructureOk(): bool
+    {
+        return $this->checkStructure();
     }
 }

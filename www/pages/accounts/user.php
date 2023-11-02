@@ -12,16 +12,28 @@ use Phoundation\Web\Http\Html\Components\Button;
 use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Img;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\ButtonType;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
+use Phoundation\Web\Http\Html\Enums\TableIdColumn;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Validate GET
+/**
+ * Page accounts/user.php
+ *
+ * This is the primary user management page where we can manage all the basic information about a user account
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Accounts
+ */
+
+
+// Validate GET and get the requested user
 $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
@@ -34,46 +46,73 @@ if (Page::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
-                // Update roles
+                // Validate roles
                 $post = PostValidator::new()
                     ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
                     ->validate(false);
 
-                // Update user
-                $user
-                    ->apply()
-                    ->save()
-                    ->getRoles()
-                        ->set($post['roles_id']);
+                // Update user, roles, emails, and phones
+                $user->apply(false)->save();
+                $user->getRoles()->setRoles($post['roles_id']);
+                $user->getEmails()->apply(false)->save();
+                $user->getPhones()->apply()->save();
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addSuccessMessage(tr('User ":user" has been updated', [':user' => $user->getDisplayName()]));
-                Page::redirect('referer');
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                // Redirect away from POST
+                Page::redirect(UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html'));
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
                 Page::redirect('root');
 
             case tr('Delete'):
                 $user->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The user ":user" has been deleted', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                Page::redirect();
+
+            case tr('Lock'):
+                $user->lock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been lock', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
                 Page::redirect();
 
             case tr('Undelete'):
                 $user->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The user ":user" has been undeleted', [':user' => $user->getDisplayName()]));
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
                 Page::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
-
         $user->forceApply();
     }
+}
+
+
+// Save button
+if (!$user->getReadonly()) {
+    $save = Button::new()
+        ->setValue(tr('Save'))
+        ->setContent(tr('Save'));
 }
 
 
@@ -96,58 +135,95 @@ if ($user->canBeStatusChanged()) {
         ->setOutlined(true)
         ->setValue(tr('Delete'))
         ->setContent(tr('Delete'));
+
+    $lock = Button::new()
+        ->setRight(true)
+        ->setMode(DisplayMode::warning)
+        ->setValue(tr('Lock'))
+        ->setContent(tr('Lock'));
+}
+
+
+// Audit button. We cannot delete god users
+if (!$user->isNew()) {
+    $audit = Button::new()
+        ->setRight(true)
+        ->setMode(DisplayMode::information)
+        ->setAnchorUrl('/audit/meta-' . $user->getMeta() . '.html')
+        ->setRight(true)
+        ->setValue(tr('Audit'))
+        ->setContent(tr('Audit'));
 }
 
 
 // Build the user form
 $user_card = Card::new()
     ->setCollapseSwitch(true)
-    ->setTitle(tr('Edit data for user :name', [':name' => $user->getDisplayName()]))
-    ->setContent($user->getHtmlForm()->render())
+    ->setMaximizeSwitch(true)
+    ->setTitle(tr('Edit profile for user :name', [':name' => $user->getDisplayName()]))
+    ->setContent($user->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
-        ->addButton(tr('Save'), type_or_anchor_url: ButtonType::submit)
-        ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true)
-        ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $user->getMeta() . '.html', false, true)
+        ->addButton(isset_get($save))
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
+        ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
+        ->addButton(isset_get($lock))
         ->addButton(isset_get($impersonate)));
 
 
-// Build the roles list management section
+// Build the additional cards only if we're not working on a new user
 if ($user->getId()) {
     $roles_card = Card::new()
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
-        ->setTitle(tr('Roles for this user [:count]', [':count' => $user->getRoles()->getCount()]))
-        ->setContent($user->getRolesHtmlForm()
-            ->setAction('#')
-            ->setMethod('POST')
-            ->render())
+        ->setTitle(tr('Edit roles for this user [:count]', [':count' => $user->getRoles()->getCount()]))
+        ->setContent($user->getRolesHtmlDataEntryForm()->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, '/accounts/users.html', true));
+            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 
     $rights_card = Card::new()
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
         ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRights()->getCount()]))
         ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
-        ->setContent($user->getRights()
+        ->setContent($user->getRights(true, true)
                             ->getHtmlDataTable('id,name,description')
-                            ->render());
+                                ->setLengthChangeEnabled(false)
+                                ->setSearchingEnabled(false)
+                                ->setPagingEnabled(false)
+                                ->setButtons('copy,csv,excel,pdf,print')
+                                ->setOrder([0 => 'asc'])
+                                ->setColumnsOrderable([0 => true, 1 => false])
+                                ->setInfoEnabled(false)
+                                ->setTableIdColumn(TableIdColumn::hidden)
+                                ->render());
+
+    $emails_card = Card::new()
+        ->setCollapseSwitch(true)
+        ->setCollapsed(true)
+        ->setTitle(tr('Additional email addresses for this user [:count]', [':count' => $user->getEmails()->getCount()]))
+        ->setContent($user->getEmails()->getHtmlDataEntryForm()->render())
+        ->setButtons(Buttons::new()
+            ->addButton(tr('Save'))
+            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+
+    $phones_card = Card::new()
+        ->setCollapseSwitch(true)
+        ->setCollapsed(true)
+        ->setTitle(tr('Additional phone numbers for this user [:count]', [':count' => $user->getPhones()->getCount()]))
+        ->setContent($user->getPhones()->getHtmlDataEntryForm()->render())
+        ->setButtons(Buttons::new()
+            ->addButton(tr('Save'))
+            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 }
-
-
-// Build the grid column with a form containing the user and roles cards
-$column = GridColumn::new()
-    ->addContent($user_card->render() . (isset($roles_card) ? $roles_card->render() : '') . (isset($rights_card) ? $rights_card->render() : ''))
-    ->setSize(9)
-    ->useForm(true);
 
 
 // Build profile picture card
 $picture = Card::new()
     ->setTitle(tr('User profile picture'))
     ->setContent(Img::new()
+        ->addClass('w100')
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
 //        ->setSrc($user->getPicture())
         ->setAlt(tr('Profile picture for :user', [':user' => $user->getDisplayName()])));
@@ -171,16 +247,26 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($column)
+    ->addColumn(GridColumn::new()
+        // The user card and all additional cards
+        ->addContent($user_card->render() .
+            isset_get($roles_card)?->render() .
+            isset_get($rights_card)?->render() .
+            isset_get($emails_card)?->render() .
+            isset_get($phones_card)?->render())
+        ->setSize(9)
+        ->useForm(true))
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 
+
 // Set page meta data
+Page::setPageTitle(tr('User :user', [':user' => $user->getDisplayName()]));
 Page::setHeaderTitle(tr('User'));
-Page::setHeaderSubTitle($user->getName());
+Page::setHeaderSubTitle($user->getDisplayName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
     '/accounts/users.html' => tr('Users'),

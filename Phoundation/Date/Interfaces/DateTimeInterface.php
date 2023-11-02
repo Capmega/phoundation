@@ -2,12 +2,12 @@
 
 namespace Phoundation\Date\Interfaces;
 
-
 use Phoundation\Date\DateInterval;
 use Phoundation\Date\DateTimeZone;
 
+
 /**
- * Class DateTime
+ * interface DateTimeInterface
  *
  *
  *
@@ -24,9 +24,10 @@ interface DateTimeInterface extends \DateTimeInterface
      *
      * @param \DateTimeInterface $targetObject
      * @param bool $absolute
+     * @param bool $roundup
      * @return DateInterval
      */
-    public function diff($targetObject, $absolute = false): DateInterval;
+    public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval;
 
     /**
      * Returns a new DateTime object with the specified timezone

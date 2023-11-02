@@ -7,11 +7,11 @@ namespace Phoundation\Virtualization\Kubernetes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataArrayData;
-use Phoundation\Data\Traits\DataName;
 use Phoundation\Data\Traits\DataArrayOutput;
+use Phoundation\Data\Traits\DataName;
 use Phoundation\Data\Traits\UsesNewName;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Kubernetes\Traits\DataAnnotations;
 use Phoundation\Virtualization\Kubernetes\Traits\DataLabels;
 use Phoundation\Virtualization\Kubernetes\Traits\DataNamespace;
@@ -174,7 +174,7 @@ class KubernetesObject
      *
      * @return static
      */
-    public function load(?string $id_column = null): static
+    public function load(): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Translator;
 
+use Phoundation\Core\Config;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 use Phoundation\Web\Routing\StaticRoute;
 
@@ -56,14 +58,37 @@ class Translations extends DataList
 
 
     /**
+     * Returns what languages are configured for translations
+     *
+     * @return array
+     */
+    public function getLanguages(): array
+    {
+        return Config::getArray('translations.languages', ['en']);
+    }
+
+
+    /**
+     * Deletes all translation copies of this project
+     *
+     * @return static
+     */
+    public function clean(): static
+    {
+throw new UnderConstructionException();
+        return $this;
+    }
+
+
+    /**
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'translation', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'translation', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
@@ -72,6 +97,6 @@ class Translations extends DataList
                                          ORDER BY `' . $value_column . '` ASC')
             ->setName('translations_id')
             ->setNone(tr('Select a translation'))
-            ->setEmpty(tr('No translations available'));
+            ->setObjectEmpty(tr('No translations available'));
     }
 }

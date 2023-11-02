@@ -298,8 +298,8 @@ class Numbers
             // Cleanup the number
             if ($value) {
                 $value = str_replace(',', '.', $value);
-                $value = number_format($value, 10, '.', '');
                 $value = abs($value);
+                $value = number_format($value, 10, '.', '');
                 $value = trim($value, '0');
 
             } else {
@@ -334,5 +334,45 @@ class Numbers
     public static function getRandomFloat(): float
     {
         return (random_int(0, PHP_INT_MAX) / PHP_INT_MAX);
+    }
+
+
+    /**
+     * Returns the highest specified number
+     *
+     * @param float|int ...$numbers
+     * @return float|int
+     */
+    public static function getHighest(float|int ...$numbers): float|int
+    {
+        $highest = PHP_FLOAT_MIN;
+
+        foreach ($numbers as $number) {
+            if ($number > $highest) {
+                $highest = $number;
+            }
+        }
+
+        return $highest;
+    }
+
+
+    /**
+     * Returns the lowest specified number
+     *
+     * @param float|int ...$numbers
+     * @return float|int
+     */
+    public static function getLowest(float|int ...$numbers): float|int
+    {
+        $lowest = PHP_FLOAT_MAX;
+
+        foreach ($numbers as $number) {
+            if ($number < $lowest) {
+                $lowest = $number;
+            }
+        }
+
+        return $lowest;
     }
 }

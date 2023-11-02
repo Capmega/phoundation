@@ -27,7 +27,7 @@ trait DataEntryCompany
      */
     public function getCompaniesId(): ?int
     {
-        return $this->getDataValue('int', 'companies_id');
+        return $this->getSourceFieldValue('int', 'companies_id');
     }
 
 
@@ -39,7 +39,7 @@ trait DataEntryCompany
      */
     public function setCompaniesId(?int $companies_id): static
     {
-        return $this->setDataValue('companies_id', $companies_id);
+        return $this->setSourceValue('companies_id', $companies_id);
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryCompany
      */
     public function getCompany(): ?Company
     {
-        $companies_id = $this->getDataValue('int', 'companies_id');
+        $companies_id = $this->getSourceFieldValue('int', 'companies_id');
 
         if ($companies_id) {
             return new Company($companies_id);
@@ -63,11 +63,11 @@ trait DataEntryCompany
     /**
      * Returns the companies_name for this object
      *
-     * @return Company|null
+     * @return string|null
      */
-    public function getCompaniesName(): ?Company
+    public function getCompaniesName(): ?string
     {
-        return $this->getDataValue('string', 'companies_name');
+        return $this->getSourceFieldValue('string', 'companies_name');
     }
 
 
@@ -79,6 +79,6 @@ trait DataEntryCompany
      */
     public function setCompaniesName(?string $companies_name): static
     {
-        return $this->setDataValue('companies_name', $companies_name);
+        return $this->setSourceValue('companies_name', $companies_name);
     }
 }

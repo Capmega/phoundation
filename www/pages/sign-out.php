@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Page;
 
 

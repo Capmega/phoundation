@@ -19,6 +19,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
 
@@ -341,12 +342,20 @@ class Definition implements DefinitionInterface
     /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
+     * @param bool $add_prefixless_names
      * @return array
      * @see Definition::getVirtual()
      */
-    public function getClasses(): array
+    public function getClasses(bool $add_prefixless_names = true): array
     {
-        return isset_get_typed('array', $this->rules['classes'], []);
+        $classes = isset_get_typed('array', $this->rules['classes'], []);
+
+        if ($add_prefixless_names) {
+            // Add the field name without prefix as a class name
+            $classes[] = $this->field;
+        }
+
+        return $classes;
     }
 
 
@@ -402,9 +411,9 @@ class Definition implements DefinitionInterface
      * @return bool
      * @see Definition::getVisible()
      */
-    public function getMeta(): bool
+    public function isMeta(): bool
     {
-        return in_array($this->field, self::$meta_fields);
+        return in_array($this->field, static::$meta_fields);
     }
 
 
@@ -421,7 +430,7 @@ class Definition implements DefinitionInterface
      */
     public function getVirtual(): ?bool
     {
-        return isset_get_typed('bool', $this->rules['virtual']);
+        return isset_get_typed('bool', $this->rules['virtual'], false);
     }
 
 
@@ -440,6 +449,33 @@ class Definition implements DefinitionInterface
     public function setVirtual(?bool $value): static
     {
         return $this->setKey('virtual', (bool) $value);
+    }
+
+
+    /**
+     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @return bool|null
+     *@see Definition::getVisible()
+     */
+    public function getDirectUpdate(): ?bool
+    {
+        return isset_get_typed('bool', $this->rules['direct_update'], false);
+    }
+
+
+    /**
+     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setDirectUpdate(?bool $value): static
+    {
+        return $this->setKey('direct_update', (bool) $value);
     }
 
 
@@ -535,7 +571,7 @@ class Definition implements DefinitionInterface
      */
     public function getContent(): callable|string|null
     {
-        return isset_get_typed('callable|string', $this->rules['element']);
+        return isset_get_typed('callable|string', $this->rules['content']);
     }
 
 
@@ -543,10 +579,15 @@ class Definition implements DefinitionInterface
      * Sets the HTML client element to be used for this field
      *
      * @param callable|string|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setContent(callable|string|null $value): static
+    public function setContent(callable|string|null $value, bool $make_safe = false): static
     {
+        if ($make_safe and !is_callable($value)) {
+            $value = Html::safe($value);
+        }
+
         return $this->setKey('content', $value);
     }
 
@@ -659,19 +700,19 @@ class Definition implements DefinitionInterface
                         $value = InputType::tel;
 
                         $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isPhoneNumber();
+                            $validator->sanitizePhoneNumber();
                         });
 
                         break;
 
-                    case InputTypeExtended::phones:
-                        $value = InputType::text;
-
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isPhoneNumbers();
-                        });
-
-                        break;
+//                    case InputTypeExtended::phones:
+//                        $value = InputType::text;
+//
+//                        $this->addValidationFunction(function (ValidatorInterface $validator) {
+//                            $validator->isPhoneNumbers();
+//                        });
+//
+//                        break;
 
                     case InputTypeExtended::username:
                         $value = InputType::text;
@@ -735,7 +776,7 @@ class Definition implements DefinitionInterface
             switch ($value) {
                 case InputType::number:
                     // Numbers should never be longer than this
-                    $this->setMaxlength(16);
+                    $this->setMaxlength(24);
             }
 
             $this->validateType('type', $value->value);
@@ -753,7 +794,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['readonly'], false);
+        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['readonly'], false);
     }
 
 
@@ -767,6 +808,31 @@ class Definition implements DefinitionInterface
     public function setReadonly(?bool $value): static
     {
         return $this->setKey('readonly', (bool) $value);
+    }
+
+
+    /**
+     * Returns if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getHidden(): ?bool
+    {
+        return isset_get_typed('bool', $this->rules['hidden'], false);
+    }
+
+
+    /**
+     * Sets if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setHidden(?bool $value): static
+    {
+        return $this->setKey('hidden', (bool) $value);
     }
 
 
@@ -803,7 +869,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->field, self::$meta_fields) or isset_get_typed('bool', $this->rules['disabled'], false);
+        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['disabled'], false);
     }
 
 
@@ -863,12 +929,6 @@ class Definition implements DefinitionInterface
     public function setSize(?int $value): static
     {
         if ($value) {
-            if (!$this->getVisible()) {
-                throw new OutOfBoundsException(tr('Cannot define size for field ":field", this field is not visible and will not be displayed', [
-                    ':field' => $this->field,
-                ]));
-            }
-
             if (($value < 1) or ($value > 12)) {
                 throw new OutOfBoundsException(tr('Invalid size ":value" specified for field ":field", it must be an integer number between 1 and 12', [
                     ':field' => $this->field,
@@ -1033,10 +1093,9 @@ class Definition implements DefinitionInterface
     /**
      * Returns the alternative CLI field names for this field
      *
-     * @param ValidatorInterface|null $validator
      * @return string|null
      */
-    public function getCliField(?ValidatorInterface $validator = null): ?string
+    public function getCliField(): ?string
     {
         if (PLATFORM_HTTP) {
             // We're not on CLI, we're on HTTP. Return the HTTP field instead
@@ -1044,17 +1103,13 @@ class Definition implements DefinitionInterface
         }
 
         // We're on the command line
-        if ($validator instanceof ArgvValidatorInterface) {
-            // We're working with data from the $argv command line
-            if (empty($this->rules['cli_field'])) {
-                // This field cannot be modified on the command line, no definition available
-                return null;
-            }
-
-            return isset_get_typed('string', $this->rules['cli_field']);
+        // We're working with data from the $argv command line
+        if (empty($this->rules['cli_field'])) {
+            // This field cannot be modified on the command line, no definition available
+            return null;
         }
 
-        return $this->field;
+        return isset_get_typed('string', $this->rules['cli_field']);
     }
 
 
@@ -1079,6 +1134,19 @@ class Definition implements DefinitionInterface
     public function getOptional(): bool
     {
         return isset_get_typed('bool', $this->rules['optional'], false);
+    }
+
+
+    /**
+     * Returns if this field is required or not
+     *
+     * @note Is the exact opposite of Definition::getOptional()
+     * @note Defaults to true
+     * @return bool
+     */
+    public function getRequired(): bool
+    {
+        return !$this->getOptional();
     }
 
 
@@ -1127,6 +1195,29 @@ class Definition implements DefinitionInterface
     {
         $this->validateTextTypeElement('placeholder', $value);
         return $this->setKey('placeholder', $value);
+    }
+
+
+    /**
+     * Returns the display_callback for this field
+     *
+     * @return callable|null
+     */
+    public function getDisplayCallback(): ?callable
+    {
+        return isset_get_typed('object|callable', $this->rules['display_callback']);
+    }
+
+
+    /**
+     * Sets the display_callback for this field
+     *
+     * @param callable|null $value
+     * @return static
+     */
+    public function setDisplayCallback(?callable $value): static
+    {
+        return $this->setKey('display_callback', $value);
     }
 
 
@@ -1542,7 +1633,7 @@ class Definition implements DefinitionInterface
      */
     public function inputTypeSupported(string $type): bool
     {
-        return in_array($type, self::$supported_input_types);
+        return in_array($type, static::$supported_input_types);
     }
 
 
@@ -1555,7 +1646,7 @@ class Definition implements DefinitionInterface
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): bool
     {
-        if ($this->getMeta()) {
+        if ($this->isMeta()) {
             // This field is metadata and should not be modified or validated, plain ignore it.
             return false;
         }
@@ -1569,7 +1660,7 @@ class Definition implements DefinitionInterface
 
         // Checkbox inputs always are boolean and does this field have a prefix?
         $bool  = ($this->getType() === 'checkbox');
-        $field = $this->getCliField($validator);
+        $field = $this->getCliField();
 
         if (!$field) {
             // This field name is empty. Coming from static::getCliField() this means that this field should NOT be
@@ -1840,7 +1931,7 @@ class Definition implements DefinitionInterface
                 ':key'   => $key,
                 ':value' => $value,
                 ':field' => $this->field,
-                ':types' => self::$supported_input_types
+                ':types' => static::$supported_input_types
             ]));
         }
     }

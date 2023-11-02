@@ -7,12 +7,13 @@ namespace Phoundation\Core;
 use Exception;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 
@@ -29,14 +30,21 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Config
+class Config implements Interfaces\ConfigInterface
 {
     /**
-     * Singleton variable
+     * Singleton variable for main config object
      *
-     * @var Config|null $instance
+     * @var ConfigInterface|null $instance
      */
-    protected static ?Config $instance = null;
+    protected static ?ConfigInterface $instance = null;
+
+    /**
+     * Alternative environment instances
+     *
+     * @var array $instances
+     */
+    protected static array $instances = [];
 
     /**
      * Keeps track of configuration failures
@@ -73,6 +81,13 @@ class Config
      */
     protected static ?string $environment = null;
 
+    /**
+     * If true, Config will always first read the production configuration file, then the specified environment
+     *
+     * @var bool $include_production
+     */
+    protected static bool $include_production = true;
+
 
     /**
      * Singleton, ensure to always return the same Log object.
@@ -101,12 +116,30 @@ class Config
 
 
     /**
+     * Returns a config object for the specified environment
+     *
+     * @param string $environment
+     * @return ConfigInterface
+     */
+    public static function forEnvironment(string $environment): ConfigInterface
+    {
+        if (empty(static::$instances[$environment])) {
+            static::$instances[$environment] = new static();
+            static::$instances[$environment]->setEnvironment($environment);
+        }
+
+        return static::$instances[$environment];
+    }
+
+
+    /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
      * @param string $environment
+     * @param bool $include_production
      * @return void
      */
-    public static function setEnvironment(string $environment): void
+    public static function setEnvironment(string $environment, bool $include_production = true): void
     {
         if (!$environment) {
             // Environment was specified as "", use no environment!
@@ -116,7 +149,8 @@ class Config
         }
 
         // Use the specified environment
-        static::$environment = strtolower(trim($environment));
+        static::$include_production = $include_production;
+        static::$environment        = strtolower(trim($environment));
 
         static::reset();
         static::read();
@@ -240,7 +274,7 @@ class Config
         $return = static::get($path, $default, $specified);
 
         if (is_array($return)) {
-            return $return;
+            return static::fixKeys($return);
         }
 
         throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
@@ -377,6 +411,11 @@ class Config
             return $specified;
         }
 
+        if (!$path) {
+            // No path specified, return everything
+            return static::fixKeys(static::$data);
+        }
+
         $path = Arrays::force($path, '.');
         $data = &static::$data;
 
@@ -400,11 +439,11 @@ class Config
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw new ConfigurationDoesNotExistsException(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
+                    throw ConfigurationDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
                         ':path'        => Strings::force($path, '.')
-                    ]));
+                    ]))->makeWarning();
                 }
 
                 // The requested key does not exist in configuration, return the default value instead
@@ -439,10 +478,10 @@ class Config
         foreach ($path as $section) {
             if (!is_array($data)) {
                 // Oops, this data section should be an array
-                throw new ConfigException(tr('The configuration section ":section" from requested path ":path" does not exist', [
+                throw ConfigException::new(tr('The configuration section ":section" from requested path ":path" does not exist', [
                     ':section' => $section,
-                    ':path' => $path
-                ]));
+                    ':path'    => $path
+                ]))->makeWarning();
             }
 
             if (!array_key_exists($section, $data)) {
@@ -454,12 +493,21 @@ class Config
             $data = &$data[$section];
         }
 
-        // Clear config cache
-        static::$cache = [];
-
         // The variable $data should now be the correct leaf node. Assign it $value and return it.
         $data = $value;
         return static::$cache[$cache_key] = $value;
+    }
+
+
+    /**
+     * Returns true if a configuration file for the specified environment exists, false if not
+     *
+     * @param string $environment
+     * @return bool
+     */
+    public static function environmentExists(string $environment): bool
+    {
+        return file_exists(PATH_ROOT . 'config/' . $environment . '.yaml');
     }
 
 
@@ -481,8 +529,13 @@ class Config
             // What environments should be read?
             if (static::$environment === 'production') {
                 $environments = ['production'];
-            } else {
+
+            } elseif(static::$include_production) {
                 $environments = ['production', static::$environment];
+
+            } else {
+                // Read only the specified environment
+                $environments = [static::$environment];
             }
 
             // Read the section for each environment
@@ -500,6 +553,7 @@ class Config
                 try {
                     // Read the configuration data and merge it in the internal configuration data array
                     $data = yaml_parse_file($file);
+
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$fail = true;
@@ -508,17 +562,24 @@ class Config
                 }
 
                 if (!is_array($data)) {
-                    throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
-                        ':file' => $file
-                    ]));
+                    if ($data) {
+                        throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
+                            ':file' => $file
+                        ]));
+                    }
+
+                    // Looks like configuration file was empty
+                    $data = [];
                 }
 
                 static::$data = Arrays::mergeFull(static::$data, $data);
             }
 
         } catch (ConfigException $e) {
+            // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
+            echo 'Failed to load configuration file "' . $file . '"' . PHP_EOL;
+
             static::$fail = true;
-            // TODO Log here that configuration loading failed.
         }
     }
 
@@ -535,7 +596,7 @@ class Config
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        Path::new(PATH_ROOT, PATH_ROOT)->execute()
+        Directory::new(PATH_ROOT, PATH_ROOT)->execute()
             ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
             ->setRecurse(true)
             ->setRestrictions(new Restrictions(PATH_ROOT))
@@ -568,8 +629,8 @@ class Config
                                     if ($store[$path] !== $default) {
                                         Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
                                             ':path' => $path,
-                                            ':1' => $default,
-                                            ':2' => $store[$path],
+                                            ':1'    => $default,
+                                            ':2'    => $store[$path],
                                         ]));
                                     }
                                 }
@@ -745,6 +806,29 @@ class Config
                 ]
             ],
         ];
+    }
+
+
+    /**
+     * Fixes configuration key names, - will be replaced with _
+     *
+     * @param array $data
+     * @return array
+     */
+    protected static function fixKeys(array $data): array
+    {
+        $return = [];
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                // Recurse
+                $value = static::fixKeys($value);
+            }
+
+            $return[str_replace('-', '_', (string) $key)] = $value;
+        }
+
+        return $return;
     }
 
 

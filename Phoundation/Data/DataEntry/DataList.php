@@ -5,21 +5,26 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Core\Arrays;
+use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataParent;
+use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Databases\Sql\QueryBuilder;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Components\DataTable;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\HtmlDataTable;
+use Phoundation\Web\Http\Html\Components\HtmlTable;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Table;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Enums\TableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -36,7 +41,10 @@ use Stringable;
  */
 abstract class DataList extends Iterator implements DataListInterface
 {
-    use DataParent;
+    use DataReadonly;
+    use DataParent {
+        setParent as setParentTrait;
+    }
 
 
     /**
@@ -99,20 +107,24 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Iterator class constructor
+     * DataList class constructor
      */
-    public function __construct()
+    public function __construct(?array $ids = null)
     {
         parent::__construct();
+
+        if ($ids) {
+            $this->load();
+        }
     }
 
 
     /**
-     * Returns a new Iterator object
+     * Returns a new DataList object
      */
-    public static function new(): static
+    public static function new(?array $ids = null): static
     {
-        return new static();
+        return new static($ids);
     }
 
 
@@ -153,138 +165,6 @@ abstract class DataList extends Iterator implements DataListInterface
         }
 
         return parent::exists($key);
-    }
-
-
-    /**
-     * Returns a list of items that are specified, but not available in this DataList
-     *
-     * @param DataListInterface|array|string $list
-     * @param string|null $always_match
-     * @return array
-     */
-    public function getMissingKeys(DataListInterface|array|string $list, string $always_match = null): array
-    {
-        if (is_string($list)) {
-            $list = explode(',', $list);
-        }
-
-        $return = [];
-
-        foreach ($list as $entry) {
-            if (array_key_exists($entry, $this->source)) {
-                continue;
-            }
-
-            // Can still match if $always_match is available!
-            if ($always_match and array_key_exists($always_match, $this->source)) {
-                // Okay, this list contains ALL the requested entries due to $always_match
-                return [];
-            }
-
-            $return[] = $entry;
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns if all (or optionally any) of the specified entries are in this list
-     *
-     * @param DataListInterface|array|string $list
-     * @param bool $all
-     * @param string|null $always_match
-     * @return bool
-     */
-    public function containsKeys(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool
-    {
-        if (is_string($list)) {
-            $list = explode(',', $list);
-        }
-
-        foreach ($list as $entry) {
-            if (!array_key_exists($entry, $this->source)) {
-                if ($all) {
-                    // All need to be in the array, but we found one missing.
-                    // Can still match if $always_match is available!
-                    if ($always_match and array_key_exists($always_match, $this->source)) {
-                        // Okay, this list contains ALL the requested entries due to $always_match
-                        return true;
-                    }
-
-                    return false;
-                }
-            } else {
-                if (!$all) {
-                    // only one needs to be in the array, we found one, we're good!
-                    return true;
-                }
-            }
-        }
-
-        // All were in the array
-        return true;
-    }
-
-
-    /**
-     * Returns if all (or optionally any) of the specified entries are in this list
-     *
-     * @param DataListInterface|array|string $list
-     * @param bool $all
-     * @param string|null $always_match
-     * @return bool
-     */
-    public function containsValues(DataListInterface|array|string $list, bool $all = true, string $always_match = null): bool
-    {
-        if (is_string($list)) {
-            $list = explode(',', $list);
-        }
-
-        foreach ($list as $entry) {
-            if (!in_array($entry, $this->source)) {
-                if ($all) {
-                    // All need to be in the array, but we found one missing.
-                    // Can still match if $always_match is available!
-                    if ($always_match and in_array($always_match, $this->source)) {
-                        // Okay, this list contains ALL the requested entries due to $always_match
-                        return true;
-                    }
-
-                    return false;
-                }
-            } else {
-                if (!$all) {
-                    // only one needs to be in the array, we found one, we're good!
-                    return true;
-                }
-            }
-        }
-
-        // All were in the array
-        return true;
-    }
-
-
-    /**
-     * Returns the internal list filtered by the specified keyword
-     *
-     * @param string|null $keyword
-     * @return array
-     */
-    public function filteredList(?string $keyword): array
-    {
-        $return = [];
-        $keyword = strtolower((string) $keyword);
-
-        foreach ($this->getSource() as $value) {
-            if (!$keyword or str_contains(strtolower(trim($value)), $keyword)) {
-                $return[] = $value;
-            }
-        }
-
-        return $return;
     }
 
 
@@ -350,12 +230,37 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         // Does this entry exist?
         if (!array_key_exists($key, $this->source)) {
-            throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
-                ':key' => $key
-            ]));
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
+                    ':key' => $key
+                ]));
+            }
+
+            return null;
         }
 
         return $this->ensureDataEntry($key);
+    }
+
+
+    /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param DataEntryInterface $value
+     * @return static
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static
+    {
+        if ($value instanceof DataEntryInterface) {
+            return parent::set($key, $value);
+        }
+
+        throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", it does not have a DataEntryInterface', [
+            ':list'  => get_class($this),
+            ':key'   => $key,
+            ':value' => $value
+        ]));
     }
 
 
@@ -367,7 +272,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function getQueryBuilder(): QueryBuilderInterface
     {
         if (!isset($this->query_builder)) {
-            $this->query_builder = new QueryBuilder($this);
+            $this->query_builder = QueryBuilder::new($this);
         }
 
         return $this->query_builder;
@@ -377,46 +282,58 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
      */
-    public function getHtmlTable(): Table
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
+        if ($this->source) {
+            // Source is already loaded, use this instead
+            // Create and return the table
+            return HtmlTable::new()
+                ->setId(static::getTable())
+                ->setSource($this->getSourceColumns($columns))
+                ->setCallbacks($this->callbacks)
+                ->setTableIdColumn(TableIdColumn::checkbox);
+        }
+
         $this->selectQuery();
 
         // Create and return the table
-        return Table::new()
+        return HtmlTable::new()
+            ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(true);
+            ->setTableIdColumn(TableIdColumn::checkbox);
     }
 
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
-     * @return DataTable
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
      */
-    public function getHtmlDataTable(array|string|null $columns = null): DataTable
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
     {
         if ($this->source) {
             // Source is already loaded, use this instead
             // Create and return the table
-            return DataTable::new()
+            return HtmlDataTable::new()
                 ->setId(static::getTable())
                 ->setSource($this->getSourceColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(true);
-
+                ->setTableIdColumn(TableIdColumn::checkbox);
         }
 
         $this->selectQuery();
 
         // Create and return the table
-        return DataTable::new()
+        return HtmlDataTable::new()
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(true);
+            ->setTableIdColumn(TableIdColumn::checkbox);
     }
 
 
@@ -426,9 +343,9 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         $select = InputSelect::new();
 
@@ -437,12 +354,12 @@ abstract class DataList extends Iterator implements DataListInterface
             $value_column = trim($value_column);
             $value_column = Strings::fromReverse($value_column, ' ');
             $value_column = str_replace('`', '', $value_column);
-            $select->setSource($this->getScalarValuesSource($value_column));
+            $select->setSource($this->getSourceColumn($value_column));
 
         } else {
-            $query = 'SELECT   `' . $key_column . '`, ' . $value_column . ' 
-                                                FROM     `' . static::getTable() . '` 
-                                                WHERE    `status` IS NULL';
+            $query = 'SELECT `' . $key_column . '`, ' . $value_column . ' 
+                      FROM   `' . static::getTable() . '` 
+                      WHERE  `status` IS NULL';
 
             if ($order === null) {
                 // Default order by the value column. Value column may have SQL, make sure its stripped
@@ -472,6 +389,12 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void
     {
+        // If this list is empty then load data from query, else show list contents
+        if (empty($this->source)) {
+            $this->selectQuery();
+            $this->source = sql()->list($this->query, $this->execute);
+        }
+
         Cli::displayTable($this->source, $columns, $id_column);
     }
 
@@ -480,41 +403,82 @@ abstract class DataList extends Iterator implements DataListInterface
      * Set the specified status for the specified entries
      *
      * @param string|null $status
-     * @param array $entries
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(?string $status, array $entries, ?string $comments = null): int
+    public function updateStatusAll(?string $status, ?string $comments = null): int
     {
-        return sql()->dataEntrySetStatus($status, static::getTable(), $entries, $comments);
+        foreach ($this->source as $entry) {
+            sql()->dataEntrySetStatus($status, static::getTable(), $entry, $comments);
+        }
+
+        return count($this->source);
     }
 
 
     /**
-     * Delete the specified entries
+     * Delete all the entries in this list
      *
-     * @param array $entries
      * @param string|null $comments
      * @return int
      */
-    public function dbDelete(array $entries, ?string $comments = null): int
+    public function deleteAll(?string $comments = null): int
     {
-showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
-        return $this->setStatus('deleted', $entries, $comments);
+        return $this->updateStatusAll('deleted', $comments);
+    }
+
+
+    /**
+     * Access the direct list operations for this class
+     *
+     * @return ListOperationsInterface
+     */
+    public static function directOperations(): ListOperationsInterface
+    {
+        return new ListOperations(static::class);
+    }
+
+
+    /**
+     * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
+     *
+     * @return int
+     */
+    public function eraseAll(): int
+    {
+        $ids  = [];
+        $meta = [];
+
+        // Delete the meta data entries
+        foreach ($this->source as $id => $entry) {
+            $ids[] = $id;
+
+            if (is_array($entry)) {
+                $meta[] = $entry['meta_id'];
+
+            } elseif ($entry instanceof DataEntry) {
+                $meta[] = $entry->getMetaId();
+            }
+        }
+
+        Meta::eraseEntries($meta);
+
+        // Delete the entries themselves
+        $ids = Sql::in($ids);
+        return sql()->delete(static::getTable(), ' `id` IN (' . Sql::inColumns($ids) . ')', $ids);
     }
 
 
     /**
      * Undelete the specified entries
      *
-     * @param array $entries
+     * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
      * @param string|null $comments
      * @return int
      */
-    public function dbUndelete(array $entries, ?string $comments = null): int
+    public function undeleteAll(?string $comments = null): int
     {
-showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY FOR A SINGLE ROW!');
-        return $this->setStatus(null, $entries, $comments);
+        return $this->updateStatusAll(null, $comments);
     }
 
 
@@ -551,22 +515,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
         }
 
         return $this;
-    }
-
-
-    /**
-     * Remove the specified key(s) from the data list
-     *
-     * @param DataEntryInterface|array|string|float|int $keys
-     * @return static
-     */
-    public function delete(DataEntryInterface|array|string|float|int $keys): static
-    {
-        if (is_object($keys)) {
-            $keys = $keys->getId();
-        }
-
-        return parent::delete($keys);
     }
 
 
@@ -613,7 +561,17 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     {
         // Ensure the source key is of DataEntryInterface
         if (!$this->source[$key] instanceof DataEntryInterface) {
-            $this->source[$key] = static::getEntryClass()::new()->setSource($this->source[$key]);
+            // Okay, interesting problem! When we loaded entries through QueryBuilder, we allowed to use whatever hell
+            // columns we wanted with whatever hell datatype. For example, a column that normally would be an integer
+            // now might be a string which will make the DataEntry setValue methods crash. To avoid this, we cannot rely
+            // on the data available in the datalist, we'll have to load the DataEntry manually
+            if (isset($this->query_builder)) {
+                // Load the DataEntry separately from the database (will require an extra query)
+                $this->source[$key] = static::getEntryClass()::get($key);
+
+            } else {
+                $this->source[$key] = static::getEntryClass()::new()->setSource($this->source[$key]);
+            }
         }
 
         return $this->source[$key];
@@ -621,10 +579,29 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
 
 
     /**
+     * Ensures that all objects in the source are DataEntry objects
+     *
+     * @return $this
+     */
+    protected function ensureDataEntries(): static
+    {
+        foreach ($this->source as $key => $value) {
+            if (is_object($value)) {
+                continue;
+            }
+
+            $this->ensureDataEntry($key);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Will throw an OutOfBoundsException exception if no parent was set for this list
      *
      * @param string $action
-     * @return void
+     * @return static
      */
     protected function ensureParent(string $action): static
     {
@@ -633,73 +610,6 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
         }
 
         return $this;
-    }
-
-
-    /**
-     * Ensures that all objects in the source are entry_class objects
-     *
-     * @return $this
-     */
-    protected function ensureSourceObjects(): static
-    {
-        foreach ($this->source as &$value) {
-            if (is_object($value)) {
-                continue;
-            }
-
-            $value = static::getEntryClass()::new()->setSource($value);
-        }
-
-        unset($value);
-        return $this;
-    }
-
-
-    /**
-     * Returns an array with scalar values
-     *
-     * @param string $column
-     * @return array
-     */
-    protected function getScalarValuesSource(string $column): array
-    {
-        $return = [];
-
-        foreach ($this->source as $key => $value) {
-            $return[$key] = $value[$column];
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns an array with scalar values
-     *
-     * @param array|string|null $columns
-     * @return array
-     */
-    protected function getSourceColumns(array|string|null $columns): array
-    {
-        if (!$columns) {
-            // No columns specified, return everything
-            return $this->source;
-        }
-
-        $return  = [];
-        $columns = Arrays::force($columns);
-
-        foreach ($this->source as $key => $value) {
-            if (is_object($value)) {
-                // Extract array data from DataEntry object
-                $value = $value->__toArray();
-            }
-
-            $return[$key] = Arrays::keep($value, $columns);
-        }
-
-        return $return;
     }
 
 
@@ -726,14 +636,58 @@ showdie('$entries IS IN CORRECT HERE, AS SQL EXPECTS IT, IT SHOULD BE AN ARRAY F
     /**
      * Load the id list from database
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = null): static
+    public function load(): static
     {
         $this->selectQuery();
-        $this->source = sql()->list($this->query, $this->execute);
+        $this->source = sql()->listKeyValues($this->query, $this->execute);
 
         return $this;
+    }
+
+
+    /**
+     * Adds the specified source to the internal source
+     *
+     * @param DataListInterface|array|null $source
+     * @return $this
+     */
+    public function addSource(DataListInterface|array|null $source): static
+    {
+        foreach ($source as $key => $value) {
+            $this->add($value, $key);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the total amounts for all columns together
+     *
+     * @note This specific method will just return a row with empty values. Its up to the classes implementing DataList
+     *       to override this method and return meaningful totals.
+     *
+     * @param array|string $columns
+     * @return array
+     */
+    public function getTotals(array|string $columns): array
+    {
+        return array_combine($columns, array_fill(0, count($columns), null));
+    }
+
+
+    /**
+     * Sets the parent
+     *
+     * @param DataEntryInterface $parent
+     * @return static
+     */
+    public function setParent(DataEntryInterface $parent): static
+    {
+        // Clear the source to avoid having a parent with the wrong children
+        $this->source = [];
+        return $this->setParentTrait($parent);
     }
 }

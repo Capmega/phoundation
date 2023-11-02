@@ -30,7 +30,7 @@ trait DataEntryTimezone
      */
     public function getTimezonesId(): ?int
     {
-        return $this->getDataValue('int', 'timezones_id');
+        return $this->getSourceFieldValue('int', 'timezones_id');
     }
 
 
@@ -42,7 +42,7 @@ trait DataEntryTimezone
      */
     public function setTimezonesId(?int $timezones_id): static
     {
-        return $this->setDataValue('timezones_id', $timezones_id);
+        return $this->setSourceValue('timezones_id', $timezones_id);
     }
 
 
@@ -53,7 +53,7 @@ trait DataEntryTimezone
      */
     public function getTimezone(): ?TimezoneInterface
     {
-        $timezones_id = $this->getDataValue('int', 'timezones_id');
+        $timezones_id = $this->getSourceFieldValue('int', 'timezones_id');
 
         if ($timezones_id) {
             return new Timezone($timezones_id);
@@ -70,7 +70,7 @@ trait DataEntryTimezone
      */
     public function getTimezonesName(): ?string
     {
-        return $this->getDataValue('string', 'timezones_name');
+        return $this->getSourceFieldValue('string', 'timezones_name');
     }
 
 
@@ -82,6 +82,6 @@ trait DataEntryTimezone
      */
     public function setTimezonesName(?string $timezones_name): static
     {
-        return $this->setDataValue('timezones_name', $timezones_name);
+        return $this->setSourceValue('timezones_name', $timezones_name);
     }
 }

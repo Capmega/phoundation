@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents\Exception;
 
 use Phoundation\Security\Exception\SecurityException;
+use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 
 
 /**
@@ -17,6 +18,6 @@ use Phoundation\Security\Exception\SecurityException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  */
-class IncidentsException extends SecurityException
+class IncidentsException extends SecurityException implements IncidentsExceptionInterface
 {
 }

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Cities\City;
-use Phoundation\Geo\Countries\Country;
-use Phoundation\Geo\States\State;
 
 
 /**
@@ -29,7 +26,7 @@ trait DataEntryCity
      */
     public function getCitiesId(): ?int
     {
-        return $this->getDataValue('int', 'cities_id');
+        return $this->getSourceFieldValue('int', 'cities_id');
     }
 
 
@@ -41,7 +38,7 @@ trait DataEntryCity
      */
     public function setCitiesId(?int $cities_id): static
     {
-        return $this->setDataValue('cities_id', $cities_id);
+        return $this->setSourceValue('cities_id', $cities_id);
     }
 
 
@@ -52,7 +49,7 @@ trait DataEntryCity
      */
     public function getCity(): ?City
     {
-        $cities_id = $this->getDataValue('int', 'cities_id');
+        $cities_id = $this->getSourceFieldValue('int', 'cities_id');
 
         if ($cities_id) {
             return new City($cities_id);
@@ -69,7 +66,7 @@ trait DataEntryCity
      */
     public function getCitiesName(): ?string
     {
-        return $this->getDataValue('string', 'cities_name');
+        return $this->getSourceFieldValue('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
     }
 
 
@@ -81,6 +78,6 @@ trait DataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setDataValue('cities_name', $cities_name);
+        return $this->setSourceValue('cities_name', $cities_name);
     }
 }

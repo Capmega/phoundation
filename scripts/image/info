@@ -29,7 +29,6 @@ Documentation::help('This script will display basic information about the specif
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('file', true)->isFile(true)
-    ->noArgumentsLeft()
     ->validate();
 
 

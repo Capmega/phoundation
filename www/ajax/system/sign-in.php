@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Components\ProfileImage;
 use Plugins\Phoundation\Components\Menu;

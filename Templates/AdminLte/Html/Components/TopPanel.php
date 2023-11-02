@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Html;
 use Phoundation\Web\Http\Html\Renderer;
@@ -107,27 +107,27 @@ class TopPanel extends Renderer
                         
                                
                               <!-- Messages Dropdown Menu -->
-                              <li class="nav-item dropdown">
+                              <li class="nav-item dropdown messages">
                                 ' . $this->render_object->getMessagesDropDown()?->render() . '
                               </li>
                               <!-- Notifications Dropdown Menu -->
-                              <li class="nav-item dropdown">
+                              <li class="nav-item dropdown notifications">
                                 ' . $this->render_object->getNotificationsDropDown()?->render() . '
                               </li>
-                              <li class="nav-item dropdown">                                  
+                              <li class="nav-item dropdown languages">                                  
                                   ' . $this->render_object->getLanguagesDropDown()?->render() . '
                               </li>
                               <li class="nav-item">
                                 <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                                   <i class="fas fa-expand-arrows-alt"></i>
                                 </a>
-                              </li>
-                              <li class="nav-item">
-                                <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                                  <i class="fas fa-th-large"></i>
-                                </a>
-                              </li>
-                              <li class="nav-item">
+                              </li>' .
+//                              <li class="nav-item">
+//                                <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+//                                  <i class="fas fa-th-large"></i>
+//                                </a>
+//                              </li>
+                             '<li class="nav-item">
                                 <a class="nav-link" href="' . Html::safe(UrlBuilder::getWww('sign-out.html')) . '" role="button">
                                   <i class="fas fa-sign-out-alt"></i>
                                 </a>

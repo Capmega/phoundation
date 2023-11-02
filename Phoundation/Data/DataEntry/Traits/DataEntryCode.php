@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Exception\OutOfBoundsException;
-
 
 /**
  * Trait DataEntryCode
@@ -26,7 +24,7 @@ trait DataEntryCode
      */
     public function getCode(): ?string
     {
-        return $this->getDataValue('string', 'code');
+        return $this->getSourceFieldValue('string', 'code');
     }
 
 
@@ -41,6 +39,6 @@ trait DataEntryCode
      */
     public function setCode(?string $code): static
     {
-        return $this->setDataValue('code', $code);
+        return $this->setSourceValue('code', $code);
     }
 }

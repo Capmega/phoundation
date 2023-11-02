@@ -27,7 +27,6 @@ Documentation::help('This script returns the available kubernetes namespaces');
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('name')->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
-    ->noArgumentsLeft()
     ->validate();
 
 if ($argv['name']) {

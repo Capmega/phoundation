@@ -7,6 +7,7 @@ namespace Phoundation\Core;
 use Exception;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -224,8 +225,8 @@ class Strings
                 break;
         }
 
-        $string     = '';
-        $charlen    = mb_strlen($characters);
+        $string  = '';
+        $charlen = mb_strlen($characters);
 
         if ($unique and ($length > $charlen)) {
             throw new OutOfBoundsException(tr('Can not create unique character random string with size ":length". When $unique is requested, the string length can not be larger than ":charlen" because there are no more then that amount of unique characters', ['length' => $length, 'charlen' => $charlen]));
@@ -244,6 +245,29 @@ class Strings
         }
 
         return $string;
+    }
+
+
+    /**
+     * Return a random string without possible exception
+     *
+     * @param int $length
+     * @param bool $unique
+     * @param Stringable|string $characters
+     * @return string
+     * @throws OutOfBoundsException
+     */
+    public static function randomSafe(int $length = 8, bool $unique = false, Stringable|string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    {
+        try {
+            return Strings::random();
+
+        } catch (\Exception $e) {
+            Log::warning(tr('Failed to find random string, see following exception'));
+            Log::error($e);
+
+            return '????????';
+        }
     }
 
 
@@ -381,12 +405,13 @@ class Strings
      * Returns a base58 encoded string
      *
      * @param Stringable|string $source
+     * @param string|null $alphabet
      * @return string
      */
-    public static function toBase58(Stringable|string $source): string
+    public static function toBase58(Stringable|string $source, ?string $alphabet = null): string
     {
         $source = (string) $source;
-        $codec  = new Base58();
+        $codec  = new Base58($alphabet);
 
         return $codec->encode($source);
     }
@@ -403,7 +428,7 @@ class Strings
     {
         $source = explode($separator, mb_strtolower((string) $source));
 
-        foreach ($source as $key => &$value) {
+        foreach ($source as &$value) {
             $value = mb_ucfirst($value);
         }
 
@@ -1469,7 +1494,7 @@ throw new UnderConstructionException();
      */
     public static function slash(Stringable|string|null $string): string
     {
-        return static::endsWith($string, '/');
+        return static::endsWith((string) $string, '/');
     }
 
 
@@ -1482,7 +1507,7 @@ throw new UnderConstructionException();
      */
     public static function unslash(Stringable|string|null $string, bool $loop = true): string
     {
-        return static::endsNotWith($string, '/', $loop);
+        return static::endsNotWith((string) $string, '/', $loop);
     }
 
 
@@ -1766,7 +1791,7 @@ throw new UnderConstructionException();
             case 'n':
                 // no-break
             case 'false':
-            // no-break
+                // no-break
             case '0':
                 return false;
 
@@ -1940,7 +1965,7 @@ throw new UnderConstructionException();
      * @return string
      * @throws Exception
      */
-    public static function uuid(Stringable|string|null $data = null): string
+    public static function generateUuid(Stringable|string|null $data = null): string
     {
         // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
         $data = $data ?? random_bytes(16);
@@ -2031,6 +2056,53 @@ throw new UnderConstructionException();
         $skip_symbols        = mb_str_split($skip_symbols, 1);
         $standard_delimiters = str_replace($skip_symbols, '', '\\()[]{}<>.?+*^$=!|:-');
 
-        return self::escape($string, $standard_delimiters . $delimiters);
+        return static::escape($string, $standard_delimiters . $delimiters);
+    }
+
+
+    /**
+     * Returns true if the specified string is completely uppercase
+     *
+     * @param string $source
+     * @return bool
+     */
+    public static function isUppercase(string $source): bool
+    {
+        return ($source === strtoupper($source));
+    }
+
+
+    /**
+     * Returns true if the specified string is completely lowercase
+     *
+     * @param string $source
+     * @return bool
+     */
+    public static function isLowercase(string $source): bool
+    {
+        return ($source === strtolower($source));
+    }
+
+
+    /**
+     * Returns true if the specified string is CamelCase format
+     *
+     * @note This requires a string of at least 2 characters, and only the first two characters will be tested
+     * @param string $source
+     * @return bool
+     */
+    public static function isCamelCase(string $source): bool
+    {
+        if (strlen($source) < 2) {
+            throw new OutOfBoundsException(tr('Cannot check source string ":source" for camelcase, it has less than 2 characters', [
+                ':source' => $source
+            ]));
+        }
+
+        if ((str_contains($source, '-')) or (str_contains($source, '_'))) {
+            return false;
+        }
+
+        return ($source[0] === strtoupper($source[0])) and ($source[1] === strtolower($source[1]));
     }
 }

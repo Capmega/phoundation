@@ -9,7 +9,7 @@ use Phoundation\Business\Providers\Provider;
 use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
 
 
@@ -78,23 +78,22 @@ class Languages extends DataList implements LanguagesInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order)
             ->setName('languages_id')
             ->setNone(tr('Select a language'))
-            ->setEmpty(tr('No languages available'));
+            ->setObjectEmpty(tr('No languages available'));
     }
 
 
     /**
-     * @param string|null $id_column
      * @return $this
      * @throws \Throwable
      */
-    public function load(?string $id_column = null): static
+    public function load(): static
     {
         $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
                                    FROM     `core_languages`

@@ -7,6 +7,7 @@ namespace Phoundation\Core\Libraries;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -15,9 +16,10 @@ use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Table;
+use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Html\Components\HtmlTable;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 
 
@@ -70,7 +72,9 @@ class Libraries
             switch ($driver) {
                 case 'sql':
                     foreach ($data['instances'] as $instance => $configuration) {
-                        sql($instance, false)->schema(false)->database()->drop();
+                        if (($instance === 'system') or isset_get($configuration['init'])) {
+                            sql($instance, false)->schema(false)->database()->drop();
+                        }
                     }
 
                     break;
@@ -106,10 +110,10 @@ class Libraries
      * @param bool $plugins
      * @param bool $templates
      * @param string|null $comments
-     * @param string|null $library
+     * @param array|null $libraries
      * @return void
      */
-    public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?string $library = null): void
+    public static function initialize(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?array $libraries = null): void
     {
         static::$initializing = true;
 
@@ -117,28 +121,22 @@ class Libraries
             static::force();
         }
 
-        if ($library) {
-            // Init only the specified library
-            $library = static::findLibrary($library);
-            $library->init($comments);
+        // Wipe all temporary data and set the core in INIT mode
+        Tmp::clear();
+        Core::setInitState();
 
-        } else {
-            // Wipe all temporary data
-            Tmp::clear();
-
-            try {
-                // Wipe all cache data
-                Cache::clear();
-            } catch (ConfigurationDoesNotExistsException $e) {
-                Log::warning($e->getMessage());
-            }
-
-            // Ensure the system database exists
-            static::ensureSystemsDatabase();
-
-            // Go over all system libraries and initialize them, then do the same for the plugins
-            static::initializeLibraries($system, $plugins, $templates);
+        try {
+            // Wipe all cache data
+            Cache::clear();
+        } catch (ConfigurationDoesNotExistsException $e) {
+            Log::warning($e->getMessage());
         }
+
+        // Ensure the system database exists
+        static::ensureSystemsDatabase();
+
+        // Go over all system libraries and initialize them, then do the same for the plugins
+        static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
 
         // Initialization done!
         static::$initializing = false;
@@ -146,6 +144,7 @@ class Libraries
         if (Debug::production()) {
             // Notification developers
             Notification::new()
+                ->setUrl('/system/information.html')
                 ->setMode(DisplayMode::info)
                 ->setRoles('developers')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
@@ -275,7 +274,9 @@ class Libraries
             return $return;
         }
 
-        throw NotExistsException::new(tr('The specified library does not exist'))->makeWarning();
+        throw NotExistsException::new(tr('The specified library ":library" does not exist', [
+            ':library' => $library
+        ]))->makeWarning();
     }
 
 
@@ -293,19 +294,19 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = Path::new(LIBRARIES::CLASS_PATH_SYSTEM, [LIBRARIES::CLASS_PATH_SYSTEM])->getPhpStatistics(true);
+            $return['system'] = Directory::new(LIBRARIES::CLASS_PATH_SYSTEM, [LIBRARIES::CLASS_PATH_SYSTEM])->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = Path::new(LIBRARIES::CLASS_PATH_PLUGINS, [LIBRARIES::CLASS_PATH_PLUGINS])->getPhpStatistics(true);
+            $return['plugins'] = Directory::new(LIBRARIES::CLASS_PATH_PLUGINS, [LIBRARIES::CLASS_PATH_PLUGINS])->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = Path::new(LIBRARIES::CLASS_PATH_TEMPLATES, [LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+            $return['templates'] = Directory::new(LIBRARIES::CLASS_PATH_TEMPLATES, [LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 
@@ -316,14 +317,19 @@ class Libraries
     /**
      * Creates and returns an HTML table for the data in this list
      *
-     * @return Table
+     * @return HtmlTableInterface
      */
-    public static function getHtmlTable(): Table
+    public static function getHtmlTable(): HtmlTableInterface
     {
         // Create and return the table
-        return Table::new()
-            ->setColumnHeaders([tr('Library'), tr('Version'), tr('Description')])
-            ->setSource(static::listLibraries());
+        $table = HtmlTable::new()->setSource(static::listLibraries());
+        $table->getHeaders()->setSource([
+            tr('Library'),
+            tr('Version'),
+            tr('Description')
+        ]);
+
+        return $table;
     }
 
 
@@ -395,17 +401,18 @@ class Libraries
      * @param string|null $comments
      * @return int
      */
-    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null): int
+    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
     {
         // Get a list of all available libraries and their versions
-        $libraries     = static::listLibraries($system, $plugins, $templates);
-        $library_count = count($libraries);
-        $update_count  = 0;
+        $libraries      = static::listLibraries($system, $plugins, $templates);
+        $post_libraries = $libraries;
+        $library_count  = count($libraries);
+        $update_count   = 0;
 
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
-            static::orderLibraries($libraries);
+            static::orderLibraries($libraries, $filter_libraries);
 
             // Go over the libraries list and try to update each one
             foreach ($libraries as $path => $library) {
@@ -414,13 +421,35 @@ class Libraries
                     // Library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
                     break;
-                } else {
-                    // This library has nothing more to initialize, remove it from the list
-                    Log::success(tr('Finished updates for library ":library"', [
+                }
+
+                // This library has nothing more to initialize, remove it from the list
+                Log::success(tr('Finished updates for library ":library"', [
+                    ':library' => $library->getName()
+                ]));
+
+                unset($libraries[$path]);
+            }
+        }
+
+        // Post initialize all libraries
+        // Go over the libraries list and try to update each one
+        if (false) {
+//        if (TEST) {
+            Log::warning('Not executing post init files due to test mode');
+
+        } else {
+            Log::action(tr('Executing post init updates'));
+
+            foreach ($post_libraries as $library) {
+                // Execute the update inits for this library and update the library information and start over
+                if ($library->initPost($comments)) {
+                    // Library has been post initialized. Break so that we can check which library should be updated next.
+                    $update_count++;
+
+                    Log::success(tr('Finished post updates for library ":library"', [
                         ':library' => $library->getName()
                     ]));
-
-                    unset($libraries[$path]);
                 }
             }
         }
@@ -443,18 +472,33 @@ class Libraries
      * Order the libraries by next_init_version first
      *
      * @param array $libraries
+     * @param array|null $filter_libraries
      * @return void
      */
-    protected static function orderLibraries(array &$libraries): void
+    protected static function orderLibraries(array &$libraries, array $filter_libraries = null): void
     {
+        // Prepare libraries filter if specified
+        if ($filter_libraries) {
+            $filter_libraries = Arrays::lowerCase($filter_libraries);
+            $filter_libraries = array_flip($filter_libraries);
+        }
+
         // Remove libraries that have nothing to execute anymore
         foreach ($libraries as $path => $library) {
+            if ($filter_libraries) {
+                if (!array_key_exists(strtolower($library->getName()), $filter_libraries)) {
+                    // This library should not be initialized
+                    unset($libraries[$path]);
+                    continue;
+                }
+            }
+
             if ($library->getNextInitVersion() === null) {
                 unset($libraries[$path]);
             }
         }
 
-        // Order
+        // Order the libraries
         uasort($libraries, function ($a, $b) {
             return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
         });

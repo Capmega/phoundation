@@ -1,0 +1,52 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Documentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Filesystem\Directory;
+
+
+/**
+ * THIS SCRIPT IS ONLY FOR PHOUNDATION DEVELOPERS
+ *
+ * This script will copy the specified file back to your phoundation development installation
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Function reference
+ * @package Phoundation\Development
+ */
+
+Documentation::usage('./pho project copy FILE');
+
+Documentation::help('This script will copy the specified library file directly to your Phoundation installation
+
+If, for example, you specify Phoundation/Web/Page.php as the file, it will copy this file back to your Phoundation
+installation in the exact same location
+
+
+ARGUMENTS
+
+
+FILE                                    The file to copy
+
+-b, --branch BRANCH                     Change the Phoundation to the specified branch
+
+-c, --allow-changes                     The file to copy');
+
+
+// Get command line arguments
+$argv = ArgvValidator::new()
+    ->select('file')->isFile(Directory::default(PATH_ROOT), PATH_ROOT)
+    ->select('-b,--branch', true)->isOptional()->isVariable()
+    ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
+    ->validate();
+
+
+// Copy the file
+Phoundation::new()->copy($argv['file'], $argv['branch'], !$argv['allow_changes']);

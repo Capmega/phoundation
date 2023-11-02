@@ -9,6 +9,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataIntId;
+use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -31,6 +32,7 @@ use ReflectionProperty;
 trait ValidatorBasics
 {
     use DataIntId;
+    use DataMaxStringSize;
 
 
     /**
@@ -108,7 +110,7 @@ trait ValidatorBasics
     /**
      * The single key that actually will be tested.
      *
-     * @var int|string $process_key
+     * @var string|int $process_key
      */
     protected mixed $process_key = null;
 
@@ -157,13 +159,6 @@ trait ValidatorBasics
      * @var array $children
      */
     protected array $children = [];
-
-    /**
-     * The maximum string size that this validator will touch
-     *
-     * @var int $max_string_size
-     */
-    protected int $max_string_size = 1073741824;
 
     /**
      * Required to test if selected_optional property is initialized or not
@@ -234,7 +229,7 @@ trait ValidatorBasics
      *
      * @return array
      */
-    public function getSourceKey(string $key): mixed
+    public function getSourceValue(string $key): mixed
     {
         return array_get_safe($this->source, $key);
     }
@@ -291,29 +286,6 @@ trait ValidatorBasics
 
 
     /**
-     * Returns the maximum string size that this Validator will touch
-     *
-     * @return int|null
-     */
-    public function getMaximumStringSize(): ?int
-    {
-        return $this->max_string_size;
-    }
-
-
-    /**
-     * Returns the maximum string size that this Validator will touch
-     *
-     * @param int|null $max_string_size
-     * @return void
-     */
-    public function setMaximumStringSize(?int $max_string_size): void
-    {
-        $this->max_string_size = $max_string_size;
-    }
-
-
-    /**
      * Returns the parent field with the specified name
      *
      * @return string|null
@@ -351,6 +323,19 @@ trait ValidatorBasics
     {
         $this->selected_is_optional = true;
         $this->selected_optional    = $default;
+        return $this;
+    }
+
+
+    /**
+     * Copy the current value to the specified field
+     *
+     * @param string $field
+     * @return $this
+     */
+    public function copyTo(string $field): static
+    {
+        $this->source[$field] = $this->selected_value;
         return $this;
     }
 
@@ -444,7 +429,12 @@ trait ValidatorBasics
             if (!$this->selected_is_optional) {
                 // The currently selected field is required but does not exist, so the other must exist
                 if (!isset_get($this->source[$field])) {
-                    $this->addFailure(tr('Neither fields ":field" nor ":selected_field" were set, where at least one of them is required', [':field' => $field, ':selected_field' => $this->selected_field]));
+                    $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
+                        ':field' => $field
+                    ]));
+                } else {
+                    // The other field exists, making this one optional
+                    $this->isOptional();
                 }
             }
         }
@@ -534,7 +524,6 @@ trait ValidatorBasics
             // Failed fields
             if (array_key_exists($field, $this->failures)) {
                 if ($this->clear_failed_fields) {
-show('CLEAR ' . $field);
                     unset($this->source[$field]);
                 }
             }
@@ -554,13 +543,13 @@ show('CLEAR ' . $field);
 
         if ($this->failures) {
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                ->setData($this->failures)
+                ->addData($this->failures)
                 ->makeWarning();
         }
 
         if (isset($unclean)) {
             throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
-                ->setData($unclean)
+                ->addData($unclean)
                 ->makeWarning();
         }
 
@@ -603,9 +592,10 @@ show('CLEAR ' . $field);
             return true;
         }
 
-// DEBUG CODE: In case of errors with validation, its very useful to have these debugged here
+// DEBUG CODE: In case of errors with validation, it's very useful to have these debugged here
 //        show($this->selected_field);
 //        show($value);
+//        show($this->selected_is_optional);
 
         if (!$value) {
             if (!$this->selected_is_optional) {
@@ -647,7 +637,7 @@ show('CLEAR ' . $field);
             $selected_field = $this->selected_field;
 
             if ($this->parent_field) {
-                $field = $this->parent_field . ':' . $selected_field;
+                $field = $this->parent_field . '>' . $selected_field;
             } else {
                 if (!$selected_field) {
                     throw OutOfBoundsException::new(tr('No field specified or selected for validation failure ":failure"', [
@@ -658,19 +648,21 @@ show('CLEAR ' . $field);
                 $field = $selected_field;
             }
 
-            if ($this->process_key !== null) {
-                $field .= ':' . $this->process_key;
+            if ($this->process_key) {
+                $field .= '>' . $this->process_key;
             }
         }
 
-        if (Debug::enabled()) {
-            Log::warning(tr('Validation failed for field ":field" with value ":value" because ":failure"', [
+        $failure = trim($failure);
+
+        if (Debug::getEnabled()) {
+            Log::warning(tr('Validation failed for field ":field" with value ":value" because it :failure', [
                 ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                 ':failure' => $failure,
                 ':value'   => $this->source[$selected_field],
-            ]));
+            ]), 3);
 
-            Log::backtrace();
+            Log::backtrace(threshold: 3);
         }
 
         // Build up the failure string
@@ -756,5 +748,34 @@ show('CLEAR ' . $field);
                 ':key' => $this->selected_field
             ]));
         }
+    }
+
+
+    /**
+     * Returns the required validator, depending on the specified source
+     *
+     * @param ValidatorInterface|array|null &$source
+     * @return ValidatorInterface
+     */
+    public static function get(ValidatorInterface|array|null &$source = null): ValidatorInterface
+    {
+        // Determine data source for this modification
+        if (!$source) {
+            // Use default data depending on platform
+            if (PLATFORM_HTTP) {
+                return PostValidator::new();
+            }
+
+            // This is the default for the CLI platform
+            return ArgvValidator::new();
+        }
+
+        if (is_object($source)) {
+            // The specified data source is a DataValidatorInterface type validator
+            return $source;
+        }
+
+        // Data source is an array, put it in an ArrayValidator.
+        return ArrayValidator::new($source);
     }
 }

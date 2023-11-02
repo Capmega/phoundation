@@ -202,6 +202,7 @@ class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
         $panel = TopPanel::new();
 
         $panel->getNotificationsDropDown()
+            ->setStatus('UNREAD')
             ->setNotifications(null)
             ->setNotificationsUrl('/notifications/notification-:ID.html')
             ->setAllNotificationsUrl('/notifications/unread.html');

@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components\FlashMessages;
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
@@ -27,14 +28,8 @@ use Phoundation\Web\Http\Html\Components\Script;
 class FlashMessage extends ElementsBlock implements FlashMessageInterface
 {
     use Mode;
+    use DataTitle;
 
-
-    /**
-     * Title of the flash message
-     *
-     * @var string|null $title
-     */
-    protected ?string $title = null;
 
     /**
      * Subtitle of the flash message
@@ -106,30 +101,6 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setMessage(string $message): static
     {
         $this->content = $message;
-        return $this;
-    }
-
-
-    /**
-     * Returns the flash message title
-     *
-     * @return string
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-
-    /**
-     * Sets the flash message title
-     *
-     * @param string $title
-     * @return $this
-     */
-    public function setTitle(string $title): static
-    {
-        $this->title = $title;
         return $this;
     }
 

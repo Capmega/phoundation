@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
-use Phoundation\Cli\Script;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -95,17 +95,19 @@ class Password extends DataEntry implements PasswordInterface
      * @param string $password
      * @param string|null $email
      * @param int|null $id
-     * @return void
+     * @return string
      */
-    public static function testSecurity(string $password, ?string $email = null, ?int $id = null): void
+    public static function testSecurity(string $password, ?string $email = null, ?int $id = null): string
     {
         try {
+            $password = trim($password);
+
             if (static::isWeak($password, $email)) {
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
 
             // In setup mode we won't have database access yet, so these 2 tests may be skipped in that case.
-            if (!Core::stateIs('setup')) {
+            if (!Core::isState('setup')) {
                 if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));
                 }
@@ -116,11 +118,14 @@ class Password extends DataEntry implements PasswordInterface
                     }
                 }
             }
+
         } catch (ValidationFailedException $e) {
             if (!Validator::disabled()) {
                 throw $e;
             }
         }
+
+        return $password;
     }
 
 
@@ -351,7 +356,7 @@ class Password extends DataEntry implements PasswordInterface
                 $start = microtime(true);
                 password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
                 $end = microtime(true);
-                Script::dot();
+                CliCommand::dot();
             } while (($end - $start) < $time);
 
             $costs[] = $cost;
@@ -446,7 +451,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'current')
@@ -454,6 +459,7 @@ class Password extends DataEntry implements PasswordInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(128)
+                ->setLabel(tr('Current password'))
                 ->setHelpText(tr('Your current password'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
@@ -463,7 +469,8 @@ class Password extends DataEntry implements PasswordInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(128)
-                ->setHelpText(tr('The password for this user'))
+                ->setLabel(tr('New password'))
+                ->setHelpText(tr('The new password for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
                 }))
@@ -472,7 +479,8 @@ class Password extends DataEntry implements PasswordInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
                 ->setMaxlength(128)
-                ->setHelpText(tr('Validate the password for this user'))
+                ->setLabel(tr('Validate password'))
+                ->setHelpText(tr('Validate the new password for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isEqualTo('password');
                 }));

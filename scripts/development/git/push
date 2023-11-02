@@ -31,7 +31,6 @@ useful- beyond testing the git library');
 $argv = ArgvValidator::new()
     ->select('repository', true)->isFile()
     ->select('branch', true)->isFile()
-    ->noArgumentsLeft()
     ->validate();
 
 

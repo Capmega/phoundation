@@ -4,7 +4,8 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Stringable;
 
 
 /**
@@ -21,12 +22,12 @@ use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
 interface UsersInterface extends DataListInterface
 {
     /**
-     * Set the entries to the specified list
+     * Set the new users for the current parents to the specified list
      *
      * @param array|null $list
      * @return static
      */
-    public function set(?array $list): static;
+    public function setUsers(?array $list): static;
 
     /**
      * Add the specified user to the data list
@@ -39,10 +40,10 @@ interface UsersInterface extends DataListInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param User|array|string|int|null $user
+     * @param User|Stringable|array|string|float|int $user
      * @return static
      */
-    public function remove(User|array|string|int|null $user): static;
+    public function deleteEntries(User|Stringable|array|string|float|int $user): static;
 
     /**
      * Remove all rights for this right
@@ -54,10 +55,9 @@ interface UsersInterface extends DataListInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param string|null $id_column
      * @return static
      */
-    public function load(?string $id_column = 'users_id'): static;
+    public function load(): static;
 
     /**
      * Save the data for this rights list in the database

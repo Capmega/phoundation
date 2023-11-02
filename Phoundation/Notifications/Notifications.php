@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications;
 
-use PDOStatement;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Session;
-use Phoundation\Core\Strings;
+use Phoundation\Audio\Audio;
+use Phoundation\Core\Config;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Databases\Sql\QueryBuilder;
-use Phoundation\Databases\Sql\Sql;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Http\Html\Components\Script;
+use Phoundation\Web\Http\Html\Enums\Interfaces\TableRowTypeInterface;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -28,7 +28,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundations\Notifications
  */
-class Notifications extends DataList
+class Notifications extends DataList implements NotificationsInterface
 {
     /**
      * Notifications class constructor
@@ -125,7 +125,7 @@ class Notifications extends DataList
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(?string $id_column = null): static
+//    public function load(): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
@@ -187,9 +187,9 @@ class Notifications extends DataList
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
-     * @return SelectInterface
+     * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): SelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
@@ -198,7 +198,7 @@ class Notifications extends DataList
                                          ORDER BY `title` ASC')
             ->setName('notifications_id')
             ->setNone(tr('Select a notification'))
-            ->setEmpty(tr('No notifications available'));
+            ->setObjectEmpty(tr('No notifications available'));
     }
 
 
@@ -209,7 +209,7 @@ class Notifications extends DataList
      */
     public function markSeverityColumn(): static
     {
-        return $this->addCallback(function (&$row, &$params) {
+        return $this->addCallback(function (IteratorInterface|array &$row, TableRowTypeInterface $type, &$params) {
             if (!array_key_exists('severity', $row)) {
                 return;
             }
@@ -232,11 +232,85 @@ class Notifications extends DataList
                     break;
 
                 default:
-                    $row['severity'] = htmlentities($row['severity']);
+                    $row['severity'] = htmlspecialchars($row['severity']);
                     $row['severity'] = str_replace(PHP_EOL, '<br>', $row['severity']);
             }
 
             $params['skiphtmlentities']['severity'] = true;
         });
+    }
+
+
+    /**
+     * Have the client perform automated update checks for notifications
+     *
+     * @return $this
+     */
+    public function autoUpdate(): static
+    {
+        Audio::new(PATH_CDN . '/audio/ping.mp3')->playRemote('notification');
+
+        Script::new()
+            ->setJavascriptWrapper(null)
+            ->setContent('   function checkNotifications(ping) {
+                                        var ping = (typeof ping !== "undefined") ? ping : true;
+
+                                        $.get("' . UrlBuilder::getAjax('/system/notifications/dropdown.json') . '")
+                                        .done(function(data) {
+                                            if ((data.count > 0) && data.ping) {
+                                                console.log("Notification ping!");
+                                                $("audio.notification").trigger("play");
+                                            }
+
+                                            $(".main-header.navbar ul.navbar-nav .nav-item.dropdown.notifications").html(data.html)
+                                        });
+                                    }
+
+                                    setInterval(function(){ checkNotifications(true); }, ' . (Config::getNatural('notifications.ping.interval', 60) * 1000) . ');')
+            ->render();
+
+        return $this;
+    }
+
+
+    /**
+     * Return a sha1 hash of all notification ID's available to this user
+     *
+     * @return ?string
+     */
+    public function getHash(): ?string
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        $return = '';
+
+        foreach ($this->source as $key => $value) {
+            $return .= $key;
+        }
+
+        return sha1($return);
+    }
+
+
+    /**
+     * Link the hash from this notifications list to its user and return if a change was detected
+     *
+     * @return bool
+     */
+    public function linkHash(): bool
+    {
+        $hash = $this->getHash();
+
+        if ($hash !== Session::getUser()->getNotificationsHash()) {
+            Session::getUser()->setNotificationsHash($hash);
+
+            // Return true only if there was any hash
+            return (bool) $hash;
+        }
+
+        // No changes
+        return false;
     }
 }

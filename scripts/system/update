@@ -52,23 +52,24 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-b,--branch', true)->isPrintable()
+    ->select('-b,--branch', true)->isOptional()->isVariable()
     ->select('-c,--check')->isOptional()->isBoolean()
     ->select('-l,--local')->isOptional()->isBoolean()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
-    ->select('-s,--signed')->isOptional()->isBoolean()
-    ->noArgumentsLeft()
+    ->select('-s,--signed')->isOptional(false)->isBoolean()
     ->validate();
 
 
 
 if ($argv['local']) {
     Log::information(tr('Pulling updates from local Phoundation installation...'));
-    Project::new()->updateLocal($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation']);
+    Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation']);
+
 } elseif ($argv['check']) {
     Log::information(tr('Checking for Phoundation updates...'));
     Project::checkUpdates();
+
 } else {
     Log::information(tr('Updating Phoundation...'));
     Project::update();

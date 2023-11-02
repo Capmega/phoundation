@@ -29,9 +29,8 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->noArgumentsLeft()
     ->validate();
 
 
 
-Git::new(PATH_ROOT)->stash()->stash();
+Git::new(PATH_ROOT)->getStash()->stash();

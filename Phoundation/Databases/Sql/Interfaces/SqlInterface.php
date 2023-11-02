@@ -143,7 +143,7 @@ interface SqlInterface
      * @param string|null $comments
      * @return int
      */
-    public function dataEntrydelete(string $table, array $row, ?string $comments = null): int;
+    public function dataEntryDelete(string $table, array $row, ?string $comments = null): int;
 
     /**
      * Truncates the specified table
@@ -158,11 +158,11 @@ interface SqlInterface
      *
      * @param string|null $status
      * @param string $table
-     * @param array $row
+     * @param array $entry
      * @param string|null $comments
      * @return int
      */
-    public function dataEntrySetStatus(?string $status, string $table, array $row, ?string $comments = null): int;
+    public function dataEntrySetStatus(?string $status, string $table, array $entry, ?string $comments = null): int;
 
     /**
      * Delete the row in the specified table
@@ -173,9 +173,22 @@ interface SqlInterface
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $where
+     * @param string $separator
      * @return int
      */
-    public function erase(string $table, array $where): int;
+    public function erase(string $table, array $where, string $separator = 'AND'): int;
+
+    /**
+     * Delete the specified table entry
+     *
+     * This is a simplified delete method to speed up writing basic insert queries
+     *
+     * @param string $table
+     * @param string $where
+     * @param array $execute
+     * @return int
+     */
+    public function delete(string $table, string $where, array $execute): int;
 
     /**
      * Prepare specified query
@@ -330,18 +343,6 @@ interface SqlInterface
     public function insertId(): ?int;
 
     /**
-     * Return a unique, non-existing ID for the specified table.column
-     *
-     * @param string $table
-     * @param array $data
-     * @param string|null $comments
-     * @return int
-     * @throws Exception
-     * @todo This is sort of the same as Sql::randomId(), merge these two!
-     */
-    public function reserveRandomId(string $table, array $data, ?string $comments = null): int;
-
-    /**
      * Enable / Disable all query logging on mysql server
      *
      * @param bool $enable
@@ -354,12 +355,12 @@ interface SqlInterface
      *
      * @param string $table
      * @param string $column
-     * @param int|string|null $value
+     * @param string|int|null $value
      * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
      *                     row with this id
      * @return bool
      */
-    public function DataEntryExists(string $table, string $column, int|string|null $value, ?int $id = null): bool;
+    public function DataEntryExists(string $table, string $column, string|int|null $value, ?int $id = null): bool;
 
     /**
      * NOTE: Use only on huge tables (> 1M rows)

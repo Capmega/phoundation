@@ -6,22 +6,47 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\AutoCompleteException;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Processes\Commands\Grep;
-
+use Phoundation\Os\Processes\Commands\Grep;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 /**
  * Class AutoComplete
  *
+ * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
  *
+ * The class supports autocompletion of commands, global system arguments, command arguments and command values.
+ * Commands must use Documentation::autoComplete() for this
+ *
+ * @example
+ *
+ * Documentation::autoComplete([
+ *     'positions' => [
+ *         0 => [
+ *             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
+ *             'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+ *         ]
+ *     ],
+ *     'arguments' => [
+ *         '--file' => [
+ *             'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir($word . '*.csv'); },
+ *             'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.csv'); },
+ *         ],
+ *         '--user' => [
+ *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'), $word); },
+ *             'noword' => function ()      { return Users::new()->load()->getSourceColumn('email'); },
+ *         ]
+ *     ]
+ * ]);
  *
  * @note Bash autocompletion has no man page and complete --help is of little, well, help. Search engines were also
  *       uncharacteristically unhelpful, so see the following links for more information
@@ -32,7 +57,10 @@ use Phoundation\Processes\Commands\Grep;
  * @see https://dev.to/iridakos/adding-bash-completion-to-your-scripts-50da
  * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
  * @see https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts
-
+ * @see https://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion#11536437
+ *
+ * @todo Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
+ * @todo Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and "bar"
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -81,7 +109,15 @@ class AutoComplete
      */
     public static function setPosition(int $position): void
     {
-        static::$position         = $position;
+        static::$position = $position;
+    }
+
+
+    /**
+     * Initializes system arguments
+     */
+    public static function initSystemArguments(): void
+    {
         static::$system_arguments = [
             '-A,--all'                 => false,
             '-C,--no-color'            => false,
@@ -89,7 +125,7 @@ class AutoComplete
             '-E,--environment'         => true,
             '-F,--force'               => false,
             '-H,--help'                => false,
-            '-L,--log-level'           => true,
+            '-L,--log-level'           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             '-O,--order-by'            => true,
             '-P,--page'                => true,
             '-Q,--quiet'               => false,
@@ -99,14 +135,14 @@ class AutoComplete
             '-V,--verbose'             => false,
             '-W,--no-warnings'         => false,
             '--system-language'        => [
-                'word'   => function($word) { return Languages::new()->filteredList($word); },
+                'word'   => function($word) { return Languages::new()->getMatchingKeys($word); },
                 'noword' => function()      { return Languages::new()->getSource(); },
             ],
             '--deleted'                => false,
             '--version'                => false,
             '--limit'                  => true,
             '--timezone'               => [
-                'word'   => function($word) { return Timezones::new()->filteredList($word); },
+                'word'   => function($word) { return Timezones::new()->getMatchingKeys($word); },
                 'noword' => function()      { return Timezones::new()->getSource(); },
             ],
             '--show-passwords'         => false,
@@ -140,11 +176,7 @@ class AutoComplete
         // $data['position'] is the amount of found methods
         // static::$position is the word # where the cursor was when <TAB> was pressed
         if ($cli_methods === null) {
-            if (static::$position) {
-                // Invalid situation, supposedly there is an auto complete location, but no methods?
-                die('Invalid auto complete arguments' . PHP_EOL);
-            }
-
+            // No CLI methods have been specified yet, so all arguments are assumed system arguments
             $words = ArgvValidator::getArguments();
             $word  = array_shift($words);
 
@@ -159,7 +191,7 @@ class AutoComplete
 
         } elseif (static::$position > count($cli_methods)) {
             // Invalid situation, supposedly the location was beyond, after the amount of arguments?
-            die('Invalid auto complete arguments' . PHP_EOL);
+            exit('Invalid auto complete arguments' . PHP_EOL);
 
         } elseif ($data['position'] > static::$position) {
             // The findScript() method already found this particular word, so we know it exists!
@@ -225,7 +257,7 @@ class AutoComplete
         }
 
         // We're done,
-        Script::die();
+        exit();
     }
 
 
@@ -286,7 +318,7 @@ class AutoComplete
                 }
 
                 // Die here as we have echoed results!
-                Script::die();
+                exit();
             }
         }
     }
@@ -302,6 +334,7 @@ class AutoComplete
     {
         if ($definitions) {
             static::processArguments(array_merge($definitions, static::$system_arguments));
+
         } else {
             static::processArguments(static::$system_arguments);
         }
@@ -344,7 +377,7 @@ class AutoComplete
             $results = Grep::new(Restrictions::new($file, true))
                 ->setValue('complete -F _phoundation pho')
                 ->setFile($file)
-                ->execute();
+                ->grep(EnumExecuteMethod::returnArray);
 
             if ($results) {
                 // bash_completion contains rule for phoundation
@@ -370,6 +403,18 @@ complete -F _phoundation pho');
 
 
     /**
+     * Automatically limit the specified result set to the configured auto complete limit
+     *
+     * @param array $source
+     * @return array
+     */
+    public static function limit(array $source): array
+    {
+        return Arrays::limit($source, Config::getInteger('shell.autocomplete.limit', 50));
+    }
+
+
+    /**
      * Process auto complete for this script from the definitions specified by the script
      *
      * @param array $argument_definitions
@@ -377,7 +422,7 @@ complete -F _phoundation pho');
      */
     #[NoReturn] public static function processArguments(array $argument_definitions) {
         // Get the word where we're <TAB>bing on
-        if (static::$position) {
+        if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
             $word          = strtolower(trim((string) $word));
@@ -398,22 +443,31 @@ complete -F _phoundation pho');
             $word = '';
         }
 
-        if (isset($requires_value)) {
+        if (isset_get($requires_value)) {
             if ($requires_value === true) {
                 // non-suggestible value, the user will have to type this themselves...
             } else {
-                if ($word) {
-                    if (array_key_exists('word', $requires_value)) {
-                        $results = static::processDefinition($requires_value['word'], $word);
-                    }
-                } else {
-                    if (array_key_exists('noword', $requires_value)) {
-                        $results = static::processDefinition($requires_value['noword'], null);
+                if (is_array($requires_value)) {
+                    if (array_keys($requires_value) === ['word', 'noword']) {
+                        // The $requires_value contains queries for if there is a partial word, or when there is no
+                        // partial word
+                        if ($word) {
+                            if (array_key_exists('word', $requires_value)) {
+                                $results = static::processDefinition($requires_value['word'], $word);
+                            }
+                        } else {
+                            if (array_key_exists('noword', $requires_value)) {
+                                $results = static::processDefinition($requires_value['noword'], null);
+                            }
+                        }
+                    } else {
+                        // The $requires_value contains a list of possible values
+                        $results = $requires_value;
                     }
                 }
             }
         } else {
-            // Check if we can suggest modifier arguments
+            // The previous argument (if any?) requires no value. Check if we can suggest more modifier arguments
             foreach ($argument_definitions as $key => $value) {
                 // Values may contain multiple arguments!
                 $keys = explode(',', Strings::until($key, ' '));
@@ -433,7 +487,7 @@ complete -F _phoundation pho');
             }
 
             // Die here as we have echoed results!
-            Script::die();
+            exit();
         }
     }
 
@@ -447,12 +501,21 @@ complete -F _phoundation pho');
      */
     protected static function processDefinition(mixed $definition, ?string $word): array|string|null
     {
+        // If no definitions were given we're done
         if (is_null($definition)) {
             return null;
         }
 
+        // If the given definition was a function we can just return the result
         if (is_callable($definition)) {
-            return $definition($word);
+            $results = $definition($word);
+
+            if (is_array($results)) {
+                // Limit the amount of results
+                $results = static::limit($results);
+            }
+
+            return $results;
         }
 
         if (is_string($definition)) {
@@ -460,10 +523,12 @@ complete -F _phoundation pho');
 
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
-                    return sql()->list($definition, [':word' => '%' . $word . '%']);
+                    // Execute the query filtering on the specified word and limit the results
+                    return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
                 }
 
-                return sql()->list($definition);
+                // Execute the query completely and limit the results
+                return static::limit(sql()->listScalar($definition));
             }
 
             return $definition;
@@ -471,7 +536,8 @@ complete -F _phoundation pho');
 
         // Process an array, return all entries that have partial match
         if (is_array($definition)) {
-            $results = [];
+            $definition = static::limit($definition);
+            $results    = [];
 
             foreach ($definition as $value) {
                 if (!$word or str_contains(strtolower(trim($value)), $word)) {

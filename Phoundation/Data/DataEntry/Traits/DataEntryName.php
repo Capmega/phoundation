@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Seo\Seo;
 
 
@@ -26,7 +27,7 @@ trait DataEntryName
      */
     public function getSeoName(): ?string
     {
-        return $this->getDataValue('string', 'seo_name');
+        return $this->getSourceFieldValue('string', 'seo_name');
     }
 
 
@@ -39,7 +40,7 @@ trait DataEntryName
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->setDataValue('seo_name', $seo_name);
+        return $this->setSourceValue('seo_name', $seo_name);
     }
 
 
@@ -50,7 +51,7 @@ trait DataEntryName
      */
     public function getName(): ?string
     {
-        return $this->getDataValue('string', 'name');
+        return $this->getSourceFieldValue('string', 'name');
     }
 
 
@@ -62,15 +63,16 @@ trait DataEntryName
      */
     public function setName(?string $name): static
     {
-        if ($name !== null) {
+        if ($name === null) {
+            $this->setSourceValue('seo_name', null, true);
+
+        } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
-            if (!array_key_exists('seo_name', $this->source)) {
-                $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getDataValue('int', 'id'), 'seo_name');
-                $this->setDataValue('seo_name', $seo_name);
-            }
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+            $this->setSourceValue('seo_name', $seo_name, true);
         }
 
-        return $this->setDataValue('name', $name);
+        return $this->setSourceValue('name', $name);
     }
 }

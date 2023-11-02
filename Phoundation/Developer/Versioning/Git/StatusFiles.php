@@ -14,7 +14,7 @@ use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 
 /**
@@ -37,18 +37,6 @@ class StatusFiles extends Iterator
      * @var Git $git
      */
     protected Git $git;
-
-
-    /**
-     * StatusFiles class constructor
-     *
-     * @param string $path
-     */
-    public function __construct(string $path)
-    {
-        $this->setPath($path);
-        $this->scanChanges();
-    }
 
 
     /**
@@ -135,7 +123,8 @@ class StatusFiles extends Iterator
                 ':path' => $target_path
             ]));
 
-            Log::exception($e);
+            Log::warning($e->getMessages());
+            Log::warning($e->getDataKey('output'));
 
             if (isset($patch_file)) {
                 // Delete the temporary patch file

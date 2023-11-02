@@ -93,4 +93,22 @@ interface DefinitionsInterface extends IteratorInterface
      * @return DefinitionInterface
      */
     public function getLast(): DefinitionInterface;
+
+    /**
+     * Direct method to hide entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return static
+     */
+    public function hide(Stringable|string|float|int $key, bool $exception = true): static;
+
+    /**
+     * Direct method to unhide entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return static
+     */
+    public function show(Stringable|string|float|int $key, bool $exception = true): static;
 }

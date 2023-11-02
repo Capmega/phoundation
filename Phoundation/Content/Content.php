@@ -8,7 +8,7 @@ use Phoundation\Content\Exception\ContentException;
 use Phoundation\Content\Interfaces\ContentInterface;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 
 
 /**
@@ -31,7 +31,7 @@ class Content extends File implements ContentInterface
     public function view(): void
     {
         $file     = File::new($this->file)->checkReadable('image');
-        $mimetype = $file->mimetype();
+        $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
 
         match ($primary) {

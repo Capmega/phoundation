@@ -13,9 +13,9 @@ use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Page;
@@ -34,6 +34,9 @@ use Throwable;
  */
 class Bundler
 {
+    use DataRestrictions;
+
+
     /**
      * The path where the bundled file should be stored
      *
@@ -62,13 +65,6 @@ class Bundler
      */
     protected int $count = 0;
 
-    /**
-     * Filesystem access restrictions
-     *
-     * @var Restrictions $restrictions
-     */
-    protected Restrictions $restrictions;
-
 
     /**
      * Bundler class constructor
@@ -87,30 +83,6 @@ class Bundler
     public static function new(): static
     {
         return new static();
-    }
-
-
-    /**
-     * Returns the server and filesystem restrictions for this File object
-     *
-     * @return Restrictions
-     */
-    public function getRestrictions(): Restrictions
-    {
-        return $this->restrictions;
-    }
-
-
-    /**
-     * Sets the server and filesystem restrictions for this File object
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
-     */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null): static
-    {
-        $this->restrictions = Core::ensureRestrictions($restrictions);
-        return $this;
     }
 
 
@@ -269,6 +241,7 @@ class Bundler
 
                     if (!file_exists($this->path . $import)) {
                         Notification::new()
+                            ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
@@ -293,6 +266,7 @@ class Bundler
 
                     if (!file_exists($import)) {
                         Notification::new()
+                            ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
@@ -363,7 +337,7 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        Path::new(dirname($this->bundle_file), $this->restrictions)->execute()
+        Directory::new(dirname($this->bundle_file), $this->restrictions)->execute()
             ->setMode(0770)
             ->onPathOnly(function() use ($files) {
                 foreach ($files as $file => $data) {
@@ -377,6 +351,7 @@ class Bundler
     
                     if (!file_exists($file)) {
                         Notification::new()
+                            ->setUrl('developer/incidents.html')
                             ->setMode(DisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
@@ -398,7 +373,7 @@ class Bundler
                         $data = $this->processCssData($file, $org_file, $data);
                     }
     
-                    if (Debug::enabled()) {
+                    if (Debug::getEnabled()) {
                         File::new($this->bundle_file, $this->restrictions)->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
     
                     } else {

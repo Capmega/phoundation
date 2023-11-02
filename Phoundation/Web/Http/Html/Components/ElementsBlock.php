@@ -31,6 +31,13 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
 
 
     /**
+     * If true, this element block will only render the contents
+     *
+     * @var bool $render_contents_only
+     */
+    protected bool $render_contents_only = false;
+
+    /**
      * Indicates if flash messages were rendered (and then we can assume, sent to client too)
      *
      * @var bool
@@ -119,7 +126,31 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
 
 
     /**
-     * Renders and returns the HTML for this object using the template renderer if avaialable
+     * If set true, when this element renders it will only return the contents
+     *
+     * @param bool $enable
+     * @return $this
+     */
+    public function setRenderContentsOnly(bool $enable): static
+    {
+        $this->render_contents_only = $enable;
+        return $this;
+    }
+
+
+    /**
+     * Returns if this element renders it will only return the contents
+     *
+     * @return bool
+     */
+    public function getRenderContentsOnly(): bool
+    {
+        return $this->render_contents_only;
+    }
+
+
+    /**
+     * Renders and returns the HTML for this object using the template renderer if available
      *
      * @note Templates work as follows: Any component that renders HTML must be in a Html/ directory, either in a
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
@@ -132,7 +163,16 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      */
     public function render(): ?string
     {
+        if ($this->render_contents_only) {
+            return $this->content;
+        }
+
         $renderer_class = Page::getTemplate()->getRendererClass($this);
+
+        Log::write(tr('Using renderer class ":class" for ":this"', [
+            ':class' => $renderer_class,
+            ':this'  => get_class($this)
+        ]), 'debug', 2);
 
         $render_function = function (?string $render = null) {
             if ($this->form) {

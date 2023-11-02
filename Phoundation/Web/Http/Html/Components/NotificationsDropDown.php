@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Traits\DataStatus;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -24,6 +27,11 @@ use Stringable;
  */
 class NotificationsDropDown extends ElementsBlock
 {
+    use DataStatus {
+        setStatus as setStatusTrait;
+    }
+
+
     /**
      * The list of notifications
      *
@@ -47,21 +55,37 @@ class NotificationsDropDown extends ElementsBlock
 
 
     /**
+     * Sets status and clears the notification cache
+     *
+     * @note: Overrides the trait setStatus()
+     * @param string|null $status
+     * @return $this
+     */
+    public function setStatus(?string $status): static
+    {
+        if ($this->status !== $status) {
+            $this->notifications = null;
+        }
+
+        return $this->setStatusTrait($status);
+    }
+
+
+    /**
      * Returns the notifications object
      *
-     * @param string|null $status
-     * @return Notifications|null
+     * @return NotificationsInterface|null
      */
-    public function getNotifications(?string $status): ?Notifications
+    public function getNotifications(): ?NotificationsInterface
     {
         if (!$this->notifications) {
             $this->notifications = new Notifications();
-            $this->notifications->getQueryBuilder()->addSelect('*')->addOrderBy('`created_on` DESC');
+            $this->notifications->getQueryBuilder()->addSelect('`id` AS `_id`, `notifications`.*')->addOrderBy('`created_on` DESC');
 
-            if ($status) {
-                $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND `status` ' . Sql::is($status, 'status'), [
+            if ($this->status) {
+                $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND ' . Sql::is('`status`', $this->status, 'status'), [
                     ':users_id' => Session::getUser()->getId(),
-                    ':status'   => $status
+                    ':status'   => $this->status
                 ]);
             }
 
@@ -130,5 +154,26 @@ class NotificationsDropDown extends ElementsBlock
     {
         $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
         return $this;
+    }
+
+
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        // Link the users notifications hash and see if we need to ping
+        $ping = $this->getNotifications()->linkHash();
+
+        if ($ping) {
+            Script::new()
+                ->setJavascriptWrapper(JavascriptWrappers::window)
+                ->setContent('console.log("Initial ping!"); $("audio.notification").trigger("play");')
+                ->render();
+        }
+
+        return parent::render();
     }
 }

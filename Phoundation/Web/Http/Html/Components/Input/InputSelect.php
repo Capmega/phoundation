@@ -6,19 +6,17 @@ namespace Phoundation\Web\Http\Html\Components\Input;
 
 use PDO;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\SelectInterface;
+use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\ResourceElement;
-use Phoundation\Web\Http\Html\Exception\HtmlException;
 use Stringable;
 
 
 /**
- * Class Select
+ * class InputSelect
  *
  *
  *
@@ -27,7 +25,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputSelect extends ResourceElement implements SelectInterface
+class InputSelect extends ResourceElement implements InputSelectInterface
 {
     /**
      * The class for the <option> elements within the <select> element
@@ -325,29 +323,18 @@ class InputSelect extends ResourceElement implements SelectInterface
     public function renderBody(): ?string
     {
         $return = null;
-        $none   = null;
-
-        if (($this->source === null) and ($this->source_query === null)) {
-            throw new HtmlException(tr('No source specified'));
-        }
-
-        if ($this->none) {
-            $none = '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>';
-        }
-
-        if ($this->source_query) {
-            $return .= $this->renderBodyQuery();
-        }
-
-        if ($this->source?->getCount()) {
-            $return .= $this->renderBodyArray();
-        }
+        $return .= $this->renderBodyQuery();
+        $return .= $this->renderBodyArray();
 
         if (!$return) {
             return $this->renderBodyEmpty();
         }
 
-        return $none . $return;
+        if ($this->none) {
+            return '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>' . $return;
+        }
+
+        return $return;
     }
 
 
@@ -392,14 +379,14 @@ class InputSelect extends ResourceElement implements SelectInterface
             if (!is_scalar($value)) {
                 if (!($value instanceof Stringable)) {
                     throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
-                        ->setData($this->source);
+                        ->addData($this->source);
                 }
 
                 // So value is a stringable object. Force value to be a string
                 $value = (string) $value;
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
@@ -413,71 +400,89 @@ class InputSelect extends ResourceElement implements SelectInterface
      *
      * Return the body HTML for a <select> list
      *
-     * @return string|null The body HTML (all <option> tags) for a <select> tag
+     * @return void
      * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
      * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
-    protected function renderBodyQuery(): ?string
+    protected function renderBodyQuery(): null
     {
-        $return = '';
-
-        if (!$this->source_query) {
-            return '';
+        if (empty($this->source_query)) {
+            return null;
         }
 
-        if (!$this->source_query->rowCount()) {
-            return '';
+        if (empty($this->source)) {
+            $this->source = new Iterator();
         }
 
-        // Get resource data from a query
-        if ($this->auto_select and ($this->source_query->rowCount() == 1)) {
-            // Auto select the only available element
-// :TODO: Implement
-        }
-
-        // Process SQL resource
         while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
-            $this->count++;
-            $option_data = '';
-
             $key   = $row[array_key_first($row)];
             $value = $row[array_key_last($row)];
 
-            if ($this->cache) {
-                // Store the data in array
-                if (empty($this->source)) {
-                    $this->source = new Iterator();
-                }
-
-                $this->source->add($value, $key);
-            }
-
-            if (!$key) {
-                // To avoid select problems with "none" entries, empty id column values are not allowed
-                Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
-                    ':count' => $this->count,
-                    ':query' => $this->source_query->queryString
-                ]));
-                continue;
-            }
-
-            // Add data- in this option?
-            if (array_key_exists($key, $this->source_data)) {
-                foreach ($this->source_data as $data_key => $data_value) {
-                    $option_data .= ' data-' . $data_key . '="' . $data_value . '"';
-                }
-            }
-
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlentities((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $this->source->add($value, $key);
         }
 
-        if ($this->cache) {
-            $this->source_query = null;
-        }
+        $this->source_query = null;
+        return null;
 
-        return $return;
+//        $return = '';
+//
+//        if (!$this->source_query) {
+//            return '';
+//        }
+//
+//        if (!$this->source_query->rowCount()) {
+//            return '';
+//        }
+//
+//        // Get resource data from a query
+//        if ($this->auto_select and ($this->source_query->rowCount() == 1)) {
+//            // Auto select the only available element
+//// :TODO: Implement
+//        }
+//
+//        // Process SQL resource
+//        while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
+//            $this->count++;
+//            $option_data = '';
+//
+//            $key   = $row[array_key_first($row)];
+//            $value = $row[array_key_last($row)];
+//
+//            if ($this->cache) {
+//                // Store the data in array
+//                if (empty($this->source)) {
+//                    $this->source = new Iterator();
+//                }
+//
+//                $this->source->add($value, $key);
+//            }
+//
+//            if (!$key) {
+//                // To avoid select problems with "none" entries, empty id column values are not allowed
+//                Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
+//                    ':count' => $this->count,
+//                    ':query' => $this->source_query->queryString
+//                ]));
+//                continue;
+//            }
+//
+//            // Add data- in this option?
+//            if (array_key_exists($key, $this->source_data)) {
+//                foreach ($this->source_data as $data_key => $data_value) {
+//                    $option_data .= ' data-' . $data_key . '="' . $data_value . '"';
+//                }
+//            }
+//
+//            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+//        }
+//
+//        if ($this->cache) {
+//            $this->source_query = null;
+//        }
+//
+//        return $return;
     }
 
 

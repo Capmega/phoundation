@@ -4,15 +4,14 @@ namespace Phoundation\Filesystem\Interfaces;
 
 use Exception;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Throwable;
 
 
 /**
- * Interface FileInterface
+ * interface FileInterface
  *
- *
+ * This library contains various filesystem file related functions
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,47 +21,6 @@ use Throwable;
  */
 interface FileInterface extends FileBasicsInterface
 {
-    /**
-     * Returns the configured file buffer size
-     *
-     * @return int
-     */
-    public function getBufferSize(): int;
-
-    /**
-     * Sets the configured file buffer size
-     *
-     * @param int|null $buffer_size
-     * @return static
-     */
-    public function setBufferSize(?int $buffer_size): static;
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function append(string $data): static;
-
-    /**
-     * Append specified data string to the end of the object file
-     *
-     * @param string $data
-     * @return static
-     * @throws FilesystemException
-     */
-    public function create(string $data): static;
-
-    /**
-     * Concatenates a list of files to a target file
-     *
-     * @param string|array $sources The source files
-     * @return static
-     */
-    public function appendFiles(string|array $sources): static;
-
     /**
      * Move uploaded image to correct target
      *
@@ -109,26 +67,17 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Copy a file with progress notification
      *
-     * @
+     * @param string $target
+     * @param callable $callback
+     * @return static
      * @example:
-     * function stream_notification_callback($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
-     *     if ($notification_code == STREAM_Notification_PROGRESS) {
-     *         // save $bytes_transferred and $bytes_max to file or database
-     *     }
-     * }
-     *
-     * file_copy_progress($source, $target, 'stream_notification_callback');
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
      */
-    public function copyProgress(string $target, callable $callback): static;
-
-    /**
-     * This is an fopen() wrapper with some built-in error handling
-     *
-     * @param string $mode
-     * @param resource $context
-     * @return resource
-     */
-    public function open(string $mode, $context = null);
+    public function copy(string $target, callable $callback): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -165,21 +114,14 @@ interface FileInterface extends FileBasicsInterface
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
 
     /**
-     * Returns if the link target exists or not
-     *
-     * @return bool
-     */
-    public function linkTargetExists(): bool;
-
-    /**
      * Search / replace the object files
      *
-     * @param string $target
      * @param array $replaces The list of keys that will be replaced by values
+     * @param string|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(string $target, array $replaces, bool $regex = false): static;
+    public function replace(array $replaces, ?string $target, bool $regex = false): static;
 
     /**
      * Return line count for the specified text file
@@ -227,30 +169,6 @@ interface FileInterface extends FileBasicsInterface
      * @return array
      */
     public function grep(string|array $filters, ?int $until_line = null): array;
-
-    /**
-     * Create a target, but don't put anything in it
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string;
-
-    /**
-     * Create a target, but don't put anything in it, and return path+filename without extension
-     *
-     * @param string $path
-     * @param bool $extension
-     * @param bool $singledir
-     * @param int $length
-     * @return string
-     * @throws Exception
-     */
-    public function assignTargetClean(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string;
 
     /**
      * Copy object file, see file_move_to_target for implementation
@@ -367,9 +285,9 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Untars the file
      *
-     * @return Path
+     * @return Directory
      */
-    public function untar(): Path;
+    public function untar(): Directory;
 
     /**
      * Gzips the file
@@ -384,20 +302,6 @@ interface FileInterface extends FileBasicsInterface
      * @return $this
      */
     public function gunzip(): static;
-
-    /**
-     * Returns the contents of this file as a string
-     *
-     * @return string
-     */
-    public function getContentsAsString(): string;
-
-    /**
-     * Returns the contents of this file as an array
-     *
-     * @return array
-     */
-    public function getContentsAsArray(): array;
 
     /**
      * Will unzip this file

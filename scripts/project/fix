@@ -39,10 +39,9 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->noArgumentsLeft()
     ->validate();
 
 
 
 Log::information('Fixing your system. Please wait, this may take a few seconds...');
-Project::fix();
+Project::fixFileModes();

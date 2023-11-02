@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data;
 
 use PDOStatement;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\UsesNew;
@@ -31,8 +34,6 @@ use Stringable;
  *
  * - delete() Deletes the specified key
  *
- *
- *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -40,8 +41,8 @@ use Stringable;
  */
 class Iterator implements IteratorInterface
 {
-    use UsesNew;
     use DataCallbacks;
+
 
     /**
      * The list that stores all entries
@@ -49,6 +50,31 @@ class Iterator implements IteratorInterface
      * @var array $source
      */
     protected array $source = [];
+
+
+    /**
+     * Iterator class constructor
+     *
+     * @param array|null $source
+     */
+    public function __construct(?array $source = null)
+    {
+        if ($source) {
+            $this->source = $source;
+        }
+    }
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param array|null $source
+     * @return static
+     */
+    public static function new(?array $source = null): static
+    {
+        return new static($source);
+    }
 
 
     /**
@@ -113,7 +139,7 @@ class Iterator implements IteratorInterface
      *
      * @return string|float|int|null
      */
-    public function key(): string|float|int|null
+    #[ReturnTypeWillChange] public function key(): string|float|int|null
     {
         return key($this->source);
     }
@@ -194,7 +220,13 @@ class Iterator implements IteratorInterface
      */
     public function add(mixed $value, string|float|int|null $key = null): static
     {
-        $this->source[$key] = $value;
+        if ($key === null) {
+            $this->source[] = $value;
+
+        } else {
+            $this->source[$key] = $value;
+        }
+
         return $this;
     }
 
@@ -223,6 +255,264 @@ class Iterator implements IteratorInterface
     public function getSource(): array
     {
         return $this->source;
+    }
+
+
+    /**
+     * Returns value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getSourceKey(Stringable|string|float|int $key, bool $exception = true): mixed
+    {
+        return $this->get($key, $exception);
+    }
+
+
+    /**
+     * Sets value for the specified key
+     *
+     * @note This is a wrapper for Iterator::set()
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function setSourceKey(Stringable|string|float|int $key, mixed $value): static
+    {
+        return $this->set($key, $value);
+    }
+
+
+    /**
+     * Returns a list of items that are specified, but not available in this Iterator
+     *
+     * @param IteratorInterface|array|string $list
+     * @param string|null $always_match
+     * @return array
+     */
+    public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array
+    {
+        $return = [];
+
+        foreach (Arrays::force($list) as $key) {
+            if (array_key_exists($key, $this->source)) {
+                continue;
+            }
+
+            // Can still match if $always_match is available!
+            if ($always_match and array_key_exists($always_match, $this->source)) {
+                // Okay, this list contains ALL the requested entries due to $always_match
+                return [];
+            }
+
+            $return[] = $key;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns if all (or optionally any) of the specified entries are in this list
+     *
+     * @param IteratorInterface|array|string $list
+     * @param bool $all
+     * @param string|null $always_match
+     * @return bool
+     */
+    public function containsKeys(IteratorInterface|array|string $list, bool $all = true, string $always_match = null): bool
+    {
+        foreach (Arrays::force($list) as $key) {
+            if (!array_key_exists($key, $this->source)) {
+                if ($all) {
+                    // All need to be in the array, but we found one missing.
+                    // Can still match if $always_match is available!
+                    if ($always_match and array_key_exists($always_match, $this->source)) {
+                        // Okay, this list contains ALL the requested entries due to $always_match
+                        return true;
+                    }
+
+                    return false;
+                }
+
+            } elseif (!$all) {
+                // only one needs to be in the array, we found one, we're good!
+                return true;
+            }
+        }
+
+        // All were in the array
+        return true;
+    }
+
+
+    /**
+     * Returns a list with all the keys that match the specified key
+     *
+     * @param array|string $keys
+     * @return array
+     */
+    public function getMatchingKeys(array|string $keys): array
+    {
+        $return = [];
+
+        foreach (Arrays::force($keys) as $key) {
+            if (empty($key)) {
+                throw new OutOfBoundsException(tr('Empty key specified while getting matching keys for ":this"', [
+                    ':this' => get_class($this)
+                ]));
+            }
+
+            $key = strtolower((string) $key);
+
+            foreach ($this->getSource() as $value) {
+                if (str_contains(strtolower(trim($value)), $key)) {
+                    $return[] = $value;
+                }
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param array|string $columns
+     * @param bool $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): mixed
+    {
+        if (!$columns) {
+            throw new OutOfBoundsException(tr('Cannot return source key columns for ":this", no columns specified', [
+                ':this' => get_class($this)
+            ]));
+        }
+
+        $value = $this->get($key, $exception);
+        $value = $this->validateValue($value, $columns);
+
+        return Arrays::keep($value, $columns);
+    }
+
+
+    /**
+     * Returns value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param string $column
+     * @param bool $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getSourceKeyColumn(Stringable|string|float|int $key, string $column, bool $exception = true): mixed
+    {
+        if (!$column) {
+            throw new OutOfBoundsException(tr('Cannot return source key column for ":this", no column specified', [
+                ':this' => get_class($this)
+            ]));
+        }
+
+        $value = $this->get($key, $exception);
+        $value = $this->validateValue($value, $column);
+        $value = Arrays::keep($value, $column, true);
+
+        return $value[$column];
+    }
+
+
+    /**
+     * Returns an array with array values containing only the specified columns
+     *
+     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     *       OutOfBoundsException
+     *
+     * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
+     *
+     * @param array|string|null $columns
+     * @return array
+     */
+    protected function getSourceColumns(array|string|null $columns): array
+    {
+        if (!$columns) {
+            // Return all columns
+            return $this->source;
+        }
+
+        // Already ensure columns is an array here to avoid Arrays::keep() having to convert all the time, just in case.
+        $return  = [];
+        $columns = Arrays::force($columns);
+
+        foreach ($this->source as $key => $value) {
+            $value = $this->validateValue($value, $columns);
+            $return[$key] = Arrays::keep($value, $columns);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns an array with each value containing a scalar with only the specified column value
+     *
+     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     *       OutOfBoundsException
+     *
+     * @param string $column
+     * @return array
+     */
+    protected function getSourceColumn(string $column): array
+    {
+        if (!$column) {
+            throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
+                ':this' => get_class($this)
+            ]));
+        }
+
+        $return = [];
+
+        foreach ($this->source as $key => $value) {
+            $value = $this->validateValue($value, $column);
+            $return[$key] = $value[$column];
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Validate that the requested column exists
+     *
+     * @param mixed $value
+     * @param array|string $columns
+     * @return array
+     */
+    protected function validateValue(mixed $value, array|string $columns): array
+    {
+        // Ensure we have arrays
+        if (is_object($value)) {
+            if (!$value instanceof ArrayableInterface) {
+                throw new OutOfBoundsException(tr('Cannot get source columns for ":this", the source contains non arrayable objects', [
+                    ':this' => get_class($this)
+                ]));
+            }
+
+            $value = $value->__toArray();
+        }
+
+        foreach (Arrays::force($columns) as $column) {
+            if (!array_key_exists($column, $value)) {
+                throw new OutOfBoundsException(tr('The requested column ":column" does not exist', [
+                    ':column' => $column
+                ]));
+            }
+        }
+
+        return $value;
     }
 
 
@@ -272,13 +562,24 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Returns a list of all internal definition keys with their indices (positions within the array)
+     *
+     * @return mixed
+     */
+    public function getKeyIndices(): array
+    {
+        return array_flip(array_keys($this->source));
+    }
+
+
+    /**
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {
@@ -289,6 +590,20 @@ class Iterator implements IteratorInterface
         }
 
         return $this->source[$key];
+    }
+
+
+    /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
     }
 
 
@@ -340,17 +655,57 @@ class Iterator implements IteratorInterface
     /**
      * Deletes the specified key(s)
      *
-     * @param array|string|float|int $keys
+     * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(array|string|float|int $keys): static
+    public function deleteEntries(Stringable|array|string|float|int $keys): static
     {
-        if (!is_array($keys)) {
-            $keys = [$keys];
+        foreach (Arrays::force($keys, null) as $key) {
+            unset($this->source[$key]);
         }
 
-        foreach ($keys as $key) {
-            unset($this->source[$key]);
+        return $this;
+    }
+
+
+    /**
+     * Deletes the entries that have columns with the specified value(s)
+     *
+     * @param Stringable|array|string|float|int $values
+     * @param string $column
+     * @return static
+     */
+    public function deleteByColumnValue(Stringable|array|string|float|int $values, string $column): static
+    {
+        foreach (Arrays::force($values, null) as $value) {
+            foreach ($this->source as $key => $data) {
+                if (is_array($data)) {
+                    if (!array_key_exists($column, $data)) {
+                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because entry ":key" does not have the requested column ":column"', [
+                            ':key'    => $key,
+                            ':value'  => $value,
+                            ':column' => $column
+                        ]));
+                    }
+
+                    if ($data[$key] === $value) {
+                        unset($this->source[$key]);
+                    }
+                } else {
+                    if (!$data instanceof DataEntry) {
+                        throw new OutOfBoundsException(tr('Cannot delete entries by column ":column" value ":value" because key ":key" is neither array nor DataEntry', [
+                            ':key'    => $key,
+                            ':value'  => $value,
+                            ':column' => $column
+                        ]));
+                    }
+
+                    // This entry is not an array but DataEntry object. Compare using DataEntry::getSourceValue()
+                    if ($data->getSourceValue($key) === $value) {
+                        unset($this->source[$key]);
+                    }
+                }
+            }
         }
 
         return $this;
@@ -377,5 +732,30 @@ class Iterator implements IteratorInterface
     public function isEmpty(): bool
     {
         return !count($this->source);
+    }
+
+
+    /**
+     * Returns a new Iterator (or subclass) object containing data filtered from the data of this object
+     *
+     * @param string $key
+     * @param mixed $values
+     * @param bool $strict
+     * @return static
+     */
+    public function getFiltered(string $key, mixed $values, bool $strict = true): static
+    {
+        $return = new static();
+        $values = Arrays::force($values);
+
+        foreach ($this->source as $source_key => $source_value) {
+            if ($source_key === $key) {
+                if (in_array($source_value, $values, $strict)) {
+                    $return->add($source_value, $source_key);
+                }
+            }
+        }
+
+        return $return;
     }
 }

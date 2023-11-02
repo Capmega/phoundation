@@ -286,49 +286,6 @@ class Updates extends Libraries\Updates
                     CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
-
-        })->addUpdate('0.0.11', function () {
-            // Create some default roles and rights
-            $rights = [
-                'god',
-                'logs',
-                'admin',
-                'audit',
-                'accounts',
-                'security',
-                'impersonate',
-                'notifications',
-            ];
-
-            // Add default rights
-            foreach ($rights as $right) {
-                if (!Right::exists($right, 'name')) {
-                    Right::new()
-                        ->setName($right)
-                        ->save();
-                }
-            }
-
-            // Add default roles and assign the default rights to them
-            foreach ($rights as $role) {
-                if (!Role::exists($role, 'name')) {
-                    Role::new()
-                        ->setName($role)
-                        ->save()
-                        ->getRights()
-                            ->addRight($role);
-                }
-            }
-
-            // Various rights go together...
-            Role::get('audit')->getRights()->addRight('admin');
-
-            Role::get('security')->getRights()->addRight('admin');
-
-            Role::get('impersonate')
-                ->getRights()
-                    ->addRight('admin')
-                    ->addRight('accounts');
         });
     }
 }

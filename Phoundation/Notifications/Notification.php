@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Notifications;
 
 use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Roles\Roles;
-use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -26,10 +26,14 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -41,14 +45,14 @@ use Throwable;
  * Class Notification
  *
  *
- *
+ * @todo Change the Notification::roles to a Data\Iterator class instead of a plain array
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
-class Notification extends DataEntry
+class Notification extends DataEntry implements NotificationInterface
 {
     use DataEntryUrl;
     use DataEntryCode;
@@ -62,6 +66,7 @@ class Notification extends DataEntry
     use DataEntryMessage;
     use DataEntryDetails;
     use DataEntryTrace;
+
 
     /**
      * Keeps track of if this noticication was logged or not
@@ -100,7 +105,7 @@ class Notification extends DataEntry
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
     {
-        static::$auto_log = Config::get('notifications.auto-log', true);
+        static::$auto_log = Config::getBoolean('notifications.auto-log', false);
 
         $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
@@ -150,14 +155,28 @@ class Notification extends DataEntry
      */
     public function setException(Throwable $e): static
     {
-        $this->setFile($e->getFile());
-        $this->setLine($e->getLine());
-        $this->setTrace($e->getTraceAsString());
-        $this->setCode('E-' . $e->getCode());
-        $this->setTitle(tr('Phoundation encountered an exception'));
-        $this->setMessage($e->getMessage());
-        $this->addRole('developer');
-        $this->setDetails([
+        if ($e instanceof Exception) {
+            if ($e->isWarning()) {
+                $mode = DisplayMode::warning;
+            } else {
+                $mode = DisplayMode::exception;
+            }
+
+        } else {
+            $mode = DisplayMode::exception;
+        }
+
+        $this
+            ->setUrl('/development/incidents.html')
+            ->setMode($mode)
+            ->setFile($e->getFile())
+            ->setLine($e->getLine())
+            ->setTrace($e->getTraceAsString())
+            ->setCode('E-' . $e->getCode())
+            ->setTitle(tr('Phoundation encountered an exception'))
+            ->setMessage($e->getMessage())
+            ->addRole('developer')
+            ->setDetails([
             'trace' => $e->getTrace(),
             'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
         ]);
@@ -205,10 +224,10 @@ class Notification extends DataEntry
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered roles
-     * @param array|string $roles
+     * @param IteratorInterface|array|string $roles
      * @return static
      */
-    public function setRoles(array|string $roles): static
+    public function setRoles(IteratorInterface|array|string $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
@@ -223,13 +242,17 @@ class Notification extends DataEntry
     /**
      * Sets the message for this notification
      *
-     * @param array|string $roles
+     * @param IteratorInterface|array|string $roles
      * @return static
      */
-    public function addRoles(array|string $roles): static
+    public function addRoles(IteratorInterface|array|string $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
+        }
+
+        if ($roles instanceof IteratorInterface) {
+            $roles = array_keys($roles->getSource());
         }
 
         foreach (Arrays::force($roles) as $role) {
@@ -274,7 +297,7 @@ class Notification extends DataEntry
                 throw NotificationBusyException::new(tr('The notifications system is already busy sending another notification and cannot send the new ":title" notification with message ":message"', [
                     ':title'   => $this->getTitle(),
                     ':message' => $this->getMessage()
-                ]))->setData($this->source);
+                ]))->addData($this->source);
             }
 
             $sending = true;
@@ -304,20 +327,28 @@ class Notification extends DataEntry
             }
 
             // Save and send this notification to the assigned user
-            $this
-                ->saveFor($this->getUsersId())
-                ->sendTo($this->getUsersId());
+            if ($this->getUsersId()) {
+                $this
+                    ->saveFor($this->getUsersId())
+                    ->sendTo($this->getUsersId());
+            }
 
             // Save and send this notification to all users that are members of the specified roles
-            $roles = Roles::new()->listIds($this->getRoles());
-
-            foreach ($roles as $role) {
+            foreach ($this->getRoles() as $role) {
                 $users = Role::get($role)->getUsers();
 
                 foreach ($users as $user) {
-                    $this
-                        ->saveFor($user->getId())
-                        ->sendTo($user->getId());
+                    try {
+                        $this
+                            ->saveFor($user->getId())
+                            ->sendTo($user->getId());
+
+                    } catch (Throwable $e) {
+                        Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
+                            ':user' => $user->getId()
+                        ]));
+                        Log::error($e);
+                    }
                 }
             }
 
@@ -325,10 +356,10 @@ class Notification extends DataEntry
 
         } catch (Throwable $e) {
             Log::error(tr('Failed to send the following notification with the following exception'));
-            Log::write(tr('Code : ":code"', [':code' => $this->getCode()]), 'debug', 10, false);
-            Log::write(tr('Title : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
+            Log::write(tr('Code    : ":code"'   , [':code' => $this->getCode()])      , 'debug', 10, false);
+            Log::write(tr('Title   : ":title"'  , [':title' => $this->getTitle()])    , 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
-            Log::write(tr('Details :'), 'debug', 10, false);
+            Log::write(tr('Details :')                                                , 'debug', 10, false);
 
             try {
                 Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
@@ -337,7 +368,7 @@ class Notification extends DataEntry
                 Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
                 Log::error($f);
 
-                Log::write(print_r($this->getDataValue('string', 'details'), true), 'debug', 10, false);
+                Log::write(print_r($this->getSourceFieldValue('string', 'details'), true), 'debug', 10, false);
             }
 
             Log::error(tr('Notification sending exception:'));
@@ -359,40 +390,49 @@ class Notification extends DataEntry
 
         switch ($this->getMode()) {
             case DisplayMode::danger:
-                Log::error($this->getTitle());
-                Log::error($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::error($this->getTitle(), use_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::error($this->getMessage(), use_prefix: false);
                 break;
 
             case DisplayMode::warning:
-                Log::warning($this->getTitle());
-                Log::warning($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::warning($this->getTitle(), use_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::warning($this->getMessage(), use_prefix: false);
                 break;
 
             case DisplayMode::success:
-                Log::success($this->getTitle());
-                Log::success($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::success($this->getTitle(), use_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::success($this->getMessage(), use_prefix: false);
                 break;
 
             case DisplayMode::info:
-                Log::information($this->getTitle());
-                Log::information($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::information($this->getTitle(), use_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::information($this->getMessage(), use_prefix: false);
                 break;
 
             default:
-                Log::notice($this->getTitle());
-                Log::notice($this->getMessage());
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::notice($this->getTitle(), use_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
+                Log::notice($this->getMessage(), use_prefix: false);
                 break;
         }
 
         $details = $this->getDetails();
 
         if ($details) {
-            Log::information(tr('Notification details'));
+            Log::write(Strings::size('Details', 12) . ': ', 'debug', clean: false);
 
-            foreach ($details as $key => $value) {
-                Log::write($key, 'debug');
-                Log::table(Arrays::force($value));
-                Log::cli();
+            foreach (Arrays::force($details) as $key => $value) {
+                Log::write(Strings::size($key, 12) . ': ', 'debug', clean: false, newline: false);
+                Log::write(Strings::log($value), use_prefix: false);
             }
         }
 
@@ -407,10 +447,10 @@ class Notification extends DataEntry
     /**
      * Save this notification for the specified user
      *
-     * @param User|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    protected function saveFor(User|int|null $user): static
+    protected function saveFor(UserInterface|int|null $user): static
     {
         if (!$user) {
             // No user specified, save nothing
@@ -427,7 +467,7 @@ class Notification extends DataEntry
 
         // Set the id to NULL so that the DataEntry will save a new record
         $this
-            ->setDataValue('id', null)
+            ->setSourceValue('id', null)
             ->setUsersId($user);
 
         return parent::save();
@@ -437,10 +477,10 @@ class Notification extends DataEntry
     /**
      * Send this notification to the specified user
      *
-     * @param User|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    protected function sendTo(User|int|null $user): static
+    protected function sendTo(UserInterface|int|null $user): static
     {
         if (!$user) {
             // No user specified, save nothing
@@ -465,7 +505,7 @@ class Notification extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'users_id')
@@ -479,6 +519,7 @@ class Notification extends DataEntry
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
                 ->setDefault(tr('-'))
+                ->addClasses('text-center')
                 ->setSize(6)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -486,7 +527,9 @@ class Notification extends DataEntry
                 }))
             ->addDefinition(Definition::new($this, 'mode')
                 ->setLabel(tr('Mode'))
+                ->setReadonly(true)
                 ->setOptional(true, DisplayMode::notice)
+                ->addClasses('text-center')
                 ->setSize(3)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -501,6 +544,7 @@ class Notification extends DataEntry
                 ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
+                ->addClasses('text-center')
                 ->setMin(1)
                 ->setMax(9)
                 ->setSize(3))
@@ -521,20 +565,6 @@ class Notification extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'file')
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setInputType(InputType::text)
-                ->setLabel(tr('File'))
-                ->setMaxlength(255)
-                ->setSize(8))
-            ->addDefinition(Definition::new($this, 'line')
-                ->setReadonly(true)
-                ->setOptional(true)
-                ->setInputType(InputTypeExtended::natural)
-                ->setLabel(tr('Line'))
-                ->setMin(1)
-                ->setSize(4))
             ->addDefinition(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setOptional(true)
@@ -542,21 +572,66 @@ class Notification extends DataEntry
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->addDefinition(Definition::new($this, 'trace')
+            ->addDefinition(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setElement(InputElement::textarea)
-                ->setLabel(tr('Trace'))
+                ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
                 ->setSize(12)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isJson();
+                })
+                ->setDisplayCallback(function(mixed $value, array $source) {
+                    // Since the details almost always have an array encoded in JSON, decode it and display it using
+                    // print_r
+                    if (!$value) {
+                        return null;
+                    }
+
+                    try {
+                        $return  = '';
+                        $details = Json::decode($value);
+                        $largest = Arrays::getLongestKeySize($details);
+
+                        foreach ($details as $key => $value) {
+                            if ($value and !is_scalar($value)) {
+                                $value = print_r($value, true);
+                            }
+
+                            $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                        }
+
+                        return $return;
+
+                    } catch (JsonException) {
+                        // Likely this wasn't JSON encoded
+                        return $value;
+                    }
                 }))
-            ->addDefinition(Definition::new($this, 'details')
+            ->addDefinition(Definition::new($this, 'file')
                 ->setReadonly(true)
+                ->setOptional(true)
+                ->setVisible(false)
+                ->setInputType(InputType::text)
+                ->setLabel(tr('File'))
+                ->setMaxlength(255)
+                ->setSize(8))
+            ->addDefinition(Definition::new($this, 'line')
+                ->setReadonly(true)
+                ->setOptional(true)
+                ->setVisible(false)
+                ->setInputType(InputTypeExtended::natural)
+                ->setLabel(tr('Line'))
+                ->setMin(1)
+                ->setSize(4))
+            ->addDefinition(Definition::new($this, 'trace')
+                ->setReadonly(true)
+                ->setOptional(true)
+                ->setVisible(false)
                 ->setElement(InputElement::textarea)
-                ->setLabel(tr('Details'))
+                ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
                 ->setSize(12)

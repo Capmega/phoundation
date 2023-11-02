@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Puks;
 
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Puks\Exception\PuksException;
 use Phoundation\Utils\Json;
 

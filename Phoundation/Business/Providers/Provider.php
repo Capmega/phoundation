@@ -89,7 +89,7 @@ class Provider extends DataEntry
      */
     public function getAddress2(): ?string
     {
-        return $this->getDataValue('string', 'address2');
+        return $this->getSourceFieldValue('string', 'address2');
     }
 
 
@@ -101,7 +101,7 @@ class Provider extends DataEntry
      */
     public function setAddress2(?string $address2): static
     {
-        return $this->setDataValue('address2', $address2);
+        return $this->setSourceValue('address2', $address2);
     }
 
 
@@ -112,7 +112,7 @@ class Provider extends DataEntry
      */
     public function getAddress3(): ?string
     {
-        return $this->getDataValue('string', 'address3');
+        return $this->getSourceFieldValue('string', 'address3');
     }
 
 
@@ -124,7 +124,7 @@ class Provider extends DataEntry
      */
     public function setAddress3(?string $address3): static
     {
-        return $this->setDataValue('address3', $address3);
+        return $this->setSourceValue('address3', $address3);
     }
 
 
@@ -134,7 +134,7 @@ class Provider extends DataEntry
      * @param DefinitionsInterface $definitions
      * @return void
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(DefinitionFactory::getCategoriesId($this))

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Interfaces\InterfaceInputType;
+use Phoundation\Web\Http\Html\Html;
 use Stringable;
 
 
@@ -28,9 +29,9 @@ trait InputElement
     /**
      * Input element type
      *
-     * @var InterfaceInputType|null $type
+     * @var InputTypeInterface|null $type
      */
-    protected ?InterfaceInputType $type = InputType::text;
+    protected ?InputTypeInterface $type = InputType::text;
 
     /**
      * Input element value
@@ -43,9 +44,9 @@ trait InputElement
     /**
      * Returns the type for the input element
      *
-     * @return InterfaceInputType|null
+     * @return InputTypeInterface|null
      */
-    public function getType(): ?InterfaceInputType
+    public function getType(): ?InputTypeInterface
     {
         return $this->type;
     }
@@ -54,10 +55,10 @@ trait InputElement
     /**
      * Sets the type for the input element
      *
-     * @param InterfaceInputType|null $type
+     * @param InputTypeInterface|null $type
      * @return static
      */
-    public function setType(?InterfaceInputType $type): static
+    public function setType(?InputTypeInterface $type): static
     {
         $this->type = $type;
         return $this;
@@ -79,11 +80,17 @@ trait InputElement
      * Sets the value for the input element
      *
      * @param Stringable|string|float|int|null $value
+     * @param bool $make_safe
      * @return static
      */
-    public function setValue(Stringable|string|float|int|null $value): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
-        $this->value = htmlspecialchars((string) $value);
+        if ($make_safe) {
+            $this->value = Html::safe($value);
+        } else {
+            $this->value = $value;
+        }
+
         return $this;
     }
 

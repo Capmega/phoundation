@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Core;
 
+use Phoundation\Core\Exception\TimerException;
+use Phoundation\Core\Interfaces\TimerInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -20,67 +23,103 @@ use Phoundation\Exception\OutOfBoundsException;
  * @package Phoundation\Core
  * @see Timers
  */
-class Timer
+class Timer implements TimerInterface
 {
     /**
      * Record the moment when the timer is started
      *
-     * @var null|float $start
+     * @var float|null $start
      */
     protected ?float $start = null;
 
     /**
-     * Record lap
+     * Record the moment when the timer is stopped
      *
-     * @var float|null $lap
+     * @var float|null $stop
      */
-    protected ?float $lap = null;
+    protected ?float $stop = null;
 
     /**
+     * The last recorded timestamp
      *
-     *
-     * @var null|string $name
+     * @var float|null $last
      */
-    protected ?string $name = null;
+    protected ?float $last = null;
+
+    /**
+     * Record lap
+     *
+     * @var array $laps
+     */
+    protected array $laps = [];
+
+    /**
+     * Timer label
+     *
+     * @var null|string $label
+     */
+    protected ?string $label = null;
 
 
     /**
      * Timer constructor
      *
-     * @param string $name
+     * @param string $label
+     * @param bool $start
      */
-    protected function __construct(string $name)
+    protected function __construct(string $label = '', bool $start = true)
     {
-        if (!$name) {
-            throw new OutOfBoundsException('No timer name specified');
+        $this->label = get_null($label) ?? '-';
+
+        if ($start) {
+            $this->start();
         }
-
-        $this->name = $name;
-        $this->start = microtime(true);
-
-        return Timers::add($this);
     }
 
 
     /**
-     * Returns the name for this timer
+     * Returns a new Timer object
+     *
+     * @param string $label
+     * @param bool $start
+     * @return TimerInterface
+     */
+    public static function new(string $label = '', bool $start = true): TimerInterface
+    {
+        return new static($label, $start);
+    }
+
+
+    /**
+     * Returns the sub key for this timer
      *
      * @return string
      */
-    public function getName(): string
+    public function getLabel(): string
     {
-        return $this->name;
+        return $this->label;
     }
 
 
     /**
      * Returns the start time for this timer
      *
-     * @return float
+     * @return float|null
      */
-    public function getStart(): float
+    public function getStart(): ?float
     {
         return $this->start;
+    }
+
+
+    /**
+     * Returns the stop time for this timer
+     *
+     * @return float|null
+     */
+    public function getStop(): ?float
+    {
+        return $this->stop;
     }
 
 
@@ -91,46 +130,135 @@ class Timer
      */
     public function getPassed(): float
     {
+        static::checkTimer('start', false,'get passed time');
+        static::checkTimer('stop' , true ,'get passed time');
+
         return microtime(true) - $this->start;
     }
 
 
     /**
-     * Start a mew timer
+     * Returns the passed time for this timer
      *
-     * @param string $name
-     * @return Timer
+     * @return float
      */
-    public static function create(string $name): Timer
+    public function getTotal(): float
     {
-        return new Timer($name);
+        static::checkTimer('start', false,'get total time');
+        static::checkTimer('stop' , false,'get total time');
+
+        return $this->stop - $this->start;
+    }
+
+
+    /**
+     * Returns all the passed laps for this timer
+     *
+     * @return array
+     */
+    public function getLaps(): array
+    {
+        static::checkTimer('start', false, 'get laps');
+        static::checkTimer('stop' , false, 'get laps');
+        return $this->laps;
+    }
+
+
+    /**
+     * Returns the amount of laps
+     *
+     * @return int
+     */
+    public function getLapsCount(): int
+    {
+        return count($this->laps);
+    }
+
+
+    /**
+     * Starts the timer
+     *
+     * @return static
+     */
+    public function start(): static
+    {
+        static::checkTimer('start', true, 'start timer');
+
+        $this->start = microtime(true);
+        $this->last  = $this->start;
+
+        return $this;
     }
 
 
     /**
      * Records a passed lap and returns the time for that lap
      *
-     * @return float
+     * @return static
      */
-    public function startLap(): float
+    public function lap(): static
     {
-        $time = microtime(true);
-        $this->lap = $time;
-        return $time;
+        static::checkTimer('start', false, 'lap timer');
+        static::checkTimer('stop' , true , 'lap timer');
+
+        $time         = microtime(true);
+        $this->laps[] = $time - $this->last;
+        $this->last   = $time;
+
+        return $this;
     }
 
 
     /**
-     * Stop the specified stopwatch and returns the passed time
+     * Stop the specified timer and returns the passed time
      *
-     * @return float
+     * @param bool $force
+     * @return static
      */
-    public function stopLap(): float
+    public function stop(bool $force = false): static
     {
-        // Get the passed time for this lap and calculate the passed time
-        $passed = microtime(true) - $this->lap;
+        if ($force and $this->stop) {
+            // Timer was already stopped, ignore, this was just stopped "to be sure", usually by Core::exit()
+            return $this;
+        }
 
-        $this->lap = $passed;
-        return $passed;
+        static::checkTimer('start', false, 'stop timer');
+        static::checkTimer('stop' , true , 'stop timer');
+
+        // Get the passed time for this lap and calculate the passed time
+        $this->stop   = microtime(true);
+        $this->laps[] = $this->stop - $this->last;
+        $this->last   = $this->stop;
+
+        return $this;
+    }
+
+
+    /**
+     * Check if timer registration matches requirements
+     *
+     * @param string $status
+     * @param bool $null
+     * @param string $message
+     * @return void
+     */
+    protected function checkTimer(string $status, bool $null, string $message): void
+    {
+        if ($null xor ($this->$status === null)) {
+            $status = match ($status) {
+                'start' => tr('not yet started'),
+                'stop'  => tr('already stopped'),
+                default =>
+                    throw new OutOfBoundsException(tr('Unknown status ":status" specified, only "start" and "stop" are allowed', [
+                        ':status' => $status
+                    ]))
+            };
+
+            throw new TimerException(tr('Cannot :message for timer ":label", it has :status', [
+                ':status'  => $status,
+                ':message' => $message,
+                ':label'   => $this->label
+            ]));
+        }
     }
 }

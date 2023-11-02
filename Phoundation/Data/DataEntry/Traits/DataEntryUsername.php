@@ -24,18 +24,18 @@ trait DataEntryUsername
      */
     public function getUsername(): ?string
     {
-        return $this->getDataValue('string', 'username');
+        return $this->getSourceFieldValue('string', 'username');
     }
 
 
     /**
      * Sets the username for this object
      *
-     * @param string|null $domain
+     * @param string|null $username
      * @return static
      */
-    public function setUsername(?string $domain): static
+    public function setUsername(?string $username): static
     {
-        return $this->setDataValue('username', $domain);
+        return $this->setSourceValue('username', $username);
     }
 }

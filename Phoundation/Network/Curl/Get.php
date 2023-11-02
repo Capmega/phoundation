@@ -7,12 +7,13 @@ namespace Phoundation\Network\Curl;
 use Exception;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
 use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Curl\Exception\CurlNon200Exception;
@@ -91,7 +92,7 @@ class Get extends Curl
                     ':errno' => curl_errno($this->curl),
                     ':error' => curl_error($this->curl),
                 ]))
-                    ->setData([
+                    ->addData([
                         'headers' => $this->result_headers,
                         'data'    => $this->result_data,
                         'info'    => $this->result_status
@@ -149,7 +150,7 @@ class Get extends Curl
             // Store the request results in cache
             unset($this->curl);
 
-            sql()->dataEntrydelete('network_curl_cache', [
+            sql()->dataEntryDelete('network_curl_cache', [
                 'url' => $this->url
             ]);
 
@@ -230,7 +231,7 @@ class Get extends Curl
 
         // Log cURL request?
         if ($this->log_path) {
-            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open('a'));
+            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open(EnumFileOpenMode::writeOnlyAppend)->getStream());
 
             Log::action(tr('Preparing ":method" cURL request to ":url"', [
                 ':method' => $this->method,
@@ -249,7 +250,7 @@ class Get extends Curl
             }
 
             // Make sure the specified cookie path exists
-            Path::new(dirname($this->cookie_file))->ensure();
+            Directory::new(dirname($this->cookie_file))->ensure();
 
             // Set cookie options
             curl_setopt($this->curl, CURLOPT_COOKIEJAR    , $this->cookie_file);

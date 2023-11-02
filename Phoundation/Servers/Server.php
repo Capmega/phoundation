@@ -13,7 +13,6 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
@@ -22,7 +21,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
-use Phoundation\Processes\Process;
+use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 use Phoundation\Web\Http\Html\Enums\InputType;
 use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
@@ -47,7 +46,7 @@ class Server extends DataEntry
     use DataEntryProvider;
     use DataEntrySshAccount;
 
-    
+
     /**
      * Returns the table name used by this object
      *
@@ -88,7 +87,7 @@ class Server extends DataEntry
      */
     public function getCost(): ?float
     {
-        return $this->getDataValue('float', 'cost');
+        return $this->getSourceFieldValue('float', 'cost');
     }
 
 
@@ -100,7 +99,7 @@ class Server extends DataEntry
      */
     public function setCost(?float $cost): static
     {
-        return $this->setDataValue('cost', $cost);
+        return $this->setSourceValue('cost', $cost);
     }
 
 
@@ -111,7 +110,7 @@ class Server extends DataEntry
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getDataValue('string', 'bill_due_date');
+        return $this->getSourceFieldValue('string', 'bill_due_date');
     }
 
 
@@ -123,7 +122,7 @@ class Server extends DataEntry
      */
     public function setBillDueDate(?string $bill_due_date): static
     {
-        return $this->setDataValue('bill_due_date', $bill_due_date);
+        return $this->setSourceValue('bill_due_date', $bill_due_date);
     }
 
 
@@ -135,7 +134,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getDataValue('string', 'interval');
+        return $this->getSourceFieldValue('string', 'interval');
     }
 
 
@@ -147,7 +146,7 @@ class Server extends DataEntry
      */
     public function setInterval(#[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])] ?string $interval): static
     {
-        return $this->setDataValue('interval', $interval);
+        return $this->setSourceValue('interval', $interval);
     }
 
 
@@ -159,7 +158,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getDataValue('string', 'os_name');
+        return $this->getSourceFieldValue('string', 'os_name');
     }
 
 
@@ -171,7 +170,7 @@ class Server extends DataEntry
      */
     public function setOsName(#[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])] ?string $os_name): static
     {
-        return $this->setDataValue('os_name', $os_name);
+        return $this->setSourceValue('os_name', $os_name);
     }
 
 
@@ -182,7 +181,7 @@ class Server extends DataEntry
      */
     public function getOsVersion(): ?string
     {
-        return $this->getDataValue('string', 'os_version');
+        return $this->getSourceFieldValue('string', 'os_version');
     }
 
 
@@ -194,7 +193,7 @@ class Server extends DataEntry
      */
     public function setOsVersion(?string $os_version): static
     {
-        return $this->setDataValue('os_version', $os_version);
+        return $this->setSourceValue('os_version', $os_version);
     }
 
 
@@ -206,7 +205,7 @@ class Server extends DataEntry
      */
     public function getWebServices(): bool
     {
-        return $this->getDataValue('bool', 'web_services', false);
+        return $this->getSourceFieldValue('bool', 'web_services', false);
     }
 
 
@@ -218,7 +217,7 @@ class Server extends DataEntry
      */
     public function setWebServices(?bool $web_services): static
     {
-        return $this->setDataValue('web_services', (bool) $web_services);
+        return $this->setSourceValue('web_services', (bool) $web_services);
     }
 
 
@@ -229,7 +228,7 @@ class Server extends DataEntry
      */
     public function getMailServices(): bool
     {
-        return $this->getDataValue('bool', 'mail_services', false);
+        return $this->getSourceFieldValue('bool', 'mail_services', false);
     }
 
 
@@ -241,7 +240,7 @@ class Server extends DataEntry
      */
     public function setMailServices(?bool $mail_services): static
     {
-        return $this->setDataValue('mail_services', (bool) $mail_services);
+        return $this->setSourceValue('mail_services', (bool) $mail_services);
     }
 
 
@@ -252,7 +251,7 @@ class Server extends DataEntry
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getDataValue('bool', 'database_services', false);
+        return $this->getSourceFieldValue('bool', 'database_services', false);
     }
 
 
@@ -264,7 +263,7 @@ class Server extends DataEntry
      */
     public function setDatabaseServices(?bool $database_services): static
     {
-        return $this->setDataValue('database_services', (bool) $database_services);
+        return $this->setSourceValue('database_services', (bool) $database_services);
     }
 
 
@@ -275,7 +274,7 @@ class Server extends DataEntry
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getDataValue('bool', 'allow_sshd_modifications', false);
+        return $this->getSourceFieldValue('bool', 'allow_sshd_modifications', false);
     }
 
 
@@ -287,7 +286,7 @@ class Server extends DataEntry
      */
     public function setAllowSshdModifications(?bool $allow_sshd_modifications): static
     {
-        return $this->setDataValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
+        return $this->setSourceValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
     }
 
 
@@ -324,7 +323,7 @@ class Server extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function initDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(Definition::new($this, 'seo_hostname')
@@ -335,7 +334,7 @@ class Server extends DataEntry
                 ->setInputType(InputTypeExtended::name)
                 ->setCliField('-a,--account ACCOUNT-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -346,7 +345,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setCliField('--category CATEGORY-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Categories::new()->filteredList($word); },
+                    'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -357,7 +356,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setCliField('--provider PROVIDER-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Providers::new()->filteredList($word); },
+                    'word'   => function($word) { return Providers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Providers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -368,7 +367,7 @@ class Server extends DataEntry
                 ->setVirtual(true)
                 ->setCliField('--customer CUSTOMER-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Customers::new()->filteredList($word); },
+                    'word'   => function($word) { return Customers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Customers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -381,7 +380,7 @@ class Server extends DataEntry
                 ->setMaxlength(200)
                 ->setCliField('--country COUNTRY-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Countries::new()->filteredList($word); },
+                    'word'   => function($word) { return Countries::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Countries::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -394,7 +393,7 @@ class Server extends DataEntry
                 ->setMaxlength(200)
                 ->setCliField('--state STATE-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return States::new()->filteredList($word); },
+                    'word'   => function($word) { return States::new()->getMatchingKeys($word); },
                     'noword' => function()      { return States::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -407,7 +406,7 @@ class Server extends DataEntry
                 ->setMaxlength(200)
                 ->setCliField('--city STATE-NAME')
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return Cities::new()->filteredList($word); },
+                    'word'   => function($word) { return Cities::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Cities::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -430,7 +429,7 @@ class Server extends DataEntry
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -442,7 +441,7 @@ class Server extends DataEntry
                 ->setLabel(tr('Account'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->filteredList($word); },
+                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {

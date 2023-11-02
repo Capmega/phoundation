@@ -34,7 +34,6 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->noArgumentsLeft()
     ->validate();
 
 

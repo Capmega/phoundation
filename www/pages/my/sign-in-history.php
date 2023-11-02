@@ -13,16 +13,14 @@ use Phoundation\Web\Http\Html\Components\Buttons;
 use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Html\Enums\DisplaySize;
+use Phoundation\Web\Http\Html\Enums\TableIdColumn;
 use Phoundation\Web\Http\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
 $signins = SignIns::new();
-
-
-$table = $signins->getHtmlDataTable()->setCheckboxSelectors(false);
-
+$table   = $signins->getHtmlDataTable()->setTableIdColumn(TableIdColumn::hidden);
 $signins = Card::new()
     ->setTitle('Your signin history')
     ->setSwitches('reload')
@@ -50,7 +48,7 @@ $documentation = Card::new()
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Build and render the grid
+// Build and render the page grid
 $grid = Grid::new()
     ->addColumn($signins->render(), DisplaySize::nine)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);

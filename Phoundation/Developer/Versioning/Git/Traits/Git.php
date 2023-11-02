@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Traits;
 
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 
@@ -30,9 +31,9 @@ trait Git
     /**
      * The git process
      *
-     * @var \Phoundation\Developer\Versioning\Git\Git $git
+     * @var GitInterface $git
      */
-    protected \Phoundation\Developer\Versioning\Git\Git $git;
+    protected GitInterface $git;
 
 
     /**
@@ -61,9 +62,9 @@ trait Git
     /**
      * Returns the GIT process
      *
-     * @return \Phoundation\Developer\Versioning\Git\Git
+     * @return GitInterface
      */
-    public function getGit(): \Phoundation\Developer\Versioning\Git\Git
+    public function getGit(): GitInterface
     {
         return $this->git;
     }

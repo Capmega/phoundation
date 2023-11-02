@@ -24,7 +24,7 @@ trait DataEntryColor
      */
     public function getColor(): ?int
     {
-        return $this->getDataValue('string', 'color');
+        return $this->getSourceValue('string', 'color');
     }
 
 
@@ -36,6 +36,6 @@ trait DataEntryColor
      */
     public function setColor(?string $color): static
     {
-        return $this->setDataValue('color', $color);
+        return $this->setSourceValue('color', $color);
     }
 }

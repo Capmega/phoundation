@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
 use Throwable;
 
@@ -214,21 +217,19 @@ class Filesystem
      * @note If the specified path exists, and it is a directory, this function will automatically add a trailing / to
      *       the path name
      * @param Stringable|string|null $path
-     * @param string|null $prefix
+     * @param Stringable|string|null $prefix
      * @param bool $must_exist
      * @return string The absolute path
      */
-    public static function absolute(Stringable|string|null $path = null, string $prefix = null, bool $must_exist = true): string
+    public static function absolute(Stringable|string|null $path = null, Stringable|string|null $prefix = null, bool $must_exist = true): string
     {
-        $path = (string) $path;
-
-        Filesystem::validateFilename($path);
+        $path = trim((string) $path);
 
         if (!$path) {
             return PATH_ROOT;
         }
 
-        $path = trim($path);
+        Filesystem::validateFilename($path);
 
         if (str_starts_with($path, '/')) {
         // This is already an absolute path
@@ -237,6 +238,10 @@ class Filesystem
         } elseif (str_starts_with($path, '~')) {
             // This is a user home directory
             $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($path, 1), '/');
+
+        } elseif (str_starts_with($path, './')) {
+            // This is a user home directory
+            $return = STARTDIR . substr($path, 2);
 
         } else {
             // This is not an absolute path, make it an absolute path
@@ -344,9 +349,9 @@ class Filesystem
      * Creates a temporary directory
      *
      * @param bool $public
-     * @return Path A Path object with the temp directory
+     * @return Directory A Path object with the temp directory
      */
-    public static function createTempDirectory(bool $public = true) : Path
+    public static function createTempDirectory(bool $public = true) : Directory
     {
         // Public or private TMP?
         $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
@@ -354,7 +359,7 @@ class Filesystem
 
         mkdir($path);
 
-        return new Path($path, Restrictions::new($tmp_path, true));
+        return new Directory($path, Restrictions::new($tmp_path, true));
     }
 
 
@@ -455,7 +460,7 @@ class Filesystem
     protected static function createTemp(string $tmp_path, ?string $extension = null) : string
     {
         // Ensure that the TMP path exists
-        Path::new($tmp_path, $tmp_path)->ensure();
+        Directory::new($tmp_path, $tmp_path)->ensure();
 
         // All temp files and directories are limited to their sessions
         $session_id = session_id();
@@ -473,9 +478,32 @@ class Filesystem
 
         // Temp directory can not exist yet
         if (file_exists($file)) {
-            File::new($file, $tmp_path)->delete();
+            File::new($file, Restrictions::new($tmp_path, true, 'temporary'))->delete();
         }
 
         return $file;
+    }
+
+
+    /**
+     * Returns a File object for the specified file or Path object for the specified directory
+     *
+     * @param Stringable|string $file
+     * @param RestrictionsInterface $restrictions
+     * @return FileBasicsInterface
+     */
+    public static function get(Stringable|string $file, RestrictionsInterface $restrictions): FileBasicsInterface
+    {
+        if (is_dir($file)) {
+            return Directory::new($file, $restrictions);
+        }
+
+        if (file_exists($file)) {
+            return File::new($file, $restrictions);
+        }
+
+        throw new FileNotExistException(tr('The specified file ":file" does not exist', [
+            ':file' => $file
+        ]));
     }
 }

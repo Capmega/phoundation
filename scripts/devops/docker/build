@@ -26,7 +26,6 @@ Documentation::help('This script can build docker images');
 $argv = ArgvValidator::new()
     ->select('-p,--path', true)->isOptional(PATH_ROOT)->isFile()
     ->select('-i,--image', true)->isOptional(strtolower(PROJECT) . '-default')->matchesRegex('/^[a-z-]+$/')
-    ->noArgumentsLeft()
     ->validate();
 
 
@@ -35,4 +34,3 @@ DockerFile::new($argv['image'], $argv['path'])
     ->setRestrictions(PATH_ROOT, true)
     ->writeConfig()
     ->build();
-
