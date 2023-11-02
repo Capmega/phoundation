@@ -156,7 +156,7 @@ class Phoundation extends Project
                     continue;
                 }
 
-                if ($test_path == PATH_ROOT) {
+                if ($test_path == DIRECTORY_ROOT) {
                     throw new IsPhoundationException(tr('This project IS your Phoundation core installation', [
                         ':file' => $location
                     ]));
@@ -235,8 +235,8 @@ class Phoundation extends Project
         $this->selectPhoundationBranch($this->defaultBranch($branch));
         $this->ensureNoChanges(!$require_no_changes);
 
-        $source = Filesystem::absolute($file, PATH_ROOT);
-        $file = Strings::from($source, PATH_ROOT);
+        $source = Filesystem::absolute($file, DIRECTORY_ROOT);
+        $file = Strings::from($source, DIRECTORY_ROOT);
 
         if (!file_exists($source)) {
             throw new FileNotExistException(tr('The specified file ":file" does not exist', [
@@ -244,7 +244,7 @@ class Phoundation extends Project
             ]));
         }
 
-        Cp::new()->archive($source, Restrictions::new(PATH_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath(), true));
+        Cp::new()->archive($source, Restrictions::new(DIRECTORY_ROOT), $this->getPath() . $file, Restrictions::new($this->getPath(), true));
     }
 
 
@@ -285,7 +285,7 @@ class Phoundation extends Project
                 while(true) {
                     try {
                         StatusFiles::new()
-                            ->setPath(PATH_ROOT . $section)
+                            ->setPath(DIRECTORY_ROOT . $section)
                             ->patch($this->getPath() . $section);
 
                         // All okay!
@@ -310,7 +310,7 @@ class Phoundation extends Project
                                 $stash->add($file);
 
                                 Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
-                                Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                                Git::new(DIRECTORY_ROOT)->add($file)->getStash()->stash($file);
                             }
 
                         } else {
@@ -326,7 +326,7 @@ class Phoundation extends Project
                                     $file = trim($file);
 
                                     Log::warning(tr('Stashing already existing and unmergable file ":file"', [':file' => $file]));
-                                    Git::new(PATH_ROOT)->add($file)->getStash()->stash($file);
+                                    Git::new(DIRECTORY_ROOT)->add($file)->getStash()->stash($file);
                                 }
                             } else {
                                 // Other unknown error
@@ -340,7 +340,7 @@ class Phoundation extends Project
             if ($checkout) {
                 // Checkout files locally in the specified sections so that these changes are removed from the project
                 // Clean files locally in the specified sections so that new files are removed from the project
-                Git::new(PATH_ROOT)
+                Git::new(DIRECTORY_ROOT)
                     ->checkout($sections)
                     ->clean($sections, true, true);
             }
@@ -351,7 +351,7 @@ class Phoundation extends Project
                 // Whoopsie, we have shirts in stash, meaning some file was naughty.
                 foreach ($stash as $key => $file) {
                     Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
-                    Git::new(PATH_ROOT)->getStash()->pop();
+                    Git::new(DIRECTORY_ROOT)->getStash()->pop();
                     $stash->deleteAll($key);
                 }
 

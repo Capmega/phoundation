@@ -374,7 +374,7 @@ class Restrictions implements RestrictionsInterface
         static $restrictions;
 
         if (empty($restrictions)) {
-            $restrictions = Restrictions::new(PATH_DATA, false, 'System');
+            $restrictions = Restrictions::new(DIRECTORY_DATA, false, 'System');
         }
 
         return $restrictions;

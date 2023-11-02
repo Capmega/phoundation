@@ -1152,16 +1152,16 @@ class Page implements PageInterface
             Incident::new()
                 ->setType('401 - Unauthorized')->setSeverity(Severity::low)
                 ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to "system/:redirect"', [
-                    ':target'      => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $guest_redirect,
                     ':rights'      => $rights
                 ]))
                 ->setDetails([
                     'user'        => 0,
                     'uri'         => Page::getUri(),
-                    'target'      => Strings::from(static::$target, PATH_ROOT),
-                    'real_target' => Strings::from($target, PATH_ROOT),
+                    'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target' => Strings::from($target, DIRECTORY_ROOT),
                     'rights'      => $rights
                 ])
                 ->save();
@@ -1201,15 +1201,15 @@ class Page implements PageInterface
                 ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
                 ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to "system/:redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
-                    ':target'      => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'           => Session::getUser()->getLogId(),
                     'uri'            => Page::getUri(),
-                    'target'         => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target'   => Strings::from($target, PATH_ROOT),
+                    'target'         => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target'   => Strings::from($target, DIRECTORY_ROOT),
                     'rights'         => $rights,
                     'missing_rights' => Rights::getNotExist($rights)
                 ])
@@ -1224,15 +1224,15 @@ class Page implements PageInterface
                 ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                     ':user'        => Session::getUser()->getLogId(),
                     ':rights'      => Session::getUser()->getMissingRights($rights),
-                    ':target'      => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'        => Session::getUser()->getLogId(),
                     'uri'         => Page::getUri(),
-                    'target'      => Strings::from(static::$target, PATH_ROOT),
-                    'real_target' => Strings::from($target, PATH_ROOT),
+                    'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':rights'      => Session::getUser()->getMissingRights($rights),
                 ])
                 ->notifyRoles('accounts')
@@ -1718,7 +1718,7 @@ class Page implements PageInterface
             if (!$url) {
                 $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
-                $file = Filesystem::absolute(LANGUAGE . '/' . $url, PATH_CDN);
+                $file = Filesystem::absolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
@@ -2109,7 +2109,7 @@ class Page implements PageInterface
 
         if (static::$http_code === 200) {
             Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':httpcode' => static::$http_code
@@ -2117,7 +2117,7 @@ class Page implements PageInterface
 
         } else {
             Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':script'   => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':httpcode' => static::$http_code
@@ -2498,7 +2498,7 @@ class Page implements PageInterface
         try {
             // Execute the file and send the output HTML as a web page
             Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                ':target'   => Strings::from($target, PATH_ROOT),
+                ':target'   => Strings::from($target, DIRECTORY_ROOT),
                 ':template' => static::$template->getName(),
                 ':language' => LANGUAGE
             ]));
@@ -2567,7 +2567,7 @@ class Page implements PageInterface
      */
     protected static function getAbsoluteTarget(string $target): string
     {
-        return Filesystem::absolute($target, PATH_WWW . 'pages/');
+        return Filesystem::absolute($target, DIRECTORY_WWW . 'pages/');
     }
 
 
@@ -2595,7 +2595,7 @@ class Page implements PageInterface
         if (Config::getBoolean('cache.version-files', true)) {
             // Determine the absolute file path
             // then get timestamp and inject it into the given file
-            $file = PATH_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
+            $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
             $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
         }
 

@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
 
 
 
-Git::new(PATH_ROOT)->getStash()->pop();
+Git::new(DIRECTORY_ROOT)->getStash()->pop();

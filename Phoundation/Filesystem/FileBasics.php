@@ -179,7 +179,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Returns a new Path object with the specified restrictions starting from the specified path, applying a number of
      * defaults
      *
-     * . is PATH_ROOT
+     * . is DIRECTORY_ROOT
      * ~ is the current shell's user home directory
      *
      * @param FileBasics|Stringable|string|null $file
@@ -198,8 +198,8 @@ class FileBasics implements Stringable, FileBasicsInterface
                     break;
 
                 case '.':
-                    // This is a path starting at PATH_ROOT
-                    $file = PATH_ROOT . Strings::startsNotWith(substr($file, 1), '/');
+                    // This is a path starting at DIRECTORY_ROOT
+                    $file = DIRECTORY_ROOT . Strings::startsNotWith(substr($file, 1), '/');
                     break;
 
                 case '~':

@@ -55,7 +55,7 @@ class File extends FileBasics implements FileInterface
     public function getUploaded(array|string $source): string
     {
         throw new UnderConstructionException();
-        $destination = PATH_ROOT . 'data/uploads/';
+        $destination = DIRECTORY_ROOT . 'data/uploads/';
 
         $this->restrictions->check($source, true);
         $this->restrictions->check($destination, true);
@@ -849,7 +849,7 @@ class File extends FileBasics implements FileInterface
                 break;
 
             case 'backup/~':
-                $pattern = PATH_DATA . 'backups/:FILE~';
+                $pattern = DIRECTORY_DATA . 'backups/:FILE~';
                 break;
 
         }

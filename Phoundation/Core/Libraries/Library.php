@@ -316,7 +316,7 @@ class Library
      */
     public function getSize(): int
     {
-        return Directory::new($this->path, PATH_ROOT)->treeFileSize();
+        return Directory::new($this->path, DIRECTORY_ROOT)->treeFileSize();
     }
 
 
@@ -349,7 +349,7 @@ class Library
      */
     public function getPhpStatistics(): array
     {
-        return Directory::new($this->getPath(), [PATH_WWW, PATH_ROOT . '/scripts/', LIBRARIES::CLASS_PATH_SYSTEM, LIBRARIES::CLASS_PATH_PLUGINS, LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+        return Directory::new($this->getPath(), [DIRECTORY_WWW, DIRECTORY_ROOT . '/scripts/', LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
     }
 
 
@@ -361,14 +361,14 @@ class Library
      */
     public static function getClassPath(string $file): string
     {
-        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->isPhp()) {
+        if (!File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates'])->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])
+        $results   = File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates'])
             ->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
@@ -417,10 +417,10 @@ class Library
 
         $file = str_replace('\\', '/', $class_path);
         $file = Strings::startsNotWith($file, '/');
-        $file = PATH_ROOT . $file . '.php';
+        $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->isPhp()) {
+            if (!File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates', ])->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
@@ -504,7 +504,7 @@ class Library
             ]));
         }
 
-        if (file_exists(PATH_ROOT . $type->value . $name)) {
+        if (file_exists(DIRECTORY_ROOT . $type->value . $name)) {
             throw new LibraryExistsException(tr('Cannot create ":type" type library ":name", it already exists', [
                 ':type' => $type,
                 ':name' => $name
@@ -512,10 +512,10 @@ class Library
         }
 
         // Copy the library from the TemplateLibrary and run a search / replace
-        Cp::new()->archive(PATH_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(PATH_ROOT . 'Phoundation/'), PATH_ROOT . $type->value . $name, Restrictions::new(PATH_ROOT . $type->value, true));
+        Cp::new()->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, Restrictions::new(DIRECTORY_ROOT . $type->value, true));
 
         foreach (['.Library.php', 'Updates.php'] as $file) {
-            File::new(PATH_ROOT . $type->value . $name . '/.Library/' . $file, Restrictions::new(PATH_ROOT . $type->value, true))
+            File::new(DIRECTORY_ROOT . $type->value . $name . '/.Library/' . $file, Restrictions::new(DIRECTORY_ROOT . $type->value, true))
                 ->replace([
                     ':type' => $type,
                     ':name' => $name

@@ -381,8 +381,8 @@ Log::checkpoint();
     /**
      * Download the specified single file to the specified path
      *
-     * If the path is not specified then by default the function will download to the PATH_TMP directory;
-     * PATH_ROOT/data/tmp
+     * If the path is not specified then by default the function will download to the DIRECTORY_TMP directory;
+     * DIRECTORY_ROOT/data/tmp
      *
      * @see \Phoundation\Filesystem\Filesystem::createTempFile()
      * @param string $url             The URL of the file to be downloaded

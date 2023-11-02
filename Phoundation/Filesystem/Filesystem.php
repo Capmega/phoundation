@@ -226,7 +226,7 @@ class Filesystem
         $path = trim((string) $path);
 
         if (!$path) {
-            return PATH_ROOT;
+            return DIRECTORY_ROOT;
         }
 
         Filesystem::validateFilename($path);
@@ -248,17 +248,17 @@ class Filesystem
             $prefix = trim((string) $prefix);
 
             if (!$prefix) {
-                $prefix = PATH_ROOT;
+                $prefix = DIRECTORY_ROOT;
             } else {
                 switch ($prefix) {
                     case 'css':
-                        $prefix = PATH_CDN . LANGUAGE . '/css/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
                         break;
 
                     case 'js':
                         // no-break
                     case 'javascript':
-                        $prefix = PATH_CDN . LANGUAGE . '/js/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
                         break;
 
                     case 'img':
@@ -266,19 +266,19 @@ class Filesystem
                     case 'image':
                         // no-break
                     case 'images':
-                        $prefix = PATH_CDN . LANGUAGE . '/img/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
                         break;
 
                     case 'font':
                         // no-break
                     case 'fonts':
-                        $prefix = PATH_CDN . LANGUAGE . '/fonts/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
                         break;
 
                     case 'video':
                         // no-break
                     case 'videos':
-                        $prefix = PATH_CDN . LANGUAGE . '/video/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
                         break;
                 }
             }
@@ -354,7 +354,7 @@ class Filesystem
     public static function createTempDirectory(bool $public = true) : Directory
     {
         // Public or private TMP?
-        $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
+        $tmp_path = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
         $path     = static::createTemp($tmp_path);
 
         mkdir($path);
@@ -373,7 +373,7 @@ class Filesystem
     public static function createTempFile(bool $public = true, ?string $extension = null) : File
     {
         // Public or private TMP?
-        $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
+        $tmp_path = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
         $file     = static::createTemp($tmp_path, $extension);
 
         touch($file);

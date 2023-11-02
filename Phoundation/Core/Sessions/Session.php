@@ -457,7 +457,7 @@ class Session implements SessionInterface
         // What handler to use?
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Directory::new(Config::getString('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
+                $path = Directory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), Restrictions::new([DIRECTORY_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
                 session_save_path($path->getFile());
                 break;
 
@@ -891,7 +891,7 @@ Log::warning('RESTART SESSION');
                 ini_set('session.cookie_secure'  , Config::getBoolean('web.sessions.cookies.secure'     , true));
                 ini_set('session.cookie_samesite', Config::getBoolean('web.sessions.cookies.same-site'  , true));
                 ini_set('session.save_handler'   , Config::getString('sessions.handler'                 , 'files'));
-                ini_set('session.save_path'      , Config::getString('sessions.path'                    , PATH_DATA . 'data/sessions/'));
+                ini_set('session.save_path'      , Config::getString('sessions.path'                    , DIRECTORY_DATA . 'data/sessions/'));
 
                 if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);

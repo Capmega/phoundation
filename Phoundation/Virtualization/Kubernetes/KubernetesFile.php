@@ -36,7 +36,7 @@ abstract class KubernetesFile
      */
     public function __construct()
     {
-        $this->file = PATH_ROOT . 'config/kubernetes/' . $this->kind . '/';
+        $this->file = DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/';
     }
 
 
@@ -53,7 +53,7 @@ abstract class KubernetesFile
 //        $data = Strings::untilReverse($data, PHP_EOL);
 
         File::new($this->file)
-            ->setRestrictions(PATH_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
+            ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
             ->create($data);
 
         return $this;

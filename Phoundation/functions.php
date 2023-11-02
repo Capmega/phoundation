@@ -860,7 +860,7 @@ function execute_script(string $__file): void
 
     } catch (Throwable $e) {
         // Did this fail because the specified file does not exist?
-        File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);
+        File::new($__file, DIRECTORY_SCRIPTS)->checkReadable('script', $e);
     }
 }
 

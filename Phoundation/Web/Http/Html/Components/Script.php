@@ -408,7 +408,7 @@ class Script extends Element
 //            try {
 //                // Create the cached file names
 //                $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
-//                $file = PATH_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
+//                $file = DIRECTORY_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 //
 //                Log::action(tr('Creating externally cached javascript file ":file"', [':file' => $file.'.js']));
 //
@@ -418,28 +418,28 @@ class Script extends Element
 //                        // The javascript file is empty
 //                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file.'.js']));
 //
-//                        Path::new(PATH_CDN . LANGUAGE . '/js', PATH_CDN . LANGUAGE . '/js')->execute()
+//                        Path::new(DIRECTORY_CDN . LANGUAGE . '/js', DIRECTORY_CDN . LANGUAGE . '/js')->execute()
 //                            ->setMode(0770)
 //                            ->onPathOnly(function() use ($file) {
-//                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js');
+//                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js');
 //                            file_delete([
 //                                'patterns'       => $file.'.js,'.$file.'.min.js',
 //                                'force_writable' => true,
-//                                'restrictions'   => PATH_ROOT.'www/'.LANGUAGE.'/pub/js'
+//                                'restrictions'   => DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js'
 //                            ]);
 //                        });
 //
 //                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
 //                        // External cached file is too old
 //                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
-//                        File::new([$file.'.js', $file.'.min.js'], Restrictions::new(PATH_CDN . LANGUAGE . 'js', true))->delete();
+//                        File::new([$file.'.js', $file.'.min.js'], Restrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
 //                    }
 //                }
 //
 //                // If file does not exist, create it now. Check again if it exist, because the previous function may
 //                // have possibly deleted it
 //                if (!file_exists($file.'.js')) {
-//                    Path::new(dirname($file), Restrictions::new(PATH_CDN . LANGUAGE . 'js', true))->execute()
+//                    Path::new(dirname($file), Restrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->execute()
 //                        ->setMode(0770)
 //                        ->onPathOnly(function() use ($file, $return) {
 //                            Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));

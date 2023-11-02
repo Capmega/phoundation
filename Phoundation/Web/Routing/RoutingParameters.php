@@ -203,7 +203,7 @@ class RoutingParameters
             // Then remove the file name to only have the path parts
             // Ensure it doesn't start with a slash to avoid empty right entries
             // Then explode to array
-            $path = Strings::from($target, PATH_WWW);
+            $path = Strings::from($target, DIRECTORY_WWW);
             $path = Strings::from($path, $dirname);
             $path = Strings::startsNotWith($path, '/');
             $path = dirname($path);
@@ -378,7 +378,7 @@ class RoutingParameters
      */
     public function getRestrictions(): RestrictionsInterface
     {
-        return Restrictions::default($this->restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
+        return Restrictions::default($this->restrictions, Restrictions::new(DIRECTORY_WWW, false, 'Route'));
     }
 
 
@@ -390,7 +390,7 @@ class RoutingParameters
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
+        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_WWW, false, 'Route'));
         return $this;
     }
 

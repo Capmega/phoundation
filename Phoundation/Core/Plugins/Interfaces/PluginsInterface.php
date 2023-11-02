@@ -25,7 +25,7 @@ interface PluginsInterface
     public function truncate(): static;
 
     /**
-     * Purges all plugins from the PATH_ROOT/Plugins path
+     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
      *
      * @return static
      */

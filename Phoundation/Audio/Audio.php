@@ -37,8 +37,8 @@ class Audio extends File
     {
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
-                Mplayer::new(Restrictions::new(PATH_DATA . 'audio', true))
-                    ->setFile(Filesystem::absolute($this->file, PATH_DATA . 'audio'))
+                Mplayer::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
+                    ->setFile(Filesystem::absolute($this->file, DIRECTORY_DATA . 'audio'))
                     ->play($background);
 
             } catch (FileNotExistException|ProcessesException $e) {

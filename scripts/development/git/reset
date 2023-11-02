@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
     ->select('--hard')->isOptional()->isBoolean()
     ->validate();
 
-Git::new(PATH_ROOT)->reset($argv['branch'], get_null($argv['files']));
+Git::new(DIRECTORY_ROOT)->reset($argv['branch'], get_null($argv['files']));

@@ -1162,8 +1162,8 @@ class Debug {
 
             // Log the file@line information
             if (isset($step['file'])) {
-                // Remove PATH_ROOT from the filenames for clarity
-                $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
+                // Remove DIRECTORY_ROOT from the filenames for clarity
+                $line['location'] = Strings::from($step['file'], DIRECTORY_ROOT) . '@' . $step['line'];
             }
 
             if (!$line) {

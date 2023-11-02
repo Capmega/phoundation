@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
 
 
 // Get image object
-$image = Image::new($argv['file'], PATH_DATA);
+$image = Image::new($argv['file'], DIRECTORY_DATA);
 
 
 

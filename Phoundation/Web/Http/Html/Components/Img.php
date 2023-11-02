@@ -184,7 +184,7 @@ class Img extends Element
 //        if ($this->external) {
 //            // This is an external image
 //            $file_src = Strings::startsNotWith(Strings::from($src, $domain), '/');
-//            $file_src = PATH_ROOT . 'data/cdn/' . $file_src;
+//            $file_src = DIRECTORY_ROOT . 'data/cdn/' . $file_src;
 //        } else {
 //            // This is an internal image, it must be stored in ROOT/data/cdn/LANGUAGE/img/...
 //
@@ -201,7 +201,7 @@ class Img extends Element
 //            }
 //
 //            $file_src =
-//            $file_src = PATH_DATA . 'cdn/' . Session::getLanguage() . 'img/' . $src;
+//            $file_src = DIRECTORY_DATA . 'cdn/' . Session::getLanguage() . 'img/' . $src;
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
 //            $src      = UrlBuilder::getImg($src);
 //        }
@@ -428,8 +428,8 @@ class Img extends Element
 //                     * Image comes from a domain, fetch to temp directory to analize
 //                     */
 //                    try {
-//                        $file  = file_move_to_target($file_src, PATH_TMP, false, true);
-//                        $image = getimagesize(PATH_TMP.$file);
+//                        $file  = file_move_to_target($file_src, DIRECTORY_TMP, false, true);
+//                        $image = getimagesize(DIRECTORY_TMP.$file);
 //
 //                    }catch(Exception $e) {
 //                        switch ($e->getCode()) {
@@ -459,7 +459,7 @@ class Img extends Element
 //                    }
 //
 //                    if (!empty($file)) {
-//                        file_delete(PATH_TMP.$file);
+//                        file_delete(DIRECTORY_TMP.$file);
 //                    }
 //
 //                } else {
@@ -713,16 +713,16 @@ class Img extends Element
 //                 * Use lazy image loading
 //                 */
 //                try {
-//                    if (!file_exists(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
+//                    if (!file_exists(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
 //                        /*
 //                         * jquery.lazy is not available, auto install it.
 //                         */
 //                        $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
 //                        $path = cli_unzip($file);
 //
-//                        File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
-//                            file_delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
-//                            rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
+//                        File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+//                            file_delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
+//                            rename($path.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
 //                        });
 //
 //                        file_delete($path);

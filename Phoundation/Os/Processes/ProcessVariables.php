@@ -309,9 +309,9 @@ trait ProcessVariables
     public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
         // Ensure that the run files directory is available
-        static::$run_path = PATH_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
+        static::$run_path = DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
 
-        Directory::new(static::$run_path, Restrictions::new(PATH_DATA . 'run', true, 'processes runfile'))
+        Directory::new(static::$run_path, Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile'))
             ->ensure();
 
         // Set server filesystem restrictions
@@ -668,7 +668,7 @@ trait ProcessVariables
 //
 //        if (!$path) {
 //            // Set the default log path
-//            $path = PATH_DATA . 'log/';
+//            $path = DIRECTORY_DATA . 'log/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
@@ -755,7 +755,7 @@ trait ProcessVariables
 
         $this->cached_command_line = null;
 
-        $this->log_file = PATH_DATA . 'log/' . $identifier;
+        $this->log_file = DIRECTORY_DATA . 'log/' . $identifier;
         $this->run_file = static::$run_path . $identifier;
 
         Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
@@ -791,7 +791,7 @@ trait ProcessVariables
 //
 //        if (!$path) {
 //            // Set the default log path
-//            $path = PATH_DATA . 'run/';
+//            $path = DIRECTORY_DATA . 'run/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
@@ -1487,7 +1487,7 @@ trait ProcessVariables
         $pid  = trim($pid);
 
         // Delete the run file, don't clean up as that is not needed. When the process terminates, cleanup will happen
-        File::new($this->run_file, Restrictions::new(PATH_DATA . 'run/pids/', true))->delete(false);
+        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))->delete(false);
         $this->run_file = null;
 
         if (!$pid) {

@@ -50,8 +50,8 @@ Log::information(tr('Exporting core database ":database" to MySQL dump file ":fi
     ':database' => $argv['database'],
 ]));
 
-$file         = PATH_DATA . 'sources/' . $argv['file'];
-$restrictions = Restrictions::new(PATH_DATA . 'sources/', true, 'Mysql exporter');
+$file         = DIRECTORY_DATA . 'sources/' . $argv['file'];
+$restrictions = Restrictions::new(DIRECTORY_DATA . 'sources/', true, 'Mysql exporter');
 
 // Start the export
 File::new($file, $restrictions)->checkWritable();
@@ -89,8 +89,8 @@ Log::success(tr('Finished exporting core database ":database" to dump file ":fil
             ':database' => $argv['database'],
         ]));
 
-        $file         = PATH_DATA . 'sources/' . $argv['file'];
-        $restrictions = Restrictions::new(PATH_DATA . 'sources/', true, 'Mysql exporter');
+        $file         = DIRECTORY_DATA . 'sources/' . $argv['file'];
+        $restrictions = Restrictions::new(DIRECTORY_DATA . 'sources/', true, 'Mysql exporter');
 
         // Start the export
         File::new($file, $restrictions)->checkWritable();

@@ -235,17 +235,17 @@ class Core implements CoreInterface
         // Define a unique process request ID
         // Define project paths.
 
-        // PATH_ROOT   is the root directory of this project and should be used as the root for all other paths
-        // PATH_TMP    is a private temporary directory
-        // PATH_PUBTMP is a public (accessible by web server) temporary directory
+        // DIRECTORY_ROOT   is the root directory of this project and should be used as the root for all other paths
+        // DIRECTORY_TMP    is a private temporary directory
+        // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
         define('REQUEST', substr(uniqid(), 7));
-        define('PATH_ROOT', realpath(__DIR__ . '/../..') . '/');
-        define('PATH_WWW', PATH_ROOT . 'www/');
-        define('PATH_DATA', PATH_ROOT . 'data/');
-        define('PATH_CDN', PATH_DATA . 'content/cdn/');
-        define('PATH_TMP', PATH_DATA . 'tmp/');
-        define('PATH_PUBTMP', PATH_DATA . 'content/cdn/tmp/');
-        define('PATH_SCRIPTS', PATH_ROOT . 'scripts/');
+        define('DIRECTORY_ROOT', realpath(__DIR__ . '/../..') . '/');
+        define('DIRECTORY_WWW', DIRECTORY_ROOT . 'www/');
+        define('DIRECTORY_DATA', DIRECTORY_ROOT . 'data/');
+        define('DIRECTORY_CDN', DIRECTORY_DATA . 'content/cdn/');
+        define('DIRECTORY_TMP', DIRECTORY_DATA . 'tmp/');
+        define('DIRECTORY_PUBTMP', DIRECTORY_DATA . 'content/cdn/tmp/');
+        define('DIRECTORY_SCRIPTS', DIRECTORY_ROOT . 'scripts/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         error_reporting(E_ALL);
@@ -262,8 +262,8 @@ class Core implements CoreInterface
         }
 
         // Load the functions and mb files
-        require(PATH_ROOT . 'Phoundation/functions.php');
-        require(PATH_ROOT . 'Phoundation/mb.php');
+        require(DIRECTORY_ROOT . 'Phoundation/functions.php');
+        require(DIRECTORY_ROOT . 'Phoundation/mb.php');
 
         // Register the process start
         static::$timer = Timers::new('core', 'system');
@@ -538,12 +538,12 @@ class Core implements CoreInterface
      */
     public static function getMaintenanceMode(): ?string
     {
-        if (file_exists(PATH_DATA . 'system/maintenance')) {
+        if (file_exists(DIRECTORY_DATA . 'system/maintenance')) {
             // System is in maintenance mode, show who put it there
-            $files = Directory::new(PATH_DATA . 'system/maintenance')->scan();
+            $files = Directory::new(DIRECTORY_DATA . 'system/maintenance')->scan();
 
             if ($files) {
-                return array_first(Directory::new(PATH_DATA . 'system/maintenance')->scan());
+                return array_first(Directory::new(DIRECTORY_DATA . 'system/maintenance')->scan());
             }
 
             // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
@@ -576,8 +576,8 @@ class Core implements CoreInterface
                 ]))->makeWarning();
             }
 
-            Directory::new(PATH_DATA . 'system/maintenance', Restrictions::new(PATH_DATA, true))->ensure();
-            touch(PATH_DATA . 'system/maintenance/' . (Session::getUser()->getEmail() ?? get_current_user()));
+            Directory::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->ensure();
+            touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUser()->getEmail() ?? get_current_user()));
 
             throw MaintenanceModeException::new(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'))
                 ->makeWarning();
@@ -589,7 +589,7 @@ class Core implements CoreInterface
                 ->makeWarning();
         }
 
-        File::new(PATH_DATA . 'system/maintenance', Restrictions::new(PATH_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->delete();
 
         throw MaintenanceModeException::new(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'))
             ->makeWarning();
@@ -1061,10 +1061,10 @@ class Core implements CoreInterface
     {
         // Get the project name
         try {
-            define('PROJECT', strtoupper(trim(file_get_contents(PATH_ROOT . 'config/project'))));
+            define('PROJECT', strtoupper(trim(file_get_contents(DIRECTORY_ROOT . 'config/project'))));
 
             if (!PROJECT) {
-                throw new OutOfBoundsException('No project defined in PATH_ROOT/config/project file');
+                throw new OutOfBoundsException('No project defined in DIRECTORY_ROOT/config/project file');
             }
         } catch (Throwable $e) {
             static::$failed = true;
@@ -1076,8 +1076,8 @@ class Core implements CoreInterface
             }
 
             // Project file is not readable
-            if (!is_readable(PATH_ROOT . 'config/project')) {
-                if (file_exists(PATH_ROOT . 'config/project')) {
+            if (!is_readable(DIRECTORY_ROOT . 'config/project')) {
+                if (file_exists(DIRECTORY_ROOT . 'config/project')) {
                     // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                     // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
                     // won't be able to work our way around this.
@@ -1092,7 +1092,7 @@ class Core implements CoreInterface
                 static::selectStartup();
                 static::$state = 'setup';
 
-                throw new NoProjectException('Project file "' . PATH_ROOT . 'config/project" cannot be read. Please ensure it exists');
+                throw new NoProjectException('Project file "' . DIRECTORY_ROOT . 'config/project" cannot be read. Please ensure it exists');
             }
         }
     }
@@ -1574,7 +1574,7 @@ class Core implements CoreInterface
          * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE
          * WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
          *
-         *    Check the PATH_ROOT/data/log/syslog (or exception log if you have single_log
+         *    Check the DIRECTORY_ROOT/data/log/syslog (or exception log if you have single_log
          *    disabled). In here you can find 99% of the issues
          *
          *    If the syslog did not contain information, then check your apache / nginx
@@ -1849,7 +1849,7 @@ class Core implements CoreInterface
                                 Log::error($e->getMessage());
                             }
 
-                            Core::exit(1, tr('System startup exception. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                            Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
                         }
 
                         if ($e->getCode() === 'validation') {
@@ -1991,7 +1991,7 @@ class Core implements CoreInterface
                     Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     Log::error($f->getMessage());
                     Log::error($f->getTrace());
-                    exit('System startup exception with handling failure. Please check your PATH_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
+                    exit('System startup exception with handling failure. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
                 }
 
                 Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
@@ -2194,8 +2194,8 @@ class Core implements CoreInterface
         $paths = [
             '/var/lib/data/',
             '/var/www/data/',
-            PATH_ROOT . '../data/',
-            PATH_ROOT . '../../data/'
+            DIRECTORY_ROOT . '../data/',
+            DIRECTORY_ROOT . '../../data/'
         ];
 
         if (!empty($_SERVER['HOME'])) {

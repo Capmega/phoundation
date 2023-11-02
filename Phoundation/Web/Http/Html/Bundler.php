@@ -71,7 +71,7 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setRestrictions(Restrictions::new([PATH_CDN . 'js', PATH_CDN . 'css'], true, 'Bundler'));
+        $this->setRestrictions(Restrictions::new([DIRECTORY_CDN . 'js', DIRECTORY_CDN . 'css'], true, 'Bundler'));
     }
 
 
@@ -175,7 +175,7 @@ class Bundler
         $admin_path = (Core::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
 
         $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
-        $this->path        =  PATH_WWW . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
+        $this->path        =  DIRECTORY_WWW . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
         $this->bundle_file =  Strings::force($files);
         $this->bundle_file =  substr(sha1($this->bundle . Core::FRAMEWORKCODEVERSION), 1, 32);
         $this->bundle_file =  $this->path . 'bundle-' . $this->bundle_file . $this->extension;

@@ -153,7 +153,7 @@ class Plugin extends DataEntry implements PluginInterface
         $path = $this->getPath();
 
         if ($path) {
-            return Library::getClassPath(PATH_ROOT . $path . 'Plugin.php');
+            return Library::getClassPath(DIRECTORY_ROOT . $path . 'Plugin.php');
         }
 
         return null;
@@ -206,7 +206,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        return Strings::from(dirname(Library::getClassFile($this)) . '/', PATH_ROOT);
+        return Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT);
     }
 
 
@@ -308,7 +308,7 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
-     * Link the scripts for this plugin to the PATH_ROOT/scripts directory
+     * Link the scripts for this plugin to the DIRECTORY_ROOT/scripts directory
      *
      * @return void
      */
@@ -318,23 +318,23 @@ class Plugin extends DataEntry implements PluginInterface
         $file   = __DIR__ . '/scripts';
 
         if (file_exists($file)) {
-            link ($file, PATH_ROOT . 'scripts/' . $plugin);
+            link ($file, DIRECTORY_ROOT . 'scripts/' . $plugin);
         }
     }
 
 
     /**
-     * Link the scripts for this plugin to the PATH_ROOT/scripts directory
+     * Link the scripts for this plugin to the DIRECTORY_ROOT/scripts directory
      *
      * @return void
      */
     protected function unlinkScripts(): void
     {
         $plugin = strtolower(dirname(__DIR__));
-        $file   = PATH_ROOT . 'scripts/' . $plugin;
+        $file   = DIRECTORY_ROOT . 'scripts/' . $plugin;
 
         if (file_exists($file)) {
-            File::new(PATH_ROOT . 'scripts/' . $plugin)->delete();
+            File::new(DIRECTORY_ROOT . 'scripts/' . $plugin)->delete();
         }
     }
 

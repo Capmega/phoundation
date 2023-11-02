@@ -87,7 +87,7 @@ class Project implements ProjectInterface
     {
         if (!$path) {
             // Default to this project
-            $path = PATH_ROOT;
+            $path = DIRECTORY_ROOT;
         }
 
         $this->construct($path);
@@ -120,7 +120,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
 
-            File::new(PATH_ROOT . 'config/project')->delete();
+            File::new(DIRECTORY_ROOT . 'config/project')->delete();
         }
 
         static::$name = $project;
@@ -206,7 +206,7 @@ class Project implements ProjectInterface
     public static function getEnvironments(): array
     {
         $return = [];
-        $files  = glob(PATH_ROOT . 'config/*.yaml');
+        $files  = glob(DIRECTORY_ROOT . 'config/*.yaml');
 
         foreach ($files as $file)
         {
@@ -273,7 +273,7 @@ class Project implements ProjectInterface
 
         // Remove the project file
         Log::warning(tr('Removing project file "config/project"'));
-        File::new(PATH_ROOT . 'config/project', Restrictions::new(PATH_ROOT . 'config/project', true))->delete();
+        File::new(DIRECTORY_ROOT . 'config/project', Restrictions::new(DIRECTORY_ROOT . 'config/project', true))->delete();
     }
 
 
@@ -332,7 +332,7 @@ class Project implements ProjectInterface
      */
     public static function projectFileExists(): bool
     {
-        return file_exists(PATH_ROOT . 'config/project');
+        return file_exists(DIRECTORY_ROOT . 'config/project');
     }
 
 
@@ -368,7 +368,7 @@ class Project implements ProjectInterface
      */
     public static function load(): ?string
     {
-        $project = file_get_contents(PATH_ROOT . 'config/project');
+        $project = file_get_contents(DIRECTORY_ROOT . 'config/project');
         $project = static::sanitize($project);
 
         static::$name = $project;
@@ -399,7 +399,7 @@ class Project implements ProjectInterface
         foreach ($sections as $directory => $section) {
             // Find all import object and execute them
             $files = Process::new('find')
-                ->addArgument(PATH_ROOT . $directory)
+                ->addArgument(DIRECTORY_ROOT . $directory)
                 ->addArgument('-name')
                 ->addArgument('Import.php')
                 ->executeReturnArray();
@@ -430,7 +430,7 @@ class Project implements ProjectInterface
                         Log::action(tr('Importing data for ":section" library ":library" from file ":file"', [
                             ':section' => $section,
                             ':library' => $library,
-                            ':file'    => Strings::from($file, PATH_ROOT . $directory)
+                            ':file'    => Strings::from($file, DIRECTORY_ROOT . $directory)
                         ]), 5);
 
                         $count = $class::new($demo, $min, $max)->execute();
@@ -467,42 +467,42 @@ class Project implements ProjectInterface
 
         // Fix file modes, first make everything readonly
         Process::new('chmod')
-            ->setExecutionPath(PATH_ROOT)
+            ->setExecutionPath(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
             ->executePassthru();
 
         // All directories must have the "execute" bit for users and groups
         Process::new('find')
-            ->setExecutionPath(PATH_ROOT)
+            ->setExecutionPath(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['.' , '-type' , 'd', '-exec', 'chmod', 'ug+x', '{}', '\\;'])
             ->executePassthru();
 
         // No file should be executable
         Process::new('find')
-            ->setExecutionPath(PATH_ROOT)
+            ->setExecutionPath(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['.' , '-type' , 'f', '-exec', 'chmod', 'ug-x', '{}', '\\;'])
             ->executePassthru();
 
         // ./cli is the only file that can be executed
         Process::new('chmod')
-            ->setExecutionPath(PATH_ROOT)
+            ->setExecutionPath(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['ug+w', './pho'])
             ->executePassthru();
 
         // Writable directories: data/tmp, data/log, data/run, data/cookies, data/content,
         Process::new('chmod')
-            ->setExecutionPath(PATH_ROOT)
+            ->setExecutionPath(DIRECTORY_ROOT)
             ->setSudo(true)
-            ->addArguments(['-x,ug+r,g-w,o-rwx', PATH_DATA . 'tmp', PATH_DATA . 'log', PATH_DATA . 'run', PATH_DATA . 'cookies', PATH_DATA . 'cookies', '-R'])
+            ->addArguments(['-x,ug+r,g-w,o-rwx', DIRECTORY_DATA . 'tmp', DIRECTORY_DATA . 'log', DIRECTORY_DATA . 'run', DIRECTORY_DATA . 'cookies', DIRECTORY_DATA . 'cookies', '-R'])
             ->executePassthru();
 
         // Fix file ownership
         Process::new('chown')
-            ->setExecutionPath(PATH_ROOT)
+            ->setExecutionPath(DIRECTORY_ROOT)
             ->setSudo(true)
             ->addArguments(['www-data:www-data', '.', '-R'])
             ->executePassthru();
@@ -545,7 +545,7 @@ class Project implements ProjectInterface
         try {
             // Add all files to index to ensure everything will be stashed
             if ($this->git->getStatus()->getCount()) {
-                $this->git->add(PATH_ROOT);
+                $this->git->add(DIRECTORY_ROOT);
                 $this->git->getStash()->stash();
                 $stash = true;
             }
@@ -559,7 +559,7 @@ class Project implements ProjectInterface
                     $message = tr('Phoundation update');
                 }
 
-                $this->git->add([PATH_ROOT . 'Phoundation/', PATH_ROOT . 'scripts/']);
+                $this->git->add([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_ROOT . 'scripts/']);
                 $this->git->commit($message, $signed);
 
                 Log::warning(tr('Committed local Phoundation update to git'));
@@ -603,7 +603,7 @@ class Project implements ProjectInterface
      */
     protected static function save(): void
     {
-        file_put_contents(PATH_ROOT . 'config/project', static::$name);
+        file_put_contents(DIRECTORY_ROOT . 'config/project', static::$name);
     }
 
 
@@ -683,26 +683,26 @@ class Project implements ProjectInterface
 
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
-        include_once(PATH_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
-        include_once(PATH_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
+        include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
+        include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
 
         // Move /Phoundation and /scripts out of the way
         try {
-            Directory::new(PATH_ROOT . 'data/garbage/', Restrictions::new(PATH_ROOT . 'data/', true, tr('Project management')))->delete();
+            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
 
-            $files['scripts']     = Directory::new(PATH_ROOT . 'scripts/'    , Restrictions::new([PATH_ROOT . 'scripts/'    , PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
-            $files['phoundation'] = Directory::new(PATH_ROOT . 'Phoundation/', Restrictions::new([PATH_ROOT . 'Phoundation/', PATH_DATA], true, tr('Project management')))->move(PATH_ROOT . 'data/garbage/');
+            $files['scripts']     = Directory::new(DIRECTORY_ROOT . 'scripts/'    , Restrictions::new([DIRECTORY_ROOT . 'scripts/'    , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
+            $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
 
             // Copy new script versions
             $rsync
                 ->setSource($phoundation->getPath() . 'scripts/')
-                ->setTarget(PATH_ROOT . 'scripts/')
+                ->setTarget(DIRECTORY_ROOT . 'scripts/')
                 ->execute();
 
             // Copy new core library versions
             $rsync
                 ->setSource($phoundation->getPath() . 'Phoundation/')
-                ->setTarget(PATH_ROOT . 'Phoundation/')
+                ->setTarget(DIRECTORY_ROOT . 'Phoundation/')
                 ->execute();
 
             // All is well? Get rid of the garbage
@@ -716,12 +716,12 @@ class Project implements ProjectInterface
             //  Move Phoundation files back again
             if (isset($files['phoundation'])) {
                 Log::warning(tr('Moving Phoundation core libraries back from garbage'));
-                $files['phoundation']->move(PATH_ROOT . 'Phoundation/');
+                $files['phoundation']->move(DIRECTORY_ROOT . 'Phoundation/');
             }
 
             if (isset($files['scripts'])) {
                 Log::warning(tr('Moving Phoundation core scripts back from garbage'));
-                $files['scripts']->move(PATH_ROOT . 'scripts/');
+                $files['scripts']->move(DIRECTORY_ROOT . 'scripts/');
             }
 
             throw $e;

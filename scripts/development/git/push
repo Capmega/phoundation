@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
 
 
 
-Git::new(PATH_ROOT)->push($argv['branch'], $argv['repository']);
+Git::new(DIRECTORY_ROOT)->push($argv['branch'], $argv['repository']);

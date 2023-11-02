@@ -345,12 +345,12 @@ class CliCommand
                 ->makeWarning()
                 ->addData([
                     'position' => 0,
-                    'methods' => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
+                    'methods' => Arrays::filterValues(scandir(DIRECTORY_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
                 ]);
         }
 
         $position = 0;
-        $file = PATH_ROOT . 'scripts/';
+        $file = DIRECTORY_ROOT . 'scripts/';
         $methods = ArgvValidator::getMethods();
         static::$methods = $methods;
 
@@ -399,8 +399,8 @@ class CliCommand
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
-        // itself then that is the one that will be executed. For example, PATH_ROOT/cli system init will execute
-        // PATH_ROOT/scripts/system/init/init
+        // itself then that is the one that will be executed. For example, DIRECTORY_ROOT/cli system init will execute
+        // DIRECTORY_ROOT/scripts/system/init/init
         if (file_exists($file . $method)) {
             if (!is_dir($file . $method)) {
                 // Yup, this is it guys!
@@ -459,7 +459,7 @@ class CliCommand
     public static function getCurrent(bool $full = false): string
     {
         if ($full) {
-            return Strings::fromReverse(static::$script, PATH_ROOT . 'scripts/');
+            return Strings::fromReverse(static::$script, DIRECTORY_ROOT . 'scripts/');
         }
 
         return Strings::fromReverse(static::$script, '/');
@@ -530,7 +530,7 @@ class CliCommand
         throw new UnderConstructionException();
 
         try {
-            $run_dir = PATH_ROOT . 'data/run/';
+            $run_dir = DIRECTORY_ROOT . 'data/run/';
             $script = $core->register['script'];
 
             Directory::ensure(dirname($run_dir . $script));
@@ -542,7 +542,7 @@ class CliCommand
                 }
 
                 file_delete(array('patterns' => $run_dir . $script,
-                    'restrictions' => PATH_ROOT . 'data/run/',
+                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
                     'clean_path' => false));
                 $executed = false;
                 return;
@@ -587,7 +587,7 @@ class CliCommand
                 // process. Remove the PID file
                 Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $script]));
                 file_delete(array('patterns' => $run_dir . $script,
-                    'restrictions' => PATH_ROOT . 'data/run/',
+                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
                     'clean_path' => false));
             }
 
@@ -611,7 +611,7 @@ class CliCommand
     /**
      * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
      *
-     * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+     * @note While log_console() will log towards the DIRECTORY_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
      * @param int $each
      * @param string $color
      * @param string $dot
@@ -724,7 +724,7 @@ class CliCommand
 
                 Log::warning($e->getMessage());
                 Log::warning(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                    ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                     ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
@@ -734,7 +734,7 @@ class CliCommand
 
                 Log::error($e->getMessage());
                 Log::error(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                    ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                     ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
@@ -749,7 +749,7 @@ class CliCommand
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                        ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                         ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
@@ -764,7 +764,7 @@ class CliCommand
                 } else {
                     // Script ended with error
                     Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                        ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                        ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                         ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
@@ -780,7 +780,7 @@ class CliCommand
             // Script ended successfully
             Log::success(tr('Finished ":script" command with PID ":pid" in ":time" with ":usage" peak memory usage', [
                 ':pid' => getmypid(),
-                ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
                 ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage())
             ]), 8);

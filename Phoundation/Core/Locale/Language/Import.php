@@ -49,7 +49,7 @@ class Import extends \Phoundation\Developer\Project\Import
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
 
-        $file  = File::new(PATH_DATA . 'sources/languages/languages')->open(EnumFileOpenMode::readOnly);
+        $file  = File::new(DIRECTORY_DATA . 'sources/languages/languages')->open(EnumFileOpenMode::readOnly);
         $table = sql()->schema()->table('core_languages');
         $count = $table->getCount();
 

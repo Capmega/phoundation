@@ -30,11 +30,11 @@ class PhoTask extends Task implements PhoTaskInterface
     public function __construct(string $command)
     {
         // Ensure that the run files directory is available
-        Directory::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
+        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))->ensure();
 
-        parent::__construct(Restrictions::new(PATH_ROOT . '/pho'));
+        parent::__construct(Restrictions::new(DIRECTORY_ROOT . '/pho'));
 
-        $this->setInternalCommand(PATH_ROOT . '/pho')
+        $this->setInternalCommand(DIRECTORY_ROOT . '/pho')
              ->addArgument($command);
     }
 

@@ -17,7 +17,7 @@ use Throwable;
  * This class can manage and (attempt to) execute specified hook scripts.
  *
  * Hook scripts are optional scripts that will be executed if they exist. Hook scripts are located in
- * PATH_ROOT/scripts/hooks/HOOK and PATH_ROOT/scripts/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook scripts
+ * DIRECTORY_ROOT/scripts/hooks/HOOK and DIRECTORY_ROOT/scripts/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook scripts
  * that all have to do with the same system, to group them together. HOOK is the script to be executed
  *
  * @see \Phoundation\Data\DataEntry\DataEntry
@@ -40,7 +40,7 @@ class Hook
      *
      * @var string $path
      */
-    protected string $path = PATH_ROOT . 'scripts/hooks';
+    protected string $path = DIRECTORY_ROOT . 'scripts/hooks';
 
 
     /**

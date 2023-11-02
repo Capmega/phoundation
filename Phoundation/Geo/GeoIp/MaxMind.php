@@ -49,7 +49,7 @@ class MaxMind extends GeoIp
      */
     public function __construct()
     {
-        $this->path = PATH_DATA . 'sources/geoip/maxmind/';
+        $this->path = DIRECTORY_DATA . 'sources/geoip/maxmind/';
         $this->pro  = Config::getBoolean('geo.ip.maxmind.pro', false);
     }
 

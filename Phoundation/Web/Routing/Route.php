@@ -36,7 +36,7 @@ use Throwable;
 /**
  * Class Route
  *
- * Core routing class that will route URL request queries to PHP scripts in the PATH_ROOT/www/LANGUAGE_CODE/ path
+ * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_ROOT/www/LANGUAGE_CODE/ path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -276,7 +276,7 @@ class Route
      *                  naughty things for at least a day
      * T$TEMPLATE$      Use the specified template instead of the current template for this try
      * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and
-     *                  defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
+     *                  defaults to DIRECTORY_ROOT.'www,'.DIRECTORY_ROOT.'data/content/downloads'
      * Z$RIGHT$[$PAGE$] Requires that the current session user has the specified right, or $PAGE$ will be shown, with
      *                  $PAGE$ defaulting to system/403. Multiple Z flags may be specified
      *

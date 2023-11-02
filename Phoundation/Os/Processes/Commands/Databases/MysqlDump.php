@@ -402,8 +402,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
         // Add restrictions for the log file
-        $this->target = Filesystem::absolute($this->target, PATH_DATA . 'sources/', false);
-        $this->restrictions->addPath(PATH_DATA . 'log', true);
+        $this->target = Filesystem::absolute($this->target, DIRECTORY_DATA . 'sources/', false);
+        $this->restrictions->addPath(DIRECTORY_DATA . 'log', true);
 
         // Apply file restrictions
         File::new($this->target, $this->restrictions)->checkWritable();
@@ -424,7 +424,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
              ->addArgument( $this->comments                       ? '--comments'        : '--skip-comments')
              ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null)
              ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass']]) // Database config
-             ->setOutputRedirect(PATH_DATA . 'log/mysqldump_error.log', 2, true);
+             ->setOutputRedirect(DIRECTORY_DATA . 'log/mysqldump_error.log', 2, true);
 
         if ($this->host) {
             $this->addArguments(['-h', $this->host]);

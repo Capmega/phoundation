@@ -273,7 +273,7 @@ abstract class Curl implements CurlInterface
         $this->url   = (string) $url;
         $this->retry = 0;
 
-        $this->setLogPath(PATH_DATA . 'log/curl/');
+        $this->setLogPath(DIRECTORY_DATA . 'log/curl/');
 
         // Setup new cURL request
         $this->curl = curl_init();
@@ -473,7 +473,7 @@ abstract class Curl implements CurlInterface
      * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path, string $restrictions = PATH_DATA . 'log/'): static
+    public function setLogPath(string $log_path, string $restrictions = DIRECTORY_DATA . 'log/'): static
     {
         if ($log_path) {
             $this->log_restrictions = Restrictions::new($restrictions, true);

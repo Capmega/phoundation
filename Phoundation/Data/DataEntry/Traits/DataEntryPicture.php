@@ -48,6 +48,6 @@ trait DataEntryPicture
             $picture = Image::new($picture);
         }
 
-        return $this->setSourceValue('picture', Strings::from(get_null($picture)?->getFile(), PATH_CDN));
+        return $this->setSourceValue('picture', Strings::from(get_null($picture)?->getFile(), DIRECTORY_CDN));
     }
 }

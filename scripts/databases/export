@@ -49,8 +49,8 @@ Documentation::autoComplete([
         '-t,--timeout' => false,
         '-g,--gzip'    => false,
         '--file' => [
-            'word'   => function ($word) { return Directory::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan($word . '*.sql'); },
-            'noword' => function ()      { return Directory::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan('*.sql'); },
+            'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.sql'); },
+            'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan('*.sql'); },
         ],
         '--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
@@ -68,7 +68,7 @@ Documentation::autoComplete([
 $argv = ArgvValidator::new()
     ->select('-g,--gzip')->isOptional(false)->isBoolean()
     ->select('-t,--timeout' , true)->isOptional(3600)->isInteger()->isMoreThan(0)
-    ->select('-f,--file'    , true)->isFile(PATH_DATA . 'sources/', new Restrictions(PATH_DATA . 'sources/', true), false)
+    ->select('-f,--file'    , true)->isFile(DIRECTORY_DATA . 'sources/', new Restrictions(DIRECTORY_DATA . 'sources/', true), false)
     ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database', true)->isVariable()
     ->validate();

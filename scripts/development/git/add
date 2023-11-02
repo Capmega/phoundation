@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-Git::new(PATH_ROOT)->add($argv['files']);
+Git::new(DIRECTORY_ROOT)->add($argv['files']);

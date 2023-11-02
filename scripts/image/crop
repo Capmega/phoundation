@@ -35,7 +35,7 @@ $argv = ArgvValidator::new()
 
 
 // Get image and crop it
-$image = Image::new($argv['file'], Restrictions::new(PATH_DATA, true));
+$image = Image::new($argv['file'], Restrictions::new(DIRECTORY_DATA, true));
 $image->convert()->crop();
 
 

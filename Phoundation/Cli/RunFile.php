@@ -50,7 +50,7 @@ class RunFile implements RunFileInterface
      *
      * @var string $path
      */
-    protected static string $path = PATH_ROOT . 'data/run/';
+    protected static string $path = DIRECTORY_ROOT . 'data/run/';
 
     /**
      * The exact run file for this command
@@ -76,7 +76,7 @@ class RunFile implements RunFileInterface
     {
         static::$restrictions = Restrictions::new(static::$path, true, 'runfile');
 
-        $this->setCommand(Strings::from($command, PATH_ROOT . 'scripts/'));
+        $this->setCommand(Strings::from($command, DIRECTORY_ROOT . 'scripts/'));
         $this->setPid(getmypid());
         $this->create();
     }
@@ -313,8 +313,8 @@ class RunFile implements RunFileInterface
 
                 if ($cmd !== $command) {
                     // The PID exists, but its a different command. Remove the runfile and all PID files
-                    File::new($runfile, static::$restrictions)->delete(PATH_DATA . 'run/');
-                    File::new(static::$path . 'pids/' . $pid, static::$restrictions)->delete(PATH_DATA . 'run/pids/');
+                    File::new($runfile, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
+                    File::new(static::$path . 'pids/' . $pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/pids/');
                 }
         });
 
@@ -337,8 +337,8 @@ class RunFile implements RunFileInterface
     {
         // Delete the runfile and delete all possible PID files associated with this PID
         // Don't use runfiles here because we're deleting the runfile paths...
-        File::new(PATH_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->delete(PATH_DATA . 'run/', use_run_file: false);
-        Directory::new(PATH_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(PATH_DATA . 'run/', use_run_file: false);
+        File::new(DIRECTORY_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
+        Directory::new(DIRECTORY_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
         return $this;
     }
 
@@ -361,7 +361,7 @@ class RunFile implements RunFileInterface
             ':pid' => $pid
         ]));
 
-        File::new($file, static::$restrictions)->delete(PATH_DATA . 'run/');
+        File::new($file, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
         return false;
     }
 

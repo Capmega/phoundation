@@ -166,7 +166,7 @@ class Environment
      */
     public static function getConfigurationFile(string $environment): string
     {
-        return PATH_ROOT  . 'config/' . strtolower($environment) . '.yaml';
+        return DIRECTORY_ROOT  . 'config/' . strtolower($environment) . '.yaml';
     }
 
 
@@ -210,7 +210,7 @@ class Environment
         }
 
         // delete the environment configuration file
-        File::new(static::getConfigurationFile($this->name), Restrictions::new(PATH_ROOT . 'config/', true))->delete();
+        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))->delete();
 
         return true;
     }

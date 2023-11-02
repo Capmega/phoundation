@@ -23,7 +23,7 @@ use Throwable;
  *
  * This class contains the methods to read, write and manage configuration options. Default configuration values are
  * specified in the classes themselves whereas users can add configuration sections in the YAML file
- * PATH_ROOT/config/ENVIRONMENT/CLASSNAME and this class will apply those values.
+ * DIRECTORY_ROOT/config/ENVIRONMENT/CLASSNAME and this class will apply those values.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -507,7 +507,7 @@ class Config implements Interfaces\ConfigInterface
      */
     public static function environmentExists(string $environment): bool
     {
-        return file_exists(PATH_ROOT . 'config/' . $environment . '.yaml');
+        return file_exists(DIRECTORY_ROOT . 'config/' . $environment . '.yaml');
     }
 
 
@@ -540,13 +540,13 @@ class Config implements Interfaces\ConfigInterface
 
             // Read the section for each environment
             foreach ($environments as $environment) {
-                $file = PATH_ROOT . 'config/' . $environment . '.yaml';
-                Restrictions::new(PATH_ROOT . 'config/')->check($file, false);
+                $file = DIRECTORY_ROOT . 'config/' . $environment . '.yaml';
+                Restrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
 
                 // Check if a configuration file exists for this environment
                 if (!file_exists($file)) {
                     // Do NOT use tr() here as it will cause endless loops!
-                    throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')
+                    throw ConfigException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')
                         ->makeWarning();
                 }
 
@@ -557,7 +557,7 @@ class Config implements Interfaces\ConfigInterface
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$fail = true;
-                    throw ConfigException::new('Configuration file "' . Strings::from($file, PATH_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist', null, null, $e)
+                    throw ConfigException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist', null, null, $e)
                         ->makeWarning();
                 }
 
@@ -596,12 +596,12 @@ class Config implements Interfaces\ConfigInterface
         $store = [];
 
         // Scan all files for Config::get() and Config::set() calls
-        Directory::new(PATH_ROOT, PATH_ROOT)->execute()
-            ->addSkipPaths([PATH_DATA, PATH_ROOT . 'tests', PATH_ROOT . 'garbage'])
+        Directory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->execute()
+            ->addSkipPaths([DIRECTORY_DATA, DIRECTORY_ROOT . 'tests', DIRECTORY_ROOT . 'garbage'])
             ->setRecurse(true)
-            ->setRestrictions(new Restrictions(PATH_ROOT))
+            ->setRestrictions(new Restrictions(DIRECTORY_ROOT))
             ->onFiles(function (string $file) use (&$store) {
-                $files = File::new($file, PATH_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
+                $files = File::new($file, DIRECTORY_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
 
                 foreach ($files as $file) {
                     foreach ($file as $lines) {
@@ -723,7 +723,7 @@ class Config implements Interfaces\ConfigInterface
         $data = Strings::untilReverse($data, "\n") . "\n";
 
         Log::action(tr('Saving environment ":env"', [':env' => static::$environment]));
-        file_put_contents(PATH_ROOT . 'config/' . static::$environment . '.yaml', $data);
+        file_put_contents(DIRECTORY_ROOT . 'config/' . static::$environment . '.yaml', $data);
     }
 
 

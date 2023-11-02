@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-Git::new(PATH_ROOT)->commit($argv['message'], $argv['signed']);
+Git::new(DIRECTORY_ROOT)->commit($argv['message'], $argv['signed']);

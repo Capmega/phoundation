@@ -169,16 +169,16 @@ Class Log {
                 static::setThreshold($threshold);
             }
 
-            static::$restrictions = Restrictions::new(PATH_DATA . 'log/', true, 'Log');
-            static::setFile(Config::get('log.file', PATH_ROOT . 'data/log/syslog'));
+            static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
+            static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
         } catch (Throwable $e) {
             error_log(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
 
             // Likely configuration read failed. Just set defaults
-            static::$restrictions = Restrictions::new(PATH_DATA . 'log/', true, 'Log');
+            static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
-            static::setFile(PATH_ROOT . 'data/log/syslog');
+            static::setFile(DIRECTORY_ROOT . 'data/log/syslog');
             static::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
         }
 
@@ -345,7 +345,7 @@ Class Log {
 
             if ($file === null) {
                 // Default log file is always the syslog
-                $file = PATH_ROOT . 'data/log/syslog';
+                $file = DIRECTORY_ROOT . 'data/log/syslog';
             }
 
             // Open the specified log file
@@ -382,7 +382,7 @@ Class Log {
     {
         if ($file === null) {
             // Default log file is always the syslog
-            $file = PATH_ROOT . 'data/log/syslog';
+            $file = DIRECTORY_ROOT . 'data/log/syslog';
         }
 
         if (empty(static::$streams[$file])) {
@@ -1029,7 +1029,7 @@ Class Log {
         // Get the class, method, file and line data.
         $class    = Debug::currentClass($trace);
         $function = Debug::currentFunction($trace);
-        $file     = Strings::from(Debug::currentFile($trace), PATH_ROOT);
+        $file     = Strings::from(Debug::currentFile($trace), DIRECTORY_ROOT);
         $line     = Debug::currentLine($trace);
 
         if ($class) {

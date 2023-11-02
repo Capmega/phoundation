@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
 
 
 
-Git::new(PATH_ROOT)->rebase($argv['branch']);
+Git::new(DIRECTORY_ROOT)->rebase($argv['branch']);

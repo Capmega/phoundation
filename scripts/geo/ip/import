@@ -44,7 +44,7 @@ ARGUMENTS
 
 $argv = ArgvValidator::new()
     ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray(['maxmind', 'ip2location'])
-    ->select('-s,--source_path', true)->isOptional()->isDirectory(PATH_DATA)
+    ->select('-s,--source_path', true)->isOptional()->isDirectory(DIRECTORY_DATA)
     ->select('-t,--target_path', true)->isOptional()
     ->validate();
 
@@ -66,7 +66,7 @@ if ($argv['source_path']) {
 
 
 // Process the files
-$provider::process($path, $argv['target_path'], Restrictions::new([$path->getRestrictions(), PATH_DATA], true));
+$provider::process($path, $argv['target_path'], Restrictions::new([$path->getRestrictions(), DIRECTORY_DATA], true));
 
 Log::success(tr('Finished importing all GeoIP data for provider ":provider"', [
     ':provider' => $provider->getName()

@@ -39,7 +39,7 @@ abstract class Command extends ProcessCore implements CommandInterface
         parent::__construct($restrictions);
 
         // Ensure that the run files directory is available
-        Directory::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
+        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))->ensure();
 
         $this->setRestrictions($restrictions);
 

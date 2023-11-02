@@ -32,4 +32,4 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-Git::new(PATH_ROOT)->getBranches()->CliDisplayTable();
+Git::new(DIRECTORY_ROOT)->getBranches()->CliDisplayTable();

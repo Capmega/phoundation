@@ -133,9 +133,9 @@ show($array);
 //    ])->start();
 //
 //FilesystemCommands::local()->which('chmod');
-//FilesystemCommands::local()->chmod(PATH_ROOT . 'README.md', 0o440);
-//FilesystemCommands::local()->mkdir(PATH_ROOT . 'a/b/c/d/e', 0770,true);
-//FilesystemCommands::local()->mkdir(PATH_ROOT . 'a/b/c/d/e', 0770,true);
-//file_put_contents(PATH_ROOT . 'a/b/c/d/e/f', 'This the first test file');
-//FilesystemCommands::local()->delete(PATH_ROOT . 'a/b/e');
-//FilesystemCommands::local()->delete(PATH_ROOT . 'a/b/c', true, true);
+//FilesystemCommands::local()->chmod(DIRECTORY_ROOT . 'README.md', 0o440);
+//FilesystemCommands::local()->mkdir(DIRECTORY_ROOT . 'a/b/c/d/e', 0770,true);
+//FilesystemCommands::local()->mkdir(DIRECTORY_ROOT . 'a/b/c/d/e', 0770,true);
+//file_put_contents(DIRECTORY_ROOT . 'a/b/c/d/e/f', 'This the first test file');
+//FilesystemCommands::local()->delete(DIRECTORY_ROOT . 'a/b/e');
+//FilesystemCommands::local()->delete(DIRECTORY_ROOT . 'a/b/c', true, true);

@@ -86,19 +86,19 @@ class MaxMindImport extends GeoIpImport
     public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
     {
         // Determine what target path to use
-        $restrictions = $restrictions ?? Restrictions::new(PATH_DATA, true);
-        $target_path  = Config::getString('geo.ip.max-mind.path', PATH_DATA . 'sources/geoip/maxmind/', $target_path);
-        $target_path  = Filesystem::absolute($target_path, PATH_ROOT, false);
+        $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
+        $target_path  = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/', $target_path);
+        $target_path  = Filesystem::absolute($target_path, DIRECTORY_ROOT, false);
 
         Directory::new($target_path, $restrictions)->ensure();
         Log::action(tr('Processing GeoIP files and moving to path ":path"', [':path' => $target_path]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(PATH_DATA . 'garbage/maxmind', $restrictions->addPath(PATH_DATA . 'garbage/'))->delete();
+            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addPath(DIRECTORY_DATA . 'garbage/'))->delete();
             File::new($source_path . 'GeoLite2-*', $restrictions)->delete(false, false, false);
 
-            $previous = Directory::new($target_path, $restrictions)->move(PATH_DATA . 'garbage/');
+            $previous = Directory::new($target_path, $restrictions)->move(DIRECTORY_DATA . 'garbage/');
             $shas     = [];
 
             // Perform sha256 check on all files

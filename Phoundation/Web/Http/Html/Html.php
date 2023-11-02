@@ -1465,7 +1465,7 @@ Class Html
             try {
                 // Create the cached file names
                 $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
-                $file = PATH_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
+                $file = DIRECTORY_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 
                 log_file(tr('Creating externally cached javascript file ":file"', array(':file' => $file.'.js')), 'html-script', 'VERYVERBOSE/cyan');
 
@@ -1477,9 +1477,9 @@ Class Html
                         // The javascript file is empty
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        File::new(PATH_ROOT.'www/'.LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
-                            File::new($file.'.js,'.$file.'.min.js', 'ug+w', PATH_ROOT.'www/'.LANGUAGE.'/pub/js')->chmod();
-                            File::new($file.'.js,'.$file.'.min.js', PATH_ROOT.'www/'.LANGUAGE.'/pub/js')->delete();
+                        File::new(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
+                            File::new($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->chmod();
+                            File::new($file.'.js,'.$file.'.min.js', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->delete();
                         });
 
                     } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
@@ -1488,10 +1488,10 @@ Class Html
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        File::new()->executeMode(PATH_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
+                        File::new()->executeMode(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
                             file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
                                 'force_writable' => true,
-                                'restrictions'   => PATH_ROOT.'www/'.LANGUAGE.'/pub/js'));
+                                'restrictions'   => DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js'));
                         });
                     }
                 }
@@ -1764,10 +1764,10 @@ Class Html
                 $external  = false;
 
                 if (substr($file_part, 0, 5) === '/pub/') {
-                    $file_src = PATH_ROOT.'www/'.LANGUAGE.$file_part;
+                    $file_src = DIRECTORY_ROOT.'www/'.LANGUAGE.$file_part;
 
                 } else {
-                    $file_src = PATH_ROOT.'data/content'.$file_part;
+                    $file_src = DIRECTORY_ROOT.'data/content'.$file_part;
                 }
 
             } elseif (str_contains($src, domain(''))) {
@@ -1775,7 +1775,7 @@ Class Html
                  * Here, mistakenly, the main domain was used for CDN data
                  */
                 $file_part = Strings::startsWith(Strings::from($src, domain('')), '/');
-                $file_src  = PATH_ROOT.'data/content'.$file_part;
+                $file_src  = DIRECTORY_ROOT.'data/content'.$file_part;
                 $external  = false;
 
                 Notification(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
@@ -1790,7 +1790,7 @@ Class Html
              * Assume all images are PUB images
              */
             $file_part = '/pub'.Strings::startsWith($src, '/');
-            $file_src  = PATH_ROOT.'www/'.LANGUAGE.$file_part;
+            $file_src  = DIRECTORY_ROOT.'www/'.LANGUAGE.$file_part;
             $src       = cdn_domain($src, $section);
         }
 
@@ -1996,8 +1996,8 @@ Class Html
                      * Image comes from a domain, fetch to temp directory to analize
                      */
                     try {
-                        $file  = file_move_to_target($file_src, PATH_TMP, false, true);
-                        $image = getimagesize(PATH_TMP.$file);
+                        $file  = file_move_to_target($file_src, DIRECTORY_TMP, false, true);
+                        $image = getimagesize(DIRECTORY_TMP.$file);
 
                     } catch (Throwable $e) {
                         switch ($e->getCode()) {
@@ -2027,7 +2027,7 @@ Class Html
                     }
 
                     if (!empty($file)) {
-                        file_delete(PATH_TMP.$file);
+                        file_delete(DIRECTORY_TMP.$file);
                     }
 
                 } else {
@@ -2266,14 +2266,14 @@ Class Html
             if (empty($core->register['lazy_img'])) {
                 // Use lazy image loading
                 try {
-                    if (!file_exists(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
+                    if (!file_exists(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
                         // jquery.lazy is not available, auto install it.
                         $file = File::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $path = cli_unzip($file);
 
-                        File::new()->executeMode(PATH_ROOT.'www/en/pub/js', 0770, function() use ($path) {
-                            File::delete(PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/');
-                            rename($path.'jquery.lazy-master/', PATH_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
+                        File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($path) {
+                            File::delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
+                            rename($path.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
 
                         file_delete($path);
@@ -2436,7 +2436,7 @@ Class Html
             /*
              * This is a local video
              */
-            $params['src']  = PATH_ROOT.'www/en'.Strings::startsWith($params['src'], '/');
+            $params['src']  = DIRECTORY_ROOT.'www/en'.Strings::startsWith($params['src'], '/');
             $params['type'] = mime_content_type($params['src']);
 
         } else {
@@ -2444,7 +2444,7 @@ Class Html
                 /*
                  * This is a local video with domain specification
                  */
-                $params['src']  = PATH_ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
+                $params['src']  = DIRECTORY_ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
             } elseif (!Debug::production()) {

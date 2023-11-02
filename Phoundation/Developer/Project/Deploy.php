@@ -137,7 +137,7 @@ class Deploy implements DeployInterface
 
             if ($env_config['bom_check']) {
                 Log::action(tr('Executing BOM check'));
-//                BomPath::new(PATH_ROOT, PATH_ROOT)->clearBom();
+//                BomPath::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
             }
 
             static::executeHook('post-bom-check,pre-test-syntax');
@@ -229,7 +229,7 @@ class Deploy implements DeployInterface
 //            foreach (Translations::getLanguages() as $language)
 
             // Add the project directory to the rsync_target
-            $project = Strings::fromReverse(Strings::endsNotWith(PATH_ROOT, '/'), '/');
+            $project = Strings::fromReverse(Strings::endsNotWith(DIRECTORY_ROOT, '/'), '/');
 
             // Execute rsync
             Log::action(tr('Executing rsync to target ":target"', [
@@ -252,7 +252,7 @@ class Deploy implements DeployInterface
                 ->setCompress(true)
                 ->setRemoteSudo($env_config['server']['sudo'])
                 ->setPort($env_config['server']['port'])
-                ->setSource(PATH_ROOT)
+                ->setSource(DIRECTORY_ROOT)
                 ->setTarget(Strings::endsWith($rsync_target, '/') . $project)
                 ->addExclude('.git')
                 ->addExclude('.gitignore')
@@ -372,7 +372,7 @@ class Deploy implements DeployInterface
 
         try {
             if (!Config::environmentExists('deploy/' . $environment)) {
-                throw new DeployException(tr('The specified environment ":environment" has no configuration file available in PATH_ROOT/config/deploy/', [
+                throw new DeployException(tr('The specified environment ":environment" has no configuration file available in DIRECTORY_ROOT/config/deploy/', [
                     ':environment' => $environment
                 ]));
             }

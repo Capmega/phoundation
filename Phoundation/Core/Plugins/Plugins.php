@@ -141,7 +141,7 @@ class Plugins extends DataList implements PluginsInterface
             try {
                 if ($plugin['enabled']) {
                     Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
-                    include_once(PATH_ROOT . $plugin['path'] . 'Plugin.php');
+                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Plugin.php');
                     $plugin['class']::start();
                 }
 
@@ -279,14 +279,14 @@ class Plugins extends DataList implements PluginsInterface
 
 
     /**
-     * Purges all plugins from the PATH_ROOT/Plugins path
+     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
      *
      * @return static
      */
     public function purge(): static
     {
         // Delete all plugins from disk
-        $path = PATH_ROOT . 'Plugins/';
+        $path = DIRECTORY_ROOT . 'Plugins/';
 
         File::new($path)->delete();
         Directory::new($path)->ensure();
@@ -302,7 +302,7 @@ class Plugins extends DataList implements PluginsInterface
      */
     protected static function scanPlugins(): array
     {
-        $path    = PATH_ROOT . 'Plugins/';
+        $path    = DIRECTORY_ROOT . 'Plugins/';
         $return  = [];
         $plugins = scandir($path);
 

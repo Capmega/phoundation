@@ -24,13 +24,13 @@ Documentation::help('This script can build docker images');
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-p,--path', true)->isOptional(PATH_ROOT)->isFile()
+    ->select('-p,--path', true)->isOptional(DIRECTORY_ROOT)->isFile()
     ->select('-i,--image', true)->isOptional(strtolower(PROJECT) . '-default')->matchesRegex('/^[a-z-]+$/')
     ->validate();
 
 
 // Build the docker image
 DockerFile::new($argv['image'], $argv['path'])
-    ->setRestrictions(PATH_ROOT, true)
+    ->setRestrictions(DIRECTORY_ROOT, true)
     ->writeConfig()
     ->build();

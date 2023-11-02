@@ -38,17 +38,17 @@ class Libraries
     /**
      * The constant indicating the path for Phoundation libraries
      */
-    const CLASS_PATH_SYSTEM  = PATH_ROOT . 'Phoundation/';
+    const CLASS_DIRECTORY_SYSTEM  = DIRECTORY_ROOT . 'Phoundation/';
 
     /**
      * The constant indicating the path for Plugin libraries
      */
-    const CLASS_PATH_PLUGINS = PATH_ROOT . 'Plugins/';
+    const CLASS_DIRECTORY_PLUGINS = DIRECTORY_ROOT . 'Plugins/';
 
     /**
      * The constant indicating the path for Template libraries
      */
-    const CLASS_PATH_TEMPLATES = PATH_ROOT . 'Templates/';
+    const CLASS_DIRECTORY_TEMPLATES = DIRECTORY_ROOT . 'Templates/';
 
     /**
      * If true, this system is in initialization mode
@@ -178,28 +178,28 @@ class Libraries
 
         // List system libraries
         if ($system) {
-            $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_SYSTEM));
+            $return = array_merge($return, static::listLibraryPaths(static::CLASS_DIRECTORY_SYSTEM));
         }
 
         // List plugin libraries
         if ($plugins) {
             try {
-                $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_PLUGINS));
+                $return = array_merge($return, static::listLibraryPaths(static::CLASS_DIRECTORY_PLUGINS));
 
             } catch (NotExistsException $e) {
                 // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_PATH_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_DIRECTORY_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
         // List templates libraries
         if ($templates) {
             try {
-                $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_TEMPLATES));
+                $return = array_merge($return, static::listLibraryPaths(static::CLASS_DIRECTORY_TEMPLATES));
 
             } catch (NotExistsException $e) {
                 // The templates path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_PATH_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_DIRECTORY_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
@@ -235,15 +235,15 @@ class Libraries
         $paths  = [];
 
         if ($system) {
-            $paths[] = static::CLASS_PATH_SYSTEM;
+            $paths[] = static::CLASS_DIRECTORY_SYSTEM;
         }
 
         if ($plugin) {
-            $paths[] = static::CLASS_PATH_PLUGINS;
+            $paths[] = static::CLASS_DIRECTORY_PLUGINS;
         }
 
         if ($template) {
-            $paths[] = static::CLASS_PATH_TEMPLATES;
+            $paths[] = static::CLASS_DIRECTORY_TEMPLATES;
         }
 
         if (empty($paths)) {
@@ -294,19 +294,19 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = Directory::new(LIBRARIES::CLASS_PATH_SYSTEM, [LIBRARIES::CLASS_PATH_SYSTEM])->getPhpStatistics(true);
+            $return['system'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, [LIBRARIES::CLASS_DIRECTORY_SYSTEM])->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = Directory::new(LIBRARIES::CLASS_PATH_PLUGINS, [LIBRARIES::CLASS_PATH_PLUGINS])->getPhpStatistics(true);
+            $return['plugins'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, [LIBRARIES::CLASS_DIRECTORY_PLUGINS])->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = Directory::new(LIBRARIES::CLASS_PATH_TEMPLATES, [LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+            $return['templates'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, [LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 

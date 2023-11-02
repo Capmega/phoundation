@@ -43,7 +43,7 @@ class DockerFile
      * @param string $image
      * @param string $path
      */
-    public function __construct(string $image, string $path = PATH_ROOT)
+    public function __construct(string $image, string $path = DIRECTORY_ROOT)
     {
         if (!$image) {
             throw new OutOfBoundsException(tr('No docker image specified'));
@@ -61,7 +61,7 @@ class DockerFile
      * @param string $path
      * @return static
      */
-    public static function new(string $image, string $path = PATH_ROOT): static
+    public static function new(string $image, string $path = DIRECTORY_ROOT): static
     {
         return new static($image, $path);
     }

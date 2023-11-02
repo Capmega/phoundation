@@ -133,7 +133,7 @@ class StatusFile
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-//            File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+//            File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
             }
 
             return $this;

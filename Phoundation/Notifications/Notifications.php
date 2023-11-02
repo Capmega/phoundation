@@ -248,7 +248,7 @@ class Notifications extends DataList implements NotificationsInterface
      */
     public function autoUpdate(): static
     {
-        Audio::new(PATH_CDN . '/audio/ping.mp3')->playRemote('notification');
+        Audio::new(DIRECTORY_CDN . '/audio/ping.mp3')->playRemote('notification');
 
         Script::new()
             ->setJavascriptWrapper(null)

@@ -120,7 +120,7 @@ abstract class Import
 //    protected function findImports(): array
 //    {
 //        $return = [];
-//        $files  = Command::find(PATH_ROOT, 'Import.php');
+//        $files  = Command::find(DIRECTORY_ROOT, 'Import.php');
 //
 //        foreach ($files as $file) {
 //            // Include the file

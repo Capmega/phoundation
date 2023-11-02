@@ -41,8 +41,8 @@ ARGUMENTS
 Documentation::autoComplete([
     'arguments' => [
         '--file' => [
-            'word'   => function ($word) { return Directory::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
-            'noword' => function ()      { return Directory::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
+            'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
+            'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
         ],
         '--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
@@ -58,7 +58,7 @@ Documentation::autoComplete([
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--file'    , true)->isFile(PATH_DATA . 'sources/', PATH_DATA . 'sources/')
+    ->select('-f,--file'    , true)->isFile(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
     ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database', true)->isVariable()
     ->select('--no-drop')->isOptional(false)->isBoolean()

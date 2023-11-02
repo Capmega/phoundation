@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
 
 
 
-Git::new(PATH_ROOT)->merge($argv['branch']);
+Git::new(DIRECTORY_ROOT)->merge($argv['branch']);

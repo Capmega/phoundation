@@ -744,7 +744,7 @@ class Directory extends FileBasics implements DirectoryInterface
         if ($public) {
             // Return public temp path
             if (!static::$temp_path_public) {
-                static::$temp_path_public = static::new(PATH_PUBTMP . Session::getUUID(), Restrictions::new(PATH_PUBTMP, true, 'base public temporary path'))
+                static::$temp_path_public = static::new(DIRECTORY_PUBTMP . Session::getUUID(), Restrictions::new(DIRECTORY_PUBTMP, true, 'base public temporary path'))
                     ->delete()
                     ->ensure();
 
@@ -757,7 +757,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
         if (!static::$temp_path_private) {
             // Return private temp path
-            static::$temp_path_private = static::new(PATH_TMP . Session::getUUID(), Restrictions::new(PATH_TMP, true, 'base private temporary path'))
+            static::$temp_path_private = static::new(DIRECTORY_TMP . Session::getUUID(), Restrictions::new(DIRECTORY_TMP, true, 'base private temporary path'))
                 ->delete()
                 ->ensure();
 
@@ -781,20 +781,20 @@ class Directory extends FileBasics implements DirectoryInterface
             $action = false;
 
             if (static::$temp_path_private) {
-                File::new(static::$temp_path_private, Restrictions::new(PATH_TMP, true))->delete();
+                File::new(static::$temp_path_private, Restrictions::new(DIRECTORY_TMP, true))->delete();
                 $action = true;
             }
 
             if (static::$temp_path_public) {
-                File::new(static::$temp_path_public, Restrictions::new(PATH_PUBTMP, true))->delete();
+                File::new(static::$temp_path_public, Restrictions::new(DIRECTORY_PUBTMP, true))->delete();
                 $action = true;
             }
 
             return $action;
 
         }, tr('Cleaned up temporary directories ":private, :public"', [
-            ':private' => Strings::from(static::$temp_path_private, PATH_ROOT),
-            ':public'  => Strings::from(static::$temp_path_public, PATH_ROOT)
+            ':private' => Strings::from(static::$temp_path_private, DIRECTORY_ROOT),
+            ':public'  => Strings::from(static::$temp_path_public, DIRECTORY_ROOT)
         ]));
     }
 

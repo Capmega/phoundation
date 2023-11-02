@@ -10,7 +10,7 @@ use Stringable;
 /**
  * Class Mtime
  *
- * This class can check if specified files have an mtime equal to PATH_DATA/system/mtime and indicate if they have
+ * This class can check if specified files have an mtime equal to DIRECTORY_DATA/system/mtime and indicate if they have
  * changed since or not. This can be used for caching purposes to speed up certain processes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -32,7 +32,7 @@ class Mtime
      *
      * @var string $path
      */
-    protected static string $path = PATH_DATA . 'system/mtime/';
+    protected static string $path = DIRECTORY_DATA . 'system/mtime/';
 
 
     /**

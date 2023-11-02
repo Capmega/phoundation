@@ -50,7 +50,7 @@ $argv = ArgvValidator::new()
     ->select('--test')->isOptional(false)->isBoolean()
     ->select('--no-mtime')->isOptional(false)->isBoolean()
     ->select('--cache-mtime', true)->isOptional()->isDateTime()
-    ->select('file')->isFile(PATH_ROOT, PATH_ROOT)
+    ->select('file')->isFile(DIRECTORY_ROOT, DIRECTORY_ROOT)
     ->validate();
 
 

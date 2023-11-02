@@ -130,7 +130,7 @@ interface CurlInterface
      * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path, string $restrictions = PATH_DATA . 'log/'): static;
+    public function setLogPath(string $log_path, string $restrictions = DIRECTORY_DATA . 'log/'): static;
 
     /**
      * Returns the amount of retries executed for this request

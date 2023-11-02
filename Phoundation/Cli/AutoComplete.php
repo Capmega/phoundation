@@ -38,8 +38,8 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  *     ],
  *     'arguments' => [
  *         '--file' => [
- *             'word'   => function ($word) { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir($word . '*.csv'); },
- *             'noword' => function ()      { return Path::new(PATH_DATA . 'sources/', PATH_DATA . 'sources/')->scandir('*.csv'); },
+ *             'word'   => function ($word) { return Path::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir($word . '*.csv'); },
+ *             'noword' => function ()      { return Path::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir('*.csv'); },
  *         ],
  *         '--user' => [
  *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'), $word); },
@@ -353,12 +353,12 @@ class AutoComplete
         static::$script = $script;
 
         // Update the location to the first argument (argument 0) after the script
-        $script = Strings::from(static::$script, PATH_ROOT . 'scripts/');
+        $script = Strings::from(static::$script, DIRECTORY_ROOT . 'scripts/');
         $script = explode('/', $script);
 
         static::$position = static::$position - count($script);
 
-        return !empty(File::new(static::$script, PATH_ROOT . 'scripts/')->grep(['Documentation::autoComplete('], 100));
+        return !empty(File::new(static::$script, DIRECTORY_ROOT . 'scripts/')->grep(['Documentation::autoComplete('], 100));
     }
 
 

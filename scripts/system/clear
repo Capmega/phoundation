@@ -68,14 +68,14 @@ if ($argv['date']) {
 
 } else {
     if ($argv['shred']) {
-        File::new(PATH_DATA . 'tmp', Restrictions::new(PATH_DATA, true))->shred();
-        File::new(PATH_DATA . 'content/cdn/tmp', Restrictions::new(PATH_DATA, true))->shred();
-        File::new(PATH_DATA . 'cache', Restrictions::new(PATH_DATA, true))->shred();
+        File::new(DIRECTORY_DATA . 'tmp', Restrictions::new(DIRECTORY_DATA, true))->shred();
+        File::new(DIRECTORY_DATA . 'content/cdn/tmp', Restrictions::new(DIRECTORY_DATA, true))->shred();
+        File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->shred();
 
     } else {
-        File::new(PATH_DATA . 'tmp', Restrictions::new(PATH_DATA, true))->delete();
-        File::new(PATH_DATA . 'content/cdn/tmp', Restrictions::new(PATH_DATA, true))->delete();
-        File::new(PATH_DATA . 'cache', Restrictions::new(PATH_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'tmp', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'content/cdn/tmp', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->delete();
     }
 }
 

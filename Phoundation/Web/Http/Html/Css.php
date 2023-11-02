@@ -114,21 +114,21 @@ class Css
     public static function purge(string $html_file, string $css_file): string
     {
         //$purged_css      = 'p-'.$css;
-        //$purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        //$css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        //$purged_css_file = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        //$css_file        = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
         //
-        //safe_exec(array('commands' => array('cd' , array(PATH_ROOT.'libs/vendor/purge-css/src/'),
-        //                                    'php', array(PATH_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
+        //safe_exec(array('commands' => array('cd' , array(DIRECTORY_ROOT.'libs/vendor/purge-css/src/'),
+        //                                    'php', array(DIRECTORY_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
         //return $purged_css;
 
         $purged_css      = 'p-' . $css_file;
-        $purged_css_file = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        $css_file        = PATH_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        $arguments       = array('--css', $css_file, '--content', $html, '--out', PATH_TMP);
+        $purged_css_file = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        $css_file        = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+        $arguments       = array('--css', $css_file, '--content', $html, '--out', DIRECTORY_TMP);
 
         // Ensure that any previous version is deleted
         File::new($purged_css_file)->delete();
-        File::new(PATH_WWW . LANGUAGE . '/pub/css')->delete();
+        File::new(DIRECTORY_WWW . LANGUAGE . '/pub/css')->delete();
 
         // Add list of selectors that should be whitelisted
         if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
@@ -155,7 +155,7 @@ class Css
         // Purge CSS
         load_libs('node');
         node_exec('./purgecss', $arguments);
-        rename(PATH_TMP.basename($css_file), $purged_css_file);
+        rename(DIRECTORY_TMP.basename($css_file), $purged_css_file);
 
         return $purged_css;
     }

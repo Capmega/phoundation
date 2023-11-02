@@ -139,7 +139,7 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                File::new($this->cookie_file, PATH_DATA . 'curl/')->delete();
+                File::new($this->cookie_file, DIRECTORY_DATA . 'curl/')->delete();
             }
 
             unset($this->cookie_file);

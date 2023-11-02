@@ -2236,19 +2236,19 @@ class Sql implements SqlInterface
                         $registered = ssh_host_is_known($restrictions['hostname'], $restrictions['port']);
 
                         if ($registered === false) {
-                            throw new SqlException(tr('Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the PATH_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', [
+                            throw new SqlException(tr('Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the DIRECTORY_ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', [
                                 ':hostname' => $this->configuration['ssh_tunnel']['domain']
                             ]), $e);
                         }
 
                         if ($registered === true) {
-                            throw new SqlException(tr('Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the PATH_ROOT/data/ssh/known_hosts file.', [
+                            throw new SqlException(tr('Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the DIRECTORY_ROOT/data/ssh/known_hosts file.', [
                                 ':hostname' => $this->configuration['ssh_tunnel']['domain'],
                                 ':port'     => $this->configuration['port']
                             ]), $e);
                         }
 
-                        // The server was not registerd in the PATH_ROOT/data/ssh/known_hosts file, but was registered in the
+                        // The server was not registerd in the DIRECTORY_ROOT/data/ssh/known_hosts file, but was registered in the
                         // ssh_fingerprints table, and automatically updated. Retry to connect
                         $this->connect();
                         return;

@@ -52,8 +52,8 @@ class MySql extends Command
     public function import(string $instance, string $file, bool $drop, int $timeout = 3600): void
     {
         //
-        $file         = Filesystem::absolute($file, PATH_DATA . 'sources/');
-        $restrictions = Restrictions::new(PATH_DATA . 'sources/', false, 'Mysql importer');
+        $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
+        $restrictions = Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer');
         $threshold    = Log::setThreshold(3);
         $config       = Config::getArray('databases.sql.instances.' . $instance);
 

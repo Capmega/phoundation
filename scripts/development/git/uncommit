@@ -32,4 +32,4 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-Git::new(PATH_ROOT)->reset('HEAD^');
+Git::new(DIRECTORY_ROOT)->reset('HEAD^');
