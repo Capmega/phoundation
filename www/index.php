@@ -117,7 +117,7 @@ Route::getParameters()
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
         ->setTemplate(AdminLte::class)
-        ->setRootPath('pages/')
+        ->setRootDirectory('pages/')
         ->setSystemPagesOnly(true));
 
 
