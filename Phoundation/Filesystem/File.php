@@ -314,26 +314,78 @@ class File extends FileBasics implements FileInterface
     /**
      * Return line count for the specified text file
      *
+     * @note files < $buffer (default 1MB) will be loaded completely in memory, anything bigger than that will read
+     *       line by line
+     *
      * @param string $source
+     * @param int $buffer
      * @return int
      */
-    public function getLineCount(string $source): int
+    public function getLineCount(string $source, int $buffer = 1048576): int
     {
-        throw new UnderConstructionException();
-        $this->isText($source);
+        $this->ensureClosed('getLineCount')->ensureText('getLineCount');
+
+        if ($this->getSize() < $buffer) {
+            return count($this->getContentsAsArray()) - 1;
+        }
+
+        $count = 0;
+        $this->open(EnumFileOpenMode::readOnly);
+
+        while ($this->readLine()) {
+            $count++;
+        }
+
+        $this->close();
+        return $count;
     }
 
 
     /**
      * Return word count for the specified text file
      *
-     * @param string $source
-     * @return int
+     * @note files < $buffer (default 1MB) will be loaded completely in memory, anything bigger than that will read
+     *        line by line
+     *
+     * @param int $format
+     * @param string|null $characters
+     * @param int $buffer
+     * @return array|int
      */
-    public function getWordCount(string $source): int
+    public function getWordCount(int $format = 0, ?string $characters = null, int $buffer = 1048576): array|int
     {
-        throw new UnderConstructionException();
-        $this->isText($source);
+        $this->ensureClosed('getWordCount')->ensureText('getWordCount');
+        $count = 0;
+
+        if ($this->getSize() < $buffer) {
+            foreach ($this->getContentsAsArray() as $line) {
+                $count += str_word_count($line, $format, $characters);
+            }
+
+        } else {
+            $this->open(EnumFileOpenMode::readOnly);
+
+            while ($line = $this->readLine()) {
+                $count += str_word_count($line, $format, $characters);
+            }
+
+            $this->close();
+        }
+
+        return $count;
+    }
+
+
+    /**
+     * Return word frequency for the specified text file
+     *
+     * @param string|null $characters
+     * @param int $buffer
+     * @return array
+     */
+    public function getWordFrequency(?string $characters = null, int $buffer = 1048576): array
+    {
+        return array_count_values($this->getWordCount(1, $characters, $buffer));
     }
 
 

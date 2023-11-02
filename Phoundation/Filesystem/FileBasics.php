@@ -25,6 +25,7 @@ use Phoundation\Filesystem\Exception\FileRenameException;
 use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FileTruncateException;
+use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
@@ -1549,9 +1550,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      *
      * @param int|null $buffer
      * @param int|null $seek
-     * @return string
+     * @return string|false
      */
-    public function read(?int $buffer = null, ?int $seek = null): string
+    public function read(?int $buffer = null, ?int $seek = null): string|false
     {
         $this->ensureOpen('read');
 
@@ -1563,7 +1564,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         $data = fread($this->stream, $buffer);
 
         if ($data === false) {
-            return $this->processReadFailure('data', '');
+            return $this->processReadFailure('data', false);
         }
 
         return $data;
@@ -1574,9 +1575,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Reads and returns the next text line in this file
      *
      * @param int|null $buffer
-     * @return string
+     * @return string|false
      */
-    public function readLine(?int $buffer = null): string
+    public function readLine(?int $buffer = null): string|false
     {
         $this->ensureOpen('read');
 
@@ -1587,7 +1588,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         $data = fgets($this->stream, $buffer);
 
         if ($data === false) {
-            return $this->processReadFailure('line', '');
+            return $this->processReadFailure('line', false);
         }
 
         return $data;
@@ -1601,16 +1602,16 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @param string $separator
      * @param string $enclosure
      * @param string $escape
-     * @return array
+     * @return array|false
      */
-    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array
+    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false
     {
         $this->ensureOpen('read');
 
         $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
 
         if ($data === false) {
-            return $this->processReadFailure('CSV', []);
+            return $this->processReadFailure('CSV', false);
         }
 
         return $data;
@@ -1620,16 +1621,16 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Reads and returns a single character from the current file pointer
      *
-     * @return string
+     * @return string|false
      */
-    public function readCharacter(): string
+    public function readCharacter(): string|false
     {
         $this->ensureOpen('read');
 
         $data = fgetc($this->stream);
 
         if ($data === false) {
-            return $this->processReadFailure('character', '');
+            return $this->processReadFailure('character', false);
         }
 
         return $data;
@@ -1642,14 +1643,18 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @note Will throw an exception if the file is already open
      * @param int $length
      * @param int $start
-     * @return string
+     * @return string|false
      */
-    public function readBytes(int $length, int $start = 0): string
+    public function readBytes(int $length, int $start = 0): string|false
     {
         $data = $this
             ->ensureClosed('readBytes')
             ->open(EnumFileOpenMode::readOnly)
             ->read($start + $length);
+
+        if ($data === false) {
+            return $this->processReadFailure('character', false);
+        }
 
         $data = substr($data, $start);
         $this->close();
@@ -1999,6 +2004,24 @@ throw new UnderConstructionException();
 
 
     /**
+     * Throws an exception if the file is not a text file
+     *
+     * @throws FileOpenException
+     */
+    protected function ensureText(string $method): static
+    {
+        if ($this->isText()) {
+            throw new FileTypeNotSupportedException(tr('Cannot execute method ":method()" on file ":file", it is not a text file', [
+                ':file'   => $this->file,
+                ':method' => $method
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Throws an exception if the file is not open
      *
      * @param string $method
@@ -2045,11 +2068,11 @@ throw new UnderConstructionException();
      * Determines what exception to throw for a read failure
      *
      * @param string $type
-     * @param array|string|null $data
+     * @param array|string|false|null $data
      * @param bool $test_feof If false will skip FEOF test
      * @return array|string|null
      */
-    protected function processReadFailure(string $type, array|string|null $data, bool $test_feof = true): array|string|null
+    protected function processReadFailure(string $type, array|string|false|null $data, bool $test_feof = true): array|string|null
     {
         // FEOF errors are only checked if we didn't try to read full file contents
         if ($test_feof and $this->isEof()) {

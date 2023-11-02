@@ -444,17 +444,17 @@ interface FileBasicsInterface
      *
      * @param int|null $buffer
      * @param int|null $seek
-     * @return string
+     * @return string|false
      */
-    public function read(?int $buffer = null, ?int $seek = null): string;
+    public function read(?int $buffer = null, ?int $seek = null): string|false;
 
     /**
      * Reads and returns the next text line in this file
      *
      * @param int|null $buffer
-     * @return string
+     * @return string|false
      */
-    public function readLine(?int $buffer = null): string;
+    public function readLine(?int $buffer = null): string|false;
 
     /**
      * Reads line from file pointer and parse for CSV fields
@@ -463,16 +463,16 @@ interface FileBasicsInterface
      * @param string $separator
      * @param string $enclosure
      * @param string $escape
-     * @return array
+     * @return array|false
      */
-    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array;
+    public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false;
 
     /**
      * Reads and returns a single character from the current file pointer
      *
-     * @return string
+     * @return string|false
      */
-    public function readCharacter(): string;
+    public function readCharacter(): string|false;
 
     /**
      * Reads and returns the specified amount of bytes at the specified location from this CLOSED file
@@ -480,9 +480,9 @@ interface FileBasicsInterface
      * @note Will throw an exception if the file is already open
      * @param int $length
      * @param int $start
-     * @return string
+     * @return string|false
      */
-    public function readBytes(int $length, int $start = 0): string;
+    public function readBytes(int $length, int $start = 0): string|false;
 
     /**
      * Binary-safe write the specified data to this file

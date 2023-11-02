@@ -129,15 +129,26 @@ interface FileInterface extends FileBasicsInterface
      * @param string $source
      * @return int
      */
-    public function getLineCount(string $source): int;
+    public function getLineCount(string $source, int $buffer = 1048576): int;
 
     /**
      * Return word count for the specified text file
      *
-     * @param string $source
-     * @return int
+     * @param int $format
+     * @param string|null $characters
+     * @param int $buffer
+     * @return array|int
      */
-    public function getWordCount(string $source): int;
+    public function getWordCount(int $format = 0, ?string $characters = null, int $buffer = 1048576): array|int;
+
+    /**
+     * Return word frequency for the specified text file
+     *
+     * @param string|null $characters
+     * @param int $buffer
+     * @return array
+     */
+    public function getWordFrequency(?string $characters = null, int $buffer = 1048576): array;
 
     /**
      * Returns true if any part of the object file path is a symlink
