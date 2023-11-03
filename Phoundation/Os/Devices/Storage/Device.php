@@ -54,11 +54,11 @@ class Device extends File implements DeviceInterface
      */
     protected function checkDeviceFile(): void
     {
-        $this->file = Strings::startsWith($this->file, '/dev/');
+        $this->path = Strings::startsWith($this->path, '/dev/');
 
-        if (!Lsblk::new()->isStorageDevice($this->file)) {
+        if (!Lsblk::new()->isStorageDevice($this->path)) {
             throw new StorageException(tr('Specified device ":device" is not a storage device', [
-                ':device' => $this->file
+                ':device' => $this->path
             ]));
         }
     }
@@ -71,7 +71,7 @@ class Device extends File implements DeviceInterface
      */
     public function isMounted(): bool
     {
-        return Mount::new()->deviceIsMounted($this->file);
+        return Mount::new()->deviceIsMounted($this->path);
     }
 
 
@@ -82,7 +82,7 @@ class Device extends File implements DeviceInterface
      */
     public function checkMounted(): static
     {
-        if (!$this->isMounted($this->file)) {
+        if (!$this->isMounted($this->path)) {
             throw StorageException::new(tr('The device is not mounted'));
         }
 
@@ -97,7 +97,7 @@ class Device extends File implements DeviceInterface
      */
     public function checkUnmounted(): static
     {
-        if ($this->isMounted($this->file)) {
+        if ($this->isMounted($this->path)) {
             throw StorageException::new(tr('The device is mounted'));
         }
 
@@ -118,7 +118,7 @@ class Device extends File implements DeviceInterface
             ->setSudo(true)
             ->setAcceptedExitCodes([0, 1]) // Accept 1 if the DD process stopped due to disk full, which is expected
             ->setTimeout(0)
-            ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'status=progress'])
+            ->addArguments(['if=/dev/urandom', 'of=' . $this->path, 'bs=4096', 'status=progress'])
             ->execute(EnumExecuteMethod::passthru);
 
         return $this;

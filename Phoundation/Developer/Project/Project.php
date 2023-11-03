@@ -231,7 +231,7 @@ class Project implements ProjectInterface
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = Directory::new($directory, $this->restrictions)->checkReadable()->getFile();
+        $directory = Directory::new($directory, $this->restrictions)->checkReadable()->getPath();
 
         // All these files and directories must be available.
         $files = [

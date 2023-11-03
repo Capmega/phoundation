@@ -187,7 +187,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
             if (is_string($image)) {
                 // image was specified as a string, make an image object
                 $image = Image::new()
-                    ->setFile($image)
+                    ->setPath($image)
                     ->setDescription($image);
             }
         }

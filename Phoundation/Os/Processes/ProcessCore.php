@@ -249,7 +249,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executePassthru(): bool
     {
-        $output_file = Filesystem::createTempFile(false)->getFile();
+        $output_file = Filesystem::createTempFile(false)->getPath();
 
         $commands = $this->getFullCommandLine();
         $commands = Strings::endsNotWith($commands, ';');

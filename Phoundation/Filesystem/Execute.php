@@ -338,14 +338,14 @@ class Execute extends Directory implements ExecuteInterface
      */
     public function onDirectoryOnly(callable $callback): void
     {
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
-        foreach (Arrays::force($this->file, '') as $this->file) {
+        foreach (Arrays::force($this->path, '') as $this->path) {
             // Get al files in this directory
-            $this->file = Filesystem::absolute($this->file);
+            $this->path = Filesystem::absolute($this->path);
 
             // Skip this directory
-            if ($this->skip($this->file)) {
+            if ($this->skip($this->path)) {
                 continue;
             }
 
@@ -354,10 +354,10 @@ class Execute extends Directory implements ExecuteInterface
             }
 
             Log::action(tr('Executing callback function on directory ":directory"', [
-                ':directory' => $this->file
+                ':directory' => $this->path
             ]), 2);
 
-            $callback($this->file);
+            $callback($this->path);
 
             // Return original file mode
             if (isset($mode)) {
@@ -379,10 +379,10 @@ class Execute extends Directory implements ExecuteInterface
         $files = [];
 
         // Get al files in this directory
-        $this->file = Filesystem::absolute($this->file);
+        $this->path = Filesystem::absolute($this->path);
 
         // Skip this directory?
-        if ($this->skip($this->file)) {
+        if ($this->skip($this->path)) {
             return 0;
         }
 
@@ -392,9 +392,9 @@ class Execute extends Directory implements ExecuteInterface
         }
 
         try {
-            $files = scandir($this->file);
+            $files = scandir($this->path);
         } catch (Exception $e) {
-            Directory::new($this->file, $this->restrictions)->checkReadable(previous_e: $e);
+            Directory::new($this->path, $this->restrictions)->checkReadable(previous_e: $e);
         }
 
         foreach ($files as $file) {
@@ -406,7 +406,7 @@ class Execute extends Directory implements ExecuteInterface
             if ($file[0] === '.') {
                 if (!$this->follow_hidden) {
                     Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
-                        ':directory' => $this->file . $file
+                        ':directory' => $this->path . $file
                     ]), 2);
                 }
             }
@@ -414,12 +414,12 @@ class Execute extends Directory implements ExecuteInterface
             if (is_link($file)) {
                 if (!$this->follow_symlinks) {
                     Log::warning(tr('Not following directory ":directory", symlinks are ignored', [
-                        ':directory' => $this->file . $file
+                        ':directory' => $this->path . $file
                     ]), 2);
                 }
             }
 
-            if (is_dir($this->file . $file)) {
+            if (is_dir($this->path . $file)) {
                 // Directory! Recurse?
                 if (!$this->recurse) {
                     continue;
@@ -428,10 +428,10 @@ class Execute extends Directory implements ExecuteInterface
                 $recurse = clone $this;
 
                 $count += $recurse
-                    ->setFile($this->file . $file)
+                    ->setPath($this->path . $file)
                     ->onFiles($callback);
 
-            } elseif (file_exists($this->file . $file)) {
+            } elseif (file_exists($this->path . $file)) {
                 // Execute the callback
                 $count++;
                 $extension = Filesystem::getExtension($file);
@@ -440,7 +440,7 @@ class Execute extends Directory implements ExecuteInterface
                     // Extension MUST be on this list
                     if (!array_key_exists($extension, $this->whitelist_extensions)) {
                         Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
-                            ':file' => $this->file . $file
+                            ':file' => $this->path . $file
                         ]), 2);
                     }
                 }
@@ -449,17 +449,17 @@ class Execute extends Directory implements ExecuteInterface
                     // Extension MUST NOT be on this list
                     if (array_key_exists($extension, $this->whitelist_extensions)) {
                         Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
-                            ':file' => $this->file . $file
+                            ':file' => $this->path . $file
                         ]), 2);
                     }
                 }
 
                 Log::action(tr('Executing callback function on file ":file"', [
-                    ':file' => $this->file . $file
+                    ':file' => $this->path . $file
                 ]), 2);
 
                 try {
-                    $callback($this->file . $file);
+                    $callback($this->path . $file);
 
                 } catch (Throwable $e) {
                     if (!$this->ignore_exceptions) {
@@ -475,7 +475,7 @@ class Execute extends Directory implements ExecuteInterface
                 }
             } else {
                 Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
-                    ':file' => $this->file . $file
+                    ':file' => $this->path . $file
                 ]));
             }
 

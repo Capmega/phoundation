@@ -381,7 +381,7 @@ class Phoundation extends Project
      */
     public function isPhoundation(string $directory): bool
     {
-        $file    = File::new($directory . 'config/project', $this->restrictions)->checkReadable()->getFile();
+        $file    = File::new($directory . 'config/project', $this->restrictions)->checkReadable()->getPath();
         $project = file_get_contents($file);
 
 // TODO Update to use git remote show origin!

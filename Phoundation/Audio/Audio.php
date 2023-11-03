@@ -38,7 +38,7 @@ class Audio extends File
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
                 Mplayer::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
-                    ->setFile(Filesystem::absolute($this->file, DIRECTORY_DATA . 'audio'))
+                    ->setFile(Filesystem::absolute($this->path, DIRECTORY_DATA . 'audio'))
                     ->play($background);
 
             } catch (FileNotExistException|ProcessesException $e) {
@@ -67,7 +67,7 @@ class Audio extends File
             case EnumRequestTypes::admin:
                 Page::addToFooter('html', \Phoundation\Web\Http\Html\Components\Audio::new()
                     ->addClass($class)
-                    ->setFile($this->file)
+                    ->setFile($this->path)
                     ->render());
                 break;
 

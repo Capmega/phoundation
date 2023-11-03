@@ -74,9 +74,9 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * The file for this object
      *
-     * @var string|null $file
+     * @var string|null $path
      */
-    protected ?string $file = null;
+    protected ?string $path = null;
 
     /**
      * The stream, if this file is opened
@@ -112,19 +112,19 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
             // Specified file was actually a File or Directory object, get the file from there
             if ($file instanceof FileBasicsInterface) {
-                $this->setFile($file->getFile());
+                $this->setPath($file->getPath());
                 $this->setTarget($file->getTarget());
                 $this->setRestrictions($restrictions ?? $file->getRestrictions());
 
             } else {
-                $this->setFile((string)$file);
+                $this->setPath((string)$file);
                 $this->setRestrictions($restrictions);
             }
 
         } elseif (is_resource($file)) {
             // This is an input stream resource
             $this->stream = $file;
-            $this->file = '?';
+            $this->path = '?';
 
         } else {
             throw new OutOfBoundsException(tr('Invalid file ":file" specified. Must be one if FileBasicsInterface, Stringable, string, null, or resource', [
@@ -141,7 +141,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function __toString(): string
     {
-        return $this->getFile();
+        return $this->getPath();
     }
 
 
@@ -168,7 +168,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         $directory = Directory::getTemporaryBase($public);
         $name = ($name ?? Strings::generateUuid());
-        $file = static::new($directory->getFile() . $name, $directory->getRestrictions());
+        $file = static::new($directory->getPath() . $name, $directory->getRestrictions());
 
         if ($create) {
             $file->create();
@@ -284,9 +284,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      *
      * @return string|null
      */
-    public function getFile(): ?string
+    public function getPath(): ?string
     {
-        return $this->file;
+        return $this->path;
     }
 
 
@@ -298,14 +298,14 @@ class FileBasics implements Stringable, FileBasicsInterface
      * @param bool $must_exist
      * @return static
      */
-    public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
+    public function setPath(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static
     {
         if ($this->isOpen()) {
             $this->close();
         }
 
-        $this->file = Filesystem::absolute($file, $prefix, $must_exist);
-        $this->real_file = realpath($this->file);
+        $this->path = Filesystem::absolute($file, $prefix, $must_exist);
+        $this->real_file = realpath($this->path);
 
         return $this;
     }
@@ -333,7 +333,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         if ($this->target === null) {
             // By default, assume target is the same as the source file
-            return $this->file;
+            return $this->path;
         }
 
         return $this->target;
@@ -347,7 +347,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function exists(): bool
     {
-        return file_exists($this->file);
+        return file_exists($this->path);
     }
 
 
@@ -360,9 +360,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function checkExists(bool $force = false): static
     {
-        if (!file_exists($this->file)) {
+        if (!file_exists($this->path)) {
             if (!$force) {
-                throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $this->file]));
+                throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $this->path]));
             }
 
             // Force the file to exist
@@ -382,9 +382,9 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function checkNotExists(bool $force = false): static
     {
-        if (file_exists($this->file)) {
+        if (file_exists($this->path)) {
             if (!$force) {
-                throw new FileExistsException(tr('Specified file ":file" already exist', [':file' => $this->file]));
+                throw new FileExistsException(tr('Specified file ":file" already exist', [':file' => $this->path]));
             }
 
             // Delete the file
@@ -404,16 +404,16 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function rename(string $to_filename, $context = null): static
     {
-        $result = rename($this->file, $to_filename, $context);
+        $result = rename($this->path, $to_filename, $context);
 
         if (!$result) {
             throw new FileRenameException(tr('Failed to rename file or directory ":file" to ":to"', [
-                ':file' => $this->file,
+                ':file' => $this->path,
                 ':to'   => $to_filename
             ]));
         }
 
-        $this->file = $to_filename;
+        $this->path = $to_filename;
         return $this;
     }
 
@@ -430,7 +430,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         if (!$result) {
             throw new FileTruncateException(tr('Failed to truncate file ":file" to ":size" bytes', [
-                ':file' => $this->file,
+                ':file' => $this->path,
                 ':size' => $size
             ]));
         }
@@ -470,28 +470,28 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($this->path, false);
 
-        if (!file_exists($this->file)) {
-            if (!file_exists(dirname($this->file))) {
+        if (!file_exists($this->path)) {
+            if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":directory" does not exist', [
                     ':type' => ($type ? '' : ' ' . $type),
-                    ':file' => $this->file,
-                    ':directory' => dirname($this->file)
+                    ':file' => $this->path,
+                    ':directory' => dirname($this->path)
                 ]), $previous_e);
             }
 
             throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->file
+                ':file' => $this->path
             ]), $previous_e);
         }
 
-        if (!is_readable($this->file)) {
+        if (!is_readable($this->path)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be read', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->file
+                ':file' => $this->path
             ]), $previous_e);
         }
 
@@ -527,25 +527,25 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
-        if (!file_exists($this->file)) {
-            if (!file_exists(dirname($this->file))) {
+        if (!file_exists($this->path)) {
+            if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
                     ':type' => ($type ? '' : ' ' . $type),
-                    ':file' => $this->file,
-                    ':directory' => dirname($this->file)
+                    ':file' => $this->path,
+                    ':directory' => dirname($this->path)
                 ]), $previous_e);
             }
 
             // File doesn't exist, check if the parent directory is writable so that the file can be created
-            Directory::new(dirname($this->file), $this->restrictions)->checkWritable($type, $previous_e);
+            Directory::new(dirname($this->path), $this->restrictions)->checkWritable($type, $previous_e);
 
-        } elseif (!is_writable($this->file)) {
+        } elseif (!is_writable($this->path)) {
             throw new FilesystemException(tr('The:type file ":file" cannot be written', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->file
+                ':file' => $this->path
             ]), $previous_e);
         }
 
@@ -563,11 +563,11 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function getHumanReadableFileType(): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
         $this->exists();
 
         $return = [];
-        $perms = fileperms($this->file);
+        $perms = fileperms($this->path);
 
         $socket = (($perms & 0xC000) == 0xC000);
         $symlink = (($perms & 0xA000) == 0xA000);
@@ -623,10 +623,10 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function getHumanReadableFileMode(): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
-        $perms = fileperms($this->file);
+        $perms = fileperms($this->path);
         $return = [];
 
         $return['socket'] = (($perms & 0xC000) == 0xC000);
@@ -742,10 +742,10 @@ class FileBasics implements Stringable, FileBasicsInterface
         static $finfo = null;
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($this->path, false);
 
         try {
-            if (is_dir($this->file)) {
+            if (is_dir($this->path)) {
                 return 'directory';
             }
 
@@ -753,12 +753,12 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             }
 
-            $mimetype = finfo_file($finfo, $this->file);
+            $mimetype = finfo_file($finfo, $this->path);
             return $mimetype;
         } catch (Exception $e) {
             // We failed to get mimetype data. Find out why and throw exception
             $this->checkReadable('', new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]), previous: $e));
         }
     }
@@ -777,14 +777,14 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function secureDelete(string|bool $clean_path = true, bool $sudo = false): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
         // Delete all specified patterns
         // Execute the rm command
         Process::new('find', $this->restrictions)
             ->setSudo($sudo)
             ->setTimeout(60)
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-exec')
             ->addArgument('shred')
             ->addArgument('--remove=wipe')
@@ -803,7 +803,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $clean_path = null;
             }
 
-            Directory::new(dirname($this->file))->clear($clean_path, $sudo);
+            Directory::new(dirname($this->path))->clear($clean_path, $sudo);
         }
 
         return $this;
@@ -825,10 +825,10 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
-        Log::action(tr('Deleting file ":file"', [':file' => $this->file]), 3);
+        Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 3);
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
         // Delete all specified patterns
         // Execute the rm command
@@ -836,7 +836,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             ->setSudo($sudo)
             ->setUseRunFile($use_run_file)
             ->setTimeout(10)
-            ->addArgument($this->file, $escape)
+            ->addArgument($this->path, $escape)
             ->addArgument('-rf')
             ->executeNoReturn();
 
@@ -847,7 +847,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $clean_path = null;
             }
 
-            Directory::new(dirname($this->file), $this->restrictions->getParent())->clear($clean_path, $sudo, use_run_file: $use_run_file);
+            Directory::new(dirname($this->path), $this->restrictions->getParent())->clear($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
         return $this;
@@ -878,19 +878,19 @@ class FileBasics implements Stringable, FileBasicsInterface
             }
 
             // Target exists and is directory. Rename target to "this file in the target directory"
-            $target = Strings::slash($target) . basename($this->file);
+            $target = Strings::slash($target) . basename($this->path);
 
         } else {
             // Target does not exist
             if (str_ends_with($target, '/')) {
                 // If the target is indicated to be a directory (because it ends with a slash) then it should be created
                 $create = $target;
-                $target = Strings::slash($target) . basename($this->file);
+                $target = Strings::slash($target) . basename($this->path);
 
             } elseif (!file_exists(dirname($target))) {
                 // The target parent directory does not exist. It must be created or fail
                 $create = dirname($target);
-                $target = Strings::slash(dirname($target)) . basename($this->file);
+                $target = Strings::slash(dirname($target)) . basename($this->path);
             }
 
             if (isset($create)) {
@@ -901,10 +901,10 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         // Check restrictions and execute move
         $this->restrictions->check($target, true);
-        rename($this->file, $target);
+        rename($this->path, $target);
 
         // Update this file to the new location, and done
-        $this->file = $target;
+        $this->path = $target;
         $this->setRestrictions($restrictions);
         return $this;
     }
@@ -962,10 +962,10 @@ class FileBasics implements Stringable, FileBasicsInterface
         if ($this->str)
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($this->path, false);
 
         try {
-            $stat = stat($this->file);
+            $stat = stat($this->path);
 
             if ($stat) {
                 return $stat;
@@ -991,7 +991,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
         if (!$user) {
             $user = posix_getpwuid(posix_getuid());
@@ -1003,12 +1003,12 @@ class FileBasics implements Stringable, FileBasicsInterface
             $group = $group['name'];
         }
 
-        foreach ($this->file as $pattern) {
+        foreach ($this->path as $pattern) {
             Process::new('chown', $this->restrictions)
                 ->setSudo(true)
                 ->addArgument($recursive ? '-R' : null)
                 ->addArgument($user . ':' . $group)
-                ->addArguments($this->file)
+                ->addArguments($this->path)
                 ->executeReturnArray();
         }
 
@@ -1032,20 +1032,20 @@ class FileBasics implements Stringable, FileBasicsInterface
             throw new OutOfBoundsException(tr('No file mode specified'));
         }
 
-        if (!$this->file) {
+        if (!$this->path) {
             throw new OutOfBoundsException(tr('No file specified'));
         }
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
         if ($recursive) {
             Process::new('chmod', $this->restrictions)
                 ->setSudo($sudo)
-                ->addArguments(['-R', '0' . decoct($mode), $this->file])
+                ->addArguments(['-R', '0' . decoct($mode), $this->path])
                 ->executeReturnArray();
         } else {
-            chmod($this->file, $mode);
+            chmod($this->path, $mode);
         }
 
         return $this;
@@ -1064,20 +1064,20 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function ensureFileReadable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
         // If the object file exists and is writable, then we're done.
-        if (is_writable($this->file)) {
+        if (is_writable($this->path)) {
             return true;
         }
 
         // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
 
-        if (file_exists($this->file)) {
+        if (file_exists($this->path)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
                 Log::warning(tr('The file ":file" (Realdirectory ":directory") is not readable. Attempting to apply default file mode ":mode"', [
-                    ':file' => $this->file,
+                    ':file' => $this->path,
                     ':directory' => $this->real_file,
                     ':mode' => $mode
                 ]));
@@ -1086,18 +1086,18 @@ class FileBasics implements Stringable, FileBasicsInterface
 
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
-                    ':file' => $this->file,
+                    ':file' => $this->path,
                     ':directory' => $this->real_file
                 ]));
             }
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        Directory::new(dirname($this->file), $this->restrictions)->ensure();
+        Directory::new(dirname($this->path), $this->restrictions)->ensure();
 
         Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
-            ':file' => $this->file
+            ':file' => $this->path
         ]));
 
         return false;
@@ -1116,20 +1116,20 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function ensureFileWritable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
         // If the object file exists and is writable, then we're done.
-        if (is_writable($this->file)) {
+        if (is_writable($this->path)) {
             return true;
         }
 
         // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
 
-        if (file_exists($this->file)) {
+        if (file_exists($this->path)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
                 Log::warning(tr('The file ":file" (Realdirectory ":directory") is not writable. Attempting to apply default file mode ":mode"', [
-                    ':file' => $this->file,
+                    ':file' => $this->path,
                     ':directory' => $this->real_file,
                     ':mode' => $mode
                 ]));
@@ -1138,14 +1138,14 @@ class FileBasics implements Stringable, FileBasicsInterface
 
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
-                    ':file' => $this->file,
+                    ':file' => $this->path,
                     ':directory' => $this->real_file
                 ]));
             }
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        Directory::new(dirname($this->file), $this->restrictions->getParent())->ensure();
+        Directory::new(dirname($this->path), $this->restrictions->getParent())->ensure();
 
         return false;
     }
@@ -1162,14 +1162,14 @@ class FileBasics implements Stringable, FileBasicsInterface
         if ($this instanceof FileInterface) {
             if ($this->exists()) {
                 // This is a single file!
-                return filesize($this->file);
+                return filesize($this->path);
             }
 
             return 0;
         }
 
         // Return the amount of all files in this directory
-        $files = scandir($this->file);
+        $files = scandir($this->path);
         $size = 0;
 
         foreach ($files as $file) {
@@ -1179,7 +1179,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             }
 
             // Filename must have complete absolute path
-            $file = $this->file . $file;
+            $file = $this->path . $file;
 
             if (is_dir($file)) {
                 if ($recursive) {
@@ -1212,7 +1212,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function getParentDirectory(?RestrictionsInterface $restrictions = null): DirectoryInterface
     {
-        return Directory::new(dirname($this->file), $restrictions ?? $this->restrictions->getParent());
+        return Directory::new(dirname($this->path), $restrictions ?? $this->restrictions->getParent());
     }
 
 
@@ -1229,10 +1229,10 @@ class FileBasics implements Stringable, FileBasicsInterface
         $this
             ->ensureClosed('open')
             ->restrictions
-                ->check($this->file, ($mode !== EnumFileOpenMode::readOnly));
+                ->check($this->path, ($mode !== EnumFileOpenMode::readOnly));
 
         try {
-            $stream = fopen($this->file, $mode->value, false, $context);
+            $stream = fopen($this->path, $mode->value, false, $context);
 
         } catch (Throwable $e) {
             // Failed to open the target file
@@ -1257,7 +1257,7 @@ class FileBasics implements Stringable, FileBasicsInterface
                 break;
         }
 
-        throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->file]));
+        throw new FilesystemException(tr('Failed to open file ":file"', [':file' => $this->path]));
     }
 
 
@@ -1268,7 +1268,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function isLink(): bool
     {
-        $link = linkinfo($this->file);
+        $link = linkinfo($this->path);
 
         if (!$link) {
             return false;
@@ -1286,7 +1286,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function isLinkAndTargetExists(): bool
     {
-        return is_link($this->file);
+        return is_link($this->path);
     }
 
 
@@ -1297,7 +1297,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function isDir(): bool
     {
-        return is_dir($this->file);
+        return is_dir($this->path);
     }
 
 
@@ -1403,14 +1403,14 @@ class FileBasics implements Stringable, FileBasicsInterface
         $target = Filesystem::absolute($target, must_exist: false);
 
         if (file_exists($target)) {
-            if (readlink($target) === $this->file) {
+            if (readlink($target) === $this->path) {
                 // Symlink already exists and points to the same file, all fine
                 return static::new($target, $restrictions);
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
                 ':target' => $target,
-                ':source' => $this->file,
+                ':source' => $this->path,
                 ':current' => readlink($target)
             ]));
         }
@@ -1420,7 +1420,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         Directory::new(dirname($target), $this->restrictions->getParent())->ensure();
 
         // Symlink
-        symlink($this->file, $target);
+        symlink($this->path, $target);
         return static::new($target, $this->restrictions);
     }
 
@@ -1484,13 +1484,13 @@ class FileBasics implements Stringable, FileBasicsInterface
                 // File mode is not seekable
                 throw new FileActionFailedException(tr('Failed to seek in file ":file" because file mode ":mode" does not allow seek', [
                     ':mode' => $this->open_mode->value,
-                    ':file' => $this->file
+                    ':file' => $this->path
                 ]));
             }
 
             // No idea why
             throw new FileActionFailedException(tr('Failed to seek in file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
 
         }
@@ -1514,7 +1514,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         if ($result === false) {
             // ftell() failed
             throw new FileActionFailedException(tr('Failed to tell file pointer for file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
 
         }
@@ -1538,7 +1538,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         if ($result === false) {
             // ftell() failed
             throw new FileActionFailedException(tr('Failed to rewind file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
 
         }
@@ -1674,12 +1674,12 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     protected function save(string $data, EnumFileOpenModeInterface $write_mode = EnumFileOpenMode::writeOnly): static
     {
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
         $this->ensureWriteMode($write_mode);
 
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        Directory::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
+        Directory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
         return $this->open($write_mode)->write($data)->close();
     }
 
@@ -1716,7 +1716,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         // PARENT directory IN the PARENT directory OF the PARENT!
         $this->ensureClosed('getContents');
 
-        $data = file_get_contents($this->file, $use_include_path, $context, $offset, $length);
+        $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
 
         if ($data === false) {
             return $this->processReadFailure('contents', '', false);
@@ -1739,7 +1739,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         // PARENT directory IN the PARENT directory OF the PARENT!
         $this->ensureClosed('getContents');
 
-        $data = file($this->file, $flags, $context);
+        $data = file($this->path, $flags, $context);
 
         if ($data === false) {
             return $this->processReadFailure('contents', [], false);
@@ -1762,9 +1762,9 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
         $this->ensureClosed('putContents');
-        Directory::new(dirname($this->file), $this->restrictions->getParent()->getParent())->ensure();
+        Directory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
 
-        file_put_contents($this->file, $data, $flags, $context);
+        file_put_contents($this->path, $data, $flags, $context);
 
         return $this;
     }
@@ -1798,7 +1798,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         if ($this->exists()) {
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it already exists', [
-                    ':file' => $this->file
+                    ':file' => $this->path
                 ]));
             }
         }
@@ -1808,7 +1808,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             // is still there?
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it does not exist, but is open. Perhaps the file was deleted but the open inode is still there?', [
-                    ':file' => $this->file
+                    ':file' => $this->path
                 ]));
             }
 
@@ -1828,7 +1828,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         if ($this->exists()) {
             // Just touch it, I dare you.
-            touch($this->file);
+            touch($this->path);
 
         } elseif ($this instanceof DirectoryInterface) {
             // If this is supposed to be a directory, create it
@@ -1836,7 +1836,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         } else {
             // Create it by touching it. Or something like that
-            touch($this->file);
+            touch($this->path);
         }
 
         return $this;
@@ -1854,10 +1854,10 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Check filesystem restrictions
         $this
             ->ensureClosed('appendFiles')
-            ->restrictions->check($this->file, true);
+            ->restrictions->check($this->path, true);
 
         // Ensure the target path exists
-        Directory::new(dirname($this->file), $this->restrictions)->ensure();
+        Directory::new(dirname($this->path), $this->restrictions)->ensure();
 
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
@@ -1895,7 +1895,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (!$this->stream) {
             if ($force) {
                 throw new FileNotOpenException(tr('The file ":file" cannot be closed, it is not open', [
-                    ':file' => $this->file
+                    ':file' => $this->path
                 ]));
             }
         }
@@ -1920,7 +1920,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         if (!fsync($this->stream)) {
             throw new FileSyncException(tr('Failed to sync file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
         }
 
@@ -1939,7 +1939,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         if (!fdatasync($this->stream)) {
             throw new FileSyncException(tr('Failed to data sync file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
         }
 
@@ -1969,7 +1969,7 @@ throw new UnderConstructionException();
 
         for ($pass = 1; $pass <= $passes; $pass++) {
             Log::action(tr('Shredding file ":file" with pass ":pass"', [
-                ':file' => $this->file,
+                ':file' => $this->path,
                 ':pass' => $pass
             ]), 4);
 
@@ -1977,7 +1977,7 @@ throw new UnderConstructionException();
                 ->setSudo(true)
                 ->setAcceptedExitCodes([0, 1]) // Accept 1 if the DD process stopped due to disk full, which is expected
                 ->setTimeout(0)
-                ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'count=' . $count])
+                ->addArguments(['if=/dev/urandom', 'of=' . $this->path, 'bs=4096', 'count=' . $count])
                 ->execute(EnumExecuteMethod::noReturn);
         }
 
@@ -1996,25 +1996,7 @@ throw new UnderConstructionException();
     {
         if ($this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is already open', [
-                ':file'   => $this->file,
-                ':method' => $method
-            ]));
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Throws an exception if the file is not a text file
-     *
-     * @throws FileOpenException
-     */
-    protected function ensureText(string $method): static
-    {
-        if ($this->isText()) {
-            throw new FileTypeNotSupportedException(tr('Cannot execute method ":method()" on file ":file", it is not a text file', [
-                ':file'   => $this->file,
+                ':file'   => $this->path,
                 ':method' => $method
             ]));
         }
@@ -2034,7 +2016,7 @@ throw new UnderConstructionException();
     {
         if (!$this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is closed', [
-                ':file'   => $this->file,
+                ':file'   => $this->path,
                 ':method' => $method
             ]));
         }
@@ -2055,11 +2037,10 @@ throw new UnderConstructionException();
      */
     protected function ensureWriteMode(EnumFileOpenModeInterface $mode): static
     {
-        switch ($mode) {
-            case EnumFileOpenMode::readOnly:
-                throw new ReadOnlyModeException(tr('Cannot write to file ":file", the file is opened in readonly mode', [
-                    ':file' => $this->file
-                ]));
+        if ($mode == EnumFileOpenMode::readOnly) {
+            throw new ReadOnlyModeException(tr('Cannot write to file ":file", the file is opened in readonly mode', [
+                ':file' => $this->path
+            ]));
         }
 
         return $this;
@@ -2072,18 +2053,18 @@ throw new UnderConstructionException();
      * @param string $type
      * @param array|string|false|null $data
      * @param bool $test_feof If false will skip FEOF test
-     * @return array|string|null
+     * @return array|string|false|null
      */
-    protected function processReadFailure(string $type, array|string|false|null $data, bool $test_feof = true): array|string|null
+    protected function processReadFailure(string $type, array|string|false|null $data, bool $test_feof = true): array|string|false|null
     {
         // FEOF errors are only checked if we didn't try to read full file contents
         if ($test_feof and $this->isEof()) {
             return $data;
         }
 
-        throw new FileReadException(tr('Cannot read :type from file ":file", the file pointer is at the end of the file', [
+        throw new FileReadException(tr('Cannot read ":type" from file ":file", the file pointer is at the end of the file', [
             ':type' => $type,
-            ':file' => $this->file
+            ':file' => $this->path
         ]));
     }
 
@@ -2099,13 +2080,13 @@ throw new UnderConstructionException();
         $mounts = Mounts::listTargets();
 
         foreach ($mounts as $path => $mount) {
-            if (str_starts_with($this->file, $path)) {
+            if (str_starts_with($this->path, $path)) {
                 return $mount['source'];
             }
         }
 
         throw new MountLocationNotFoundException(tr('Failed to find a mount location for the path ":path"', [
-            ':path' => $this->file
+            ':path' => $this->path
         ]));
     }
 }

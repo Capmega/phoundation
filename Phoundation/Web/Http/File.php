@@ -393,7 +393,7 @@ Log::checkpoint();
     public function download(string $url, callable $callback = null): FileInterface|null
     {
         // Set temp file and download data
-        $file = Filesystem::createTempFile()->getFile();
+        $file = Filesystem::createTempFile()->getPath();
         $data = file_get_contents($url);
 
         // Write data to the temp file

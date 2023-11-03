@@ -30,7 +30,7 @@ class Content extends File implements ContentInterface
      */
     public function view(): void
     {
-        $file     = File::new($this->file)->checkReadable('image');
+        $file     = File::new($this->path)->checkReadable('image');
         $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
 
@@ -40,7 +40,7 @@ class Content extends File implements ContentInterface
             'pdf'       => static::viewPdf(),
             'directory' => static::viewDirectory(),
             default     => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
-                ':file'     => $file->getFile(),
+                ':file'     => $file->getPath(),
                 ':mimetype' => $mimetype
             ])),
         };
@@ -55,7 +55,7 @@ class Content extends File implements ContentInterface
     protected function viewImage(): void
     {
         Process::new('feh', $this->restrictions, 'feh')
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->executeBackground();
     }
 

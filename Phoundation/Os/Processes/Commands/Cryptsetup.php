@@ -36,7 +36,7 @@ class Cryptsetup extends Command
      */
     public function luksFormat(Device|string $device, string $key = null, string $key_file = null): void
     {
-        $device = Device::new($device)->getFile();
+        $device = Device::new($device)->getPath();
 
         if ($key) {
             if ($key_file) {

@@ -116,7 +116,7 @@ class Resize extends FileBasics
     public function absolute(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height)
             ->addArgument($this->getTarget());
@@ -141,7 +141,7 @@ class Resize extends FileBasics
     public function absoluteKeepAspectration(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\!')
             ->addArgument($this->target);
@@ -166,7 +166,7 @@ class Resize extends FileBasics
     public function shrinkOnlyLarger(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
             ->addArgument($this->target);
@@ -191,7 +191,7 @@ class Resize extends FileBasics
     public function enlargeOnlySmaller(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
             ->addArgument($this->target);
@@ -215,7 +215,7 @@ class Resize extends FileBasics
     public function percentage(float $percentage): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($percentage . '%')
             ->addArgument($this->target);
@@ -239,7 +239,7 @@ class Resize extends FileBasics
     public function pixelCount(int $pixel_count): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($pixel_count . '@')
             ->addArgument($this->target);

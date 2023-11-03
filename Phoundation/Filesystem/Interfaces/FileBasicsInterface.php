@@ -53,7 +53,7 @@ interface FileBasicsInterface
      *
      * @return string|null
      */
-    public function getFile(): ?string;
+    public function getPath(): ?string;
 
     /**
      * Sets the file for this File object
@@ -63,7 +63,7 @@ interface FileBasicsInterface
      * @param bool $must_exist
      * @return static
      */
-    public function setFile(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static;
+    public function setPath(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static;
 
     /**
      * Sets the target file name in case operations create copies of this file

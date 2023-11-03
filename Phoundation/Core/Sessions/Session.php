@@ -458,7 +458,7 @@ class Session implements SessionInterface
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
                 $directory = Directory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), Restrictions::new([DIRECTORY_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
-                session_save_path($directory->getFile());
+                session_save_path($directory->getPath());
                 break;
 
             case 'memcached':

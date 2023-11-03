@@ -398,7 +398,7 @@ class Bundler
         try {
             $html_file_object = Filesystem::createTempFile(false,'html')->append(Page::getHtml());
 
-            $bundle_file = Css::purge($this->bundle_file, $html_file_object->getFile());
+            $bundle_file = Css::purge($this->bundle_file, $html_file_object->getPath());
 
             Log::success(tr('Purged not-used CSS rules from bundled file ":file"', [
                 ':file' => $bundle_file
