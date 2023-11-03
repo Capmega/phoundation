@@ -118,7 +118,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param mixed $value
      * @return mixed
      */
-    public function setSourceKey(Stringable|string|float|int $key, mixed $value): static;
+    public function set(Stringable|string|float|int $key, mixed $value): static;
 
     /**
      * Returns a list of items that are specified, but not available in this Iterator
@@ -198,15 +198,6 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return mixed
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
-
-    /**
-     * Sets the value for the specified key
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed $value
-     * @return mixed
-     */
-    public function set(Stringable|string|float|int $key, mixed $value): static;
 
     /**
      * Returns the amount of items contained in this object

@@ -118,7 +118,7 @@ abstract class Validator implements ValidatorInterface
      * @param mixed $value
      * @return static
      */
-    public function setSourceKey(string|float|int $key, mixed $value): static
+    public function set(string|float|int $key, mixed $value): static
     {
         $this->source[$key] = $value;
         return $this;

@@ -29,7 +29,7 @@ interface ValidatorInterface
      * @param mixed $value
      * @return static
      */
-    public function setSourceKey(string|float|int $key, mixed $value): static;
+    public function set(string|float|int $key, mixed $value): static;
 
     /**
      * Forcibly remove the specified source key

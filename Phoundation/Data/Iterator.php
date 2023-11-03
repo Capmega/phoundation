@@ -212,6 +212,20 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Sets the value for the specified key
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    public function set(Stringable|string|float|int $key, mixed $value): static
+    {
+        $this->source[$key] = $value;
+        return $this;
+    }
+
+
+    /**
      * Add the specified value to the iterator array
      *
      * @param mixed $value
@@ -268,20 +282,6 @@ class Iterator implements IteratorInterface
     #[ReturnTypeWillChange] public function getSourceKey(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         return $this->get($key, $exception);
-    }
-
-
-    /**
-     * Sets value for the specified key
-     *
-     * @note This is a wrapper for Iterator::set()
-     * @param Stringable|string|float|int $key
-     * @param mixed $value
-     * @return mixed
-     */
-    public function setSourceKey(Stringable|string|float|int $key, mixed $value): static
-    {
-        return $this->set($key, $value);
     }
 
 
@@ -590,20 +590,6 @@ class Iterator implements IteratorInterface
         }
 
         return $this->source[$key];
-    }
-
-
-    /**
-     * Sets the value for the specified key
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed $value
-     * @return mixed
-     */
-    public function set(Stringable|string|float|int $key, mixed $value): static
-    {
-        $this->source[$key] = $value;
-        return $this;
     }
 
 

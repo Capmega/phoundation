@@ -1681,7 +1681,7 @@ class Definition implements DefinitionInterface
                 $value = $this->getValue()($validator->getSource(), $prefix);
             }
 
-            $validator->setSourceKey($prefix . $field, $value);
+            $validator->set($prefix . $field, $value);
         }
 
         // Set the field prefix and select the field
