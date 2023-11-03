@@ -209,12 +209,12 @@ abstract class Element implements ElementInterface
         }
 
         // Add data-* entries
-        foreach ($this->data as $key=> $value) {
+        foreach ($this->data as $key => $value) {
             $return['data-' . $key] = $value;
         }
 
         // Add aria-* entries
-        foreach ($this->aria as $key=> $value) {
+        foreach ($this->aria as $key => $value) {
             $return['aria-' . $key] = $value;
         }
 

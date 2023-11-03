@@ -67,10 +67,9 @@ class InputMultiButtonText extends ElementsBlock
      */
     public function setButton(Button $button): static
     {
-        $button
-            ->addClasses(['btn', 'dropdown-toggle'])
-            ->addData('toggle', 'dropdown')
-            ->addAria('expanded', 'false');
+        $button->addClasses(['btn', 'dropdown-toggle']);
+        $button->getData()->add('toggle', 'dropdown');
+        $button->getAria()->add('false', 'expanded');
 
         $this->button = $button;
         return $this;

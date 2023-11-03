@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 
+use Phoundation\Data\Iterator;
 use Stringable;
 
 
@@ -132,114 +133,18 @@ interface ElementAttributesInterface
     function hasClass(string $class): bool;
 
     /**
-     * Clears the HTML class element attribute
+     * Returns the HTML element data attribute store
      *
-     * @return static
+     * @return Iterator
      */
-    function clearData(): static;
+    function getData(): Iterator;
 
     /**
-     * Sets the HTML class element attribute
+     * Returns the HTML element aria attribute store
      *
-     * @param array|string|null $data
-     * @return static
+     * @return Iterator
      */
-    function setData(array|string|null $data): static;
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $data
-     * @return static
-     */
-    function addDatas(array|string|null $data): static;
-
-    /**
-     * Adds a class to the HTML class element attribute
-     *
-     * @param string $key
-     * @param string $value
-     * @return static
-     */
-    function addData(string $key, string $value): static;
-
-    /**
-     * Removes the specified class for this element
-     *
-     * @param string $key
-     * @return $this
-     */
-    function removeDataEntry(string $key): static;
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return array
-     */
-    function getData(): array;
-
-    /**
-     * Returns if this element has the specified class or not
-     *
-     * @param string $key
-     * @return bool
-     */
-    function hasData(string $key): bool;
-
-    /**
-     * Clears the HTML class element attribute
-     *
-     * @return static
-     */
-    function clearAria(): static;
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $aria
-     * @return static
-     */
-    function setAria(array|string|null $aria): static;
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $aria
-     * @return static
-     */
-    function addArias(array|string|null $aria): static;
-
-    /**
-     * Adds a class to the HTML class element attribute
-     *
-     * @param string $key
-     * @param string $value
-     * @return static
-     */
-    function addAria(string $key, string $value): static;
-
-    /**
-     * Removes the specified class for this element
-     *
-     * @param string $key
-     * @return $this
-     */
-    function removeAriaEntry(string $key): static;
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return array
-     */
-    function getAria(): array;
-
-    /**
-     * Returns if this element has the specified class or not
-     *
-     * @param string $key
-     * @return bool
-     */
-    function hasAria(string $key): bool;
+    function getAria(): Iterator;
 
     /**
      * Set the HTML tabindex element attribute

@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Html;
@@ -65,16 +66,16 @@ trait ElementAttributes
     /**
      * The HTML data-* element attribute store
      *
-     * @var array $data
+     * @var Iterator $data
      */
-    protected array $data = [];
+    protected Iterator $data;
 
     /**
-     * The HTML aria-* element attribute store
+     * The HTML element aria-* attribute store
      *
-     * @var array $aria
+     * @var Iterator $aria
      */
-    protected array $aria = [];
+    protected Iterator $aria;
 
     /**
      * The HTML class element attribute cache
@@ -166,6 +167,19 @@ trait ElementAttributes
      * @var bool $right
      */
     protected bool $right = false;
+
+
+    /**
+     * Class constructor
+     *
+     * @param array|null $source
+     */
+    public function __construct(?array $source = null)
+    {
+        $this->source = $source;
+        $this->aria   = new Iterator();
+        $this->data   = new Iterator();
+    }
 
 
     /**
@@ -364,190 +378,24 @@ trait ElementAttributes
 
 
     /**
-     * Clears the HTML class element attribute
-     *
-     * @return static
-     */
-    public function clearData(): static
-    {
-        $this->data = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $data
-     * @return static
-     */
-    public function setData(array|string|null $data): static
-    {
-        $this->data = [];
-        return $this->addDatas($data);
-    }
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $data
-     * @return static
-     */
-    public function addDatas(array|string|null $data): static
-    {
-        foreach (Arrays::force($data, ' ') as $key => $value) {
-            $this->addData($key, $value);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Adds a class to the HTML class element attribute
-     *
-     * @param string $key
-     * @param string $value
-     * @return static
-     */
-    public function addData(string $key, string $value): static
-    {
-        if ($key) {
-            $this->data[$key] = $value;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Removes the specified class for this element
-     *
-     * @param string $key
-     * @return $this
-     */
-    public function removeDataEntry(string $key): static
-    {
-        unset($this->data[$key]);
-        return $this;
-    }
-
-
-    /**
      * Returns the HTML class element attribute store
      *
-     * @return array
+     * @return Iterator
      */
-    public function getData(): array
+    public function getData(): Iterator
     {
         return $this->data;
     }
 
 
     /**
-     * Returns if this element has the specified class or not
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function hasData(string $key): bool
-    {
-        return isset($this->data[$key]);
-    }
-
-
-    /**
-     * Clears the HTML class element attribute
-     *
-     * @return static
-     */
-    public function clearAria(): static
-    {
-        $this->aria = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $aria
-     * @return static
-     */
-    public function setAria(array|string|null $aria): static
-    {
-        $this->aria = [];
-        return $this->addArias($aria);
-    }
-
-
-    /**
-     * Sets the HTML class element attribute
-     *
-     * @param array|string|null $aria
-     * @return static
-     */
-    public function addArias(array|string|null $aria): static
-    {
-        foreach (Arrays::force($aria, ' ') as $key => $value) {
-            $this->addAria($key, $value);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Adds a class to the HTML class element attribute
-     *
-     * @param string $key
-     * @param string $value
-     * @return static
-     */
-    public function addAria(string $key, string $value): static
-    {
-        if ($key) {
-            $this->aria[$key] = $value;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Removes the specified class for this element
-     *
-     * @param string $key
-     * @return $this
-     */
-    public function removeAriaEntry(string $key): static
-    {
-        unset($this->aria[$key]);
-        return $this;
-    }
-
-
-    /**
      * Returns the HTML class element attribute store
      *
-     * @return array
+     * @return Iterator
      */
-    public function getAria(): array
+    public function getAria(): Iterator
     {
         return $this->aria;
-    }
-
-
-    /**
-     * Returns if this element has the specified class or not
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function hasAria(string $key): bool
-    {
-        return isset($this->aria[$key]);
     }
 
 
