@@ -69,8 +69,8 @@ class Directory extends FileBasics implements DirectoryInterface
         if (file_exists($this->path)) {
             // This exists, it must be a directory!
             if (!is_dir($this->path)) {
-                throw new DirectoryNotDirectoryException(tr('The specified directory ":directory" is not a directory', [
-                    ':directory' => $file
+                throw new DirectoryNotDirectoryException(tr('The specified path ":path" is not a directory', [
+                    ':path' => $file
                 ]));
             }
         }
@@ -232,6 +232,8 @@ class Directory extends FileBasics implements DirectoryInterface
                             ':directory' => $this->path
                         ]), $e)->addData(['directory' => $this->path]);
                     }
+
+                    // We're okay, the directory already exists
                 }
             }
 
@@ -1163,7 +1165,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
         if ($status === false) {
             throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has mount status ":status"', [
-                ':directory'   => $this->getPath(),
+                ':directory' => $this->getPath(),
                 ':source' => Directory::new($source)->getPath(),
                 ':status' => gettype($status)
             ]));

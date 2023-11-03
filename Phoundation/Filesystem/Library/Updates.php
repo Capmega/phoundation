@@ -65,9 +65,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `seo_name` varchar(128) DEFAULT NULL,
                     `source` varchar(255) DEFAULT NULL,
                     `target` varchar(255) DEFAULT NULL,
-                    `options` varchar(255) DEFAULT NULL,
+                    `options` varchar(508) DEFAULT NULL,
                     `auto_mount` tinyint(1) NOT NULL DEFAULT 0,
-                    `comments` mediumtext DEFAULT NULL
+                    `description` mediumtext DEFAULT NULL
                 ')->setIndices('
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `name` (`name`),

@@ -2077,7 +2077,7 @@ throw new UnderConstructionException();
     public function getMountDevice(): string
     {
         $this->checkExists();
-        $mounts = Mounts::listTargets();
+        $mounts = Mounts::listMountTargets();
 
         foreach ($mounts as $path => $mount) {
             if (str_starts_with($this->path, $path)) {

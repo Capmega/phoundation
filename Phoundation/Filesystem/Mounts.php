@@ -2,6 +2,11 @@
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Exception\Exception;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Os\Processes\Commands\Mount;
 use Stringable;
@@ -17,8 +22,30 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
-class Mounts
+class Mounts extends DataList
 {
+    /**
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'filesystem_mounts';
+    }
+
+
+    public static function getEntryClass(): string
+    {
+        return \Phoundation\Filesystem\Mount::class;
+    }
+
+
+    public static function getUniqueField(): ?string
+    {
+        return 'name';
+    }
+
+
     /**
      * Mounts the specified source to the specified target
      *
@@ -54,7 +81,7 @@ class Mounts
      */
     public static function getDirectoryMountInformation(Stringable|string $directory): array
     {
-        $mounts = static::listTargets();
+        $mounts = static::listMountTargets();
 
         if (array_key_exists($directory, $mounts)) {
             return $mounts[$directory];
@@ -71,7 +98,7 @@ class Mounts
      *
      * @return array
      */
-    public static function listSources(): array
+    public static function listMountSources(): array
     {
         return static::loadMounts('source');
     }
@@ -83,9 +110,50 @@ class Mounts
      *
      * @return array
      */
-    public static function listTargets(): array
+    public static function listMountTargets(): array
     {
         return static::loadMounts('target');
+    }
+
+
+    /**
+     * Returns a list of all devices as keys with value information about where they are mounted with what options
+     *
+     * @param string $source
+     * @return array
+     */
+    public static function getMountSource(string $source): array
+    {
+        $mounts = static::loadMounts('source');
+
+        if (array_key_exists($source, $mounts)) {
+            return $mounts[$source];
+        }
+
+        throw new NotExistsException(tr('The specified mount source ":source" does not exist', [
+            ':source' => $source
+        ]));
+    }
+
+
+    /**
+     * Returns a list of all directories as keys with value information about where they are mounted from with what
+     * options
+     *
+     * @param string $target
+     * @return array|null
+     */
+    public static function getMountTarget(string $target): ?array
+    {
+        $mounts = static::loadMounts('target');
+
+        if (array_key_exists($target, $mounts)) {
+            return $mounts[$target];
+        }
+
+        throw new NotExistsException(tr('The specified mount target ":target" does not exist', [
+            ':target' => $target
+        ]));
     }
 
 
