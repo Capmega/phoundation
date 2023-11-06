@@ -897,7 +897,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
 
     /**
-     * Sets initial order (sort) to apply to the table
+     * Sets initial order (sort) to apply to the table with
+     *
+     * Order is specified with [col0 => order, col1 => order] where col is the NUMERICAL COLUMN, and order is either
+     * asc / up, or desc / down
      *
      * @param array|null $order
      * @return $this
@@ -1224,9 +1227,16 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             $direction = strtolower($direction);
 
             switch ($direction) {
+                case 'up':
+                    // no break;
                 case 'asc':
+                    $direction = 'asc';
+                    break;
+
+                case 'down':
                     // no break
                 case 'desc':
+                    $direction = 'desc';
                     break;
 
                 default:
