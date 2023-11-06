@@ -18,7 +18,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\None
  */
-class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
+class TemplatePage extends \Phoundation\Web\Html\Template\TemplatePage
 {
     /**
      * Execute, builds and returns the page output according to the template.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None;
 
-use Phoundation\Web\Http\Html\Template\Template;
+use Phoundation\Web\Html\Template\Template;
 use Templates\None\Html\Components\Menu;
 
 

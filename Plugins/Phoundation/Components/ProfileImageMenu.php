@@ -5,9 +5,7 @@ declare(strict_types=1);
 
 namespace Plugins\Phoundation\Components;
 
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Http\Html\Components\Menu;
+use Phoundation\Web\Html\Components\Menu;
 
 
 /**

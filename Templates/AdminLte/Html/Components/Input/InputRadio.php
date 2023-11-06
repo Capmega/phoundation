@@ -22,7 +22,7 @@ class InputRadio extends Input
     /**
      * InputRadio class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputRadio $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputRadio $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

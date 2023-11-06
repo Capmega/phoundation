@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Input;
 
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Html\Html;
 
 
 /**
@@ -22,7 +22,7 @@ class InputMultiButtonText extends Input
     /**
      * InputMultiButtonText class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputMultiButtonText $element)
     {
         parent::__construct($element);
     }

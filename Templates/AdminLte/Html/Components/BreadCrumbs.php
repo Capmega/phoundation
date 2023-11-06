@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Strings;
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Http\Html\Renderer;
 
 
 /**
@@ -26,7 +26,7 @@ class BreadCrumbs extends Renderer
     /**
      * BreadCrumbs class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\BreadCrumbs $element)
+    public function __construct(\Phoundation\Web\Html\Components\BreadCrumbs $element)
     {
         parent::__construct($element);
     }

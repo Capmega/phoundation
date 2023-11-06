@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace Templates\Mdb\Html\Forms;
 
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -24,7 +24,7 @@ class SignInForm extends Renderer
     /**
      * SignInForm class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Forms\SignInForm $element)
+    public function __construct(\Phoundation\Web\Html\Forms\SignInForm $element)
     {
         parent::__construct($element);
     }

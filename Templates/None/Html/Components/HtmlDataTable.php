@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Templates\None\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Layouts\GridRow;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Layouts\GridRow;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Page;
 
 
@@ -28,7 +28,7 @@ class HtmlDataTable extends Renderer
     /**
      * Table class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\HtmlTable $element)
+    public function __construct(\Phoundation\Web\Html\Components\HtmlTable $element)
     {
         $element->addClass('table');
         parent::__construct($element);

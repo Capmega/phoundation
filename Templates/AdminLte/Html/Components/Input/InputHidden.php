@@ -20,7 +20,7 @@ class InputHidden extends Input
     /**
      * InputHidden class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputHidden $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputHidden $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

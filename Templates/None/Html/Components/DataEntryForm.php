@@ -9,13 +9,13 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\InputTextArea;
-use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Components\Input\InputMultiButtonText;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\InputTextArea;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -166,7 +166,7 @@ class DataEntryForm extends Renderer
                         default          => Strings::capitalize($data['type']),
                     };
 
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type;
+                    $element = '\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type;
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -205,7 +205,7 @@ class DataEntryForm extends Renderer
                     }
 
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputTextArea';
+                    $element = '\\Phoundation\\Web\\Html\\Components\\Input\\InputTextArea';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -222,7 +222,7 @@ class DataEntryForm extends Renderer
 
                 case 'select':
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect';
+                    $element = '\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 
@@ -239,7 +239,7 @@ class DataEntryForm extends Renderer
 
                 case 'inputmultibuttontext':
                     // Build the element class path and load the required class file
-                    $element = '\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText';
+                    $element = '\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText';
                     $file    = Library::getClassFile($element);
                     include_once($file);
 

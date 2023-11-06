@@ -22,7 +22,7 @@ class InputDate extends Input
     /**
      * InputDate class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputDate $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputDate $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

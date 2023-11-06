@@ -22,7 +22,7 @@ class InputWeek extends Input
     /**
      * InputWeek class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputWeek $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputWeek $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

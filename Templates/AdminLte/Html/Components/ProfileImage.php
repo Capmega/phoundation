@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ class ProfileImage extends Renderer
     /**
      * ProfileImage class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\ProfileImage $element)
+    public function __construct(\Phoundation\Web\Html\Components\ProfileImage $element)
     {
         parent::__construct($element);
     }

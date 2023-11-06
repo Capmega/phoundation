@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None\Html\Layouts;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ class GridRow extends Renderer
     /**
      * GridRow class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Layouts\GridRow $element)
+    public function __construct(\Phoundation\Web\Html\Layouts\GridRow $element)
     {
         parent::__construct($element);
     }

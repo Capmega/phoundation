@@ -8,8 +8,8 @@ namespace Templates\None\Html\Components;
 use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -29,7 +29,7 @@ class SidePanel extends Renderer
     /**
      * SidePanel class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\SidePanel $element)
+    public function __construct(\Phoundation\Web\Html\Components\SidePanel $element)
     {
         parent::__construct($element);
     }

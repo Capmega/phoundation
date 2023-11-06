@@ -7,10 +7,10 @@ namespace Templates\Mdb;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Footer;
-use Phoundation\Web\Http\Html\Components\ProfileImage;
-use Phoundation\Web\Http\Html\Components\TopPanel;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Footer;
+use Phoundation\Web\Html\Components\ProfileImage;
+use Phoundation\Web\Html\Components\TopPanel;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -25,7 +25,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\Mdb
  */
-class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
+class TemplatePage extends \Phoundation\Web\Html\Template\TemplatePage
 {
     /**
      * Execute, builds and returns the page output according to the template.

@@ -7,8 +7,8 @@ namespace Templates\None\Html\Components;
 
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -26,7 +26,7 @@ class Modal extends Renderer
     /**
      * Modal class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Modals\Modal $element)
+    public function __construct(\Phoundation\Web\Html\Components\Modals\Modal $element)
     {
         parent::__construct($element);
     }

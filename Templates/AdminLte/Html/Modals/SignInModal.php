@@ -6,12 +6,12 @@ declare(strict_types=1);
 namespace Templates\AdminLte\Html\Modals;
 
 use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Html\Layouts\GridColumn;
-use Phoundation\Web\Http\Html\Layouts\GridRow;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Html\Layouts\GridColumn;
+use Phoundation\Web\Html\Layouts\GridRow;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -30,7 +30,7 @@ class SignInModal extends Renderer
     /**
      * SignInModal class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Modals\SignInModal $element)
+    public function __construct(\Phoundation\Web\Html\Components\Modals\SignInModal $element)
     {
         parent::__construct($element);
     }

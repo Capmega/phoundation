@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Widgets;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ abstract class Widget extends Renderer
     /**
      * Widget class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Widgets\Widget $element)
+    public function __construct(\Phoundation\Web\Html\Components\Widgets\Widget $element)
     {
         parent::__construct($element);
     }

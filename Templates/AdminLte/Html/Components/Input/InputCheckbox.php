@@ -2,10 +2,7 @@
 
 declare(strict_types=1);
 
-
 namespace Templates\AdminLte\Html\Components\Input;
-
-use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -23,10 +20,10 @@ class InputCheckbox extends Input
     /**
      * InputCheckbox class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputCheckbox $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputCheckbox $element)
     {
         parent::__construct($element);
-        $element->removeClass( 'form-control')->addClass('form-check-input');
+        $element->getClasses()->deleteValues('form-control')->add('form-check-input');
     }
 
 

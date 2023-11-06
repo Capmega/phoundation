@@ -22,7 +22,7 @@ class InputPassword extends Input
     /**
      * InputPassword class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputPassword $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputPassword $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

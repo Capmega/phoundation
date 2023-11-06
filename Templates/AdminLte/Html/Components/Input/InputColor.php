@@ -22,7 +22,7 @@ class InputColor extends Input
     /**
      * InputColor class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputColor $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputColor $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

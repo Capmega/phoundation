@@ -22,7 +22,7 @@ class InputDateTimeRange extends Input
     /**
      * InputText class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputText $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputText $element)
     {
         $element->addClass('form-control');
         parent::__construct($element);

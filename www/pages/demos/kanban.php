@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Page;
 
 

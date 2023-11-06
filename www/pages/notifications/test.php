@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 

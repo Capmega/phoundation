@@ -1,7 +1,7 @@
 <?php
 
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -24,8 +24,8 @@ Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 echo Card::new()
     ->setTitle(tr('Reports available to me'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/timesheets/my-timesheet-reports/review.html') . '">' . tr('My timesheets review report') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/timesheets/my-timesheet-reports/summary.html') . '">' . tr('My timesheets summary report') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/timesheets/my-timesheet-reports/detailed.html') . '">' . tr('My timesheets detailed revision') . '</a><hr>')
+    ->setContent('<a href="' . UrlBuilder::getWww('/timesheets/my-timesheet-reports/review.html') . '">' . tr('My timesheet review & submit') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/timesheets/my-timesheet-reports/summary.html') . '">' . tr('My timesheet summary report') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/timesheets/my-timesheet-reports/detailed.html') . '">' . tr('My timesheet detailed report') . '</a><hr>')
     ->render();
 ?>

@@ -21,7 +21,7 @@ class InputTextArea extends Input
     /**
      * TextArea class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputTextArea $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputTextArea $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

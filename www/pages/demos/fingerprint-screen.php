@@ -2,7 +2,7 @@
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 

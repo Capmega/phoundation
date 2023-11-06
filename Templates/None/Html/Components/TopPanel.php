@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace Templates\None\Html\Components;
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -27,7 +27,7 @@ class TopPanel extends Renderer
     /**
      * TopPanel class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\TopPanel $element)
+    public function __construct(\Phoundation\Web\Html\Components\TopPanel $element)
     {
         parent::__construct($element);
     }

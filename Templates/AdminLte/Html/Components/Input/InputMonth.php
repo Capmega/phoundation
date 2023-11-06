@@ -22,7 +22,7 @@ class InputMonth extends Input
     /**
      * InputMonth class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputMonth $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputMonth $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

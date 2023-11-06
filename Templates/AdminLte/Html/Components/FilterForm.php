@@ -21,7 +21,7 @@ class FilterForm extends DataEntryForm
     /**
      * FilterForm class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\FilterForm $element)
+    public function __construct(\Phoundation\Web\Html\Components\FilterForm $element)
     {
         parent::__construct($element);
     }

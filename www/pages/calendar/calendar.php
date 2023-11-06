@@ -1,7 +1,7 @@
 <?php
 
-use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Page;
 
 

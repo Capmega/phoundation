@@ -6,8 +6,6 @@ declare(strict_types=1);
 namespace Templates\AdminLte\Html\Components\Input;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Page;
 
 
 /**
@@ -25,7 +23,7 @@ class InputDateRange extends Input
     /**
      * InputText class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputText $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputText $element)
     {
         $element->addClass('form-control');
         parent::__construct($element);

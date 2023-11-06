@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None\Html\Components\Input;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ class InputButton extends Renderer
     /**
      * InputButton class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputButton $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputButton $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 namespace Templates\Mdb\Html\Components;
 
-use Phoundation\Web\Http\Html\Components\Img;
-use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Modals\SignInModal;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -27,7 +27,7 @@ class TopPanel extends Renderer
     /**
      * TopPanel class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\TopPanel $element)
+    public function __construct(\Phoundation\Web\Html\Components\TopPanel $element)
     {
         $element->getModals()->setRequired('sign-in');
         $element->getModals()->addModal('sign-in', SignInModal::new());
@@ -66,7 +66,7 @@ class TopPanel extends Renderer
                                   ' . Img::new()
                                         ->setSrc('img/logos/phoundation/phoundation-64x64.png')
                                         ->setAlt(tr('The Phoundation logo'))
-                                        ->addAttributes([
+                                        ->setAttributes([
                                             'loading' => 'lazy',
                                             'height'  => 50
                                         ])

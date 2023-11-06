@@ -10,15 +10,15 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\InputHidden;
-use Phoundation\Web\Http\Html\Components\Input\InputMultiButtonText;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\InputTextArea;
-use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Components\Input\InputHidden;
+use Phoundation\Web\Html\Components\Input\InputMultiButtonText;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\InputTextArea;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 use Stringable;
 
 
@@ -321,7 +321,7 @@ class DataEntryForm extends Renderer
                         };
 
                         // Get the class for this element and ensure the library file is loaded
-                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\Input' . $type);
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type);
 
                         // Depending on input type we might need different code
 
@@ -438,7 +438,7 @@ class DataEntryForm extends Renderer
                         }
 
                         // Get the class for this element and ensure the library file is loaded
-                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputTextArea');
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputTextArea');
 
                         $html = InputTextArea::new()
                             ->setDisabled((bool) $definition_array['disabled'])
@@ -481,7 +481,7 @@ class DataEntryForm extends Renderer
 
                     case 'select':
                         // Get the class for this element and ensure the library file is loaded
-                        Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputSelect');
+                        Library::loadClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
 
                         $html = InputSelect::new()
                             ->setSource(isset_get($definition_array['source']), $execute)
@@ -500,7 +500,7 @@ class DataEntryForm extends Renderer
 
                     case 'inputmultibuttontext':
                         // Get the class for this element and ensure the library file is loaded
-                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\Input\\InputMultiButtonText');
+                        $element_class = Library::loadClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText');
                         $input         = InputMultiButtonText::new()
                             ->setSource($definition_array['source']);
 

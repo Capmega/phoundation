@@ -22,7 +22,7 @@ class InputNumber extends Input
     /**
      * InputNumeric class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputNumber $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputNumber $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

@@ -22,7 +22,7 @@ class InputImage extends Input
     /**
      * InputImage class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputImage $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputImage $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

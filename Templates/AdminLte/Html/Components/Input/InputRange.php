@@ -22,7 +22,7 @@ class InputRange extends Input
     /**
      * InputRange class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputRange $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputRange $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

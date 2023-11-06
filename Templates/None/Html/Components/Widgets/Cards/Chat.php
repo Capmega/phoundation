@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None\Html\Components\Widgets\Cards;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ class Chat extends Renderer
     /**
      * Chat class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Widgets\Cards\Chat $element)
+    public function __construct(\Phoundation\Web\Html\Components\Widgets\Cards\Chat $element)
     {
         parent::__construct($element);
     }

@@ -1,10 +1,10 @@
 <?php
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 

@@ -22,7 +22,7 @@ class InputTel extends Input
     /**
      * InputTel class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputTel $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputTel $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

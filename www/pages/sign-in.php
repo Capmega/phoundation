@@ -34,9 +34,9 @@ if (Page::isPostRequestMethod()) {
         Page::redirect('prev');
 
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('Please specify a valid email and password'));
+        Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('The specified email or password was incorrect'));
+        Page::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
     }
 }
 

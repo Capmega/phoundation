@@ -21,7 +21,7 @@ class InputAutoSuggest extends Input
     /**
      * InputAutoSuggest class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputAutoSuggest $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputAutoSuggest $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

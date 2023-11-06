@@ -22,7 +22,7 @@ class InputSearch extends Input
     /**
      * InputSearch class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputSearch $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputSearch $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

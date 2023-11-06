@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None\Html\Components\Input;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ class InputEmail extends Renderer
     /**
      * InputEmail class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputEmail $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputEmail $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

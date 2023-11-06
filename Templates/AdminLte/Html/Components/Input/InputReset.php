@@ -22,7 +22,7 @@ class InputReset extends Input
     /**
      * InputReset class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputReset $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputReset $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

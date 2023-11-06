@@ -21,7 +21,7 @@ class InputSelect extends Input
     /**
      * Select class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputSelect $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputSelect $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Layouts;
 
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -24,7 +24,7 @@ class Container extends Renderer
     /**
      * Container class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Layouts\Container $element)
+    public function __construct(\Phoundation\Web\Html\Layouts\Container $element)
     {
         parent::__construct($element);
     }

@@ -22,7 +22,7 @@ class InputFile extends Input
     /**
      * InputFile class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputFile $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputFile $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

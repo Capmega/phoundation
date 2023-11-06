@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Widgets\Boxes;
 
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -24,7 +24,7 @@ class InfoBoxBg extends Renderer
     /**
      * InfoBoxBg class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Widgets\Boxes\InfoBoxBg $element)
+    public function __construct(\Phoundation\Web\Html\Components\Widgets\Boxes\InfoBoxBg $element)
     {
         parent::__construct($element);
     }

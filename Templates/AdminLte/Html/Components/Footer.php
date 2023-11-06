@@ -7,7 +7,7 @@ namespace Templates\AdminLte\Html\Components;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -26,7 +26,7 @@ class Footer extends Renderer
     /**
      * Footer class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Footer $element)
+    public function __construct(\Phoundation\Web\Html\Components\Footer $element)
     {
         parent::__construct($element);
     }

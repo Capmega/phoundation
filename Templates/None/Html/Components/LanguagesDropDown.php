@@ -8,8 +8,8 @@ namespace Templates\None\Html\Components;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Html;
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Html;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -27,7 +27,7 @@ class LanguagesDropDown extends Renderer
     /**
      * LanguagesDropDown class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\LanguagesDropDown $element)
+    public function __construct(\Phoundation\Web\Html\Components\LanguagesDropDown $element)
     {
         parent::__construct($element);
     }

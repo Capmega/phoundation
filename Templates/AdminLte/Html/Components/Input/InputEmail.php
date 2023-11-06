@@ -20,7 +20,7 @@ class InputEmail extends Input
     /**
      * InputEmail class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputEmail $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputEmail $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

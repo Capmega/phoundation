@@ -22,7 +22,7 @@ class InputUrl extends Input
     /**
      * InputUrl class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputUrl $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputUrl $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

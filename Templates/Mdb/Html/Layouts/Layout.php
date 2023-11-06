@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\Mdb\Html\Layouts;
 
-use Phoundation\Web\Http\Html\Renderer;
+use Phoundation\Web\Html\Renderer;
 
 
 /**
@@ -23,7 +23,7 @@ abstract class Layout extends Renderer
     /**
      * Layout class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Layouts\Layout $element)
+    public function __construct(\Phoundation\Web\Html\Layouts\Layout $element)
     {
         parent::__construct($element);
     }

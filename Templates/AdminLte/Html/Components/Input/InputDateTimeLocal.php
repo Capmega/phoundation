@@ -22,7 +22,7 @@ class InputDateTimeLocal extends Input
     /**
      * InputDateTimeLocal class constructor
      */
-    public function __construct(\Phoundation\Web\Http\Html\Components\Input\InputDateTimeLocal $element)
+    public function __construct(\Phoundation\Web\Html\Components\Input\InputDateTimeLocal $element)
     {
         $element->addClass( 'form-control');
         parent::__construct($element);

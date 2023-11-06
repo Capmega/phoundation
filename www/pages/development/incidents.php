@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 use Phoundation\Developer\Incidents\FilterForm;
 use Phoundation\Developer\Incidents\Incidents;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 

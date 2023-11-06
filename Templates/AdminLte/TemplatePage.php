@@ -6,11 +6,11 @@ declare(strict_types=1);
 namespace Templates\AdminLte;
 
 use Phoundation\Core\Config;
-use Phoundation\Web\Http\Html\Components\Footer;
-use Phoundation\Web\Http\Html\Components\Modals\SignInModal;
-use Phoundation\Web\Http\Html\Components\SidePanel;
-use Phoundation\Web\Http\Html\Components\TopPanel;
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Html\Components\Footer;
+use Phoundation\Web\Html\Components\Modals\SignInModal;
+use Phoundation\Web\Html\Components\SidePanel;
+use Phoundation\Web\Html\Components\TopPanel;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -25,7 +25,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Templates\AdminLte
  */
-class TemplatePage extends \Phoundation\Web\Http\Html\Template\TemplatePage
+class TemplatePage extends \Phoundation\Web\Html\Template\TemplatePage
 {
     /**
      * Execute, builds and returns the page output according to the template.
