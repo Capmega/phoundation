@@ -1324,29 +1324,31 @@ class User extends DataEntry implements UserInterface
         parent::save();
 
         // Send out Account change notification, but not during init states.
-        if (!Core::inInitState()) {
-            if ($meta_id) {
-                Incident::new()
-                    ->setType('Accounts change')
-                    ->setSeverity(Severity::low)
-                    ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                        ':user'    => $this->getLogId(),
-                        ':meta_id' => $meta_id
-                    ]))
-                    ->setDetails(['user' => $this->getLogId()])
-                    ->notifyRoles('accounts')
-                    ->save();
+        if ($this->isSaved()) {
+            if (!Core::inInitState()) {
+                if ($meta_id) {
+                    Incident::new()
+                        ->setType('Accounts change')
+                        ->setSeverity(Severity::low)
+                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                            ':user'    => $this->getLogId(),
+                            ':meta_id' => $meta_id
+                        ]))
+                        ->setDetails(['user' => $this->getLogId()])
+                        ->notifyRoles('accounts')
+                        ->save();
 
-            } else {
-                Incident::new()
-                    ->setType('Accounts change')
-                    ->setSeverity(Severity::low)
-                    ->setTitle(tr('The user ":user" was created', [
-                        ':user' => $this->getLogId()
-                    ]))
-                    ->setDetails(['user' => $this->getLogId()])
-                    ->notifyRoles('accounts')
-                    ->save();
+                } else {
+                    Incident::new()
+                        ->setType('Accounts change')
+                        ->setSeverity(Severity::low)
+                        ->setTitle(tr('The user ":user" was created', [
+                            ':user' => $this->getLogId()
+                        ]))
+                        ->setDetails(['user' => $this->getLogId()])
+                        ->notifyRoles('accounts')
+                        ->save();
+                }
             }
         }
 
