@@ -292,11 +292,11 @@ class Definition implements DefinitionInterface
     /**
      * Add specified value for the specified key for this DataEntry field
      *
-     * @param string $key
      * @param mixed $value
+     * @param string $key
      * @return static
      */
-    public function setKey(string $key, mixed $value): static
+    public function setKey(mixed $value, string $key): static
     {
         $this->rules[$key] = $value;
         return $this;
@@ -335,7 +335,7 @@ class Definition implements DefinitionInterface
             $value = true;
         }
 
-        return $this->setKey('visible', $value);
+        return $this->setKey($value, 'visible');
     }
 
 
@@ -373,7 +373,7 @@ class Definition implements DefinitionInterface
         $value   = Arrays::force($value, ' ');
         $value   = array_merge($this->getClasses(), $value);
 
-        return $this->setKey('classes', $value);
+        return $this->setKey($value, 'classes');
     }
 
 
@@ -398,7 +398,7 @@ class Definition implements DefinitionInterface
      */
     public function setIgnoreModify(?bool $value): static
     {
-        return $this->setKey('ignore_modify', (bool) $value);
+        return $this->setKey((bool) $value, 'ignore_modify');
     }
 
 
@@ -448,7 +448,7 @@ class Definition implements DefinitionInterface
      */
     public function setVirtual(?bool $value): static
     {
-        return $this->setKey('virtual', (bool) $value);
+        return $this->setKey((bool) $value, 'virtual');
     }
 
 
@@ -475,7 +475,7 @@ class Definition implements DefinitionInterface
      */
     public function setDirectUpdate(?bool $value): static
     {
-        return $this->setKey('direct_update', (bool) $value);
+        return $this->setKey((bool) $value, 'direct_update');
     }
 
 
@@ -504,7 +504,7 @@ class Definition implements DefinitionInterface
             return $this;
         }
 
-        return $this->setKey('value', $value);
+        return $this->setKey($value, 'value');
     }
 
 
@@ -527,7 +527,7 @@ class Definition implements DefinitionInterface
      */
     public function setAutoFocus(bool $auto_focus): static
     {
-        return $this->setKey('auto_focus', $auto_focus);
+        return $this->setKey($auto_focus, 'auto_focus');
     }
 
 
@@ -560,7 +560,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        return $this->setKey('element', $value?->value);
+        return $this->setKey($value?->value, 'element');
     }
 
 
@@ -588,7 +588,7 @@ class Definition implements DefinitionInterface
             $value = Html::safe($value);
         }
 
-        return $this->setKey('content', $value);
+        return $this->setKey($value, 'content');
     }
 
 
@@ -627,7 +627,7 @@ class Definition implements DefinitionInterface
                     case InputTypeExtended::natural:
                         $value = InputType::number;
 
-                        $this->setKey('type', $value->value);
+                        $this->setKey($value->value, 'type');
                         $this->setMin(0);
                         $this->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isNatural();
@@ -782,7 +782,7 @@ class Definition implements DefinitionInterface
             $this->validateType('type', $value->value);
         }
 
-        return $this->setKey('type', $value->value);
+        return $this->setKey($value->value, 'type');
     }
 
 
@@ -807,7 +807,7 @@ class Definition implements DefinitionInterface
      */
     public function setReadonly(?bool $value): static
     {
-        return $this->setKey('readonly', (bool) $value);
+        return $this->setKey((bool) $value, 'readonly');
     }
 
 
@@ -832,7 +832,7 @@ class Definition implements DefinitionInterface
      */
     public function setHidden(?bool $value): static
     {
-        return $this->setKey('hidden', (bool) $value);
+        return $this->setKey((bool) $value, 'hidden');
     }
 
 
@@ -857,7 +857,7 @@ class Definition implements DefinitionInterface
      */
     public function setAutoComplete(?bool $value): static
     {
-        return $this->setKey('autocomplete', (bool) $value);
+        return $this->setKey((bool) $value, 'autocomplete');
     }
 
 
@@ -882,7 +882,7 @@ class Definition implements DefinitionInterface
      */
     public function setDisabled(?bool $value): static
     {
-        return $this->setKey('disabled', (bool) $value);
+        return $this->setKey((bool) $value, 'disabled');
     }
 
 
@@ -905,7 +905,7 @@ class Definition implements DefinitionInterface
      */
     public function setLabel(?string $value): static
     {
-        return $this->setKey('label', $value);
+        return $this->setKey($value, 'label');
     }
 
 
@@ -937,7 +937,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        return $this->setKey('size', $value);
+        return $this->setKey($value, 'size');
     }
 
 
@@ -964,7 +964,7 @@ class Definition implements DefinitionInterface
      */
     public function setSource(array|PDOStatement|Stringable|null $value): static
     {
-        return $this->setKey('source', $value);
+        return $this->setKey($value, 'source');
     }
 
 
@@ -1001,7 +1001,7 @@ class Definition implements DefinitionInterface
      */
     public function setVariables(array|null $value): static
     {
-        return $this->setKey('variables', $value);
+        return $this->setKey($value, 'variables');
     }
 
 
@@ -1040,7 +1040,7 @@ class Definition implements DefinitionInterface
             ]));
         }
 
-        return $this->setKey('execute', $value);
+        return $this->setKey($value, 'execute');
     }
 
 
@@ -1086,7 +1086,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        return $this->setKey('cli_auto_complete', $value);
+        return $this->setKey($value, 'cli_auto_complete');
     }
 
 
@@ -1121,7 +1121,7 @@ class Definition implements DefinitionInterface
      */
     public function setCliField(?string $value): static
     {
-        return $this->setKey('cli_field', $value);
+        return $this->setKey($value, 'cli_field');
     }
 
 
@@ -1167,8 +1167,8 @@ class Definition implements DefinitionInterface
             ]));
         }
 
-        $this->setKey('default' , $default);
-        $this->setKey('optional', (bool) $value);
+        $this->setKey($default, 'default');
+        $this->setKey((bool) $value, 'optional');
 
         return $this;
     }
@@ -1194,7 +1194,7 @@ class Definition implements DefinitionInterface
     public function setPlaceholder(?string $value): static
     {
         $this->validateTextTypeElement('placeholder', $value);
-        return $this->setKey('placeholder', $value);
+        return $this->setKey($value, 'placeholder');
     }
 
 
@@ -1217,7 +1217,7 @@ class Definition implements DefinitionInterface
      */
     public function setDisplayCallback(?callable $value): static
     {
-        return $this->setKey('display_callback', $value);
+        return $this->setKey($value, 'display_callback');
     }
 
 
@@ -1241,7 +1241,7 @@ class Definition implements DefinitionInterface
     public function setMinlength(?int $value): static
     {
         $this->validateTextTypeElement('minlength', $value);
-        return $this->setKey('minlength', $value);
+        return $this->setKey($value, 'minlength');
     }
 
 
@@ -1264,7 +1264,7 @@ class Definition implements DefinitionInterface
      */
     public function setMaxlength(?int $value): static
     {
-        return $this->setKey('maxlength', $value);
+        return $this->setKey($value, 'maxlength');
     }
 
 
@@ -1288,7 +1288,7 @@ class Definition implements DefinitionInterface
     public function setPattern(?string $value): static
     {
         $this->validateTextTypeElement('pattern', $value);
-        return $this->setKey('pattern', $value);
+        return $this->setKey($value, 'pattern');
     }
 
 
@@ -1312,7 +1312,7 @@ class Definition implements DefinitionInterface
     public function setMin(float|int|null $value): static
     {
         $this->validateNumberTypeInput('min', $value);
-        return $this->setKey('min', $value);
+        return $this->setKey($value, 'min');
     }
 
 
@@ -1336,7 +1336,7 @@ class Definition implements DefinitionInterface
     public function setMax(float|int|null $value): static
     {
         $this->validateNumberTypeInput('max', $value);
-        return $this->setKey('max', $value);
+        return $this->setKey($value, 'max');
     }
 
 
@@ -1360,7 +1360,7 @@ class Definition implements DefinitionInterface
     public function setStep(string|float|int|null $value): static
     {
         $this->validateNumberTypeInput('step', $value);
-        return $this->setKey('step', $value);
+        return $this->setKey($value, 'step');
     }
 
 
@@ -1390,7 +1390,7 @@ class Definition implements DefinitionInterface
             ]));
         }
 
-        return $this->setKey('rows', $value);
+        return $this->setKey($value, 'rows');
     }
 
 
@@ -1413,7 +1413,7 @@ class Definition implements DefinitionInterface
      */
     public function setDefault(mixed $value): static
     {
-        return $this->setKey('default', $value);
+        return $this->setKey($value, 'default');
     }
 
 
@@ -1436,7 +1436,7 @@ class Definition implements DefinitionInterface
      */
     public function setInitialDefault(mixed $value): static
     {
-        return $this->setKey('initial_default', $value);
+        return $this->setKey($value, 'initial_default');
     }
 
 
@@ -1462,8 +1462,8 @@ class Definition implements DefinitionInterface
      */
     public function setNullDb(bool $value, string|float|int|null $default = null): static
     {
-        $this->setKey('null_db', $value);
-        $this->setKey('default', $default);
+        $this->setKey($value, 'null_db');
+        $this->setKey($default, 'default');
 
         return $this;
     }
@@ -1490,7 +1490,7 @@ class Definition implements DefinitionInterface
      */
     public function setNullDisabled(?bool $value): static
     {
-        return $this->setKey('null_disabled', (bool) $value);
+        return $this->setKey((bool) $value, 'null_disabled');
     }
 
 
@@ -1515,7 +1515,7 @@ class Definition implements DefinitionInterface
      */
     public function setNullReadonly(?bool $value): static
     {
-        return $this->setKey('null_readonly', (bool) $value);
+        return $this->setKey((bool) $value, 'null_readonly');
     }
 
 
@@ -1539,7 +1539,7 @@ class Definition implements DefinitionInterface
     public function setNullInputType(?InputType $value): static
     {
         $this->validateType('type', $value->value);
-        return $this->setKey('type', $value->value);
+        return $this->setKey($value->value, 'type');
     }
 
 
@@ -1598,7 +1598,7 @@ class Definition implements DefinitionInterface
      */
     public function setHelpText(?string $value): static
     {
-        return $this->setKey('help_text', trim($value));
+        return $this->setKey(trim($value), 'help_text');
     }
 
 
@@ -1621,7 +1621,7 @@ class Definition implements DefinitionInterface
      */
     public function setHelpGroup(?string $value): static
     {
-        return $this->setKey('help_group', $value);
+        return $this->setKey($value, 'help_group');
     }
 
 

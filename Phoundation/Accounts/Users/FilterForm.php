@@ -55,7 +55,7 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setValue(isset_get($this->source['entry_status']))
-                ->setKey('auto_submit', true)
+                ->setKey(true, 'auto_submit')
                 ->setSource($this->states))
             ->addDefinition(Definition::new(null, 'roles_id')
                 ->setLabel(tr('Role'))

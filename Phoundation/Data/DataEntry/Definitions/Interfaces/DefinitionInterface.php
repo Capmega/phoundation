@@ -115,11 +115,11 @@ interface DefinitionInterface
     /**
      * Add specified value for the specified key for this DataEntry field
      *
-     * @param string $key
      * @param mixed $value
+     * @param string $key
      * @return static
      */
-    public function setKey(string $key, mixed $value): static;
+    public function setKey(mixed $value, string $key): static;
 
     /**
      * Returns if this field will not set the DataEntry to "modified" state when changed
