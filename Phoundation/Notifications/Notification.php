@@ -240,7 +240,7 @@ class Notification extends DataEntry implements NotificationInterface
 
 
     /**
-     * Sets the message for this notification
+     * Will send this notification to the specified roles
      *
      * @param IteratorInterface|array|string $roles
      * @return static
@@ -249,10 +249,6 @@ class Notification extends DataEntry implements NotificationInterface
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
-        }
-
-        if ($roles instanceof IteratorInterface) {
-            $roles = array_keys($roles->getSource());
         }
 
         foreach (Arrays::force($roles) as $role) {
@@ -264,7 +260,7 @@ class Notification extends DataEntry implements NotificationInterface
 
 
     /**
-     * Sets the message for this notification
+     * Will send this notification to the specified role
      *
      * @param string|null $role
      * @return static
