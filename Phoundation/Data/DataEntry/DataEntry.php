@@ -484,7 +484,7 @@ abstract class DataEntry implements DataEntryInterface
         // Get the required fields and gather a list of available help groups
         foreach ($fields as $id => $definitions) {
             if (!$definitions->getOptional()) {
-                $fields->deleteEntries($id);
+                $fields->delete($id);
                 $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
             }
 
@@ -503,7 +503,7 @@ abstract class DataEntry implements DataEntryInterface
 
             foreach ($fields as $id => $definitions) {
                 if ($definitions->getHelpGroup() === $group) {
-                    $fields->deleteEntries($id);
+                    $fields->delete($id);
                     $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
                 }
             }

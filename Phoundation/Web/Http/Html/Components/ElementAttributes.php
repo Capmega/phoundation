@@ -8,7 +8,6 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Html;
 use Stringable;
@@ -567,7 +566,7 @@ trait ElementAttributes
             $this->classes->add('disabled');
 
         } else {
-            $this->classes->deleteEntries('disabled');
+            $this->classes->delete('disabled');
         }
 
         $this->disabled = $disabled;
@@ -598,7 +597,7 @@ trait ElementAttributes
             $this->classes->add('readonly');
 
         } else {
-            $this->classes->deleteEntries('readonly');
+            $this->classes->delete('readonly');
         }
 
         $this->readonly = $readonly;
@@ -727,7 +726,7 @@ trait ElementAttributes
         if ($right) {
             $this->classes->add('float-right');
         } else {
-            $this->classes->deleteEntries('float-right');
+            $this->classes->delete('float-right');
         }
 
         return $this;

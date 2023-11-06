@@ -43,7 +43,7 @@ interface UsersInterface extends DataListInterface
      * @param User|Stringable|array|string|float|int $user
      * @return static
      */
-    public function deleteEntries(User|Stringable|array|string|float|int $user): static;
+    public function delete(User|Stringable|array|string|float|int $user): static;
 
     /**
      * Remove all rights for this right

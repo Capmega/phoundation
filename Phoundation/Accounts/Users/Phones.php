@@ -266,7 +266,7 @@ class Phones extends DataList implements PhonesInterface
 
             foreach ($diff['delete'] as $id => $phone) {
                 Phone::get($id, 'id')->setPhone(null)->save()->delete();
-                $this->deleteEntries($id);
+                $this->delete($id);
             }
 
             foreach ($diff['add'] as $phone) {

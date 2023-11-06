@@ -652,10 +652,31 @@ class Iterator implements IteratorInterface
      * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function deleteEntries(Stringable|array|string|float|int $keys): static
+    public function delete(Stringable|array|string|float|int $keys): static
     {
         foreach (Arrays::force($keys, null) as $key) {
             unset($this->source[$key]);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified value(s)
+     *
+     * @param Stringable|array|string|float|int $values
+     * @param bool $strict
+     * @return static
+     */
+    public function deleteValues(Stringable|array|string|float|int $values, bool $strict = true): static
+    {
+        foreach (Arrays::force($values, null) as $value) {
+            $key = array_search($value, $this->source, $strict);
+
+            if ($key !== false) {
+                unset($this->source[$key]);
+            }
         }
 
         return $this;
@@ -715,6 +736,18 @@ class Iterator implements IteratorInterface
     public function exists(Stringable|string|float|int $key): bool
     {
         return array_key_exists((string) $key, $this->source);
+    }
+
+
+    /**
+     * Returns if the specified value exists in this Iterator or not
+     *
+     * @param Stringable|string|float|int $value
+     * @return bool
+     */
+    public function valueExists(Stringable|string|float|int $value): bool
+    {
+        return in_array($value, $this->source);
     }
 
 

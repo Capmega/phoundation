@@ -122,7 +122,7 @@ class Users extends DataList implements UsersInterface
             }
 
             foreach ($diff['delete'] as $user) {
-                $this->deleteEntries($user);
+                $this->delete($user);
             }
         }
 
@@ -202,7 +202,7 @@ class Users extends DataList implements UsersInterface
      * @param UserInterface|Stringable|array|string|float|int $user
      * @return static
      */
-    public function deleteEntries(UserInterface|Stringable|array|string|float|int $user): static
+    public function delete(UserInterface|Stringable|array|string|float|int $user): static
     {
         $this->ensureParent('delete entry from parent');
 
@@ -210,7 +210,7 @@ class Users extends DataList implements UsersInterface
             if (is_array($user)) {
                 // Add multiple rights
                 foreach ($user as $entry) {
-                    $this->deleteEntries($entry);
+                    $this->delete($entry);
                 }
 
             } else {

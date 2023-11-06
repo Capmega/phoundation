@@ -118,7 +118,7 @@ class Roles extends DataList implements RolesInterface
             }
 
             foreach ($diff['delete'] as $role) {
-                $this->deleteEntries($role);
+                $this->delete($role);
             }
         }
 
@@ -207,7 +207,7 @@ class Roles extends DataList implements RolesInterface
      * @param RoleInterface|Stringable|array|string|float|int $role
      * @return static
      */
-    public function deleteEntries(RoleInterface|Stringable|array|string|float|int $role): static
+    public function delete(RoleInterface|Stringable|array|string|float|int $role): static
     {
         $this->ensureParent('remove entry from parent');
 
@@ -215,7 +215,7 @@ class Roles extends DataList implements RolesInterface
             if (is_array($role)) {
                 // Add multiple rights
                 foreach ($role as $entry) {
-                    $this->deleteEntries($entry);
+                    $this->delete($entry);
                 }
 
             } else {
@@ -246,7 +246,7 @@ class Roles extends DataList implements RolesInterface
                             }
                         }
 
-                        $this->parent->getRights()->deleteEntries($right);
+                        $this->parent->getRights()->delete($right);
                     }
 
                 } elseif ($this->parent instanceof RightInterface) {
@@ -265,7 +265,7 @@ class Roles extends DataList implements RolesInterface
 
                     // Update all users with this right to remove the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->deleteEntries($this->parent);
+                        User::get($user)->getRights()->delete($this->parent);
                     }
                 }
             }
