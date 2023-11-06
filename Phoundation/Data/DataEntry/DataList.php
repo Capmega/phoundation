@@ -246,11 +246,12 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Sets the value for the specified key
      *
-     * @param Stringable|string|float|int $key
      * @param DataEntryInterface $value
+     * @param Stringable|string|float|int $key
+     * @param bool $skip_null
      * @return static
      */
-    public function set(Stringable|string|float|int $key, mixed $value): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static
     {
         if ($value instanceof DataEntryInterface) {
             return parent::set($key, $value);
@@ -505,16 +506,20 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param DataEntry|null $entry
+     * @param mixed $value
+     * @param float|int|string|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addDataEntry(?DataEntryInterface $entry): static
+    public function add(mixed $value, float|int|string|null $key = null, bool $skip_null = true): static
     {
-        if ($entry) {
-            $this->source[$entry->getId()] = $entry;
+        if (!$value instanceof DataEntryInterface) {
+            throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
+                ':value' => $value
+            ]));
         }
 
-        return $this;
+        return parent::add($value, $key, $skip_null);
     }
 
 
@@ -655,11 +660,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function addSource(DataListInterface|array|null $source): static
     {
-        foreach ($source as $key => $value) {
-            $this->add($value, $key);
-        }
-
-        return $this;
+        return parent::addSource($source);
     }
 
 

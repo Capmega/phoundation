@@ -171,7 +171,8 @@ class Users extends DataList implements UsersInterface
                     ]);
 
                     // Add right to internal list
-                    $this->addDataEntry($user);
+                    $this->add($user);
+
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Adding right ":right" to user ":user"', [
                         ':right' => $this->parent->getLogId(),
@@ -186,7 +187,7 @@ class Users extends DataList implements UsersInterface
                     ]);
 
                     // Add right to internal list
-                    $this->addDataEntry($user);
+                    $this->add($user);
                 }
             }
         }

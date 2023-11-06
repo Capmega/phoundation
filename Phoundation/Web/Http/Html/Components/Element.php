@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
@@ -27,6 +28,7 @@ use Phoundation\Web\Page;
 abstract class Element implements ElementInterface
 {
     use ElementAttributes;
+
 
 
     /**
@@ -52,6 +54,17 @@ abstract class Element implements ElementInterface
     public function __toString(): string
     {
         return (string) $this->render();
+    }
+
+
+    /**
+     * Returns a new ElementAttributes class
+     *
+     * @return $this
+     */
+    public static function new(): static
+    {
+        return new static();
     }
 
 
@@ -115,12 +128,12 @@ abstract class Element implements ElementInterface
 
         $postfix = null;
 
-        if (isset_get($this->attributes['auto_submit'])) {
+        if ($this->attributes->get('auto_submit', false)) {
             // Add javascript to automatically submit on change
+            $this->attributes->deleteEntries('auto_submit');
             $postfix .= Script::new()
                 ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
                 ->setJavascriptWrapper(JavascriptWrappers::window);
-            unset($this->attributes['auto_submit']);
         }
 
         $renderer_class  = Page::getTemplate()->getRendererClass($this);
@@ -185,10 +198,10 @@ abstract class Element implements ElementInterface
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::addAttribute()
-     * @return array
+     *       values that were added as general attributes using Element::getAttributes()->add()
+     * @return IteratorInterface
      */
-    protected function buildAttributes(): array
+    protected function buildAttributes(): IteratorInterface
     {
         $return = [
             'id'        => $this->id,
@@ -209,16 +222,20 @@ abstract class Element implements ElementInterface
         }
 
         // Add data-* entries
-        foreach ($this->data as $key => $value) {
-            $return['data-' . $key] = $value;
+        if (isset($this->data)) {
+            foreach ($this->data as $key => $value) {
+                $return['data-' . $key] = $value;
+            }
         }
 
         // Add aria-* entries
-        foreach ($this->aria as $key => $value) {
-            $return['aria-' . $key] = $value;
+        if (isset($this->aria)) {
+            foreach ($this->aria as $key => $value) {
+                $return['aria-' . $key] = $value;
+            }
         }
 
         // Merge the system values over the set attributes
-        return array_merge($this->attributes, $return);
+        return $this->attributes->merge($return);
     }
 }

@@ -174,7 +174,7 @@ class Rights extends DataList implements RightsInterface
                     ]);
 
                     // Add right to internal list
-                    $this->addDataEntry($right);
+                    $this->add($right);
 
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Adding right ":right" to role ":role"', [
@@ -188,7 +188,7 @@ class Rights extends DataList implements RightsInterface
                     ]);
 
                     // Add right to internal list
-                    $this->addDataEntry($right);
+                    $this->add($right);
 
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {

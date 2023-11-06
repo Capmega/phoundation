@@ -56,7 +56,7 @@ class InputDate extends Input
      */
     public function getMax(): ?int
     {
-        return isset_get($this->attributes['max']);
+        return $this->attributes->get('max', false);
     }
 
 
@@ -72,8 +72,7 @@ class InputDate extends Input
             $max = $max->format('Y-m-d');
         }
 
-        $this->attributes['max'] = (string) $max;
-        return $this;
+        return $this->setAttribute(get_null((string) $max), 'max');
     }
 
 
@@ -84,7 +83,7 @@ class InputDate extends Input
      */
     public function getMin(): ?int
     {
-        return isset_get($this->attributes['min']);
+        return $this->attributes->get('min', false);
     }
 
 
@@ -100,7 +99,6 @@ class InputDate extends Input
             $min = $min->format('Y-m-d');
         }
 
-        $this->attributes['min'] = $min;
-        return $this;
+        return $this->setAttribute(get_null((string) $min), 'min');
     }
 }

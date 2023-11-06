@@ -168,7 +168,7 @@ class Roles extends DataList implements RolesInterface
                     ]);
 
                     // Add right to internal list
-                    $this->addDataEntry($role);
+                    $this->add($role);
 
                     // Add rights to the user
                     foreach ($role->getRights() as $right) {
@@ -187,7 +187,7 @@ class Roles extends DataList implements RolesInterface
                     ]);
 
                     // Add right to internal list
-                    $this->addDataEntry($role);
+                    $this->add($role);
 
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {

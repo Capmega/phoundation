@@ -240,7 +240,7 @@ class InputAutoSuggest extends InputText
               }
             });');
 
-        $this->attributes = array_merge($this->buildInputAttributes(), $this->attributes);
+        $this->attributes = $this->buildInputAttributes()->merge($this->attributes);
         return $script->render() . parent::render();
     }
 }

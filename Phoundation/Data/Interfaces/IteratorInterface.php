@@ -82,9 +82,10 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param mixed $value
      * @param string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null): static;
+    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Adds the specified source to the internal source
@@ -114,11 +115,11 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Sets value for the specified key
      *
      * @note This is a wrapper for Iterator::set()
-     * @param Stringable|string|float|int $key
      * @param mixed $value
+     * @param Stringable|string|float|int $key
      * @return mixed
      */
-    public function set(Stringable|string|float|int $key, mixed $value): static;
+    public function set(mixed $value, Stringable|string|float|int $key): static;
 
     /**
      * Returns a list of items that are specified, but not available in this Iterator
@@ -258,4 +259,12 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return bool
      */
     public function isEmpty(): bool;
+
+    /**
+     * Merge the specified Iterator or array into this Iterator
+     *
+     * @param IteratorInterface|array $source
+     * @return static
+     */
+    public function merge(IteratorInterface|array $source): static;
 }

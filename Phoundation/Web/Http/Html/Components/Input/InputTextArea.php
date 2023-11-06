@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Input;
 
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 
 
 /**
@@ -101,7 +102,7 @@ class InputTextArea extends Input
      */
     public function getMinLength(): ?int
     {
-        return isset_get($this->attributes['minlength']);
+        return $this->attributes->get('minlength', false);
     }
 
 
@@ -113,8 +114,7 @@ class InputTextArea extends Input
      */
     public function setMinLength(?int $minlength): static
     {
-        $this->attributes['minlength'] = $minlength;
-        return $this;
+        return $this->setAttribute($minlength, 'minlength');
     }
 
 
@@ -125,7 +125,7 @@ class InputTextArea extends Input
      */
     public function getMaxLength(): ?int
     {
-        return isset_get($this->attributes['maxlength']);
+        return $this->attributes->get('maxlength', false);
     }
 
 
@@ -137,8 +137,7 @@ class InputTextArea extends Input
      */
     public function setMaxLength(?int $maxlength): static
     {
-        $this->attributes['maxlength'] = $maxlength;
-        return $this;
+        return $this->setAttribute($maxlength, 'maxlength');
     }
 
 
@@ -149,7 +148,7 @@ class InputTextArea extends Input
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean(isset_get($this->attributes['autocomplete']));
+        return Strings::toBoolean($this->attributes->get('autocomplete', false));
     }
 
 
@@ -161,8 +160,7 @@ class InputTextArea extends Input
      */
     public function setAutoComplete(bool $auto_complete): static
     {
-        $this->attributes['autocomplete'] = ($auto_complete ? 'on' : 'off');
-        return $this;
+        return $this->setAttribute($auto_complete ? 'on' : 'off', 'autocomplete');
     }
 
 
@@ -170,10 +168,11 @@ class InputTextArea extends Input
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::addAttribute()
-     * @return array
+     *       values that were added as general attributes using Element::getAttributes()->add() or
+     *       Element::getAttributes()->set()
+     * @return IteratorInterface
      */
-    protected function buildAttributes(): array
+    protected function buildAttributes(): IteratorInterface
     {
         $return = [
             'cols' => $this->cols,
@@ -181,6 +180,6 @@ class InputTextArea extends Input
         ];
 
         // Merge the system values over the set attributes
-        return array_merge(parent::buildAttributes(), $this->attributes, $return);
+        return parent::buildAttributes()->merge($this->attributes, $return);
     }
 }

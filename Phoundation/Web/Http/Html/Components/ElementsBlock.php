@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\NewSource;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
@@ -27,7 +28,9 @@ use Phoundation\Web\Page;
 // TODO Implement Phoundation Iterator instead of PHP Iterator
 abstract class ElementsBlock extends Iterator implements IteratorInterface, ElementsBlockInterface
 {
-    use ElementAttributes;
+    use ElementAttributes {
+        __construct as ___construct;
+    }
 
 
     /**
@@ -56,7 +59,17 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      *
      * @var array $source
      */
-    protected array $source = [];
+    protected array $source;
+
+
+    /**
+     * Class constructor
+     */
+    public function __construct(?array $source = null)
+    {
+        parent::__construct($source);
+        $this->___construct();
+    }
 
 
     /**

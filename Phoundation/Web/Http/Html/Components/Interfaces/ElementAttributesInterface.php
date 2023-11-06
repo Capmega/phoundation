@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Html\Components\Interfaces;
 
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Stringable;
 
@@ -64,58 +65,32 @@ interface ElementAttributesInterface
     function getName(): ?string;
 
     /**
-     * Clears the HTML class element attribute
+     * Returns all HTML element attributes
      *
-     * @return static
+     * @return IteratorInterface
      */
-    function clearClasses(): static;
+    function getAttributes(): IteratorInterface;
 
     /**
-     * Sets the HTML class element attribute
+     * Returns the HTML element data attribute store
      *
-     * @param array|string|null $classes
-     * @return static
+     * @return IteratorInterface
      */
-    function setClasses(array|string|null $classes): static;
+    function getData(): IteratorInterface;
 
     /**
-     * Sets the HTML class element attribute
+     * Returns the HTML element aria attribute store
      *
-     * @param array|string|null $classes
-     * @return static
+     * @return IteratorInterface
      */
-    function addClasses(array|string|null $classes): static;
+    function getAria(): IteratorInterface;
 
     /**
-     * Adds a class to the HTML class element attribute
+     * Returns the HTML element class attribute store
      *
-     * @param string|null $class
-     * @return static
+     * @return IteratorInterface
      */
-    function addClass(?string $class): static;
-
-    /**
-     * Removes the specified class for this element
-     *
-     * @param string $class
-     * @return $this
-     */
-    function removeClass(string $class): static;
-
-    /**
-     * Adds a class to the HTML class element attribute
-     *
-     * @param ?string $class
-     * @return static
-     */
-    function setClass(?string $class): static;
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return array
-     */
-    function getClasses(): array;
+    function getClasses(): IteratorInterface;
 
     /**
      * Returns the HTML class element attribute
@@ -123,28 +98,6 @@ interface ElementAttributesInterface
      * @return string|null
      */
     function getClass(): ?string;
-
-    /**
-     * Returns if this element has the specified class or not
-     *
-     * @param string $class
-     * @return bool
-     */
-    function hasClass(string $class): bool;
-
-    /**
-     * Returns the HTML element data attribute store
-     *
-     * @return Iterator
-     */
-    function getData(): Iterator;
-
-    /**
-     * Returns the HTML element aria attribute store
-     *
-     * @return Iterator
-     */
-    function getAria(): Iterator;
 
     /**
      * Set the HTML tabindex element attribute
@@ -160,36 +113,6 @@ interface ElementAttributesInterface
      * @return int|null
      */
     function getTabIndex(): ?int;
-
-    /**
-     * Clears all the extra element attribute code
-     *
-     * @return static
-     */
-    function clearExtra(): static;
-
-    /**
-     * Sets all the extra element attribute code
-     *
-     * @param string|null $extra
-     * @return static
-     */
-    function setExtra(?string $extra): static;
-
-    /**
-     * Adds more to the extra element attribute code
-     *
-     * @param string|null $extra
-     * @return static
-     */
-    function addExtra(?string $extra): static;
-
-    /**
-     * Returns the extra element attribute code
-     *
-     * @return string
-     */
-    function getExtra(): string;
 
     /**
      * Sets the HTML class element attribute
@@ -235,46 +158,6 @@ interface ElementAttributesInterface
      * @return bool
      */
     function getReadonly(): bool;
-
-    /**
-     * Clears all HTML element attributes
-     *
-     * @return static
-     */
-    function clearAttributes(): static;
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param array $notifications
-     * @return static
-     */
-    function setAttributes(array $notifications): static;
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param array $attributes
-     * @return static
-     */
-    function addAttributes(array $attributes): static;
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param string $attribute
-     * @param string|null $value
-     * @param bool $skip_on_null
-     * @return static
-     */
-    function addAttribute(string $attribute, ?string $value, bool $skip_on_null = false): static;
-
-    /**
-     * Returns all HTML element attributes
-     *
-     * @return array
-     */
-    function getAttributes(): array;
 
     /**
      * Sets the content of the element

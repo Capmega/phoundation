@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Html\Components\Input;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Http\Html\Components\Element;
 use Phoundation\Web\Http\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -64,7 +65,7 @@ class InputCheckbox extends Input
      */
     public function getChecked(): bool
     {
-        return (bool) isset_get($this->attributes['checked']);
+        return (bool) $this->attributes->get('checked', false);
     }
 
 
@@ -76,8 +77,7 @@ class InputCheckbox extends Input
      */
     public function setChecked(bool $checked): static
     {
-        $this->attributes['checked'] = ($checked ? '' : null);
-        return $this;
+        return $this->setAttribute($checked ? 1 : null, 'checked');
     }
 
 
@@ -137,12 +137,14 @@ class InputCheckbox extends Input
     public function render(): ?string
     {
         if ($this->label) {
-            $this->render = Element::new()
+            $element = Element::new()
                 ->setElement('label')
-                ->addAttribute('for', $this->id, true)
                 ->setClass($this->label_class)
-                ->setContent($this->label)
-                ->render();
+                ->setContent($this->label);
+
+            $element->attributes->add($this->id, 'for');
+
+            $this->render = $element->render();
         }
 
         return parent::render();
@@ -153,10 +155,10 @@ class InputCheckbox extends Input
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::addAttribute()
-     * @return array
+     *       values that were added as general attributes using Element::getAttributes()->add()
+     * @return IteratorInterface
      */
-    protected function buildAttributes(): array
+    protected function buildAttributes(): IteratorInterface
     {
         $return = [];
 
@@ -165,6 +167,6 @@ class InputCheckbox extends Input
         }
 
         // Merge the system values over the set attributes
-        return array_merge(parent::buildAttributes(), $this->buildInputAttributes(), $return);
+        return parent::buildAttributes()->merge($this->buildInputAttributes(), $return);
     }
 }

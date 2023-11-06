@@ -304,12 +304,12 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::addAttribute()
-     * @return array
+     *       values that were added as general attributes using Element::getAttributes()->add()
+     * @return IteratorInterface
      */
-    protected function buildAttributes(): array
+    protected function buildAttributes(): IteratorInterface
     {
-        return array_merge(parent::buildAttributes(), []);
+        return parent::buildAttributes();
     }
 
 

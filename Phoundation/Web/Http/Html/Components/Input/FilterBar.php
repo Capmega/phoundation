@@ -33,7 +33,7 @@ class FilterBar extends InputSelect
         // This input element also requires some javascript
         Script::new()->setContent('$("'. $this->getId() .'").select2();')->render();
 
-        $this->attributes = array_merge($this->buildInputAttributes(), $this->attributes);
+        $this->attributes = $this->buildInputAttributes()->merge($this->attributes);
         return parent::render();
 
 //        <div class="select2-purple">

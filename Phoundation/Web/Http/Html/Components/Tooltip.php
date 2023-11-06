@@ -45,7 +45,7 @@ class Tooltip
      */
     public function setToggle(string $toggle): static
     {
-        $this->data->set('toggle', $toggle);
+        $this->data->set($toggle, 'toggle');
         return $this;
     }
 
@@ -57,7 +57,6 @@ class Tooltip
      */
     public function getToggle(): string
     {
-        $this->data->set();
-        return $this;
+        return $this->data->get('toggle', false);
     }
 }

@@ -15,6 +15,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Strings;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Throwable;
 
 
@@ -302,6 +303,7 @@ class Date
      */
     public static function interval(DateTime $date, DateInterval $interval, ?string $format = null)
     {
+throw new UnderConstructionException();
         $date = Date::convert($date, 'd-m-Y');
         $date = new DateTime($date);
 

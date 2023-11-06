@@ -9,10 +9,9 @@ use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Stringable;
 use Throwable;
 use UnitEnum;
 
@@ -343,14 +342,14 @@ class Arrays {
     /**
      * Implode the array with keys preserved
      *
-     * @param array $source
+     * @param IteratorInterface|array $source
      * @param string $row_separator
      * @param string $key_separator
      * @param string|null $quote_character Quote string values with the specified quote
      * @param int|null $options One of Arrays::FILTER_NULL, Arrays::FILTER_EMPTY, Arrays::QUOTE_REQUIRED,Arrays::QUOTE_ALWAYS
      * @return string
      */
-    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, ?string $quote_character = null, ?int $options = self::FILTER_NULL | self::QUOTE_ALWAYS): string
+    public static function implodeWithKeys(IteratorInterface|array $source, string $row_separator, string $key_separator, ?string $quote_character = null, ?int $options = self::FILTER_NULL | self::QUOTE_ALWAYS): string
     {
         $return = [];
 

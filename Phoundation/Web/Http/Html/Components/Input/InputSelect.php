@@ -74,8 +74,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function setMultiple(bool $multiple): static
     {
-        $this->attributes['multiple'] = null;
-        return $this;
+        return $this->setAttribute($multiple, 'multiple');
     }
 
 
@@ -86,7 +85,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function getMultiple(): bool
     {
-        return array_key_exists('multiple', $this->attributes);
+        return $this->attributes->get('multiple', false);
     }
 
 
@@ -97,7 +96,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean(isset_get($this->attributes['autocomplete']));
+        return Strings::toBoolean($this->attributes->get('autocomplete', false));
     }
 
 
@@ -109,8 +108,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function setAutoComplete(bool $auto_complete): static
     {
-        $this->attributes['autocomplete'] = ($auto_complete ? 'on' : 'off');
-        return $this;
+        return $this->setAttribute($auto_complete ? 'on' : 'off', 'autocomplete');
     }
 
 
@@ -134,7 +132,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function getAutoSelect(): bool
     {
-        return (bool) $this->auto_select;
+        return $this->auto_select;
     }
 
 

@@ -2514,6 +2514,7 @@ class Page implements PageInterface
                 default:
                     $output = static::$template_page->execute($target);
             }
+
         } catch (AccessDeniedException $e) {
             $new_target = $e->getNewTarget();
 

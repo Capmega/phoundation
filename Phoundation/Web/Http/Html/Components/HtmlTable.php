@@ -796,7 +796,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $column_header = str_replace(['-', '_'], ' ', $column_header);
                 $column_header = Strings::capitalize($column_header);
 
-                $this->headers->set($key, $column_header);
+                $this->headers->set($column_header, $key);
             }
         }
 

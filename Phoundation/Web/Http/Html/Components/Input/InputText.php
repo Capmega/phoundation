@@ -37,7 +37,7 @@ class InputText extends Input
      */
     public function getMinLength(): ?int
     {
-        return isset_get($this->attributes['minlength']);
+        return $this->attributes->get('minlength', false);
     }
 
 
@@ -49,8 +49,7 @@ class InputText extends Input
      */
     public function setMinLength(?int $minlength): static
     {
-        $this->attributes['minlength'] = $minlength;
-        return $this;
+        return $this->setAttribute($minlength, 'minlength');
     }
 
 
@@ -61,7 +60,7 @@ class InputText extends Input
      */
     public function getMaxLength(): ?int
     {
-        return isset_get($this->attributes['maxlength']);
+        return $this->attributes->get('maxlength', false);
     }
 
 
@@ -73,8 +72,7 @@ class InputText extends Input
      */
     public function setMaxLength(?int $maxlength): static
     {
-        $this->attributes['maxlength'] = $maxlength;
-        return $this;
+        return $this->setAttribute($maxlength, 'maxlength');
     }
 
 
@@ -85,7 +83,7 @@ class InputText extends Input
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean(isset_get($this->attributes['autocomplete']));
+        return Strings::toBoolean($this->attributes->get('autocomplete', false));
     }
 
 
@@ -97,7 +95,6 @@ class InputText extends Input
      */
     public function setAutoComplete(bool $auto_complete): static
     {
-        $this->attributes['autocomplete'] = ($auto_complete ? 'on' : 'off');
-        return $this;
+        return $this->setAttribute($auto_complete ? 'on' : 'off', 'autocomplete');
     }
 }

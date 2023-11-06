@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Web\Http\Html\Exception\HtmlException;
@@ -225,11 +226,11 @@ class Img extends Element
     /**
      * Add the system arguments to the arguments list
      *
-     * @return array
+     * @return IteratorInterface
      */
-    protected function buildAttributes(): array
+    protected function buildAttributes(): IteratorInterface
     {
-        return array_merge(parent::buildAttributes(), [
+        return parent::buildAttributes()->merge([
             'src' => $this->src,
             'alt' => $this->alt,
         ]);

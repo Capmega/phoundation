@@ -45,7 +45,7 @@ abstract class Input extends Element implements Interfaces\InputInterface
      */
     public function render(): ?string
     {
-        $this->attributes = array_merge($this->buildInputAttributes(), $this->attributes);
+        $this->attributes = $this->buildInputAttributes()->merge($this->attributes);
         return parent::render();
     }
 }

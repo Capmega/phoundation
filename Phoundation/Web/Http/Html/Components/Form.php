@@ -7,6 +7,7 @@ namespace Phoundation\Web\Http\Html\Components;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\UrlBuilder;
@@ -285,10 +286,10 @@ class Form extends Element implements FormInterface
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::addAttribute()
-     * @return array
+     *       values that were added as general attributes using Element::getAttributes()->add()
+     * @return IteratorInterface
      */
-    protected function buildAttributes(): array
+    protected function buildAttributes(): IteratorInterface
     {
         // These are obligatory
         $return = [
@@ -310,6 +311,6 @@ class Form extends Element implements FormInterface
         }
 
         // Merge the system values over the set attributes
-        return array_merge(parent::buildAttributes(), $this->attributes, $return);
+        return parent::buildAttributes()->merge($this->attributes, $return);
     }
 }

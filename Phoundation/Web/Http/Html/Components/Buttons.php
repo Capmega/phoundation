@@ -97,7 +97,7 @@ class Buttons extends ElementsBlock implements Iterator
                 ->setOutlined($outline)
                 ->setContent($button)
                 ->setValue($button)
-                ->setRight($right)
+                ->setFloatRight($right)
                 ->setMode($mode)
                 ->setName('submit');
 

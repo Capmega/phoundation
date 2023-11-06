@@ -7,6 +7,8 @@ namespace Phoundation\Web\Http\Html\Components\Input\Traits;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Http\Html\Components\Mode;
 use Phoundation\Web\Http\Html\Enums\InputType;
@@ -137,8 +139,7 @@ trait InputElement
      */
     public function setAutoSubmit(bool $auto_submit): static
     {
-        $this->attributes['auto_submit'] = $auto_submit;
-        return $this;
+        return $this->setAttribute($auto_submit, 'auto_submit');
     }
 
 
@@ -149,7 +150,7 @@ trait InputElement
      */
     public function getAutoSubmit(): bool
     {
-        return $this->attributes['auto_submit'];
+        return $this->attributes->get('auto_submit', false);
     }
 
 
@@ -161,8 +162,7 @@ trait InputElement
      */
     public function setOnChange(?string $on_change): static
     {
-        $this->attributes['on_change'] = $on_change;
-        return $this;
+        return $this->setAttribute($on_change, 'on_change');
     }
 
 
@@ -173,7 +173,7 @@ trait InputElement
      */
     public function getOnChange(): ?string
     {
-        return isset_get($this->attributes['on_change']);
+        return $this->attributes->get('on_change', false);
     }
 
 
@@ -205,14 +205,14 @@ trait InputElement
      * Add the system arguments to the arguments list
      *
      * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::addAttribute()
-     * @return array
+     *       values that were added as general attributes using Element::getAttributes()->add()
+     * @return IteratorInterface
      */
-    protected function buildInputAttributes(): array
+    protected function buildInputAttributes(): IteratorInterface
     {
-        return [
+        return Iterator::new()->setSource([
             'type'  => $this->type?->value,
             'value' => $this->value,
-        ];
+        ]);
     }
 }

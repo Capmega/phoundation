@@ -242,12 +242,12 @@ class Mc
      *
      *
      * @param mixed $value
-     * @param string $key
+     * @param string|float|int $key
      * @param string|null $namespace
      * @param int|null $expires
      * @return false|mixed
      */
-    public function add(mixed $value, string $key, ?string $namespace = null, ?int $expires = null): mixed
+    public function add(mixed $value, string|float|int|null $key, ?string $namespace = null, ?int $expires = null): mixed
     {
         if (!$this->connections) {
             return $value;
@@ -256,8 +256,11 @@ class Mc
         $key = $this->namespace()->getKey($key, $namespace);
         $expires = $expires ?? $this->configuration['expires'];
 
-        if (!$this->memcached->add($key, $value, $expires)) {
-            Log::warning(tr('Failed to add ":bytes" bytes value to key ":key"', [':key' => $key, ':bytes' => strlen($value)]));
+        if (!$this->memcached->add($value, $key, $expires)) {
+            Log::warning(tr('Failed to add ":bytes" bytes value to key ":key"', [
+                ':key'   => $key,
+                ':bytes' => strlen($value)
+            ]));
         }
 
         return $value;

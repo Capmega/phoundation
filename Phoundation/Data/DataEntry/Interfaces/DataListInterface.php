@@ -79,11 +79,12 @@ interface DataListInterface extends IteratorInterface
     /**
      * Sets the value for the specified key
      *
-     * @param Stringable|string|float|int $key
      * @param DataEntryInterface $value
+     * @param Stringable|string|float|int $key
+     * @param bool $skip_null
      * @return static
      */
-    public function set(Stringable|string|float|int $key, mixed $value): static;
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static;
 
     /**
      * Returns a QueryBuilder object to modify the internal query for this object
@@ -160,14 +161,6 @@ interface DataListInterface extends IteratorInterface
      * @return array
      */
     public function listIds(array $identifiers): array;
-
-    /**
-     * Add the specified data entry to the data list
-     *
-     * @param DataEntry|null $entry
-     * @return static
-     */
-    public function addDataEntry(?DataEntryInterface $entry): static;
 
     /**
      * Returns the current item

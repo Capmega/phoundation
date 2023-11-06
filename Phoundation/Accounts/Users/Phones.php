@@ -163,11 +163,12 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Add the specified phone to the iterator array
      *
-     * @param mixed $value
      * @param string|float|int|null $key
+     * @param mixed $value
+     * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null): static
+    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof PhoneInterface) {
             if (!is_string($value)) {

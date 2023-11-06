@@ -1630,7 +1630,9 @@ class Core implements CoreInterface
                     // We seem to be stuck in an uncaught exception loop, cut it out now!
                     // This basically means that the unhandledException handler also is causing exceptions.
                     // :TODO: ADD NOTIFICATIONS OF STUFF GOING FUBAR HERE!
-                    exit('uncaught exception handler loop detected');
+//                    echo '<pre>';
+//                    print_r($e);
+                    exit('uncaught exception handler loop detected, please check logs');
                 }
 
                 $executed = true;

@@ -6,6 +6,7 @@ namespace Phoundation\Web\Http\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
@@ -25,9 +26,6 @@ use Stringable;
  */
 trait ElementAttributes
 {
-    use NewSource;
-
-
     /**
      * The HTML id element attribute
      *
@@ -57,25 +55,32 @@ trait ElementAttributes
     protected ?string $real_name = null;
 
     /**
-     * The HTML class element attribute store
+     * The HTML element attributes store
      *
-     * @var array $classes
+     * @var IteratorInterface $attributes
      */
-    protected array $classes = [];
+    protected IteratorInterface $attributes;
 
     /**
      * The HTML data-* element attribute store
      *
-     * @var Iterator $data
+     * @var IteratorInterface $data
      */
-    protected Iterator $data;
+    protected IteratorInterface $data;
 
     /**
      * The HTML element aria-* attribute store
      *
-     * @var Iterator $aria
+     * @var IteratorInterface $aria
      */
-    protected Iterator $aria;
+    protected IteratorInterface $aria;
+
+    /**
+     * The HTML class element attribute store
+     *
+     * @var IteratorInterface $classes
+     */
+    protected IteratorInterface $classes;
 
     /**
      * The HTML class element attribute cache
@@ -127,13 +132,6 @@ trait ElementAttributes
     protected string $extra = '';
 
     /**
-     * The attributes for this element
-     *
-     * @var array $attributes
-     */
-    protected array $attributes = [];
-
-    /**
      * The element content
      *
      * @var object|string|null $content
@@ -171,14 +169,11 @@ trait ElementAttributes
 
     /**
      * Class constructor
-     *
-     * @param array|null $source
      */
-    public function __construct(?array $source = null)
+    public function __construct()
     {
-        $this->source = $source;
-        $this->aria   = new Iterator();
-        $this->data   = new Iterator();
+        $this->classes    = new Iterator();
+        $this->attributes = new Iterator();
     }
 
 
@@ -247,40 +242,28 @@ trait ElementAttributes
 
 
     /**
-     * Clears the HTML class element attribute
-     *
-     * @return static
-     */
-    public function clearClasses(): static
-    {
-        $this->classes = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets the HTML class element attribute
+     * Sets the HTML element class attribute
      *
      * @param array|string|null $classes
      * @return static
      */
     public function setClasses(array|string|null $classes): static
     {
-        $this->classes = [];
+        $this->classes = new Iterator();
         return $this->addClasses($classes);
     }
 
 
     /**
-     * Sets the HTML class element attribute
+     * Adds the specified classes to the HTML element class attribute
      *
-     * @param array|string|null $classes
+     * @param IteratorInterface|array|string|null $classes
      * @return static
      */
-    public function addClasses(array|string|null $classes): static
+    public function addClasses(IteratorInterface|array|string|null $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
-            $this->addClass($class);
+            $this->classes->add($class);
         }
 
         return $this;
@@ -295,25 +278,7 @@ trait ElementAttributes
      */
     public function addClass(?string $class): static
     {
-        // Only add class if specified.
-        if ($class) {
-            $this->classes[$class] = true;
-            $this->class           = null;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Removes the specified class for this element
-     *
-     * @param string $class
-     * @return $this
-     */
-    public function removeClass(string $class): static
-    {
-        unset($this->classes[$class]);
+        $this->classes->add($class);
         return $this;
     }
 
@@ -321,26 +286,92 @@ trait ElementAttributes
     /**
      * Adds a class to the HTML class element attribute
      *
-     * @param ?string $class
+     * @param array|string|null $classes
      * @return static
      */
-    public function setClass(?string $class): static
+    public function setClass(array|string|null $classes): static
     {
-        if ($class) {
-            $this->classes = [$class => true];
-            $this->class = null;
-        }
-
-        return $this;
+        return $this->setClasses(Arrays::force($classes, ' '));
     }
 
 
     /**
      * Returns the HTML class element attribute store
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getClasses(): array
+    public function getAttributes(): IteratorInterface
+    {
+        return $this->attributes;
+    }
+
+
+    /**
+     * Sets all HTML element attributes
+     *
+     * @param array $attributes
+     * @return static
+     */
+    public function setAttributes(array $attributes): static
+    {
+        $this->attributes = Iterator::new()->add($attributes);
+        return $this;
+    }
+
+
+    /**
+     * Sets a single HTML element attributes
+     *
+     * @param mixed $value
+     * @param string|float|int|null $key
+     * @param bool $skip_null
+     * @return static
+     */
+    public function setAttribute(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
+    {
+        $this->attributes->add($value, $key, $skip_null);
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML element data-* attribute store
+     *
+     * @return IteratorInterface
+     */
+    public function getData(): IteratorInterface
+    {
+        if (!isset($this->data)) {
+            // Lazy initialization
+            $this->data = new Iterator();
+        }
+
+        return $this->data;
+    }
+
+
+    /**
+     * Returns the HTML element aria-* attribute store
+     *
+     * @return IteratorInterface
+     */
+    public function getAria(): IteratorInterface
+    {
+        if (!isset($this->aria)) {
+            // Lazy initialization
+            $this->aria = new Iterator();
+        }
+
+        return $this->aria;
+    }
+
+
+    /**
+     * Returns the HTML class element attribute store
+     *
+     * @return IteratorInterface
+     */
+    public function getClasses(): IteratorInterface
     {
         return $this->classes;
     }
@@ -353,49 +384,11 @@ trait ElementAttributes
      */
     public function getClass(): ?string
     {
-        if (!$this->class) {
-            if ($this->classes) {
-                $this->class = implode(' ', array_keys($this->classes));
-            } else {
-                $this->class = null;
-            }
+        if (empty($this->class)) {
+            $this->class = implode(' ', $this->classes->getSource());
         }
 
         return $this->class;
-    }
-
-
-    /**
-     * Returns if this element has the specified class or not
-     *
-     * @param string $class
-     * @return bool
-     */
-    public function hasClass(string $class): bool
-    {
-        return isset($this->classes[$class]);
-    }
-
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return Iterator
-     */
-    public function getData(): Iterator
-    {
-        return $this->data;
-    }
-
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return Iterator
-     */
-    public function getAria(): Iterator
-    {
-        return $this->aria;
     }
 
 
@@ -571,10 +564,10 @@ trait ElementAttributes
     public function setDisabled(bool $disabled): static
     {
         if ($disabled) {
-            $this->addClass('disabled');
+            $this->classes->add('disabled');
 
         } else {
-            $this->removeClass('disabled');
+            $this->classes->deleteEntries('disabled');
         }
 
         $this->disabled = $disabled;
@@ -602,87 +595,14 @@ trait ElementAttributes
     public function setReadonly(bool $readonly): static
     {
         if ($readonly) {
-            $this->addClass('readonly');
+            $this->classes->add('readonly');
 
         } else {
-            $this->removeClass('readonly');
+            $this->classes->deleteEntries('readonly');
         }
 
         $this->readonly = $readonly;
         return $this;
-    }
-
-
-    /**
-     * Clears all HTML element attributes
-     *
-     * @return static
-     */
-    public function clearAttributes(): static
-    {
-        $this->attributes = [];
-        return $this;
-    }
-
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param array $notifications
-     * @return static
-     */
-    public function setAttributes(array $notifications): static
-    {
-        $this->attributes = [];
-        return $this->addAttributes($notifications);
-    }
-
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param array $attributes
-     * @return static
-     */
-    public function addAttributes(array $attributes): static
-    {
-        foreach ($attributes as $attribute => $value) {
-            $this->addAttribute($attribute, $value);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Sets all HTML element attributes
-     *
-     * @param string $attribute
-     * @param string|null $value
-     * @param bool $skip_on_null
-     * @return static
-     */
-    public function addAttribute(string $attribute, ?string $value, bool $skip_on_null = false): static
-    {
-        if ($value === null) {
-            if ($skip_on_null) {
-                return $this;
-            }
-        }
-
-        $this->attributes[$attribute] = $value;
-        return $this;
-    }
-
-
-    /**
-     * Returns all HTML element attributes
-     *
-     * @return array
-     */
-    public function getAttributes(): array
-    {
-        return $this->attributes;
     }
 
 
@@ -802,24 +722,26 @@ trait ElementAttributes
      * @param bool $right
      * @return static
      */
-    public function setRight(bool $right): static
+    public function setFloatRight(bool $right): static
     {
         if ($right) {
-            return $this->addClass('float-right');
+            $this->classes->add('float-right');
+        } else {
+            $this->classes->deleteEntries('float-right');
         }
 
-        return $this->removeClass('float-right');
+        return $this;
     }
 
 
     /**
      * Returns if the button is right aligned or not
      *
-     * @return string
+     * @return bool
      */
-    public function getRight(): string
+    public function getFloatRight(): bool
     {
-        return $this->hasClass('float-right');
+        return $this->getClasses()->exists('float-right');
     }
 
 

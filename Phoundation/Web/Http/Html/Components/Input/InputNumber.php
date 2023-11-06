@@ -36,7 +36,7 @@ class InputNumber extends Input
      */
     public function getMax(): ?int
     {
-        return isset_get($this->attributes['max']);
+        return $this->attributes->get('max', false);
     }
 
 
@@ -48,8 +48,7 @@ class InputNumber extends Input
      */
     public function setMax(?int $max): static
     {
-        $this->attributes['max'] = $max;
-        return $this;
+        return $this->setAttribute($max, 'max');
     }
 
 
@@ -60,7 +59,7 @@ class InputNumber extends Input
      */
     public function getMin(): ?int
     {
-        return isset_get($this->attributes['min']);
+        return $this->attributes->get('min', false);
     }
 
 
@@ -72,8 +71,7 @@ class InputNumber extends Input
      */
     public function setMin(?int $min): static
     {
-        $this->attributes['min'] = $min;
-        return $this;
+        return $this->setAttribute($min, 'min');
     }
 
 
@@ -84,7 +82,7 @@ class InputNumber extends Input
      */
     public function getStep(): ?int
     {
-        return isset_get($this->attributes['step']);
+        return $this->attributes->get('step', false);
     }
 
 
@@ -96,7 +94,6 @@ class InputNumber extends Input
      */
     public function setStep(?int $step): static
     {
-        $this->attributes['step'] = $step;
-        return $this;
+        return $this->setAttribute($step, 'step');
     }
 }

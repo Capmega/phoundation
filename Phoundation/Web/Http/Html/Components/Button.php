@@ -97,6 +97,7 @@ class Button extends Input
      * Set the content for this button
      *
      * @param Stringable|string|float|int|null $value
+     * @param bool $make_safe
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
@@ -123,8 +124,8 @@ class Button extends Input
     {
         // Remove the current button mode
         foreach ($this->classes as $id => $class) {
-            if (str_starts_with($id, 'btn-')) {
-                unset($this->classes[$id]);
+            if (str_starts_with($class, 'btn-')) {
+                $this->classes->deleteEntries($id);
             }
         }
 
@@ -171,11 +172,11 @@ class Button extends Input
     public function render(): ?string
     {
         $this->resetButtonClasses();
-        $this->attributes['type'] = $this->type?->value;
+        $this->attributes->set($this->type?->value, 'type');
 
         if ($this->anchor_url) {
-            unset($this->attributes['type']);
-            $this->attributes['href'] = $this->anchor_url;
+            $this->attributes->deleteEntries('type');
+            $this->attributes->set($this->anchor_url, 'href');
         }
 
         return parent::render();

@@ -10,7 +10,6 @@ use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
-use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -49,7 +48,7 @@ class Iterator implements IteratorInterface
      *
      * @var array $source
      */
-    protected array $source = [];
+    protected array $source;
 
 
     /**
@@ -59,9 +58,7 @@ class Iterator implements IteratorInterface
      */
     public function __construct(?array $source = null)
     {
-        if ($source) {
-            $this->source = $source;
-        }
+        $this->source = $source ?? [];
     }
 
 
@@ -214,26 +211,37 @@ class Iterator implements IteratorInterface
     /**
      * Sets the value for the specified key
      *
-     * @param Stringable|string|float|int $key
+     * @note this is basically a wrapper function for Iterator::add($value, $key, false) that always requires a key
      * @param mixed $value
+     * @param Stringable|string|float|int $key
      * @return mixed
      */
-    public function set(Stringable|string|float|int $key, mixed $value): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
     {
-        $this->source[$key] = $value;
-        return $this;
+        return $this->add($value, $key, false);
     }
 
 
     /**
-     * Add the specified value to the iterator array
+     * Add the specified value to the iterator array using an optional key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed $value
      * @param string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null): static
+    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
     {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $this->source[] = $value;
 
@@ -254,7 +262,7 @@ class Iterator implements IteratorInterface
     public function addSource(?array $source): static
     {
         foreach ($source as $key => $value) {
-            $this->add($key, $value);
+            $this->add($value, $key);
         }
 
         return $this;
@@ -743,5 +751,25 @@ class Iterator implements IteratorInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Merge the specified Iterator or array into this Iterator
+     *
+     * @param IteratorInterface|array ...$sources
+     * @return static
+     */
+    public function merge(IteratorInterface|array ...$sources): static
+    {
+        foreach ($sources as $source) {
+            if ($source instanceof IteratorInterface) {
+                $source = $source->getSource();
+            }
+
+            $this->source = array_merge($this->source, $source);
+        }
+
+        return $this;
     }
 }
