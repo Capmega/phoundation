@@ -93,7 +93,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param array|null $source
      * @return $this
      */
-    public function addSource(?array $source): static;
+    public function addSources(?array $source): static;
 
     /**
      * Returns a list of all internal values with their keys

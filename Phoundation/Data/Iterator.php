@@ -58,7 +58,12 @@ class Iterator implements IteratorInterface
      */
     public function __construct(?array $source = null)
     {
-        $this->source = $source ?? [];
+        if ($source) {
+            $this->source = $source;
+
+        } elseif (empty($this->source)) {
+            $this->source = [];
+        }
     }
 
 
@@ -254,15 +259,40 @@ class Iterator implements IteratorInterface
 
 
     /**
-     * Adds the specified source to the internal source
+     * Adds the specified source(s) to the internal source
      *
-     * @param array|null $source
+     * @param IteratorInterface|array|null $source
      * @return $this
      */
-    public function addSource(?array $source): static
+    public function addSources(IteratorInterface|array|null $source): static
     {
+        if ($source instanceof IteratorInterface) {
+            $source = $source->getSource();
+        }
+
+        // Add each entry
         foreach ($source as $key => $value) {
             $this->add($value, $key);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Merge the specified Iterator or array into this Iterator
+     *
+     * @param IteratorInterface|array ...$sources
+     * @return static
+     */
+    public function merge(IteratorInterface|array ...$sources): static
+    {
+        foreach ($sources as $source) {
+            if ($source instanceof IteratorInterface) {
+                $source = $source->getSource();
+            }
+
+            $this->source = array_merge($this->source, $source);
         }
 
         return $this;
@@ -735,7 +765,7 @@ class Iterator implements IteratorInterface
      */
     public function exists(Stringable|string|float|int $key): bool
     {
-        return array_key_exists((string) $key, $this->source);
+        return array_key_exists($key, $this->source);
     }
 
 
@@ -784,25 +814,5 @@ class Iterator implements IteratorInterface
         }
 
         return $return;
-    }
-
-
-    /**
-     * Merge the specified Iterator or array into this Iterator
-     *
-     * @param IteratorInterface|array ...$sources
-     * @return static
-     */
-    public function merge(IteratorInterface|array ...$sources): static
-    {
-        foreach ($sources as $source) {
-            if ($source instanceof IteratorInterface) {
-                $source = $source->getSource();
-            }
-
-            $this->source = array_merge($this->source, $source);
-        }
-
-        return $this;
     }
 }

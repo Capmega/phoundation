@@ -204,10 +204,10 @@ interface DataListInterface extends IteratorInterface
     /**
      * Adds the specified source to the internal source
      *
-     * @param DataListInterface|array|null $source
+     * @param IteratorInterface|array|null $source
      * @return $this
      */
-    public function addSource(DataListInterface|array|null $source): static;
+    public function addSources(IteratorInterface|array|null $source): static;
 
     /**
      * Access the direct list operations for this class

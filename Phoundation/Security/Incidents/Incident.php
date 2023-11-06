@@ -131,7 +131,7 @@ class Incident extends DataEntry
             $roles = Arrays::force($roles);
         }
 
-        $this->getNotifyRoles()->addSource($roles);
+        $this->getNotifyRoles()->addSources($roles);
         return $this;
     }
 

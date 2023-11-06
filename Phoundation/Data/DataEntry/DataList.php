@@ -10,6 +10,7 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataParent;
 use Phoundation\Data\Traits\DataReadonly;
@@ -655,12 +656,12 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Adds the specified source to the internal source
      *
-     * @param DataListInterface|array|null $source
+     * @param IteratorInterface|array|null $source
      * @return $this
      */
-    public function addSource(DataListInterface|array|null $source): static
+    public function addSources(IteratorInterface|array|null $source): static
     {
-        return parent::addSource($source);
+        return parent::addSources($source);
     }
 
 

@@ -48,8 +48,8 @@ class TopPanel extends Panel
     public function __construct()
     {
         // Set the default menu for top panels
-        $this->source['menu'] = Menu::new()->addSource([
-            (string) UrlBuilder::getCurrentDomainRootUrl() => tr('Home')
+        $this->source['menu'] = Menu::new()->addSources([
+            tr('Home') => (string) UrlBuilder::getCurrentDomainRootUrl()
         ]);
 
         if (Session::getUser()->hasAllRights('demos')) {
