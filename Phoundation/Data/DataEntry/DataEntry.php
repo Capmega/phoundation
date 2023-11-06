@@ -1439,6 +1439,7 @@ abstract class DataEntry implements DataEntryInterface
         if ($this->is_applying and !$force) {
             if ($definition->getReadonly() or $definition->getDisabled()) {
                 // The data is being set through DataEntry::apply() but this column is readonly
+                Log::debug('FIELD "' . $field . '" IS READONLY', 10);
                 return $this;
             }
         }
@@ -1546,13 +1547,29 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Only return columns that actually contain data
      *
+     * @param bool $insert
      * @return array
      */
-    protected function getDataColumns(): array
+    protected function getDataColumns(bool $insert): array
     {
         $return = [];
 
-        foreach ($this->definitions as $definition) {
+        foreach ($this->definitions as $field => $definition) {
+            if ($insert) {
+                // We're about to insert
+                if (in_array($field, $this->fields_filter_on_insert)) {
+                    continue;
+                }
+            } else {
+                // We're about to update
+                if ($definition->getReadonly() or $definition->getDisabled()) {
+                    // Don't update readonly or disabled columns, only meta columns should pass
+                    if (!$definition->isMeta()) {
+                        continue;
+                    }
+                }
+            }
+
             $field = $definition->getField();
 
             if ($definition->getVirtual()) {
@@ -1593,31 +1610,6 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns the data to add for an SQL insert
-     *
-     * @return array
-     */
-    protected function getInsertColumns(): array
-    {
-        $return = $this->getDataColumns();
-        $return = Arrays::remove($return, $this->fields_filter_on_insert);
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the data to add for an SQL update
-     *
-     * @return array
-     */
-    protected function getUpdateColumns(): array
-    {
-        return $this->getDataColumns();
     }
 
 
@@ -1666,7 +1658,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // Write the entry
-        $this->source['id'] = sql()->dataEntryWrite(static::getTable(), $this->getInsertColumns(), $this->getUpdateColumns(), $comments, $this->diff);
+        $this->source['id'] = sql()->dataEntryWrite(static::getTable(), $this->getDataColumns(true), $this->getDataColumns(false), $comments, $this->diff);
 
         if ($this->debug) {
             Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
