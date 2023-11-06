@@ -125,7 +125,8 @@ $users_card = Card::new()
         ->load()
         ->getHtmlDataTable()
             ->setDateFormat('YYYY-MM-DD HH:mm:ss')
-            ->setRowUrl('/accounts/user-:ROW.html'))
+            ->setRowUrl('/accounts/user-:ROW.html')
+            ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);
 
