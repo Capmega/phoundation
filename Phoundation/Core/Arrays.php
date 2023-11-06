@@ -9,6 +9,7 @@ use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -1274,34 +1275,35 @@ class Arrays {
      *
      * @param string $source The variable that should be forced to be an array
      * @param string|null $separator
-     * @return array The specified $source, but now converted to an array data type (if it was not an array yet)
+     * @return DataListInterface|IteratorInterface|array The specified $source, but now converted to an array data type
+     *         (if it was not an array yet)
      */
-    public static function force(mixed $source, ?string $separator = ','): array
+    public static function force(mixed $source, ?string $separator = ','): DataListInterface|IteratorInterface|array
     {
         if (($source === '') or ($source === null)) {
             return [];
         }
 
-        if (!is_array($source)) {
-            if (!is_string($source)) {
-                if (!is_object($source) or !($source instanceof ArrayableInterface)) {
-                    // Unknown datatype
-                    return [$source];
-                }
+        if (is_array($source) or ($source instanceof DataListInterface) or ($source instanceof IteratorInterface)) {
+            return $source;
+        }
 
-                // This is an object that can convert to string
-                return $source->__toArray();
-            }
-
-            if (!$separator) {
-                // We cannot explode with an empty separator, assume that $source is a single item and return it as such
+        if (!is_string($source)) {
+            if (!is_object($source) or !($source instanceof ArrayableInterface)) {
+                // Unknown datatype
                 return [$source];
             }
 
-            return explode($separator, $source);
+            // This is an object that can convert to string
+            return $source->__toArray();
         }
 
-        return $source;
+        if (!$separator) {
+            // We cannot explode with an empty separator, assume that $source is a single item and return it as such
+            return [$source];
+        }
+
+        return explode($separator, $source);
     }
 
 
