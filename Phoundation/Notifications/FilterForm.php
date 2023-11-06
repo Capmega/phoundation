@@ -7,7 +7,7 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Web\Http\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\InputElement;
 
 /**
  * Class FilterForm
@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Enums\InputElement;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
 {
     /**
      * FilterForm class constructor

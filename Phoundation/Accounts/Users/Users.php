@@ -17,8 +17,8 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 

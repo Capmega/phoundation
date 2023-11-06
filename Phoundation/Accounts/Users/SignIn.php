@@ -19,8 +19,8 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**

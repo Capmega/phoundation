@@ -10,7 +10,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**

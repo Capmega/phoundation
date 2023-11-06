@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
 
-use PDOStatement;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Servers\Server;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**

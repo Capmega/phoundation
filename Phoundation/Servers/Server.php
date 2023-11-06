@@ -23,8 +23,8 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**

@@ -6,9 +6,9 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Schema\Table;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlDataTableInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
 use Stringable;
 
 

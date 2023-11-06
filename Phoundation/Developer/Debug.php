@@ -18,8 +18,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 use Throwable;
 

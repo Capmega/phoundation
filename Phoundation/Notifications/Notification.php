@@ -34,10 +34,10 @@ use Phoundation\Notifications\Exception\NotificationBusyException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 use Throwable;
 
 

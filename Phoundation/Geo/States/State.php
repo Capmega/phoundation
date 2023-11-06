@@ -6,12 +6,11 @@ namespace Phoundation\Geo\States;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Timezones\Timezone;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\InputSelect;
 
 
 /**

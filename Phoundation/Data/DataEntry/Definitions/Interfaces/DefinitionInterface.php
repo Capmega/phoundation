@@ -7,10 +7,10 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\InputElementInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeExtendedInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\InputTypeInterface;
-use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\InputTypeExtendedInterface;
+use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
+use Phoundation\Web\Html\Enums\InputType;
 use Stringable;
 
 /**

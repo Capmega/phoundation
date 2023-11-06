@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Exception;
-use GeoIp2\Model\Domain;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -24,9 +23,9 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\File;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

@@ -9,7 +9,7 @@ use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Exception\ImagesException;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Web\Html\Components\Img;
 
 
 /**

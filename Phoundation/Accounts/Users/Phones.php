@@ -5,27 +5,20 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Exception;
-use Phoundation\Accounts\Users\Interfaces\EmailInterface;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validate;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\DataEntryForm;
-use Phoundation\Web\Http\Html\Components\Entry;
-use Phoundation\Web\Http\Html\Components\Form;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Phoundation\Web\Html\Components\DataEntryForm;
+use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
 
 
 /**

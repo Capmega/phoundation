@@ -10,8 +10,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Templates\Template;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 use PHPMailer\PHPMailer\PHPMailer;
 
 

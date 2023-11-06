@@ -3,7 +3,7 @@
 namespace Phoundation\Accounts\Roles\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 

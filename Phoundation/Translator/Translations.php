@@ -7,9 +7,8 @@ namespace Phoundation\Translator;
 use Phoundation\Core\Config;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Routing\StaticRoute;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**

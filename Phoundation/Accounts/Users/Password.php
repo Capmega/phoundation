@@ -19,7 +19,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputType;
 
 
 /**

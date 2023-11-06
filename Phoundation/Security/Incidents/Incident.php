@@ -11,7 +11,6 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
@@ -21,9 +20,8 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Throwable;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\InputElement;
 
 
 /**

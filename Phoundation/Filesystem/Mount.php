@@ -15,8 +15,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntrySource;
 use Phoundation\Data\DataEntry\Traits\DataEntryTarget;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\MountInterface;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**

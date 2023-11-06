@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Departments;
 
 use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
-use Phoundation\Business\Companies\Employees\Employee;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**

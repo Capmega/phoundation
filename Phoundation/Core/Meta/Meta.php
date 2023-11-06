@@ -19,8 +19,8 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Http\Html\Components\HtmlTable;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\HtmlTable;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 

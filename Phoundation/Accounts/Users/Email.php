@@ -22,8 +22,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\InputType;
 
 
 /**

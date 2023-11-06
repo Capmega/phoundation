@@ -9,9 +9,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Html\Enums\InputElement;
 
 
 /**
@@ -24,7 +22,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
 {
     /**
      * The different status values to filter on

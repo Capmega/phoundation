@@ -13,8 +13,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Http\Domains;
-use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\UrlBuilder;
 use Templates\AdminLte\AdminLte;
 
@@ -166,7 +166,7 @@ class RoutingParameters
      */
     public function setTemplate(string $template): static
     {
-        if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
+        if (!is_subclass_of($template, 'Phoundation\Web\Html\Template\Template')) {
             throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
                 ':class' => $template
             ]));

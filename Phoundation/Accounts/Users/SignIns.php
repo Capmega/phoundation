@@ -6,10 +6,10 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Http\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\TableIdColumn;
 
 
 /**

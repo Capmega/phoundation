@@ -2,10 +2,9 @@
 
 namespace Phoundation\Accounts\Rights\Interfaces;
 
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 

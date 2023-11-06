@@ -11,7 +11,6 @@ use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Core\Sessions\Config;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -23,8 +22,8 @@ use Phoundation\Geo\States\State;
 use Phoundation\Geo\States\States;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**

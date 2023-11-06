@@ -4,7 +4,7 @@ namespace Phoundation\Content\Images\Interfaces;
 
 use Phoundation\Content\Images\Convert;
 use Phoundation\Content\Interfaces\ContentInterface;
-use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Web\Html\Components\Img;
 
 
 /**

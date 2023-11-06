@@ -15,7 +15,7 @@ namespace Phoundation\Business\Providers;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Business
  */
-class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
 {
     /**
      * FilterForm class constructor

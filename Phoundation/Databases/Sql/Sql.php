@@ -7,7 +7,6 @@ namespace Phoundation\Databases\Sql;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use PDO;
-use PDOException;
 use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
@@ -39,10 +38,8 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Notifications\Notification;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Throwable;
 
 

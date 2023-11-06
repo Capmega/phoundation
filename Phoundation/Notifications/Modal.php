@@ -2,7 +2,7 @@
 
 namespace Phoundation\Notifications;
 
-use Phoundation\Web\Http\Html\Components\Modals\LargeModal;
+use Phoundation\Web\Html\Components\Modals\LargeModal;
 
 
 /**

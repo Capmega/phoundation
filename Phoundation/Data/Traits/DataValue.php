@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Web\Html\Html;
 
 /**
  * Trait DataValue

@@ -4,7 +4,6 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 

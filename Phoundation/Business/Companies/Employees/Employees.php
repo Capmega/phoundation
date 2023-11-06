@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Employees;
 
-use PDOStatement;
-use Phoundation\Business\Companies\Company;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**

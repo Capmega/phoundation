@@ -2,7 +2,7 @@
 
 namespace Phoundation\Business\Companies\Departments\Interfaces;
 
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**

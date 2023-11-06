@@ -13,7 +13,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Throwable;
 
 

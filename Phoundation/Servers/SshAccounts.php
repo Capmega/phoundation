@@ -8,9 +8,9 @@ use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Http\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\TableIdColumn;
 
 
 /**

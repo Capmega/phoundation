@@ -6,7 +6,7 @@ namespace Phoundation\Data\Traits;
 
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Http\Html\Enums\Interfaces\TableRowTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
 
 /**
  * Trait DataCallbacks

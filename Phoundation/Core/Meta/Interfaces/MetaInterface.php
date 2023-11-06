@@ -2,7 +2,7 @@
 
 namespace Phoundation\Core\Meta\Interfaces;
 
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
 
 
 /**

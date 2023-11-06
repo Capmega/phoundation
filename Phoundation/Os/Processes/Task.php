@@ -13,7 +13,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Exception\TasksException;
-use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputType;
 
 
 /**

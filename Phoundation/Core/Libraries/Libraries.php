@@ -18,9 +18,9 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Http\Html\Components\HtmlTable;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Components\HtmlTable;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\DisplayMode;
 
 
 /**
