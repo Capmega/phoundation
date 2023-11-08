@@ -857,7 +857,7 @@ class Core implements CoreInterface
                 ':fv' => static::FRAMEWORKCODEVERSION
             ]), 10);
 
-            $die = 0;
+            $exit = 0;
         }
 
         if ($argv['order_by']) {
@@ -900,8 +900,8 @@ class Core implements CoreInterface
             exit(1);
         }
 
-        if (isset($die)) {
-            Core::exit($die);
+        if (isset($exit)) {
+            Core::exit($exit);
         }
 
         // set terminal data
@@ -1551,12 +1551,12 @@ class Core implements CoreInterface
      * This function is called automatically
      *
      * @param Throwable $e
-     * @param boolean $die Specify false if this exception should be a warning and continue, true if it should die
+     * @param boolean $exit Specify false if this exception should be a warning and continue, true if it should die
      * @return never
      * @note: This function should never be called directly
      * @todo Refactor this, its a godawful mess
      */
-    #[NoReturn] public static function uncaughtException(Throwable $e, bool $die = true): never
+    #[NoReturn] public static function uncaughtException(Throwable $e, bool $exit = true): never
     {
         try {
             Audio::new('data/audio/critical.mp3')->playLocal(true);
@@ -2357,7 +2357,8 @@ class Core implements CoreInterface
             Log::warning(tr('Not cleaning up due to kill signal!'));
 
         } elseif (static::inStartupState()) {
-            // Exit during startup == baaaad. We should have an error code
+            // Exit during startup == baaaaaaad. We should have an error code but apparently don't have one? Manually
+            // executed exit() somewhere?
             if (!$exit_code) {
                 Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
                     ':script' => $_SERVER['PHP_SELF']
