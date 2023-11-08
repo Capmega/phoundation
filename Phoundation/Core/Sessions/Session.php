@@ -236,7 +236,7 @@ class Session implements SessionInterface
 
             // Initialize session?
             if (!isset($_SESSION['init'])) {
-                static::start();
+                static::resume();
             }
 
             // Update the users sign-in and last sign-in information
@@ -381,7 +381,7 @@ class Session implements SessionInterface
         if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
             try {
                 // We have a cookie! Start a session for it
-                static::start();
+                static::resume();
 
             } catch (SessionException $e) {
                 Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
@@ -422,7 +422,7 @@ class Session implements SessionInterface
      *
      * @return bool
      */
-    public static function start(): bool
+    public static function resume(): bool
     {
         if (!Config::get('web.sessions.enabled', true)) {
             return false;
@@ -483,14 +483,14 @@ class Session implements SessionInterface
 
         // Initialize session?
         if (empty($_SESSION['init'])) {
-            static::init();
+            static::create();
         }
 
         // Check for extended sessions
         // TODO Why are we still doing this? We shoudl be able to do extended sessions better
         static::checkExtended();
 
-        Log::success(tr('Started session for user ":user" from IP ":ip"', [
+        Log::success(tr('Resumed session for user ":user" from IP ":ip"', [
             ':user' => static::getUser()->getLogId(),
             ':ip'   => $_SERVER['REMOTE_ADDR']
         ]));
@@ -1071,9 +1071,9 @@ Log::warning('RESTART SESSION');
      *
      * @return bool
      */
-    protected static function init(): bool
+    protected static function create(): bool
     {
-        Log::action(tr('Initializing new session for user ":user"', [':user' => static::getUser()->getLogId()]));
+        Log::action(tr('Created new session for user ":user"', [':user' => static::getUser()->getLogId()]));
 
         // Initialize the session
         $_SESSION['init']         = microtime(true);
