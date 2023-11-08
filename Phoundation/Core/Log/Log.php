@@ -82,7 +82,7 @@ Class Log {
      *
      * @var bool $use_prefix
      */
-    protected static bool $use_prefix = true;
+    protected static string|bool $use_prefix = true;
 
     /**
      * The current file where the log class will write to.
@@ -254,7 +254,7 @@ Class Log {
     /**
      * Sets if log messages will have a prefix or not
      *
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @return int
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
@@ -284,7 +284,7 @@ Class Log {
      */
     public static function setThreshold(int $threshold): int
     {
-        if (!is_natural($threshold, 1) or ($threshold > 10)) {
+        if (!is_numeric($threshold) or ($threshold < 1) or ($threshold > 10)) {
             throw OutOfBoundsException::new(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 1 and 10', [
                 ':level' => $threshold
             ]))->makeWarning();
@@ -459,11 +459,11 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function success(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'success', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -474,11 +474,11 @@ Class Log {
      *
      * @param mixed $messages
      * @param int $threshold
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function error(mixed $messages = null, int $threshold = 10, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function error(mixed $messages = null, int $threshold = 10, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'error', $threshold, false, use_prefix: $use_prefix, echo_screen: $echo_screen);
     }
@@ -505,11 +505,11 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function warning(mixed $messages = null, int $threshold = 9, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'warning', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -522,11 +522,11 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'notice', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -539,11 +539,11 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'action', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -555,7 +555,7 @@ Class Log {
      * @param mixed $messages
      * @param int $threshold
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @return bool
      */
     public static function cli(mixed $messages = null, int $threshold = 10, bool $newline = true, bool $use_prefix = false): bool
@@ -571,11 +571,11 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
@@ -587,9 +587,10 @@ Class Log {
      * @param mixed $messages
      * @param int $threshold
      * @param bool $echo_screen
+     * @param bool $echo_header
      * @return bool
      */
-    public static function debug(mixed $messages = null, int $threshold = 10, bool $echo_screen = true): bool
+    public static function debug(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
     {
         $type = gettype($messages);
 
@@ -644,7 +645,10 @@ Class Log {
         $use_prefix = strtoupper($type) . ' [' . $size . '] ';
         $messages = $use_prefix . $messages;
 
-        static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+        if ($echo_header) {
+            static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+        }
+
         return static::write($messages, 'debug', $threshold, echo_screen: $echo_screen);
     }
 
@@ -670,13 +674,17 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
+     * @param bool $echo_header
      * @return bool
      */
-    public static function hex(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function hex(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
-        static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
+        if ($echo_header) {
+            static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
+        }
+
         return static::write(Strings::interleave(bin2hex(Strings::force($messages)), 10), 'debug', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
 
@@ -703,11 +711,15 @@ Class Log {
      * @param mixed $messages
      * @param int $threshold
      * @param bool $echo_screen
+     * @param bool $echo_header
      * @return bool
      */
-    public static function printr(mixed $messages = null, int $threshold = 10, bool $echo_screen = true): bool
+    public static function printr(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
     {
-        static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+        if ($echo_header) {
+            static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+        }
+
         return static::write(print_r($messages, true), 'debug', $threshold, false, echo_screen: $echo_screen);
     }
 
@@ -718,11 +730,11 @@ Class Log {
      * @param mixed $key_value
      * @param int $indent
      * @param int $threshold
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function table(array $key_value, int $indent = 4, int $threshold = 10, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function table(array $key_value, int $indent = 4, int $threshold = 10, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false, $use_prefix, $echo_screen);
     }
@@ -734,11 +746,15 @@ Class Log {
      * @param mixed $messages
      * @param int $threshold
      * @param bool $echo_screen
+     * @param bool $echo_header
      * @return bool
      */
-    public static function vardump(mixed $messages = null, int $threshold = 10, bool $echo_screen = true): bool
+    public static function vardump(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
     {
-        static::logDebugHeader('VARDUMP', 1, $threshold, echo_screen: $echo_screen);
+        if ($echo_header) {
+            static::logDebugHeader('VARDUMP', 1, $threshold, echo_screen: $echo_screen);
+        }
+
         return static::write(var_export($messages, true), 'debug', $threshold, false, echo_screen: $echo_screen);
     }
 
@@ -746,20 +762,28 @@ Class Log {
     /**
      * Write a backtrace message in the log file
      *
+     * @note This method has $echo_header default to FALSE as the header contains backtrace information which, well,
+     *       this method already displays anyway
+     *
      * @param ?int $display
      * @param array|null $backtrace
      * @param int $threshold
      * @param bool $echo_screen
+     * @param bool $echo_header
+     * @param string|bool $use_prefix
      * @return void
      */
-    public static function backtrace(?int $display = null, ?array $backtrace = null, int $threshold = 10, bool $echo_screen = true): void
+    public static function backtrace(?int $display = null, ?array $backtrace = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = false, string|bool $use_prefix = false): void
     {
         if ($backtrace === null) {
             $backtrace = Debug::backtrace(1);
         }
 
-        static::logDebugHeader('BACKTRACE', 1, $threshold, echo_screen: $echo_screen);
-        static::dumpTrace($backtrace, $threshold, $display, echo_screen: $echo_screen);
+        if ($echo_header) {
+            static::logDebugHeader('BACKTRACE', 1, $threshold, echo_screen: $echo_screen, use_prefix: $use_prefix);
+        }
+
+        static::dumpTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, use_prefix: $use_prefix);
     }
 
 
@@ -784,11 +808,11 @@ Class Log {
      * @param int $threshold
      * @param bool $clean
      * @param bool $newline
-     * @param bool $use_prefix
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         $query = Sql::buildQueryString($query, $execute);
         $query = Strings::endsWith($query, ';');
@@ -800,21 +824,22 @@ Class Log {
     /**
      * Write the specified log message to the current log file for this instance
      *
-     * @param mixed $messages    The messages that are to be logged
-     * @param string|null $class The class of message that will be logged. Different classes will show in different
-     *                           colors
-     * @param int $threshold     The threshold level for this message. If the level is lower than the threshold, the
-     *                           message will be dropped and not appear in the log files to avoid clutter
-     * @param bool $clean        If true, the data will be cleaned before written to log. This will avoid (for example)
-     *                           binary data from corrupting the log file
-     * @param bool $newline      If true, a newline will be appended at the end of the log line
-     * @param bool $use_prefix       If true (default), all log lines will be prefixed with a string containing date-time,
-     *                           local process id, and global process id
-     * @param bool $echo_screen  If true (default), on CLI, the log line will be printed (without prefix) on the command
-     *                           line as well
-     * @return bool              True if the line was written, false if it was dropped
+     * @todo Refactor this method, its become too cluttered over time
+     * @param mixed $messages         The messages that are to be logged
+     * @param string|null $class      The class of message that will be logged. Different classes will show in different
+     *                                colors
+     * @param int $threshold          The threshold level for this message. If the level is lower than the threshold,
+     *                                the message will be dropped and not appear in the log files to avoid clutter
+     * @param bool $clean             If true, the data will be cleaned before written to log. This will avoid (for
+     *                                example) binary data from corrupting the log file
+     * @param bool $newline           If true, a newline will be appended at the end of the log line
+     * @param string|bool $use_prefix If true (default), all log lines will be prefixed with a string containing
+     *                                date-time, local process id, and global process id
+     * @param bool $echo_screen       If true (default), on CLI, the log line will be printed (without prefix) on the
+     *                                command line as well
+     * @return bool                   True if the line was written, false if it was dropped
      */
-    public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, bool $use_prefix = true, bool $echo_screen = true): bool
+    public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
         if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
@@ -980,7 +1005,13 @@ Class Log {
             // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
             if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
                 if (static::$use_prefix and $use_prefix) {
-                    echo $prefix_string . $messages . ($newline ? PHP_EOL : null);
+                    if (is_bool($use_prefix)) {
+                        // Display the default prefix
+                        echo $prefix_string . $messages . ($newline ? PHP_EOL : null);
+                    } else {
+                        // Display the specified prefix
+                        echo $prefix_string . $messages . ($newline ? PHP_EOL : null);
+                    }
 
                 } else {
                     echo $messages . ($newline ? PHP_EOL : null);
@@ -992,27 +1023,42 @@ Class Log {
             return true;
 
         } catch (Throwable $e) {
-            // Don't ever let the system crash because of a log issue so we catch all possible exceptions
-            static::$fail = true;
+            return static::writeExceptionHandler($e, $threshold, $messages);
+        }
+    }
+
+
+    /**
+     * Handles log write exceptions
+     *
+     * @param Throwable $e
+     * @param mixed|null $messages
+     * @param int $threshold
+     * @return false
+     */
+    protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): false
+    {
+        // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
+        static::$fail = true;
+
+        try {
+            error_log(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . Core::getGlobalId() . '/' . Core::getLocalId() . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
 
             try {
-                error_log(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . Core::getGlobalId() . '/' . Core::getLocalId() . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
+                error_log(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . $messages);
 
-                try {
-                    error_log(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . $messages);
-                } catch (Throwable $g) {
-                    // Okay this is messed up, we can't even log to system logs.
-                    error_log('Failed to log message');
-                }
-            } catch (Throwable $f) {
-                // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
-                // we won't stand for!
-                throw new LogException('Failed to write to ANY log (Failed to write to both local log files and system log files', data: ['original exception' => $e]);
+            } catch (Throwable $g) {
+                // Okay this is messed up, we can't even log to system logs.
+                error_log('Failed to log message because: ' . $g->getMessage());
             }
-
-            // We did NOT log
-            return false;
+        } catch (Throwable $f) {
+            // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
+            // we won't stand for!
+            throw new LogException('Failed to write to ANY log (Failed to write to both local log files and system log files', data: ['original exception' => $e]);
         }
+
+        // We did NOT log
+        return false;
     }
 
 
@@ -1022,9 +1068,11 @@ Class Log {
      * @param string $keyword
      * @param int $trace
      * @param int $threshold
+     * @param bool $echo_screen
+     * @param string|bool $use_prefix
      * @return bool
      */
-    protected static function logDebugHeader(string $keyword, int $trace = 4, int $threshold = 10, bool $echo_screen = true): bool
+    protected static function logDebugHeader(string $keyword, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $use_prefix = true): bool
     {
         // Get the class, method, file and line data.
         $class    = Debug::currentClass($trace);
@@ -1044,7 +1092,7 @@ Class Log {
                 ':function' => $function,
                 ':file'     => $file,
                 ':line'     => $line
-            ]), 'debug', $threshold, echo_screen: $echo_screen);
+            ]), 'debug', $threshold, use_prefix: $use_prefix, echo_screen: $echo_screen);
     }
 
 
@@ -1058,9 +1106,10 @@ Class Log {
      * @param string $class
      * @param bool $echo_screen
      * @param bool $from_script
+     * @param string|bool $use_prefix
      * @return int The amount of lines that were logged. -1 in case of an exception while trying to log the backtrace.
      */
-    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true, bool $from_script = true): int
+    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true, bool $from_script = true, string|bool $use_prefix = true): int
     {
         try {
             $lines = Debug::formatBackTrace($backtrace);
@@ -1080,7 +1129,7 @@ Class Log {
             }
 
             foreach ($lines as $line) {
-                static::write($line, $class, $threshold, false, echo_screen: $echo_screen);
+                static::write($line, $class, $threshold, false, use_prefix: $use_prefix, echo_screen: $echo_screen);
             }
 
             return count($lines);
