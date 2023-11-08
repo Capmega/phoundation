@@ -40,3 +40,23 @@ ul.ui-autocomplete li.ui-menu-item {
 div.row {
     overflow-x: auto;
 }
+
+div.circle,
+span.circle {
+    border-radius: 100%;
+    transition: transform 0.5s;
+    transform-origin: top left;
+}
+
+span.tooltip-icon,
+div.tooltip-icon {
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    line-height: 15px;
+    font-weight: bold;
+    color: white;
+    background-color: rgb(4, 165, 206);
+    display: inline-block;
+    cursor: pointer;
+}

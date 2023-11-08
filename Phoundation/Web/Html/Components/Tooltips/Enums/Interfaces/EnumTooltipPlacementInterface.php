@@ -1,10 +1,10 @@
 <?php
 
-namespace Phoundation\Web\Html\Components\Interfaces;
+namespace Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces;
 
 
 /**
- * interface EntryInterface
+ * interface EnumTooltipPlacementInterface
  *
  *
  *
@@ -13,6 +13,6 @@ namespace Phoundation\Web\Html\Components\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface EntryInterface
+interface EnumTooltipPlacementInterface
 {
 }

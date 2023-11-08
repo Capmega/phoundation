@@ -1,14 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Web\Html\Components\Interfaces;
 
-use Stringable;
 
+use Phoundation\Web\Html\Components\ElementsBlock;
 
 /**
- * Interface ElementsBlock
+ * Class ElementsBlock
  *
  *
  *
@@ -17,15 +15,8 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ElementsBlockInterface extends Stringable
+interface ElementsBlockInterface
 {
-    /**
-     * Returns the contents of this object as an array
-     *
-     * @return array
-     */
-    public function __toArray(): array;
-
     /**
      * Sets the content of the element to display
      *
@@ -48,6 +39,21 @@ interface ElementsBlockInterface extends Stringable
      * @return static
      */
     public function setForm(?FormInterface $form): static;
+
+    /**
+     * If set true, when this element renders it will only return the contents
+     *
+     * @param bool $enable
+     * @return $this
+     */
+    public function setRenderContentsOnly(bool $enable): static;
+
+    /**
+     * Returns if this element renders it will only return the contents
+     *
+     * @return bool
+     */
+    public function getRenderContentsOnly(): bool;
 
     /**
      * Renders and returns the HTML for this object using the template renderer if available

@@ -6,6 +6,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
 use Phoundation\Core\Arrays;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefiinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\DataField;
@@ -1292,6 +1293,29 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the tooltip for this field
+     *
+     * @return string|null
+     */
+    public function getTooltip(): ?string
+    {
+        return isset_get_typed('string', $this->rules['tooltip']);
+    }
+
+
+    /**
+     * Sets  the tooltip for this field
+     *
+     * @param string|null $value
+     * @return static
+     */
+    public function setTooltip(?string $value): static
+    {
+        return $this->setKey($value, 'tooltip');
+    }
+
+
+    /**
      * Returns the minimum value for number input elements
      *
      * @return float|int|null
@@ -1597,7 +1621,14 @@ class Definition implements DefinitionInterface
      */
     public function setHelpText(?string $value): static
     {
-        return $this->setKey(trim($value), 'help_text');
+        $this->setKey(trim($value), 'help_text');
+
+        if (!$this->getKey('tooltip')) {
+            // Default tooltip to help text
+            return $this->setTooltip($value);
+        }
+
+        return $this;
     }
 
 
@@ -1820,6 +1851,12 @@ class Definition implements DefinitionInterface
             case 'textarea':
                 // no break
             case 'select':
+                // no break
+            case 'div':
+                // no break
+            case 'span':
+                // no break
+            case 'tooltip': // This is a pseudo-element
                 break;
 
             case null:

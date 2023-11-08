@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
@@ -116,6 +117,16 @@ abstract class Element implements ElementInterface
      */
     public function render(): ?string
     {
+        if (isset($this->tooltip)) {
+            if ($this->tooltip->getUseIcon()) {
+                if ($this->tooltip->getRenderBefore()) {
+                    $this->classes->add('has-tooltip-icon-left');
+                } else {
+                    $this->classes->add('has-tooltip-icon-right');
+                }
+            }
+        }
+
         if (!$this->element) {
             if ($this->element === null) {
                 // This is a NULL element, only return the contents
@@ -162,17 +173,24 @@ abstract class Element implements ElementInterface
         if ($renderer_class) {
             Renderer::ensureClass($renderer_class, $this);
 
-            return $renderer_class::new($this)
+            $render = $renderer_class::new($this)
                 ->setParentRenderFunction($render_function)
                 ->render() . $postfix;
+
+        } else {
+            // The template component does not exist, return the basic Phoundation version
+            Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
+                ':component' => get_class($this)
+            ]), 3);
+
+            $render = $render_function() . $postfix;
         }
 
-        // The template component does not exist, return the basic Phoundation version
-        Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
-            ':component' => get_class($this)
-        ]), 3);
+        if (isset($this->tooltip)) {
+            $render = $this->tooltip->render($render);
+        }
 
-        return $render_function() . $postfix;
+        return $render;
     }
 
 
@@ -223,7 +241,7 @@ abstract class Element implements ElementInterface
         // Add data-* entries
         if (isset($this->data)) {
             foreach ($this->data as $key => $value) {
-                $return['data-' . $key] = $value;
+                $return['data-' . $key] = Strings::force($value, ' ');
             }
         }
 

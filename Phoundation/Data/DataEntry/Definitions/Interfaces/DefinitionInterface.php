@@ -4,7 +4,7 @@ namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 
 use PDOStatement;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
@@ -26,25 +26,7 @@ use Stringable;
 interface DefinitionInterface
 {
     /**
-     * UsesNewField class constructor
-     *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null $field
-     */
-    public function __construct(?DataEntryInterface $data_entry, ?string $field = null);
-
-
-    /**
-     * Returns a new static object
-     *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null $field
-     * @return DefinitionInterface
-     */
-    public static function new(?DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface;
-
-    /**
-     * Returns the query builder
+     * Returns the query builder from the data entry
      *
      * @return QueryBuilderInterface
      */
@@ -59,37 +41,6 @@ interface DefinitionInterface
     public function modifyQueryBuilder(callable $callback): static;
 
     /**
-     * Returns the static value for this field
-     *
-     * @return callable|string|float|int|bool|null
-     */
-    public function getValue(): callable|string|float|int|bool|null;
-
-    /**
-     * Sets static value for this field
-     *
-     * @param callable|string|float|int|bool|null $value
-     * @param bool $only_when_new = false
-     * @return static
-     */
-    public function setValue(callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
-
-    /**
-     * Returns the field
-     *
-     * @return string|null
-     */
-    public function getField(): ?string;
-
-    /**
-     * Sets the field
-     *
-     * @param string|null $field
-     * @return DefinitionInterface
-     */
-    public function setField(?string $field): DefinitionInterface;
-
-    /**
      * Returns the internal definitions for this field
      *
      * @return array
@@ -97,12 +48,42 @@ interface DefinitionInterface
     public function getRules(): array;
 
     /**
-     * Sets all the internal rules for this field in one go
+     * Sets all the internal definitions for this field in one go
      *
      * @param array $rules
      * @return static
      */
     public function setRules(array $rules): static;
+
+    /**
+     * Returns the prefix that is automatically added to this value, after validation
+     *
+     * @return string|null
+     */
+    public function getPrefix(): ?string;
+
+    /**
+     * Sets the prefix that is automatically added to this value, after validation
+     *
+     * @param string|null $prefix
+     * @return static
+     */
+    public function setPrefix(?string $prefix): static;
+
+    /**
+     * Returns the postfix that is automatically added to this value, after validation
+     *
+     * @return string|null
+     */
+    public function getPostfix(): ?string;
+
+    /**
+     * Sets the postfix that is automatically added to this value, after validation
+     *
+     * @param string|null $postfix
+     * @return static
+     */
+    public function setPostfix(?string $postfix): static;
 
     /**
      * Add specified value for the specified key for this DataEntry field
@@ -120,23 +101,6 @@ interface DefinitionInterface
      * @return static
      */
     public function setKey(mixed $value, string $key): static;
-
-    /**
-     * Returns if this field will not set the DataEntry to "modified" state when changed
-     *
-     * @note Defaults to true
-     * @return bool|null
-     */
-    public function getIgnoreModify(): ?bool;
-
-    /**
-     * Sets if this field will not set the DataEntry to "modified" state when changed
-     *
-     * @note Defaults to false
-     * @param bool|null $value
-     * @return static
-     */
-    public function setIgnoreModify(?bool $value): static;
 
     /**
      * Returns if this field is visible in HTML clients
@@ -162,6 +126,43 @@ interface DefinitionInterface
     public function setVisible(?bool $value): static;
 
     /**
+     * Returns the extra HTML classes for this DataEntryForm object
+     *
+     * @param bool $add_prefixless_names
+     * @return array
+     * @see Definition::getVirtual()
+     */
+    public function getClasses(bool $add_prefixless_names = true): array;
+
+    /**
+     * Adds the specified HTML classes to the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function addClasses(array|string $value): static;
+
+    /**
+     * Returns if this field will not set the DataEntry to "modified" state when changed
+     *
+     * @note Defaults to true
+     * @return bool|null
+     */
+    public function getIgnoreModify(): ?bool;
+
+    /**
+     * Sets if this field will not set the DataEntry to "modified" state when changed
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setIgnoreModify(?bool $value): static;
+
+    /**
      * Return if this field is a meta field
      *
      * If this field is a meta field, it will be readonly for user actions
@@ -171,25 +172,6 @@ interface DefinitionInterface
      * @see Definition::getVisible()
      */
     public function isMeta(): bool;
-
-    /**
-     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
-     *
-     * @note Defaults to false
-     * @return bool|null
-     *@see Definition::getVisible()
-     */
-    public function getDirectUpdate(): ?bool;
-
-    /**
-     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
-     *
-     * @note Defaults to false
-     * @param bool|null $value
-     * @return static
-     * @see Definition::setVisible()
-     */
-    public function setDirectUpdate(?bool $value): static;
 
     /**
      * Returns if this field is virtual
@@ -217,6 +199,56 @@ interface DefinitionInterface
      * @see Definition::setVisible()
      */
     public function setVirtual(?bool $value): static;
+
+    /**
+     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @return bool|null
+     * @see Definition::getVisible()
+     */
+    public function getDirectUpdate(): ?bool;
+
+    /**
+     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setDirectUpdate(?bool $value): static;
+
+    /**
+     * Returns the static value for this field
+     *
+     * @return callable|string|float|int|bool|null
+     */
+    public function getValue(): callable|string|float|int|bool|null;
+
+    /**
+     * Sets static value for this field
+     *
+     * @param callable|string|float|int|bool|null $value
+     * @param bool $only_when_new = false
+     * @return static
+     */
+    public function setValue(callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
+
+    /**
+     * Returns the auto focus for this field
+     *
+     * @return bool
+     */
+    public function getAutoFocus(): bool;
+
+    /**
+     * Sets the auto focus for this field
+     *
+     * @param bool $auto_focus
+     * @return static
+     */
+    public function setAutoFocus(bool $auto_focus): static;
 
     /**
      * Returns the HTML client element to be used for this field
@@ -280,6 +312,40 @@ interface DefinitionInterface
      * @return static
      */
     public function setReadonly(?bool $value): static;
+
+    /**
+     * Returns if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getHidden(): ?bool;
+
+    /**
+     * Sets if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setHidden(?bool $value): static;
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getAutoComplete(): bool;
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     */
+    public function setAutoComplete(?bool $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -348,6 +414,35 @@ interface DefinitionInterface
     public function setSource(array|PDOStatement|Stringable|null $value): static;
 
     /**
+     * Returns variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @return array|null
+     */
+    public function getVariables(): array|null;
+
+    /**
+     * Sets variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @param array|null $value
+     * @return static
+     */
+    public function setVariables(array|null $value): static;
+
+    /**
      * Returns a query execute bound variables execute array for the specified query string source
      *
      * @note Requires "source" to be a query string
@@ -363,23 +458,6 @@ interface DefinitionInterface
      * @return static
      */
     public function setExecute(array|string|null $value): static;
-
-    /**
-     * If true, will enable browser auto suggest for this input control
-     *
-     * @note Defaults to false
-     * @return bool
-     */
-    public function getAutoComplete(): bool;
-
-    /**
-     * If true, will enable browser auto suggest for this input control
-     *
-     * @note Defaults to false
-     * @param bool|null $value
-     * @return static
-     */
-    public function setAutoComplete(?bool $value): static;
 
     /**
      * Returns the cli auto-completion queries for this field
@@ -420,6 +498,15 @@ interface DefinitionInterface
     public function getOptional(): bool;
 
     /**
+     * Returns if this field is required or not
+     *
+     * @note Is the exact opposite of Definition::getOptional()
+     * @note Defaults to true
+     * @return bool
+     */
+    public function getRequired(): bool;
+
+    /**
      * Sets if this field is optional or not
      *
      * @note Defaults to false
@@ -443,6 +530,21 @@ interface DefinitionInterface
      * @return static
      */
     public function setPlaceholder(?string $value): static;
+
+    /**
+     * Returns the display_callback for this field
+     *
+     * @return callable|null
+     */
+    public function getDisplayCallback(): ?callable;
+
+    /**
+     * Sets the display_callback for this field
+     *
+     * @param callable|null $value
+     * @return static
+     */
+    public function setDisplayCallback(?callable $value): static;
 
     /**
      * Returns the minlength for this textarea or text input field
@@ -488,6 +590,21 @@ interface DefinitionInterface
      * @return static
      */
     public function setPattern(?string $value): static;
+
+    /**
+     * Returns the tooltip for this field
+     *
+     * @return string|null
+     */
+    public function getTooltip(): ?string;
+
+    /**
+     * Sets  the tooltip for this field
+     *
+     * @param string|null $value
+     * @return static
+     */
+    public function setTooltip(?string $value): static;
 
     /**
      * Returns the minimum value for number input elements
@@ -714,65 +831,4 @@ interface DefinitionInterface
      * @return bool
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): bool;
-
-    /**
-     * Returns variables for the component
-     *
-     * Format should be like
-     *
-     * [
-     *     'countries_id' => '$("#countries_id").val()',
-     *     'states_id'    => '$("#states_id").val()'
-     * ]
-     *
-     * @return array|null
-     */
-    public function getVariables(): array|null;
-
-    /**
-     * Sets variables for the component
-     *
-     * Format should be like
-     *
-     * [
-     *     'countries_id' => '$("#countries_id").val()',
-     *     'states_id'    => '$("#states_id").val()'
-     * ]
-     *
-     * @param array|null $value
-     * @return static
-     */
-    public function setVariables(array|null $value): static;
-
-    /**
-     * Returns the display_callback for this field
-     *
-     * @return callable|null
-     */
-    public function getDisplayCallback(): ?callable;
-
-    /**
-     * Sets the display_callback for this field
-     *
-     * @param callable|null $value
-     * @return static
-     */
-    public function setDisplayCallback(?callable $value): static;
-
-    /**
-     * Returns if the entry is hidden (and will be rendered as a hidden element)
-     *
-     * @note Defaults to false
-     * @return bool|null
-     */
-    public function getHidden(): ?bool;
-
-    /**
-     * Sets if the entry is hidden (and will be rendered as a hidden element)
-     *
-     * @note Defaults to false
-     * @param bool|null $value
-     * @return static
-     */
-    public function setHidden(?bool $value): static;
 }

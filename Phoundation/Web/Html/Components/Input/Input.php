@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Components\Element;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Input\Traits\InputElement;
 
 
@@ -18,7 +19,7 @@ use Phoundation\Web\Html\Components\Input\Traits\InputElement;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Input extends Element implements \Phoundation\Web\Html\Components\Input\Interfaces\InputInterface
+abstract class Input extends Element implements InputInterface
 {
     use InputElement;
 

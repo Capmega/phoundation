@@ -9,6 +9,8 @@ use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\TooltipInterface;
+use Phoundation\Web\Html\Components\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Stringable;
 
@@ -165,6 +167,13 @@ trait ElementAttributes
      */
     protected bool $right = false;
 
+    /**
+     * The tooltip object for this element
+     *
+     * @var TooltipInterface $tooltip
+     */
+    protected TooltipInterface $tooltip;
+
 
     /**
      * Class constructor
@@ -205,6 +214,45 @@ trait ElementAttributes
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+
+    /**
+     * Returns the tooltip object for this element
+     *
+     * @return TooltipInterface
+     */
+    public function getTooltip(): TooltipInterface
+    {
+        if (empty($this->tooltip)) {
+            $this->tooltip = new Tooltip($this);
+        }
+
+        return $this->tooltip;
+    }
+
+
+    /**
+     * Returns the tooltip title
+     *
+     * @return string|null
+     */
+    public function getTooltipTitle(): ?string
+    {
+        return $this->tooltip->getTitle();
+    }
+
+
+    /**
+     * Returns the tooltip title
+     *
+     * @param string|null $title
+     * @return static
+     */
+    public function setTooltipTitle(?string $title): static
+    {
+        $this->getTooltip()->setTitle($title);
+        return $this;
     }
 
 

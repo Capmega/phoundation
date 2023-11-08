@@ -16,10 +16,12 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\InputTextArea;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\Tooltips\Tooltip;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Renderer;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -56,7 +58,7 @@ class DataEntryForm extends Renderer
     /**
      * Standard DataEntryForm object does not render any HTML, this requires a Template class
      *
-     * @todo Refactor this method
+     * @todo Refactor this method as it has become a godunholy mess. Also, contains lots of non template functionality
      * @return string|null
      */
     public function render(): ?string
@@ -64,7 +66,7 @@ class DataEntryForm extends Renderer
         $render_object = $this->render_object;
 
         if (!$render_object->getDefinitions()) {
-            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no fields specified'));
+            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no field definitions specified'));
         }
 
         $source        = $render_object->getSource();
@@ -426,7 +428,7 @@ class DataEntryForm extends Renderer
                                     ->render();
                         }
 
-                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        $this->render .= $this->renderItem($field, $html, $definition_array, $definition);
                         break;
 
                     case 'text':
@@ -453,7 +455,7 @@ class DataEntryForm extends Renderer
                             ->setAutoFocus($definition->getAutoFocus())
                             ->render();
 
-                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        $this->render .= $this->renderItem($field, $html, $definition_array, $definition);
                         break;
 
                     case 'div':
@@ -476,7 +478,7 @@ class DataEntryForm extends Renderer
                             ->setAutoFocus($definition->getAutoFocus())
                             ->render();
 
-                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        $this->render .= $this->renderItem($field, $html, $definition_array, $definition);
                         break;
 
                     case 'select':
@@ -495,7 +497,7 @@ class DataEntryForm extends Renderer
                             ->setAutoFocus($definition->getAutoFocus())
                             ->render();
 
-                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        $this->render .= $this->renderItem($field, $html, $definition_array, $definition);
                         break;
 
                     case 'inputmultibuttontext':
@@ -518,7 +520,7 @@ class DataEntryForm extends Renderer
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($definition->getAutoFocus());
 
-                        $this->render .= $this->renderItem($field, $input->render(), $definition_array);
+                        $this->render .= $this->renderItem($field, $input->render(), $definition_array, $definition);
                         break;
 
                     case '':
@@ -536,7 +538,7 @@ class DataEntryForm extends Renderer
 
                         // Execute this to get the element
                         $html = $definition_array['element']($field, $definition_array, $source);
-                        $this->render .= $this->renderItem($field, $html, $definition_array);
+                        $this->render .= $this->renderItem($field, $html, $definition_array, $definition);
                 }
 
             } elseif(is_callable($definition_array['content'])) {
@@ -550,16 +552,16 @@ class DataEntryForm extends Renderer
 
                 } else {
                     $html          = $definition_array['content']($definition, $field, $field_name, $source);
-                    $this->render .= $this->renderItem($field, $html, $definition_array);
+                    $this->render .= $this->renderItem($field, $html, $definition_array, $definition);
                 }
 
             } else {
-                $this->render .= $this->renderItem($field, $definition_array['content'], $definition_array);
+                $this->render .= $this->renderItem($field, $definition_array['content'], $definition_array, $definition);
             }
         }
 
         // Add one empty element to (if required) close any rows
-        $this->render .= $this->renderItem(null, null, null);
+        $this->render .= $this->renderItem(null, null, null, null);
         static::$list_count++;
         return parent::render();
     }
@@ -571,9 +573,10 @@ class DataEntryForm extends Renderer
      * @param string|int|null $name
      * @param string|null $html
      * @param array|null $data
+     * @param DefinitionInterface|null $definition
      * @return string|null
      */
-    protected function renderItem(string|int|null $name, ?string $html, ?array $data): ?string
+    protected function renderItem(string|int|null $name, ?string $html, ?array $data, ?DefinitionInterface $definition): ?string
     {
         static $col_size = 12;
         static $cols     = [];
@@ -608,6 +611,7 @@ class DataEntryForm extends Renderer
                     $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
                                             <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
+                                            ' . $this->renderTooltip($definition) . '
                                             <div class="form-check">
                                                 ' . $html . '
                                                 <label class="form-check-label" for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
@@ -620,6 +624,7 @@ class DataEntryForm extends Renderer
                     $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
                                             <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
+                                            ' . $this->renderTooltip($definition) . '
                                             ' . $html . '
                                         </div>
                                     </div>';
@@ -648,5 +653,25 @@ class DataEntryForm extends Renderer
         }
 
         return $return;
+    }
+
+
+    /**
+     * Renders and returns the tooltip for the specified definition
+     *
+     * @param DefinitionInterface $definition
+     * @return string|null
+     */
+    protected function renderTooltip(DefinitionInterface $definition): ?string
+    {
+        if ($definition->getTooltip()) {
+            // Render and return the tooltip
+            return Tooltip::new()
+                ->setTitle($definition->getTooltip())
+                ->setUseIcon(true)
+                ->render();
+        }
+
+        return null;
     }
 }

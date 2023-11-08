@@ -1913,7 +1913,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns the meta fields that apply for all DataEntry objects
+     * Returns the meta-fields that apply for all DataEntry objects
      *
      * @return void
      */
@@ -1927,6 +1927,7 @@ abstract class DataEntry implements DataEntryInterface
                 ->addClasses('text-center')
                 ->setSize(3)
                 ->setCliAutoComplete(true)
+                ->setTooltip(tr('This field contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
                 ->setLabel(tr('Database ID')))
             ->addDefinition(Definition::new($this, 'created_on')
                 ->setReadonly(true)
@@ -1934,11 +1935,13 @@ abstract class DataEntry implements DataEntryInterface
                 ->setNullInputType(InputType::text)
                 ->addClasses('text-center')
                 ->setSize(3)
+                ->setTooltip(tr('This field contains the exact date / time when this object was created'))
                 ->setLabel(tr('Created on')))
             ->addDefinition(Definition::new($this, 'created_by')
                 ->setReadonly(true)
                 ->setSize(3)
                 ->setLabel(tr('Created by'))
+                ->setTooltip(tr('This field contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     if ($this->isNew()) {
                         // This is a new DataEntry object, so the creator is.. well, you!
@@ -1969,16 +1972,19 @@ abstract class DataEntry implements DataEntryInterface
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setNullInputType(InputType::text)
+                ->setTooltip(tr('This field contains the identifier for this object\'s audit history'))
                 ->setLabel(tr('Meta ID')))
             ->addDefinition(Definition::new($this, 'meta_state')
                 ->setReadonly(true)
                 ->setVisible(false)
                 ->setInputType(InputType::text)
+                ->setTooltip(tr('This field contains a cache identifier value for this object. This information usually is of no importance to normal users'))
                 ->setLabel(tr('Meta state')))
             ->addDefinition(Definition::new($this, 'status')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::text)
+                ->setTooltip(tr('This field contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
 //                ->setDisplayDefault(tr('Ok'))
                 ->addClasses('text-center')
                 ->setSize(3)
