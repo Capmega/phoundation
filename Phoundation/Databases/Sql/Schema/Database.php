@@ -10,7 +10,7 @@ use Phoundation\Exception\UnderConstructionException;
 
 
 /**
- * Schema class
+ * class Database
  *
  *
  *
@@ -156,11 +156,26 @@ class Database extends SchemaAbstract
     /**
      * Load the table parameters from database
      *
-     * @return void
+     * @return static
      */
     public function load(): static
     {
         // Load columns & indices data
         // TODO Implement
+        return $this;
+    }
+
+
+    /**
+     * Renames this database
+     *
+     * @see https://www.atlassian.com/data/admin/how-to-rename-a-database-in-mysql
+     * @return $this
+     */
+    public function rename(): static
+    {
+        $tables = $this->tables();
+        //$ mysql -u dbUsername -p"dbPassword" oldDatabase -sNe 'show tables' | while read table; do mysql -u dbUsername -p"dbPassword" -sNe "RENAME TABLE oldDatabase.$table TO newDatabase.$table"; done
+        return $this;
     }
 }
