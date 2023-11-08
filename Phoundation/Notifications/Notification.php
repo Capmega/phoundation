@@ -427,8 +427,16 @@ class Notification extends DataEntry implements NotificationInterface
             Log::write(Strings::size('Details', 12) . ': ', 'debug', clean: false);
 
             foreach (Arrays::force($details) as $key => $value) {
-                Log::write(Strings::size($key, 12) . ': ', 'debug', clean: false, newline: false);
-                Log::write(Strings::log($value), use_prefix: false);
+                Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false);
+
+                switch ($key) {
+                    case 'trace':
+                        Log::backtrace(backtrace: $value);
+                        break;
+
+                    default:
+                        Log::write(Strings::log($value), use_prefix: false);
+                }
             }
         }
 
