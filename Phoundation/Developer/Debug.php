@@ -694,7 +694,7 @@ class Debug {
                             $exception .= htmlspecialchars((string) $message) . '<br>';
                         }
                     }else {
-                        $exception .= htmlspecialchars((string) $value->getMessage()) . '<br>';
+                        $exception .= htmlspecialchars($value->getMessage()) . '<br>';
                     }
 
                     $exception .= '<br>' . tr('Location: ') . htmlspecialchars($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
