@@ -10,6 +10,7 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Button;
 use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Form;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\DisplaySize;
@@ -131,10 +132,11 @@ $documentation = Card::new()
 // Build the rights list management section
 $rights = Card::new()
     ->setTitle(tr('Rights for this role'))
-    ->setContent($role->getRightsHtmlDataEntryForm()
+    ->setContent($role->getRightsHtmlDataEntryForm())
+    ->setForm(Form::new()
         ->setAction('#')
-        ->setMethod('POST')
-        ->render());
+        ->setMethod('POST'))
+    ->render();
 
 
 // Build and render the page grid
