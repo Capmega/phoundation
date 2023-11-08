@@ -127,6 +127,11 @@ class Route
         static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri                   , '?');
 
+        if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
+            // By default, increase log threshold on all favicon.ico requests to avoid log clutter
+            Log::setThreshold(Config::getInteger('log.levels.web.favicon', 10));
+        }
+
         // Start the Core object, hide $_GET & $_POST
         try {
             if (Core::isState(null)) {
@@ -148,7 +153,7 @@ class Route
             ':method' => static::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
-        ]));
+        ]), 9);
 
         Core::registerShutdown('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
