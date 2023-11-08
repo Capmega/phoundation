@@ -110,7 +110,7 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
-        $entry  = DataEntryForm::new();
+        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
         $rights = Rights::new();
         $select = $rights->getHtmlSelect()->setCache(true)->setName($name);
 
