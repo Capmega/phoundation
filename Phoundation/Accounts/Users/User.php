@@ -75,7 +75,7 @@ use Stringable;
  *
  * This is the default user class.
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -327,7 +327,7 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Returns true if the specified password matches the users password
+     * Returns true if the specified password matches the user's password
      *
      * @param string $password
      * @return bool
@@ -1066,6 +1066,17 @@ class User extends DataEntry implements UserInterface
     public function getPassword(): PasswordInterface
     {
         return new Password($this->getId());
+    }
+
+
+    /**
+     * Returns the password string for this user
+     *
+     * @return string|null
+     */
+    public function getPasswordString(): ?string
+    {
+        return isset_get_typed('string', $this->source['password'], null, false);
     }
 
 

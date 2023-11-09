@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.21';
+        return '0.1.0';
     }
 
 
@@ -705,6 +705,66 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             sql()->query('UPDATE `accounts_rights`
                                 SET    `name` = LOWER(REPLACE(REPLACE(`name`, "_", "-"), " ", "-"))');
+
+        })->addUpdate('0.0.24', function () {
+            sql()->schema()->table('accounts_settings')->drop();
+
+            sql()->schema()->table('accounts_settings')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint DEFAULT NULL,
+                    `path` varchar(255) NOT NULL,
+                    `hash` varchar(40) NOT NULL,
+                    `value` varchar(255),
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `users_id` (`users_id`),
+                    KEY `path` (`path`),
+                    UNIQUE KEY `users_id_hash` (`users_id`, `hash`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_settings_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_settings_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_settings_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                ')->create();
+
+        })->addUpdate('0.1.0', function () {
+            sql()->schema()->table('accounts_signin_keys')->drop();
+
+            sql()->schema()->table('accounts_signin_keys')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NOT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint DEFAULT NULL,
+                    `uuid` varchar(36) NOT NULL,
+                    `force_redirect` varchar(2048) NOT NULL,
+                    `valid_until` datetime NULL DEFAULT NULL,
+                    `allow_navigation` tinyint(1) NOT NULL,
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `users_id` (`users_id`),
+                    UNIQUE KEY `uuid` (`uuid`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_signin_keys_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_signin_keys_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_signin_keys_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                ')->create();
         });
     }
 }

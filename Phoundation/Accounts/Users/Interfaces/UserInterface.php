@@ -600,4 +600,11 @@ interface UserInterface extends DataEntryInterface
      * @return NotificationInterface
      */
     public function notify(): NotificationInterface;
+
+    /**
+     * Returns the password string for this user
+     *
+     * @return string|null
+     */
+    public function getPasswordString(): ?string;
 }
