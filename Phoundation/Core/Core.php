@@ -238,27 +238,27 @@ class Core implements CoreInterface
         // DIRECTORY_ROOT   is the root directory of this project and should be used as the root for all other paths
         // DIRECTORY_TMP    is a private temporary directory
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
-        define('REQUEST', substr(uniqid(), 7));
-        define('DIRECTORY_ROOT', realpath(__DIR__ . '/../..') . '/');
-        define('DIRECTORY_WWW', DIRECTORY_ROOT . 'www/');
-        define('DIRECTORY_DATA', DIRECTORY_ROOT . 'data/');
-        define('DIRECTORY_CDN', DIRECTORY_DATA . 'content/cdn/');
-        define('DIRECTORY_TMP', DIRECTORY_DATA . 'tmp/');
-        define('DIRECTORY_PUBTMP', DIRECTORY_DATA . 'content/cdn/tmp/');
+        define('REQUEST'          , substr(uniqid(), 7));
+        define('DIRECTORY_ROOT'   , realpath(__DIR__ . '/../..') . '/');
+        define('DIRECTORY_WWW'    , DIRECTORY_ROOT . 'www/');
+        define('DIRECTORY_DATA'   , DIRECTORY_ROOT . 'data/');
+        define('DIRECTORY_CDN'    , DIRECTORY_DATA . 'content/cdn/');
+        define('DIRECTORY_TMP'    , DIRECTORY_DATA . 'tmp/');
+        define('DIRECTORY_PUBTMP' , DIRECTORY_DATA . 'content/cdn/tmp/');
         define('DIRECTORY_SCRIPTS', DIRECTORY_ROOT . 'scripts/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         error_reporting(E_ALL);
-        set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
-        set_exception_handler(['\Phoundation\Core\Core', 'uncaughtException']);
+        set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
+        set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
         register_shutdown_function(['\Phoundation\Core\Core', 'exit']);
 
         // Catch and handle process control signals
         if (function_exists('pcntl_signal')) {
             pcntl_async_signals(true);
-            pcntl_signal(SIGINT, ['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGINT , ['\Phoundation\Core\ProcessControlSignals', 'execute']);
             pcntl_signal(SIGTERM, ['\Phoundation\Core\ProcessControlSignals', 'execute']);
-            pcntl_signal(SIGHUP, ['\Phoundation\Core\ProcessControlSignals', 'execute']);
+            pcntl_signal(SIGHUP , ['\Phoundation\Core\ProcessControlSignals', 'execute']);
         }
 
         // Load the functions and mb files
@@ -268,15 +268,6 @@ class Core implements CoreInterface
         // Register the process start
         static::$timer = Timers::new('core', 'system');
         define('STARTTIME', static::$timer->getStart());
-
-        // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
-        // project name, platform and request type
-        static::securePhpSettings();
-        static::setProject();
-        static::setPlatform();
-        static::selectStartup();
-        static::setRequestType();
-        static::setTimeout();
     }
 
 
@@ -313,6 +304,15 @@ class Core implements CoreInterface
             }
 
             static::getInstance();
+
+            // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
+            // project name, platform and request type
+            static::securePhpSettings();
+            static::setProject();
+            static::setPlatform();
+            static::selectStartup();
+            static::setRequestType();
+            static::setTimeout();
 
         } catch (Throwable $e) {
             if (defined('PLATFORM_HTTP')) {
@@ -2333,15 +2333,16 @@ class Core implements CoreInterface
     /**
      * THIS METHOD SHOULD NOT BE RUN BY ANYBODY! IT IS EXECUTED AUTOMATICALLY ON SHUTDOWN
      *
-     * This function facilitates execution of multiple registered shutdown functions
+     * This function facilitates the execution of multiple registered shutdown functions
      *
-     * @param Throwable|int $exit_code
-     * @param string|null $exit_message
-     * @param bool $sig_kill
+     * @param Throwable|int $exit_code  The exit code for this process once it terminates
+     * @param string|null $exit_message Message to be printed upon exit, only works for CLI processes
+     * @param bool $sig_kill            If true, the process is being terminated due to an external KILL signal
+     * @param bool $direct_exit         If true, will exit the process immediately without loging, cleaning, etc.
      * @return void
      * @todo Somehow hide this method so that nobody can call it directly
      */
-    #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
+    #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): void
     {
         static $exit = false;
 
@@ -2352,6 +2353,11 @@ class Core implements CoreInterface
         }
 
         $exit = true;
+
+        if ($direct_exit) {
+            // Exit without logging, cleaning, etc.
+            exit($exit_code);
+        }
 
         if ($sig_kill) {
             Log::warning(tr('Not cleaning up due to kill signal!'));
