@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -43,12 +46,17 @@ if (Page::isPostRequestMethod()) {
             Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
             Page::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
 
+        } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least 10 characters for the password'));
+
         } catch (AuthenticationException $e) {
-            // Oops! Current password was wrong
-            Page::getFlashMessages()->addWarningMessage(tr('Your current passwors was incorrect'));
+            // Oops! The Current password was wrong
+            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+                ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+            ]));
 
         } catch (ValidationFailedException $e) {
-            // Oops! Show validation errors and remain on page
+            // Oops! Show validation errors and remain on this page
             Page::getFlashMessages()->addWarningMessage($e);
 
         }catch (PasswordNotChangedException $e) {

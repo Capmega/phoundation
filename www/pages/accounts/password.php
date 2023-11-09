@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use Composer\Config;
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -47,8 +50,13 @@ if (Page::isPostRequestMethod()) {
             Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
             Page::redirect(UrlBuilder::getPrevious('accounts/user-' . $user->getId() . '.html'));
 
+        } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+                ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+            ]));
+
         } catch (ValidationFailedException $e) {
-            // Oops! Show validation errors and remain on page
+            // Oops! Show validation errors and remain on this page
             Page::getFlashMessages()->addMessage($e);
 
         }catch (PasswordNotChangedException $e) {
