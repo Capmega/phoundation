@@ -51,10 +51,10 @@ interface UrlBuilderInterface extends Stringable
     public function removeQueries(): static;
 
     /**
-     * Add specified query to the specified URL and return
+     * Add a specified query to the specified URL and return
      *
-     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @param array|string|bool|null ...$queries All the queries to add to this URL
      * @return static
      */
-    public function addQueries(array|string|bool ...$queries): static;
+    public function addQueries(array|string|bool|null ...$queries): static;
 }
