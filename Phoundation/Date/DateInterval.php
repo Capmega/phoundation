@@ -266,7 +266,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of hours for this date interval
+     * Returns the total number of hours for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -284,7 +284,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of minutes for this date interval
+     * Returns the total number of minutes for this date interval
      *
      * @param bool $round_down
      * @return int

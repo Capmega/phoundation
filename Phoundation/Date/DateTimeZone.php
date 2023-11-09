@@ -38,7 +38,7 @@ class DateTimeZone extends \DateTimeZone
                     // no break
                 case 'display':
                     $timezone = Session::getUser()->getTimezone();
-$timezone = 'PDT';
+$timezone = 'PST';
                     break;
             }
 
