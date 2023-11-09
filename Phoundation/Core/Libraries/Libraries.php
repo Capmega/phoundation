@@ -250,22 +250,22 @@ class Libraries
             throw new OutOfBoundsException(tr('Neither system not plugin nor template paths specified to search'));
         }
 
-        $directory = Strings::capitalize($library);
+        $library = Strings::capitalize($library);
 
         // Library must exist in either SYSTEM or PLUGINS paths
         foreach($directories as $directory) {
             $directory = Strings::slash($directory);
 
             // Library must exist and be a directory
-            if (file_exists($directory . $directory)) {
-                if (is_dir($directory . $directory)) {
+            if (file_exists($directory . $library)) {
+                if (is_dir($directory . $library)) {
                     if ($return) {
                         throw new OutOfBoundsException(tr('The specified library ":library" is both a system library and a plugin', [
                             ':library' => $library
                         ]));
                     }
 
-                    $return = new Library($directory . $directory);
+                    $return = new Library($directory . $library);
                 }
             }
         }
