@@ -2403,8 +2403,8 @@ class Core implements CoreInterface
         static::$timer->stop();
 
         // Log debug information?
-        if (Debug::getEnabled()) {
-            // Only when auto complete is not active, of course!
+        if (Debug::getEnabled() and Debug::printStatistics()) {
+            // Only when auto complete is not active!
             if (!AutoComplete::isActive()) {
                 static::logDebug();
             }

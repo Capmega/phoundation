@@ -105,6 +105,17 @@ class Debug {
 
 
     /**
+     * Returns true if each request should print execution statistics in the log
+     *
+     * @return bool
+     */
+    public static function printStatistics(): bool
+    {
+        return Config::getBoolean('debug.statistics', false);
+    }
+
+
+    /**
      * Sets or returns if the system is running in debug mode or not
      *
      * @param bool|null $enabled
