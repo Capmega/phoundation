@@ -214,13 +214,15 @@ class CliCommand
     {
         $uid = fileowner(__DIR__ . '/../../pho');
 
+        Core::getInstance();
+
         if (Core::getProcessUid() === $uid) {
             // Correct user, yay!
             return;
         }
 
         if (!Config::getBoolean('cli.require-same-uid', true)) {
-            // According to configuration we don't need to have the same UID.
+            // According to configuration, we don't need to have the same UID.
             return;
         }
 
@@ -235,7 +237,7 @@ class CliCommand
         }
 
         if (!Core::getProcessUid() and $permit_root) {
-            // This script is ran as root and root is authorized!
+            // This script is run as root and root is authorized!
             return;
         }
 
@@ -271,7 +273,9 @@ class CliCommand
         }
 
         passthru($command, $result_code);
-        die($result_code);
+
+        // We likely won't be able to log here (nor should we), so disable logging
+        Core::exit($result_code, direct_exit: true);
     }
 
 
