@@ -124,7 +124,7 @@ class DateInterval extends \DateInterval implements Stringable
             }
 
         } elseif (is_int($date_interval)) {
-            // Diff will always give a tiny amount of micro/milliseconds difference. Since we're on seconds resolution
+            // Diff will always give a tiny number of micro/milliseconds difference. Since we're on seconds resolution
             // here we can round that off
             $round_up = not_null($round_up, true);
             $date_interval = DateTime::new($date_interval . ' seconds')->diff(DateTime::new());
@@ -197,7 +197,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of years for this date interval
+     * Returns the number of years for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -214,7 +214,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of months for this date interval
+     * Returns the number of months for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -232,7 +232,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of weeks for this date interval
+     * Returns the number of weeks for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -248,7 +248,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of days for this date interval
+     * Returns the number of days for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -284,6 +284,22 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
+     * Returns the total number of hours and minute fraction for this date interval
+     *
+     * @return float
+     */
+    public function getTotalHoursWithFraction(): float
+    {
+        $minutes  = $this->getTotalMinutes();
+        $hours    = (int) floor($minutes / 60);
+        $fraction = $minutes - ($hours * 60);
+        $fraction = $fraction / 60;
+
+        return $hours + $fraction;
+    }
+
+
+    /**
      * Returns the total number of minutes for this date interval
      *
      * @param bool $round_down
@@ -302,7 +318,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of seconds for this date interval
+     * Returns the number of seconds for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -320,7 +336,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of milliseconds for this date interval
+     * Returns the number of milliseconds for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -338,7 +354,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of microseconds for this date interval
+     * Returns the number of microseconds for this date interval
      *
      * @return int
      */
