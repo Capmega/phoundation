@@ -72,7 +72,7 @@ class GridColumn extends Layout
 
         $this->useForm($use_form);
 
-        return parent::addContent($content, $make_safe);
+        return parent::appendContent($content, $make_safe);
     }
 
 

@@ -148,7 +148,7 @@ class Emails extends DataList implements EmailsInterface
         }
 
         return DataEntryForm::new()
-            ->addContent(implode('<hr>', $content))
+            ->appendContent(implode('<hr>', $content))
             ->setRenderContentsOnly(true);
     }
 

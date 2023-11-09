@@ -663,18 +663,18 @@ trait ElementAttributes
     public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = null;
-        return $this->addContent($content, $make_safe);
+        return $this->appendContent($content, $make_safe);
     }
 
 
     /**
-     * Adds the specified content to the content of the element
+     * Appends the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
      * @param bool $make_safe
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
@@ -688,6 +688,31 @@ trait ElementAttributes
         }
 
         $this->content .= $content;
+        return $this;
+    }
+
+
+    /**
+     * Prepends the specified content to the content of the element
+     *
+     * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
+     * @return static
+     */
+    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    {
+        if (is_object($content)) {
+            // This object must be able to render HTML. Check this and then render.
+            static::canRenderHtml($content);
+            $content   = $content->render();
+            $make_safe = false;
+        }
+
+        if ($make_safe) {
+            $content = Html::safe($content);
+        }
+
+        $this->content = $content . $this->content;
         return $this;
     }
 

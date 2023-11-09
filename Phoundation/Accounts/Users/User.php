@@ -1249,7 +1249,7 @@ class User extends DataEntry implements UserInterface
         }
 
         return $entry
-            ->addContent(implode('<br>', $content))
+            ->appendContent(implode('<br>', $content))
             ->setRenderContentsOnly(true);
     }
 

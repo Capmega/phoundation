@@ -116,11 +116,11 @@ class Role extends DataEntry implements RoleInterface
 
         // Add extra entry with nothing selected
         $select->clearSelected();
-        $entry->addContent($select->render() . '<br>');
+        $entry->appendContent($select->render() . '<br>');
 
         foreach ($this->getRights() as $right) {
             $select->setSelected($right->getId());
-            $entry->addContent($select->render() . '<br>');
+            $entry->appendContent($select->render() . '<br>');
         }
 
         return $entry;

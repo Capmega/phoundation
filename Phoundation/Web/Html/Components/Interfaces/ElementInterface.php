@@ -4,6 +4,7 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 
 
 use Phoundation\Web\Html\Components\ElementsBlock;
+use Stringable;
 
 /**
  * Class Element
@@ -45,4 +46,22 @@ interface ElementInterface
      * @see ElementsBlock::render()
      */
     public function render(): ?string;
+
+    /**
+     * Adds the specified content to the content of the element
+     *
+     * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
+     * @return static
+     */
+    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+
+    /**
+     * Adds the specified content to the content of the element
+     *
+     * @param Stringable|string|float|int|null $content
+     * @param bool $make_safe
+     * @return static
+     */
+    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
 }

@@ -148,7 +148,7 @@ class Phones extends DataList implements PhonesInterface
         }
 
         return DataEntryForm::new()
-            ->addContent(implode('<hr>', $content))
+            ->appendContent(implode('<hr>', $content))
             ->setRenderContentsOnly(true);
     }
 
