@@ -1121,12 +1121,12 @@ class Page implements PageInterface
     public static function hasRightsOrRedirects(array|string $rights, string $target, ?int $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
-            // Well then, all fine and dandy!
+            // Well, then, all fine and dandy!
             return;
         }
 
         if (!$target) {
-            // If target wasn't specified we can safely assume it's the same as the page target.
+            // If target wasn't specified, we can safely assume it's the same as the page target.
             $target = static::$target;
         }
 
@@ -1135,7 +1135,7 @@ class Page implements PageInterface
         $system = basename($system);
 
         if ($system === 'system') {
-            // Hurrah, its a bo.. system page! System pages require no rights, everyone can see a 404, 500, etc...
+            // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see a 404, 500, etc...
             return;
         }
 
@@ -1146,8 +1146,9 @@ class Page implements PageInterface
                 $guest_redirect = '/sign-in.html';
             }
 
-            $guest_redirect = (string) UrlBuilder::getWww($guest_redirect)
-                ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
+            $current        = static::getRedirect(UrlBuilder::getCurrent());
+            $guest_redirect = UrlBuilder::getWww($guest_redirect)
+                ->addQueries($current ? 'redirect=' . $current : null);
 
             Incident::new()
                 ->setType('401 - Unauthorized')->setSeverity(Severity::low)
@@ -1293,7 +1294,7 @@ class Page implements PageInterface
                 Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
 
-            // All done, send output to client
+            // All done, send output to the client
             $output = static::filterOutput($output);
             static::sendOutputToClient($output, $target, $attachment);
 
@@ -1354,7 +1355,7 @@ class Page implements PageInterface
 
 
     /**
-     * Check if this user should be forcibly be redirected to a different page
+     * Check if this user should be forcibly being redirected to a different page
      *
      * @return void
      */
@@ -1368,22 +1369,59 @@ class Page implements PageInterface
                 $current  = (string) UrlBuilder::getCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
-                    // We're at a different page, is it sign out? Because that one is allowed
-
-                    $signout = (string) UrlBuilder::getWww(Config::getString('web.pages.sign-out', '/sign-out.html'));
-
-                    if ($current !== $signout) {
-                        // No it's not, redirect!
-                        Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+                    // We're at a different page. Should we redirect to the specified page?
+                    if (static::skipRedirect($redirect)) {
+                        // No, it's not, redirect!
+                        Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUser()->getLogId(),
                             ':url'  => $redirect
                         ]));
 
-                        Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . urlencode($current)));
+                        Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . $current));
                     }
+
+                    Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
+                        ':user' => Session::getUser()->getLogId(),
+                        ':url'  => $redirect
+                    ]));
                 }
             }
         }
+    }
+
+
+    /**
+     * Returns true if redirecting for the specified URL should be skipped
+     *
+     * Currently, sign-out or index pages should not be redirected to
+     *
+     * @param Stringable|string $redirect
+     * @return bool
+     */
+    protected static function skipRedirect(Stringable|string $redirect): bool
+    {
+        $skip = [
+            (string) UrlBuilder::getWww(Config::getString('web.pages.index.html', '/index.html')),
+            (string) UrlBuilder::getWww(Config::getString('web.pages.sign-out'  , '/sign-out.html')),
+        ];
+
+        return in_array((string) $redirect, $skip);
+    }
+
+
+    /**
+     * Returns the redirect URL if it should not be skipped
+     *
+     * @param string $redirect
+     * @return string|null
+     */
+    protected static function getRedirect(Stringable|string $redirect): ?string
+    {
+        if (static::skipRedirect($redirect)) {
+            return null;
+        }
+
+        return (string) $redirect;
     }
 
 
@@ -1426,7 +1464,7 @@ class Page implements PageInterface
 
         if (isset_get($_GET['redirect'])) {
             // Add redirect back query
-            $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
+            $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => $_GET['redirect']]);
         }
 
         /*
