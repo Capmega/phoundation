@@ -18,8 +18,6 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-Session::getUser()->hasAllRights('blergh');
-
 
 /**
  * Page accounts/right.php

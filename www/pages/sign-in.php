@@ -9,7 +9,7 @@ use Phoundation\Web\Page;
 
 
 /**
- * Sign in page
+ * Page sign-in
  *
  *
  *
@@ -51,7 +51,7 @@ Page::setBuildBody(false);
       <!-- /.login-logo -->
       <div class="card card-outline card-info">
         <div class="card-header text-center">
-          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Medi</span>web'); ?></a>
+          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>

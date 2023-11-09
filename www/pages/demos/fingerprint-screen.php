@@ -31,7 +31,7 @@ Page::setBuildBody(false);
     <div class="lockscreen-wrapper card card-outline card-info">
         <div class="card-header text-center">
             <div class="lockscreen-logo">
-                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Medi</span>web'); ?></a>
+                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Medi</span>web'); ?></a>
             </div>
         </div>
         <div class="card-body">
