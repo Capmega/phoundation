@@ -1,6 +1,8 @@
 <?php
 
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -45,6 +47,11 @@ if (Page::isPostRequestMethod()) {
         // Add flash message and redirect to original target
         Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
         Page::redirect('prev');
+
+    } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+        Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+        ]));
 
     } catch (ValidationFailedException $e) {
         Page::getFlashMessages()->addMessage($e);

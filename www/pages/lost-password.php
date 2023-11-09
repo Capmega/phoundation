@@ -4,6 +4,7 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -12,6 +13,13 @@ use Phoundation\Web\Page;
 if (!Session::getUser()->isGuest()) {
     Page::redirect('prev', 302);
 }
+
+
+// Is email specified by URL?
+$get = GetValidator::new()
+    ->select('email')->isOptional()->isEmail()
+    ->select('redirect')->isOptional()->isUrl()
+    ->validate();
 
 
 // Validate sign in data and sign in
@@ -23,6 +31,7 @@ if (Page::isPostRequestMethod()) {
 
     } catch (ValidationFailedException) {
         Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('Please specify a valid email and password'));
+
     } catch (AuthenticationException) {
         Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('The specified email or password was incorrect'));
     }
@@ -49,7 +58,7 @@ Page::setBuildBody(false);
                     if (Session::supports('email')) {
                         ?>
                         <div class="input-group mb-3">
-                            <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>">
+                            <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>"<?= isset_get($get['email']) ? 'value="' . $get['email'] . '"' : '' ?>>
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-envelope"></span>
@@ -65,7 +74,7 @@ Page::setBuildBody(false);
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <a class="btn btn-outline-secondary btn-block" href="<?= UrlBuilder::getWww('/sign-in.html') ?>"><?= tr('Back to sign in') ?></a>
+                                <a class="btn btn-outline-secondary btn-block" href="<?= UrlBuilder::getWww('/sign-in.html')->addQueries(isset_get($get['email']) ? 'email=' . $get['email'] : '', isset_get($get['redirect']) ? 'redirect=' . $get['redirect'] : '') ?>"><?= tr('Back to sign in') ?></a>
                             </div>
                         </div>
                         <?php
