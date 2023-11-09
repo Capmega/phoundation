@@ -52,13 +52,19 @@ Class Log {
      */
     public const BACKTRACE_DISPLAY_BOTH = 3;
 
-
     /**
      * Singleton variable
      *
      * @var Log|null $instance
      */
     protected static ?Log $instance = null;
+
+    /**
+     * Sets if logging is enabled or disabled
+     *
+     * @var bool $enabled
+     */
+    protected static bool $enabled = true;
 
     /**
      * Keeps track of what log files we're logging to
@@ -294,6 +300,39 @@ Class Log {
         static::$threshold = $threshold;
 
         return $return;
+    }
+
+
+    /**
+     * Enables logging
+     *
+     * @return void
+     */
+    public static function enable(): void
+    {
+        static::$enabled = true;
+    }
+
+
+    /**
+     * Disables logging
+     *
+     * @return void
+     */
+    public static function disable(): void
+    {
+        static::$enabled = false;
+    }
+
+
+    /**
+     * Returns if logging is enabled or not
+     *
+     * @return bool
+     */
+    public static function getEnabled(): bool
+    {
+        return static::$enabled;
     }
 
 
@@ -841,6 +880,10 @@ Class Log {
      */
     public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
+        if (!static::$enabled) {
+            return false;
+        }
+
         if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
             error_log(Strings::force($messages));
