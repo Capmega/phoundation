@@ -3,8 +3,14 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Button;
+use Phoundation\Web\Html\Components\Buttons;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\DisplayMode;
@@ -22,7 +28,7 @@ $get = GetValidator::new()
 
 
 // Get the user and alter the default user form
-$user        = User::get($get['id'])->setReadonly(true);
+$user        = User::get($get['id']);
 $definitions = $user->getDefinitions();
 
 $definitions->get('last_sign_in')
@@ -96,11 +102,69 @@ $definitions->get('description')
     ->setSize(12);
 
 
+// Validate POST and submit
+if (Page::isPostRequestMethod()) {
+    try {
+        switch (PostValidator::getSubmitButton()) {
+            case tr('Lock'):
+                $user->lock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been lock', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                Page::redirect();
+
+            case tr('Impersonate'):
+                $user->impersonate();
+                Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                Page::redirect('root');
+        }
+
+    } catch (IncidentsException|ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on page
+        Page::getFlashMessages()->addMessage($e);
+        $user->forceApply();
+    }
+}
+
+
+if (Session::getUser()->hasAllRights(['accounts'])) {
+    $edit = Button::new()
+        ->setMode(DisplayMode::secondary)
+        ->setValue(tr('Edit'))
+        ->setContent(tr('Edit'))
+        ->setAnchorUrl('/accounts/user-' . $user->getId() . '.html');
+
+    if ($user->canBeImpersonated()) {
+        $impersonate = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::danger)
+            ->setValue(tr('Impersonate'))
+            ->setContent(tr('Impersonate'));
+    }
+
+    if ($user->canBeStatusChanged()) {
+        $lock = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::warning)
+            ->setValue(tr('Lock'))
+            ->setContent(tr('Lock'));
+    }
+}
+
+
 // Build the user form
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('View the profile information for :user here', [':user' => $user->getDisplayName()]))
-    ->setContent($user->getHtmlDataEntryForm()->render());
+    ->setContent($user->setReadonly(true)->getHtmlDataEntryForm()->render())
+    ->setButtons(Buttons::new()
+        ->addButton(isset_get($edit))
+        ->addButton(isset_get($lock))
+        ->addButton(isset_get($impersonate)));
 
 
 // Build the grid column with a form containing the user and roles cards
