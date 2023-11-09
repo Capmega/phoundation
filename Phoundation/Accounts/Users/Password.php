@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Arrays;
@@ -106,7 +108,7 @@ class Password extends DataEntry implements PasswordInterface
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
 
-            // In setup mode we won't have database access yet, so these 2 tests may be skipped in that case.
+            // In setup mode, we won't have database access yet, so these 2 tests may be skipped in that case.
             if (!Core::isState('setup')) {
                 if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));
@@ -156,6 +158,7 @@ class Password extends DataEntry implements PasswordInterface
      * @param string $password
      * @param string|null $email
      * @return int
+     * @throws NoPasswordSpecifiedException|PasswordTooShortException
      */
     protected static function getStrength(string $password, ?string $email): int
     {
@@ -165,15 +168,12 @@ class Password extends DataEntry implements PasswordInterface
 
         if($length < 10) {
             if(!$length) {
-                Log::warning(tr('No password specified'));
-                return -1;
+                throw new NoPasswordSpecifiedException(tr('No password specified'));
             }
 
-            Log::warning(tr('Specified password has only ":length" characters, 10 are the required minimum', [
+            throw new PasswordTooShortException(tr('Specified password has only ":length" characters, 10 are the required minimum', [
                 ':length' => $length
             ]));
-
-            return -1;
         }
 
         // Test for email parts
@@ -187,18 +187,18 @@ class Password extends DataEntry implements PasswordInterface
 
             foreach ($tests as $test) {
                 if (str_contains($password, $test)) {
-                    // password contains email parts, either straight or in reverse. Both are not allowed
+                    // The password contains email parts, either straight or in reverse. Both are not allowed
                     return -1;
                 }
             }
         }
 
-        // Check if password is not all lower case
+        // Check if password is not all a lower case
         if(strtolower($password) === $password){
             $strength -= 15;
         }
 
-        // Check if password is not all upper case
+        // Check if password is not all an upper case
         if(strtoupper($password) === $password){
             $strength -= 15;
         }
