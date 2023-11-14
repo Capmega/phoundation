@@ -2300,6 +2300,28 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates if the selected field is a valid formatted UUID
+     *
+     * @return static
+     */
+    public function isUuid(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters(48);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value)) {
+                $this->addFailure(tr('must contain a valid UUID string'));
+            }
+        });
+    }
+
+
+    /**
      * Validates if the selected field is a valid JSON string
      *
      * @return static
