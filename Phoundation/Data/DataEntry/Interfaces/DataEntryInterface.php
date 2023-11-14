@@ -26,14 +26,14 @@ use Stringable;
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
-     * Returns if this DataEntry will validate data before saving
+     * Returns if this DataEntry validates data before saving
      *
      * @return bool
      */
     public function getValidate(): bool;
 
     /**
-     * Sets if this DataEntry will validate data before saving
+     * Sets if this DataEntry validates data before saving
      *
      * @return $this
      */
@@ -361,4 +361,12 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return string|null
      */
     public static function getUniqueField(): ?string;
+
+    /**
+     * Returns true if this object has the specified status
+     *
+     * @param string $status
+     * @return bool
+     */
+    public function hasStatus(string $status): bool;
 }

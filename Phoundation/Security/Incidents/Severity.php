@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Incidents;
 
+use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
+
 
 /**
  * Enum Severity
@@ -15,7 +17,7 @@ namespace Phoundation\Security\Incidents;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  */
-enum Severity: string
+enum Severity: string implements SeverityInterface
 {
     case unknown = 'unknown';
     case notice  = 'notice';

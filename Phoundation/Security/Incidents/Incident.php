@@ -18,6 +18,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
+use Phoundation\Security\Incidents\Interfaces\IncidentInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Enums\DisplayMode;
@@ -29,14 +31,14 @@ use Phoundation\Web\Html\Enums\InputElement;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  * @todo Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for example, should be thrown from here so that it is no longer required for the developer to both register the incident AND throw the exception
  */
-class Incident extends DataEntry
+class Incident extends DataEntry implements IncidentInterface
 {
     use DataEntryType;
     use DataEntryTitle;
@@ -176,10 +178,10 @@ class Incident extends DataEntry
     /**
      * Sets the severity for this object
      *
-     * @param Severity|string $severity
+     * @param SeverityInterface|string $severity
      * @return static
      */
-    public function setSeverity(Severity|string $severity): static
+    public function setSeverity(SeverityInterface|string $severity): static
     {
         if (is_string($severity)) {
             $severity = Severity::from($severity);
@@ -190,7 +192,7 @@ class Incident extends DataEntry
 
 
     /**
-     * Saves the incident to database
+     * Saves the incident to a database
      *
      * @param bool $force
      * @param string|null $comments

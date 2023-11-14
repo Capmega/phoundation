@@ -2,6 +2,8 @@
 
 namespace Phoundation\Core\Sessions\Interfaces;
 
+use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
+
 
 /**
  * Class Session
