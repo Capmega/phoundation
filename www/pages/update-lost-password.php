@@ -36,9 +36,10 @@ if (!Session::getSignInKey()) {
 }
 
 
-// Validate sign in data and sign in
+// Update password
 if (Page::isPostRequestMethod()) {
     try {
+        // Validate password data
         $post = PostValidator::new()
             ->select('password')->isPassword()
             ->select('passwordv')->isEqualTo('password')
@@ -63,7 +64,7 @@ if (Page::isPostRequestMethod()) {
 
         // Add a flash message and redirect to the original target
         Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
-        Page::redirect('/');
+        $updated = true;
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
         Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
@@ -81,17 +82,49 @@ if (Page::isPostRequestMethod()) {
 
 // This page will build its own body
 Page::setBuildBody(false);
-?>
-<?= Page::getFlashMessages()->render() ?>
+if (isset($updated)) {
+    ?>
+    <?= Page::getFlashMessages()->render() ?>
     <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-              <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
+                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
             </div>
             <div class="card-body">
-                <p class="login-box-msg"><?= tr('Please update your account to have a new and secure password password before continuing...') ?></p>
+                <p class="login-box-msg"><?= tr('Your password has been updated. Please return to the sign-in page to continue...') ?></p>
+
+                <form action="<?= UrlBuilder::getWww() ?>" method="post">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <a href="<?= UrlBuilder::getWww('/sign-out.html') ?>" class="btn btn-outline-secondary btn-block"><?= tr('Go to sign-in page') ?></a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+    </body>
+    <?php
+
+    // Set page meta data
+    Page::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
+
+} else {
+    ?>
+    <?= Page::getFlashMessages()->render() ?>
+    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+    <div class="login-box">
+        <!-- /.login-logo -->
+        <div class="card card-outline card-info">
+            <div class="card-header text-center">
+                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
+            </div>
+            <div class="card-body">
+                <p class="login-box-msg"><?= tr('Please enter a new password for your account to continue...') ?></p>
 
                 <form action="<?= UrlBuilder::getWww() ?>" method="post">
                     <div class="input-group mb-3">
@@ -127,8 +160,9 @@ Page::setBuildBody(false);
         <!-- /.card -->
     </div>
     </body>
-<?php
+    <?php
 
 
-// Set page meta data
-Page::setPageTitle(tr('Please update your password before continuing...'));
+    // Set page meta data
+    Page::setPageTitle(tr('Please update your password before continuing...'));
+}

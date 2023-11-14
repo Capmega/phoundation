@@ -2,9 +2,9 @@
 
 namespace Phoundation\Accounts\Users\Interfaces;
 
-
-use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Stringable;
+
 
 /**
  * Class SignInKey
@@ -17,7 +17,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-interface SignInKeyInterface
+interface SignInKeyInterface extends DataEntryInterface
 {
     /**
      * Returns the valid_until for this object
@@ -93,4 +93,13 @@ interface SignInKeyInterface
      * @return static
      */
     public function setRedirect(Stringable|string|null $redirect): static;
+
+    /**
+     * Returns true if this object's redirect URL
+     *
+     * @param Stringable|String $url
+     * @param string $target
+     * @return bool
+     */
+    public function signKeyAllowsUrl(Stringable|String $url,string $target): bool;
 }

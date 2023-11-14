@@ -1127,53 +1127,9 @@ class Page implements PageInterface
                 return;
             }
 
-            $key = Session::getSignInKey();
-
-            // User signed in with "sign-in" key that may have additional restrictions
-            if (!Core::isRequestType(EnumRequestTypes::html)) {
-                Incident::new()
-                    ->setType('401 - Unauthorized')->setSeverity(Severity::low)
-                    ->setTitle(tr('Session keys cannot be used on ":type" requests', [
-                        ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
-                        ':real_target' => Strings::from($target, DIRECTORY_ROOT),
-                        ':redirect'    => $guest_redirect,
-                        ':rights'      => $rights,
-                    ]))
-                    ->setDetails([
-                        'user'         => 0,
-                        'uri'          => Page::getUri(),
-                        'target'       => Strings::from(static::$target, DIRECTORY_ROOT),
-                        'real_target'  => Strings::from($target, DIRECTORY_ROOT),
-                        'rights'       => $rights,
-                        ':sign_in_key' => $key->getUuid()
-                    ])
-                    ->save();
-
-                Route::executeSystem(401);
-            }
-
-            if (!$key->getAllowNavigation()) {
-                // Only the redirect URL is allowed!
-                if (!$key->redirectUrlMatchesCurrentUrl()) {
-                    Incident::new()
-                        ->setType('401 - Unauthorized')->setSeverity(Severity::low)
-                        ->setTitle(tr('Cannot open page ":page", sign in key ":uuid" does not allow navigation beyond ":allow"', [
-                            ':page'  => Strings::from(static::$target, DIRECTORY_ROOT),
-                            ':allow' => $key->getRedirect(),
-                            ':uuid'  => $key->getUuid()
-                        ]))
-                        ->setDetails([
-                            ':page'     => Strings::from(static::$target, DIRECTORY_ROOT),
-                            ':users_id' => $key->getUsersId(),
-                            ':allow'    => $key->getRedirect(),
-                            ':uuid'     => $key->getUuid()
-                        ])
-                        ->save();
-
-                    // This method will exit
-                    Route::executeSystem(401);
-                }
-            }
+            // Check sign-key restrictions and if those are okay, we are good to go
+            static::hasSignKeyRestrictions($rights, $target);
+            return;
         }
 
         if (!$target) {
@@ -1211,7 +1167,7 @@ class Page implements PageInterface
                 ]))
                 ->setDetails([
                     'user'        => 0,
-                    'uri'         => Page::getUri(),
+                    'uri'         => static::getUri(),
                     'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
                     'real_target' => Strings::from($target, DIRECTORY_ROOT),
                     'rights'      => $rights
@@ -1259,7 +1215,7 @@ class Page implements PageInterface
                 ]))
                 ->setDetails([
                     'user'           => Session::getUser()->getLogId(),
-                    'uri'            => Page::getUri(),
+                    'uri'            => static::getUri(),
                     'target'         => Strings::from(static::$target, DIRECTORY_ROOT),
                     ':real_target'   => Strings::from($target, DIRECTORY_ROOT),
                     'rights'         => $rights,
@@ -1282,7 +1238,7 @@ class Page implements PageInterface
                 ]))
                 ->setDetails([
                     'user'        => Session::getUser()->getLogId(),
-                    'uri'         => Page::getUri(),
+                    'uri'         => static::getUri(),
                     'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
                     'real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':rights'      => Session::getUser()->getMissingRights($rights),
@@ -1293,6 +1249,59 @@ class Page implements PageInterface
 
         // This method will exit
         Route::executeSystem($rights_redirect);
+    }
+
+
+    /**
+     * Returns true if the current URL has sign-key restrictions
+     *
+     * @param array|string $rights
+     * @param string $target
+     * @return void
+     */
+    protected static function hasSignKeyRestrictions(array|string $rights, string $target): void
+    {
+        $key = Session::getSignInKey();
+
+        // User signed in with "sign-in" key that may have additional restrictions
+        if (!Core::isRequestType(EnumRequestTypes::html)) {
+            Incident::new()
+                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                ->setTitle(tr('Session keys cannot be used on ":type" requests', [
+                    ':type' => Core::getRequestType(),
+                ]))
+                ->setDetails([
+                    'user'         => $key->getUser()->getLogId(),
+                    'uri'          => static::getUri(),
+                    'target'       => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target'  => Strings::from($target, DIRECTORY_ROOT),
+                    'rights'       => $rights,
+                    ':sign_in_key' => $key->getUuid()
+                ])
+                ->save();
+
+            Route::executeSystem(401);
+        }
+
+        if (!$key->signKeyAllowsUrl(UrlBuilder::getCurrent(), $target)) {
+            Incident::new()
+                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
+                    ':url'   => UrlBuilder::getCurrent(),
+                    ':allow' => $key->getRedirect(),
+                    ':uuid'  => $key->getUuid()
+                ]))
+                ->setDetails([
+                    ':url'      => UrlBuilder::getCurrent(),
+                    ':users_id' => $key->getUsersId(),
+                    ':allow'    => $key->getRedirect(),
+                    ':uuid'     => $key->getUuid()
+                ])
+                ->save();
+
+            // This method will exit
+            Route::executeSystem(401);
+        }
     }
 
 
@@ -1452,8 +1461,8 @@ class Page implements PageInterface
     protected static function skipRedirect(Stringable|string $redirect): bool
     {
         $skip = [
-            (string) UrlBuilder::getWww(Config::getString('web.pages.index.html', '/index.html')),
-            (string) UrlBuilder::getWww(Config::getString('web.pages.sign-out'  , '/sign-out.html')),
+            (string) UrlBuilder::getWww('index'),
+            (string) UrlBuilder::getWww('sign-out'),
         ];
 
         return in_array((string) $redirect, $skip);
@@ -1463,7 +1472,7 @@ class Page implements PageInterface
     /**
      * Returns the redirect URL if it should not be skipped
      *
-     * @param string $redirect
+     * @param Stringable|string $redirect
      * @return string|null
      */
     protected static function getRedirect(Stringable|string $redirect): ?string

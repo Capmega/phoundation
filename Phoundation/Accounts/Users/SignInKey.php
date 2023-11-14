@@ -60,6 +60,17 @@ class SignInKey extends DataEntry implements SignInKeyInterface
 
 
     /**
+     * Returns the string version for this object
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getUuid();
+    }
+
+
+    /**
      * @inheritDoc
      */
     public static function getTable(): string
@@ -179,7 +190,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
 
         $this->setUuid($uuid)->save();
 
-        $url = Config::getString('web.pages.signkey', '/sign-key/:key.html');
+        $url = UrlBuilder::getWww('sign-key');
         $url = str_replace(':key', $uuid, $url);
 
         $this->url = UrlBuilder::getWww($url);
@@ -250,9 +261,39 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      *
      * @return bool
      */
-    public function redirectUrlMatchesCurrentUrl(): bool
+    public function signKeyRedirectUrlMatchesCurrentUrl(): bool
     {
         return $this->getRedirect() === (string) UrlBuilder::getCurrent();
+    }
+
+
+    /**
+     * Returns true if this object's redirect URL
+     *
+     * @param Stringable|String $url
+     * @param string $target
+     * @return bool
+     */
+    public function signKeyAllowsUrl(Stringable|String $url, string $target): bool
+    {
+        $url = (string) $url;
+
+        if ($this->getRedirect() === $url) {
+            // Redirect URL is always allowed
+            return true;
+        }
+
+        if ($url === (string) UrlBuilder::getWww('sign-out')) {
+            // sign-out page is always allowed
+            return true;
+        }
+
+        if (!str_starts_with($target, (DIRECTORY_WWW . 'pages/system/'))) {
+            // For this URL, we're trying to display a system page instead. Allow too
+            return true;
+        }
+
+        return $this->getAllowNavigation();
     }
 
 

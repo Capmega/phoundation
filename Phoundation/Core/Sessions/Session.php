@@ -12,6 +12,7 @@ use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignIn;
+use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Arrays;
@@ -658,7 +659,7 @@ Log::warning('RESTART SESSION');
             Incident::new()
                 ->setType('User sign out')
                 ->setSeverity(Severity::notice)
-                ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
+                ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()->getLogId()]))
                 ->setDetails(['user' => static::getUser()->getLogId()])
                 ->save();
 
@@ -1112,6 +1113,7 @@ Log::warning('RESTART SESSION');
             ->save();
 
         $_SESSION['user']['id'] = static::$user->getId();
+        $_SESSION['sign-key']  = $key->getUuid();
 
         return static::$user;
     }
@@ -1124,6 +1126,31 @@ Log::warning('RESTART SESSION');
      */
     public static function getSignInKey(): ?SignInKeyInterface
     {
+        if (empty(static::$key)) {
+            if (isset($_SESSION['sign-key'])) {
+                try {
+                    static::$key = SignInKey::new($_SESSION['sign-key'], 'uuid');
+
+                } catch (DataEntryNotExistsException) {
+                    // This session key doesn't exist, WTF? If it exists in session, it should exist in the DB. Since it
+                    // does not exist, assume the session contains invalid data. Drop the session
+                    Incident::new()
+                        ->setSeverity(Severity::medium)
+                        ->setType(tr('Invalid session data'))
+                        ->setTitle(tr('Session has sign-key that does not exist, session will be dropped'))
+                        ->setDetails([
+                            'sign-key' => $_SESSION['sign-key'],
+                            'users_id' => Session::getUser()->getLogId()
+                        ])
+                        ->save();
+
+                    Session::signOut();
+                    Page::getFlashMessages()->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
+                    Page::redirect('sign-in');
+                }
+            }
+        }
+
         return static::$key;
     }
 
