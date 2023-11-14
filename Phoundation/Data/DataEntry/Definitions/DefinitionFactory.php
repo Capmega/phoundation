@@ -39,7 +39,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
 class DefinitionFactory
 {
     /**
-     * Returns Definition object for any database id
+     * Returns a Definition object for any database id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -55,7 +55,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column categories_id
+     * Returns a Definition object for column categories_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -84,7 +84,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column categories_name
+     * Returns a Definition object for column categories_name
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -114,7 +114,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column parents_id
+     * Returns a Definition object for column parents_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -130,7 +130,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column parents_name
+     * Returns a Definition object for column parents_name
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -148,7 +148,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column companies_id
+     * Returns a Definition object for column companies_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -177,7 +177,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column company
+     * Returns a Definition object for column company
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -207,7 +207,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column languages_id
+     * Returns a Definition object for column languages_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -240,7 +240,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column language
+     * Returns a Definition object for column language
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -271,7 +271,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column providers_id
+     * Returns a Definition object for column providers_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -300,7 +300,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column provider
+     * Returns a Definition object for column provider
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -329,7 +329,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column customers_id
+     * Returns a Definition object for column customers_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -358,7 +358,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column customer
+     * Returns a Definition object for column customer
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -387,7 +387,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column timezones_id
+     * Returns a Definition object for column timezones_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -421,7 +421,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column timezone
+     * Returns a Definition object for column timezone
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -451,7 +451,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column countries_id
+     * Returns a Definition object for column countries_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -482,7 +482,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column timezone
+     * Returns a Definition object for column timezone
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -512,7 +512,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column states_id
+     * Returns a Definition object for column states_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -543,7 +543,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column timezone
+     * Returns a Definition object for column timezone
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -573,7 +573,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column cities_id
+     * Returns a Definition object for column cities_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -604,7 +604,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column timezone
+     * Returns a Definition object for column timezone
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -634,7 +634,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column users_id
+     * Returns a Definition object for column users_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -664,7 +664,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column users_id
+     * Returns a Definition object for column users_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -694,7 +694,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column roles_id
+     * Returns a Definition object for column roles_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -724,7 +724,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column roles_id
+     * Returns a Definition object for column roles_id
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -754,7 +754,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column code
+     * Returns a Definition object for column code
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -778,7 +778,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column datetime
+     * Returns a Definition object for column datetime
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -795,7 +795,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column date
+     * Returns a Definition object for column date
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -813,7 +813,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column date
+     * Returns a Definition object for column date
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -831,7 +831,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column title
+     * Returns a Definition object for column title
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -853,7 +853,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column name
+     * Returns a Definition object for column name
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -876,7 +876,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column email
+     * Returns a Definition object for column email
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -895,7 +895,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column url
+     * Returns a Definition object for column url
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -917,7 +917,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column phone
+     * Returns a Definition object for column phone
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -938,7 +938,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column phones
+     * Returns a Definition object for column phones
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -964,7 +964,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column seo_name
+     * Returns a Definition object for column seo_name
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -980,7 +980,42 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column description
+     * Returns a Definition object for column description
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getUuid(DataEntryInterface $data_entry, ?string $field = 'uuid'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setReadonly(true)
+            ->setInputType(InputType::text)
+            ->setSize(6)
+            ->setMaxlength(36)
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('UUID'));
+    }
+
+
+    /**
+     * Returns a Definition object for a boolean column (checkbox)
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getBoolean(DataEntryInterface $data_entry, ?string $field): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputType::checkbox)
+            ->setSize(2);
+    }
+
+
+    /**
+     * Returns a Definition object for column description
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -1000,7 +1035,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column content
+     * Returns a Definition object for column content
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
@@ -1020,7 +1055,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns Definition object for column comments
+     * Returns a Definition object for column comments
      *
      * @param DataEntryInterface $data_entry
      * @param string|null $field
