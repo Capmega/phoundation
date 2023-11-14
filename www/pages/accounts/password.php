@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Composer\Config;
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Config;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
