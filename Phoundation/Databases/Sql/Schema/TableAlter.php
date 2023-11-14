@@ -6,6 +6,7 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -71,9 +72,15 @@ class TableAlter extends SchemaAbstract
      */
     public function addColumn(string $column, string $after): static
     {
-        if ($column) {
-            $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . $column . ' ' . $after);
+        if (!$column) {
+            throw new OutOfBoundsException(tr('No column specified'));
         }
+
+        if (!$after) {
+            throw new OutOfBoundsException(tr('No after column specified'));
+        }
+
+        $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . $column . ' ' . $after);
 
         return $this;
     }
@@ -87,12 +94,14 @@ class TableAlter extends SchemaAbstract
      */
     public function dropColumn(string $column): static
     {
-        if ($column) {
-            $column = Strings::startsNotWith($column, '`');
-            $column = Strings::EndsNotWith($column  , '`');
-
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
+        if (!$column) {
+            throw new OutOfBoundsException(tr('No column specified'));
         }
+
+        $column = Strings::startsNotWith($column, '`');
+        $column = Strings::EndsNotWith($column  , '`');
+
+        $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
 
         return $this;
     }
@@ -107,12 +116,18 @@ class TableAlter extends SchemaAbstract
      */
     public function modifyColumn(string $column, string $to_definition): static
     {
-        if ($column) {
-            $column = Strings::startsNotWith($column, '`');
-            $column = Strings::EndsNotWith($column  , '`');
-
-            $this->sql->query('ALTER TABLE `' . $this->name .  '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
+        if (!$column) {
+            throw new OutOfBoundsException(tr('No column specified'));
         }
+
+        if (!$to_definition) {
+            throw new OutOfBoundsException(tr('No new column definition specified'));
+        }
+
+        $column = Strings::startsNotWith($column, '`');
+        $column = Strings::EndsNotWith($column  , '`');
+
+        $this->sql->query('ALTER TABLE `' . $this->name .  '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
     }
@@ -127,12 +142,47 @@ class TableAlter extends SchemaAbstract
      */
     public function changeColumn(string $column, string $to_definition): static
     {
-        if ($column) {
-            $column = Strings::startsNotWith($column, '`');
-            $column = Strings::EndsNotWith($column  , '`');
-
-            $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
+        if (!$column) {
+            throw new OutOfBoundsException(tr('No column specified'));
         }
+
+        if (!$to_definition) {
+            throw new OutOfBoundsException(tr('No new column definition specified'));
+        }
+
+        $column = Strings::startsNotWith($column, '`');
+        $column = Strings::EndsNotWith($column  , '`');
+
+        $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
+
+        return $this;
+    }
+
+
+    /**
+     * Rename the specified column
+     *
+     * @param string $from_column
+     * @param string $to_column
+     * @return static
+     */
+    public function renameColumn(string $from_column, string $to_column): static
+    {
+        if (!$from_column) {
+            throw new OutOfBoundsException(tr('No column specified'));
+        }
+
+        if (!$to_column) {
+            throw new OutOfBoundsException(tr('No new column definition specified'));
+        }
+
+        $from_column = Strings::startsNotWith($from_column, '`');
+        $from_column = Strings::EndsNotWith($from_column  , '`');
+
+        $to_column = Strings::startsNotWith($to_column, '`');
+        $to_column = Strings::EndsNotWith($to_column  , '`');
+
+        $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
 
         return $this;
     }

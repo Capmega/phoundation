@@ -708,7 +708,7 @@ class Sql implements SqlInterface
             unset($row['created_on']);
         }
 
-        // Build bound variables for query
+        // Build bound variables for the query
         $update = $this->updateColumns($row);
         $values = $this->values($row);
 
