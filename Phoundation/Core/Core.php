@@ -315,8 +315,8 @@ class Core implements CoreInterface
             static::setTimeout();
 
         } catch (Throwable $e) {
-            if (defined('PLATFORM_HTTP')) {
-                if (PLATFORM_HTTP and headers_sent($file, $line)) {
+            if (defined('PLATFORM_WEB')) {
+                if (PLATFORM_WEB and headers_sent($file, $line)) {
                     if (preg_match('/debug-.+\.php$/', $file)) {
                         throw new CoreException(tr('Failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
                             ':location' => $file . '@' . $line
@@ -1038,13 +1038,13 @@ class Core implements CoreInterface
         switch (php_sapi_name()) {
             case 'cli':
                 define('PLATFORM', 'cli');
-                define('PLATFORM_HTTP', false);
+                define('PLATFORM_WEB', false);
                 define('PLATFORM_CLI', true);
                 break;
 
             default:
                 define('PLATFORM', 'http');
-                define('PLATFORM_HTTP', true);
+                define('PLATFORM_WEB', true);
                 define('PLATFORM_CLI', false);
                 define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
@@ -1105,7 +1105,7 @@ class Core implements CoreInterface
      */
     protected static function setRequestType(): void
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             // Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this, with
             // route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store the file
             // being executed in static::$register['script_path'] instead
@@ -2048,7 +2048,7 @@ class Core implements CoreInterface
     public static function setTimeout(int $timeout = null): bool
     {
         if ($timeout === null) {
-            if (PLATFORM_HTTP) {
+            if (PLATFORM_WEB) {
                 // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
                 $timeout = Config::get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
             } else {
@@ -2385,7 +2385,7 @@ class Core implements CoreInterface
         }
 
         // Execute platform specific exit
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             // Kill a web page
             Page::exit($exit_message, $sig_kill);
         }

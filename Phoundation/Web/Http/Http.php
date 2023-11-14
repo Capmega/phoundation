@@ -190,7 +190,7 @@ class Http
 //     */
 //    #[NoReturn] public static function redirect(string $url = '', ?int $http_code = null, bool $clear_session_redirect = true, ?int $time_delay = null): never
 //    {
-//        if (!PLATFORM_HTTP) {
+//        if (!PLATFORM_WEB) {
 //            throw new HttpException(tr('This function can only be called on webservers'));
 //        }
 //

@@ -648,7 +648,7 @@ Class Html
 //     * @return string The HTML containing all flash messages that matched
 //     */
 //    function flash($class = null) {
-//        if (!PLATFORM_HTTP) {
+//        if (!PLATFORM_WEB) {
 //            throw new HtmlException('html_flash(): This function can only be executed on a webserver!');
 //        }
 //
@@ -825,7 +825,7 @@ Class Html
 //     */
 //    function flash_set($params, $type = 'info', $class = null) {
 //        try {
-//            if (!PLATFORM_HTTP) {
+//            if (!PLATFORM_WEB) {
 //                throw new HtmlException(tr('html_flash_set(): This function can only be executed on a webserver!'));
 //            }
 //

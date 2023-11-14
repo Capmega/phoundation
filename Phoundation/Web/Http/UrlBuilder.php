@@ -804,7 +804,7 @@ throw new UnderConstructionException();
         if ($use_configured_root) {
             $base = Domains::getRootUrl();
 
-        } elseif (PLATFORM_HTTP) {
+        } elseif (PLATFORM_WEB) {
             $base = Page::getRoutingParameters()->getRootUrl();
 
         } else {

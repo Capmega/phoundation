@@ -385,7 +385,7 @@ class Debug {
                 $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
             }
 
-            if (Core::readyState() and PLATFORM_HTTP) {
+            if (Core::readyState() and PLATFORM_WEB) {
                 if (empty($core->register['debug_plain'])) {
                     switch (Core::getRequestType()) {
                         case EnumRequestTypes::api:
@@ -436,7 +436,7 @@ class Debug {
             } else {
                 $return = '';
 
-                if (PLATFORM_HTTP) {
+                if (PLATFORM_WEB) {
                     // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
                     echo '<pre>';
                 }

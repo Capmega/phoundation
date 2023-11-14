@@ -1097,7 +1097,7 @@ class Definition implements DefinitionInterface
      */
     public function getCliField(): ?string
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             // We're not on CLI, we're on HTTP. Return the HTTP field instead
             return $this->field;
         }

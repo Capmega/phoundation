@@ -123,7 +123,7 @@ class Domains {
      */
     public static function getCurrent(): string
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             return $_SERVER['HTTP_HOST'];
         }
 

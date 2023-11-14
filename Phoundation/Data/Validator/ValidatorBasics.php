@@ -762,7 +762,7 @@ trait ValidatorBasics
         // Determine data source for this modification
         if (!$source) {
             // Use default data depending on platform
-            if (PLATFORM_HTTP) {
+            if (PLATFORM_WEB) {
                 return PostValidator::new();
             }
 

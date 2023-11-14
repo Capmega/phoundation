@@ -320,7 +320,7 @@ throw new UnderConstructionException();
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
                     ':created_by_' . static::$pointer => Session::getUser()->getId(),
-                    ':source_' . static::$pointer     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
+                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
                     ':data_' . static::$pointer       => $data
@@ -331,7 +331,7 @@ throw new UnderConstructionException();
                                 VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
                     ':created_by' => Session::getUser()->getId(),
-                    ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
+                    ':source'     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
                     ':action'     => $action,
                     ':comments'   => $comments,
                     ':data'       => $data
