@@ -15,6 +15,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Http\Exception\UrlBuilderConfiguredUrlNotFoundException;
+use Phoundation\Web\Http\Exception\UrlBuilderException;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Page;
 use Stringable;
@@ -368,7 +370,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getAjax(Stringable|string $url, bool $use_configured_root = false): static
     {
-        $url = (string) $url;
+        $url = (string) UrlBuilder::getWww($url);
 
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
@@ -857,19 +859,59 @@ throw new UnderConstructionException();
      * Apply predefined URL names
      *
      * @param Stringable|string $url
-     * @return UrlBuilder
+     * @return UrlBuilderInterface
      */
-    protected static function applyPredefined(Stringable|string $url): UrlBuilder
+    protected static function applyPredefined(Stringable|string $url): UrlBuilderInterface
     {
-        $url = (string) $url;
-
-        return match ($url) {
+        $url    = (string) $url;
+        $return =  match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
             'prev', 'previous', 'referer' => static::getPrevious(),
-            default                       => new static($url),
+            default                       => null,
         };
 
+        if ($return) {
+            return $return;
+        }
+
+        try {
+            return static::getConfigured($url);
+
+        } catch (UrlBuilderConfiguredUrlNotFoundException) {
+            // This was not a configured URL
+            return new static($url);
+        }
+    }
+
+
+    /**
+     * Apply predefined URL names
+     *
+     * @param Stringable|string $url
+     * @return UrlBuilderInterface
+     */
+    public static function getConfigured(Stringable|string $url): UrlBuilderInterface
+    {
+        $url = (string) $url;
+
+        // Configured page?
+        $configured = match ($url) {
+            'index'    => Config::getString('web.pages.index'   , '/index.html'),
+            'sign-in'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
+            'sign-up'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
+            'sign-out' => Config::getString('web.pages.sign-out', '/sign-out.html'),
+            'sign-key' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+            default    => Config::getString('web.pages.' . $url , '')
+        };
+
+        if ($configured) {
+            return new static($configured);
+        }
+
+        throw new UrlBuilderConfiguredUrlNotFoundException(tr('Specified configured URL ":url" not found', [
+            ':url' => $url
+        ]));
     }
 
 

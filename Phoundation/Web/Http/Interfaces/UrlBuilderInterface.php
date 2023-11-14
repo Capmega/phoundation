@@ -57,4 +57,12 @@ interface UrlBuilderInterface extends Stringable
      * @return static
      */
     public function addQueries(array|string|bool|null ...$queries): static;
+
+    /**
+     * Apply predefined URL names
+     *
+     * @param Stringable|string $url
+     * @return UrlBuilderInterface
+     */
+    public static function getConfigured(Stringable|string $url): UrlBuilderInterface;
 }

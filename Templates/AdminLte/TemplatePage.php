@@ -230,7 +230,9 @@ class TemplatePage extends \Phoundation\Web\Html\Template\TemplatePage
         $sign_in
             ->useForm(true)
             ->getForm()
-                ->setId('form-signin')->setMethod('post')->setAction(UrlBuilder::getAjax(Config::getString('web.pages.signin', '/sign-in.html')));
+                ->setId('form-sign-in')
+                ->setMethod('post')
+                ->setAction(UrlBuilder::getAjax('sign-in'));
 
         $panel = SidePanel::new();
         $panel->setMenu(Page::getMenus()->getPrimaryMenu());
