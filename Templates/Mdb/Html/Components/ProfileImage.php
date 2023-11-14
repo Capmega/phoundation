@@ -30,7 +30,7 @@ class ProfileImage extends Renderer
     public function __construct(\Phoundation\Web\Html\Components\ProfileImage $element)
     {
         // Set up the default image URL
-//        $this->element->setUrl(Config::get('web.pages.signin', ''));
+//        $this->element->setUrl(Config::getString('web.pages.signin', ''));
         $element->setImage(Session::getUser()->getPicture());
 
         if (Session::getUser()->isGuest()) {
