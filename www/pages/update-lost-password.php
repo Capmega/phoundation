@@ -7,15 +7,17 @@ use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
 /**
- * Page force-password-update
+ * Page update-lost-password
  *
- * This page forces users to update their password. Typically used when the user was just created with a default
- * password to force the user to use its own password
+ * This page allows users to update their lost password. It is typically used when the user lost their password and need
+ * a new one. It requires them being signed in using a sign-in key
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -25,8 +27,12 @@ use Phoundation\Web\Page;
 
 
 // Only allow being here when it was forced by redirect
-if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string) UrlBuilder::getWww('/force-password-update.html'))) {
-    Page::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
+if (Session::getUser()->isGuest()) {
+    Page::redirect('prev', 302, reason_warning: tr('Update lost password page is only available to registered users'));
+}
+
+if (!Session::getSignInKey()) {
+    Page::redirect('prev', 302, reason_warning: tr('Update lost password page is only available through sign-key sessions'));
 }
 
 
@@ -38,15 +44,26 @@ if (Page::isPostRequestMethod()) {
             ->select('passwordv')->isEqualTo('password')
             ->validate();
 
-        // Update the password for this sessions user and remove the forced redirect to this page
-        Session::getUser()
-            ->setPassword($post['password'], $post['passwordv'])
-            ->setRedirect()
+        // Update the password for this session user
+        Session::getUser()->setPassword($post['password'], $post['passwordv'])->save();
+
+        // Register a security incident
+        Incident::new()
+            ->setSeverity(Severity::medium)
+            ->setType(tr('User lost password update'))
+            ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
+                ':key'  => Session::getSignInKey(),
+                ':user' => Session::getUser()->getLogId()
+            ]))
+            ->setDetails([
+                ':key'  => Session::getSignInKey(),
+                ':user' => Session::getUser()->getLogId()
+            ])
             ->save();
 
-        // Add flash message and redirect to original target
+        // Add a flash message and redirect to the original target
         Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
-        Page::redirect('prev');
+        Page::redirect('/');
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
         Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [

@@ -37,7 +37,7 @@ class Menu extends ElementsBlock
 
 
     /**
-     * Recursively make all "url" keys absolute URL's, recurseing into "menu" keys
+     * Recursively make all "url" keys absolute URLs, recursing into "menu" keys
      */
     protected function makeUrlsAbsolute(array $source): array
     {
@@ -64,7 +64,7 @@ class Menu extends ElementsBlock
                 $entry['menu'] = $this->makeUrlsAbsolute($entry['menu']);
 
                 if (!$entry['menu']) {
-                    // The entire sub menu is empty, remove this empty top entry too
+                    // The entire submenu is empty, remove this empty top entry too
                     unset($source[$label]);
                 }
             }

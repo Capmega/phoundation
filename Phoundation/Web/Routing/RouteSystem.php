@@ -179,7 +179,7 @@ class RouteSystem
         Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
 
         try {
-            Route::execute($page ?? Config::get('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters);
+            Route::execute($page ?? Config::getString('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {

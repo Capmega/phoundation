@@ -148,7 +148,7 @@ class Route
         }
 
         // Ensure the post-processing function is registered
-        Log::information(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
+        Log::information(tr('[:method] ":url" from client ":client" for domain ":domain"', [
             ':domain' => Page::getDomain(),
             ':method' => static::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
@@ -217,6 +217,17 @@ class Route
         }
 
         return static::$instance;
+    }
+
+
+    /**
+     * Returns the real remote IP address
+     *
+     * @return string
+     */
+    public static function getRemoteIp(): string
+    {
+        return static::$ip;
     }
 
 
@@ -429,17 +440,17 @@ class Route
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
                         Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
-                            ':ip' => static::$ip,
-                            ':uri' => $exists['uri'],
-                            ':regex' => $exists['regex'],
+                            ':ip'     => static::$ip,
+                            ':uri'    => $exists['uri'],
+                            ':regex'  => $exists['regex'],
                             ':target' => $exists['target'],
-                            ':flags' => $exists['flags']
+                            ':flags'  => $exists['flags']
                         ]));
 
-                        $uri = $exists['uri'];
+                        $uri       = $exists['uri'];
                         $url_regex = $exists['regex'];
-                        $target = $exists['target'];
-                        $flags = explode(',', $exists['flags']);
+                        $target    = $exists['target'];
+                        $flags     = explode(',', $exists['flags']);
 
                         sql()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
 
@@ -633,10 +644,10 @@ class Route
                             ->setRoles('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
                             ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
-                                ':ip' => static::$ip,
+                                ':ip'      => static::$ip,
                                 ':request' => $uri,
-                                ':regex' => $url_regex,
-                                ':flags' => implode(',', $flags)
+                                ':regex'   => $url_regex,
+                                ':flags'   => implode(',', $flags)
                             ]))->send();
                         break;
 

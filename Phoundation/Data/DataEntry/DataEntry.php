@@ -727,6 +727,18 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns true if this object has the specified status
+     *
+     * @param string $status
+     * @return bool
+     */
+    public function hasStatus(string $status): bool
+    {
+        return $status === $this->getSourceFieldValue('string', 'status');
+    }
+
+
+    /**
      * Returns true if this DataEntry has the specified status
      *
      * @param string|null $status
@@ -922,6 +934,28 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return new Meta($meta_id, $load);
+    }
+
+
+    /**
+     * Add the specified action to the meta history
+     *
+     * @param string $action
+     * @param string $comments
+     * @param array|string|null $diff
+     * @return static
+     */
+    public function addToMetaHistory(string $action, string $comments, array|string|null $diff): static
+    {
+        if ($this->isNew()) {
+            throw new OutOfBoundsException(tr('Cannot add meta information, this ":class" object is still new', [
+                ':class' => $this->getDataEntryName()
+            ]));
+        }
+
+        $this->getMeta()->action($action, $comments, get_null(Strings::force($diff)));
+
+        return $this;
     }
 
 
@@ -1359,7 +1393,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Sets all metadata for this data entry at once with an array of information
+     * Sets all meta-data for this data entry at once with an array of information
      *
      * @param ?array $data
      * @return static
@@ -1408,7 +1442,7 @@ abstract class DataEntry implements DataEntryInterface
     protected function setSourceValue(string $field, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
-            Log::information('TRY SET SOURCE VALUE FIELD "' . $field . '"', 10);
+            Log::information('TRY SET SOURCE VALUE FIELD "' . $field . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10);
         }
 
         // Only save values that are defined for this object
@@ -1445,20 +1479,20 @@ abstract class DataEntry implements DataEntryInterface
         $default = $definition->getDefault();
 
         // What to do if we don't have a value? Data should already have been validated, so we know the value is
-        // optional (would not have passed validation otherwise) so it either defaults or NULL
-        if (!$value) {
+        // optional (would not have passed validation otherwise), so it either defaults or NULL
+        if ($value === null) {
             //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
             $value = $default;
         }
 
-        // Value may be set with default value while field was empty, which is the same. Make value empty
+        // Value may be set with default value while the field was empty, which is the same. Make value empty
         if ((isset_get($this->source[$field]) === null) and ($value === $default)) {
             // If the previous value was empty and the current value is the same as the default value then there was no
             // modification, we simply applied a default value
 
         } else {
             // The DataEntry::is_modified can only be modified if it is not TRUE already. The DataEntry is considered
-            // modified if user is modifying and the entry changed
+            // modified if the user is modifying and the entry changed
             if (!$this->is_modified and !$definition->getIgnoreModify()) {
                 $this->is_modified = (isset_get($this->source[$field]) !== $value);
             }

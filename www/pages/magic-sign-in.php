@@ -9,11 +9,21 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Security\Incidents\Incident;
-use Phoundation\Security\Incidents\Severity;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use PHPMailer\PHPMailer\PHPMailer;
+
+
+/**
+ * Page magic-sign-in
+ *
+ * This page allows users to sign in using a sign-key through their email
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
 
 
 // Only show sign-in page if we're a guest user
@@ -79,18 +89,6 @@ if (Page::isPostRequestMethod()) {
             if (!$mail->send()) {
                 throw new \Phoundation\Exception\Exception($mail->ErrorInfo);
             }
-
-            // Register a security incident
-            Incident::new()
-                ->setSeverity(Severity::low)
-                ->setType(tr('User lost password request'))
-                ->setTitle(tr('A lost password request was sent to user ":user"', [
-                    ':user' => Session::getUser()->getLogId()
-                ]))
-                ->setDetails([
-                    ':user' => Session::getUser()->getLogId()
-                ])
-                ->save();
 
         } catch (DataEntryNotExistsException $e) {
             // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or

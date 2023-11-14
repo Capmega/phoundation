@@ -43,6 +43,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Exception\PageException;
+use Phoundation\Web\Exception\RedirectException;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
@@ -457,7 +458,7 @@ class Page implements PageInterface
     public static function getLanguageCode(): string
     {
         if (empty(static::$language)) {
-            if (PLATFORM_HTTP) {
+            if (PLATFORM_WEB) {
                 // Get requested language from client
                 static::$language_code = static::detectRequestedLanguage();
 
@@ -478,7 +479,7 @@ class Page implements PageInterface
      */
     public static function getPort(): int
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             return (int) $_SERVER['SERVER_PORT'];
         }
 
@@ -680,7 +681,7 @@ class Page implements PageInterface
      */
     public static function getProtocol(): string
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             return $_SERVER['REQUEST_SCHEME'];
         }
 
@@ -1121,8 +1122,58 @@ class Page implements PageInterface
     public static function hasRightsOrRedirects(array|string $rights, string $target, ?int $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
-            // Well, then, all fine and dandy!
-            return;
+            if (Session::getSignInKey() === null) {
+                // Well, then, all fine and dandy!
+                return;
+            }
+
+            $key = Session::getSignInKey();
+
+            // User signed in with "sign-in" key that may have additional restrictions
+            if (!Core::isRequestType(EnumRequestTypes::html)) {
+                Incident::new()
+                    ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                    ->setTitle(tr('Session keys cannot be used on ":type" requests', [
+                        ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                        ':real_target' => Strings::from($target, DIRECTORY_ROOT),
+                        ':redirect'    => $guest_redirect,
+                        ':rights'      => $rights,
+                    ]))
+                    ->setDetails([
+                        'user'         => 0,
+                        'uri'          => Page::getUri(),
+                        'target'       => Strings::from(static::$target, DIRECTORY_ROOT),
+                        'real_target'  => Strings::from($target, DIRECTORY_ROOT),
+                        'rights'       => $rights,
+                        ':sign_in_key' => $key->getUuid()
+                    ])
+                    ->save();
+
+                Route::executeSystem(401);
+            }
+
+            if (!$key->getAllowNavigation()) {
+                // Only the redirect URL is allowed!
+                if (!$key->redirectUrlMatchesCurrentUrl()) {
+                    Incident::new()
+                        ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                        ->setTitle(tr('Cannot open page ":page", sign in key ":uuid" does not allow navigation beyond ":allow"', [
+                            ':page'  => Strings::from(static::$target, DIRECTORY_ROOT),
+                            ':allow' => $key->getRedirect(),
+                            ':uuid'  => $key->getUuid()
+                        ]))
+                        ->setDetails([
+                            ':page'     => Strings::from(static::$target, DIRECTORY_ROOT),
+                            ':users_id' => $key->getUsersId(),
+                            ':allow'    => $key->getRedirect(),
+                            ':uuid'     => $key->getUuid()
+                        ])
+                        ->save();
+
+                    // This method will exit
+                    Route::executeSystem(401);
+                }
+            }
         }
 
         if (!$target) {
@@ -1432,23 +1483,32 @@ class Page implements PageInterface
      * @param UrlBuilder|string|bool|null $url
      * @param int $http_code
      * @param int|null $time_delay
+     * @param string|null $reason_warning
      * @return never
      * @see UrlBuilder
      * @see UrlBuilder::addQueries()
-     *
      */
-    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null): never
+    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
-        if (!PLATFORM_HTTP) {
-            throw new WebException(tr('Page::redirect() can only be called on web sessions'));
+        if (!PLATFORM_WEB) {
+            throw new RedirectException(tr('Page::redirect() can only be called on web sessions'));
         }
+
+//        if (Session::getSignInKey()?->getAllowNavigation()) {
+//            // This session was opened using a sign-in key that does not allow navigation, we cannot redirect away!
+//            throw new RedirectException(tr('Cannot redirect sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
+//                ':uuid' => Session::getSignInKey()->getUuid(),
+//                ':user' => Session::getUser()->getLogId(),
+//                ':url'  => $url
+//            ]));
+//        }
 
         // Build URL
         $redirect = UrlBuilder::getWww($url);
 
         // Protect against endless redirecting.
         if (UrlBuilder::isCurrent($redirect)) {
-            // POST requests may redirect to the same page as the redirect will change POST to GET
+            // POST-requests may redirect to the same page as the redirect will change POST to GET
             if (!Page::isPostRequestMethod()) {
                 // If the specified redirect URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
@@ -1463,7 +1523,7 @@ class Page implements PageInterface
         }
 
         if (isset_get($_GET['redirect'])) {
-            // Add redirect back query
+            // Add a redirect back query
             $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => $_GET['redirect']]);
         }
 
@@ -1494,6 +1554,10 @@ class Page implements PageInterface
                 throw new OutOfBoundsException(tr('Invalid HTTP code ":code" specified', [
                     ':code' => $http_code
                 ]));
+        }
+
+        if ($reason_warning) {
+            Log::warning(tr('Redirecting because: :reason', [':reason' => $reason_warning]));
         }
 
         // Redirect with time delay

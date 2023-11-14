@@ -9,6 +9,7 @@ use Exception;
 use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignIn;
 use Phoundation\Accounts\Users\SystemUser;
@@ -107,6 +108,13 @@ class Session implements SessionInterface
      */
     protected static ConfigInterface $config;
 
+    /**
+     * Stores the sign-in key, if available
+     *
+     * @var SignInKeyInterface|null $key
+     */
+    protected static ?SignInKeyInterface $key = null;
+
 
     /**
      * Start this session
@@ -141,7 +149,7 @@ class Session implements SessionInterface
      */
     public static function exit(): void
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
             static::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
@@ -246,7 +254,7 @@ class Session implements SessionInterface
             Signin::detect()->save();
 
             Incident::new()
-                ->setType('User sign in')->setSeverity(Severity::notice)
+                ->setType(tr('User sign in'))->setSeverity(Severity::notice)
                 ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
                 ->setDetails(['user' => static::$user->getLogId()])
                 ->save();
@@ -418,7 +426,7 @@ class Session implements SessionInterface
 
 
     /**
-     * Start a session
+     * Resume an existing session
      *
      * @return bool
      */
@@ -484,16 +492,17 @@ class Session implements SessionInterface
         // Initialize session?
         if (empty($_SESSION['init'])) {
             static::create();
+
+        } else {
+            // Check for extended sessions
+            // TODO Why are we still doing this? We should be able to do extended sessions better
+            static::checkExtended();
+
+            Log::success(tr('Resumed session for user ":user" from IP ":ip"', [
+                ':user' => static::getUser()->getLogId(),
+                ':ip'   => $_SERVER['REMOTE_ADDR']
+            ]));
         }
-
-        // Check for extended sessions
-        // TODO Why are we still doing this? We shoudl be able to do extended sessions better
-        static::checkExtended();
-
-        Log::success(tr('Resumed session for user ":user" from IP ":ip"', [
-            ':user' => static::getUser()->getLogId(),
-            ':ip'   => $_SERVER['REMOTE_ADDR']
-        ]));
 
         // check and set last activity
         if (Config::getInteger('web.sessions.cookies.lifetime', 0)) {
@@ -1067,7 +1076,60 @@ Log::warning('RESTART SESSION');
 
 
     /**
-     * Initialize the session with basic data
+     * Create a new session with basic data from the specified sign in key
+     *
+     * @param SignInKeyInterface $key
+     * @return UserInterface
+     */
+    public static function signKey(SignInKeyInterface $key): UserInterface
+    {
+        static::$key  = $key;
+        static::$user = $key->getUser();
+        static::clear();
+
+        // Initialize session?
+        if (!isset($_SESSION['init'])) {
+            static::resume();
+        }
+
+        // Update the users sign-in and last sign-in information
+        sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
+
+        // Store this sign in
+        Signin::detect()->save();
+
+        Incident::new()
+            ->setSeverity(Severity::notice)
+            ->setType(tr('User sign in'))
+            ->setTitle(tr('The user ":user" signed in using UUID key ":key"', [
+                ':key'  => $key->getUuid(),
+                ':user' => static::$user->getLogId()
+            ]))
+            ->setDetails([
+                ':key'  => $key->getUuid(),
+                'user' => static::$user->getLogId()
+            ])
+            ->save();
+
+        $_SESSION['user']['id'] = static::$user->getId();
+
+        return static::$user;
+    }
+
+
+    /**
+     * Returns the session sign in key, or NULL if not available
+     *
+     * @return SignInKeyInterface|null
+     */
+    public static function getSignInKey(): ?SignInKeyInterface
+    {
+        return static::$key;
+    }
+
+
+    /**
+     * Create a new session with basic data
      *
      * @return bool
      */
@@ -1141,7 +1203,7 @@ Log::warning('RESTART SESSION');
 
             } else {
                 // TODO What if we run setup from HTTP? Change this to some sort of system flag
-                if (PLATFORM_HTTP) {
+                if (PLATFORM_WEB) {
                     // There is no user, this is a guest session
                     static::$user = new GuestUser();
 
@@ -1165,7 +1227,7 @@ Log::warning('RESTART SESSION');
      */
     protected static function loadUser(int $users_id): UserInterface
     {
-        // Create new user object and ensure it's still good to go
+        // Create a new user object and ensure it's still good to go
         try {
             $user = User::get($users_id);
 

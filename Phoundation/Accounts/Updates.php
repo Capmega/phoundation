@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.1.1';
     }
 
 
@@ -765,6 +765,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_signin_keys_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_accounts_signin_keys_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.1.1', function () {
+            sql()->schema()->table('accounts_signin_keys')->alter()
+                ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
+                ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
         });
     }
 }

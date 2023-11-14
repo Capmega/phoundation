@@ -16,6 +16,7 @@ use Phoundation\Accounts\Users\Exception\UsersException;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
+use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
@@ -1102,6 +1103,17 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Returns a sign-in key object that can be used to generate a sign in key for this user
+     *
+     * @return SignInKeyInterface
+     */
+    public function getSigninKey(): SignInKeyInterface
+    {
+        return SignInKey::new()->setUsersId($this->getId());
+    }
+
+
+    /**
      * Returns the extra phones for this user
      *
      * @return PhonesInterface
@@ -1307,7 +1319,7 @@ class User extends DataEntry implements UserInterface
 
         // Can this information be changed? If this user has god right, the executing user MUST have god right as well!
         if ($this->hasAllRights('god')) {
-            if (PLATFORM_HTTP and !Session::getUser()->hasAllRights('god')) {
+            if (PLATFORM_WEB and !Session::getUser()->hasAllRights('god')) {
                 // Oops...
                 Incident::new()
                     ->setType('Blocked user update')
