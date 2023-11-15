@@ -135,10 +135,6 @@ class UrlBuilder implements UrlBuilderInterface
     {
         if (!$url) {
             $url = UrlBuilder::getCurrent();
-
-        } else {
-            $url = static::applyPredefined($url);
-            $url = static::applyVariables($url);
         }
 
         return static::buildUrl($url, null, $use_configured_root);
@@ -375,6 +371,9 @@ class UrlBuilder implements UrlBuilderInterface
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
+
+        $url = static::applyPredefined($url);
+        $url = static::applyVariables($url);
 
         return static::buildUrl($url, 'ajax/', $use_configured_root);
     }
@@ -797,6 +796,8 @@ throw new UnderConstructionException();
     protected static function buildUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
     {
         $url = (string) $url;
+        $url = static::applyPredefined($url);
+        $url = static::applyVariables($url);
 
         if (Url::isValid($url)) {
             return new static($url);
@@ -835,6 +836,8 @@ throw new UnderConstructionException();
     protected static function buildCdn(Stringable|string $url, ?string $extension = null): static
     {
         $url = (string) $url;
+        $url = static::applyPredefined($url);
+        $url = static::applyVariables($url);
 
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
