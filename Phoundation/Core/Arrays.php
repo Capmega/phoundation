@@ -588,6 +588,27 @@ class Arrays {
 
 
     /**
+     * Return the source array with the specified keys kept, all else removed.
+     *
+     * @param array $source
+     * @param string|array $keys
+     * @return array
+     */
+    public static function listKeep(array $source, string|array $keys): array
+    {
+        $keys   = Arrays::force($keys);
+
+        foreach ($source as &$entry) {
+            $entry = Arrays::keep($entry, $keys);
+        }
+
+        unset($entry);
+
+        return $source;
+    }
+
+
+    /**
      * Return the source array with the specified keys removed.
      *
      * @param array $source
