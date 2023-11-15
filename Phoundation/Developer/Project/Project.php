@@ -553,7 +553,7 @@ class Project implements ProjectInterface
             // Copy Phoundation core files
             $this->copyPhoundationFilesLocal($phoundation_path, $branch);
 
-            // If there are changes then add and commit
+            // If there are changes, then add and commit
             if ($this->git->getStatus()->getCount()) {
                 if (!$message) {
                     $message = tr('Phoundation update');
@@ -567,7 +567,7 @@ class Project implements ProjectInterface
                 Log::warning(tr('No updates found in local Phoundation update'));
             }
 
-            // Stash pop the previous changes and reset HEAD to ensure index is empty
+            // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
                 $this->git->getStash()->pop();
                 $this->git->reset('HEAD');
@@ -692,6 +692,7 @@ class Project implements ProjectInterface
 
             $files['scripts']     = Directory::new(DIRECTORY_ROOT . 'scripts/'    , Restrictions::new([DIRECTORY_ROOT . 'scripts/'    , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
             $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
+            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
 
             // Copy new script versions
             $rsync
@@ -705,8 +706,15 @@ class Project implements ProjectInterface
                 ->setTarget(DIRECTORY_ROOT . 'Phoundation/')
                 ->execute();
 
+            // Copy new core template versions
+            $rsync
+                ->setSource($phoundation->getDirectory() . 'Templates/')
+                ->setTarget(DIRECTORY_ROOT . 'Templates/')
+                ->execute();
+
             // All is well? Get rid of the garbage
             $files['phoundation']->delete();
+            $files['templates']->delete();
             $files['scripts']->delete();
 
             // Switch phoundation back to its previous branch
@@ -722,6 +730,11 @@ class Project implements ProjectInterface
             if (isset($files['scripts'])) {
                 Log::warning(tr('Moving Phoundation core scripts back from garbage'));
                 $files['scripts']->move(DIRECTORY_ROOT . 'scripts/');
+            }
+
+            if (isset($files['templates'])) {
+                Log::warning(tr('Moving Template core scripts back from garbage'));
+                $files['templates']->move(DIRECTORY_ROOT . 'Templates/');
             }
 
             throw $e;

@@ -149,7 +149,7 @@ class Category extends DataEntry implements CategoryInterface
                 ->setLabel(tr('Parent category'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parents_id exists and that its or parent
-                    $validator->or('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                    $validator->orField('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
             ->addDefinition(Definition::new($this, 'parent')
                 ->setOptional(true)
@@ -161,7 +161,7 @@ class Category extends DataEntry implements CategoryInterface
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parent exists and that its or parents_id
-                    $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
+                    $validator->orField('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                 }))
             ->addDefinition(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {

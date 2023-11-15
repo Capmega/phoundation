@@ -78,7 +78,7 @@ class DefinitionFactory
             ->setLabel(tr('Category'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure categories id exists and that its or category
-                $validator->or('categories_name')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
+                $validator->orField('categories_name')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$categories_id']);
             });
     }
 
@@ -108,7 +108,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure category exists and that its a category id or category name
-                $validator->or('categories_id')->isName()->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
+                $validator->orField('categories_id')->isName()->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
             });
     }
 
@@ -171,7 +171,7 @@ class DefinitionFactory
             ->setLabel(tr('Company'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure companies id exists and that its or company
-                $validator->or('companies_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
+                $validator->orField('companies_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_companies` WHERE `id` = :id AND `status` IS NULL', [':id' => '$companies_id']);
             });
     }
 
@@ -201,7 +201,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure company exists and that its or company
-                $validator->or('companies_id')->isName()->setColumnFromQuery('companies_id', 'SELECT `id` FROM `business_companies` WHERE `name` = :name AND `status` IS NULL', [':name' => '$companies_name']);
+                $validator->orField('companies_id')->isName()->setColumnFromQuery('companies_id', 'SELECT `id` FROM `business_companies` WHERE `name` = :name AND `status` IS NULL', [':name' => '$companies_name']);
             });
     }
 
@@ -234,7 +234,7 @@ class DefinitionFactory
             ->setHelpGroup(tr('Location information'))
             ->setHelpText(tr('The language in which the site will be displayed to the user'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('languages_name')->isDbId()->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                $validator->orField('languages_name')->isDbId()->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
             });
     }
 
@@ -265,7 +265,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure language exists and that its or language
-                $validator->or('languages_id')->isName()->setColumnFromQuery('languages_id', 'SELECT `id` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
+                $validator->orField('languages_id')->isName()->setColumnFromQuery('languages_id', 'SELECT `id` FROM `core_languages` WHERE `code_639_1` = :code AND `status` IS NULL', [':code' => '$language']);
             });
     }
 
@@ -294,7 +294,7 @@ class DefinitionFactory
             ->setLabel(tr('Provider'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure providers id exists and that its or provider
-                $validator->or('providers_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
+                $validator->orField('providers_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$providers_id']);
             });
     }
 
@@ -323,7 +323,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure provider exists and that its providers id or providers name
-                $validator->or('providers_id')->isName()->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':code' => '$providers_name']);
+                $validator->orField('providers_id')->isName()->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':code' => '$providers_name']);
             });
     }
 
@@ -352,7 +352,7 @@ class DefinitionFactory
             ->setLabel(tr('Customer'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customers id exists and that its or customer
-                $validator->or('customers_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
+                $validator->orField('customers_name')->isDbId()->isQueryResult('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$customers_id']);
             });
     }
 
@@ -381,7 +381,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure customer exists and that its or customer
-                $validator->or('customers_id')->isName()->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':id' => '$customers_name']);
+                $validator->orField('customers_id')->isName()->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':id' => '$customers_name']);
             });
     }
 
@@ -412,7 +412,7 @@ class DefinitionFactory
             ->setSize(3)
             ->setLabel(tr('Timezone'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('timezones_name')->isDbId()->isTrue(function ($value) {
+                $validator->orField('timezones_name')->isDbId()->isTrue(function ($value) {
                     // This timezone must exist.
                     return Timezone::exists($value, 'name');
                 }, tr('The specified timezone does not exist'));
@@ -445,7 +445,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure timezone exists and that its or timezone
-                $validator->or('timezones_id')->isName()->setColumnFromQuery('timezones_id', 'SELECT `id` FROM `geo_timezones` WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone']);
+                $validator->orField('timezones_id')->isName()->setColumnFromQuery('timezones_id', 'SELECT `id` FROM `geo_timezones` WHERE `name` = :name AND `status` IS NULL', [':name' => '$timezone']);
             });
     }
 
@@ -476,7 +476,7 @@ class DefinitionFactory
             ->setCliAutoComplete(true)
             ->setLabel(tr('Country'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('countries_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
+                $validator->orField('countries_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
             });
     }
 
@@ -506,7 +506,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure country exists and that its or countries_id
-                $validator->or('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
+                $validator->orField('countries_id')->isName(200)->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
             });
     }
 
@@ -537,7 +537,7 @@ class DefinitionFactory
             ->setCliAutoComplete(true)
             ->setLabel(tr('State'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('states_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
+                $validator->orField('states_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `countries_id` = :countries_id AND `status` IS NULL', [':id' => '$states_id', ':countries_id' => '$countries_id']);
             });
     }
 
@@ -567,7 +567,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure state exists and that its or states_id
-                $validator->or('states_id')->isName()->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
+                $validator->orField('states_id')->isName()->setColumnFromQuery('states_id', 'SELECT `name` FROM `geo_states` WHERE `name` = :name AND `countries_id` = :countries_id AND `status` IS NULL', [':name' => '$state', ':countries_id' => '$countries_id']);
             });
     }
 
@@ -598,7 +598,7 @@ class DefinitionFactory
             ->setCliAutoComplete(true)
             ->setLabel(tr('City'))
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('cities_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
+                $validator->orField('cities_name')->isDbId()->isQueryResult('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `states_name`  = :states_id    AND `status` IS NULL', [':id' => '$cities_id', ':states_id' => '$states_id']);
             });
     }
 
@@ -628,7 +628,7 @@ class DefinitionFactory
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure city exists and that its or cities_id
-                $validator->or('cities_id')->isName()->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
+                $validator->orField('cities_id')->isName()->setColumnFromQuery('cities_id', 'SELECT `name` FROM `geo_cities` WHERE `name` = :name AND `states_name`  = :states_id    AND `status` IS NULL', [':name' => '$city', ':states_id' => '$states_id']);
             });
     }
 
@@ -688,7 +688,7 @@ class DefinitionFactory
                 },
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('users_id')->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
+                $validator->orField('users_id')->setColumnFromQuery('users_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email', [':email' => '$email']);
             });
     }
 
@@ -748,7 +748,7 @@ class DefinitionFactory
                 },
             ])
             ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->or('roles_id')->setColumnFromQuery('roles_id', 'SELECT `id` FROM `accounts_roles` WHERE `name` = :name', [':name' => '$name']);
+                $validator->orField('roles_id')->setColumnFromQuery('roles_id', 'SELECT `id` FROM `accounts_roles` WHERE `name` = :name', [':name' => '$name']);
             });
     }
 

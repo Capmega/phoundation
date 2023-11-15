@@ -1690,7 +1690,7 @@ class User extends DataEntry implements UserInterface
                 ->setCliField('--leader USER-EMAIL')
                 ->clearValidationFunctions()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->or('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
+                    $validator->orField('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
                 }))
             ->addDefinition(DefinitionFactory::getUsersId($this, 'leaders_id')
                 ->setCliField('--leaders-id USERS-DATABASE-ID')
@@ -1698,7 +1698,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('The user that is the leader for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->or('leaders_email')->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                    $validator->orField('leaders_email')->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                 }))
             ->addDefinition(Definition::new($this, 'is_leader')
                 ->setOptional(true)

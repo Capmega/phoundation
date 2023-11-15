@@ -149,7 +149,7 @@ class Page extends DataEntry implements PageInterface
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure categories id exists and that its or category
-                    $validator->or('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                    $validator->orField('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
             ->addDefinition(DefinitionFactory::getParent($this)
                 ->setCliAutoComplete([
@@ -162,7 +162,7 @@ class Page extends DataEntry implements PageInterface
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure category exists and that it's a category id or category name
-                    $validator->or('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
+                    $validator->orField('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
                 }))
             ->addDefinition(DefinitionFactory::getCategoriesId($this))
             ->addDefinition(DefinitionFactory::getCategory($this))

@@ -316,8 +316,8 @@ trait ValidatorBasics
      * @param mixed $default
      * @return static
      *
-     * @see Validator::xor()
-     * @see Validator::or()
+     * @see Validator::xorField()
+     * @see Validator::orField()
      */
     public function isOptional(mixed $default = null): static
     {
@@ -364,9 +364,9 @@ trait ValidatorBasics
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::or()
+     * @see Validator::orField()
      */
-    public function xor(string $field, bool $rename = false): static
+    public function xorField(string $field, bool $rename = false): static
     {
         if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
@@ -413,9 +413,9 @@ trait ValidatorBasics
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::xor()
+     * @see Validator::xorField()
      */
-    public function or(string $field): static
+    public function orField(string $field): static
     {
         if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
