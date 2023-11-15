@@ -1430,7 +1430,7 @@ class Page implements PageInterface
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
-                    if (static::skipRedirect($redirect)) {
+                    if (!static::skipRedirect($redirect)) {
                         // No, it's not, redirect!
                         Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUser()->getLogId(),
