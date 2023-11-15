@@ -610,8 +610,10 @@ class DataEntryForm extends Renderer
                 case 'checkbox':
                     $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
-                                            <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
-                                            ' . $this->renderTooltip($definition) . '
+                                            <div class="form-horizontal">                                        
+                                                <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
+                                                ' . $this->renderTooltip($definition) . '
+                                            </div>
                                             <div class="form-check">
                                                 ' . $html . '
                                                 <label class="form-check-label" for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
@@ -623,8 +625,10 @@ class DataEntryForm extends Renderer
                 default:
                     $return .= '    <div class="col-sm-' . Html::safe($data['size']) . '">
                                         <div class="form-group">
-                                            <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
-                                            ' . $this->renderTooltip($definition) . '
+                                            <div class="form-horizontal">                                        
+                                                <label for="' . Html::safe($name) . '">' . Html::safe($data['label']) . '</label>
+                                                ' . $this->renderTooltip($definition) . '
+                                            </div>
                                             ' . $html . '
                                         </div>
                                     </div>';
