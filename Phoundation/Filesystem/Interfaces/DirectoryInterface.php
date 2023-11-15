@@ -2,6 +2,7 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
+use Stringable;
 use Throwable;
 
 
@@ -222,4 +223,20 @@ interface DirectoryInterface extends FileBasicsInterface
      * @return array                    The resulting file directories
      */
     public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): array;
+
+    /**
+     * Copy this directory with progress notification
+     *
+     * @param Stringable|string $target
+     * @param callable $callback
+     * @param RestrictionsInterface $restrictions
+     * @return static
+     * @example:
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
+     */
+    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
 }

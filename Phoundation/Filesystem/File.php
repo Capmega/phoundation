@@ -23,13 +23,14 @@ use Phoundation\Os\Processes\Commands\Gzip;
 use Phoundation\Os\Processes\Commands\Sha256;
 use Phoundation\Os\Processes\Commands\Tar;
 use Phoundation\Os\Processes\Commands\Zip;
+use Stringable;
 use Throwable;
 
 
 /**
- * File class
+ * Class File
  *
- * This library contains various filesystem file related functions
+ * This library contains various filesystem file-related functions
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -196,8 +197,9 @@ class File extends FileBasics implements FileInterface
     /**
      * Copy a file with progress notification
      *
-     * @param string $target
+     * @param Stringable|string $target
      * @param callable $callback
+     * @param RestrictionsInterface $restrictions
      * @return static
      * @example:
      * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
@@ -206,19 +208,20 @@ class File extends FileBasics implements FileInterface
      *      }
      *  });
      */
-    public function copy(string $target, callable $callback): static
+    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static
     {
-        $this->restrictions->check($this->path, true);
-        $this->restrictions->check($target, false);
+        $context      = stream_context_create();
+        $restrictions = $this->ensureRestrictions($restrictions);
 
-        $context = stream_context_create();
+        $this->restrictions->check($this->path, true);
+        $restrictions->check($target, false);
 
         stream_context_set_params($context, [
             'notification' => $callback
         ]);
 
         copy($this->path, $target, $context);
-        return new static($target, $this->restrictions);
+        return new static($target, $restrictions);
     }
 
 

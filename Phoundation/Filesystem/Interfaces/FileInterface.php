@@ -5,6 +5,7 @@ namespace Phoundation\Filesystem\Interfaces;
 use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Filesystem\Directory;
+use Stringable;
 use Throwable;
 
 
@@ -69,6 +70,7 @@ interface FileInterface extends FileBasicsInterface
      *
      * @param string $target
      * @param callable $callback
+     * @param RestrictionsInterface $restrictions
      * @return static
      * @example:
      * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
@@ -77,7 +79,7 @@ interface FileInterface extends FileBasicsInterface
      *      }
      *  });
      */
-    public function copy(string $target, callable $callback): static;
+    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown

@@ -32,8 +32,12 @@ use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Traits\DataBufferSize;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
@@ -55,17 +59,18 @@ use Throwable;
 class FileBasics implements Stringable, FileBasicsInterface
 {
     use DataRestrictions;
+    use DataBufferSize;
 
 
     /**
      * The real path to this file
      *
-     * @var string|false|null $real_file
+     * @var string|false|null $real_path
      */
-    protected string|false|null $real_file = null;
+    protected string|false|null $real_path = null;
 
     /**
-     * The target file name in case operations create copies of this file
+     * The target file name in case operations creates copies of this file
      *
      * @var string|null $target
      */
@@ -110,7 +115,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
         if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
-            // Specified file was actually a File or Directory object, get the file from there
+            // The Specified file was actually a File or Directory object, get the file from there
             if ($file instanceof FileBasicsInterface) {
                 $this->setPath($file->getPath());
                 $this->setTarget($file->getTarget());
@@ -148,13 +153,13 @@ class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Returns a new File object with the specified restrictions
      *
-     * @param mixed $file
+     * @param mixed $path
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function new(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public static function new(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
-        return new static($file, $restrictions);
+        return new static($path, $restrictions);
     }
 
 
@@ -182,7 +187,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      * Returns a new Directory object with the specified restrictions starting from the specified path, applying a
      * number of defaults
      *
-     * . is DIRECTORY_ROOT
+     * . Is DIRECTORY_ROOT
      * ~ is the current shell's user home directory
      *
      * @param FileBasics|Stringable|string|null $file
@@ -218,53 +223,6 @@ class FileBasics implements Stringable, FileBasicsInterface
 
         Log::warning($file, echo_screen: false);
         return new static($file, $restrictions);
-    }
-
-
-    /**
-     * Returns the configured file buffer size
-     *
-     * @param int|null $requested_buffer_size
-     * @return int
-     */
-    public function getBufferSize(?int $requested_buffer_size = null): int
-    {
-        $required  = $requested_buffer_size ?? Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
-        $available = Core::getMemoryAvailable();
-
-        if ($required > $available) {
-            // The required file buffer is larger than the available memory, oops...
-            if (Config::get('filesystem.buffer.auto', false)) {
-                throw new FilesystemException(tr('Failed to set file buffer of ":required", only ":available" memory available', [
-                    ':required'  => $required,
-                    ':available' => $available
-                ]));
-            }
-
-            // Just auto adjust to half of the available memory
-            Log::warning(tr('File buffer of ":required" requested but only ":available" memory available. Created buffer of ":size" instead', [
-                ':required'  => $required,
-                ':available' => $available,
-                ':size'      => floor($available * .5)
-            ]));
-
-            $required = floor($available * .5);
-        }
-
-        return $required;
-    }
-
-
-    /**
-     * Sets the configured file buffer size
-     *
-     * @param int|null $buffer_size
-     * @return static
-     */
-    public function setBufferSize(?int $buffer_size): static
-    {
-        $this->buffer_size = $buffer_size;
-        return $this;
     }
 
 
@@ -305,7 +263,7 @@ class FileBasics implements Stringable, FileBasicsInterface
         }
 
         $this->path = Filesystem::absolute($file, $prefix, $must_exist);
-        $this->real_file = realpath($this->path);
+        $this->real_path = realpath($this->path);
 
         return $this;
     }
@@ -753,13 +711,16 @@ class FileBasics implements Stringable, FileBasicsInterface
                 $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             }
 
-            $mimetype = finfo_file($finfo, $this->path);
-            return $mimetype;
+            return finfo_file($finfo, $this->path);
+
         } catch (Exception $e) {
             // We failed to get mimetype data. Find out why and throw exception
             $this->checkReadable('', new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
                 ':file' => $this->path
             ]), previous: $e));
+
+            // FileBasics::checkReadable() will have thrown an exception, but throw this anyway just to be sure
+            throw $e;
         }
     }
 
@@ -959,8 +920,6 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function getStat(): array
     {
-        if ($this->str)
-
         // Check filesystem restrictions
         $this->restrictions->check($this->path, false);
 
@@ -971,8 +930,13 @@ class FileBasics implements Stringable, FileBasicsInterface
                 return $stat;
             }
 
+            return [];
+
         } catch (Throwable $e) {
             $this->checkReadable(null, $e);
+
+            // FileBasics::checkReadable() will have thrown an exception, but throw this anyway just to be sure
+            throw $e;
         }
     }
 
@@ -1078,7 +1042,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             try {
                 Log::warning(tr('The file ":file" (Realdirectory ":directory") is not readable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_file,
+                    ':directory' => $this->real_path,
                     ':mode' => $mode
                 ]));
 
@@ -1087,7 +1051,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_file
+                    ':directory' => $this->real_path
                 ]));
             }
         }
@@ -1130,7 +1094,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             try {
                 Log::warning(tr('The file ":file" (Realdirectory ":directory") is not writable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_file,
+                    ':directory' => $this->real_path,
                     ':mode' => $mode
                 ]));
 
@@ -1139,7 +1103,7 @@ class FileBasics implements Stringable, FileBasicsInterface
             } catch (ProcessesException) {
                 throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_file
+                    ':directory' => $this->real_path
                 ]));
             }
         }
@@ -2088,5 +2052,18 @@ throw new UnderConstructionException();
         throw new MountLocationNotFoundException(tr('Failed to find a mount location for the path ":path"', [
             ':path' => $this->path
         ]));
+    }
+
+
+    /**
+     * Returns a find object that will search for files in the specified path and upon execution returns a files-object
+     * that can execute callbacks on said files
+     *
+     * @return FindInterface
+     */
+    public function find(): FindInterface
+    {
+        return Find::new($this->restrictions)
+            ->setPath($this->path);
     }
 }

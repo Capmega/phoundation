@@ -57,4 +57,16 @@ trait DataRestrictions
         $this->restrictions = Restrictions::ensure($restrictions, $write, $label);
         return $this;
     }
+
+
+    /**
+     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
+     *
+     * @param RestrictionsInterface|null $restrictions
+     * @return RestrictionsInterface
+     */
+    public function ensureRestrictions(?RestrictionsInterface $restrictions): RestrictionsInterface
+    {
+        return Restrictions::default($restrictions, $this->restrictions);
+    }
 }

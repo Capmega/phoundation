@@ -12,6 +12,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotDirectoryException;
@@ -20,6 +21,7 @@ use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Tar;
 use Stringable;
 use Throwable;
@@ -55,14 +57,14 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Path class constructor
+     * Directory class constructor
      *
-     * @param FileBasics|string|null $file
+     * @param FileBasics|string|null $path
      * @param array|string|Restrictions|null $restrictions
      */
-    public function __construct(FileBasics|string|null $file = null, array|string|Restrictions|null $restrictions = null)
+    public function __construct(FileBasics|string|null $path = null, array|string|Restrictions|null $restrictions = null)
     {
-        parent::__construct($file, $restrictions);
+        parent::__construct($path, $restrictions);
 
         $this->path = Strings::slash($this->path);
 
@@ -70,13 +72,13 @@ class Directory extends FileBasics implements DirectoryInterface
             // This exists, it must be a directory!
             if (!is_dir($this->path)) {
                 throw new DirectoryNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $file
+                    ':path' => $path
                 ]));
             }
         }
 
-        if ($this->real_file) {
-            $this->real_file = Strings::slash($this->real_file);
+        if ($this->real_path) {
+            $this->real_path = Strings::slash($this->real_path);
         }
     }
 
@@ -1040,7 +1042,7 @@ class Directory extends FileBasics implements DirectoryInterface
             foreach ($file_patterns as $file_pattern) {
                 $file_pattern = $base_pattern . $file_pattern;
 
-                $file = Strings::from($file, $this->real_file);
+                $file = Strings::from($file, $this->real_path);
                 $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
                 if ($file_pattern){
@@ -1090,7 +1092,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
         // Check file patterns
         foreach ($glob as $file) {
-            $file = Strings::from($file, $this->real_file);
+            $file = Strings::from($file, $this->real_path);
             $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
             if ($file_pattern){
@@ -1239,7 +1241,7 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function bind(Stringable|string|null $source, ?array $options = null): static
     {
-        // Add bind option
+        // Add the required bind option
         $options[] = '--bind';
 
         // Source must be a directory
@@ -1255,5 +1257,38 @@ class Directory extends FileBasics implements DirectoryInterface
     public function unbind(): static
     {
         return $this->unmount();
+    }
+
+
+    /**
+     * Copy this directory with progress notification
+     *
+     * @param Stringable|string $target
+     * @param callable $callback
+     * @param RestrictionsInterface $restrictions
+     * @return static
+     * @example:
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
+     */
+    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static
+    {
+        throw new UnderConstructionException();
+
+        $context      = stream_context_create();
+        $restrictions = $this->ensureRestrictions($restrictions);
+
+        $this->restrictions->check($this->path, true);
+        $restrictions->check($target, false);
+
+        stream_context_set_params($context, [
+            'notification' => $callback
+        ]);
+
+        copy($this->path, $target, $context);
+        return new static($target, $this->restrictions);
     }
 }
