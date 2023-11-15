@@ -1680,10 +1680,10 @@ class Core implements CoreInterface
                                 }
                             } elseif ($e instanceof MethodNotFoundException) {
                                 if ($data = $e->getData()) {
-                                    Log::information('Available sub methods:', 9);
+                                    Log::information('Available sub methods:', 9, use_prefix: false);
 
                                     foreach ($data['methods'] as $method) {
-                                        Log::notice($method, 10);
+                                        Log::notice($method, 10, use_prefix: false);
                                     }
                                 }
                             }
