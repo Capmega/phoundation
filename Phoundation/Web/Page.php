@@ -1430,7 +1430,7 @@ class Page implements PageInterface
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
-                    if (static::skipRedirect($redirect)) {
+                    if (!static::skipRedirect()) {
                         // No, it's not, redirect!
                         Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUser()->getLogId(),
@@ -1455,17 +1455,23 @@ class Page implements PageInterface
      *
      * Currently, sign-out or index pages should not be redirected to
      *
-     * @param Stringable|string $redirect
+     * @param Stringable|string|null $url
      * @return bool
      */
-    protected static function skipRedirect(Stringable|string $redirect): bool
+    protected static function skipRedirect(Stringable|string|null $url = null): bool
     {
+        if (!$url) {
+            // Default to current URL
+            $url = UrlBuilder::getCurrent();
+        }
+
+        // Compare URLs without queries
+        $url  = Strings::until((string) $url, '?');
         $skip = [
-            (string) UrlBuilder::getWww('index'),
             (string) UrlBuilder::getWww('sign-out'),
         ];
 
-        return in_array((string) $redirect, $skip);
+        return in_array((string) $url, $skip);
     }
 
 
