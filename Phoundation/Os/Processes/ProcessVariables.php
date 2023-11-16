@@ -1014,7 +1014,7 @@ trait ProcessVariables
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
                         if (!$this->failed) {
-                            if ($this->packages?->keyExists() and !in_array($command, $this->packages)) {
+                            if ($this->packages?->keyExists($command) and !in_array($command, $this->packages)) {
                                 throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
                                     ':command' => $command
                                 ]));

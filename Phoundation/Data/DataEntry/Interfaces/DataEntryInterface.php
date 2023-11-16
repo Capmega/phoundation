@@ -211,9 +211,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getCreatedOn(): ?DateTime;
 
     /**
-     * Returns the meta information for this entry
+     * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
      *       yet
      *
      * @param bool $load

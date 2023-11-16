@@ -34,7 +34,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Tracks if meta information can be visible or not
+     * Tracks if meta-information can be visible or not
      *
      * @var bool
      */
@@ -111,7 +111,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Returns if meta information is visible at all, or not
+     * Returns if meta-information is visible at all, or not
      *
      * @return bool
      */
@@ -122,7 +122,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Sets if meta information is visible at all, or not
+     * Sets if meta-information is visible at all, or not
      *
      * @param bool $meta_visible
      * @return static

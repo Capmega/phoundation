@@ -272,7 +272,7 @@ class DataEntryForm extends Renderer
 
                 // Apply variables
                 foreach ($source as $source_key => $source_value) {
-                    if ($definitions->exists($source_key)) {
+                    if ($definitions->keyExists($source_key)) {
                         $source[$field] = str_replace(':' . $source_key, (string) $source_value, $source[$field]);
                     }
                 }

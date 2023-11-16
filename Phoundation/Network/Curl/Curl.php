@@ -142,7 +142,7 @@ abstract class Curl implements CurlInterface
     protected bool $get_cookies = true;
 
     /**
-     * If true, cURL will return more meta information
+     * If true, cURL will return more meta-information
      *
      * @var bool $verbose
      */

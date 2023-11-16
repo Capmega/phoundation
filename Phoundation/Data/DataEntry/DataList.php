@@ -592,10 +592,6 @@ abstract class DataList extends Iterator implements DataListInterface
     protected function ensureDataEntries(): static
     {
         foreach ($this->source as $key => $value) {
-            if (is_object($value)) {
-                continue;
-            }
-
             $this->ensureDataEntry($key);
         }
 

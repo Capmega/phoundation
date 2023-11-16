@@ -1805,7 +1805,7 @@ class Page implements PageInterface
 
 
     /**
-     * Add meta information
+     * Add meta-information
      *
      * @param string $key
      * @param string $value

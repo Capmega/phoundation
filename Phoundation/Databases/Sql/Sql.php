@@ -701,7 +701,7 @@ class Sql implements SqlInterface
             Meta::get($row['meta_id'])->action($action, $comments, $diff);
             $row['meta_state'] = Strings::random(16);
 
-            // Never update the other meta information
+            // Never update the other meta-information
             unset($row['status']);
             unset($row['meta_id']);
             unset($row['created_by']);

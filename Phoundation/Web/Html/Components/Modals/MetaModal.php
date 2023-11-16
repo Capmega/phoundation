@@ -68,7 +68,7 @@ class MetaModal extends Modal
                     .done(function (data, textStatus, jqXHR) {
                         $("#MetaModal").find("").innerHtml(data.html);                     
                     });
-                // Load the meta information here                
+                // Load the meta-information here                
                     
                 return false;
             })')->render();
