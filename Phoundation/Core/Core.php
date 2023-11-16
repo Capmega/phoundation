@@ -129,12 +129,12 @@ class Core implements CoreInterface
      * General purpose data register
      */
     protected static array $register = [
-        'tabindex' => 0,
-        'js_header' => [],
-        'js_footer' => [],
-        'css' => [],
-        'quiet' => true,
-        'footer' => '',
+        'tabindex'      => 0,
+        'js_header'     => [],
+        'js_footer'     => [],
+        'css'           => [],
+        'quiet'         => true,
+        'footer'        => '',
         'debug_queries' => []
     ];
 
@@ -628,20 +628,21 @@ class Core implements CoreInterface
 //                    static::$register['http']['accepts_languages'] = Page::acceptsLanguages();
 
         // Define basic platform constants
-        define('ADMIN', '');
-        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
-        define('STARTDIR', Strings::slash(getcwd()));
-        define('PAGE', $_GET['page'] ?? 1);
-        define('ALL', (getenv('ALL') ? 'ALL' : false));
-        define('DELETED', (getenv('DELETED') ? 'DELETED' : false));
-        define('FORCE', (getenv('FORCE') ? 'FORCE' : false));
-        define('ORDERBY', (getenv('ORDERBY') ? 'ORDERBY' : ''));
-        define('STATUS', (getenv('STATUS') ? 'STATUS' : ''));
-        define('QUIET', (getenv('QUIET') ? 'QUIET' : false));
-        define('TEST', (getenv('TEST') ? 'TEST' : false));
-        define('VERBOSE', (getenv('VERBOSE') ? 'VERBOSE' : false));
-        define('NOAUDIO', (getenv('NOAUDIO') ? 'NOAUDIO' : false));
-        define('LIMIT', (getenv('LIMIT') ? 'LIMIT' : Config::getNatural('paging.limit', 50)));
+        define('ADMIN'     , '');
+        define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('STARTDIR'  , Strings::slash(getcwd()));
+        define('PAGE'      , $_GET['page'] ?? 1);
+        define('ALL'       , (getenv('ALL')                                   ? 'ALL'        : false));
+        define('DELETED'   , (getenv('DELETED')                               ? 'DELETED'    : false));
+        define('FORCE'     , (getenv('FORCE')                                 ? 'FORCE'      : false));
+        define('ORDERBY'   , (getenv('ORDERBY')                               ? 'ORDERBY'    : ''));
+        define('STATUS'    , (getenv('STATUS')                                ? 'STATUS'     : ''));
+        define('QUIET'     , ((getenv('QUIET') or getenv('VERY_QUIET')) ? 'QUIET'      : false));
+        define('VERY_QUIET', (getenv('VERY_QUIET')                            ? 'VERY_QUIET' : false));
+        define('TEST'      , (getenv('TEST')                                  ? 'TEST'       : false));
+        define('VERBOSE'   , (getenv('VERBOSE')                               ? 'VERBOSE'    : false));
+        define('NOAUDIO'   , (getenv('NOAUDIO')                               ? 'NOAUDIO'    : false));
+        define('LIMIT'     , (getenv('LIMIT')                                 ? 'LIMIT'      : Config::getNatural('paging.limit', 50)));
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -719,6 +720,7 @@ class Core implements CoreInterface
             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
             ->select('-P,--page', true)->isOptional(1)->isDbId()
             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+            ->select('-R,--very-quiet')->isOptional(false)->isBoolean()
             ->select('-G,--no-prefix')->isOptional(false)->isBoolean()
             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
@@ -738,31 +740,32 @@ class Core implements CoreInterface
             ->validate(false);
 
 //        $argv = [
-//            'all' => false,
-//            'no_color' => false,
-//            'debug' => false,
-//            'environment' => null,
-//            'force' => false,
-//            'help' => false,
-//            'log_level' => false,
-//            'order_by' => false,
-//            'page' => 1,
-//            'quiet' => false,
-//            'no_prefix' => false,
-//            'no_sound' => false,
-//            'status' => false,
-//            'test' => false,
-//            'usage' => false,
-//            'verbose' => false,
-//            'no_warnings' => false,
-//            'system_language' => false,
-//            'deleted' => false,
-//            'version' => false,
-//            'limit' => false,
-//            'timezone' => null,
-//            'auto_complete' => null,
-//            'show_passwords' => false,
-//            'no_validation' => false,
+//            'all'                    => false,
+//            'no_color'               => false,
+//            'debug'                  => false,
+//            'environment'            => null,
+//            'force'                  => false,
+//            'help'                   => false,
+//            'log_level'              => false,
+//            'order_by'               => false,
+//            'page'                   => 1,
+//            'quiet'                  => false,
+//            'very_quiet'             => false,
+//            'no_prefix'              => false,
+//            'no_sound'               => false,
+//            'status'                 => false,
+//            'test'                   => false,
+//            'usage'                  => false,
+//            'verbose'                => false,
+//            'no_warnings'            => false,
+//            'system_language'        => false,
+//            'deleted'                => false,
+//            'version'                => false,
+//            'limit'                  => false,
+//            'timezone'               => null,
+//            'auto_complete'          => null,
+//            'show_passwords'         => false,
+//            'no_validation'          => false,
 //            'no_password_validation' => false
 //    ];
 
@@ -814,20 +817,21 @@ class Core implements CoreInterface
         Config::setEnvironment(ENVIRONMENT);
 
         // Define basic platform constants
-        define('ADMIN', '');
-        define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
-        define('STARTDIR', Strings::slash(getcwd()));
-        define('QUIET', $argv['quiet']);
-        define('VERBOSE', $argv['verbose']);
-        define('FORCE', $argv['force']);
-        define('NOCOLOR', $argv['no_color']);
-        define('TEST', $argv['test']);
-        define('DELETED', $argv['deleted']);
-        define('ALL', $argv['all']);
-        define('STATUS', $argv['status']);
-        define('PAGE', $argv['page']);
-        define('NOAUDIO', $argv['no_audio']);
-        define('LIMIT', get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
+        define('ADMIN'     , '');
+        define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('STARTDIR'  , Strings::slash(getcwd()));
+        define('QUIET'     , ($argv['very_quiet'] or $argv['quiet']));
+        define('VERY_QUIET', $argv['very_quiet']);
+        define('VERBOSE'   , $argv['verbose']);
+        define('FORCE'     , $argv['force']);
+        define('NOCOLOR'   , $argv['no_color']);
+        define('TEST'      , $argv['test']);
+        define('DELETED'   , $argv['deleted']);
+        define('ALL'       , $argv['all']);
+        define('STATUS'    , $argv['status']);
+        define('PAGE'      , $argv['page']);
+        define('NOAUDIO'   , $argv['no_audio']);
+        define('LIMIT'     , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
 
         // Correct $_SERVER['PHP_SELF'], sometimes seems empty
         if (empty($_SERVER['PHP_SELF'])) {
@@ -1206,7 +1210,7 @@ class Core implements CoreInterface
                     throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
                 }
             } else {
-                // Libraries the register sub array
+                // Libraries the register subarray
                 static::$register[$key] = [];
             }
 
@@ -1604,17 +1608,18 @@ class Core implements CoreInterface
 
         // Ensure that definitions exist
         $defines = [
-            'ADMIN' => '',
-            'PWD' => Strings::slash(isset_get($_SERVER['PWD'])),
-            'STARTDIR' => Strings::slash(getcwd()),
-            'FORCE' => (getenv('FORCE') ? 'FORCE' : null),
-            'TEST' => (getenv('TEST') ? 'TEST' : null),
-            'QUIET' => (getenv('QUIET') ? 'QUIET' : null),
-            'LIMIT' => (getenv('LIMIT') ? 'LIMIT' : Config::getNatural('paging.limit', 50)),
-            'ORDERBY' => (getenv('ORDERBY') ? 'ORDERBY' : null),
-            'ALL' => (getenv('ALL') ? 'ALL' : null),
-            'DELETED' => (getenv('DELETED') ? 'DELETED' : null),
-            'STATUS' => (getenv('STATUS') ? 'STATUS' : null)
+            'ADMIN'      => '',
+            'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
+            'STARTDIR'   => Strings::slash(getcwd()),
+            'FORCE'      => (getenv('FORCE')      ? 'FORCE'      : null),
+            'TEST'       => (getenv('TEST')       ? 'TEST'       : null),
+            'QUIET'      => (getenv('QUIET')      ? 'QUIET'      : null),
+            'VERY_QUIET' => (getenv('VERY_QUIET') ? 'VERY_QUIET' : null),
+            'LIMIT'      => (getenv('LIMIT')      ? 'LIMIT'      : Config::getNatural('paging.limit', 50)),
+            'ORDERBY'    => (getenv('ORDERBY')    ? 'ORDERBY'    : null),
+            'ALL'        => (getenv('ALL')        ? 'ALL'        : null),
+            'DELETED'    => (getenv('DELETED')    ? 'DELETED'    : null),
+            'STATUS'     => (getenv('STATUS')     ? 'STATUS'     : null)
         ];
 
         foreach ($defines as $key => $value) {

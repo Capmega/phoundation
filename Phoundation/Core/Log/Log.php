@@ -207,7 +207,7 @@ Class Log {
                 if (Debug::getEnabled()) {
                     static::information(tr('Logger started, threshold set to ":threshold"', [
                         ':threshold' => static::$threshold
-                    ]));
+                    ]),3);
                 }
             }
 
@@ -616,6 +616,10 @@ Class Log {
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
+        if (VERY_QUIET) {
+            return false;
+        }
+
         return static::write($messages, 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
     }
 
@@ -968,21 +972,27 @@ Class Log {
 
                 // Log the exception data
                 if ($messages instanceof Exception) {
-                    if ($messages->isWarning()) {
-                        // Log warning data as individual lines for easier read
-                        $data = $messages->getData();
+                    $data = $messages->getData();
 
-                        if ($data) {
+                    if ($data) {
+                        static::write('Exception data: ', 'information', $threshold, echo_screen: $echo_screen);
+
+                        if ($messages->isWarning()) {
+                            // Log warning data as individual lines for easier read
                             foreach (Arrays::force($data, null) as $line) {
                                 static::write(print_r($line, true), 'warning', $threshold, false, $newline, $use_prefix, $echo_screen);
                             }
 
                             return true;
+
+                        } else {
+                            // Dump the error data completely
+                            static::write(print_r($messages->getData(), true), 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
                         }
 
                     } else {
-                        // Dump the error data completely
-                        static::write(print_r($messages->getData(), true), 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
+                        static::write('Exception data: ', 'information', $threshold, true, false, echo_screen: $echo_screen);
+                        static::write(tr('No data attached to exception'), 'error', $threshold, false, $newline, false, $echo_screen);
                     }
                 }
 
