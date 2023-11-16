@@ -40,10 +40,7 @@ class Emails extends DataList implements EmailsInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `accounts_emails`.`id`,
-                                        `accounts_emails`.`email`,
-                                        `accounts_emails`.`account_type`,
-                                        `accounts_emails`.`description`
+        $this->setQuery('SELECT   `accounts_emails`.*
                                FROM     `accounts_emails`
                                WHERE    `accounts_emails`.`users_id` = :users_id
                                  AND    `accounts_emails`.`status` IS NULL

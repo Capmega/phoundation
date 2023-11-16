@@ -228,8 +228,8 @@ class Users extends DataList implements UsersInterface
                         'users_id' => $user->getId()
                     ]);
 
-                    // Remove user from internal list
-                    parent::deleteAll($user->getId());
+                    // Remove user from the internal list
+                    parent::delete($user->getId());
 
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Removing user ":user" from right ":right"', [
@@ -242,8 +242,8 @@ class Users extends DataList implements UsersInterface
                         'users_id' => $user->getId()
                     ]);
 
-                    // Remove user from internal list
-                    parent::deleteAll($user->getId());
+                    // Remove user from the internal list
+                    parent::delete($user->getId());
                 }
             }
         }

@@ -221,7 +221,9 @@ class Rights extends DataList implements RightsInterface
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
+                show($right);
                 $right = Right::get($right);
+                show($right->getId());
 
                 if ($this->parent instanceof UserInterface) {
                     Log::action(tr('Removing right ":right" from user ":user"', [
@@ -233,9 +235,9 @@ class Rights extends DataList implements RightsInterface
                         'users_id'  => $this->parent->getId(),
                         'rights_id' => $right->getId()
                     ]);
-
-                    // Delete right from internal list
-                    parent::deleteAll($right->getId());
+                    show($right->getId());
+                    // Delete right from the internal list
+                    parent::delete($right->getId());
 
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing right ":right" from role ":role"', [
@@ -253,8 +255,8 @@ class Rights extends DataList implements RightsInterface
                         User::get($user)->getRights()->delete($right);
                     }
 
-                    // Delete right from internal list
-                    parent::deleteAll($right->getId());
+                    // Delete right from the internal list
+                    parent::delete($right->getId());
                 }
             }
         }

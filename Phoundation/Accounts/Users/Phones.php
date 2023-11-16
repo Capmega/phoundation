@@ -40,10 +40,7 @@ class Phones extends DataList implements PhonesInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `accounts_phones`.`id`,
-                                        `accounts_phones`.`phone`,
-                                        `accounts_phones`.`account_type`,
-                                        `accounts_phones`.`description`
+        $this->setQuery('SELECT   `accounts_phones`.*
                                FROM     `accounts_phones`
                                WHERE    `accounts_phones`.`users_id` = :users_id
                                  AND    `accounts_phones`.`status` IS NULL
