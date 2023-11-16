@@ -911,9 +911,9 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns the meta information for this entry
+     * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
      *       yet
      *
      * @param bool $load
@@ -922,7 +922,7 @@ abstract class DataEntry implements DataEntryInterface
     public function getMeta(bool $load = true): ?MetaInterface
     {
         if ($this->isNew()) {
-            // New DataEntry objects have no meta information
+            // New DataEntry objects have no meta-information
             return null;
         }
 
@@ -949,7 +949,7 @@ abstract class DataEntry implements DataEntryInterface
     public function addToMetaHistory(string $action, string $comments, array|string|null $diff): static
     {
         if ($this->isNew()) {
-            throw new OutOfBoundsException(tr('Cannot add meta information, this ":class" object is still new', [
+            throw new OutOfBoundsException(tr('Cannot add meta-information, this ":class" object is still new', [
                 ':class' => $this->getDataEntryName()
             ]));
         }
@@ -1345,7 +1345,8 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function setSource(Iterator|array $source): static
     {
-        return $this->copyValuesToSource(Arrays::remove((array) $source, $this->protected_fields), false);
+        return $this->setMetaData((array) $source)
+                    ->copyValuesToSource((array) $source, false);
     }
 
 
@@ -1942,9 +1943,8 @@ abstract class DataEntry implements DataEntryInterface
             ->get();
 
         // Store all data in the object
-        $this
-            ->setMetaData((array) $data)
-            ->copyValuesToSource((array) $data, false);
+        $this->setMetaData((array) $data)
+             ->copyValuesToSource((array) $data, false);
 
         // Reset state
         $this->is_new      = !$this->getId();
