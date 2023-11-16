@@ -120,9 +120,9 @@ abstract class Element implements ElementInterface
         if (isset($this->tooltip)) {
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
-                    $this->classes->add('has-tooltip-icon-left');
+                    $this->classes->add(true, 'has-tooltip-icon-left');
                 } else {
-                    $this->classes->add('has-tooltip-icon-right');
+                    $this->classes->add(true, 'has-tooltip-icon-right');
                 }
             }
         }

@@ -122,9 +122,9 @@ class Button extends Input
     protected function resetButtonClasses(): void
     {
         // Remove the current button mode
-        foreach ($this->classes as $id => $class) {
+        foreach ($this->classes as $class => $value) {
             if (str_starts_with($class, 'btn-')) {
-                $this->classes->delete($id);
+                $this->classes->delete($class);
             }
         }
 

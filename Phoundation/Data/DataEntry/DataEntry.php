@@ -31,6 +31,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
 use Phoundation\Data\DataEntry\Traits\SelectValidator;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataDebug;
+use Phoundation\Data\Traits\DataDisabled;
 use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -66,6 +67,7 @@ abstract class DataEntry implements DataEntryInterface
 {
     use DataDebug;
     use DataReadonly;
+    use DataDisabled;
     use DataEntryDefinitions;
 
 
@@ -1058,9 +1060,9 @@ abstract class DataEntry implements DataEntryInterface
             Log::vardump($data_source->getSource());
         }
 
-        // Get source array from the validator into the DataEntry object
+        // Get the source array from the validator into the DataEntry object
         if ($force) {
-            // Force was used, but object will now be in readonly mode so we can save failed data
+            // Force was used, but the object will now be in readonly mode, so we can save failed data
             // Validate data and copy data into the source array
             $data_source = $this->doNotValidate($data_source, $clear_source);
             $this->copyValuesToSource($data_source, true, true);
@@ -1609,7 +1611,7 @@ abstract class DataEntry implements DataEntryInterface
             } else {
                 // We're about to update
                 if ($definition->getReadonly() or $definition->getDisabled()) {
-                    // Don't update readonly or disabled columns, only meta columns should pass
+                    // Don't update readonly or disabled columns, only meta-fields should pass
                     if (!$definition->isMeta()) {
                         continue;
                     }
@@ -1691,8 +1693,8 @@ abstract class DataEntry implements DataEntryInterface
             $this->source = array_merge($this->source, $this->validate(ArrayValidator::new($source), true));
         }
 
-        if ($this->readonly) {
-            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly', [
+        if ($this->readonly or $this->disabled) {
+            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
                 ':name' => static::getDataEntryName()
             ]));
         }
@@ -1749,6 +1751,7 @@ abstract class DataEntry implements DataEntryInterface
         return DataEntryForm::new()
             ->setSource($this->source)
             ->setReadonly($this->readonly)
+            ->setDisabled($this->disabled)
             ->setDefinitions($this->definitions);
     }
 

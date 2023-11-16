@@ -189,7 +189,7 @@ class DataEntryForm extends Renderer
             }
 
             // Set defaults
-            Arrays::default($definition_array, 'disabled'    , false);
+            Arrays::default($definition_array, 'disabled'    , $render_object->getDisabled());
             Arrays::default($definition_array, 'label'       , null);
             Arrays::default($definition_array, 'max'         , null);
             Arrays::default($definition_array, 'maxlength'   , null);
@@ -300,6 +300,7 @@ class DataEntryForm extends Renderer
                         }
 
                         // If we have a source query specified, then get the actual value from the query
+                        // TODO WTF is this below??? $definition_array['source'] = $definition_array['source']; ?
                         if (isset_get($definition_array['source'])) {
                             if (is_array($definition_array['source'])) {
                                 $definition_array['source'] = $definition_array['source'];
@@ -331,12 +332,12 @@ class DataEntryForm extends Renderer
                             case 'checkbox':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setHidden($definition->getHidden())
                                     ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
-                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
                                     ->setValue('1')
                                     ->setChecked((bool) $source[$field])
@@ -347,6 +348,7 @@ class DataEntryForm extends Renderer
                             case 'number':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setHidden($definition->getHidden())
@@ -354,7 +356,6 @@ class DataEntryForm extends Renderer
                                     ->setMin(isset_get_typed('integer', $definition_array['min']))
                                     ->setMax(isset_get_typed('integer', $definition_array['max']))
                                     ->setStep(isset_get_typed('integer', $definition_array['step']))
-                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($definition->getAutoFocus())
@@ -364,13 +365,13 @@ class DataEntryForm extends Renderer
                             case 'date':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setMin(isset_get_typed('integer', $definition_array['min']))
                                     ->setMax(isset_get_typed('integer', $definition_array['max']))
-                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($definition->getAutoFocus())
@@ -380,6 +381,7 @@ class DataEntryForm extends Renderer
                             case 'auto-suggest':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setHidden($definition->getHidden())
@@ -389,7 +391,6 @@ class DataEntryForm extends Renderer
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                                     ->setSourceUrl(isset_get_typed('string', $definition_array['source']))
                                     ->setVariables($definition->getVariables())
-                                    ->setClasses($definition->getClasses())
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($definition->getAutoFocus())
@@ -401,11 +402,11 @@ class DataEntryForm extends Renderer
                             case 'submit':
                                 // Render the HTML for this element
                                 $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setHidden($definition->getHidden())
                                     ->setName($field_name)
-                                    ->setClasses($definition->getClasses())
                                     ->setValue($source[$field])
                                     ->setAutoFocus($definition->getAutoFocus())
                                     ->render();
@@ -414,6 +415,7 @@ class DataEntryForm extends Renderer
                             default:
                                 // Render the HTML for this element
                                 $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
                                     ->setDisabled((bool) $definition_array['disabled'])
                                     ->setReadOnly((bool) $definition_array['readonly'])
                                     ->setHidden($definition->getHidden())
@@ -422,7 +424,6 @@ class DataEntryForm extends Renderer
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                                     ->setAutoComplete($definition->getAutoComplete())
                                     ->setName($field_name)
-                                    ->setClasses($definition->getClasses())
                                     ->setValue($source[$field])
                                     ->setAutoFocus($definition->getAutoFocus())
                                     ->render();
@@ -443,13 +444,13 @@ class DataEntryForm extends Renderer
                         $element_class = Library::loadClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputTextArea');
 
                         $html = InputTextArea::new()
+                            ->setClasses($definition->getClasses())
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setHidden($definition->getHidden())
                             ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                             ->setRows(isset_get_typed('integer', $definition_array['rows'], 5))
                             ->setAutoComplete($definition->getAutoComplete())
-                            ->setClasses($definition->getClasses())
                             ->setName($field_name)
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($definition->getAutoFocus())
@@ -486,11 +487,11 @@ class DataEntryForm extends Renderer
                         Library::loadClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
 
                         $html = InputSelect::new()
+                            ->setClasses($definition->getClasses())
                             ->setSource(isset_get($definition_array['source']), $execute)
-                            ->setDisabled((bool) $definition_array['disabled'])
+                            ->setDisabled((bool) ($definition_array['disabled'] or $definition_array['readonly']))
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setHidden($definition->getHidden())
-                            ->setClasses($definition->getClasses())
                             ->setName($field_name)
                             ->setAutoComplete($definition->getAutoComplete())
                             ->setSelected(isset_get($source[$field]))
@@ -511,11 +512,11 @@ class DataEntryForm extends Renderer
                             ->setContent(isset_get($definition_array['label']));
 
                         $input->getInput()
+                            ->setClasses($definition->getClasses())
                             ->setDisabled((bool) $definition_array['disabled'])
                             ->setReadOnly((bool) $definition_array['readonly'])
                             ->setHidden($definition->getHidden())
                             ->setName($field_name)
-                            ->setClasses($definition->getClasses())
                             ->setValue($source[$field])
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($definition->getAutoFocus());

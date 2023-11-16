@@ -67,6 +67,60 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
 
     /**
+     * Set the HTML readonly element attribute
+     *
+     * Enabling readonly on a select element will also enable disabled!
+     *
+     * @param bool $readonly
+     * @return static
+     */
+    public function setReadonly(bool $readonly): static
+    {
+        if ($readonly) {
+            if (!$this->readonly) {
+                $this->classes->add(true, 'readonly');
+            }
+
+            if (!$this->disabled) {
+                $this->classes->add(true, 'disabled');
+            }
+
+            $this->readonly = true;
+            $this->disabled = true;
+
+        } else {
+            $this->classes->delete('readonly');
+            $this->readonly = false;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Set the HTML disabled element attribute
+     *
+     * @param bool $disabled
+     * @return static
+     */
+    public function setDisabled(bool $disabled): static
+    {
+        if ($disabled) {
+            $this->classes->add(true, 'disabled');
+            $this->disabled = true;
+
+        } else {
+            if (!$this->readonly) {
+                $this->classes->delete('disabled');
+                $this->disabled = false;
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Sets if the select element allows multiple options to be selected
      *
      * @param bool $multiple

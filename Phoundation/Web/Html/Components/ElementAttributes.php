@@ -310,7 +310,7 @@ trait ElementAttributes
     public function addClasses(IteratorInterface|array|string|null $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
-            $this->classes->add($class);
+            $this->classes->add(true, $class);
         }
 
         return $this;
@@ -325,7 +325,7 @@ trait ElementAttributes
      */
     public function addClass(?string $class): static
     {
-        $this->classes->add($class);
+        $this->classes->add(true, $class);
         return $this;
     }
 
@@ -432,7 +432,7 @@ trait ElementAttributes
     public function getClass(): ?string
     {
         if (empty($this->class)) {
-            $this->class = implode(' ', $this->classes->getSource());
+            $this->class = implode(' ', $this->classes->getKeys());
         }
 
         return $this->class;
@@ -611,7 +611,7 @@ trait ElementAttributes
     public function setDisabled(bool $disabled): static
     {
         if ($disabled) {
-            $this->classes->add('disabled');
+            $this->classes->add(true, 'disabled');
 
         } else {
             $this->classes->delete('disabled');
@@ -642,7 +642,7 @@ trait ElementAttributes
     public function setReadonly(bool $readonly): static
     {
         if ($readonly) {
-            $this->classes->add('readonly');
+            $this->classes->add(true, 'readonly');
 
         } else {
             $this->classes->delete('readonly');
@@ -797,7 +797,7 @@ trait ElementAttributes
     public function setFloatRight(bool $right): static
     {
         if ($right) {
-            $this->classes->add('float-right');
+            $this->classes->add(true, 'float-right');
         } else {
             $this->classes->delete('float-right');
         }
