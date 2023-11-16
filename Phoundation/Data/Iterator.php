@@ -8,6 +8,7 @@ use PDOStatement;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Exception\NotExistsException;
@@ -237,7 +238,7 @@ class Iterator implements IteratorInterface
      * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -261,17 +262,17 @@ class Iterator implements IteratorInterface
     /**
      * Adds the specified source(s) to the internal source
      *
-     * @param IteratorInterface|array|null $source
+     * @param IteratorInterface|array|string|null $source
      * @return $this
      */
-    public function addSources(IteratorInterface|array|null $source): static
+    public function addSources(IteratorInterface|array|string|null $source): static
     {
         if ($source instanceof IteratorInterface) {
             $source = $source->getSource();
         }
 
         // Add each entry
-        foreach ($source as $key => $value) {
+        foreach (Arrays::force($source) as $key => $value) {
             $this->add($value, $key);
         }
 
@@ -474,7 +475,7 @@ class Iterator implements IteratorInterface
      * @param array|string|null $columns
      * @return array
      */
-    protected function getSourceColumns(array|string|null $columns): array
+    public function getSourceColumns(array|string|null $columns): array
     {
         if (!$columns) {
             // Return all columns
@@ -503,7 +504,7 @@ class Iterator implements IteratorInterface
      * @param string $column
      * @return array
      */
-    protected function getSourceColumn(string $column): array
+    public function getSourceColumn(string $column): array
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
@@ -625,6 +626,23 @@ class Iterator implements IteratorInterface
             }
 
             return null;
+        }
+
+        return $this->source[$key];
+    }
+
+
+    /**
+     * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function default(Stringable|string|float|int $key, mixed $value): mixed
+    {
+        if (!array_key_exists($key, $this->source)) {
+            $this->source[$key] = $value;
         }
 
         return $this->source[$key];
@@ -763,7 +781,7 @@ class Iterator implements IteratorInterface
      * @param Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(Stringable|string|float|int $key): bool
+    public function keyExists(Stringable|string|float|int $key): bool
     {
         return array_key_exists($key, $this->source);
     }
@@ -772,10 +790,10 @@ class Iterator implements IteratorInterface
     /**
      * Returns if the specified value exists in this Iterator or not
      *
-     * @param Stringable|string|float|int $value
+     * @param mixed $value
      * @return bool
      */
-    public function valueExists(Stringable|string|float|int $value): bool
+    public function valueExists(mixed $value): bool
     {
         return in_array($value, $this->source);
     }
@@ -814,5 +832,110 @@ class Iterator implements IteratorInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Explodes the specified string into an Iterator object and returns it
+     *
+     * @param Stringable|string $source
+     * @param string|null $separator
+     * @return IteratorInterface
+     */
+    public static function explode(Stringable|string $source, ?string $separator = ','): IteratorInterface
+    {
+        $source = (string) $source;
+
+        if ($separator) {
+            $source = explode($separator, $source);
+
+        } else {
+            // We cannot explode with an empty separator, assume that $source is a single item and return it as such
+            $source = [$source];
+        }
+
+        return Iterator::new()->setSource($source);
+    }
+
+
+    /**
+     * Forces the specified source to become an Iterator
+     *
+     * @note DataList objects will remain DataList objects as those are extended Iterators
+     * @param mixed $source
+     * @param string|null $separator
+     * @return IteratorInterface|DataListInterface
+     */
+    public static function force(mixed $source, ?string $separator = ','): IteratorInterface|DataListInterface
+    {
+        if (($source === '') or ($source === null)) {
+            return new Iterator();
+        }
+
+        if ($source instanceof IteratorInterface) {
+            // This already is an Iterator (or DataList) object
+            return $source;
+        }
+
+        if (is_string($source)) {
+            // Explode the string to an Iterator object, as we would to an array as well
+            return static::explode($separator, $source);
+        }
+
+        if ($source instanceof ArrayableInterface) {
+            // This is an object that can convert to array. Extract the array
+            $source = $source->__toArray();
+
+        } else {
+            // Unknown datatype, toss it into an array
+            $source = [$source];
+        }
+
+        // As of here, we have an array. Set it as an Iterator source and return
+        return Iterator::new()->setSource($source);
+    }
+
+
+    /**
+     * Returns the length of the longest value
+     *
+     * @return int
+     */
+    public function getLongestKeyLength(): int
+    {
+        return Arrays::getLongestKeyLength($this->source);
+    }
+
+
+    /**
+     * Returns the length of the shortest value
+     *
+     * @return int
+     */
+    public function getShortestKeyLength(): int
+    {
+        return Arrays::getShortestKeyLength($this->source);
+    }
+
+
+    /**
+     * Returns the length of the longest value
+     *
+     * @return int
+     */
+    public function getLongestValueLength(): int
+    {
+        return Arrays::getLongestValueLength($this->source);
+    }
+
+
+    /**
+     * Returns the length of the shortest value
+     *
+     * @return int
+     */
+    public function getShortestValueLength(): int
+    {
+        return Arrays::getShortestValueLength($this->source);
     }
 }
