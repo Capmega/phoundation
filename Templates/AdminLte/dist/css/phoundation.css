@@ -65,3 +65,10 @@ div.tooltip-icon {
     display: flex;
     justify-content: space-between;
 }
+
+input.readonly, input:read-only,
+select.readonly, select:read-only,
+textarea.readonly, textarea:read-only
+{
+    background-color: #fff !important;
+}
