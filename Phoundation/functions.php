@@ -716,6 +716,22 @@ function get_null(mixed $source): mixed
 
 
 /**
+ * Returns NOT $source, unless $source is a NULL, which returns NULL.
+ *
+ * @param bool|null $source
+ * @return bool|null
+ */
+function null_not(?bool $source): ?bool
+{
+    if ($source === null) {
+        return null;
+    }
+
+    return !$source;
+}
+
+
+/**
  * Returns if the specified variable (string or not) is actually an integer, or not
  *
  * @param mixed $source
