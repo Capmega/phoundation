@@ -366,7 +366,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getAjax(Stringable|string $url, bool $use_configured_root = false): static
     {
-        $url = (string) UrlBuilder::getWww($url);
+        $url = (string) $url;
 
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
