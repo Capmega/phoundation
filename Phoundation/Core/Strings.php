@@ -814,6 +814,11 @@ class Strings
                 }
 
                 if (is_object($source)) {
+                    if($source instanceof Stringable) {
+                        return (string) $source;
+
+                    }
+
                     if (method_exists($source, '__serialize')) {
                         return $source->__serialize();
                     }
@@ -1657,10 +1662,6 @@ throw new UnderConstructionException();
         }
 
         if (!is_scalar($source)) {
-            if (is_enum($source)) {
-                $source = Arrays::fromEnum($source);
-            }
-
             if (is_array($source)) {
                 $source = Arrays::hide($source, ['password', 'ssh_key']);
                 $source = trim(JSON::encode($source));
@@ -1668,7 +1669,7 @@ throw new UnderConstructionException();
             } elseif (is_enum($source)) {
                 $source = $source->value;
 
-            } elseif (is_object($source) and method_exists($source, '__toString')) {
+            } elseif ($source instanceof Stringable) {
                 $source = (string) $source;
 
             } else {
@@ -2030,7 +2031,7 @@ throw new UnderConstructionException();
         }
 
         $return  = '';
-        $longest = Arrays::getLongestKeySize($source) + 1;
+        $longest = Arrays::getLongestKeyLength($source) + 1;
 
         // format and write the lines
         foreach ($source as $key => $value) {
