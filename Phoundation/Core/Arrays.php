@@ -1143,7 +1143,7 @@ class Arrays {
                     if ($recurse) {
                         $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
                     } else {
-                        // If we don't recurse, we'll hide the entire sub array
+                        // If we don't recurse, we'll hide the entire subarray
                         $source_value = Arrays::hide($source_value, $hide, $empty);
                     }
 
@@ -1372,11 +1372,7 @@ class Arrays {
 
         foreach ($source as $key => $row) {
             if (!is_array($row)) {
-                throw new OutOfBoundsException(tr('Invalid table source specified; row ":key" should have datatype ":required" but is ":type" instead', [
-                    ':key'      => $key,
-                    ':required' => 'array',
-                    ':type'     => gettype($row)
-                ]));
+                $row = [$row];
             }
 
             // Initialize the return array
@@ -1854,12 +1850,35 @@ class Arrays {
 
 
     /**
+     * Returns the size of the shortest key in the specified array.
+     *
+     * @param array $source
+     * @return int
+     */
+    public static function getShortestKeyLength(array $source): int
+    {
+        $largest = PHP_INT_MAX;
+
+        foreach ($source as $key => $value) {
+            // Determine the largest key
+            $size = strlen((string) $key);
+
+            if ($size < $largest) {
+                $largest = $size;
+            }
+        }
+
+        return $largest;
+    }
+
+
+    /**
      * Returns the size of the largest key in the specified array.
      *
      * @param array $source
      * @return int
      */
-    public static function getLongestKeySize(array $source): int
+    public static function getLongestKeyLength(array $source): int
     {
         $largest = 0;
 
@@ -1877,6 +1896,51 @@ class Arrays {
 
 
     /**
+     * Returns the size of the shortest scalar value in the specified array.
+     *
+     * @note This function will ignore any and all non-scalar values
+     *
+     * @param array $source
+     * @param string|null $key
+     * @return int
+     */
+    public static function getShortestValueLength(array $source, ?string $key = null): int
+    {
+        $shortest = PHP_INT_MAX;
+
+        foreach ($source as $value) {
+            if ($key) {
+                if (!is_array($value)) {
+                    // $key requires string to be a subarray! Ignore this entry
+                    continue;
+                }
+
+                if (!array_key_exists($key, $value)) {
+                    // $key requires the key to exist in the subarray. Ignore this entry
+                    continue;
+                }
+
+                $value = $value[$key];
+            }
+
+            if (!is_scalar($value)) {
+                // $string must be a scalar value! Ignore this entry
+                continue;
+            }
+
+            // Determine the largest call line
+            $size = strlen((string) $value);
+
+            if ($size < $shortest) {
+                $shortest = $size;
+            }
+        }
+
+        return $shortest;
+    }
+
+
+    /**
      * Returns the size of the largest scalar value in the specified array.
      *
      * @note This function will ignore any and all non-scalar values
@@ -1885,19 +1949,19 @@ class Arrays {
      * @param string|null $key
      * @return int
      */
-    public static function getLongestValueSize(array $source, ?string $key = null): int
+    public static function getLongestValueLength(array $source, ?string $key = null): int
     {
         $largest = 0;
 
         foreach ($source as $value) {
             if ($key) {
                 if (!is_array($value)) {
-                    // $key requires string to be a sub array! Ignore this entry
+                    // $key requires string to be a subarray! Ignore this entry
                     continue;
                 }
 
                 if (!array_key_exists($key, $value)) {
-                    // $key requires the key to exist in the sub array. Ignore this entry
+                    // $key requires the key to exist in the subarray. Ignore this entry
                     continue;
                 }
 
