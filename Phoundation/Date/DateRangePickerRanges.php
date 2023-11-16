@@ -5,6 +5,7 @@ namespace Phoundation\Date;
 use Phoundation\Data\Iterator;
 use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
 
 
 /**
@@ -22,7 +23,7 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
     /**
      * @inheritDoc
      */
-    public function add(mixed $value, float|string|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!is_string($value)) {
             throw new OutOfBoundsException(tr('Specified value ":value" must be string', [
