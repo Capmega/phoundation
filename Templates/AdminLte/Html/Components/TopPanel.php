@@ -65,7 +65,7 @@ class TopPanel extends Renderer
                               <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                             </li>';
 
-        if ($this->render_object->exists('menu')) {
+        if ($this->render_object->keyExists('menu')) {
             foreach ($this->render_object->get('menu') as $label => $url) {
                 $left_menu .= ' <li class="nav-item d-none d-sm-inline-block">
                                   <a href="' . Html::safe($url) . '" class="nav-link">' . Html::safe($label) . '</a>
