@@ -330,7 +330,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param bool $init
      * @return $this
      */
-    public function setSource(array $source, bool $init = false): static;
+    public function setSourceString(array $source, bool $init = false): static;
 
     /**
      * Returns the definitions for the fields in this table

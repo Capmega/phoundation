@@ -1548,7 +1548,7 @@ class User extends DataEntry implements UserInterface
      */
     public function hasRole(RolesInterface|Stringable|string $role): bool
     {
-        return $this->getRoles()->exists($role);
+        return $this->getRoles()->keyExists($role);
     }
 
 

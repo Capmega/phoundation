@@ -4,6 +4,7 @@ namespace Phoundation\Data\Interfaces;
 
 use Iterator;
 use PDOStatement;
+use Phoundation\Core\Arrays;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use ReturnTypeWillChange;
 use Stringable;
@@ -81,19 +82,19 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Add the specified value to the iterator array
      *
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Adds the specified source to the internal source
      *
-     * @param array|null $source
+     * @param IteratorInterface|array|string|null $source
      * @return $this
      */
-    public function addSources(?array $source): static;
+    public function addSources(IteratorInterface|array|string|null $source): static;
 
     /**
      * Returns a list of all internal values with their keys
@@ -251,7 +252,15 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(Stringable|string|float|int $key): bool;
+    public function keyExists(Stringable|string|float|int $key): bool;
+
+    /**
+     * Returns if the specified value exists or not
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function valueExists(mixed $value): bool;
 
     /**
      * Returns if the list is empty or not
@@ -267,4 +276,65 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function merge(IteratorInterface|array $source): static;
+
+    /**
+     * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function default(Stringable|string|float|int $key, mixed $value): mixed;
+
+    /**
+     * Returns an array with array values containing only the specified columns
+     *
+     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     *       OutOfBoundsException
+     *
+     * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
+     *
+     * @param array|string|null $columns
+     * @return array
+     */
+    public function getSourceColumns(array|string|null $columns): array;
+
+    /**
+     * Returns an array with each value containing a scalar with only the specified column value
+     *
+     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     *       OutOfBoundsException
+     *
+     * @param string $column
+     * @return array
+     */
+    public function getSourceColumn(string $column): array;
+
+    /**
+     * Returns the length of the longest value
+     *
+     * @return int
+     */
+    public function getLongestKeyLength(): int;
+
+    /**
+     * Returns the length of the shortest value
+     *
+     * @return int
+     */
+    public function getShortestKeyLength(): int;
+
+    /**
+     * Returns the length of the longest value
+     *
+     * @return int
+     */
+    public function getLongestValueLength(): int;
+
+    /**
+     * Returns the length of the shortest value
+     *
+     * @return int
+     */
+    public function getShortestValueLength(): int;
 }

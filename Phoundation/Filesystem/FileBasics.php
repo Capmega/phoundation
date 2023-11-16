@@ -6,15 +6,12 @@ namespace Phoundation\Filesystem;
 
 use Exception;
 use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
-use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -26,14 +23,13 @@ use Phoundation\Filesystem\Exception\FileRenameException;
 use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FileTruncateException;
-use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Filesystem\Traits\DataBufferSize;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
@@ -164,6 +160,25 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
+     * Returns a new File or Directory object with the specified restrictions
+     *
+     * @param mixed $path
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @return static
+     */
+    public static function newExisting(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    {
+        $file = File::new($path, $restrictions);
+
+        if ($file->isDir()) {
+            return Directory::new($file, $restrictions);
+        }
+
+        return $file;
+    }
+
+
+    /**
      * Returns a new temporary file with the specified restrictions
      *
      * @param bool $public
@@ -238,7 +253,7 @@ class FileBasics implements Stringable, FileBasicsInterface
 
 
     /**
-     * Returns the file
+     * Returns the path
      *
      * @return string|null
      */

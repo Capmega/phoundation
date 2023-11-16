@@ -35,7 +35,7 @@ interface DataListInterface extends IteratorInterface
      * @param DataEntryInterface|Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(DataEntryInterface|Stringable|string|float|int $key): bool;
+    public function keyExists(DataEntryInterface|Stringable|string|float|int $key): bool;
 
     /**
      * Set the query for this object when generating internal content
@@ -204,10 +204,10 @@ interface DataListInterface extends IteratorInterface
     /**
      * Adds the specified source to the internal source
      *
-     * @param IteratorInterface|array|null $source
+     * @param IteratorInterface|array|string|null $source
      * @return $this
      */
-    public function addSources(IteratorInterface|array|null $source): static;
+    public function addSources(IteratorInterface|array|string|null $source): static;
 
     /**
      * Access the direct list operations for this class

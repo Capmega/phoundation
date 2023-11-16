@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Filesystem;
+namespace Phoundation\Filesystem\Mounts;
 
 use Phoundation\Core\Config;
 use Phoundation\Data\DataEntry\DataEntry;
@@ -15,6 +15,9 @@ use Phoundation\Data\DataEntry\Traits\DataEntrySource;
 use Phoundation\Data\DataEntry\Traits\DataEntryTarget;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\MountInterface;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Os\Processes\Commands\UnMount;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
 
@@ -23,7 +26,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
  * Class Mount
  *
  *
- *
+ * @note On Ubuntu requires packages nfs-utils cifs-utils psmisc
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -32,9 +35,24 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
 class Mount extends DataEntry implements MountInterface
 {
     use DataEntryNameDescription;
+    use DataRestrictions;
     use DataEntrySource;
     use DataEntryTarget;
     use DataEntryOptions;
+
+
+    /**
+     * Mount class constructor
+     *
+     * @param int|string|DataEntryInterface|null $identifier
+     * @param string|null $column
+     * @param RestrictionsInterface|null $restrictions
+     */
+    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?RestrictionsInterface $restrictions = null)
+    {
+        parent::__construct($identifier, $column);
+        $this->restrictions = $this->ensureRestrictions($restrictions);
+    }
 
 
     /**
@@ -67,7 +85,7 @@ class Mount extends DataEntry implements MountInterface
     /**
      * @inheritDoc
      */
-    public static function get(int|string|DataEntryInterface|null $identifier = null, ?string $column = null): MountInterface
+    public static function get(int|string|DataEntryInterface|null $identifier = null, ?string $column = null): static
     {
         try {
             return parent::get($identifier, $column);
@@ -78,24 +96,49 @@ class Mount extends DataEntry implements MountInterface
             switch ($column) {
                 case 'name':
                     $mount = Config::getArray('filesystem.mounts.' . $identifier);
-                    $mount = Mount::new()->setSource($mount);
-                    return $mount;
+                    return static::new()->setSource($mount);
 
                 case 'source':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = Mounts::getMountSource($identifier);
-                    $mount = static::new()->setSource($mount);
-                    return $mount;
+                    $mount = Mounts::getMountSources($identifier);
+                    return static::new()->setSource($mount);
 
                 case 'target':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = Mounts::getMountTarget($identifier);
-                    $mount = static::new()->setSource($mount);
-                    return $mount;
+                    $mount = Mounts::getMountTargets($identifier);
+                    return static::new()->setSource($mount);
             }
 
             throw $e;
         }
+    }
+
+
+    /**
+     * Mounts this mount point
+     *
+     * @return $this
+     */
+    public function mount(): static
+    {
+        \Phoundation\Os\Processes\Commands\Mount::new($this->restrictions)
+            ->mount($this->getSource(), $this->getTarget());
+
+        return $this;
+    }
+
+
+    /**
+     * Unmounts this mount point
+     *
+     * @return $this
+     */
+    public function unmount(): static
+    {
+        UnMount::new($this->restrictions)
+            ->unmount($this->getTarget());
+
+        return $this;
     }
 
 

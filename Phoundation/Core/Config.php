@@ -686,7 +686,7 @@ class Config implements Interfaces\ConfigInterface
 
             foreach ($directory as $key) {
                 if (!array_key_exists($key, $section)) {
-                    // Initialize with sub array and jump in
+                    // Initialize with subarray and jump in
                     $section[$key] = [];
                 }
 

@@ -239,4 +239,12 @@ interface DirectoryInterface extends FileBasicsInterface
      *  });
      */
     public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
+
+    /**
+     * Returns the path
+     *
+     * @param bool $remove_terminating_slash
+     * @return string|null
+     */
+    public function getPath(bool $remove_terminating_slash = false): ?string;
 }

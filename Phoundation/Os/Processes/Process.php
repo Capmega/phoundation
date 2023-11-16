@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Core\Arrays;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
@@ -32,16 +34,15 @@ class Process extends ProcessCore implements ProcessInterface
      *
      * @param string|null $command
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null $operating_system
      * @param string|null $packages
      */
-    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
+    public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($restrictions);
 
-        $this->setRestrictions($restrictions);
-
-        if ($packages) {
-            $this->setPackages($packages);
+        if ($operating_system or $packages) {
+            $this->setPackages($operating_system, $packages);
         }
 
         if ($command) {
@@ -55,12 +56,13 @@ class Process extends ProcessCore implements ProcessInterface
      *
      * @param string|null $command
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null $operating_system
      * @param string|null $packages
      * @return static
      */
-    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
-        return new static($command, $restrictions, $packages);
+        return new static($command, $restrictions, $operating_system, $packages);
     }
 
 

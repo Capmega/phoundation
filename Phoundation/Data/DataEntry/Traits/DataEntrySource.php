@@ -37,7 +37,7 @@ trait DataEntrySource
      * @param string|null $source
      * @return static
      */
-    public function setSource(?string $source): static
+    public function setSourceString(?string $source): static
     {
         return $this->setSourceValue('source', $source);
     }

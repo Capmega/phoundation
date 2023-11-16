@@ -19,6 +19,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\DataEntryForm;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
 
 
 /**
@@ -156,12 +157,12 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Add the specified phone to the iterator array
      *
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param mixed $value
      * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof PhoneInterface) {
             if (!is_string($value)) {

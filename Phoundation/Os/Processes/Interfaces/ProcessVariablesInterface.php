@@ -5,6 +5,7 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Os\Processes\ProcessVariables;
@@ -435,17 +436,18 @@ interface ProcessVariablesInterface
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @return string|array
+     * @return PackagesInterface
      */
-    public function getPackages(): string|array;
+    public function getPackages(): PackagesInterface;
 
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @param string|array $packages
+     * @param Stringable|string $operating_system
+     * @param array|string $packages
      * @return static
      */
-    public function setPackages(string|array $packages): static;
+    public function setPackages(Stringable|string $operating_system, array|string $packages): static;
 
     /**
      * Returns the timeout value for this process.

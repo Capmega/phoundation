@@ -1,0 +1,80 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Numbers;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Devices\Storage\Proc;
+use Phoundation\Os\Processes\Commands\Mount;
+
+
+/**
+ * Script tools/os/filesystem/mounts/mount
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+$types = Proc::getSupportedFiletypes();
+
+Documentation::autoComplete([
+    'positions' => [
+        '0' => true,
+        '1' => [
+            'word'   => function ($word) { return Directory::new(Directory::default($word), '/')->scan($word . '*'); },
+            'noword' => function ()      { return Directory::new(                 '/', '/')->scan(        '*'); },
+        ],
+    ],
+    'arguments' => [
+        '-t,--type' => [
+            'word'   => function ($word) use ($types) { return Arrays::match($types, $word); },
+            'noword' => function ()      use ($types) { return $types; },
+        ],
+        '-o,--options' => true
+    ]
+]);
+
+Documentation::usage('./pho tools os filesystem mounts mount SOURCE TARGET
+./pho tools os filesystem mounts mount SOURCE TARGET [-t FILESYSTEM]
+./pho tools os filesystem mounts mount SOURCE TARGET [-t FILESYSTEM] [-o OPTIONS]');
+
+Documentation::help('This command will mount the specified source device (or directory) on the specified target
+directory
+
+
+ARGUMENTS
+
+
+[-t,--filesystem FILESYSTEM]            The filesystem type to mount. If not specified, mount will attempt to
+                                        automatically detect the filesystem to use. See "man mount" for more information
+
+[-o,--options OPTIONS]                  The options to use with mounting the filesystem. See "man mount" for more
+                                        information');
+
+
+$argv = ArgvValidator::new()
+    ->select('source')->hasMaxCharacters(511)
+    ->select('target')->isDirectory('/', '/')
+    ->select('-o,--options', true)->isOptional()->hasMaxCharacters(511)
+    ->select('-t,--file-system', true)->isOptional()->isInArray(Proc::getSupportedFiletypes())
+    ->validate();
+
+Mount::new()->mount($argv['source'], $argv['target'], $argv['file_system'], $argv['options']);
+
+Log::success(tr('Mounted source ":source" to target ":target"', [
+    ':source' => $argv['source'],
+    ':target' => $argv['target']
+]));

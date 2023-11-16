@@ -19,6 +19,7 @@ use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\DataEntryForm;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
 
 
 /**
@@ -156,12 +157,12 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Add the specified email to the iterator array
      *
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param mixed $value
      * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof EmailInterface) {
             if (!is_string($value)) {

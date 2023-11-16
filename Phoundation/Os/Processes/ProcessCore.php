@@ -47,12 +47,13 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      *
      * @param string|null $command
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null $operating_system
      * @param string|null $packages
      * @return static
      */
-    public static function newCliScript(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function newCliScript(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
-        $process = static::new('cli', $restrictions, $packages);
+        $process = static::new('cli', $restrictions, $operating_system, $packages);
         $process->addArguments(Arrays::force($command, ' '));
 
         return $process;
@@ -322,7 +323,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         Log::success(tr('Executed background command ":command" with PID ":pid"', [
             ':command' => $this->real_command,
             ':pid'     => $this->pid
-        ]), 4);
+        ]), 3);
 
         return $this->pid;
     }

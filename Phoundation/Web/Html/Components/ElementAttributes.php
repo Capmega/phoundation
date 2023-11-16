@@ -813,7 +813,7 @@ trait ElementAttributes
      */
     public function getFloatRight(): bool
     {
-        return $this->getClasses()->exists('float-right');
+        return $this->getClasses()->keyExists('float-right');
     }
 
 

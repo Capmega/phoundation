@@ -159,13 +159,13 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param DataEntryInterface|Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(DataEntryInterface|Stringable|string|float|int $key): bool
+    public function keyExists(DataEntryInterface|Stringable|string|float|int $key): bool
     {
         if ($key instanceof DataEntryInterface) {
             $key = $key->getId();
         }
 
-        return parent::exists($key);
+        return parent::keyExists($key);
     }
 
 
@@ -508,11 +508,11 @@ abstract class DataList extends Iterator implements DataListInterface
      * Add the specified data entry to the data list
      *
      * @param mixed $value
-     * @param float|int|string|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, float|int|string|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof DataEntryInterface) {
             throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
@@ -656,10 +656,10 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Adds the specified source to the internal source
      *
-     * @param IteratorInterface|array|null $source
+     * @param IteratorInterface|array|string|null $source
      * @return $this
      */
-    public function addSources(IteratorInterface|array|null $source): static
+    public function addSources(IteratorInterface|array|string|null $source): static
     {
         return parent::addSources($source);
     }

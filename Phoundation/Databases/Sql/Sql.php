@@ -1150,9 +1150,9 @@ class Sql implements SqlInterface
 
 
     /**
-     * Executes the query and returns array with each complete row in a sub array
+     * Executes the query and returns array with each complete row in a subarray
      *
-     * Each sub array will have a numeric index key starting from 0
+     * Each subarray will have a numeric index key starting from 0
      *
      * @param string|PDOStatement $query
      * @param array|null $execute

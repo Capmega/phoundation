@@ -326,7 +326,7 @@ class Incident extends DataEntry implements IncidentInterface
                     try {
                         $return  = '';
                         $details = Json::decode($value);
-                        $largest = Arrays::getLongestKeySize($details);
+                        $largest = Arrays::getLongestKeyLength($details);
 
                         foreach ($details as $key => $value) {
                             $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;

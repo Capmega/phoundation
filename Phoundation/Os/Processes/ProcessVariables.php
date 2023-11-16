@@ -6,14 +6,18 @@ namespace Phoundation\Os\Processes;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Os\Packages\Interfaces\PackagesInterface;
+use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
@@ -240,9 +244,9 @@ trait ProcessVariables
      * If specified, these packages will be automatically installed if the specified command for this process does not
      * exist
      *
-     * @var array|string|null
+     * @var PackagesInterface $packages
      */
-    protected array|string|null $packages = null;
+    protected PackagesInterface $packages;
 
     /**
      * State variable, tracks if the current process has failed or not
@@ -316,6 +320,7 @@ trait ProcessVariables
 
         // Set server filesystem restrictions
         $this->setRestrictions($restrictions);
+        $this->packages = new Packages();
     }
 
 
@@ -1009,7 +1014,7 @@ trait ProcessVariables
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
                         if (!$this->failed) {
-                            if ($this->packages and !in_array($command, $this->packages)) {
+                            if ($this->packages?->keyExists() and !in_array($command, $this->packages)) {
                                 throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
                                     ':command' => $command
                                 ]));
@@ -1401,11 +1406,11 @@ trait ProcessVariables
 
 
     /**
-     * Sets the packages that should be installed automatically if the command for this process cannot be found
+     * Returns the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @return string|array
+     * @return PackagesInterface
      */
-    public function getPackages(): string|array
+    public function getPackages(): PackagesInterface
     {
         return $this->packages;
     }
@@ -1414,13 +1419,14 @@ trait ProcessVariables
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @param string|array $packages
+     * @param Stringable|string $operating_system
+     * @param IteratorInterface|array|string $packages
      * @return static
      */
-    public function setPackages(string|array $packages): static
+    public function setPackages(Stringable|string $operating_system, IteratorInterface|array|string $packages): static
     {
         $this->cached_command_line = null;
-        $this->packages            = $packages;
+        $this->packages->addForOperatingSystem($operating_system, $packages);
 
         return $this;
     }

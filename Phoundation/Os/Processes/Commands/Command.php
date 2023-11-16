@@ -14,6 +14,7 @@ use Phoundation\Os\Processes\Commands\Interfaces\CommandInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Os\Processes\ProcessCore;
+use Stringable;
 
 
 /**
@@ -34,7 +35,7 @@ abstract class Command extends ProcessCore implements CommandInterface
      * @param RestrictionsInterface|array|string|null $restrictions
      * @param string|null $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
         parent::__construct($restrictions);
 
@@ -43,8 +44,8 @@ abstract class Command extends ProcessCore implements CommandInterface
 
         $this->setRestrictions($restrictions);
 
-        if ($packages) {
-            $this->setPackages($packages);
+        if ($operating_system or $packages) {
+            $this->setPackages($operating_system, $packages);
         }
     }
 
@@ -53,12 +54,13 @@ abstract class Command extends ProcessCore implements CommandInterface
      * Create a new process factory for a specific command
      *
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null $operating_system
      * @param string|null $packages
      * @return static
      */
-    public static function new(RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null): static
+    public static function new(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
-        return new static($restrictions, $packages);
+        return new static($restrictions, $operating_system, $packages);
     }
 
 

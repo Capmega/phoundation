@@ -5,13 +5,12 @@ declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Documentation;
-use Phoundation\Core\Arrays;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Os\Devices\Storage\Proc;
 
 
 /**
- * Script tools/os/filesystem/mounts/list/paths
+ * Script tools/os/filesystem/list/supported
  *
  *
  *
@@ -20,10 +19,10 @@ use Phoundation\Filesystem\Mounts\Mounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools os filesystem mounts list paths');
-Documentation::help('This command will list all available mounted paths');
+Documentation::usage('./pho tools os filesystem list supported');
+Documentation::help('This command will list all supported filesystem types');
 
 $argv = ArgvValidator::new()
     ->validate();
 
-Cli::displayTable(Arrays::listKeep(Mounts::listMountTargets(), 'filesystem'), id_column: 'source');
+Cli::displayTable(Proc::getSupportedFiletypes(), ['Filesystem types'], id_column: null);

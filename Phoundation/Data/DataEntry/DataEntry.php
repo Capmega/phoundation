@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionI
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
 use Phoundation\Data\DataEntry\Traits\SelectValidator;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -268,7 +269,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public static function fromSource(array $source): static
     {
-        return static::new()->setSource($source);
+        return static::new()->setSourceString($source);
     }
 
 
@@ -1311,7 +1312,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Adds a single extra key that are protected and cannot be removed from this object
+     * Adds a single extra key that is protected and cannot be removed from this object
      *
      * @param string $key
      * @return static
@@ -1333,6 +1334,18 @@ abstract class DataEntry implements DataEntryInterface
     public function getSource(): array
     {
         return Arrays::remove($this->source, $this->protected_fields);
+    }
+
+
+    /**
+     * Loads the specified data into this DataEntry object
+     *
+     * @param Iterator|array $source
+     * @return static
+     */
+    public function setSource(Iterator|array $source): static
+    {
+        return $this->copyValuesToSource(Arrays::remove((array) $source, $this->protected_fields), false);
     }
 
 
@@ -1446,7 +1459,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // Only save values that are defined for this object
-        if (!$this->definitions->exists($field)) {
+        if (!$this->definitions->keyExists($field)) {
             if ($this->definitions->isEmpty()) {
                 throw new DataEntryException(tr('The ":class" class has no fields defined yet', [
                     ':class' => get_class($this)
@@ -1840,7 +1853,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected function getAlternateValidationField(string $field): string
     {
-        if (!$this->definitions->exists($field)) {
+        if (!$this->definitions->keyExists($field)) {
             throw new OutOfBoundsException(tr('Specified field name ":field" does not exist', [
                 ':field' => $field
             ]));
@@ -1863,7 +1876,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $init
      * @return $this
      */
-    public function setSource(array $source, bool $init = true): static
+    public function setSourceString(array $source, bool $init = true): static
     {
         $this->is_loading = true;
 

@@ -5,6 +5,7 @@ namespace Phoundation\Data\Validator\Interfaces;
 
 use DateTime;
 use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
@@ -232,10 +233,10 @@ interface ValidatorInterface
      *
      * This method ensures that the specified array key is a scalar value
      *
-     * @param array $array
+     * @param IteratorInterface|array $array
      * @return static
      */
-    public function isInArray(array $array): static;
+    public function isInArray(IteratorInterface|array $array): static;
 
     /**
      * Validates the datatype for the selected field

@@ -1092,7 +1092,7 @@ class Debug {
     public static function formatBackTrace(array $backtrace): array
     {
         $lines   = static::buildBackTrace($backtrace);
-        $longest = Arrays::getLongestValueSize($lines, 'call');
+        $longest = Arrays::getLongestValueLength($lines, 'call');
         $return  = [];
 
         // format and write the lines

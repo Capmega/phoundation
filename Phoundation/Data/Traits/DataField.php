@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-
 
 /**
  * Trait DataField
@@ -42,9 +40,9 @@ trait DataField
      * Sets the field
      *
      * @param string|null $field
-     * @return DefinitionInterface
+     * @return static
      */
-    public function setField(?string $field): DefinitionInterface
+    public function setField(?string $field): static
     {
         $this->field = $field;
         return $this;

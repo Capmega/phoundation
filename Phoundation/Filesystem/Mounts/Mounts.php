@@ -1,14 +1,15 @@
 <?php
 
-namespace Phoundation\Filesystem;
+namespace Phoundation\Filesystem\Mounts;
 
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Exception\Exception;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
+use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Mount;
+use Phoundation\Os\Processes\Commands\UnMount;
 use Stringable;
 
 
@@ -36,7 +37,7 @@ class Mounts extends DataList
 
     public static function getEntryClass(): string
     {
-        return \Phoundation\Filesystem\Mount::class;
+        return Mount::class;
     }
 
 
@@ -51,13 +52,13 @@ class Mounts extends DataList
      *
      * @param Stringable|string $source
      * @param Stringable|string $target
-     * @param array|null $options
      * @param string|null $filesystem
+     * @param array|null $options
      * @return void
      */
-    public static function mount(Stringable|string $source, Stringable|string $target, ?array $options = null, ?string $filesystem = null): void
+    public static function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, ?array $options = null): void
     {
-        Mount::new()->mount($source, $target, $options, $filesystem);
+        Mount::new()->mount($source, $target, $filesystem, $options);
     }
 
 
@@ -69,7 +70,7 @@ class Mounts extends DataList
      */
     public static function unmount(Stringable|string $target): void
     {
-        Mount::new()->unmount($target);
+        UnMount::new()->unmount($target);
     }
 
 
@@ -119,20 +120,29 @@ class Mounts extends DataList
     /**
      * Returns a list of all devices as keys with value information about where they are mounted with what options
      *
-     * @param string $source
-     * @return array
+     * @param Stringable|string $target
+     * @param RestrictionsInterface $restrictions
+     * @return static
      */
-    public static function getMountSource(string $source): array
+    public static function getMountSources(Stringable|string $target, RestrictionsInterface $restrictions): static
     {
-        $mounts = static::loadMounts('source');
+        $target = Directory::new($target, $restrictions)->getPath(true);
+        $mounts = static::loadMounts('target');
+        $return = static::new();
 
-        if (array_key_exists($source, $mounts)) {
-            return $mounts[$source];
+        foreach ($mounts as $path => $target) {
+            if ($target === $path) {
+                return $return->add($target, $target);
+            }
         }
 
-        throw new NotExistsException(tr('The specified mount source ":source" does not exist', [
-            ':source' => $source
-        ]));
+        if ($return->isEmpty()) {
+            throw new NotExistsException(tr('The specified mount target ":target" does not exist', [
+                ':target' => $target->getPath()
+            ]));
+        }
+
+        return $return;
     }
 
 
@@ -140,20 +150,29 @@ class Mounts extends DataList
      * Returns a list of all directories as keys with value information about where they are mounted from with what
      * options
      *
-     * @param string $target
-     * @return array|null
+     * @param string $source
+     * @param RestrictionsInterface $restrictions
+     * @return static
      */
-    public static function getMountTarget(string $target): ?array
+    public static function getMountTargets(string $source, RestrictionsInterface $restrictions): static
     {
+        $source = Directory::new($source, $restrictions)->getPath(true);
         $mounts = static::loadMounts('target');
+        $return = static::new();
 
-        if (array_key_exists($target, $mounts)) {
-            return $mounts[$target];
+        foreach ($mounts as $target) {
+            if ($target === $target['source']) {
+                return $return->add($target['source'], $target);
+            }
         }
 
-        throw new NotExistsException(tr('The specified mount target ":target" does not exist', [
-            ':target' => $target
-        ]));
+        if ($return->isEmpty()) {
+            throw new NotExistsException(tr('The specified mount source ":source" does not exist', [
+                ':source' => $source
+            ]));
+        }
+
+        return $return;
     }
 
 

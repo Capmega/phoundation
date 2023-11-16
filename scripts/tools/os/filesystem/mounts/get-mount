@@ -1,0 +1,63 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Arrays;
+use Phoundation\Core\Log\Log;
+use Phoundation\Core\Numbers;
+use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Devices\Storage\Proc;
+use Phoundation\Os\Processes\Commands\Mount;
+
+
+/**
+ * Script tools/os/filesystem/mounts/get-mount
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+Documentation::autoComplete([
+    'positions' => [
+        '0' => [
+            'word'   => function ($word) { return Directory::new(Directory::default($word), '/')->scan($word . '*'); },
+            'noword' => function ()      { return Directory::new(                 '/', '/')->scan(        '*'); },
+        ],
+    ]
+]);
+
+Documentation::usage('./pho tools os filesystem mounts get-mount PATH');
+
+Documentation::help('This command will show where the specified PATH is mounted
+directory
+
+
+ARGUMENTS
+
+
+PATH                                    The path to test');
+
+
+$argv = ArgvValidator::new()
+    ->select('path')->isDirectory('/', '/')
+    ->validate();
+
+show($argv);
+showdie(Mounts::getMountSources($argv['path'], Restrictions::new('/')));
+
+Log::success(tr('Mounted source ":source" to target ":target"', [
+    ':source' => $argv['source'],
+    ':target' => $argv['target']
+]));

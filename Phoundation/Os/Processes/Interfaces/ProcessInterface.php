@@ -2,6 +2,8 @@
 
 namespace Phoundation\Os\Processes\Interfaces;
 
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+
 
 /**
  * Interface ProcessCore
@@ -24,4 +26,15 @@ interface ProcessInterface extends ProcessCoreInterface
      * @return static This process so that multiple methods can be chained
      */
     public function setCommand(?string $command, bool $which_command = true): static;
+
+    /**
+     * Create a new process factory
+     *
+     * @param string|null $command
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null $operating_system
+     * @param string|null $packages
+     * @return static
+     */
+    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static;
 }
