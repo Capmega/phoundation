@@ -4,6 +4,7 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
@@ -217,12 +218,18 @@ class Validate
     /**
      * Validates if the specified value is a valid port
      *
-     * @param array $compare
+     * @param IteratorInterface|array $compare
      * @return static
      */
-    public function isInArray(array $compare): static
+    public function isInArray(IteratorInterface|array $compare): static
     {
-        if (!in_array($this->source, $compare)) {
+        if ($compare instanceof IteratorInterface) {
+            $failed = !$compare->keyExists($this->source);
+        } else {
+            $failed = !in_array($this->source, $compare);
+        }
+
+        if ($failed) {
             throw new ValidationFailedException(tr('The specified value must be one of ":list"', [
                 ':list' => $compare
             ]));

@@ -10,6 +10,7 @@ use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Sessions\Config;
 use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -253,11 +254,19 @@ abstract class Validator implements ValidatorInterface
         }
 
         return $this->validateValues(function(&$value) {
-            if (!$this->checkIsOptional($value)) {
-                if ($value === $this->selected_optional) {
-                    $value = (bool) $this->selected_optional;
+            if ($this->checkIsOptional($value)) {
+                if ($this->selected_optional !== false) {
+                    if ($this->selected_optional !== null) {
+                        throw new OutOfBoundsException(tr('Invalid default data ":data" specified for field ":selected", it must be boolean', [
+                            ':data' => $this->selected_optional,
+                            ':selected' => $this->selected_field
+                        ]));
+                    }
                 }
 
+                $value = false;
+
+            } else {
                 $value = Strings::toBoolean($value, false);
 
                 if ($value === null) {
@@ -658,10 +667,10 @@ abstract class Validator implements ValidatorInterface
      *
      * This method ensures that the specified array key is a scalar value
      *
-     * @param array $array
+     * @param IteratorInterface|array $array
      * @return static
      */
-    public function isInArray(array $array): static
+    public function isInArray(IteratorInterface|array $array): static
     {
         return $this->validateValues(function(&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -672,14 +681,28 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->hasMaxCharacters(Arrays::getLongestValueSize($array));
+            if ($array instanceof IteratorInterface) {
+                $this->hasMaxCharacters($array->getLongestValueLength());
 
-            if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
-                return;
+                if ($this->process_value_failed) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+
+                $failed = !$array->valueExists($value);
+
+            } else {
+                $this->hasMaxCharacters(Arrays::getLongestValueLength($array));
+
+                if ($this->process_value_failed) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+
+                $failed = !in_array($value, $array);
             }
 
-            if (!in_array($value, $array)) {
+            if ($failed) {
                 $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
             }
         });

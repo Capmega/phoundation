@@ -153,7 +153,7 @@ trait ValidatorBasics
     protected ?string $parent_field = null;
 
     /**
-     * Child Validator object for sub array elements. When validating the final result, the results from all the child
+     * Child Validator object for subarray elements. When validating the final result, the results from all the child
      * validators will be added to the result as well
      *
      * @var array $children
@@ -476,7 +476,7 @@ trait ValidatorBasics
 
 
     /**
-     * Recurse into a sub array and return another validator object for that sub array
+     * Recurse into a subarray and return another validator object for that subarray
      *
      * @return static
      */
