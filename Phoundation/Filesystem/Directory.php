@@ -13,15 +13,16 @@ use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotDirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Os\Processes\Commands\Tar;
 use Stringable;
 use Throwable;
@@ -54,6 +55,27 @@ class Directory extends FileBasics implements DirectoryInterface
      * @var DirectoryInterface|null $temp_directory_public
      */
     protected static ?DirectoryInterface $temp_directory_public = null;
+
+
+    /**
+     * Returns the path
+     *
+     * @param bool $remove_terminating_slash
+     * @return string|null
+     */
+    public function getPath(bool $remove_terminating_slash = false): ?string
+    {
+        if ($remove_terminating_slash) {
+            if ($this->path === '/') {
+                // Root path is just what it is, it is a slash, don't remove it!
+                return '/';
+            }
+
+            return Strings::endsNotWith($this->path, '/');
+        }
+
+        return $this->path;
+    }
 
 
     /**
@@ -1209,13 +1231,13 @@ class Directory extends FileBasics implements DirectoryInterface
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
      * @param Stringable|string|null $source
-     * @param array|null $options
      * @param string|null $filesystem
+     * @param array|null $options
      * @return static
      */
-    public function mount(Stringable|string|null $source, ?array $options = null, ?string $filesystem = null): static
+    public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        Mounts::mount(File::new($source), $this, $options, $filesystem);
+        Mounts::mount(File::new($source), $this, $filesystem, $options);
         return $this;
     }
 
