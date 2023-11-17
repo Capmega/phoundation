@@ -179,7 +179,7 @@ class UrlBuilder implements UrlBuilderInterface
             }
         }
 
-        // No URL found in any of the options, or option was current page. use the specified URL
+        // No URL found in any of the options, or option was current page. Use the specified URL
         return static::getWww($url, $use_configured_root);
     }
 
@@ -372,9 +372,6 @@ class UrlBuilder implements UrlBuilderInterface
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        $url = static::applyPredefined($url);
-        $url = static::applyVariables($url);
-
         return static::buildUrl($url, 'ajax/', $use_configured_root);
     }
 
@@ -500,7 +497,7 @@ class UrlBuilder implements UrlBuilderInterface
         ]);
 
         if ($cloak) {
-            // Found cloaking URL, update the created_on time so that it won't exipre too soon
+            // Found cloaking URL, update the created_on time so that it won't expire too soon
             sql()->query('UPDATE `url_cloaks` 
                                 SET    `created_on` = NOW() 
                                 WHERE  `url`        = :url', [
