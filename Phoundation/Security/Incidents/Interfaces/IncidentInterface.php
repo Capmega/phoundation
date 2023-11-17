@@ -3,8 +3,10 @@
 namespace Phoundation\Security\Incidents\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Exception\Exception;
 use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
 use Phoundation\Security\Incidents\Incident;
+use Throwable;
 
 
 /**
@@ -86,7 +88,8 @@ interface IncidentInterface
     /**
      * Throw an incidents exception
      *
+     * @param string|null $exception
      * @return never
      */
-    public function throw(): never;
+    public function throw(?string $exception = null): never;
 }

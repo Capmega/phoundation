@@ -16,6 +16,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Exception\Exception;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
@@ -24,6 +25,7 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\InputElement;
+use Throwable;
 
 
 /**
@@ -269,10 +271,15 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Throw an incidents exception
      *
+     * @param string|null $exception
      * @return never
      */
-    #[NoReturn] public function throw(): never
+    #[NoReturn] public function throw(?string $exception = null): never
     {
+        if ($exception) {
+            throw $exception::new($this->getTitle())->addData(['details' => $this->getDetails()]);
+        }
+
         throw IncidentsException::new($this->getTitle())->addData(['details' => $this->getDetails()]);
     }
 
