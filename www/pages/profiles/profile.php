@@ -108,7 +108,15 @@ if (Page::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Lock'):
                 $user->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been lock', [
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                Page::redirect();
+
+            case tr('Unlock'):
+                $user->unlock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -147,11 +155,20 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
     }
 
     if ($user->canBeStatusChanged()) {
-        $lock = Button::new()
-            ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
-            ->setValue(tr('Lock'))
-            ->setContent(tr('Lock'));
+        if ($user->isLocked()) {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Unlock'))
+                ->setContent(tr('Unlock'));
+
+        } else {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Lock'))
+                ->setContent(tr('Lock'));
+        }
     }
 }
 

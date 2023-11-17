@@ -73,9 +73,9 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-// Get users list and apply filters
+// Get the users list and apply filters
 $users   = Users::new();
-$builder = $users->getQueryBuilder()
+$builder = $users->getQueryBuilder()->setDebug(true)
     ->addSelect('`accounts_users`.`id`, 
                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
                  `accounts_users`.`email`, 
@@ -111,6 +111,7 @@ if ($filters->getSourceKey('rights_id')) {
 
 
 // Build users table
+
 $buttons = Buttons::new()
     ->addButton(tr('Create'), DisplayMode::primary, '/accounts/user.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);

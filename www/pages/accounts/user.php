@@ -85,7 +85,15 @@ if (Page::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $user->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been lock', [
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                Page::redirect();
+
+            case tr('Unlock'):
+                $user->unlock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -129,18 +137,37 @@ if ($user->canBeImpersonated()) {
 
 // Delete button. We cannot delete god users
 if ($user->canBeStatusChanged()) {
-    $delete = Button::new()
-        ->setFloatRight(true)
-        ->setMode(DisplayMode::warning)
-        ->setOutlined(true)
-        ->setValue(tr('Delete'))
-        ->setContent(tr('Delete'));
+    if ($user->isDeleted()) {
+        $delete = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::warning)
+            ->setOutlined(true)
+            ->setValue(tr('Undelete'))
+            ->setContent(tr('Undelete'));
 
-    $lock = Button::new()
-        ->setFloatRight(true)
-        ->setMode(DisplayMode::warning)
-        ->setValue(tr('Lock'))
-        ->setContent(tr('Lock'));
+    } else {
+        $delete = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::warning)
+            ->setOutlined(true)
+            ->setValue(tr('Delete'))
+            ->setContent(tr('Delete'));
+
+        if ($user->isLocked()) {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Unlock'))
+                ->setContent(tr('Unlock'));
+
+        } else {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Lock'))
+                ->setContent(tr('Lock'));
+        }
+    }
 }
 
 
