@@ -252,7 +252,7 @@ class User extends DataEntry implements UserInterface
                     break;
 
                 case 'phone':
-                    // Try to find user by alternative phone
+                    // Try to find the user by alternative phone
                     $user = sql()->get('SELECT `id` 
                                               FROM   `accounts_phones` 
                                               WHERE  `phone` = :phone 
@@ -1022,9 +1022,11 @@ class User extends DataEntry implements UserInterface
     {
         $postfix = null;
 
-        if ($this->getStatus() == 'deleted') {
-            $postfix = ' ' . tr('[deleted]');
-        }
+        $postfix = match ($this->getStatus()) {
+            'deleted' => ' ' . tr('[DELETED]'),
+            'locked'  => ' ' . tr('[LOCKED]'),
+            default   => null
+        };
 
         if (!$name = $this->getNickname()) {
             if (!$name = $this->getName()) {
@@ -1280,7 +1282,18 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Delete the specified entries
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool
+    {
+        return $this->isStatus('locked');
+    }
+
+
+    /**
+     * Lock this user account
      *
      * @param string|null $comments
      * @return static
@@ -1289,6 +1302,19 @@ class User extends DataEntry implements UserInterface
     {
         Sessions::new()->drop($this);
         return $this->setStatus('locked', $comments);
+    }
+
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function unlock(?string $comments = null): static
+    {
+        Sessions::new()->drop($this);
+        return $this->setStatus(null, $comments);
     }
 
 
@@ -1407,10 +1433,12 @@ class User extends DataEntry implements UserInterface
                     // We must have the right and we cannot impersonate ourselves
                     if ($this->getId() !== Session::getUser()->getId()) {
                         // Cannot impersonate god level users
-                        if (!$this->hasAllRights('god')) {
-                            // Cannot impersonate readonly users (typically guest and system)
-                            if (!$this->readonly) {
-                                return true;
+                        if (!$this->isDeleted() and !$this->isLocked()) {
+                            if (!$this->hasAllRights('god')) {
+                                // Cannot impersonate readonly users (typically guest and system)
+                                if (!$this->readonly) {
+                                    return true;
+                                }
                             }
                         }
                     }
