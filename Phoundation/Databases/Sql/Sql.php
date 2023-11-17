@@ -490,17 +490,17 @@ class Sql implements SqlInterface
      * This is a simplified insert / update method to speed up writing basic insert or update queries. If the
      * $update_row[id] contains a value, the method will try to update instead of insert
      *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
      * @param array $insert_row
      * @param array $update_row
      * @param string|null $comments
      * @param string|null $diff
+     * @param bool $meta_enabled
      * @return int
-     * @throws SqlException
      */
-    public function dataEntryWrite(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int
+    public function dataEntryWrite(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff, bool $meta_enabled = true): int
     {
         if (empty($update_row['id'])) {
             // New entry, insert
@@ -518,7 +518,7 @@ class Sql implements SqlInterface
                 try {
                     // Insert the row
                     $insert_row = Arrays::prepend($insert_row, 'id', $id);
-                    return $this->dataEntryInsert($table, $insert_row, $comments, $diff);
+                    return $this->dataEntryInsert($table, $insert_row, $comments, $diff, $meta_enabled);
 
                 } catch (SqlException $e) {
                     if ($e->getCode() !== 1062) {
@@ -556,7 +556,7 @@ class Sql implements SqlInterface
         }
 
         // This is an existing entry, update!
-        $this->dataEntryUpdate($table, $update_row, 'update', $comments, $diff);
+        $this->dataEntryUpdate($table, $update_row, 'update', $comments, $diff, $meta_enabled);
         return $update_row['id'];
     }
 
@@ -646,22 +646,23 @@ class Sql implements SqlInterface
      * @param array $row
      * @param string|null $comments
      * @param string|null $diff
+     * @param bool $meta_enabled
      * @return int
      */
-    public function dataEntryInsert(string $table, array $row, ?string $comments = null, ?string $diff = null): int
+    public function dataEntryInsert(string $table, array $row, ?string $comments = null, ?string $diff = null, bool $meta_enabled = true): int
     {
         Core::checkReadonly('sql data-entry-insert');
 
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
-            $row['meta_id']    = Meta::init($comments, $diff)->getId();
+            $row['meta_id']    = ($meta_enabled ? Meta::init($comments, $diff)->getId() : null);
             $row['created_by'] = Session::getUser()->getId();
             $row['meta_state'] = Strings::random(16);
 
             unset($row['created_on']);
         }
 
-        // Build bound variables for query
+        // Build bound variables for the query
         $columns = $this->columns($row);
         $values  = $this->values($row, null, true);
         $keys    = $this->keys($row);
@@ -689,16 +690,20 @@ class Sql implements SqlInterface
      * @param string $action
      * @param string|null $comments
      * @param string|null $diff
+     * @param bool $meta_enabled
      * @return int
      */
-    public function dataEntryUpdate(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int
+    public function dataEntryUpdate(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null, bool $meta_enabled = true): int
     {
         Core::checkReadonly('sql data-entry-update');
 
         // Set meta fields
         if (array_key_exists('meta_id', $row)) {
             // Log meta_id action
-            Meta::get($row['meta_id'])->action($action, $comments, $diff);
+            if ($meta_enabled) {
+                Meta::get($row['meta_id'])->action($action, $comments, $diff);
+            }
+
             $row['meta_state'] = Strings::random(16);
 
             // Never update the other meta-information
@@ -730,15 +735,16 @@ class Sql implements SqlInterface
      * @param string $table
      * @param array $row
      * @param string|null $comments
+     * @param bool $meta_enabled
      * @return int
      */
-    public function dataEntryDelete(string $table, array $row, ?string $comments = null): int
+    public function dataEntryDelete(string $table, array $row, ?string $comments = null, bool $meta_enabled = true): int
     {
         Core::checkReadonly('sql data-entry-delete');
 
         // DataEntry table?
         if (array_key_exists('meta_id', $row)) {
-            return $this->dataEntrySetStatus('deleted', $table, $row, $comments);
+            return $this->dataEntrySetStatus('deleted', $table, $row, $comments, $meta_enabled);
         }
 
         // This table is not a DataEntry table, just delete the entry
@@ -783,9 +789,10 @@ class Sql implements SqlInterface
      * @param string $table
      * @param DataEntryInterface|array $entry
      * @param string|null $comments
+     * @param bool $meta_enabled
      * @return int
      */
-    public function dataEntrySetStatus(?string $status, string $table, DataEntryInterface|array $entry, ?string $comments = null): int
+    public function dataEntrySetStatus(?string $status, string $table, DataEntryInterface|array $entry, ?string $comments = null, bool $meta_enabled = true): int
     {
         Core::checkReadonly('sql set-status');
 
@@ -801,7 +808,11 @@ class Sql implements SqlInterface
         }
 
         // Update the meta data
-        Meta::get($entry['meta_id'], false)->action(tr('Changed status'), $comments, Json::encode(['status' => $status]));
+        if ($meta_enabled) {
+            Meta::get($entry['meta_id'], false)->action(tr('Changed status'), $comments, Json::encode([
+                'status' => $status
+            ]));
+        }
 
         // Update the row status
         return $this->query('UPDATE `' . $table . '` 
@@ -942,10 +953,10 @@ class Sql implements SqlInterface
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
+     * @param bool $meta_enabled
      * @return array|null
-     * @throws SqlMultipleResultsException
      */
-    public function get(string|PDOStatement $query, array $execute = null): ?array
+    public function get(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array
     {
         $result = $this->query($query, $execute);
 
@@ -957,7 +968,16 @@ class Sql implements SqlInterface
                 return null;
 
             case 1:
-                return $this->fetch($result);
+                $return = $this->fetch($result);
+
+                if ($meta_enabled) {
+                    // Register this user reading the entry
+                    if (isset_get($return['meta_id'])) {
+                        Meta::get($return['meta_id'])->action('read');
+                    }
+                }
+
+                return $return;
 
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
