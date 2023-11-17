@@ -23,7 +23,7 @@ class InputCheckbox extends Input
     public function __construct(\Phoundation\Web\Html\Components\Input\InputCheckbox $element)
     {
         parent::__construct($element);
-        $element->getClasses()->deleteValues('form-control')->add('form-check-input');
+        $element->getClasses()->delete('form-control')->add(true, 'form-check-input');
     }
 
 
