@@ -763,6 +763,23 @@ Log::warning('RESTART SESSION');
                 ->throw();
         }
 
+        if (!$user->canBeImpersonated()) {
+            // We are already impersonating a user!
+            Incident::new()
+                ->setType('User impersonation failed')
+                ->setSeverity(Severity::high)
+                ->setTitle(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
+                    ':user' => static::getUser()->getLogId(),
+                ]))
+                ->setDetails([
+                    'user'                => static::getUser()->getLogId(),
+                    'want_to_impersonate' => $user->getLogId()
+                ])
+                ->notifyRoles('accounts')
+                ->save()
+                ->throw();
+        }
+
         if ($user->getId() === static::getUser()->getId()) {
             // We are already impersonating a user!
             Incident::new()

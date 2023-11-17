@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
@@ -30,8 +31,10 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
 use Phoundation\Data\DataEntry\Traits\SelectValidator;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataDatabaseConnector;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataDisabled;
+use Phoundation\Data\Traits\DataMetaEnabled;
 use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -68,7 +71,9 @@ abstract class DataEntry implements DataEntryInterface
     use DataDebug;
     use DataReadonly;
     use DataDisabled;
+    use DataMetaEnabled;
     use DataEntryDefinitions;
+    use DataDatabaseConnector;
 
 
     /**
@@ -135,7 +140,7 @@ abstract class DataEntry implements DataEntryInterface
     protected bool $display_meta = true;
 
     /**
-     * If true, this DataEntry will allow creation of new entries
+     * If true, this DataEntry will allow the creation of new entries
      *
      * @var bool $allow_create
      */
@@ -149,7 +154,7 @@ abstract class DataEntry implements DataEntryInterface
     protected bool $allow_modify = true;
 
     /**
-     * Global loading flag, when data is loaded into the object from database
+     * Global loading flag, when data is loaded into the object from a database
      *
      * @var bool $is_loading
      */
@@ -203,6 +208,13 @@ abstract class DataEntry implements DataEntryInterface
      * @var bool $validate
      */
     protected bool $validate = true;
+
+    /**
+     * Tracks if the meta-system is enabled for this DataEntry object
+     *
+     * @var bool $meta_enabled
+     */
+    protected bool $meta_enabled = true;
 
 
     /**
@@ -538,23 +550,24 @@ abstract class DataEntry implements DataEntryInterface
     public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
     {
         if (!$identifier) {
-            // No identifier specified, just return an empty object
+            // No identifier specified, return an empty object
             return static::new();
         }
 
         if (is_object($identifier)) {
-            // This already is a DataEntry object, no need to create one. Just validate that this is the same class
-            if (get_class($identifier) !== static::class) {
+            // This already is a DataEntry object, no need to create one. Validate that this is the same class
+            if (!$identifier instanceof static) {
                 throw new OutOfBoundsException(tr('Specified identifier has the class ":has" but should have the class ":should"', [
                     ':has'    => get_class($identifier),
                     ':should' => static::class
                 ]));
             }
 
-            return $identifier;
-        }
+            $entry = $identifier;
 
-        $entry = new static($identifier, $column);
+        } else {
+            $entry = new static($identifier, $column);
+        }
 
         if ($entry->isNew()) {
             throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
@@ -563,19 +576,49 @@ abstract class DataEntry implements DataEntryInterface
             ]))->makeWarning();
         }
 
+        if ($entry->isDeleted()) {
+            // This entry has been deleted and can only be viewed by user with the "deleted" right
+            if (!Session::getUser()->hasAllRights('deleted')) {
+                throw DataEntryDeletedException::new(tr('The ":label" entry ":identifier" is deleted', [
+                    ':label'      => static::getClassName(),
+                    ':identifier' => $identifier
+                ]))->makeWarning();
+
+            }
+        }
+
         return $entry;
+    }
+
+
+    /**
+     * Returns the name for this user that can be displayed
+     *
+     * @return string
+     */
+    function getDisplayName(): string
+    {
+        $postfix = null;
+
+        if ($this->getStatus() === 'deleted') {
+            $postfix = ' ' . tr('[DELETED]');
+        }
+
+        return $this->getSourceFieldValue('string', static::getUniqueField()) . $postfix;
     }
 
 
     /**
      * Returns a random DataEntry object
      *
+     * @param string $database_connector
      * @return static|null
+     * @throws OutOfBoundsExceptionInterface
      */
-    public static function getRandom(): ?static
+    public static function getRandom(string $database_connector = 'system'): ?static
     {
         $table = static::getTable();
-        $identifier = sql()->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
+        $identifier = sql($database_connector)->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
 
         if ($identifier) {
             return static::get($identifier);
@@ -754,6 +797,17 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns true if this data entry object is deleted
+     *
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return $this->isStatus('deleted');
+    }
+
+
+    /**
      * Set the status for this database entry
      *
      * @param string|null $status
@@ -765,10 +819,10 @@ abstract class DataEntry implements DataEntryInterface
         $this->checkReadonly('set-status ' . $status);
 
         if ($this->getId()) {
-            sql()->dataEntrySetStatus($status, static::getTable(), [
+            sql($this->database_connector)->dataEntrySetStatus($status, static::getTable(), [
                 'id'      => $this->getId(),
                 'meta_id' => $this->getMetaId()
-            ], $comments);
+            ], $comments, $this->meta_enabled);
         }
 
         $this->source['status'] = $status;
@@ -778,7 +832,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns the meta state for this database entry
+     * Returns the meta-state for this database entry
      *
      * @return ?string
      */
@@ -789,7 +843,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Set the meta state for this database entry
+     * Set the meta-state for this database entry
      *
      * @param string|null $state
      * @return static
@@ -847,7 +901,7 @@ abstract class DataEntry implements DataEntryInterface
         $this->checkReadonly('erase');
         $this->getMeta()->erase();
 
-        sql()->erase(static::getTable(), ['id' => $this->getId()]);
+        sql($this->database_connector)->erase(static::getTable(), ['id' => $this->getId()]);
         return $this;
     }
 
@@ -1102,13 +1156,13 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function validateMetaState(ValidatorInterface|array|null $data = null): static
     {
-        // Check entry meta state. If this entry was modified in the meantime, can we update?
+        // Check entry meta-state. If this entry was modified in the meantime, can we update?
         if ($this->getMetaState()) {
             if (isset_get($data['meta_state']) !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
                     case StateMismatchHandling::ignore:
-                        Log::warning(tr('Ignoring database and user meta state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
+                        Log::warning(tr('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
                             ':id' => $this->getId(),
                             ':type' => static::getDataEntryName(),
                             ':old' => $this->getMetaState(),
@@ -1123,7 +1177,7 @@ abstract class DataEntry implements DataEntryInterface
                         break;
 
                     case StateMismatchHandling::restrict:
-                        throw new DataEntryStateMismatchException(tr('Database and user meta state for ":type" type record with ID ":id" do not match', [
+                        throw new DataEntryStateMismatchException(tr('Database and user meta-state for ":type" type record with ID ":id" do not match', [
                             ':id' => $this->getId(),
                             ':type' => static::getDataEntryName()
                         ]));
@@ -1706,7 +1760,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // Write the entry
-        $this->source['id'] = sql()->dataEntryWrite(static::getTable(), $this->getDataColumns(true), $this->getDataColumns(false), $comments, $this->diff);
+        $this->source['id'] = sql($this->database_connector)->dataEntryWrite(static::getTable(), $this->getDataColumns(true), $this->getDataColumns(false), $comments, $this->diff, $this->meta_enabled);
 
         if ($this->debug) {
             Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
@@ -1941,6 +1995,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Get the data using the query builder
         $data = $this->getQueryBuilder()
+            ->setDataConnector($this->database_connector)
             ->addSelect('`' . static::getTable() . '`.*')
             ->addWhere('`' . static::getTable() . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])
             ->get();

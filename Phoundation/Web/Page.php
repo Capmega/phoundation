@@ -23,6 +23,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
@@ -1367,8 +1368,8 @@ class Page implements PageInterface
         } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
             Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
 
-        } catch (DataEntryNotExistsExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead'));
+        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
             Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));

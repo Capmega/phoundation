@@ -213,7 +213,7 @@ class Phoundation extends Project
             // Select the current branch
             $branch = $this->git->getBranch();
 
-            Log::notice(tr('Trying to patch updates on Phoudation using current project branch ":branch"', [
+            Log::notice(tr('Trying to patch updates on Phoundation using current project branch ":branch"', [
                 ':branch' => $branch
             ]));
         }

@@ -159,10 +159,11 @@ interface QueryBuilderInterface
     /**
      * Executes the query and returns the single column from the single result
      *
+     * @param string|null $column
      * @param bool $debug
      * @return string|float|int|bool|null
      */
-    public function getColumn(bool $debug = false): string|float|int|bool|null;
+    public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null;
 
     /**
      * Executes the query and returns the list of results

@@ -134,9 +134,10 @@ interface DataListInterface extends IteratorInterface
      *
      * @param string|null $status
      * @param string|null $comments
+     * @param bool $meta_enabled
      * @return int
      */
-    public function updateStatusAll(?string $status, ?string $comments = null): int;
+    public function updateStatusAll(?string $status, ?string $comments = null, bool $meta_enabled = true): int;
 
     /**
      * Delete the specified entries

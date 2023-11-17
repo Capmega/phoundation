@@ -952,6 +952,7 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
  * Returns the system SQL database object
  *
  * @param string|null $instance_name
+ * @param bool $use_database
  * @return Sql
  */
 function sql(?string $instance_name = null, bool $use_database = true): Sql

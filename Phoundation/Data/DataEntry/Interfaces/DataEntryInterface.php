@@ -150,7 +150,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function setStatus(?string $status, ?string $comments = null): static;
 
     /**
-     * Returns the meta state for this database entry
+     * Returns the meta-state for this database entry
      *
      * @return ?string
      */

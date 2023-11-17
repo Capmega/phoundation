@@ -607,4 +607,27 @@ interface UserInterface extends DataEntryInterface
      * @return string|null
      */
     public function getPasswordString(): ?string;
+
+    /**
+     * Lock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function lock(?string $comments = null): static;
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function unlock(?string $comments = null): static;
+
+    /**
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool;
 }

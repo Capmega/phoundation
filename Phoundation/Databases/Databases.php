@@ -60,18 +60,13 @@ class Databases
     /**
      * Access SQL database instances
      *
-     * @param string|null $instance
+     * @param string $instance
      * @param bool $use_database
      * @return Sql
      * @throws Exception
      */
-    public static function Sql(?string $instance, bool $use_database = true): Sql
+    public static function Sql(string $instance = 'system', bool $use_database = true): Sql
     {
-        if (!$instance) {
-            // Default to system instance
-            $instance = 'system';
-        }
-
         if (!array_key_exists($instance, static::$sql)) {
             // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
