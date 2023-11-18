@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -39,100 +40,112 @@ class Time
                 // no-break
             case 'seconds':
                 $time = number_format($time, $decimals);
-                return Strings::plural($ceil, tr(':time second', [':time' => $time]), tr(':time seconds', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time second', [
+                    ':time' => $time
+                ]), tr(':time seconds', [
+                    ':time' => $time
+                ]));
 
             case 'minute':
                 // no-break
             case 'minutes':
                 $time = number_format($time / 60, $decimals);
-                return Strings::plural($ceil, tr(':time minute', [':time' => $time]), tr(':time minutes', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time minute', [
+                    ':time' => $time
+                ]), tr(':time minutes', [
+                    ':time' => $time
+                ]));
 
             case 'hour':
                 // no-break
             case 'hours':
                 $time = number_format($time / 3600, $decimals);
-                return Strings::plural($ceil, tr(':time hour', [':time' => $time]), tr(':time hours', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time hour', [
+                    ':time' => $time
+                ]), tr(':time hours', [
+                    ':time' => $time
+                ]));
 
             case 'day':
                 // no-break
             case 'days':
                 $time = number_format($time / 86400, $decimals);
-                return Strings::plural($ceil, tr(':time day', [':time' => $time]), tr(':time days', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time day', [
+                    ':time' => $time
+                ]), tr(':time days', [
+                    ':time' => $time
+                ]));
 
             case 'week':
                 // no-break
             case 'weeks':
                 $time = number_format($time / 604800, $decimals);
-                return Strings::plural($ceil, tr(':time week', [':time' => $time]), tr(':time weeks', [':time' => $time]));
+                return Strings::plural($ceil, tr(':time week', [
+                    ':time' => $time
+                ]), tr(':time weeks', [
+                    ':time' => $time
+                ]));
 
             case 'month':
                 // no-break
             case 'months':
-                /*
-                 * NOTE: Month is assumed 30 days!
-                 */
-                $time    = number_format($time / 2592000, $decimals);
-                return Strings::plural($ceil, tr(':time month', [':time' => $time]), tr(':time months', [':time' => $time]));
+                // NOTE: Month is assumed 30 days!
+                $time = number_format($time / 2592000, $decimals);
+                return Strings::plural($ceil, tr(':time month', [
+                    ':time' => $time
+                ]), tr(':time months', [
+                    ':time' => $time
+                ]));
 
             case 'year':
                 // no-break
             case 'years':
-                /*
-                 * NOTE: Year is assumed 365 days!
-                 */
-                $time    = number_format($time / 31536000, $decimals);
-                return Strings::plural($ceil, tr(':time year', [':time' => $time]), tr(':time years', [':time' => $time]));
+                // NOTE: Year is assumed 365 days!
+                $time = number_format($time / 31536000, $decimals);
+                return Strings::plural($ceil, tr(':time year', [
+                    ':time' => $time
+                ]), tr(':time years', [
+                    ':time' => $time
+                ]));
 
             case 'auto':
                 if ($time < 60) {
-                    /*
-                     * Seconds
-                     */
+                    // Seconds
                     return Time::difference($start, $stop, 'seconds', $decimals);
                 }
 
                 if ($time / 60 < 60) {
-                    /*
-                     * Minutes
-                     */
+                    // Minutes
                     return Time::difference($start, $stop, 'minutes', $decimals);
                 }
 
                 if ($time / 3600 < 24) {
-                    /*
-                     * Hours
-                     */
+                    // Hours
                     return Time::difference($start, $stop, 'hours', $decimals);
                 }
 
                 if ($time / 86400 < 7) {
-                    /*
-                     * Days
-                     */
+                    // Days
                     return Time::difference($start, $stop, 'days', $decimals);
                 }
 
                 if ($time / 604800 < 52) {
-                    /*
-                     * Weeks
-                     */
+                    // Weeks
                     return Time::difference($start, $stop, 'weeks', $decimals);
                 }
 
                 if ($time / 2592000 < 12) {
-                    /*
-                     * Months
-                     */
+                    // Months
                     return Time::difference($start, $stop, 'months', $decimals);
                 }
 
-                /*
-                 * Years
-                 */
+                // Years
                 return Time::difference($start, $stop, 'years', $decimals);
 
             default:
-                throw new OutOfBoundsException(tr('Unknown precision ":precision" specified', [':precision' => $precision]));
+                throw new OutOfBoundsException(tr('Unknown precision ":precision" specified', [
+                    ':precision' => $precision
+                ]));
         }
     }
 
@@ -147,9 +160,7 @@ class Time
      */
     public static function ago(float $original): string
     {
-        /*
-         * Common time periods as an array of arrays
-         */
+        // Common time periods as an array of arrays
         $periods = array(array(60 * 60 * 24 * 365 , tr('year')),
                          array(60 * 60 * 24 * 30  , tr('month')),
                          array(60 * 60 * 24 * 7   , tr('week')),

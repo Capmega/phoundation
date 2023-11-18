@@ -96,17 +96,17 @@ class Mount extends DataEntry implements MountInterface
             switch ($column) {
                 case 'name':
                     $mount = Config::getArray('filesystem.mounts.' . $identifier);
-                    return static::new()->setSource($mount);
+                    return static::fromSource($mount);
 
                 case 'source':
                     // This is a mount that SHOULD already exist on the system
                     $mount = Mounts::getMountSources($identifier);
-                    return static::new()->setSource($mount);
+                    return static::fromSource($mount);
 
                 case 'target':
                     // This is a mount that SHOULD already exist on the system
                     $mount = Mounts::getMountTargets($identifier);
-                    return static::new()->setSource($mount);
+                    return static::fromSource($mount);
             }
 
             throw $e;

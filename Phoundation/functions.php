@@ -951,11 +951,11 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 /**
  * Returns the system SQL database object
  *
- * @param string|null $instance_name
+ * @param string $instance_name
  * @param bool $use_database
  * @return Sql
  */
-function sql(?string $instance_name = null, bool $use_database = true): Sql
+function sql(string $instance_name = 'system', bool $use_database = true): Sql
 {
     return Databases::Sql($instance_name, $use_database);
 }

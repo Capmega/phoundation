@@ -369,4 +369,17 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return bool
      */
     public function hasStatus(string $status): bool;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier
+     *
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
+     * @return static|null
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): ?static;
 }

@@ -23,10 +23,12 @@ class SlowPage extends Incident
      * SlowPage class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
     {
         $this->setType('slow_page');
-        parent::__construct($identifier);
+        parent::__construct($identifier, $column, $meta_enabled);
     }
 }

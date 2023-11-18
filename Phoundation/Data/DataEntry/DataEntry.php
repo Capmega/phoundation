@@ -244,16 +244,21 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
     {
         $column = static::ensureColumn($identifier, $column);
+
+        // Meta enabled?
+        $this->meta_enabled = $meta_enabled;
 
         // Set up the fields for this object
         $this->setMetaDefinitions();
         $this->setDefinitions($this->definitions);
 
         if ($identifier) {
+            Log::backtrace();
             $this->load($identifier, $column);
 
         } else {
@@ -267,11 +272,12 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      * @return static
      */
-    public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): static
+    public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): static
     {
-        return new static($identifier, $column);
+        return new static($identifier, $column, $meta_enabled);
     }
 
 
@@ -279,11 +285,12 @@ abstract class DataEntry implements DataEntryInterface
      * Returns a new DataEntry object from the specified array source
      *
      * @param array $source
+     * @param bool $meta_enabled
      * @return $this
      */
-    public static function fromSource(array $source): static
+    public static function fromSource(array $source, bool $meta_enabled = true): static
     {
-        return static::new()->setSourceString($source);
+        return static::new(meta_enabled: $meta_enabled)->setSourceString($source);
     }
 
 
@@ -544,14 +551,14 @@ abstract class DataEntry implements DataEntryInterface
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      * @return static|null
-     * @throws DataEntryNotExistsExceptionInterface|OutOfBoundsExceptionInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): ?static
     {
         if (!$identifier) {
             // No identifier specified, return an empty object
-            return static::new();
+            return new static(null, null, $meta_enabled);
         }
 
         if (is_object($identifier)) {
@@ -566,7 +573,7 @@ abstract class DataEntry implements DataEntryInterface
             $entry = $identifier;
 
         } else {
-            $entry = new static($identifier, $column);
+            $entry = new static($identifier, $column, $meta_enabled);
         }
 
         if ($entry->isNew()) {
@@ -1397,10 +1404,13 @@ abstract class DataEntry implements DataEntryInterface
      * Loads the specified data into this DataEntry object
      *
      * @param Iterator|array $source
+     * @param bool $meta_enabled
      * @return static
      */
-    public function setSource(Iterator|array $source): static
+    public function setSource(Iterator|array $source, bool $meta_enabled = true): static
     {
+        $this->meta_enabled = $meta_enabled;
+
         return $this->setMetaData((array) $source)
                     ->copyValuesToSource((array) $source, false);
     }
@@ -1995,7 +2005,8 @@ abstract class DataEntry implements DataEntryInterface
 
         // Get the data using the query builder
         $data = $this->getQueryBuilder()
-            ->setDataConnector($this->database_connector)
+            ->setMetaEnabled($this->meta_enabled)
+            ->setDatabaseConnector($this->database_connector)
             ->addSelect('`' . static::getTable() . '`.*')
             ->addWhere('`' . static::getTable() . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])
             ->get();

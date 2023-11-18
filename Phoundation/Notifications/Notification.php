@@ -102,15 +102,16 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
     {
         static::$auto_log = Config::getBoolean('notifications.auto-log', false);
 
         $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
 
-        parent::__construct($identifier, $column);
+        parent::__construct($identifier, $column, $meta_enabled);
     }
 
 

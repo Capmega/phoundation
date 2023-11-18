@@ -88,13 +88,13 @@ class Email extends DataEntry implements EmailInterface
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      * @return static|null
-     * @throws EmailNotExistsExceptionInterface|OutOfBoundsExceptionInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): ?static
     {
         try {
-            return parent::get($identifier, $column);
+            return parent::get($identifier, $column, $meta_enabled);
 
         } catch (DataEntryNotExistsExceptionInterface $e) {
             throw new EmailNotExistsException($e);

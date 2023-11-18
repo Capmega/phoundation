@@ -7,7 +7,6 @@ namespace Phoundation\Core;
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Core\Interfaces\TimersInterface;
-use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 

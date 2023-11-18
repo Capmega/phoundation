@@ -22,31 +22,33 @@ use Phoundation\Os\Processes\Task;
  */
 class PhoTask extends Task implements PhoTaskInterface
 {
-    /**
-     * PhoTask class constructor.
-     *
-     * @param string $command
-     */
-    public function __construct(string $command)
-    {
-        // Ensure that the run files directory is available
-        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))->ensure();
+// TODO Reimplement this to be compatible with Task > DataEntry
 
-        parent::__construct(Restrictions::new(DIRECTORY_ROOT . '/pho'));
-
-        $this->setInternalCommand(DIRECTORY_ROOT . '/pho')
-             ->addArgument($command);
-    }
-
-
-    /**
-     * Create a new process factory for a specific Phoundation command
-     *
-     * @param string $command
-     * @return static
-     */
-    public static function new(string $command): static
-    {
-        return new static($command);
-    }
+//    /**
+//     * PhoTask class constructor.
+//     *
+//     * @param string $command
+//     */
+//    public function __construct(string $command)
+//    {
+//        // Ensure that the run files directory is available
+//        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))->ensure();
+//
+//        parent::__construct(Restrictions::new(DIRECTORY_ROOT . '/pho'));
+//
+//        $this->setInternalCommand(DIRECTORY_ROOT . '/pho')
+//             ->addArgument($command);
+//    }
+//
+//
+//    /**
+//     * Create a new process factory for a specific Phoundation command
+//     *
+//     * @param string $command
+//     * @return static
+//     */
+//    public static function new(string $command): static
+//    {
+//        return new static($command);
+//    }
 }

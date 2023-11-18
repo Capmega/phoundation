@@ -972,8 +972,10 @@ class Sql implements SqlInterface
 
                 if ($meta_enabled) {
                     // Register this user reading the entry
-                    if (isset_get($return['meta_id'])) {
-                        Meta::get($return['meta_id'])->action('read');
+                    if (isset($return['meta_id'])) {
+                        if ($return['meta_id']) {
+                            Meta::get($return['meta_id'])->action('read');
+                        }
                     }
                 }
 
@@ -1001,7 +1003,7 @@ class Sql implements SqlInterface
      */
     public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null
     {
-        $result = $this->get($query, $execute);
+        $result = $this->get($query, $execute, false);
 
         if (!$result) {
             // No results
@@ -1023,10 +1025,10 @@ class Sql implements SqlInterface
             // No column was specified, so we MUST have received only one column!
             if (count($result) > 1) {
                 // The query returned multiple columns
-                throw new SqlException(tr('The query ":query" returned ":count" columns while $this->getColumn() can only return one single column', [
+                throw SqlException::new(tr('The query ":query" returned ":count" columns while $this->getColumn() without $column specification can only select and return one single column', [
                     ':query' => $query,
                     ':count' => count($result)
-                ]));
+                ]))->addData($result);
             }
 
             return Arrays::firstValue($result);

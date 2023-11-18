@@ -172,4 +172,27 @@ interface QueryBuilderInterface
      * @return array
      */
     public function list(bool $debug = false): array;
+
+    /**
+     * Returns the name of the database connector where this DataEntry is stored
+     *
+     * @param string $database_connector
+     * return static
+     */
+    public function setDatabaseConnector(string $database_connector): static;
+
+    /**
+     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @return bool
+     */
+    public function getMetaEnabled(): bool;
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param bool $meta_enabled
+     * return static
+     */
+    public function setMetaEnabled(bool $meta_enabled): static;
 }

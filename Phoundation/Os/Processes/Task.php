@@ -69,7 +69,7 @@ class Task extends DataEntry
     /**
      * Executes this task, and stores all relevant results data in the database
      *
-     * @return void
+     * @return static
      */
     public function execute(): static
     {

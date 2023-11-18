@@ -616,12 +616,12 @@ Log::warning('RESTART SESSION');
                     Incident::new()
                         ->setType('User impersonation')->setSeverity(Severity::low)
                         ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                            ':user' => User::get($_SESSION['user']['id'])->getLogId(),
-                            ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                            ':user'        => User::get($_SESSION['user']['id']            , 'id', false)->getLogId(),
+                            ':impersonate' => User::get($_SESSION['user']['impersonate_id'], 'id', false)->getLogId()
                         ]))
                         ->setDetails([
-                            'user' => User::get($_SESSION['user']['id'])->getLogId(),
-                            'impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                            'user'        => User::get($_SESSION['user']['id']            , 'id', false)->getLogId(),
+                            'impersonate' => User::get($_SESSION['user']['impersonate_id'], 'id', false)->getLogId()
                         ])
                         ->notifyRoles('accounts')
                         ->save();
@@ -634,7 +634,7 @@ Log::warning('RESTART SESSION');
                     unset($_SESSION['user']['impersonate_url']);
 
                     Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
-                        ':user' => User::get($users_id)->getLogId()
+                        ':user' => User::get($users_id, 'id', false)->getLogId()
                     ]));
 
                     Page::redirect($url);
@@ -755,7 +755,7 @@ Log::warning('RESTART SESSION');
                 ]))
                 ->setDetails([
                     'user'                => static::getUser()->getLogId(),
-                    'impersonating'       => User::get($_SESSION['user']['impersonate_id'], 'id')->getLogId(),
+                    'impersonating'       => User::get($_SESSION['user']['impersonate_id'], 'id', false)->getLogId(),
                     'want_to_impersonate' => $user->getLogId()
                 ])
                 ->notifyRoles('accounts')
@@ -1273,7 +1273,8 @@ Log::warning('RESTART SESSION');
     {
         // Create a new user object and ensure it's still good to go
         try {
-            $user = User::get($users_id);
+            // This user is loaded by the session object and should NOT use meta-tracking!
+            $user = User::get($users_id, 'id', false);
 
             if (!$user->getStatus()) {
                 return $user;
