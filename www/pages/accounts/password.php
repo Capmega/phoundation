@@ -60,7 +60,7 @@ if (Page::isPostRequestMethod()) {
             Page::getFlashMessages()->addMessage($e);
 
         }catch (PasswordNotChangedException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update your account to have a new and secure password'));
+            Page::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update the password for this account to have a new and secure password'));
         }
     }
 }
