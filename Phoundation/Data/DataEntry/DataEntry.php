@@ -10,6 +10,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\Color;
 use Phoundation\Core\Arrays;
+use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
@@ -31,6 +32,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
 use Phoundation\Data\DataEntry\Traits\SelectValidator;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataConfigPath;
 use Phoundation\Data\Traits\DataDatabaseConnector;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataDisabled;
@@ -71,6 +73,7 @@ abstract class DataEntry implements DataEntryInterface
     use DataDebug;
     use DataReadonly;
     use DataDisabled;
+    use DataConfigPath;
     use DataMetaEnabled;
     use DataEntryDefinitions;
     use DataDatabaseConnector;
@@ -390,6 +393,20 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns true if this object can be saved in the database
+     *
+     * Objects loaded from configuration (for the moment) cannot be saved and will return false. Trying to execute the
+     * DataEntry::save() call will result in an exception
+     *
+     * @return bool
+     */
+    public function canBeSaved(): bool
+    {
+        return !$this->config_path;
+    }
+
+
+    /**
      * Returns id for this database entry that can be used in logs
      *
      * @return bool
@@ -577,6 +594,19 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         if ($entry->isNew()) {
+            // So this entry does not exist in the database. Does it exist in configuration?
+            $path = static::new()->getConfigPath();
+
+            if ($path) {
+                // See if there is a configuration entry in the specified path
+                $entry = Config::getArray($path . $identifier, []);
+
+                if (count($entry)) {
+                    // Return a new DataEntry object from the configuration source
+                    return static::fromSource($entry);
+                }
+            }
+
             throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
                 ':label'      => static::getClassName(),
                 ':identifier' => $identifier

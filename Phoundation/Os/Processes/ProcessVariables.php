@@ -16,6 +16,7 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\DataServer;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Command;
@@ -43,6 +44,7 @@ use Stringable;
  */
 trait ProcessVariables
 {
+    use DataServer;
     use DataRestrictions;
 
 
@@ -211,13 +213,6 @@ trait ProcessVariables
      * @var RestrictionsInterface $restrictions
      */
     protected RestrictionsInterface $restrictions;
-
-    /**
-     * If specified, the process will be executed on this server
-     *
-     * @var Server $server
-     */
-    protected Server $server;
 
     /**
      * Registers where the exit code for this process will be stored
