@@ -22,6 +22,7 @@ use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
@@ -30,7 +31,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
 /**
  * Server class
  *
- * This class manages the localhost server
+ * This class manages a single server
  *
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -38,7 +39,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
-class Server extends DataEntry
+class Server extends DataEntry implements ServerInterface
 {
     use DataEntryHostnamePort;
     use DataEntryDescription;
