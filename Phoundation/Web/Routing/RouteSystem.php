@@ -81,7 +81,7 @@ class RouteSystem
 
 
     /**
-     * Show the 403 - FORBIDDEN page
+     * Show the 401 - UNAUTHORIZED page
      *
      * @return never
      *@see Route::exit()
@@ -127,6 +127,23 @@ class RouteSystem
             'code'    => 404,
             'title'   => tr('Not found'),
             'message' => tr('The requested URL does not exist on this server'),
+        ]);
+    }
+
+
+    /**
+     * Show the 405 - METHOD NOT ALLOWED page
+     *
+     * @return never
+     *@see Route::exit()
+     * @see Route::add()
+     */
+    #[NoReturn] public function execute405(): never
+    {
+        $this->execute([
+            'code'    => 405,
+            'title'   => tr('Method not allowed'),
+            'message' => tr('The requested method is not allowed on this server or for this page'),
         ]);
     }
 
