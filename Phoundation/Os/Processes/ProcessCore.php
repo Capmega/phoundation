@@ -12,6 +12,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
@@ -250,13 +251,13 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executePassthru(): bool
     {
-        $output_file = Filesystem::createTempFile(false)->getPath();
-
-        $commands = $this->getFullCommandLine();
-        $commands = Strings::endsNotWith($commands, ';');
+        $output_file = File::newTemporary(false)->getPath();
+        $commands    = $this->getFullCommandLine();
+        $commands    = Strings::endsNotWith($commands, ';');
 
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
+
         } elseif (Debug::getEnabled()) {
             Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
         }
@@ -268,6 +269,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         if (file_exists($output_file)) {
             $output = file($output_file);
             unlink($output_file);
+
         } else {
             $output = null;
         }
