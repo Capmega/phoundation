@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use Exception;
-use Phoundation\Cli\Color;
+use Phoundation\Cli\CliColor;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Strings;
@@ -120,7 +120,7 @@ class Get extends Curl
             $this->result_status = curl_getinfo($this->curl);
 
             foreach ($this->result_status as $key => $value) {
-                Log::notice(Color::apply($key.' : ', 'white') . Strings::force($value));
+                Log::notice(CliColor::apply($key.' : ', 'white') . Strings::force($value));
             }
         }
 

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Directory;
@@ -24,7 +24,7 @@ use Phoundation\Os\Processes\Commands\UnMount;
  */
 $types = Proc::getSupportedFiletypes();
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         '1' => [
             'word'   => function ($word) { return Directory::new(Directory::default($word), '/')->scan($word . '*'); },
@@ -33,11 +33,11 @@ Documentation::autoComplete([
     ]
 ]);
 
-Documentation::usage('./pho tools os filesystem mounts umount TARGET
+CliDocumentation::usage('./pho tools os filesystem mounts umount TARGET
 ./pho tools os filesystem mounts umount TARGET [-f]
 ./pho tools os filesystem mounts umount TARGET [-l]');
 
-Documentation::help('This command will unmount the specified target
+CliDocumentation::help('This command will unmount the specified target
 
 If the specified target is a mounted target directory, it will be unmounted.
 

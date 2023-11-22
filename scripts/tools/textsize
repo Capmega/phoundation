@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -19,8 +19,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools textsize');
-Documentation::help('The textsize tool script will display the size of the specified text');
+CliDocumentation::usage('./pho tools textsize');
+CliDocumentation::help('The textsize tool script will display the size of the specified text');
 
 ArgvValidator::new()->validate();
 

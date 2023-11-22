@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Task;
 
@@ -18,8 +18,8 @@ use Phoundation\Os\Processes\Task;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tasks execute');
-Documentation::help('This script can execute one or multiple tasks.
+CliDocumentation::usage('./pho tasks execute');
+CliDocumentation::help('This script can execute one or multiple tasks.
 
 If a task id has been specified, then that specific task will be executed. If not, the system will scan for tasks that are due to be executed and execute them in order.
 

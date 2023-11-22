@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Color;
+use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -84,9 +84,9 @@ class StatusFiles extends Iterator
 
         foreach ($this->getSource() as $file => $status) {
             if (trim(substr($status->getStatus(), 0, 1))) {
-                $status = Color::apply($status->getStatus()->getReadable(), 'green');
+                $status = CliColor::apply($status->getStatus()->getReadable(), 'green');
             } else {
-                $status = Color::apply($status->getStatus()->getReadable(), 'red');
+                $status = CliColor::apply($status->getStatus()->getReadable(), 'red');
             }
             $list[$file] = ['status' => $status];
         }

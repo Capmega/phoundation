@@ -4,8 +4,8 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Color;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliColor;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -22,9 +22,9 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho databases mysql timezones import');
+CliDocumentation::usage('./pho databases mysql timezones import');
 
-Documentation::help('This script will import the mysql timezones
+CliDocumentation::help('This script will import the mysql timezones
 
 
 ARGUMENTS
@@ -34,7 +34,7 @@ ARGUMENTS
 
 ArgvValidator::new()->validate();
 
-Log::cli(Color::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
+Log::cli(CliColor::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
 Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
 Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
 

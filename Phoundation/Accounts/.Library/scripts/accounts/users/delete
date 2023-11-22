@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -18,9 +18,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho accounts users delete USER_EMAIL');
+CliDocumentation::usage('./pho accounts users delete USER_EMAIL');
 
-Documentation::help('This script will delete the specified user. Note that deleted users will not be removed from the database, 
+CliDocumentation::help('This script will delete the specified user. Note that deleted users will not be removed from the database, 
 the status for the user will be updated to "deleted"
 
 

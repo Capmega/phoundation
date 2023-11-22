@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -21,10 +21,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./pho system plugins list [OPTIONS]
+CliDocumentation::usage('./pho system plugins list [OPTIONS]
 ./pho system plugins list --all');
 
-Documentation::help('This script allows you to view your registered plugins
+CliDocumentation::help('This script allows you to view your registered plugins
 
 
 

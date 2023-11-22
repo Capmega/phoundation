@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -23,12 +23,12 @@ use Phoundation\Translator\Translations;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./pho system translate [OPTIONS]
+CliDocumentation::usage('./pho system translate [OPTIONS]
 ./pho system translate --all
 ./pho system translate --language LANGUAGES
 ./pho system translate --clear');
 
-Documentation::help('This is the translation control script for the project.
+CliDocumentation::help('This is the translation control script for the project.
 
 This script can manage your translated copies of your project, remove them, re-translate them, and much more.
 

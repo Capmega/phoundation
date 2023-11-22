@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -23,9 +23,9 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system databases import -d mysql -b system -f system.sql');
+CliDocumentation::usage('./pho system databases import -d mysql -b system -f system.sql');
 
-Documentation::help('This script will import the specified database file into the specified database
+CliDocumentation::help('This script will import the specified database file into the specified database
 
 
 ARGUMENTS
@@ -38,7 +38,7 @@ ARGUMENTS
 
 -f / --file FILE                        The file which to import');
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'arguments' => [
         '--file' => [
             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },

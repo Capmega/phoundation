@@ -2,7 +2,7 @@
 
 namespace Phoundation\Cli;
 
-use Phoundation\Cli\Interfaces\RunFileInterface;
+use Phoundation\Cli\Interfaces\CliRunFileInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,7 +29,7 @@ use Phoundation\Os\Processes\Commands\Ps;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class RunFile implements RunFileInterface
+class CliRunFile implements CliRunFileInterface
 {
     /**
      * The file access restrictions

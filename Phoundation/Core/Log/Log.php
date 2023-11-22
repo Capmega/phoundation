@@ -6,7 +6,7 @@ namespace Phoundation\Core\Log;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
-use Phoundation\Cli\Color;
+use Phoundation\Cli\CliColor;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\Core;
@@ -1043,7 +1043,7 @@ Class Log {
             }
 
             // Add coloring for easier reading
-            $messages = Color::apply((string) $messages, $class);
+            $messages = CliColor::apply((string) $messages, $class);
 
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL

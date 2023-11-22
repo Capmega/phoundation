@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core;
 
 use Exception;
-use Phoundation\Cli\Color;
+use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
@@ -860,7 +860,7 @@ class Strings
         }
 
         $source = (string) $source;
-        $strlen = mb_strlen(Color::strip($source));
+        $strlen = mb_strlen(CliColor::strip($source));
 
         if ($strlen == $size) {
             return $source;

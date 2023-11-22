@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -21,10 +21,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
+CliDocumentation::usage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./pho system accounts roles add-right -n test -d "This is a test role!"');
 
-Documentation::help('This script allows you to add rights to the specified role
+CliDocumentation::help('This script allows you to add rights to the specified role
 
 
 

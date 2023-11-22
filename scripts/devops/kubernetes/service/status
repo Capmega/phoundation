@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Kubernetes;
@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes service status');
-Documentation::help('This script will status the kubernetes cluster service');
+CliDocumentation::usage('./pho devops kubernetes service status');
+CliDocumentation::help('This script will status the kubernetes cluster service');
 
 
 // Validate arguments

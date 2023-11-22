@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Audio\Audio;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -19,10 +19,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho audio play FILENAME
+CliDocumentation::usage('./pho audio play FILENAME
 ./pho system audio play PATH/FILE');
 
-Documentation::help('This script can apply various conversions to the specified image
+CliDocumentation::help('This script can apply various conversions to the specified image
 
 
 

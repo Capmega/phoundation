@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 
 
 
@@ -18,7 +18,7 @@ use Phoundation\Cli\Documentation;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./pho project/...');
+CliDocumentation::usage('./pho project/...');
 
-Documentation::help('The system projects scripts contain a variety of scripts to help you with the system administration of your project');
+CliDocumentation::help('The system projects scripts contain a variety of scripts to help you with the system administration of your project');
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyrole Copyrole (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50),
@@ -35,10 +35,10 @@ Documentation::autoComplete([
     ],
 ]);
 
-Documentation::usage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
+CliDocumentation::usage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
 ./pho system accounts users add-roles -n test -d "This is a test role!"');
 
-Documentation::help('This script allows you to add roles to the specified user
+CliDocumentation::help('This script allows you to add roles to the specified user
 
 
 

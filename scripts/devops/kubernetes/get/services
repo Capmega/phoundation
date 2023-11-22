@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Services\Service;
 use Phoundation\Virtualization\Kubernetes\Services\Services;
@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\Services\Services;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes get services');
-Documentation::help('This script returns the available kubernetes services');
+CliDocumentation::usage('./pho devops kubernetes get services');
+CliDocumentation::help('This script returns the available kubernetes services');
 
 
 // Validate arguments

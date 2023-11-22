@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Security\Puks\Puks;
 
 /**
@@ -18,11 +18,11 @@ use Phoundation\Security\Puks\Puks;
  * @package Phoundation\Puks
  */
 
-Documentation::autoComplete();
+CliDocumentation::autoComplete();
 
-Documentation::usage('./pho puks encrypt DATA');
+CliDocumentation::usage('./pho puks encrypt DATA');
 
-Documentation::help(Puks::getHelp('This script will encrypt the specified data and print the result out on the command line
+CliDocumentation::help(Puks::getHelp('This script will encrypt the specified data and print the result out on the command line
 
 
 

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Commands\Pgrep;
 use Phoundation\Os\Processes\Exception\MonitorException;
@@ -19,9 +19,9 @@ use Phoundation\Os\Processes\Exception\MonitorException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho monitor process PROCESS_NAME');
+CliDocumentation::usage('./pho monitor process PROCESS_NAME');
 
-Documentation::help('This script will monitor the specified process (by name) and alert and restart it when it stops');
+CliDocumentation::help('This script will monitor the specified process (by name) and alert and restart it when it stops');
 
 
 // Get the arguments

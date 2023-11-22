@@ -4,8 +4,8 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Color;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliColor;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
@@ -25,9 +25,9 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho libraries info LIBRARY_NAME');
+CliDocumentation::usage('./pho libraries info LIBRARY_NAME');
 
-Documentation::help('The libraries info script will show detailed information about the specified library');
+CliDocumentation::help('The libraries info script will show detailed information about the specified library');
 
 
 
@@ -49,14 +49,14 @@ if ($argv['library']) {
         $library    = Library::get($library);
         $statistics = $library->getPhpStatistics();
 
-        Log::cli(Color::apply(Strings::size(tr('Name:')        , 28), 'white') . ' ' . $library->getName());
-        Log::cli(Color::apply(Strings::size(tr('Version:')     , 28), 'white') . ' ' . $library->getVersion());
-        Log::cli(Color::apply(Strings::size(tr('Path:')        , 28), 'white') . ' ' . $library->getDirectory());
-        Log::cli(Color::apply(Strings::size(tr('Description:') , 28), 'white') . ' ' . $library->getDescription());
+        Log::cli(CliColor::apply(Strings::size(tr('Name:')        , 28), 'white') . ' ' . $library->getName());
+        Log::cli(CliColor::apply(Strings::size(tr('Version:')     , 28), 'white') . ' ' . $library->getVersion());
+        Log::cli(CliColor::apply(Strings::size(tr('Path:')        , 28), 'white') . ' ' . $library->getDirectory());
+        Log::cli(CliColor::apply(Strings::size(tr('Description:') , 28), 'white') . ' ' . $library->getDescription());
 
         Log::cli();
 
-        Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
+        Log::cli(CliColor::apply(Strings::size(tr('Statistics:') , 28), 'white'));
         Cli::displayForm($statistics['total_statistics']);
     }
 } elseif ($argv['type']) {
@@ -89,20 +89,20 @@ if ($argv['library']) {
     // Get statistics and display
     $statistics = Libraries::getPhpStatistics(($argv['type'] === 'system'), ($argv['type'] === 'plugins'), ($argv['type'] === 'templates'));
 
-    Log::cli(Color::apply(tr('Statistics:'), 'white'));
-    Log::cli(Color::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($argv['type'])]) , 'white'));
+    Log::cli(CliColor::apply(tr('Statistics:'), 'white'));
+    Log::cli(CliColor::apply(tr('Statistics for ":type" type libraries:', [':type' => Strings::capitalize($argv['type'])]) , 'white'));
     Cli::displayForm($statistics[$argv['type']]['total_statistics']);
 
 } else {
     $statistics = Libraries::getPhpStatistics();
     $types      = ['system', 'plugins', 'templates', 'totals'];
 
-    Log::cli(Color::apply(Strings::size(tr('Statistics:') , 28), 'white'));
+    Log::cli(CliColor::apply(Strings::size(tr('Statistics:') , 28), 'white'));
 
     foreach ($types as $type) {
         $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes($statistics[$type]['total_statistics']['size']);
 
-        Log::cli(Color::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
+        Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'white'));
         Cli::displayForm($statistics[$type]['total_statistics']);
         Log::cli();
     }

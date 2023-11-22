@@ -67,7 +67,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class AutoComplete
+class CliAutoComplete
 {
     /**
      * The word location for the auto complete. NULL if auto complete hasn't been enabled

@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Services\Service;
@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes create service');
-Documentation::help('This script creates a Kubernetes service using a service file');
+CliDocumentation::usage('./pho devops kubernetes create service');
+CliDocumentation::help('This script creates a Kubernetes service using a service file');
 
 
 // Validate arguments

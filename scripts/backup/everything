@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;use Phoundation\Core\Config;use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;use Phoundation\Core\Log\Log;use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Exception\ExportException;use Phoundation\Exception\UnderConstructionException;use Phoundation\Filesystem\File;use Phoundation\Filesystem\Directory;use Phoundation\Filesystem\Restrictions;use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
+use Phoundation\Cli\CliDocumentation;use Phoundation\Core\Config;use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;use Phoundation\Core\Log\Log;use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Exception\ExportException;use Phoundation\Exception\UnderConstructionException;use Phoundation\Filesystem\File;use Phoundation\Filesystem\Directory;use Phoundation\Filesystem\Restrictions;use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 
 
 /**
@@ -16,9 +16,9 @@ use Phoundation\Cli\Documentation;use Phoundation\Core\Config;use Phoundation\Co
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system backup everything');
+CliDocumentation::usage('./pho system backup everything');
 
-Documentation::help('This command will backup *everything* related to this project to the default backup directory
+CliDocumentation::help('This command will backup *everything* related to this project to the default backup directory
 
 
 ARGUMENTS
@@ -26,7 +26,7 @@ ARGUMENTS
 
 -t / --target PATH                      The target path where to backup to');
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'arguments' => [
         '-t,--target'  => [
             'word'   => function ($word) { return Directory::new('/', '/')->scan('*' . $word . '*', GLOB_MARK | GLOB_ONLYDIR); },

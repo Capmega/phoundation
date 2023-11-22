@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -20,8 +20,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools display hex');
-Documentation::help('The display hex tool script will display the specified text in pure HEX code');
+CliDocumentation::usage('./pho tools display hex');
+CliDocumentation::help('The display hex tool script will display the specified text in pure HEX code');
 
 $argv = ArgvValidator::new()
     ->select('text')->hasMaxCharacters(1048576)

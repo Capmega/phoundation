@@ -19,7 +19,7 @@ use Phoundation\Cli\Exception\CliColorException;
  * @package Phoundation\Cli
  */
 
-class Color
+class CliColor
 {
     /**
      * The supported foreground colors

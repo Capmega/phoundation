@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
@@ -19,11 +19,11 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system deploy
+CliDocumentation::usage('./pho system deploy
 ./pho system deploy TARGET --
 ');
 
-Documentation::help('This script will deploy your project from this machine to the target environment
+CliDocumentation::help('This script will deploy your project from this machine to the target environment
 
 Most options are configured in a per-target basis and can be specified on the command line to override this
 configuration in a do or do not way. For example, the "production" environment can have "execute-hooks" enabled with

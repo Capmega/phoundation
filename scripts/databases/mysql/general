@@ -3,10 +3,10 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Exception\UnderConstructionException;
 
-Documentation::usage('./pho databases mysql method [OPTIONS]
+CliDocumentation::usage('./pho databases mysql method [OPTIONS]
 
 ./pho databases mysql list databases [OPTIONS]
 ./pho databases mysql list tables [OPTIONS]
@@ -14,7 +14,7 @@ Documentation::usage('./pho databases mysql method [OPTIONS]
 ./pho databases mysql change default-charset [OPTIONS]
 ./pho databases mysql scan SERVER');
 
-Documentation::help('This script contains various methods to assist with various mysql operations
+CliDocumentation::help('This script contains various methods to assist with various mysql operations
 
 
 

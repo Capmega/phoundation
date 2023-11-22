@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
@@ -24,9 +24,9 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system import');
+CliDocumentation::usage('./pho system import');
 
-Documentation::help('This script allows you to import all project data with one command 
+CliDocumentation::help('This script allows you to import all project data with one command 
 
 Currently this script will import:
  * languages

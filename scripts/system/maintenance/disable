@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -20,9 +20,9 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system maintenance disable');
+CliDocumentation::usage('./pho system maintenance disable');
 
-Documentation::help('This script will disable maintenance mode
+CliDocumentation::help('This script will disable maintenance mode
 
 When maintenance mode is enabled, all web requests will immediately be blocked until maintenance mode has been disabled.
 Most CLI commands will too be blocked. The only commands available will be commands under ./pho system

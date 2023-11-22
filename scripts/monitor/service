@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -26,9 +26,9 @@ use Phoundation\Web\Html\Enums\DisplayMode;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho monitor service PROCESS_NAME');
+CliDocumentation::usage('./pho monitor service PROCESS_NAME');
 
-Documentation::help('This script will monitor the specified service (by name) and alert and restart it when it stops');
+CliDocumentation::help('This script will monitor the specified service (by name) and alert and restart it when it stops');
 
 
 // Get the arguments

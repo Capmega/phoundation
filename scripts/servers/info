@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Servers\Server;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -20,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho servers info USER');
+CliDocumentation::usage('./pho servers info USER');
 
-Documentation::help('This script displays information about the specified server.  
+CliDocumentation::help('This script displays information about the specified server.  
 
 
 

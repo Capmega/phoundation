@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Sync;
@@ -21,10 +21,10 @@ use Phoundation\Developer\Sync;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho system sync ENVIRONMENT
+CliDocumentation::usage('./pho system sync ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');
 
-Documentation::help('This script will synchronize either the specified environment to your local environment or vice versa.
+CliDocumentation::help('This script will synchronize either the specified environment to your local environment or vice versa.
 With this, a production environment can easily be tested locally, for example
 
 

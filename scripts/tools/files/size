@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Numbers;
@@ -25,7 +25,7 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) { return Directory::new(Directory::default($word), '/')->scan($word . '*'); },
@@ -34,9 +34,9 @@ Documentation::autoComplete([
     ]
 ]);
 
-Documentation::usage('./pho tools files size PATH');
+CliDocumentation::usage('./pho tools files size PATH');
 
-Documentation::help('This command will count the sizes of all the files in the specified path recursively and
+CliDocumentation::help('This command will count the sizes of all the files in the specified path recursively and
 display the amount found');
 
 $argv = ArgvValidator::new()

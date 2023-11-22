@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Exception\FileExistsException;
@@ -26,10 +26,10 @@ use Phoundation\Security\Crypt;
 $directory = '/';
 $restrictions = Restrictions::new('/', true, tr('security keyfiles delete'));
 
-Documentation::usage('./pho tools security keyfiles delete
+CliDocumentation::usage('./pho tools security keyfiles delete
 ./pho tools security keyfiles create -s 8192');
 
-Documentation::help('The keyfiles delete script can securely delete a keyfile 
+CliDocumentation::help('The keyfiles delete script can securely delete a keyfile 
 
 
 ARGUMENTS
@@ -39,7 +39,7 @@ FILE                                    The file where to write the
 
 [-p,--passes PASSED]                    The amount of passes to overwrite the key file before deleting it');
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) use ($directory, $restrictions) { return Directory::new($directory, $restrictions)->scan($word . '*'); },

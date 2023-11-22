@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Sql;
 
@@ -19,10 +19,10 @@ use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho accounts rights list [OPTIONS]
+CliDocumentation::usage('./pho accounts rights list [OPTIONS]
 ./pho system accounts rights list -d -r god');
 
-Documentation::help('This script will list the available rights on this system
+CliDocumentation::help('This script will list the available rights on this system
 
 
 

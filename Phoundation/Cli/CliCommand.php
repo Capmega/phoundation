@@ -56,9 +56,9 @@ class CliCommand
     /**
      * Management object for the runfile for this command
      *
-     * @var RunFile $run_file
+     * @var CliRunFile $run_file
      */
-    protected static RunFile $run_file;
+    protected static CliRunFile $run_file;
 
     /**
      * The exit code for this process
@@ -151,7 +151,7 @@ class CliCommand
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         static::onlyCommandLine();
 
-        if (AutoComplete::isActive()) {
+        if (CliAutoComplete::isActive()) {
             $command = static::autoComplete();
 
         } else {
@@ -165,14 +165,14 @@ class CliCommand
                 $argv['help'] = true;
 
                 static::documentation();
-                AutoComplete::ensureAvailable();
+                CliAutoComplete::ensureAvailable();
                 exit();
             }
         }
 
         // See if the script execution should be stopped for some reason. If not, setup a run file
         static::$script = static::limitScript($command, isset_get($limit), isset_get($reason));
-        static::$run_file = new RunFile($command);
+        static::$run_file = new CliRunFile($command);
 
         Log::action(tr('Executing script ":script"', [
             ':script' => static::getCurrent()
@@ -184,7 +184,7 @@ class CliCommand
 
         } catch (Throwable $e) {
             // In auto complete mode, do not dump the exception on screen, it will fubar everything
-            if (AutoComplete::isActive()) {
+            if (CliAutoComplete::isActive()) {
                 Log::error($e, echo_screen: false);
                 exit('autocomplete-failed-see-system-log');
             }
@@ -193,7 +193,7 @@ class CliCommand
             throw $e;
         }
 
-        AutoComplete::ensureAvailable();
+        CliAutoComplete::ensureAvailable();
 
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
             Log::warning(tr('Warning: STDIN stream was specified but not used'));
@@ -226,7 +226,7 @@ class CliCommand
             return;
         }
 
-        if (AutoComplete::isActive()) {
+        if (CliAutoComplete::isActive()) {
             // Auto complete does not require same UID
             return;
         }
@@ -901,18 +901,18 @@ class CliCommand
 
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last method.
             // If this is the case we actually have to expand the method, NOT yet the script parameters!
-            if ((AutoComplete::getPosition() - count(static::$found_methods)) === 0) {
+            if ((CliAutoComplete::getPosition() - count(static::$found_methods)) === 0) {
                 throw MethodNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $script
                 ]))->makeWarning()
                     ->addData([
-                        'position' => AutoComplete::getPosition(),
+                        'position' => CliAutoComplete::getPosition(),
                         'methods' => [basename($script)]
                     ]);
             }
 
             // Check if this script has support for auto complete. If not
-            if (!AutoComplete::hasSupport($script)) {
+            if (!CliAutoComplete::hasSupport($script)) {
                 // This script has no auto complete support, so if we execute the script it won't go for auto
                 // complete but execute normally which is not what we want. we're done here.
                 exit();
@@ -927,7 +927,7 @@ class CliCommand
 
         } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
             // Auto complete the method
-            AutoComplete::processMethods(static::$methods, $e->getData());
+            CliAutoComplete::processMethods(static::$methods, $e->getData());
         }
     }
 
@@ -939,14 +939,14 @@ class CliCommand
      */
     protected static function documentation(): void
     {
-        Documentation::usage('./pho METHODS [ARGUMENTS]
+        CliDocumentation::usage('./pho METHODS [ARGUMENTS]
 ./pho info
 ./pho accounts users create --help
 ./pho system update
 ./pho system maintenance disable
 ./pho system <TAB>', false);
 
-        Documentation::help(tr('This is the Phoundation CLI interface command "pho"
+        CliDocumentation::help(tr('This is the Phoundation CLI interface command "pho"
 
 With this Command Line Interface script you can manage your Phoundation installation and perform various tasks. Almost 
 all web interface functionalities are also available on the command line and certain maintenance and development options 

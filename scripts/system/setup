@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -26,11 +26,11 @@ use Phoundation\Exception\OutOfBoundsException;
  * @package Phoundation\Core
  */
 
-Documentation::usage('./pho system setup [OPTIONS]
+CliDocumentation::usage('./pho system setup [OPTIONS]
 ./pho system setup --no-password-validation
 ./pho system setup --force');
 
-Documentation::help('This script allows you to setup a new project
+CliDocumentation::help('This script allows you to setup a new project
 
 
 

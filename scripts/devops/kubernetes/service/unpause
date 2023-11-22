@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Kubernetes;
 use Phoundation\Virtualization\Kubernetes\MiniKube;
@@ -19,8 +19,8 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes service unpause');
-Documentation::help('This script will unpause the kubernetes cluster service');
+CliDocumentation::usage('./pho devops kubernetes service unpause');
+CliDocumentation::help('This script will unpause the kubernetes cluster service');
 
 
 // Validate arguments

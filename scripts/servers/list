@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\Servers;
 
@@ -18,10 +18,10 @@ use Phoundation\Servers\Servers;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho servers list [OPTIONS]
+CliDocumentation::usage('./pho servers list [OPTIONS]
 ./pho system servers list -D');
 
-Documentation::help('This script will list the configured servers on this system
+CliDocumentation::help('This script will list the configured servers on this system
 
 
 

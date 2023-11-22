@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
@@ -19,8 +19,8 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes save deployment');
-Documentation::help('This script saves a Kubernetes deployment file');
+CliDocumentation::usage('./pho devops kubernetes save deployment');
+CliDocumentation::help('This script saves a Kubernetes deployment file');
 
 
 // Validate arguments

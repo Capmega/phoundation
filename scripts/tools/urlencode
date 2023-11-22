@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -18,8 +18,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools urlencode TEXT');
-Documentation::help('This tool will echo the specified TEXT using URL encoding');
+CliDocumentation::usage('./pho tools urlencode TEXT');
+CliDocumentation::help('This tool will echo the specified TEXT using URL encoding');
 
 $argv = ArgvValidator::new()
     ->select('text')->hasMaxCharacters(1048576)

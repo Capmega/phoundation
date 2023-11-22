@@ -2,7 +2,7 @@
 <?php
 
 use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -19,7 +19,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete(User::getAutoComplete([
+CliDocumentation::autoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
@@ -28,9 +28,9 @@ Documentation::autoComplete(User::getAutoComplete([
     ],
 ]));
 
-Documentation::usage('./pho accounts users info USER');
+CliDocumentation::usage('./pho accounts users info USER');
 
-Documentation::help('This script displays information about the specified user  
+CliDocumentation::help('This script displays information about the specified user  
 
 
 

@@ -3,8 +3,8 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Color;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliColor;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Config;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
@@ -27,8 +27,8 @@ use Phoundation\Emails\Email;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho email send');
-Documentation::help('This script can send out emails
+CliDocumentation::usage('./pho email send');
+CliDocumentation::help('This script can send out emails
 
 
 ARGUMENTS

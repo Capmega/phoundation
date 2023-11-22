@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
@@ -30,7 +30,7 @@ use Phoundation\Os\Processes\Commands\Mount;
  */
 $types = Proc::getSupportedFiletypes();
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         '0' => true,
         '1' => [
@@ -47,11 +47,11 @@ Documentation::autoComplete([
     ]
 ]);
 
-Documentation::usage('./pho tools os filesystem mounts mount SOURCE TARGET
+CliDocumentation::usage('./pho tools os filesystem mounts mount SOURCE TARGET
 ./pho tools os filesystem mounts mount SOURCE TARGET [-t FILESYSTEM]
 ./pho tools os filesystem mounts mount SOURCE TARGET [-t FILESYSTEM] [-o OPTIONS]');
 
-Documentation::help('This command will mount the specified source device (or directory) on the specified target
+CliDocumentation::help('This command will mount the specified source device (or directory) on the specified target
 directory
 
 

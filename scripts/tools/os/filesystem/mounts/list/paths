@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Arrays;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Mounts;
@@ -20,8 +20,8 @@ use Phoundation\Filesystem\Mounts\Mounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools os filesystem mounts list paths');
-Documentation::help('This command will list all available mounted paths');
+CliDocumentation::usage('./pho tools os filesystem mounts list paths');
+CliDocumentation::help('This command will list all available mounted paths');
 
 $argv = ArgvValidator::new()
     ->validate();

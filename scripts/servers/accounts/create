@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\File;
 use Phoundation\Servers\SshAccount;
@@ -20,12 +20,12 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete(SshAccount::getAutoComplete());
+CliDocumentation::autoComplete(SshAccount::getAutoComplete());
 
-Documentation::usage('./pho servers accounts create [OPTIONS]
+CliDocumentation::usage('./pho servers accounts create [OPTIONS]
 ./pho system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
-Documentation::help('This script allows you to create SSH accounts.
+CliDocumentation::help('This script allows you to create SSH accounts.
 ' . SshAccount::getHelpText());
 
 

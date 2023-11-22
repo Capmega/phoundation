@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Strings;
@@ -23,12 +23,12 @@ use Phoundation\Developer\Project\Project;
  * @category Function reference
  * @package Phoundation\Core
  */
-Documentation::usage('./pho system init [OPTIONS]
+CliDocumentation::usage('./pho system init [OPTIONS]
 ./pho system init --drop
 ./pho system init --import
 ./pho system init --version "core/0.0.5,"');
 
-Documentation::help('This script allows you to setup a new project
+CliDocumentation::help('This script allows you to setup a new project
 
 
 

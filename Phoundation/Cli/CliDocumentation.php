@@ -17,7 +17,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class Documentation
+class CliDocumentation
 {
     /**
      * Show help text?
@@ -87,9 +87,9 @@ class Documentation
     public static function autoComplete(array $definitions): void
     {
         try {
-            if (AutoComplete::isActive()) {
-                AutoComplete::processScriptPositions(isset_get($definitions['positions']));
-                AutoComplete::processScriptArguments(isset_get($definitions['arguments']));
+            if (CliAutoComplete::isActive()) {
+                CliAutoComplete::processScriptPositions(isset_get($definitions['positions']));
+                CliAutoComplete::processScriptArguments(isset_get($definitions['arguments']));
                 exit();
             }
 

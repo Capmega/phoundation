@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Docker\DockerFile;
 
@@ -18,8 +18,8 @@ use Phoundation\Virtualization\Docker\DockerFile;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops docker build');
-Documentation::help('This script can build docker images');
+CliDocumentation::usage('./pho devops docker build');
+CliDocumentation::help('This script can build docker images');
 
 
 // Validate arguments

@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Config;use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\File;
@@ -21,7 +21,7 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete(SshAccount::getAutoComplete([
+CliDocumentation::autoComplete(SshAccount::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
@@ -30,10 +30,10 @@ Documentation::autoComplete(SshAccount::getAutoComplete([
     ]
 ]));
 
-Documentation::usage('./pho servers accounts modify IDENTIFIER [OPTIONS]
+CliDocumentation::usage('./pho servers accounts modify IDENTIFIER [OPTIONS]
 ./pho system servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
 
-Documentation::help(SshAccount::getHelpText('This script allows you to modify existing SSH accounts.
+CliDocumentation::help(SshAccount::getHelpText('This script allows you to modify existing SSH accounts.
 
 
 

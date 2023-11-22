@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Validator;
 
@@ -18,9 +18,9 @@ use Phoundation\Data\Validator\Validator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho info');
+CliDocumentation::usage('./pho info');
 
-Documentation::help('The info script will show detailed information about the current framework, project, database and more
+CliDocumentation::help('The info script will show detailed information about the current framework, project, database and more
 
 
 ARGUMENTS 

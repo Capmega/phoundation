@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\SshAccounts;
 
@@ -18,10 +18,10 @@ use Phoundation\Servers\SshAccounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho servers accounts list [OPTIONS]
+CliDocumentation::usage('./pho servers accounts list [OPTIONS]
 ./pho system servers accounts list -D');
 
-Documentation::help('This script will list the configured SSH accounts on this system
+CliDocumentation::help('This script will list the configured SSH accounts on this system
 
 
 

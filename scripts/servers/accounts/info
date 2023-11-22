@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Servers\SshAccount;
 
@@ -18,9 +18,9 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho servers accounts info IDENTIFIER');
+CliDocumentation::usage('./pho servers accounts info IDENTIFIER');
 
-Documentation::help('This script displays information about the specified SSH account.  
+CliDocumentation::help('This script displays information about the specified SSH account.  
 
 
 

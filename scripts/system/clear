@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\UnderConstructionException;
@@ -23,10 +23,10 @@ use Phoundation\Filesystem\Restrictions;
  * @package Phoundation\Scripts
  */
 
-Documentation::usage('./pho system clear [OPTIONS]
+CliDocumentation::usage('./pho system clear [OPTIONS]
 ');
 
-Documentation::help('This script will clear the caches and temporary files
+CliDocumentation::help('This script will clear the caches and temporary files
 
 This should normally not be necessary as the system cleans up its temporary files and caches automatically whenever need 
 be but in case of crashes, some files may be left lying around

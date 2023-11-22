@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Devices\Storage\Proc;
 
@@ -19,8 +19,8 @@ use Phoundation\Os\Devices\Storage\Proc;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools os filesystem list supported');
-Documentation::help('This command will list all supported filesystem types');
+CliDocumentation::usage('./pho tools os filesystem list supported');
+CliDocumentation::help('This command will list all supported filesystem types');
 
 $argv = ArgvValidator::new()
     ->validate();

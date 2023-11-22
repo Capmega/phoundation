@@ -144,7 +144,7 @@ class Cli
             if (!VERY_QUIET) {
                 foreach ($headers as $column => $header) {
                     $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                    Log::cli(Color::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
+                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
                 }
 
                 Log::cli();
@@ -212,7 +212,7 @@ class Cli
 
         // Display header
         if ($key_header and $value_header) {
-            Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key_header , $key_size), 'white') . ' ' . $value_header);
+            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header , $key_size), 'white') . ' ' . $value_header);
         }
 
         // Display source
@@ -227,7 +227,7 @@ class Cli
                 }
 
                 if (is_array($value)) {
-                    Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
+                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
                     static::displayForm($value, '', '', $key_size + 1);
                     continue;
                 }
@@ -236,7 +236,7 @@ class Cli
                 $value = gettype($value);
             }
 
-            Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') . ' ' . $value);
+            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') . ' ' . $value);
         }
     }
 

@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
@@ -22,11 +22,11 @@ use Phoundation\Developer\Project\Project;
  * @package Phoundation\Development
  */
 
-Documentation::usage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
+CliDocumentation::usage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
 ./pho system development deploy TARGET_ENVIRONMENT
 ');
 
-Documentation::help('This script will update your Phoundation libraries and list
+CliDocumentation::help('This script will update your Phoundation libraries and list
 
 
 

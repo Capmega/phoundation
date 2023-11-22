@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -18,9 +18,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho languages import');
+CliDocumentation::usage('./pho languages import');
 
-Documentation::help('This script allows you to create users
+CliDocumentation::help('This script allows you to create users
 
 
 

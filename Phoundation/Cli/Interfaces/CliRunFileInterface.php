@@ -19,7 +19,7 @@ namespace Phoundation\Cli\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-interface RunFileInterface
+interface CliRunFileInterface
 {
     /**
      * Returns the command for this runfile

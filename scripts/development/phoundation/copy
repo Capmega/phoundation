@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
@@ -22,9 +22,9 @@ use Phoundation\Filesystem\Directory;
  * @package Phoundation\Development
  */
 
-Documentation::usage('./pho project copy FILE');
+CliDocumentation::usage('./pho project copy FILE');
 
-Documentation::help('This script will copy the specified library file directly to your Phoundation installation
+CliDocumentation::help('This script will copy the specified library file directly to your Phoundation installation
 
 If, for example, you specify Phoundation/Web/Page.php as the file, it will copy this file back to your Phoundation
 installation in the exact same location

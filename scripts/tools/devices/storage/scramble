@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -29,9 +29,9 @@ use Phoundation\Os\Processes\Process;
  */
 $restrictions = Restrictions::new('/dev', true);
 
-Documentation::usage('./pho tools devices storage shred');
+CliDocumentation::usage('./pho tools devices storage shred');
 
-Documentation::help('The shred script will shred the specified device by copying random data over it with 
+CliDocumentation::help('The shred script will shred the specified device by copying random data over it with 
 (optionally and by default) multiple passes 
 
 NOTE: This will irreparably destroy all information on the specified device. Proceed with caution, here be dragons!
@@ -44,7 +44,7 @@ DEVICE                                  The device file to be shredded
 
 -p,--passes                             The amount of passes it should make over the disk to completely scramble it');
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) use ($restrictions) { return Directory::new('/dev/', $restrictions)->scan($word . '*'); },

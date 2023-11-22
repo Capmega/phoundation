@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Strings;
@@ -21,8 +21,8 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho tools isbase58');
-Documentation::help('The isbase58 tool script will return 1 if the specified string is base58, 0 otherwise');
+CliDocumentation::usage('./pho tools isbase58');
+CliDocumentation::help('The isbase58 tool script will return 1 if the specified string is base58, 0 otherwise');
 
 $argv = ArgvValidator::new()
     ->select('text')->hasMaxCharacters(1048576)

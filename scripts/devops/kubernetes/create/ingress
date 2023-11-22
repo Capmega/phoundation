@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
 
@@ -18,8 +18,8 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes create ingress');
-Documentation::help('This script creates a Kubernetes ingress using a ingress file');
+CliDocumentation::usage('./pho devops kubernetes create ingress');
+CliDocumentation::help('This script creates a Kubernetes ingress using a ingress file');
 
 
 // Validate arguments

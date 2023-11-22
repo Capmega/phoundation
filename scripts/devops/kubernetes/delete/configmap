@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMap;
 
@@ -18,8 +18,8 @@ use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMap;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes delete deployment');
-Documentation::help('This script deletes the specified Kubernetes deployments');
+CliDocumentation::usage('./pho devops kubernetes delete deployment');
+CliDocumentation::help('This script deletes the specified Kubernetes deployments');
 
 
 // Validate arguments

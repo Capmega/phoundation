@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Directory;
@@ -24,10 +24,10 @@ use Phoundation\Filesystem\Restrictions;
  */
 $restrictions = Restrictions::new('/');
 
-Documentation::usage('./pho tools devices storage location
+CliDocumentation::usage('./pho tools devices storage location
 ./pho tools devices storage location /home/user/filename');
 
-Documentation::help('This script will display the device where the specified file is stored
+CliDocumentation::help('This script will display the device where the specified file is stored
 
 
 ARGUMENTS
@@ -35,7 +35,7 @@ ARGUMENTS
 
 FILE                                    The path to the file (or directory) which needs to be examined');
 
-Documentation::autoComplete([
+CliDocumentation::autoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) use ($restrictions) { return Directory::new('/', $restrictions)->scan($word . '*'); },

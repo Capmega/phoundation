@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
 use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes deployments get');
-Documentation::help('This script returns the available kubernetes deployments');
+CliDocumentation::usage('./pho devops kubernetes deployments get');
+CliDocumentation::help('This script returns the available kubernetes deployments');
 
 
 // Validate arguments

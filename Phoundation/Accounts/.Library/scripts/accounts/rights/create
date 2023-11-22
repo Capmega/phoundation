@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Right;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -20,10 +20,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho accounts right create NAME [OPTIONS]
+CliDocumentation::usage('./pho accounts right create NAME [OPTIONS]
 ./pho system accounts right create test -d "This is a test right!"');
 
-Documentation::help('This script allows you to create user rights
+CliDocumentation::help('This script allows you to create user rights
 
 
 

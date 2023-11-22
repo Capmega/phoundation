@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Servers\Server;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 
 
@@ -18,12 +18,12 @@ use Phoundation\Core\Log\Log;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::autoComplete(Server::getAutoComplete());
+CliDocumentation::autoComplete(Server::getAutoComplete());
 
-Documentation::usage('./pho servers create [OPTIONS]
+CliDocumentation::usage('./pho servers create [OPTIONS]
 ./pho system servers create --name phoundation --hostname www.phoundation.org -d "This is a phoundation server" --port 22');
 
-Documentation::help(Server::getHelpText('This script allows you to create servers
+CliDocumentation::help(Server::getHelpText('This script allows you to create servers
 
 
 

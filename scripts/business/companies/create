@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Business\Companies\Company;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -19,10 +19,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho business companies create NAME [OPTIONS]
+CliDocumentation::usage('./pho business companies create NAME [OPTIONS]
 ./pho system business companies create test -d "This is a test company!"');
 
-Documentation::help('This script allows you to create companies
+CliDocumentation::help('This script allows you to create companies
 
 
 

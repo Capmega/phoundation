@@ -7,7 +7,7 @@ namespace Phoundation\Core;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
-use Phoundation\Cli\AutoComplete;
+use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\MethodNotFoundException;
@@ -782,8 +782,8 @@ class Core implements CoreInterface
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
-            AutoComplete::setPosition($location - 1);
-            AutoComplete::initSystemArguments();
+            CliAutoComplete::setPosition($location - 1);
+            CliAutoComplete::initSystemArguments();
         }
 
         // Check what environment we're in
@@ -797,7 +797,7 @@ class Core implements CoreInterface
             if (empty($env)) {
                 if (PROJECT !== 'UNKNOWN') {
                     // If we're in auto complete mode, then we don't need an environment
-                    if (!AutoComplete::isActive()) {
+                    if (!CliAutoComplete::isActive()) {
                         Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '"');
                     }
                 }
@@ -2416,7 +2416,7 @@ class Core implements CoreInterface
         // Log debug information?
         if (Debug::getEnabled() and Debug::printStatistics()) {
             // Only when auto complete is not active!
-            if (!AutoComplete::isActive()) {
+            if (!CliAutoComplete::isActive()) {
                 static::logDebug();
             }
         }

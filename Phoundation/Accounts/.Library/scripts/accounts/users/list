@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Users;
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Sql\Sql;
 
 
@@ -19,10 +19,10 @@ use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho accounts users list [OPTIONS]
+CliDocumentation::usage('./pho accounts users list [OPTIONS]
 ./pho system accounts users list -d -r god');
 
-Documentation::help('This script will list the available users on this system
+CliDocumentation::help('This script will list the available users on this system
 
 
 

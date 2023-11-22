@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Documentation;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespace;
 
@@ -18,8 +18,8 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-Documentation::usage('./pho devops kubernetes create namespaces');
-Documentation::help('This script creates a Kubernetes namespace using a namespace file');
+CliDocumentation::usage('./pho devops kubernetes create namespaces');
+CliDocumentation::help('This script creates a Kubernetes namespace using a namespace file');
 
 
 // Validate arguments
