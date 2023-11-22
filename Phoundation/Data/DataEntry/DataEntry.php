@@ -261,7 +261,6 @@ abstract class DataEntry implements DataEntryInterface
         $this->setDefinitions($this->definitions);
 
         if ($identifier) {
-            Log::backtrace();
             $this->load($identifier, $column);
 
         } else {

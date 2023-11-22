@@ -2437,7 +2437,7 @@ class Page implements PageInterface
                 ':file' => $file,
                 ':line' => $line
             ]));
-            Log::backtrace();
+
             return true;
         }
 
