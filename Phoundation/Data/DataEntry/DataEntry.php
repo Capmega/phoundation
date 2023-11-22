@@ -27,10 +27,8 @@ use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
-use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
-use Phoundation\Data\DataEntry\Traits\SelectValidator;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataConfigPath;
 use Phoundation\Data\Traits\DataDatabaseConnector;
@@ -46,7 +44,6 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\DateTime;
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
@@ -1284,9 +1281,10 @@ abstract class DataEntry implements DataEntryInterface
      * @param array $source The data for this DataEntry object
      * @param bool $modify
      * @param bool $directly
+     * @param bool $force
      * @return static
      */
-    protected function copyValuesToSource(array $source, bool $modify, bool $directly = false): static
+    protected function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
     {
         if ($this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
@@ -1297,21 +1295,28 @@ abstract class DataEntry implements DataEntryInterface
         // Setting fields will make $this->is_validated false, so store the current value;
         $validated = $this->is_validated;
 
-        foreach ($this->definitions->getKeys() as $key) {
-            // Meta keys cannot be set through DataEntry::setData()
-            if (in_array($key, static::$meta_fields)) {
+        foreach ($this->definitions as $key => $definition) {
+            // Meta-keys cannot be set through DataEntry::setData()
+            if ($definition->isMeta()) {
                 continue;
+            }
+
+            if ($this->is_applying and !$force) {
+                if ($definition->getReadonly() or $definition->getDisabled()) {
+                    // Apply cannot update readonly or disabled fields
+                    continue;
+                }
             }
 
             if (array_key_exists($key, $source)) {
                 $value = $source[$key];
             } else {
                 // This key doesn't exist at all in the data entry, default it
-                $value = $this->definitions->get($key)->getDefault();
+                $value = $definition->getDefault();
 
                 // Still empty? If it's a new entry, there maybe an initial default value
                 if (!$value and $this->isNew()) {
-                    $value = $this->definitions->get($key)->getInitialDefault();
+                    $value = $definition->getInitialDefault();
                 }
             }
 
@@ -1323,8 +1328,6 @@ abstract class DataEntry implements DataEntryInterface
 
             if (!$modify) {
                 // Remove prefix / postfix if defined
-                $definition = $this->definitions->get($key);
-
                 if ($definition->getPrefix()) {
                     $value = Strings::from($value, $definition->getPrefix());
                 }
@@ -1335,20 +1338,20 @@ abstract class DataEntry implements DataEntryInterface
             }
 
             if ($directly or $this->definitions->get($key)?->getDirectUpdate()) {
-                // Store data directly, bypassing the
+                // Store data directly, bypassing the set method for this key
                 $this->setSourceValue($key, $value);
 
             } else {
-                // Store this data through the methods to ensure datatype and filtering is done correctly
+                // Store this data through the set method to ensure datatype and filtering is done correctly
                 $method = $this->convertFieldToSetMethod($key);
 
                 if ($this->debug) {
                     Log::information('ABOUT TO SET SOURCE KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10);
                 }
 
-                // Only apply if a method exist for this variable
+                // Only apply if a method exists for this variable
                 if (!method_exists($this, $method)){
-                    // There is no method accepting this data. This might be because its a virtual column that gets
+                    // There is no method accepting this data. This might be because it is a virtual column that gets
                     // resolved at validation time. Check this with the definitions object
                     if ($this->definitions->get($key)?->getVirtual()) {
                         continue;
@@ -1570,13 +1573,13 @@ abstract class DataEntry implements DataEntryInterface
         // static value.
         $definition = $this->definitions->get($field);
 
-        if ($this->is_applying and !$force) {
-            if ($definition->getReadonly() or $definition->getDisabled()) {
-                // The data is being set through DataEntry::apply() but this column is readonly
-                Log::debug('FIELD "' . $field . '" IS READONLY', 10);
-                return $this;
-            }
-        }
+//        if ($this->is_applying and !$force) {
+//            if ($definition->getReadonly() or $definition->getDisabled()) {
+//                // The data is being set through DataEntry::apply() but this column is readonly
+//                Log::debug('FIELD "' . $field . '" IS READONLY', 10);
+//                return $this;
+//            }
+//        }
 
         $default = $definition->getDefault();
 
@@ -1978,7 +1981,6 @@ abstract class DataEntry implements DataEntryInterface
             $this->source = $source;
         }
 
-        // Reset state
         $this->is_modified = false;
         $this->is_loading  = false;
         $this->is_saved    = false;
