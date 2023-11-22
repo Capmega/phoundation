@@ -185,13 +185,6 @@ abstract class DataEntry implements DataEntryInterface
     protected bool $is_saved = false;
 
     /**
-     * If true, this DataEntry is new and not loaded from database
-     *
-     * @var bool $is_new
-     */
-    protected bool $is_new = true;
-
-    /**
      * If true, the data in this DataEntry has been validated
      *
      * @var bool $is_validated
@@ -771,7 +764,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function isNew(): bool
     {
-        return $this->is_new;
+        return !$this->getId();
     }
 
 
@@ -1985,7 +1978,7 @@ abstract class DataEntry implements DataEntryInterface
             $this->source = $source;
         }
 
-        $this->is_new      = !$this->getId();
+        // Reset state
         $this->is_modified = false;
         $this->is_loading  = false;
         $this->is_saved    = false;
@@ -2045,13 +2038,12 @@ abstract class DataEntry implements DataEntryInterface
              ->copyValuesToSource((array) $data, false);
 
         // Reset state
-        $this->is_new      = !$this->getId();
         $this->is_loading  = false;
         $this->is_saved    = false;
         $this->is_modified = false;
 
         // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier!)
-        if ($this->is_new and $column !== 'id') {
+        if ($this->isNew() and $column !== 'id') {
             $this->setSourceValue($column, $identifier, true);
         }
     }
