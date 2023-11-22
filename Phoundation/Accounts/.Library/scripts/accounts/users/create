@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Users\Exception\PasswordFailedException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
@@ -54,6 +55,13 @@ EXTRA INFORMATION
 
 
 
+// Set up values
+$retries           = 3;
+$password          = '';
+$password_validate = '';
+$user              = User::new()->apply();
+
+
 // Validate user roles
 $argv = ArgvValidator::new()
     ->select('--no-password')->isOptional(false)->isBoolean()
@@ -71,14 +79,7 @@ if ($argv['roles']) {
 }
 
 
-// Create user and set users roles
-$user = User::new()->apply()->save();
-$user->getRoles()->addRole($argv['roles']);
-$user->getEmails()->apply()->save();
-$user->getPhones()->apply()->save();
-
-
-// Get update the users password
+// Get the user's password
 if ($argv['no_password']) {
     if (CliCommand::hasStdInStream()) {
         throw new OutOfBoundsException(tr('--no-password option specified but received password through pipe'));
@@ -88,24 +89,48 @@ if ($argv['no_password']) {
 
 } else {
     // Read password from stdin stream?
-    if (CliCommand::hasStdInStream()) {
-        $password = CliCommand::readStdInStream();
-        $password_validate = $password;
+    while (true) {
+        if (CliCommand::hasStdInStream()) {
+            $password          = CliCommand::readStdInStream();
+            $password_validate = $password;
 
-    } else {
-        try {
-            $password = Cli::readPassword(tr('Please type the users password:'));
-            $password_validate = Cli::readPassword(tr('Please re-type the users password:'));
+        } else {
+            try {
+                $password          = Cli::readPassword(tr('Please type the users password:'));
+                $password_validate = Cli::readPassword(tr('Please re-type the users password:'));
+                break;
 
-        } catch (Throwable $e) {
-            // Password update failed, remove the user and continue, so we can retry later
-            $user->erase();
-            throw $e;
+            } catch (Throwable) {
+                // Password update failed, fall through to try again?
+            }
         }
-    }
 
+        if ($retries-- > 0) {
+            // Borked up, retry!
+            Log::warning(tr('Failed to set password, please try again'));
+            continue;
+        }
+
+        // Yeah, we're done retrying
+        throw PasswordFailedException::new('Failed to setup a password for the user');
+    }
+}
+
+
+// Save the user
+$user->save();
+
+
+// Set password?
+if ($argv['no_password']) {
     $user->setPassword($password, $password_validate);
 }
+
+
+// Set users roles
+$user->getRoles()->addRole($argv['roles']);
+$user->getEmails()->apply()->save();
+$user->getPhones()->apply()->save();
 
 
 // Done!
