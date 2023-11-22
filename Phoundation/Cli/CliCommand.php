@@ -789,6 +789,8 @@ class CliCommand
             ]), 8);
         }
 
+        echo CliColor::getColorReset();
+        system('stty echo');
         exit($exit_code);
     }
 
