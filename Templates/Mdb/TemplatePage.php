@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace Templates\Mdb;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Footer;
 use Phoundation\Web\Html\Components\ProfileImage;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Translator;
 
-use Phoundation\Core\Config;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 

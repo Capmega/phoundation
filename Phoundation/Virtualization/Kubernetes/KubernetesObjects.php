@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
 
 

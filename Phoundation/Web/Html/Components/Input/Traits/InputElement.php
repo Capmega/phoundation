@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Traits;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
 use Phoundation\Web\Html\Components\Mode;
 use Phoundation\Web\Html\Html;

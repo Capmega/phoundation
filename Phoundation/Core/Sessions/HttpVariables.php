@@ -2,8 +2,8 @@
 
 namespace Phoundation\Core\Sessions;
 
-use Phoundation\Core\Config;
 use Phoundation\Data\Iterator;
+use Phoundation\Utils\Config;
 
 
 /**

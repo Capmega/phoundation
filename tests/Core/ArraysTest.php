@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use PHPUnit\Framework\TestCase;
 
 

@@ -2,9 +2,9 @@
 
 namespace Phoundation\Os\Devices\Storage;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Strings;
 
 
 /**

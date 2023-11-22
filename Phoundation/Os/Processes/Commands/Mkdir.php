@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 
 
 /**

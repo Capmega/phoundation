@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Captcha;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\CaptchaFailedException;
 use Phoundation\Developer\Debug;
 use Phoundation\Network\Curl\Post;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\InputType;
 
 

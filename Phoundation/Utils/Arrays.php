@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core;
+namespace Phoundation\Utils;
 
-use Enum;
 use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\EnumMatchModeInterface;

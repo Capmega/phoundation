@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 
 

@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

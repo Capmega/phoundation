@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Notifications;
 
 use Phoundation\Audio\Audio;
-use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Script;

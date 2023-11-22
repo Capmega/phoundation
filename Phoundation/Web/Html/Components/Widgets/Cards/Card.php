@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Data\Traits\DataDescription;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Button;
 use Phoundation\Web\Html\Components\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Widget;

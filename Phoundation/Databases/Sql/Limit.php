@@ -2,7 +2,7 @@
 
 namespace Phoundation\Databases\Sql;
 
-use Phoundation\Core\Config;
+use Phoundation\Utils\Config;
 
 
 /**

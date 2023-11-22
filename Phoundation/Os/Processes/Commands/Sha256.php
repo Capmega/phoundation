@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
 
 
 /**

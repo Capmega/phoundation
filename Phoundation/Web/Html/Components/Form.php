@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Config;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Interfaces\FormInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;

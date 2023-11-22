@@ -1,7 +1,7 @@
 <?php
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

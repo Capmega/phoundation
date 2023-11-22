@@ -2,13 +2,13 @@
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use PHPMailer\PHPMailer\PHPMailer;

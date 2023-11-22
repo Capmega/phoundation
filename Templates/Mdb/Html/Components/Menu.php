@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace Templates\Mdb\Html\Components;
 
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;

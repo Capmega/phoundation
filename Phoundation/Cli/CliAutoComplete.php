@@ -6,11 +6,8 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\AutoCompleteException;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
@@ -18,6 +15,10 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Os\Processes\Commands\Grep;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
+
 
 /**
  * Class AutoComplete

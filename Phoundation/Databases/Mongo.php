@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use MongoDB\Client;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Databases\Exception\MongoException;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 
 
 /**

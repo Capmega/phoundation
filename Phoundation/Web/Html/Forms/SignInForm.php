@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Forms;
 
-use Phoundation\Core\Config;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Form;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;

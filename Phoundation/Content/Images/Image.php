@@ -7,8 +7,8 @@ namespace Phoundation\Content\Images;
 use Phoundation\Content\Content;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Exception\ImagesException;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Img;
 
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Interfaces\FileInterface;
@@ -13,6 +12,7 @@ use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 

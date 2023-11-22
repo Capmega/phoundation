@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html;
 
 use DateTime;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Page;
 use Throwable;
 use function Phoundation\Web\Http\Html\set_csrf;

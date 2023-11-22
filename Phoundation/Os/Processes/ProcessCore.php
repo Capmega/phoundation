@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Kill;
@@ -25,6 +22,8 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessVariablesInterface;
 use Phoundation\Servers\Server;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Strings;
 
 
 /**

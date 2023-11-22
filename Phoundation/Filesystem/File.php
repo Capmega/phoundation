@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
@@ -23,6 +20,9 @@ use Phoundation\Os\Processes\Commands\Gzip;
 use Phoundation\Os\Processes\Commands\Sha256;
 use Phoundation\Os\Processes\Commands\Tar;
 use Phoundation\Os\Processes\Commands\Zip;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 

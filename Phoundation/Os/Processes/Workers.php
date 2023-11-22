@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Os\Processes\Exception\WorkersException;
+use Phoundation\Utils\Strings;
 
 
 /**

@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components;
 
-use Phoundation\Core\Strings;
 use Phoundation\Date\Date;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Html\Components\Modals\NotificationModal;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Renderer;
 

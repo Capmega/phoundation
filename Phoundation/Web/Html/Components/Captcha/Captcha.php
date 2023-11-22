@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Captcha;
 
-use Phoundation\Core\Config;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Captcha\Interfaces\CaptchaInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
 

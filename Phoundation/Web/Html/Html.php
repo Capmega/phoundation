@@ -6,11 +6,11 @@ namespace Phoundation\Web\Html;
 
 use PDOStatement;
 use Phoundation\Content\Images\Image;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Http\Html\Core;

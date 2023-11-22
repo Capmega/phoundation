@@ -4,7 +4,6 @@ namespace Phoundation\Data\Interfaces;
 
 use Iterator;
 use PDOStatement;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use ReturnTypeWillChange;
 use Stringable;

@@ -6,7 +6,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Strings;
 
 
 /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data;
 
 use PDOStatement;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
@@ -13,6 +12,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
 use Stringable;

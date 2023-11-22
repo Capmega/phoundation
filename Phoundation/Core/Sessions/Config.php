@@ -2,10 +2,7 @@
 
 namespace Phoundation\Core\Sessions;
 
-use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
-use Phoundation\Core\Strings;
-use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -18,7 +15,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Config extends \Phoundation\Core\Config implements ConfigInterface
+class Config extends \Phoundation\Utils\Config implements ConfigInterface
 {
     /**
      * Singleton variable for main config object

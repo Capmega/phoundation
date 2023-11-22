@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte;
 
-use Phoundation\Core\Config;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Footer;
 use Phoundation\Web\Html\Components\Modals\SignInModal;
 use Phoundation\Web\Html\Components\SidePanel;

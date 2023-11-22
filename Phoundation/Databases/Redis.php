@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Databases\Exception\RedisException;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Proxies;
 
-use Phoundation\Core\Strings;
 use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 
 
 /**

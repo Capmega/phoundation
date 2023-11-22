@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Utils\Strings;
 
 
 /**

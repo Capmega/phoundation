@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Cdn;
 
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 
 
 /**

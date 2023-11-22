@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
-use Phoundation\Core\Config;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 
 
 /**

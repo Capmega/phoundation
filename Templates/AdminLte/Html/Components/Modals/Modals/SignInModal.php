@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Modals;
 
-use Phoundation\Core\Config;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\DisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;

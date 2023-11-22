@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
+use Phoundation\Utils\Config;
 use Throwable;
 
 

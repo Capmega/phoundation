@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web;
 
-use Phoundation\Core\Config;
-use Phoundation\Web\Http\Http;
-use Phoundation\Web\Http\Url;
-
 
 /**
  * Class Web

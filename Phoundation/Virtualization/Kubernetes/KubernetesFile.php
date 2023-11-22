@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;

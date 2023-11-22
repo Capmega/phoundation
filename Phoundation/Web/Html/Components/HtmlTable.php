@@ -6,12 +6,12 @@ namespace Phoundation\Web\Html\Components;
 
 use PDO;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;

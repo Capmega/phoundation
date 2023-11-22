@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Project\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Config;
 use Throwable;
 
 

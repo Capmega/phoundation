@@ -6,9 +6,9 @@ namespace Phoundation\Web\Html\Components\FlashMessages;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Components\Mode;

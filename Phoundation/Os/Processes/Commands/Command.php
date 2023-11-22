@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
@@ -14,6 +13,7 @@ use Phoundation\Os\Processes\Commands\Interfaces\CommandInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Os\Processes\ProcessCore;
+use Phoundation\Utils\Arrays;
 use Stringable;
 
 

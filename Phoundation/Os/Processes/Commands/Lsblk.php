@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 
 
 /**

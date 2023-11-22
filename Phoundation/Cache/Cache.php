@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
@@ -14,6 +13,7 @@ use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Config;
 
 
 /**

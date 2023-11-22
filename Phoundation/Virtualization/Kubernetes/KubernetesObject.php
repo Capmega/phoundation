@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataArrayData;
 use Phoundation\Data\Traits\DataArrayOutput;
 use Phoundation\Data\Traits\DataName;
 use Phoundation\Data\Traits\UsesNewName;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
 use Phoundation\Virtualization\Kubernetes\Traits\DataAnnotations;
 use Phoundation\Virtualization\Kubernetes\Traits\DataLabels;
 use Phoundation\Virtualization\Kubernetes\Traits\DataNamespace;

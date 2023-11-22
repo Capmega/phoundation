@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core;
+namespace Phoundation\Utils;
 
 use Exception;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Zend_Utf8;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Json;
 use StephenHill\Base58;
 use Stringable;
 use Throwable;

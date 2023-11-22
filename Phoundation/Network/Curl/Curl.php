@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataUrl;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Network\Browsers\UserAgents;
-use Phoundation\Network\Curl\Exception\Curl404Exception;
-use Phoundation\Network\Curl\Exception\CurlNon200Exception;
 use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Web\Exception\WebException;
 use Stringable;
-use Throwable;
 
 
 /**

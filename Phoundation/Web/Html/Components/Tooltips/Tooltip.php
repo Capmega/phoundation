@@ -3,10 +3,10 @@
 namespace Phoundation\Web\Html\Components\Tooltips;
 
 use Phoundation\Core\Sessions\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Script;

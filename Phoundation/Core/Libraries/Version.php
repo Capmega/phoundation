@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 
 
 /**

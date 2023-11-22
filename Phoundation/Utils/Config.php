@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core;
+namespace Phoundation\Utils;
 
 use Exception;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Interfaces;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Throwable;
 

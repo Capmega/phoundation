@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use Exception;
-use Phoundation\Core\Strings;
-use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 

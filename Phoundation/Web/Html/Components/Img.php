@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

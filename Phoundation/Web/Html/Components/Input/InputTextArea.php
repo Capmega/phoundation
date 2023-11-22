@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Utils\Strings;
 
 
 /**

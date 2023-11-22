@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Meta;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\HtmlDataTable;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;

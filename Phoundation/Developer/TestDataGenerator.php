@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer;
 
 use Exception;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Numbers;
-use Phoundation\Core\Strings;
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
 
 
 /**

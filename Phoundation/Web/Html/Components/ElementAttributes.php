@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;

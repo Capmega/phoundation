@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core;
+namespace Phoundation\Utils;
 
 use Exception;
 use Phoundation\Core\Exception\NumbersException;

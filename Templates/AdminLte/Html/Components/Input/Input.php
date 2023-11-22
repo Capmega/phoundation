@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Templates\AdminLte\Html\Components\Input;
 
-use Phoundation\Core\Arrays;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Renderer;

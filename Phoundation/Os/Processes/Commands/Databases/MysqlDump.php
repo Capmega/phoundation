@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
@@ -20,6 +18,8 @@ use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Databases\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 
 
 /**

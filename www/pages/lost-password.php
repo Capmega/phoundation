@@ -1,8 +1,6 @@
 <?php
 
-use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -12,6 +10,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use PHPMailer\PHPMailer\PHPMailer;

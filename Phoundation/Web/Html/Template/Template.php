@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Template;
 
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Template\Exception\TemplateException;

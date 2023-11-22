@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\TableIdColumn;

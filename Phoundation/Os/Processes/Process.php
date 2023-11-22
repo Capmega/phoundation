@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Data\Iterator;
 use Phoundation\Exception\Exception;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
+use Phoundation\Utils\Arrays;
 
 
 /**

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\HttpException;
 
 

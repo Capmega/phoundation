@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 

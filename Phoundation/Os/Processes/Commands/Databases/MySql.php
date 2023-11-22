@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataHostnamePort;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataUserPass;
@@ -22,6 +20,8 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Servers;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Throwable;
 
 

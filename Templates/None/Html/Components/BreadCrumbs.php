@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None\Html\Components;
 
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Http\UrlBuilder;

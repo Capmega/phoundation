@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
-use Phoundation\Core\Arrays;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefiinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -13,6 +12,7 @@ use Phoundation\Data\Traits\DataField;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\InputTypeExtendedInterface;
 use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;

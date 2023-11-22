@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Utils\Arrays;
 use Throwable;
 
 

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -16,6 +13,8 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use ReflectionProperty;
 
 

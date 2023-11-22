@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataHost;
@@ -14,6 +13,7 @@ use Phoundation\Data\Traits\DataUserPass;
 use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Utils\Arrays;
 
 
 /**

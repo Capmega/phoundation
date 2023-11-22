@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Utils\Config;
 
 
 /**

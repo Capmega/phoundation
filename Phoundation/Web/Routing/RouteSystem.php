@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Templates\Template;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Throwable;
 
 

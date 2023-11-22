@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\FlashMessages;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;

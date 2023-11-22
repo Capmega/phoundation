@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 
 
 /**

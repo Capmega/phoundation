@@ -2,10 +2,10 @@
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Utils\Config;
 
 
 /**

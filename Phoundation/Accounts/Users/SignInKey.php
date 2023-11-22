@@ -7,7 +7,6 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\SignInKeyStatusException;
 use Phoundation\Accounts\Users\Exception\SignInKeyUsedException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;

@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Users\Exception\EmailNotExistsException;
-use Phoundation\Accounts\Users\Exception\Interfaces\EmailNotExistsExceptionInterface;
 use Phoundation\Accounts\Users\Interfaces\EmailInterface;
-use Phoundation\Core\Arrays;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -21,7 +19,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\InputElement;
 use Phoundation\Web\Html\Enums\InputType;
 

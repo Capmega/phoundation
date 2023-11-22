@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use Phoundation\Cli\Exception\NoTtyException;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
 
 
 /**

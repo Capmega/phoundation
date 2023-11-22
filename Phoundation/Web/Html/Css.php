@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html;
 
 use Phoundation\Cdn\Cdn;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use function Phoundation\Web\Http\Html\html_iefilter;
 use function Phoundation\Web\Http\Html\load_libs;
 use function Phoundation\Web\Http\Html\node_exec;

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 
 
 /**
