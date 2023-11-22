@@ -381,5 +381,5 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param bool $meta_enabled
      * @return static|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): ?static;
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static;
 }

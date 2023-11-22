@@ -571,7 +571,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $meta_enabled
      * @return static|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static
     {
         if (!$identifier) {
             // No identifier specified, return an empty object
@@ -603,7 +603,7 @@ abstract class DataEntry implements DataEntryInterface
 
                 if (count($entry)) {
                     // Return a new DataEntry object from the configuration source
-                    return static::fromSource($entry);
+                    return static::fromSource($entry, $meta_enabled);
                 }
             }
 
@@ -649,16 +649,16 @@ abstract class DataEntry implements DataEntryInterface
      * Returns a random DataEntry object
      *
      * @param string $database_connector
+     * @param bool $meta_enabled
      * @return static|null
-     * @throws OutOfBoundsExceptionInterface
      */
-    public static function getRandom(string $database_connector = 'system'): ?static
+    public static function getRandom(string $database_connector = 'system', bool $meta_enabled = true): ?static
     {
         $table = static::getTable();
         $identifier = sql($database_connector)->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
 
         if ($identifier) {
-            return static::get($identifier);
+            return static::get($identifier, 'id', $meta_enabled);
         }
 
         throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
@@ -2102,7 +2102,7 @@ abstract class DataEntry implements DataEntryInterface
                             return InputText::new()
                                 ->setDisabled(true)
                                 ->addClasses('text-center')
-                                ->setValue(User::get($source[$key])->getDisplayName())
+                                ->setValue(User::get($source[$key],  null)->getDisplayName())
                                 ->render();
                         } else {
                             return InputText::new()

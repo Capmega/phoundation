@@ -51,10 +51,11 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      *
      * @param int|string|DataEntryInterface|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      */
-    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
     {
-        parent::__construct($identifier, $column);
+        parent::__construct($identifier, $column, $meta_enabled);
         $this->setAllowNavigation(false);
     }
 

@@ -35,7 +35,7 @@ class Users extends \Phoundation\Accounts\Users\Users\Users
         ]);
 
         if ($users_id) {
-            return User::get($users_id);
+            return User::get($users_id,  'id');
         }
 
         return null;

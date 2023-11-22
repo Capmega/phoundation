@@ -46,11 +46,12 @@ class Mount extends DataEntry implements MountInterface
      *
      * @param int|string|DataEntryInterface|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      * @param RestrictionsInterface|null $restrictions
      */
-    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?RestrictionsInterface $restrictions = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true, ?RestrictionsInterface $restrictions = null)
     {
-        parent::__construct($identifier, $column);
+        parent::__construct($identifier, $column, $meta_enabled);
         $this->restrictions = $this->ensureRestrictions($restrictions);
     }
 
@@ -85,10 +86,10 @@ class Mount extends DataEntry implements MountInterface
     /**
      * @inheritDoc
      */
-    public static function get(int|string|DataEntryInterface|null $identifier = null, ?string $column = null): static
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static
     {
         try {
-            return parent::get($identifier, $column);
+            return parent::get($identifier, $column, $meta_enabled);
 
         } catch (DataEntryNotExistsException $e) {
             // Mount was not found in the database. Get it from configuration instead but that DOES require the name
@@ -96,17 +97,17 @@ class Mount extends DataEntry implements MountInterface
             switch ($column) {
                 case 'name':
                     $mount = Config::getArray('filesystem.mounts.' . $identifier);
-                    return static::fromSource($mount);
+                    return static::fromSource($mount, $meta_enabled);
 
                 case 'source':
                     // This is a mount that SHOULD already exist on the system
                     $mount = Mounts::getMountSources($identifier);
-                    return static::fromSource($mount);
+                    return static::fromSource($mount, $meta_enabled);
 
                 case 'target':
                     // This is a mount that SHOULD already exist on the system
                     $mount = Mounts::getMountTargets($identifier);
-                    return static::fromSource($mount);
+                    return static::fromSource($mount, $meta_enabled);
             }
 
             throw $e;

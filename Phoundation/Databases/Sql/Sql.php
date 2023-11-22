@@ -1003,7 +1003,7 @@ class Sql implements SqlInterface
      */
     public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null
     {
-        $result = $this->get($query, $execute, false);
+        $result = $this->get($query,  $execute);
 
         if (!$result) {
             // No results

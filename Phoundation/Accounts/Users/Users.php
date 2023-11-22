@@ -150,7 +150,7 @@ class Users extends DataList implements UsersInterface
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
-                $user = User::get($user, $column);
+                $user = User::get($user,  $column);
 
                 // User already exists for this parent?
                 if ($this->hasUser($user)) {
@@ -215,7 +215,7 @@ class Users extends DataList implements UsersInterface
 
             } else {
                 // Add single user. Since this is a User object, the entry already exists in the database
-                $user = User::get($user);
+                $user = User::get($user,  null);
 
                 if ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Removing user ":user" from role ":role"', [

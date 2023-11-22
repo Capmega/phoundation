@@ -191,7 +191,7 @@ class Roles extends DataList implements RolesInterface
 
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->addRight($this->parent);
+                        User::get($user,  null)->getRights()->addRight($this->parent);
                     }
                 }
             }
@@ -265,7 +265,7 @@ class Roles extends DataList implements RolesInterface
 
                     // Update all users with this right to remove the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->delete($this->parent);
+                        User::get($user,  null)->getRights()->delete($this->parent);
                     }
                 }
             }

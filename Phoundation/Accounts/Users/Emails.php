@@ -111,7 +111,7 @@ class Emails extends DataList implements EmailsInterface
      */
     public function load(): static
     {
-        $this->parent  = User::get($this->parent, 'seo_name');
+        $this->parent  = User::get($this->parent,  'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();

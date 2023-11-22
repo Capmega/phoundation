@@ -178,10 +178,11 @@ class User extends DataEntry implements UserInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
     {
-        parent::__construct($identifier, $column);
+        parent::__construct($identifier, $column, $meta_enabled);
 
         if ($this->isGuest() or $this->isSystem()) {
 //            $this->setReadonly(true);
@@ -200,7 +201,7 @@ class User extends DataEntry implements UserInterface
      */
     public static function getForRole(RolesInterface|Stringable|string $role): userInterface
     {
-        $role = Role::get($role);
+        $role = Role::get($role,  null);
         $id   = sql()->getColumn('SELECT `accounts_users`.`id` 
                                     FROM   `accounts_users`
                                     JOIN   `accounts_users_roles`  
@@ -216,7 +217,7 @@ class User extends DataEntry implements UserInterface
             ]));
         }
 
-        return User::get($id);
+        return static::get($id,  'id');
     }
 
 
@@ -228,10 +229,10 @@ class User extends DataEntry implements UserInterface
      * @param bool $meta_enabled
      * @return User|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static
     {
         try {
-            return parent::get($identifier, $column);
+            return parent::get($identifier, $column, $meta_enabled);
 
         } catch (DataEntryNotExistsException $e) {
             switch ($column) {
@@ -246,7 +247,7 @@ class User extends DataEntry implements UserInterface
 
                     if ($user) {
                         if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            return User::get($user['id']);
+                            return static::get($user['id'], 'id', $meta_enabled);
                         }
                     }
 
@@ -263,7 +264,7 @@ class User extends DataEntry implements UserInterface
 
                     if ($user) {
                         if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            return User::get($user['id']);
+                            return static::get($user['id'], 'id', $meta_enabled);
                         }
                     }
             }
@@ -1518,7 +1519,7 @@ class User extends DataEntry implements UserInterface
      */
     protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
     {
-        $user = User::get($identifier, (is_numeric($identifier) ? 'id' : 'email'));
+        $user = static::get($identifier,  (is_numeric($identifier) ? 'id' : 'email'));
 
         if ($user->passwordMatch($password)) {
             if ($user->getDomain()) {

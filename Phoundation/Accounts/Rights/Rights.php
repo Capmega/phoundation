@@ -192,7 +192,7 @@ class Rights extends DataList implements RightsInterface
 
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->addRight($right);
+                        User::get($user,  null)->getRights()->addRight($right);
                     }
                 }
             }
@@ -252,7 +252,7 @@ class Rights extends DataList implements RightsInterface
 
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user)->getRights()->delete($right);
+                        User::get($user,  null)->getRights()->delete($right);
                     }
 
                     // Delete right from the internal list

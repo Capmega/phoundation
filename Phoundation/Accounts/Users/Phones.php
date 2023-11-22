@@ -111,7 +111,7 @@ class Phones extends DataList implements PhonesInterface
      */
     public function load(): static
     {
-        $this->parent  = User::get($this->parent, 'seo_name');
+        $this->parent  = User::get($this->parent,  'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
