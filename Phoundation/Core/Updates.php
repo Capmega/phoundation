@@ -288,7 +288,7 @@ class Updates extends Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.11', function () {
-            sql()->schema()->table('core_templates')->alter()->changeColumn('path', '`directory` varchar(128) NOT NULL');
+            sql()->schema()->table('core_templates')->alter()->changeColumn('file', '`directory` varchar(128) NOT NULL');
         });
     }
 }
