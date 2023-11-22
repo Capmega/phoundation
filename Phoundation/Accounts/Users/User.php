@@ -1645,6 +1645,7 @@ class User extends DataEntry implements UserInterface
                 ->setSize(3)
                 ->setLabel(tr('Locked until')))
             ->addDefinition(DefinitionFactory::getEmail($this)
+                ->setOptional(false)
                 ->setSize(3)
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
