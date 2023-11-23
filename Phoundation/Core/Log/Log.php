@@ -11,12 +11,14 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -178,6 +180,7 @@ Class Log {
             static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
+
         } catch (Throwable $e) {
             error_log(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
 
@@ -371,7 +374,7 @@ Class Log {
 
     /**
      * Sets the log threshold level to the newly specified level and will return the previous level. Once a log file has
-     * been opened it will remain open until closed with the Log::closeFile() method
+     * been opened, it will remain open until closed with the Log::closeFile() method
      *
      * @param string|null $file
      * @return string|null
@@ -387,12 +390,15 @@ Class Log {
                 $file = DIRECTORY_ROOT . 'data/log/syslog';
             }
 
-            // Open the specified log file
-            if (empty(static::$streams[$file])) {
-                static::$streams[$file] = File::new($file, static::$restrictions)
-                    ->ensureWritable(0640)
-                    ->open(EnumFileOpenMode::writeOnlyAppend);
+            // Log file is already open? Close so re-open will ensure that the file exists
+            if (isset(static::$streams[$file])) {
+                static::$streams[$file]->close(true);
             }
+
+            // Open the specified log file
+            static::$streams[$file] = File::new($file, static::$restrictions)
+                ->ensureWritable(0640)
+                ->open(EnumFileOpenMode::writeOnlyAppend);
 
             // Set the class file to the specified file and return the old value and
             static::$file = $file;
@@ -403,7 +409,7 @@ Class Log {
             static::$fail = true;
             static::error(tr('Failed to open log file ":file" because of exception ":e"', [
                 ':file' => $file,
-                ':e' => $e->getMessage()
+                ':e'    => $e->getMessage()
             ]));
         }
 
@@ -1192,5 +1198,31 @@ Class Log {
             static::error(tr('Failed to log backtrace because of exception ":e"', [':e' => $e->getMessage()]));
             return -1;
         }
+    }
+
+
+    /**
+     * Rotates the current log file
+     *
+     * @return FileInterface
+     */
+    public static function rotate(): FileInterface
+    {
+        $file    = File::new(static::$file);
+        $current = static::$file;
+
+        static::action(tr('Rotating to next log file'));
+
+        $file = $file
+            ->rename($file->getPath() . '~' . DateTime::new()->format('Ymd'))
+            ->gzip();
+
+        static::setFile($current);
+
+        Log::information(tr('Continuing log from file ":file"', [
+            ':file' => $file->getPath()
+        ]));
+
+        return $file;
     }
 }
