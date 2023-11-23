@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 
 /**
- * \Phoundation\Core\Numbers test class
+ * \Phoundation\Utils\Numbers test class
  */
 class NumbersTest extends TestCase
 {

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Exception\OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
 
 /**
- * \Phoundation\Core\Arrays test class
+ * \Phoundation\Utils\Arrays test class
  */
 class ArraysTest extends TestCase
 {

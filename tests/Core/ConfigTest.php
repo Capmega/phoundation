@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 
 /**
- * \Phoundation\Core\Config test class
+ * \Phoundation\Utils\Config test class
  */
 class ConfigTest extends TestCase
 {
