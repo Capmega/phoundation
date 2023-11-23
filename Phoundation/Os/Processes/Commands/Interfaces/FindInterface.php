@@ -16,7 +16,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-interface FindInterface
+interface FindInterface extends CommandInterface
 {
     /**
      * Returns the available amount of memory

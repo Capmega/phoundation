@@ -29,6 +29,20 @@ class Find extends Command implements FindInterface
      */
     protected string $path;
 
+    /**
+     * Tracks if each directory's contents before the directory itself.  The -delete action also implies
+     *
+     * @var bool|null $follow_symlinks
+     */
+    protected ?bool $follow_symlinks = false;
+
+    /**
+     * Tracks
+     *
+     * @var bool $depth
+     */
+    protected bool $depth = false;
+
 
     /**
      * Returns the path in which to find

@@ -20,6 +20,8 @@ use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Tar;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -1312,5 +1314,16 @@ class Directory extends FileBasics implements DirectoryInterface
 
         copy($this->path, $target, $context);
         return new static($target, $this->restrictions);
+    }
+
+
+    /**
+     * Returns a new Find object
+     *
+     * @return FindInterface
+     */
+    public function find(): FindInterface
+    {
+        return Find::new($this->restrictions)->setPath($this);
     }
 }
