@@ -1131,16 +1131,18 @@ trait ProcessVariables
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param array|string|null $argument
+     * @param Stringable|array|string|null $argument
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(array|string|null $argument, bool $escape = true): static
+    public function addArgument(Stringable|array|string|null $argument, bool $escape = true): static
     {
         if ($argument !== null) {
             if (is_array($argument)) {
                 return $this->addArguments($argument);
             }
+
+            $argument = (string) $argument;
 
             // Do not escape variables!
             if (!preg_match('/^\$.+?\$$/', $argument) and $escape) {
