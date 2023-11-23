@@ -25,4 +25,4 @@ $argv = ArgvValidator::new()
     ->select('text')->hasMaxCharacters(1048576)
     ->validate();
 
-print_r(stripslashes(JSON::decode($argv['text'])));
+print_r(stripslashes(Json::decode($argv['text'])));

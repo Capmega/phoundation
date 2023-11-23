@@ -1634,7 +1634,7 @@ throw new UnderConstructionException();
      * @note While log_console() will log towards the DIRECTORY_ROOT/data/log/ log files, cli_dot() will only log one single dot
      *      even though on the command line multiple dots may be shown
      * @see Strings::truncate()
-     * @see JSON::Encode()
+     * @see Json::Encode()
      * @example
      * code
      * echo Strings::truncate('This is a long long long long test text!', 10);
@@ -1664,7 +1664,7 @@ throw new UnderConstructionException();
         if (!is_scalar($source)) {
             if (is_array($source)) {
                 $source = Arrays::hide($source, ['password', 'ssh_key']);
-                $source = trim(JSON::encode($source));
+                $source = trim(Json::encode($source));
 
             } elseif (is_enum($source)) {
                 $source = $source->value;
@@ -1673,7 +1673,7 @@ throw new UnderConstructionException();
                 $source = (string) $source;
 
             } else {
-                $source = trim(JSON::encode($source));
+                $source = trim(Json::encode($source));
             }
         }
 
