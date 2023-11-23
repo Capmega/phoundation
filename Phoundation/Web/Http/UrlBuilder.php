@@ -877,7 +877,7 @@ throw new UnderConstructionException();
 
         } catch (UrlBuilderConfiguredUrlNotFoundException) {
             // This was not a configured URL
-            return new $url;
+            return $url;
         }
     }
 
