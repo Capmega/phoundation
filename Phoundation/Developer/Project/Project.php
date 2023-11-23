@@ -696,20 +696,20 @@ class Project implements ProjectInterface
 
             // Copy new script versions
             $rsync
-                ->setSource($phoundation->getDirectory() . 'scripts')
+                ->setSource($phoundation->getDirectory() . 'scripts/')
                 ->setTarget(DIRECTORY_ROOT . 'scripts')
                 ->execute();
 
             // Copy new core library versions
             $rsync
-                ->setSource($phoundation->getDirectory() . 'Phoundation')
+                ->setSource($phoundation->getDirectory() . 'Phoundation/')
                 ->setTarget(DIRECTORY_ROOT . 'Phoundation')
                 ->setDelete(true)
                 ->execute();
 
             // Copy new core template versions
             $rsync
-                ->setSource($phoundation->getDirectory() . 'Templates')
+                ->setSource($phoundation->getDirectory() . 'Templates/')
                 ->setTarget(DIRECTORY_ROOT . 'Templates')
                 ->execute();
 
