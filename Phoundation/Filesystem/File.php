@@ -346,7 +346,7 @@ class File extends FileBasics implements FileInterface
      */
     public function getLineCount(string $source, int $buffer = 1048576): int
     {
-        $this->ensureClosed('getLineCount')->checkText('getLineCount');
+        $this->checkClosed('getLineCount')->checkText('getLineCount');
 
         if ($this->getSize() < $buffer) {
             return count($this->getContentsAsArray()) - 1;
@@ -377,7 +377,7 @@ class File extends FileBasics implements FileInterface
      */
     public function getWordCount(int $format = 0, ?string $characters = null, int $buffer = 1048576): array|int
     {
-        $this->ensureClosed('getWordCount')->checkText('getWordCount');
+        $this->checkClosed('getWordCount')->checkText('getWordCount');
         $count = 0;
 
         if ($this->getSize() < $buffer) {
@@ -511,7 +511,7 @@ class File extends FileBasics implements FileInterface
         }
 
         // Open the file and start scanning each line
-        $this->ensureClosed('grep')->open(EnumFileOpenMode::readOnly);
+        $this->checkClosed('grep')->open(EnumFileOpenMode::readOnly);
 
         $count  = 0;
         $return = [];

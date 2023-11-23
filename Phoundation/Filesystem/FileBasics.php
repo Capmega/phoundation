@@ -1206,7 +1206,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         // Check filesystem restrictions and open the file
         $this
-            ->ensureClosed('open')
+            ->checkClosed('open')
             ->restrictions
                 ->check($this->path, ($mode !== EnumFileOpenMode::readOnly));
 
@@ -1427,7 +1427,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function isEof(): bool
     {
-        $this->ensureOpen('getEof');
+        $this->checkOpen('getEof');
         return feof($this->stream);
     }
 
@@ -1453,7 +1453,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function seek(int $offset, int $whence = SEEK_SET): static
     {
-        $this->ensureOpen('seek');
+        $this->checkOpen('seek');
 
         $result = fseek($this->stream, $offset, $whence);
 
@@ -1486,7 +1486,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function tell(): int
     {
-        $this->ensureOpen('tell');
+        $this->checkOpen('tell');
 
         $result = ftell($this->stream);
 
@@ -1510,7 +1510,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function rewind(): static
     {
-        $this->ensureOpen('rewind');
+        $this->checkOpen('rewind');
 
         $result = rewind($this->stream);
 
@@ -1535,7 +1535,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function read(?int $buffer = null, ?int $seek = null): string|false
     {
-        $this->ensureOpen('read');
+        $this->checkOpen('read');
 
         if ($seek) {
             $this->seek($seek);
@@ -1560,7 +1560,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function readLine(?int $buffer = null): string|false
     {
-        $this->ensureOpen('read');
+        $this->checkOpen('read');
 
         if (!$buffer) {
             $buffer = $this->getBufferSize();
@@ -1587,7 +1587,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false
     {
-        $this->ensureOpen('read');
+        $this->checkOpen('read');
 
         $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
 
@@ -1606,7 +1606,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function readCharacter(): string|false
     {
-        $this->ensureOpen('read');
+        $this->checkOpen('read');
 
         $data = fgetc($this->stream);
 
@@ -1629,7 +1629,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     public function readBytes(int $length, int $start = 0): string|false
     {
         $data = $this
-            ->ensureClosed('readBytes')
+            ->checkClosed('readBytes')
             ->open(EnumFileOpenMode::readOnly)
             ->read($start + $length);
 
@@ -1654,7 +1654,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     protected function save(string $data, EnumFileOpenModeInterface $write_mode = EnumFileOpenMode::writeOnly): static
     {
         $this->restrictions->check($this->path, true);
-        $this->ensureWriteMode($write_mode);
+        $this->checkWriteMode($write_mode);
 
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -1672,7 +1672,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function write(string $data, ?int $length = null): static
     {
-        $this->ensureOpen('write');
+        $this->checkOpen('write');
 
         fwrite($this->stream, $data, $length);
 
@@ -1693,7 +1693,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->ensureClosed('getContents');
+        $this->checkClosed('getContents');
 
         $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
 
@@ -1716,7 +1716,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->ensureClosed('getContents');
+        $this->checkClosed('getContents');
 
         $data = file($this->path, $flags, $context);
 
@@ -1740,7 +1740,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->ensureClosed('putContents');
+        $this->checkClosed('putContents');
         Directory::new(dirname($this->path), $this->restrictions->getParent()->getParent())->ensure();
 
         file_put_contents($this->path, $data, $flags, $context);
@@ -1832,7 +1832,7 @@ class FileBasics implements Stringable, FileBasicsInterface
     {
         // Check filesystem restrictions
         $this
-            ->ensureClosed('appendFiles')
+            ->checkClosed('appendFiles')
             ->restrictions->check($this->path, true);
 
         // Ensure the target path exists
@@ -1895,7 +1895,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function sync(): static
     {
-        $this->ensureOpen('sync');
+        $this->checkOpen('sync');
 
         if (!fsync($this->stream)) {
             throw new FileSyncException(tr('Failed to sync file ":file"', [
@@ -1914,7 +1914,7 @@ class FileBasics implements Stringable, FileBasicsInterface
      */
     public function syncData(): static
     {
-        $this->ensureOpen('syncData');
+        $this->checkOpen('syncData');
 
         if (!fdatasync($this->stream)) {
             throw new FileSyncException(tr('Failed to data sync file ":file"', [
@@ -1971,7 +1971,7 @@ throw new UnderConstructionException();
      * @return $this
      * @throws FileOpenException
      */
-    protected function ensureClosed(string $method): static
+    protected function checkClosed(string $method): static
     {
         if ($this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is already open', [
@@ -1991,7 +1991,7 @@ throw new UnderConstructionException();
      * @param EnumFileOpenModeInterface|null $mode
      * @return $this
      */
-    protected function ensureOpen(string $method, ?EnumFileOpenModeInterface $mode = null): static
+    protected function checkOpen(string $method, ?EnumFileOpenModeInterface $mode = null): static
     {
         if (!$this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is closed', [
@@ -2001,7 +2001,7 @@ throw new UnderConstructionException();
         }
 
         if ($mode) {
-            return $this->ensureWriteMode($this->open_mode);
+            return $this->checkWriteMode($this->open_mode);
         }
 
         return $this;
@@ -2014,7 +2014,7 @@ throw new UnderConstructionException();
      * @param EnumFileOpenModeInterface $mode
      * @return $this
      */
-    protected function ensureWriteMode(EnumFileOpenModeInterface $mode): static
+    protected function checkWriteMode(EnumFileOpenModeInterface $mode): static
     {
         if ($mode == EnumFileOpenMode::readOnly) {
             throw new ReadOnlyModeException(tr('Cannot write to file ":file", the file is opened in readonly mode', [
