@@ -40,7 +40,7 @@ class Rsync extends Command
     protected bool $progress = false;
 
     /**
-     * Archive mode, is -rlptgoD (no -A,-X,-U,-N,-H)
+     * Archive mode is -rlptgoD (no -A,-X,-U,-N,-H)
      *
      * @var bool
      */
@@ -108,6 +108,37 @@ class Rsync extends Command
      * @var string|null $ssh_key
      */
     protected ?string $ssh_key = null;
+
+    /**
+     * Tracks if destination files should be deleted if not existing on source
+     *
+     * @var bool $delete
+     */
+    protected bool $delete = false;
+
+
+    /**
+     * Returns if destination files should be deleted if not existing on source
+     *
+     * @return bool
+     */
+    public function getDelete(): bool
+    {
+        return $this->delete;
+    }
+
+
+    /**
+     * Sets if destination files should be deleted if not existing on source
+     *
+     * @param bool $delete
+     * @return static
+     */
+    public function setDelete(bool $delete): static
+    {
+        $this->delete = $delete;
+        return $this;
+    }
 
 
     /**
@@ -365,6 +396,7 @@ class Rsync extends Command
              ->addArgument($this->verbose    ? '-v'           : null)
              ->addArgument($this->compress   ? '-z'           : null)
              ->addArgument($this->safe_links ? '--safe-links' : null)
+             ->addArgument($this->delete     ? '--delete'     : null)
              ->addArgument($this->rsh        ? '-e'           : null)
              ->addArgument($this->rsh)
              ->addArgument($this->ssh_key    ? '-i'           : null)
