@@ -791,7 +791,6 @@ throw new UnderConstructionException();
      */
     protected static function buildUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
     {
-        $url = (string) $url;
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
 
@@ -831,7 +830,6 @@ throw new UnderConstructionException();
      */
     protected static function buildCdn(Stringable|string $url, ?string $extension = null): static
     {
-        $url = (string) $url;
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
 
@@ -858,12 +856,12 @@ throw new UnderConstructionException();
      * Apply predefined URL names
      *
      * @param Stringable|string $url
-     * @return UrlBuilderInterface
+     * @return string
      */
-    protected static function applyPredefined(Stringable|string $url): UrlBuilderInterface
+    protected static function applyPredefined(Stringable|string $url): string
     {
         $url    = (string) $url;
-        $return =  match ($url) {
+        $return = match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
             'prev', 'previous', 'referer' => static::getPrevious(),
@@ -871,15 +869,15 @@ throw new UnderConstructionException();
         };
 
         if ($return) {
-            return $return;
+            return (string) $return;
         }
 
         try {
-            return static::getConfigured($url);
+            return (String) static::getConfigured($url);
 
         } catch (UrlBuilderConfiguredUrlNotFoundException) {
             // This was not a configured URL
-            return new static($url);
+            return new $url;
         }
     }
 
@@ -922,7 +920,8 @@ throw new UnderConstructionException();
      */
     protected static function applyVariables(Stringable|string $url): string
     {
-        $url = str_replace(':PROTOCOL', Protocols::getCurrent() , (string) $url);
+        $url = (string) $url;
+        $url = str_replace(':PROTOCOL', Protocols::getCurrent() , $url);
         $url = str_replace(':DOMAIN'  , Domains::getCurrent()   , $url);
         $url = str_replace(':PORT'    , (string) Page::getPort(), $url);
         $url = str_replace(':LANGUAGE', Page::getLanguageCode() , $url);
