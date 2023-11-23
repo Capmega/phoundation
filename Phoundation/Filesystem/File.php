@@ -165,6 +165,18 @@ class File extends FileBasics implements FileInterface
     }
 
 
+    public function isCompressed(): bool
+    {
+        $mime = $this->getMimetype();
+        $mime = Strings::from($mime, '/');
+
+        return match ($mime) {
+            'zip', 'x-7z-compressed', 'rar', 'x-bzip', 'x-bzip2', 'gzip' => true,
+            default => false,
+        };
+    }
+
+
     /**
      * Returns true or false if file is ASCII or not
      *
