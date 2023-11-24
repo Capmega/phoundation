@@ -1580,7 +1580,12 @@ abstract class DataEntry implements DataEntryInterface
         // static value.
         $definition = $this->definitions->get($field);
 
-//        if ($this->is_applying and !$force) {
+        // If a field is ignored we won't update anything
+        if ($definition->getIgnored()) {
+            return $this;
+        }
+
+        //        if ($this->is_applying and !$force) {
 //            if ($definition->getReadonly() or $definition->getDisabled()) {
 //                // The data is being set through DataEntry::apply() but this column is readonly
 //                Log::debug('FIELD "' . $field . '" IS READONLY', 10);

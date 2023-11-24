@@ -453,6 +453,41 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if this field is ignored
+     *
+     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     *  completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     *  stored in the source
+     *
+     * @note Defaults to false
+     * @return bool|null
+     *@see Definition::getVisible()
+     */
+    public function getIgnored(): ?bool
+    {
+        return isset_get_typed('bool', $this->rules['ignored'], false);
+    }
+
+
+    /**
+     * Sets if this field is ignored
+     *
+     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     * completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     * stored in the source
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setIgnored(?bool $value): static
+    {
+        return $this->setKey((bool) $value, 'ignored');
+    }
+
+
+    /**
      * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
      *
      * @note Defaults to false

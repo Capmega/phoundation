@@ -831,4 +831,31 @@ interface DefinitionInterface
      * @return bool
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): bool;
+
+    /**
+     * Returns if this field is ignored
+     *
+     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     *  completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     *  stored in the source
+     *
+     * @note Defaults to false
+     * @return bool|null
+     *@see Definition::getVisible()
+     */
+    public function getIgnored(): ?bool;
+
+    /**
+     * Sets if this field is ignored
+     *
+     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     * completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     * stored in the source
+     *
+     * @note Defaults to false
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVisible()
+     */
+    public function setIgnored(?bool $value): static;
 }
