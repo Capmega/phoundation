@@ -249,7 +249,7 @@ class Session implements SessionInterface
             }
 
             // Update the users sign-in and last sign-in information
-            sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
+            static::updateSignInTracking();
 
             // Store this sign in
             Signin::detect()->save();
@@ -1111,7 +1111,7 @@ Log::warning('RESTART SESSION');
         }
 
         // Update the users sign-in and last sign-in information
-        sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
+        static::updateSignInTracking();
 
         // Store this sign in
         Signin::detect()->save();
@@ -1133,6 +1133,23 @@ Log::warning('RESTART SESSION');
         $_SESSION['sign-key']  = $key->getUuid();
 
         return static::$user;
+    }
+
+
+    /**
+     * Updates the sign in tracking information for this user
+     *
+     * This method will reset the last_sign_in value for this user to NOW and increase the sign_in_count by one
+     *
+     * @return void
+     */
+    protected static function updateSignInTracking(): void
+    {
+        sql()->query('UPDATE `accounts_users`
+                            SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
+                            WHERE  `id` = :id', [
+            ':id' => static::$user->getId()
+        ]);
     }
 
 

@@ -30,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.1';
+        return '0.1.2';
     }
 
 
@@ -770,6 +770,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_signin_keys')->alter()
                 ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
                 ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
+
+        })->addUpdate('0.1.2', function () {
+            // Since sign-in count and last_sign_in were all messed up, reset them to zero
+            sql()->query('UPDATE `accounts_users` SET `sign_in_count` = 0, `last_sign_in` = NULL');
         });
     }
 }
