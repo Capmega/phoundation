@@ -1417,10 +1417,17 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
+     *
+     * @param bool $filter_meta If true, will also filter out the DataEntry meta-fields
      * @return array
      */
-    public function getSource(): array
+    public function getSource(bool $filter_meta = false): array
     {
+        if ($filter_meta) {
+            // Remove meta-fields too
+            return Arrays::remove(Arrays::remove($this->source, static::$meta_fields), $this->protected_fields);
+        }
+
         return Arrays::remove($this->source, $this->protected_fields);
     }
 
