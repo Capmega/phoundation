@@ -1658,23 +1658,30 @@ throw new UnderConstructionException();
                 return '0';
             }
 
+            if (is_bool($source)) {
+                return 'false';
+            }
+
             return '';
         }
 
-        if (!is_scalar($source)) {
-            if (is_array($source)) {
-                $source = Arrays::hide($source, ['password', 'ssh_key']);
-                $source = trim(Json::encode($source));
-
-            } elseif (is_enum($source)) {
-                $source = $source->value;
-
-            } elseif ($source instanceof Stringable) {
-                $source = (string) $source;
-
-            } else {
-                $source = trim(Json::encode($source));
+        if (is_scalar($source)) {
+            if (is_bool($source)) {
+                return 'true';
             }
+
+        } elseif (is_array($source)) {
+            $source = Arrays::hide($source, ['password', 'ssh_key']);
+            $source = trim(Json::encode($source));
+
+        } elseif (is_enum($source)) {
+            $source = $source->value;
+
+        } elseif ($source instanceof Stringable) {
+            $source = '[' . Strings::fromReverse(get_class($source), '\\') . ']' . $source;
+
+        } else {
+            $source = trim(Json::encode($source));
         }
 
         return static::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
