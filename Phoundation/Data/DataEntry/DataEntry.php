@@ -1,8 +1,5 @@
 <?php
 
-DATA ENTRY GET REQUIRES IDENTIFIER COLUMN
-DATA ENTRY __constructor REQUIRES COLUMN IF IDENTIFIER IS SPECIFIED
-
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
@@ -564,17 +561,28 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns a DataEntry object matching the specified identifier
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
-     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
-     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
-     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @param bool $meta_enabled
      * @return static|null
+     * @throws OutOfBoundsException|DataEntryNotExistsException|DataEntryDeletedException
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false): ?static
     {
         if (!$identifier) {
             // No identifier specified, return an empty object
@@ -584,7 +592,7 @@ abstract class DataEntry implements DataEntryInterface
         if (is_object($identifier)) {
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (!$identifier instanceof static) {
-                throw new OutOfBoundsException(tr('Specified identifier has the class ":has" but should have the class ":should"', [
+                throw new OutOfBoundsException(tr('Specified DataEntry identifier has the class ":has" but should have this object\'s class ":should"', [
                     ':has'    => get_class($identifier),
                     ':should' => static::class
                 ]));
@@ -597,7 +605,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         if ($entry->isNew()) {
-            // So this entry does not exist in the database. Does it exist in configuration?
+            // So this entry does not exist in the database. Does it perhaps exist in configuration?
             $path = static::new()->getConfigPath();
 
             if ($path) {
@@ -606,12 +614,12 @@ abstract class DataEntry implements DataEntryInterface
 
                 if (count($entry)) {
                     // Return a new DataEntry object from the configuration source
-                    return static::fromSource($entry, $meta_enabled);
+                    return static::fromSource($entry, $meta_enabled)->setReadonly(true);
                 }
             }
 
-            throw DataEntryNotExistsException::new(tr('The ":label" entry ":identifier" does not exist', [
-                ':label'      => static::getClassName(),
+            throw DataEntryNotExistsException::new(tr('The ":class" entry ":identifier" does not exist', [
+                ':class'      => static::getClassName(),
                 ':identifier' => $identifier
             ]))->makeWarning();
         }
@@ -619,8 +627,8 @@ abstract class DataEntry implements DataEntryInterface
         if ($entry->isDeleted()) {
             // This entry has been deleted and can only be viewed by user with the "deleted" right
             if (!Session::getUser()->hasAllRights('deleted')) {
-                throw DataEntryDeletedException::new(tr('The ":label" entry ":identifier" is deleted', [
-                    ':label'      => static::getClassName(),
+                throw DataEntryDeletedException::new(tr('The ":class" entry ":identifier" is deleted', [
+                    ':class'      => static::getClassName(),
                     ':identifier' => $identifier
                 ]))->makeWarning();
 
@@ -2020,26 +2028,35 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @return string
+     * @return string|null
      */
-    protected static function ensureColumn(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): string
+    protected static function ensureColumn(DataEntryInterface|string|int|null $identifier, ?string $column): ?string
     {
         if ($column) {
+            // Column was specified. Identifier MAY be empty but that is fine as a value actually might be NULL
             return $column;
         }
 
-        // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
-        // field otherwise
         if ($identifier) {
-            if (is_numeric($identifier)) {
-                return 'id';
-
-            } else {
-                return static::getUniqueField();
-            }
+            // No identifier specified either, this is just an empty DataEntry object
+            return null;
         }
 
-        return '';
+        // Column is NOT required, try to assign default. Assume `id` for numeric identifiers, or else the unique field
+        if (is_numeric($identifier)) {
+            return 'id';
+        }
+
+        $return = static::getUniqueField();
+
+        if ($return) {
+            return $return;
+        }
+
+        throw new OutOfBoundsException(tr('Failed to access DataEntry type ":type", an identifier ":identifier" was specified without column, the identifier is not numeric and the DataEntry object has no unique field specified', [
+            ':type'       => static::getDataEntryName(),
+            ':identifier' => $identifier
+        ]));
     }
 
 

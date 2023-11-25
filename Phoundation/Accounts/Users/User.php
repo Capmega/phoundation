@@ -225,11 +225,11 @@ class User extends DataEntry implements UserInterface
      * Returns a single user object for a single user that has the specified alternate email address.
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @param string $column
      * @param bool $meta_enabled
      * @return User|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false): ?static
     {
         try {
             return parent::get($identifier, $column, $meta_enabled);
