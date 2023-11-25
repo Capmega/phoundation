@@ -244,7 +244,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
     {
-        $column = static::ensureColumn($identifier, $column);
+        $column = static::checkIdentifierColumn($identifier, $column, false);
 
         // Meta enabled?
         $this->meta_enabled = $meta_enabled;
@@ -570,11 +570,11 @@ abstract class DataEntry implements DataEntryInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
+     * @param string $column
      * @param bool $meta_enabled
      * @return static|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, string $column, bool $meta_enabled = false): ?static
     {
         if (!$identifier) {
             // No identifier specified, return an empty object
@@ -675,13 +675,13 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param string|int $identifier The unique identifier, but typically not the database id, usually the seo_email,
      *                               or seo_name
-     * @param string|null $column
+     * @param string $column
      * @param int|null $not_id
      * @param bool $throw_exception If the entry does not exist, instead of returning false will throw a
      *                                    DataEntryNotExistsException
      * @return bool
      */
-    public static function exists(string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(string|int $identifier, string $column, ?int $not_id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry exists, no identifier specified', [
@@ -689,7 +689,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        $column  = static::ensureColumn($identifier, $column);
+        $column  = static::checkIdentifierColumn($identifier, $column, 'exists');
         $execute = [':identifier' => $identifier];
 
         if ($not_id) {
@@ -718,14 +718,14 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param string|int $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
-     * @param string|null $column
+     * @param string $column
      * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
      *                                    object
      * @param bool $throw_exception If the entry exists (and does not match id, if specified), instead of
      *                                    returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    public static function notExists(string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(string|int $identifier, string $column, ?int $id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry not exists, no identifier specified', [
@@ -733,7 +733,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        $column  = static::ensureColumn($identifier, $column);
+        $column  = static::checkIdentifierColumn($identifier, $column, 'notExists');
         $execute = [':identifier' => $identifier];
 
         if ($id) {
@@ -2020,26 +2020,44 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @return string
+     * @param bool $method
+     * @return string|null
      */
-    protected static function ensureColumn(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): string
+    protected static function checkIdentifierColumn(DataEntryInterface|string|int|null $identifier, ?string $column, string|false $method): ?string
     {
         if ($column) {
+            // Column was specified. Identifier MAY be empty but that is fine as a value actually might be NULL
             return $column;
         }
 
-        // If the column on which to select wasn't specified, assume `id` for numeric identifiers, or the unique
-        // field otherwise
+        // From here, column has not been specified. Check if it is required
+        if ($method) {
+            throw new OutOfBoundsException(tr('Cannot execute ":method" for identifier ":identifier" because required column was not specified', [
+                ':method'     => $method,
+                ':identifier' => $identifier
+            ]));
+        }
+
+        // Column is NOT required, try to assign default. Assume `id` for numeric identifiers, or else the unique field
         if ($identifier) {
             if (is_numeric($identifier)) {
                 return 'id';
-
-            } else {
-                return static::getUniqueField();
             }
+
+            $return = static::getUniqueField();
+
+            if ($return) {
+                return $return;
+            }
+
+            throw new OutOfBoundsException(tr('Failed to access DataEntry type ":type", an identifier ":identifier" was specified without column, the identifier is not numeric and the DataEntry object has no unique field specified', [
+                ':type'       => static::getDataEntryName(),
+                ':identifier' => $identifier
+            ]));
         }
 
-        return '';
+        // No identifier specified either, this is just an empty DataEntry object
+        return null;
     }
 
 
