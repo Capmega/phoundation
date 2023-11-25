@@ -1120,10 +1120,16 @@ Class Log {
         static::$fail = true;
 
         try {
-            static::errorLog(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . Core::getGlobalId() . '/' . Core::getLocalId() . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
+            $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
+            static::errorLog($message);
 
             try {
-                static::errorLog(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . $messages);
+                foreach (Arrays::force($messages, null) as $message) {
+                    $message = CliColor::strip((string) $message);
+                    $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' ' . $message;
+
+                    static::errorLog($message);
+                }
 
             } catch (Throwable $g) {
                 // Okay this is messed up, we can't even log to system logs.
