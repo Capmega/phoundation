@@ -182,7 +182,7 @@ Class Log {
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
         } catch (Throwable $e) {
-            error_log(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
+            static::errorLog(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
 
             // Likely configuration read failed. Just set defaults
             static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
@@ -218,8 +218,8 @@ Class Log {
             // Crap, we could not get a Log instance
             static::$fail = true;
 
-            error_log('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
-            error_log($e->getMessage());
+            static::errorLog('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
+            static::errorLog($e->getMessage());
         }
 
         // TODO static::$instance might not be assigned at this point, if there was an exception. What then?
@@ -871,6 +871,22 @@ Class Log {
 
 
     /**
+     * Log to PHP error console
+     *
+     * @param $message
+     * @return void
+     */
+    protected static function errorLog($message): void
+    {
+        error_log($message);
+
+        if (PLATFORM_WEB) {
+            flush();
+        }
+    }
+
+
+    /**
      * Write the specified log message to the current log file for this instance
      *
      * @todo Refactor this method, its become too cluttered over time
@@ -896,11 +912,14 @@ Class Log {
 
         if (static::$init) {
             // Do not log anything while locked, initialising, or while dealing with a Log internal failure
-            error_log(Strings::force($messages));
+            foreach (Arrays::force($messages, null) as $message) {
+                static::errorLog('Phoundation: ' . Strings::force($message));
+            }
+
             return false;
         }
 
-// TODO Delete static::$lock as it looks like its not needed anymore
+        // TODO Delete static::$lock as it looks like its not needed anymore
         static::$lock = true;
         static::getInstance();
 
@@ -1043,7 +1062,7 @@ Class Log {
 
             // If we're initializing the log then write to the system log
             if (static::$fail) {
-                error_log(Strings::force($messages));
+                static::errorLog(Strings::force($messages));
                 static::$lock = false;
                 return true;
             }
@@ -1082,7 +1101,7 @@ Class Log {
             return true;
 
         } catch (Throwable $e) {
-            return static::writeExceptionHandler($e, $threshold, $messages);
+            return static::writeExceptionHandler($e, $messages, $threshold);
         }
     }
 
@@ -1093,23 +1112,24 @@ Class Log {
      * @param Throwable $e
      * @param mixed|null $messages
      * @param int $threshold
-     * @return false
+     * @return bool
      */
-    protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): false
+    protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): bool
     {
         // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
         static::$fail = true;
 
         try {
-            error_log(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . Core::getGlobalId() . '/' . Core::getLocalId() . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
+            static::errorLog(date('Y-m-d H:i:s') . ' ' . getmypid() . ' [' . Core::getGlobalId() . '/' . Core::getLocalId() . '] Failed to log message to internal log files because "' . $e->getMessage() . '"');
 
             try {
-                error_log(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . $messages);
+                static::errorLog(date('Y-m-d H:i:s') . ' ' . $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . $messages);
 
             } catch (Throwable $g) {
                 // Okay this is messed up, we can't even log to system logs.
-                error_log('Failed to log message because: ' . $g->getMessage());
+                static::errorLog('Failed to log message because: ' . $g->getMessage());
             }
+
         } catch (Throwable $f) {
             // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
             // we won't stand for!
