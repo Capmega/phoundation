@@ -3217,17 +3217,7 @@ abstract class Validator implements ValidatorInterface
                 }
             }
 
-            $value  = trim((string) $value);
-            $prefix = (str_starts_with($value, '+') ? '+' : Config::getString('validation.defaults.phones.country-code', '+1'));
-            $ext    = Strings::from($value, 'ext', require: true);
-            $value  = preg_replace('/[^0-9]+/', '', $value);
-            $ext    = preg_replace('/[^0-9]+/', '', $ext);
-
-            if ($value) {
-                $value = $prefix . $value . ($ext ? ' ext. ' . $ext : null);
-            } else {
-                $value = null;
-            }
+            $value = Sanitize::new($value)->phoneNumber()->getSource();
         });
     }
 
