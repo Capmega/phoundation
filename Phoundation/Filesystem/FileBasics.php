@@ -52,7 +52,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class FileBasics implements Stringable, FileBasicsInterface
+abstract class FileBasics implements Stringable, FileBasicsInterface
 {
     use DataRestrictions;
     use DataBufferSize;
@@ -1018,10 +1018,11 @@ class FileBasics implements Stringable, FileBasicsInterface
         // Check filesystem restrictions
         $this->restrictions->check($this->path, true);
 
-        if ($recursive) {
+        if ($recursive or is_string($mode)) {
+            // Use operating system chmod command as PHP chmod does not support these functions
             Process::new('chmod', $this->restrictions)
                 ->setSudo($sudo)
-                ->addArguments(['-R', '0' . decoct($mode), $this->path])
+                ->addArguments([($recursive ? '-R' : null), '0' . decoct($mode), $this->path])
                 ->executeReturnArray();
         } else {
             chmod($this->path, $mode);
@@ -1055,18 +1056,18 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (file_exists($this->path)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The file ":file" (Realdirectory ":directory") is not readable. Attempting to apply default file mode ":mode"', [
+                Log::warning(tr('The file ":file" :realis not readable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_path,
+                    ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode
                 ]));
 
                 $this->chmod('u+w');
 
             } catch (ProcessesException) {
-                throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
+                throw new FileNotWritableException(tr('The file ":file" :realis not writable, and could not be made writable', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_path
+                    ':real' => $this->getRealPathLogString()
                 ]));
             }
         }
@@ -1080,6 +1081,21 @@ class FileBasics implements Stringable, FileBasicsInterface
         ]));
 
         return false;
+    }
+
+
+    /**
+     * Returns a "Real directory ":directory" string if the internal path does not match the internal real_path
+     *
+     * @return string|null
+     */
+    protected function getRealPathLogString(): ?string
+    {
+        if ($this->path === $this->real_path) {
+            return null;
+        }
+
+        return tr('(Real path ":directory") ', [':directory' => $this->real_path]);
     }
 
 
@@ -1107,18 +1123,18 @@ class FileBasics implements Stringable, FileBasicsInterface
         if (file_exists($this->path)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The file ":file" (Realdirectory ":directory") is not writable. Attempting to apply default file mode ":mode"', [
+                Log::warning(tr('The file ":file" :realis not writable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_path,
+                    ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode
                 ]));
 
                 $this->chmod('u+w');
 
             } catch (ProcessesException) {
-                throw new FileNotWritableException(tr('The file ":file" (Realdirectory ":directory") is not writable, and could not be made writable', [
+                throw new FileNotWritableException(tr('The file ":file" :realis not writable, and could not be made writable', [
                     ':file' => $this->path,
-                    ':directory' => $this->real_path
+                    ':real' => $this->getRealPathLogString(),
                 ]));
             }
         }
