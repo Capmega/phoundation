@@ -1,5 +1,8 @@
 <?php
 
+DATA ENTRY GET REQUIRES IDENTIFIER COLUMN
+DATA ENTRY __constructor REQUIRES COLUMN IF IDENTIFIER IS SPECIFIED
+
 declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
