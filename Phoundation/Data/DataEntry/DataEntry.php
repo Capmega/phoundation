@@ -371,6 +371,17 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns true if the data in this DataEntry is currently in a state of being applied through DataEntry::apply()
+     *
+     * @return bool
+     */
+    public function isApplying(): bool
+    {
+        return $this->is_applying;
+    }
+
+
+    /**
      * Returns true if the DataEntry was just successfully saved
      *
      * @return bool
@@ -1782,7 +1793,8 @@ abstract class DataEntry implements DataEntryInterface
             return $this;
         }
 
-        if ($this->is_applying and !$this->is_validated) {
+        if (!$this->is_validated) {
+            // Object must ALWAYS be validated before writing!
             if ($this->debug) {
                 Log::information('VALIDATING DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
             }

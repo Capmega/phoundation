@@ -68,6 +68,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function isSaved(): bool;
 
     /**
+     * Returns true if the data in this DataEntry is currently in a state of being applied through DataEntry::apply()
+     *
+     * @return bool
+     */
+    public function isApplying(): bool;
+
+    /**
      * Returns id for this database entry that can be used in logs
      *
      * @return bool

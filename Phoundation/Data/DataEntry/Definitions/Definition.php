@@ -1132,13 +1132,12 @@ class Definition implements DefinitionInterface
      */
     public function getCliField(): ?string
     {
-        if (PLATFORM_WEB) {
-            // We're not on CLI, we're on HTTP. Return the HTTP field instead
+        if (PLATFORM_WEB or !$this->data_entry->isApplying()) {
+            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP field
             return $this->field;
         }
 
-        // We're on the command line
-        // We're working with data from the $argv command line
+        // We're on the command line and data is being applied. We're working with data from the $argv command line
         if (empty($this->rules['cli_field'])) {
             // This field cannot be modified on the command line, no definition available
             return null;

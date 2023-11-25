@@ -516,8 +516,20 @@ abstract class DataList extends Iterator implements DataListInterface
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof DataEntryInterface) {
-            throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
-                ':value' => $value
+            // Value might be NULL if we skip NULLs?
+            if (($value !== null) or !$skip_null) {
+                throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
+                    ':value' => $value
+                ]));
+            }
+        }
+
+        if ($key and ($key != $value->getId())) {
+            // Key must either not be specified or match the id of the DataEntry
+            throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
+                ':type' => $value::getDataEntryName(),
+                ':id'   => $value->getId(),
+                ':key'  => $key
             ]));
         }
 
