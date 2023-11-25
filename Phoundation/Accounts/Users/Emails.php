@@ -168,12 +168,10 @@ class Emails extends DataList implements EmailsInterface
                 ]));
             }
 
-            $value = Email::new()
-                ->setEmail($value)
-                ->setAccountType('other');
+            $value = Email::new($value, 'email')->setAccountType('other');
         }
 
-        // Ensure that the emails list has a parent
+        // Ensure that the email list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
                 ':email' => $value->getLogId()

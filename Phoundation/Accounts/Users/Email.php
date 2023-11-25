@@ -6,6 +6,7 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Users\Exception\EmailNotExistsException;
 use Phoundation\Accounts\Users\Interfaces\EmailInterface;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -18,6 +19,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\InputElement;
@@ -75,6 +77,48 @@ class Email extends DataEntry implements EmailInterface
     public static function getUniqueField(): ?string
     {
         return 'email';
+    }
+
+
+    /**
+     * Sets the users_id for this object
+     *
+     * @param int|null $users_id
+     * @return static
+     */
+    public function setUsersId(?int $users_id): static
+    {
+        $current = $this->getUsersId();
+
+        if ($current and ($current !== $users_id)) {
+            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from" , only unassigned emails can be assigned', [
+                ':from' => $current,
+                ':to'   => $users_id
+            ]));
+        }
+
+        return $this->setSourceValue('users_id', $users_id);
+    }
+
+
+    /**
+     * Sets the users_email for this additional email
+     *
+     * @param string|null $users_email
+     * @return static
+     */
+    public function setUsersEmail(?string $users_email): static
+    {
+        $current = $this->getUsersEmail();
+
+        if ($current and ($current !== $users_email)) {
+            throw new ValidationFailedException(tr('Cannot assign additional email to ":to" from ":from" , only unassigned emails can be assigned', [
+                ':from' => $current,
+                ':to'   => $users_email
+            ]));
+        }
+
+        return $this->setSourceValue('users_email', $users_email);
     }
 
 

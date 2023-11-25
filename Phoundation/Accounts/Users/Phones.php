@@ -173,7 +173,7 @@ class Phones extends DataList implements PhonesInterface
                 ->setAccountType('other');
         }
 
-        // Ensure that the phones list has a parent
+        // Ensure that the phone list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
                 ':phone' => $value->getLogId()
@@ -193,7 +193,7 @@ class Phones extends DataList implements PhonesInterface
             $value->setUsersId($this->parent->getId())->save();
         }
 
-        return parent::add($value, $key);
+        return parent::add($value, $key, $skip_null);
     }
 
 
