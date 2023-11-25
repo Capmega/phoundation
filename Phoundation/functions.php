@@ -93,7 +93,7 @@ function nl(): void
  * $replace values are always processed first by Strings::log() to ensure they are readable texts, so the texts sent to
  * tr() do NOT require Strings::log().
  *
- * On non production systems, tr() will perform a check on both the $text and $replace data to ensure that all markers
+ * On non-production systems, tr() will perform a check on both the $text and $replace data to ensure that all markers
  * have been replaced, and non were forgotten. If results were found, an exception will be thrown. This behaviour does
  * NOT apply to production systems.
  *
@@ -116,7 +116,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true): string
 
             $text = str_replace(array_keys($replace), array_values($replace), $text, $count);
 
-            // Only on non production machines, crash when not all entries were replaced as an extra check.
+            // Only on non-production machines, crash when not all entries were replaced as an extra check.
             if (!Debug::production()) {
                 if ($count < count($replace)) {
                     foreach ($replace as $value) {
