@@ -52,6 +52,7 @@ use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Stringable;
 use Throwable;
 
 
@@ -681,15 +682,16 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Returns true if an entry with the specified identifier exists
      *
-     * @param string|int $identifier The unique identifier, but typically not the database id, usually the seo_email,
-     *                               or seo_name
+     * @param Stringable|string|int $identifier The unique identifier, but typically not the database id, usually the
+     *                                          seo_name or something specific to that class like seo_email for User
      * @param string|null $column
      * @param int|null $not_id
-     * @param bool $throw_exception If the entry does not exist, instead of returning false will throw a
-     *                                    DataEntryNotExistsException
+     * @param bool $throw_exception             If the entry does not exist, instead of returning false will throw a
+     *                                          DataEntryNotExistsException
      * @return bool
+     * @throws OutOfBoundsException|DataEntryNotExistsException|DataEntryDeletedException
      */
-    public static function exists(string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(Stringable|string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry exists, no identifier specified', [
@@ -704,36 +706,56 @@ abstract class DataEntry implements DataEntryInterface
             $execute[':id'] = $not_id;
         }
 
-        $exists = sql()->getColumn('SELECT `id` 
-                                          FROM   `' . static::getTable() . '` 
-                                          WHERE  `' . $column . '`   = :identifier
-                                          ' . ($not_id ? 'AND `id` != :id' : '') . ' 
-                                          LIMIT  1', $execute);
+        $exists = sql()->get('SELECT `id`, `status` 
+                                    FROM   `' . static::getTable() . '` 
+                                    WHERE  `' . $column . '`   = :identifier
+                                    ' . ($not_id ? 'AND `id` != :id' : '') . ' 
+                                    LIMIT  1', $execute);
 
-        if (!$exists and $throw_exception) {
-            throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
-                ':type' => static::getClassName(),
-                ':id'   => $identifier
-            ]))->makeWarning();
+        if (!$exists) {
+            // Entry does not exist!
+            if ($throw_exception) {
+                throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" does not exist', [
+                    ':type' => static::getClassName(),
+                    ':id'   => $identifier
+                ]))->makeWarning();
+            }
+
+            return false;
         }
 
-        return (bool) $exists;
+        // Entry exists!
+        if ($exists['status'] === 'deleted') {
+            // But is deleted
+            if ($throw_exception) {
+                throw DataEntryDeletedException::new(tr('The ":type" type data entry with identifier ":id" exists but is deleted', [
+                    ':type' => static::getClassName(),
+                    ':id'   => $identifier
+                ]))->makeWarning();
+            }
+
+            // This entry does not exist
+            return false;
+        }
+
+        // Entry exists and is not deleted
+        return true;
     }
 
 
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param string|int $identifier The unique identifier, but typically not the database id, usually the
-     *                                    seo_email, or seo_name
+     * @param Stringable|string|int $identifier The unique identifier, but typically not the database id, usually the
+     *                                          seo_email, or seo_name
      * @param string|null $column
-     * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
-     *                                    object
-     * @param bool $throw_exception If the entry exists (and does not match id, if specified), instead of
-     *                                    returning false will throw a DataEntryNotExistsException
+     * @param int|null $id                      If specified, will ignore the found entry if it has this ID as it will
+     *                                          be THIS object
+     * @param bool $throw_exception             If the entry exists (and does not match id, if specified), instead of
+     *                                          returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    public static function notExists(string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(Stringable|string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot check if ":class" class DataEntry not exists, no identifier specified', [
@@ -748,20 +770,32 @@ abstract class DataEntry implements DataEntryInterface
             $execute[':id'] = $id;
         }
 
-        $exists = sql()->getColumn('SELECT `id` 
-                                          FROM   `' . static::getTable() . '` 
-                                          WHERE  `' . $column . '` = :identifier
-                                          ' . ($id ? 'AND `id`   != :id' : '') . ' 
-                                          LIMIT  1', $execute);
+        $exists = sql()->get('SELECT `id`, `status`
+                                    FROM   `' . static::getTable() . '` 
+                                    WHERE  `' . $column . '` = :identifier
+                                    ' . ($id ? 'AND `id`   != :id' : '') . ' 
+                                    LIMIT  1', $execute);
 
-        if ($exists and $throw_exception) {
-            throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
-                ':type' => static::getClassName(),
-                ':id'   => $identifier
-            ]))->makeWarning();
+        if ($exists) {
+            // Entry exists
+            if ($exists['status'] === 'deleted') {
+                // But is deleted, so act as if it doesn't
+                return true;
+            }
+
+            // Exists and is not deleted
+            if ($throw_exception) {
+                throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
+                    ':type' => static::getClassName(),
+                    ':id' => $identifier
+                ]))->makeWarning();
+            }
+
+            return false;
         }
 
-        return !$exists;
+        // Entry does not exist
+        return true;
     }
 
 

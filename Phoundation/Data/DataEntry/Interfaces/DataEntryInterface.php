@@ -384,7 +384,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string $column
+     * @param string|null $column
      * @param bool $meta_enabled
      * @return static|null
      */

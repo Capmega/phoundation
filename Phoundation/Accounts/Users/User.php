@@ -225,7 +225,7 @@ class User extends DataEntry implements UserInterface
      * Returns a single user object for a single user that has the specified alternate email address.
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string $column
+     * @param string|null $column
      * @param bool $meta_enabled
      * @return User|null
      */
