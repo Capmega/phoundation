@@ -2071,7 +2071,7 @@ abstract class DataEntry implements DataEntryInterface
             return $column;
         }
 
-        if ($identifier) {
+        if (!$identifier) {
             // No identifier specified either, this is just an empty DataEntry object
             return null;
         }
