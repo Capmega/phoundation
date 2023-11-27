@@ -337,8 +337,8 @@ class User extends DataEntry implements UserInterface
      */
     public function passwordMatch(string $password): bool
     {
-        if (!array_key_exists('id', $this->source)) {
-            throw new OutOfBoundsException(tr('Cannot match passwords, this user does not have a database id'));
+        if ($this->isNew()) {
+            throw new OutOfBoundsException(tr('Cannot match passwords, this user has not yet been saved in the database'));
         }
 
         return Password::match($this->source['id'], $password, (string) $this->source['password']);
@@ -963,6 +963,18 @@ class User extends DataEntry implements UserInterface
         $this->validatePassword($password, $validation);
         $this->setPasswordDirectly(Password::hash($password, $this->source['id']));
 
+        return $this->savePassword();
+    }
+
+
+    /**
+     * Clears the password for this user
+     *
+     * @return static
+     */
+    public function clearPassword(): static
+    {
+        $this->setPasswordDirectly(null);
         return $this->savePassword();
     }
 
