@@ -8,6 +8,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
@@ -22,6 +23,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Rsync;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -671,6 +673,7 @@ class Project implements ProjectInterface
      * @param string|null $directory
      * @param string $branch
      * @return void
+     * @throws PhoundationBranchNotExistException|OutOfBoundsException|Throwable
      */
     protected function copyPhoundationFilesLocal(?string $directory, string $branch): void
     {
@@ -678,8 +681,17 @@ class Project implements ProjectInterface
             throw new OutOfBoundsException(tr('Cannot copy local Phoundation files, no Phoundation branch specified'));
         }
 
-        $rsync       = Rsync::new();
-        $phoundation = Phoundation::new($directory)->switchBranch($branch);
+        $rsync = Rsync::new();
+
+        try {
+            $phoundation = Phoundation::new($directory)->switchBranch($branch);
+
+        } catch (ProcessFailedException $e) {
+            // TODO Check if it actually does not exist or if there is another problem!
+            throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation branch ":branch", it does not exist', [
+                ':branch' => $branch
+            ]), $e);
+        }
 
         // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
