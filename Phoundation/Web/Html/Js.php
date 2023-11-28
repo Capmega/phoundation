@@ -9,10 +9,10 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Core;
-use function Phoundation\Web\Http\Html\cdn_domain;
-use function Phoundation\Web\Http\Html\html_bundler;
-use function Phoundation\Web\Http\Html\notify;
+use Phoundation\Web\Html\Core;
+use function Phoundation\Web\Html\cdn_domain;
+use function Phoundation\Web\Html\html_bundler;
+use function Phoundation\Web\Html\notify;
 
 
 /**

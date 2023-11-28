@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html;
 
 
-use Phoundation\Web\Http\Html\Script;
+use Phoundation\Web\Html\Script;
 
 /**
  * Class Jquery
