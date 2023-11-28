@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -11,135 +9,84 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Button;
 use Phoundation\Web\Html\Components\Buttons;
-use Phoundation\Web\Html\Components\Img;
-use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Components\Form;
 use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
-use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Html\Layouts\GridColumn;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
-// Validate GET data
+/**
+ * Profile page
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
+
+// Get parameters
 $get = GetValidator::new()
     ->select('id')->isDbId()
     ->validate();
 
 
-// Get the user and alter the default user form
-$user        = User::get($get['id']);
-$definitions = $user->getDefinitions();
-
-$definitions->get('last_sign_in')
-    ->setSize(4);
-
-$definitions->get('sign_in_count')
-    ->setSize(4);
-
-$definitions->get('authentication_failures')
-    ->setSize(4);
-
-$definitions->get('locked_until')
-    ->setVisible(false);
-
-$definitions->get('username')
-    ->setReadonly(true);
-
-$definitions->get('comments')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('is_leader')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('leaders_id')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('code')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('type')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('priority')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('offset_latitude')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('email')
-    ->setReadonly(true);
-
-$definitions->get('offset_longitude')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('domain')
-    ->setReadonly(true)
-    ->setVisible(false);
-
-$definitions->get('verified_on')
-    ->setVisible(false);
-
-$definitions->get('keywords')
-    ->setSize(3);
-
-$definitions->get('redirect')
-    ->setVisible(false)
-    ->setReadonly(true);
-
-$definitions->get('url')
-    ->setSize(9);
-
-$definitions->get('description')
-    ->setSize(12);
+// Get user
+$user = User::get($get['id']);
 
 
-// Validate POST and submit
-if (Page::isPostRequestMethod()) {
-    try {
-        switch (PostValidator::getSubmitButton()) {
-            case tr('Lock'):
-                $user->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
-                    ':user' => $user->getDisplayName()
-                ]));
-
-                Page::redirect();
-
-            case tr('Unlock'):
-                $user->unlock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
-                    ':user' => $user->getDisplayName()
-                ]));
-
-                Page::redirect();
-
-            case tr('Impersonate'):
-                $user->impersonate();
-                Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
-                    ':user' => $user->getDisplayName()
-                ]));
-
-                Page::redirect('root');
-        }
-
-    } catch (IncidentsException|ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
-        $user->forceApply();
-    }
-}
+// Set page meta data
+Page::setHeaderTitle(tr('Profile'));
+Page::setHeaderSubTitle($user->getDisplayName());
+Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+    '/'                        => tr('Home'),
+    '/profiles.html'           => tr('Profiles'),
+    '/profiles/employees.html' => tr('Employees'),
+    ''                         => $user->getDisplayName()
+]));
 
 
 if (Session::getUser()->hasAllRights(['accounts'])) {
+// Validate POST and submit
+    if (Page::isPostRequestMethod()) {
+        try {
+            switch (PostValidator::getSubmitButton()) {
+                case tr('Lock'):
+                    $user->lock();
+                    Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                        ':user' => $user->getDisplayName()
+                    ]));
+
+                    Page::redirect();
+
+                case tr('Unlock'):
+                    $user->unlock();
+                    Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                        ':user' => $user->getDisplayName()
+                    ]));
+
+                    Page::redirect();
+
+                case tr('Impersonate'):
+                    $user->impersonate();
+                    Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                        ':user' => $user->getDisplayName()
+                    ]));
+
+                    Page::redirect('root');
+            }
+
+        } catch (IncidentsException|ValidationFailedException $e) {
+            // Oops! Show validation errors and remain on page
+            Page::getFlashMessages()->addMessage($e);
+            $user->forceApply();
+        }
+    }
+
+
     $edit = Button::new()
         ->setMode(DisplayMode::secondary)
         ->setValue(tr('Edit'))
@@ -173,63 +120,141 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 }
 
 
-// Build the user form
-$card = Card::new()
-    ->setCollapseSwitch(true)
-    ->setTitle(tr('View the profile information for :user here', [':user' => $user->getDisplayName()]))
-    ->setContent($user->setReadonly(true)->getHtmlDataEntryForm()->render())
-    ->setButtons(Buttons::new()
-        ->addButton(isset_get($edit))
-        ->addButton(isset_get($lock))
-        ->addButton(isset_get($impersonate)));
+// Build content
+?>
+<!-- Main content -->
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
 
+        <!-- Profile Image -->
+        <div class="card card-primary card-outline">
+          <div class="card-body box-profile">
+            <div class="text-center">
+                <?= Session::getUser()->getPicture()
+                    ->getHtmlElement()
+                    ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
+                    ->setClass('profile-user-img img-fluid img-circle')
+                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
+                    ->render() ?>
+            </div>
 
-// Build the grid column with a form containing the user and roles cards
-$column = GridColumn::new()
-    ->addContent($card->render())
-    ->setSize(9)
-    ->useForm(true);
+            <h3 class="profile-username text-center"><?= $user->getDisplayName() ?></h3>
 
+            <p class="text-muted text-center"><?= '-' ?></p>
 
-// Build profile picture card
-//showdie($user->getPicture());
-$picture = Card::new()
-    ->setTitle(tr('The users profile picture'))
-    ->setContent(Img::new()
-        ->addClass('w100')
-        ->setSrc($user->getPicture())
-        ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
-        ->setAlt(tr('My profile picture')));
+            <ul class="list-group list-group-unbordered mb-3">
+              <li class="list-group-item">
+                <b>Followers</b> <a class="float-right">1,322</a>
+              </li>
+              <li class="list-group-item">
+                <b>Following</b> <a class="float-right">543</a>
+              </li>
+              <li class="list-group-item">
+                <b>Friends</b> <a class="float-right">13,287</a>
+              </li>
+            </ul>
 
+            <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
 
-// Build relevant links
-$relevant = Card::new()
-    ->setMode(DisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('Your own profile') . '</a>');
+        <!-- About Me Box -->
+        <div class="card card-primary">
+          <div class="card-header">
+            <h3 class="card-title"><?= tr('About Me') ?></h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body">
+            <strong><i class="fas fa-book mr-1"></i> <?= tr('Contact information') ?></strong>
 
+            <p class="text-muted">
+                <?php
 
-// Build documentation
-$documentation = Card::new()
-    ->setMode(DisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+                    echo ($user->getEmail() ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a><br>' : null);
 
+                    foreach ($user->getEmails() as $email) {
+                        echo '<a href="mailto:' . $email->getEmail() . '">' . $email->getEmail() . '</a><br>';
+                    }
 
-// Build and render the grid
-$grid = Grid::new()
-    ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
+                    echo ($user->getPhone() ? '<a href="tel:' . $user->getPhone() . '">' . $user->getPhone() . '</a><br>' : null);
 
-echo $grid->render();
+                    foreach ($user->getPhones() as $phone) {
+                        echo '<a href="tel:' . $phone->getPhone() . '">' . $phone->getPhone() . '</a><br>';
+                    }
+                ?>
+            </p>
 
-// Set page meta data
-Page::setHeaderTitle(tr('The profile for'));
-Page::setHeaderSubTitle($user->getDisplayName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'               => tr('Home'),
-    '/profiles.html'  => tr('Profiles'),
-    ''                => $user->getDisplayName()
-]));
+            <hr>
+
+            <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
+
+            <p class="text-muted"><?= (($user->getCity() . $user->getCountry()) ? $user->getCity() . ', ' . $user->getCountry() : '-') ?></p>
+
+            <hr>
+
+            <strong><i class="fas fa-pencil-alt mr-1"></i> Skills</strong>
+
+            <p class="text-muted">
+            </p>
+
+            <hr>
+
+            <strong><i class="far fa-file-alt mr-1"></i> Notes</strong>
+
+            <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+      <div class="col-md-9">
+        <div class="card">
+          <div class="card-header p-2">
+            <ul class="nav nav-pills">
+              <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab"><?= tr('Activity') ?></a></li>
+              <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab"><?= tr('Timeline') ?></a></li>
+              <li class="nav-item"><a class="nav-link" href="#actions" data-toggle="tab"><?= tr('Actions') ?></a></li>
+            </ul>
+          </div><!-- /.card-header -->
+          <div class="card-body">
+            <div class="tab-content">
+              <div class="active tab-pane" id="activity">
+              </div>
+
+              <!-- /.tab-pane -->
+              <div class="tab-pane" id="timeline">
+              </div>
+              <!-- /.tab-pane -->
+
+              <div class="tab-pane" id="actions">
+                  <?=
+                    Form::new()
+                        ->setMethod('post')
+                        ->setContent('   <div class="form-group row">' .
+                                                     Buttons::new()
+                                                         ->addButton(isset_get($edit))
+                                                         ->addButton(isset_get($lock))
+                                                         ->addButton(isset_get($impersonate))
+                                                         ->render() . '
+                                                </div>')
+                        ->render();
+                  ?>
+              </div>
+              <!-- /.tab-pane -->
+            </div>
+            <!-- /.tab-content -->
+          </div><!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
