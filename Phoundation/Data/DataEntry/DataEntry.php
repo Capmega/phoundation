@@ -833,6 +833,17 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns the value for the unique field, which
+     *
+     * @return string|float|int|null
+     */
+    public function getUniqueFieldValue(): string|float|int|null
+    {
+        return $this->getSourceFieldValue('string|float|int|null', static::getUniqueField());
+    }
+
+
+    /**
      * Returns id for this database entry that can be used in logs
      *
      * @return string
