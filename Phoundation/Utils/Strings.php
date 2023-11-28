@@ -1672,7 +1672,7 @@ throw new UnderConstructionException();
 
         } elseif (is_array($source)) {
             $source = Arrays::hide($source, ['password', 'ssh_key']);
-            $source = trim(Json::encode($source));
+            $source = 'array: ' . trim(Json::encode($source));
 
         } elseif (is_enum($source)) {
             $source = $source->value;
@@ -1680,6 +1680,8 @@ throw new UnderConstructionException();
         } elseif ($source instanceof Stringable) {
             $source = '[' . Strings::fromReverse(get_class($source), '\\') . ']' . $source;
 
+        } elseif (is_object($source)) {
+            $source = 'object: ' . get_class($source);
         } else {
             $source = trim(Json::encode($source));
         }
