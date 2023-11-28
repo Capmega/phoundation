@@ -25,15 +25,12 @@ CliDocumentation::usage('./pho business companies create NAME [OPTIONS]
 CliDocumentation::help('This script allows you to create companies
 
 
-
 ARGUMENTS
-
 
 
 NAME                                    The name for the company
 
 [-d / --description]                    The description for the company');
-
 
 
 // Validate arguments
@@ -44,10 +41,8 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Check if the company already exists
 Company::notExists($argv['name'], 'name', null, true);
-
 
 
 // Ensure that specified companies exist
@@ -60,10 +55,8 @@ if ($argv['rights']) {
 }
 
 
-
 // Create company and save it
 $company = Company::new()->apply(true, $argv)->save();
-
 
 
 // Done!

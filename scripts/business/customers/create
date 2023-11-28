@@ -25,15 +25,12 @@ CliDocumentation::usage('./pho business customers create NAME [OPTIONS]
 CliDocumentation::help('This script allows you to create customers
 
 
-
 ARGUMENTS
-
 
 
 NAME                                    The name for the customer
 
 [-d / --description]                    The description for the customer');
-
 
 
 // Validate arguments
@@ -44,10 +41,8 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Check if the customer already exists
 Customer::notExists($argv['name'], 'name', null, true);
-
 
 
 // Ensure that specified customers exist
@@ -60,10 +55,8 @@ if ($argv['rights']) {
 }
 
 
-
 // Create customer and save it
 $customer = Customer::new()->apply(true, $argv)->save();
-
 
 
 // Done!
