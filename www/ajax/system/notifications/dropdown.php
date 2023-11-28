@@ -1,9 +1,7 @@
 <?php
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
+use Phoundation\Web\Html\Components\NotificationsDropDown;
 
 
 /**
@@ -18,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
  */
 
 
-// Gets the notifications dropdown
+// Gets the notification dropdown
 $dropdown = NotificationsDropDown::new()
     ->setStatus('UNREAD')
     ->setNotificationsUrl('/notifications/notification-:ID.html')
