@@ -1171,14 +1171,14 @@ abstract class DataEntry implements DataEntryInterface
         // Are we allowed to create or modify this DataEntry?
         if ($this->getId()) {
             if (!$this->allow_modify) {
-                // auto modify not allowed, sorry!
+                // auto modify is not allowed, sorry!
                 throw new ValidationFailedException(tr('Cannot modify :entry', [
                     ':entry' => static::getDataEntryName()
                 ]));
             }
         } else {
             if (!$this->allow_create) {
-                // auto create not allowed, sorry!
+                // auto create is not allowed, sorry!
                 throw new ValidationFailedException(tr('Cannot create new :entry', [
                     ':entry' => static::getDataEntryName()
                 ]));
@@ -1190,7 +1190,7 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_saved     = false;
 
         // Select the correct data source and validate the source data. Specified data may be a DataValidator, an array
-        // or null. After selecting a data source it will be a DataValidator object which we will then give to the
+        // or null. After selecting a data source, it will be a DataValidator object which we will then give to the
         // DataEntry::validate() method
         //
         // When in force mode we will NOT clear the failed fields so that they can be sent back to the user for

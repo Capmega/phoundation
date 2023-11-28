@@ -1034,8 +1034,6 @@ class User extends DataEntry implements UserInterface
      */
     function getDisplayName(): string
     {
-        $postfix = null;
-
         $postfix = match ($this->getStatus()) {
             'deleted' => ' ' . tr('[DELETED]'),
             'locked'  => ' ' . tr('[LOCKED]'),
@@ -1043,18 +1041,18 @@ class User extends DataEntry implements UserInterface
         };
 
         if (!$name = $this->getNickname()) {
-            if (!$name = $this->getName()) {
+            if (!$name = trim($this->getFirstNames() . ' ' . $this->getLastNames())) {
                 if (!$name = $this->getUsername()) {
                     if (!$name = $this->getEmail()) {
                         if (!$name = $this->getId()) {
                             if ($this->getId() === -1) {
                                 // This is the guest user
                                 $name = tr('Guest');
+                            } else {
+                                // This is a new user
+                                $name = tr('[NEW]');
                             }
                         }
-
-                        // This is a new user
-                        $name = tr('[NEW]');
                     }
                 }
             }

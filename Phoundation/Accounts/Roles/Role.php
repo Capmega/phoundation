@@ -195,6 +195,7 @@ class Role extends DataEntry implements RoleInterface
     {
         $definitions
             ->addDefinition(DefinitionFactory::getName($this)
+                ->setOptional(false)
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)

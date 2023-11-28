@@ -33,11 +33,11 @@ trait DataEntryPhone
     /**
      * Sets the phone for this object
      *
-     * @param array|string|null $phone
+     * @param string|null $phone
      * @return static
      */
-    public function setPhone(array|string|null $phone): static
+    public function setPhone(string|null $phone): static
     {
-        return $this->setSourceValue('phone', Strings::force($phone));
+        return $this->setSourceValue('phone', $phone);
     }
 }

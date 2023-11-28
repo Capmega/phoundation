@@ -351,7 +351,10 @@ class Users extends DataList implements UsersInterface
             }
 
         } else {
-            parent::load();
+            $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
+                                               FROM   `accounts_users`
+                                               WHERE  `accounts_users`.`status` IS NULL
+                                                 AND  `accounts_users`.`email`    != "guest"');
         }
 
         return $this;
