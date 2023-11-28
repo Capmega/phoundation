@@ -69,7 +69,7 @@ if ($argv['name']) {
     Role::notExists($argv['name'], 'name', $role->getId(), true);
 }
 
-$role->apply($argv)->save();
+$role->apply(true, $argv)->save();
 
 
 

@@ -62,7 +62,7 @@ if ($argv['rights']) {
 
 
 // Create role and save it
-$role = Role::new()->apply($argv)->save();
+$role = Role::new()->apply(true, $argv)->save();
 
 
 
