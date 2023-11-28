@@ -622,7 +622,7 @@ abstract class DataEntry implements DataEntryInterface
             throw DataEntryNotExistsException::new(tr('The ":class" entry ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
                 ':identifier' => $identifier
-            ]))->makeWarning();
+            ]));
         }
 
         if ($entry->isDeleted()) {
@@ -631,7 +631,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryDeletedException::new(tr('The ":class" entry ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
                     ':identifier' => $identifier
-                ]))->makeWarning();
+                ]));
 
             }
         }
@@ -718,7 +718,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" does not exist', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier
-                ]))->makeWarning();
+                ]));
             }
 
             return false;
@@ -731,7 +731,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryDeletedException::new(tr('The ":type" type data entry with identifier ":id" exists but is deleted', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier
-                ]))->makeWarning();
+                ]));
             }
 
             // This entry does not exist
@@ -788,7 +788,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                     ':type' => static::getClassName(),
                     ':id' => $identifier
-                ]))->makeWarning();
+                ]));
             }
 
             return false;
