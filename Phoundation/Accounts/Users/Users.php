@@ -45,6 +45,7 @@ class Users extends DataList implements UsersInterface
                                          GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
                                          `accounts_users`.`email`, 
                                          `accounts_users`.`status`, 
+                                         `accounts_users`.`sign_in_count`,
                                          `accounts_users`.`created_on`
                                FROM      `accounts_users` 
                                LEFT JOIN `accounts_users_roles`
