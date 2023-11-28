@@ -31,18 +31,20 @@ interface RolesInterface extends DataListInterface
     /**
      * Add the specified role to the data list
      *
-     * @param RoleInterface|array|string|int|null $role
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addRole(RoleInterface|array|string|int|null $role): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|Stringable|array|string|float|int $role
+     * @param RoleInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RoleInterface|Stringable|array|string|float|int $role): static;
+    public function delete(RoleInterface|Stringable|array|string|float|int $keys): static;
 
     /**
      * Remove all rights for this right

@@ -171,12 +171,12 @@ class Role extends DataEntry implements RoleInterface
 
         // This role must get all rights from the $FROM role
         foreach ($from->getRights() as $right) {
-            $this->getRights()->addRight($right);
+            $this->getRights()->add($right);
         }
 
         // All users that have the $FROM role must get this role too
         foreach ($from->getUsers() as $user) {
-            $user->getRoles()->addRole($this);
+            $user->getRoles()->add($this);
         }
 
         // Remove the "from" role

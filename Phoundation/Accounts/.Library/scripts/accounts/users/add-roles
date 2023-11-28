@@ -69,14 +69,23 @@ try {
         unset($role);
     }
 
-    // Get role and add roles
-    $user = User::get($argv['user']);
-    $user->getRoles()->add($argv['roles']);
+    // Get user and add roles
+    $user  = User::get($argv['user']);
+    $roles = $user->getRoles();
+
+    foreach ($argv['roles'] as $role) {
+        $roles->add(Role::get($role));
+    }
+
+    if ($roles->save()) {
+        // Done!
+        Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));
+
+    } else {
+        // Done!
+        Log::warning(tr('User ":user" was not modified', [':user' => $user->getDisplayName()]));
+    }
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }
-
-
-// Done!
-Log::success(tr('Modified user ":user"', [':user' => $user->getName()]));

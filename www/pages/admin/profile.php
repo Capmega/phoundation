@@ -131,7 +131,7 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('My profile'));
-Page::setHeaderSubTitle($user->getName());
+Page::setHeaderSubTitle($user->getDisplayName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('My profile')

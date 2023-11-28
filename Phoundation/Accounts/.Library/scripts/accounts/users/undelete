@@ -9,9 +9,9 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script accounts/users/unlock
+ * Script accounts/users/undelete
  *
- * This script can unlock users
+ * This script can undelete users
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -28,16 +28,16 @@ CliDocumentation::autoComplete(User::getAutoComplete([
     ]
 ]));
 
-CliDocumentation::usage('./pho accounts users unlock USER_EMAIL');
+CliDocumentation::usage('./pho accounts users undelete USER_EMAIL');
 
-CliDocumentation::help('This script will unlock the specified user. Note that unlocked users will have the status
- updated to NULL
+CliDocumentation::help('This script will undelete the specified user. Note that undeleted users will have the
+status updated to NULL
 
 
 ARGUMENTS
 
 
-USER_EMAIL                              The email address for the user to unlock');
+USER_EMAIL                              The email address for the user to undelete');
 
 
 // Validate arguments
@@ -46,5 +46,5 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-// Unlock this user
-User::get($argv['user'])->unlock();
+// Undelete the user
+User::get($argv['user'])->undelete();

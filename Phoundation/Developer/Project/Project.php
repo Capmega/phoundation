@@ -310,7 +310,7 @@ class Project implements ProjectInterface
                 ->save();
 
             $user->setPassword($configuration->getPassword(), $configuration->getPassword());
-            $user->getRoles()->addRole('god');
+            $user->getRoles()->add('god');
 
             Log::success(tr('Finished project setup'));
 

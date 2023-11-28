@@ -25,9 +25,6 @@ CliDocumentation::autoComplete(User::getAutoComplete([
             'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
             'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
         ]
-    ],
-    'arguments' => [
-        '--no-password' => false
     ]
 ]));
 
@@ -49,5 +46,5 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-// Display user data
+// Lock this user
 User::get($argv['user'])->lock();

@@ -57,9 +57,22 @@ try {
         unset($role);
     }
 
-    // Get role and add rights
+    // Get role and remove rights
     $user = User::get($argv['user']);
-    $user->getRoles()->deleteAll($argv['roles']);
+    $roles = $user->getRoles();
+
+    foreach ($argv['roles'] as $role) {
+        $roles->delete(Role::get($role));
+    }
+
+    if ($roles->save()) {
+        // Done!
+        Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));
+
+    } else {
+        // Done!
+        Log::warning(tr('User ":user" was not modified', [':user' => $user->getDisplayName()]));
+    }
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
@@ -68,4 +81,4 @@ try {
 
 
 // Done!
-Log::success(tr('Modified user ":user"', [':user' => $user->getName()]));
+Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));
