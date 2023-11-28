@@ -77,8 +77,3 @@ try {
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }
-
-
-
-// Done!
-Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));
