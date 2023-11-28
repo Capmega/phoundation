@@ -30,7 +30,7 @@ CliDocumentation::help('This script allows you to create SSH accounts.
 
 
 // Check if the account already exists
-SshAccount::notExists('name', $argv['name'], null, true);
+SshAccount::notExists($argv['name'], 'name', null, true);
 
 
 // Add password for this account

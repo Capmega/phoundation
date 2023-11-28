@@ -46,7 +46,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the company already exists
-Company::notExists('name', $argv['name'], null, true);
+Company::notExists($argv['name'], 'name', null, true);
 
 
 

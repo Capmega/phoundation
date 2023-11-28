@@ -46,7 +46,7 @@ $argv = ArgvValidator::new()
 
 
 // Check if the provider already exists
-Provider::notExists('name', $argv['name'], null, true);
+Provider::notExists($argv['name'], 'name', null, true);
 
 
 

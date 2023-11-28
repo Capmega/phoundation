@@ -50,7 +50,7 @@ $right = Right::get($argv['right']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as its a unique identifier
-    Right::notExists('name', $argv['name'], $right->getId(), true);
+    Right::notExists($argv['name'], 'name', $right->getId(), true);
 }
 
 $right->apply(true, $argv)->save();
