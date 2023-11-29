@@ -617,7 +617,7 @@ class Sql implements SqlInterface
     {
         Core::checkReadonly('sql update');
 
-        // Build bound variables for query
+        // Build bound variables for the query
         $values = $this->values(array_merge($set, Arrays::force($where)));
         $update = $this->updateColumns($set);
         $where  = $this->whereColumns($where);

@@ -816,7 +816,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             foreach ($entries as $entry) {
                 $right = Right::get($entry['rights_id'], 'id');
 
-                sql()->update($table, [
+                sql()->update('accounts_users_rights', [
                     'name'     => $right->getName(),
                     'seo_name' => $right->getSeoName()
                 ], [
