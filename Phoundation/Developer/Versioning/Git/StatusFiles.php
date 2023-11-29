@@ -138,10 +138,14 @@ class StatusFiles extends Iterator
             $data = array_pop($data);
 
             if (str_contains($data, 'patch does not apply')) {
-                throw new GitPatchException(tr('Failed to apply patch ":patch" to directory ":directory"', [
-                    ':patch' => isset_get($patch_file),
-                    ':directory'  => $target_path
-                ]));
+                $file = Strings::cut($data, 'error: ', ': patch does not apply');
+
+                throw GitPatchException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
+                    ':patch'     => isset_get($patch_file),
+                    ':directory' => $target_path
+                ]))->addData([
+                    ':file' => $file
+                ]);
             }
 
             throw $e;

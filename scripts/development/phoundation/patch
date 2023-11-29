@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 
 
 /**
@@ -67,7 +68,7 @@ Log::information(tr('Copying local changes in ":project" project back to your Ph
 try {
     Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
 
-}catch (PatchPartiallySuccessfulException $e) {
+}catch (GitPatchException|PatchPartiallySuccessfulException $e) {
     $files = $e->getData();
     showdie($files);
 }

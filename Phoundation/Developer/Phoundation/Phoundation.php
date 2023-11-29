@@ -292,8 +292,8 @@ class Phoundation extends Project
                         break;
 
                     } catch (ProcessFailedException $e) {
-                        // Fork me, the patch failed! What file? Stash the little forker and retry without, then unstash it
-                        // after for manual review / copy
+                        // Fork me, the patch failed! What file? Stash the little forker and retry without, then
+                        // un-stash it after for manual review / copy
                         $output = $e->getDataKey('output');
                         $output = Arrays::match($output, 'patch failed', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
 
@@ -325,7 +325,10 @@ class Phoundation extends Project
                                     $file = Strings::from($file, ':');
                                     $file = trim($file);
 
-                                    Log::warning(tr('Stashing already existing and unmergable file ":file"', [':file' => $file]));
+                                    Log::warning(tr('Stashing already existing and unmergeable file ":file"', [
+                                        ':file' => $file
+                                    ]));
+
                                     Git::new(DIRECTORY_ROOT)->add($file)->getStash()->stash($file);
                                 }
                             } else {
