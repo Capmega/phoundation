@@ -218,24 +218,24 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setOptional(false)
                 ->setHelpText(tr('The extra phone for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Phone cannot yet exist in accounts_users or accounts_emails for THIS user!
+                    // Phone cannot yet exist in accounts_users or accounts_phones for THIS user!
                     $exists = sql()->get('SELECT `id` FROM `accounts_users` WHERE `id` != :id AND `phone` = :phone', [
-                        ':phone' => $validator->getSelectedValue(),
-                        ':id'    => (int) $validator->getSourceValue('users_id')
+                        ':phone'    => $validator->getSelectedValue(),
+                        ':id'       => (int) $validator->getSourceValue('users_id')
                     ]);
 
                     if ($exists) {
-                        $validator->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $validator->getSelectedValue()]));
+                        $validator->addFailure($failure ?? tr('with value ":value" already exists as a primary phone number', [':value' => $validator->getSelectedValue()]));
                     }
 
                     $exists = sql()->get('SELECT `id` FROM `accounts_phones` WHERE `users_id` = :users_id AND `phone` = :phone AND `id` != :id', [
                         ':users_id' => (int) $validator->getSourceValue('users_id'),
                         ':phone'    => $validator->getSelectedValue(),
-                        ':id'       => (int) $validator->getSourceValue('id')
+                        ':id'       => $validator->getId()
                     ]);
 
                     if ($exists) {
-                        $validator->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $validator->getSelectedValue()]));
+                        $validator->addFailure($failure ?? tr('with value ":value" already exists as an additional phone number', [':value' => $validator->getSelectedValue()]));
                     }
                 }))
             ->addDefinition(Definition::new($this, 'account_type')

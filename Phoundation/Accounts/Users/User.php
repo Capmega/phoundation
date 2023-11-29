@@ -1660,8 +1660,16 @@ class User extends DataEntry implements UserInterface
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Validate the programs name
-                    $validator->isUnique(tr('is already registered'));
+                    // Validate the email address
+                    $validator->isUnique(tr('already exists as a primary email address'));
+
+                    $exists = sql()->get('SELECT `id` FROM `accounts_emails` WHERE `email` = :email', [
+                        ':email' => $validator->getSelectedValue()
+                    ]);
+
+                    if ($exists) {
+                        $validator->addFailure(tr('value ":email" already exists as an additional email address', [':email' => $validator->getSelectedValue()]));
+                    }
                 }))
             ->addDefinition(Definition::new($this, 'domain')
                 ->setOptional(true)
@@ -1780,7 +1788,19 @@ class User extends DataEntry implements UserInterface
             ->addDefinition(DefinitionFactory::getPhone($this)
                 ->setSize(3)
                 ->setHelpGroup(tr('Personal information'))
-                ->setHelpText(tr('Main phone number where this user may be contacted')))
+                ->setHelpText(tr('Main phone number where this user may be contacted'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    // Validate the email address
+                    $validator->isUnique(tr('already exists as a primary email address'));
+
+                    $exists = sql()->get('SELECT `id` FROM `accounts_emails` WHERE `email` = :email', [
+                        ':email' => $validator->getSelectedValue()
+                    ]);
+
+                    if ($exists) {
+                        $validator->addFailure(tr('value ":email" already exists as an additional email address', [':email' => $validator->getSelectedValue()]));
+                    }
+                }))
             ->addDefinition(Definition::new($this, 'address')
                 ->setOptional(true)
                 ->setMaxlength(255)

@@ -72,6 +72,7 @@ trait DataEntryNameLowercaseDash
             $name     = strtolower($name);
             $name     = str_replace([' ', '_'], '-', $name);
             $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+
             $this->setSourceValue('seo_name', $seo_name, true);
         }
 

@@ -8,6 +8,9 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Log\Log;
+use Phoundation\Seo\Seo;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -30,7 +33,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.2';
+        return '0.1.3';
     }
 
 
@@ -774,6 +777,52 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.1.2', function () {
             // Since sign-in count and last_sign_in were all messed up, reset them to zero
             sql()->query('UPDATE `accounts_users` SET `sign_in_count` = 0, `last_sign_in` = NULL');
+
+        })->addUpdate('0.1.3', function () {
+            sql()->schema()->table('accounts_rights')->alter()
+                ->dropIndex('name')
+                ->addIndex('UNIQUE KEY `name` (`name`)');
+
+            sql()->schema()->table('accounts_roles')->alter()
+                ->dropIndex('name')
+                ->addIndex('UNIQUE KEY `name` (`name`)');
+
+            // Fix rights / roles names
+            sql()->query('UPDATE `accounts_roles`  SET `name` = REPLACE(LCASE(`name`), " ", "-");');
+            sql()->query('UPDATE `accounts_rights` SET `name` = REPLACE(LCASE(`name`), " ", "-");');
+
+            // Fix all seo_name column entries
+            $tables = [
+                'accounts_roles',
+                'accounts_rights'
+            ];
+
+            foreach ($tables as $table) {
+                Log::action(tr('Fixing table ":table" seo_name', [
+                    ':table' => $table
+                ]));
+
+                $entries = sql()->query('SELECT `id`, `name` FROM ' . $table);
+
+                foreach ($entries as $entry) {
+                    sql()->update($table, ['seo_name' => Seo::unique($entry['name'], $table, $entry['id'], 'seo_name')], ['id' => $entry['id']]);
+                }
+            }
+
+            Log::action(tr('Fixing table "accounts_users_rights" seo_name'));
+
+            $entries = sql()->query('SELECT `id`, `rights_id`, `name` FROM `accounts_users_rights`');
+
+            foreach ($entries as $entry) {
+                $right = Right::get($entry['rights_id'], 'id');
+
+                sql()->update($table, [
+                    'name'     => $right->getName(),
+                    'seo_name' => $right->getSeoName()
+                ], [
+                    'id' => $entry['id']
+                ]);
+            }
         });
     }
 }
