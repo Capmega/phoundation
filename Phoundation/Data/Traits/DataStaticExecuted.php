@@ -73,7 +73,7 @@ trait DataStaticExecuted
      * @param string $executed
      * @return void
      */
-    protected static function addExecuted(string $executed): void
+    protected static function addExecutedPath(string $executed): void
     {
         $executed = Strings::from($executed, DIRECTORY_ROOT);
 

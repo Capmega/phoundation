@@ -177,7 +177,7 @@ class CliCommand
         static::$script   = static::limitScript($command, isset_get($limit), isset_get($reason));
         static::$run_file = new CliRunFile($command);
 
-        static::addExecuted(static::$script);
+        static::addExecutedPath(static::$script);
 
         Log::action(tr('Executing script ":script"', [
             ':script' => static::getExecutedPath()
