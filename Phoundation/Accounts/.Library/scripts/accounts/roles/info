@@ -3,6 +3,7 @@
 
 declare(strict_types=1);
 
+use Composer\Config;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliColor;
@@ -10,7 +11,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Utils\Arrays;
+use Phoundation\Databases\Sql\Paging;use Phoundation\Utils\Arrays;
 
 
 /**
@@ -23,6 +24,15 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+CliDocumentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Paging::getLimit()
+        ]
+    ],
+]);
+
 CliDocumentation::usage('./pho accounts roles info USER');
 
 CliDocumentation::help('This script displays information about the specified role.  
