@@ -578,7 +578,7 @@ class Sql implements SqlInterface
         $values  = $this->values($data);
 
         if ($update) {
-            // Build bound variables for query
+            // Build bound variables for the query
             if (is_array($update)) {
                 $data = array_merge($data, $update);
             }

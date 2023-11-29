@@ -6,7 +6,9 @@ namespace Phoundation\Core;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Locale\Language\Import;
+use Phoundation\Core\Log\Log;
 
 
 /**
@@ -29,7 +31,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.12';
+        return '0.0.13';
     }
 
 
@@ -289,6 +291,29 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.0.11', function () {
             sql()->schema()->table('core_templates')->alter()->changeColumn('file', '`directory` varchar(128) NOT NULL');
+
+        })->addUpdate('0.0.13', function () {
+            // Fix meta_id columns
+            Log::action(tr('Fixing meta_id column on all tables'), newline: false);
+
+            $tables = sql()->query('SELECT `TABLE_NAME`, `IS_NULLABLE`
+                                          FROM   `information_schema`.`COLUMNS`
+                                          WHERE  `TABLE_SCHEMA` = :table_schema
+                                            AND  `COLUMN_NAME`  = "meta_id"', [
+                ':table_schema' => sql()->getDatabase()
+            ]);
+
+            foreach ($tables as $table) {
+                if ($table['IS_NULLABLE'] === 'yes') {
+                    continue;
+                }
+
+                // This table has a NOT NULL meta_id, fix it
+                sql()->query('ALTER TABLE `' . $table['TABLE_NAME'] . '` MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
+                CliCommand::dot(5);
+            }
+
+            Log::success('Finished', use_prefix: false);
         });
     }
 }
