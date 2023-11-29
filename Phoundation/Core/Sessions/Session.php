@@ -499,9 +499,10 @@ class Session implements SessionInterface
             // TODO Why are we still doing this? We should be able to do extended sessions better
             static::checkExtended();
 
-            Log::success(tr('Resumed session for user ":user" from IP ":ip"', [
-                ':user' => static::getUser()->getLogId(),
-                ':ip'   => $_SERVER['REMOTE_ADDR']
+            Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
+                ':session' => session_id(),
+                ':user'    => static::getUser()->getLogId(),
+                ':ip'      => $_SERVER['REMOTE_ADDR']
             ]));
         }
 
