@@ -29,6 +29,7 @@ use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Throwable;
 
 
@@ -1069,10 +1070,12 @@ class Route
     {
         Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
 
+        if (($http_code < 1) or ($http_code > 1000)) {
+            throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
+        }
+
         if (!$http_code) {
             $http_code = 500;
-        } elseif (($http_code < 1) or ($http_code > 1000)) {
-            throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
         }
 
         $method = 'execute' . $http_code;
@@ -1095,9 +1098,10 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
+     * @param bool $system
      * @return never
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): never
+    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParametersInterface $parameters = null, bool $system = false): never
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {
@@ -1134,7 +1138,7 @@ class Route
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::unregisterShutdown('route[postprocess]');
-            Page::execute($target, $attachment);
+            Page::execute($target, $attachment, $system);
         }
 
         if ($attachment) {

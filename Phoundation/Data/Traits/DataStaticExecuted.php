@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Utils\Strings;
 
+
 /**
- * Trait DataAction
+ * Trait DataStaticIsExecutedPath
  *
  *
  *
@@ -19,19 +19,22 @@ use Phoundation\Utils\Strings;
  */
 trait DataStaticExecuted
 {
+    use DataStaticIsExecutedPath;
+
+
     /**
      * Tracks the path that is executed
      *
-     * @var string $executed_path
+     * @var array $executed_path
      */
-    protected static string $executed_path = '_none_';
+    protected static array $executed_path = [];
 
     /**
      * Tracks the file that is executed
      *
-     * @var string $executed_file
+     * @var array $executed_file
      */
-    protected static string $executed_file = '_none_';
+    protected static array $executed_file = [];
 
 
     /**
@@ -41,7 +44,11 @@ trait DataStaticExecuted
      */
     public static function getExecutedFile(): string
     {
-        return static::$executed_file;
+        if (empty(static::$executed_file)) {
+            return '_none_';
+        }
+
+        return implode(' > ', static::$executed_file);
     }
 
 
@@ -52,19 +59,25 @@ trait DataStaticExecuted
      */
     public static function getExecutedPath(): string
     {
-        return static::$executed_path;
+        if (empty(static::$executed_path)) {
+            return '_none_';
+        }
+
+        return implode(' > ', static::$executed_path);
     }
 
 
     /**
      * Sets the executed path
      *
-     * @param string $executed_path
+     * @param string $executed
      * @return void
      */
-    protected static function setExecutedPath(string $executed_path): void
+    protected static function addExecuted(string $executed): void
     {
-        static::$executed_path = Strings::from($executed_path, DIRECTORY_ROOT);
-        static::$executed_file = Strings::fromReverse(static::$executed_path, '/');
+        $executed = Strings::from($executed, DIRECTORY_ROOT);
+
+        static::$executed_path[] = $executed;
+        static::$executed_file[] = Strings::fromReverse($executed, '/');
     }
 }

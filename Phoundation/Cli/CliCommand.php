@@ -177,17 +177,18 @@ class CliCommand
         static::$script   = static::limitScript($command, isset_get($limit), isset_get($reason));
         static::$run_file = new CliRunFile($command);
 
+        static::addExecuted(static::$script);
+
         Log::action(tr('Executing script ":script"', [
-            ':script' => static::getCurrent()
+            ':script' => static::getExecutedPath()
         ]), 1);
 
         // Execute the script and finish execution
         try {
-            static::setExecutedPath(static::$script);
             execute_script(static::$script);
 
         } catch (Throwable $e) {
-            // In auto complete mode, do not dump the exception on screen, it will fubar everything
+            // In auto complete mode, do not dump the exception on screen; it will fubar everything
             if (CliAutoComplete::isActive()) {
                 Log::error($e, echo_screen: false);
                 exit('autocomplete-failed-see-system-log');
@@ -455,35 +456,6 @@ class CliCommand
         }
 
         return $script;
-    }
-
-
-    /**
-     * Returns the name of the script that is running
-     *
-     * @param bool $full
-     * @return string
-     */
-    public static function getCurrent(bool $full = false): string
-    {
-        if ($full) {
-            return Strings::fromReverse(static::$script, DIRECTORY_ROOT . 'scripts/');
-        }
-
-        return Strings::fromReverse(static::$script, '/');
-    }
-
-
-    /**
-     * Returns the name of the script that is running
-     *
-     * @param string $script
-     * @param bool $full
-     * @return bool
-     */
-    public static function isScript(string $script, bool $full = false): bool
-    {
-        return $script === static::getCurrent($full);
     }
 
 

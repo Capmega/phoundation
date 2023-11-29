@@ -60,6 +60,7 @@ use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Interfaces\PageInterface;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Stringable;
@@ -296,9 +297,9 @@ class Page implements PageInterface
     /**
      * Contains the routing parameters like root url, template, etc
      *
-     * @var RoutingParameters $parameters
+     * @var RoutingParametersInterface $parameters
      */
-    protected static RoutingParameters $parameters;
+    protected static RoutingParametersInterface $parameters;
 
     /**
      * The menus for this page
@@ -414,10 +415,10 @@ class Page implements PageInterface
     /**
      * Sets page parameters specified by the router
      *
-     * @param RoutingParameters $parameters
+     * @param RoutingParametersInterface $parameters
      * @return void
      */
-    public static function setRoutingParameters(RoutingParameters $parameters): void
+    public static function setRoutingParameters(RoutingParametersInterface $parameters): void
     {
         static::$parameters = $parameters;
 
@@ -1322,19 +1323,25 @@ class Page implements PageInterface
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
+     * @param bool $system        If true, this is a system page being executed
      * @return never
      *
      * @see Route::execute()
      * @see Template::execute()
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false): never
+    #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
     {
         try {
             // Start the page up
             // See if we have to redirect
             // See if we can use cache.
             static::startup($target);
-            static::checkForceRedirect();
+
+            if (!$system) {
+                // System pages never have a redirect
+                static::checkForceRedirect();
+            }
+
             static::tryCache($target, $attachment);
 
             ob_start();
@@ -2627,7 +2634,7 @@ class Page implements PageInterface
                 ':language' => LANGUAGE
             ]));
 
-            static::setExecutedPath($target);
+            static::addExecutedPath($target);
 
             switch (Core::getRequestType()) {
                 case EnumRequestTypes::api:
@@ -2650,7 +2657,7 @@ class Page implements PageInterface
                 ':new'    => $new_target
             ]));
 
-            static::setExecutedPath($new_target);
+            static::addExecutedPath($new_target);
 
             $output = match (Core::getRequestType()) {
                 EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),

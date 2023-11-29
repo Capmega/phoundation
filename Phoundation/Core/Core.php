@@ -26,6 +26,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Data\Traits\DataStaticIsExecutedPath;
 use Phoundation\Data\Traits\DataStaticReadonly;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -69,6 +70,7 @@ use Throwable;
 class Core implements CoreInterface
 {
     use DataStaticReadonly;
+    use DataStaticIsExecutedPath;
 
 
     /**
@@ -1440,7 +1442,8 @@ class Core implements CoreInterface
      */
     public static function isPhpUnitTest(): bool
     {
-        return static::executedPathIs('dev/phpunit') or static::executedPathIs('development/phpunit');
+        // TODO Chang this. Detection should not be a command or page name that might change in the future
+        return static::isExecutedPath('dev/phpunit') or static::isExecutedPath('development/phpunit');
     }
 
 
@@ -1570,14 +1573,17 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns true if the executed path is the specified path
+     * Returns the executed file
      *
-     * @param string $path
-     * @return bool
+     * @return string
      */
-    public static function executedPathIs(string $path): bool
+    public static function getExecutedFile(): string
     {
-        return static::getExecutedPath() === $path;
+        if (PLATFORM_WEB) {
+            return Page::getExecutedFile();
+        }
+
+        return CliCommand::getExecutedFile();
     }
 
 

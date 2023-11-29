@@ -11,6 +11,7 @@ use Phoundation\Templates\Template;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Throwable;
 
 
@@ -36,15 +37,15 @@ class RouteSystem
     /**
      * Routing parameters for this system page
      *
-     * @var RoutingParameters $parameters
+     * @var RoutingParametersInterface $parameters
      */
-    protected RoutingParameters $parameters;
+    protected RoutingParametersInterface $parameters;
 
 
     /**
      * RouteSystem class constructor
      */
-    protected function __construct(RoutingParameters $parameters)
+    protected function __construct(RoutingParametersInterface $parameters)
     {
         $this->parameters  = $parameters;
         $this->system_page = Template::page('system/error');
@@ -54,10 +55,10 @@ class RouteSystem
     /**
      * Returns new RouteSystem object
      *
-     * @param RoutingParameters $parameters
+     * @param RoutingParametersInterface $parameters
      * @return static
      */
-    public static function new(RoutingParameters $parameters): static
+    public static function new(RoutingParametersInterface $parameters): static
     {
         return new static($parameters);
     }
@@ -179,7 +180,7 @@ class RouteSystem
         Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
 
         try {
-            Route::execute($page ?? Config::getString('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters);
+            Route::execute($page ?? Config::getString('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters, true);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {
