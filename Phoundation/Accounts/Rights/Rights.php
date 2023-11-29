@@ -29,7 +29,7 @@ use Stringable;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -118,7 +118,7 @@ class Rights extends DataList implements RightsInterface
             $diff = Arrays::valueDiff(array_keys($this->source), $rights_list);
 
             foreach ($diff['add'] as $right) {
-                $this->addRight($right, $column);
+                $this->add($right, $column);
             }
 
             foreach ($diff['delete'] as $right) {
@@ -133,28 +133,29 @@ class Rights extends DataList implements RightsInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param RightInterface|array|string|int|null $right
-     * @param string|null $column
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      * @throws OutOfBoundsExceptionInterface
      */
-    public function addRight(RightInterface|array|string|int|null $right, ?string $column = null): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         $this->ensureParent('add Right entry to parent');
 
-        if ($right) {
-            if (is_array($right)) {
+        if ($value) {
+            if (is_array($value)) {
                 // Add multiple rights
-                foreach ($right as $entry) {
-                    $this->addRight($entry, $column);
+                foreach ($value as $entry) {
+                    $this->add($entry, $key, $skip_null);
                 }
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
-                $right = Right::get($right, $column);
+                $value = Right::get($value);
 
                 // Right already exists for this parent?
-                if ($this->hasRight($right)) {
+                if ($this->hasRight($value)) {
                     // Ignore and continue
                     return $this;
                 }
@@ -163,36 +164,36 @@ class Rights extends DataList implements RightsInterface
                 if ($this->parent instanceof UserInterface) {
                     Log::action(tr('Adding right ":right" to user ":user"', [
                         ':user'  => $this->parent->getLogId(),
-                        ':right' => $right->getLogId()
+                        ':right' => $value->getLogId()
                     ]), 3);
 
                     sql()->dataEntryInsert('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
-                        'rights_id' => $right->getId(),
-                        'name'      => $right->getName(),
-                        'seo_name'  => $right->getSeoName()
+                        'rights_id' => $value->getId(),
+                        'name'      => $value->getName(),
+                        'seo_name'  => $value->getSeoName()
                     ]);
 
-                    // Add right to internal list
-                    $this->add($right);
+                    // Add right to the internal list
+                    $this->add($value);
 
                 } elseif ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Adding right ":right" to role ":role"', [
                         ':role' => $this->parent->getLogId(),
-                        ':right' => $right->getLogId()
+                        ':right' => $value->getLogId()
                     ]), 3);
 
                     sql()->dataEntryInsert('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
-                        'rights_id' => $right->getId()
+                        'rights_id' => $value->getId()
                     ]);
 
-                    // Add right to internal list
-                    $this->add($right);
+                    // Add right to the internal list
+                    $this->add($value);
 
                     // Update all users with this role to get the new right as well!
                     foreach ($this->parent->getUsers() as $user) {
-                        User::get($user,  null)->getRights()->addRight($right);
+                        User::get($user)->getRights()->add($value);
                     }
                 }
             }
@@ -205,59 +206,60 @@ class Rights extends DataList implements RightsInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param RightInterface|Stringable|array|string|float|int $right
+     * @param RightInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RightInterface|Stringable|array|string|float|int $right): static
+    public function delete(RightInterface|Stringable|array|string|float|int $keys): static
     {
         $this->ensureParent('remove entry from parent');
 
-        if ($right) {
-            if (is_array($right)) {
-                // Add multiple rights
-                foreach ($right as $entry) {
-                    $this->delete($entry);
-                }
+        if (!$keys) {
+            // Nothing to do
+            return $this;
+        }
 
-            } else {
-                // Add single right. Since this is a Right object, the entry already exists in the database
-                show($right);
-                $right = Right::get($right);
+        if (is_array($keys)) {
+            // Add multiple rights
+            foreach ($keys as $key) {
+                $this->delete($key);
+            }
+
+        } else {
+            // Add single right. Since this is a Right object, the entry already exists in the database
+            $right = Right::get($keys);
+
+            if ($this->parent instanceof UserInterface) {
+                Log::action(tr('Removing right ":right" from user ":user"', [
+                    ':user'  => $this->parent->getLogId(),
+                    ':right' => $right->getLogId()
+                ]), 3);
+
+                sql()->dataEntryDelete('accounts_users_rights', [
+                    'users_id'  => $this->parent->getId(),
+                    'rights_id' => $right->getId()
+                ]);
                 show($right->getId());
+                // Delete right from the internal list
+                parent::delete($right->getId());
 
-                if ($this->parent instanceof UserInterface) {
-                    Log::action(tr('Removing right ":right" from user ":user"', [
-                        ':user'  => $this->parent->getLogId(),
-                        ':right' => $right->getLogId()
-                    ]), 3);
+            } elseif ($this->parent instanceof RoleInterface) {
+                Log::action(tr('Removing right ":right" from role ":role"', [
+                    ':role' => $this->parent->getLogId(),
+                    ':right' => $right->getLogId()
+                ]), 3);
 
-                    sql()->dataEntryDelete('accounts_users_rights', [
-                        'users_id'  => $this->parent->getId(),
-                        'rights_id' => $right->getId()
-                    ]);
-                    show($right->getId());
-                    // Delete right from the internal list
-                    parent::delete($right->getId());
+                sql()->dataEntryDelete('accounts_roles_rights', [
+                    'roles_id'  => $this->parent->getId(),
+                    'rights_id' => $right->getId()
+                ]);
 
-                } elseif ($this->parent instanceof RoleInterface) {
-                    Log::action(tr('Removing right ":right" from role ":role"', [
-                        ':role' => $this->parent->getLogId(),
-                        ':right' => $right->getLogId()
-                    ]), 3);
-
-                    sql()->dataEntryDelete('accounts_roles_rights', [
-                        'roles_id'  => $this->parent->getId(),
-                        'rights_id' => $right->getId()
-                    ]);
-
-                    // Update all users with this role to get the new right as well!
-                    foreach ($this->parent->getUsers() as $user) {
-                        User::get($user,  null)->getRights()->delete($right);
-                    }
-
-                    // Delete right from the internal list
-                    parent::delete($right->getId());
+                // Update all users with this role to get the new right as well!
+                foreach ($this->parent->getUsers() as $user) {
+                    User::get($user,  null)->getRights()->delete($right);
                 }
+
+                // Delete right from the internal list
+                parent::delete($right->getId());
             }
         }
 

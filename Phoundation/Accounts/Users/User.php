@@ -337,8 +337,8 @@ class User extends DataEntry implements UserInterface
      */
     public function passwordMatch(string $password): bool
     {
-        if (!array_key_exists('id', $this->source)) {
-            throw new OutOfBoundsException(tr('Cannot match passwords, this user does not have a database id'));
+        if ($this->isNew()) {
+            throw new OutOfBoundsException(tr('Cannot match passwords, this user has not yet been saved in the database'));
         }
 
         return Password::match($this->source['id'], $password, (string) $this->source['password']);
@@ -968,6 +968,18 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Clears the password for this user
+     *
+     * @return static
+     */
+    public function clearPassword(): static
+    {
+        $this->setPasswordDirectly(null);
+        return $this->savePassword();
+    }
+
+
+    /**
      * Validates the specified password
      *
      * @param string $password
@@ -1022,8 +1034,6 @@ class User extends DataEntry implements UserInterface
      */
     function getDisplayName(): string
     {
-        $postfix = null;
-
         $postfix = match ($this->getStatus()) {
             'deleted' => ' ' . tr('[DELETED]'),
             'locked'  => ' ' . tr('[LOCKED]'),
@@ -1031,18 +1041,18 @@ class User extends DataEntry implements UserInterface
         };
 
         if (!$name = $this->getNickname()) {
-            if (!$name = $this->getName()) {
+            if (!$name = trim($this->getFirstNames() . ' ' . $this->getLastNames())) {
                 if (!$name = $this->getUsername()) {
                     if (!$name = $this->getEmail()) {
                         if (!$name = $this->getId()) {
                             if ($this->getId() === -1) {
                                 // This is the guest user
                                 $name = tr('Guest');
+                            } else {
+                                // This is a new user
+                                $name = tr('[NEW]');
                             }
                         }
-
-                        // This is a new user
-                        $name = tr('[NEW]');
                     }
                 }
             }

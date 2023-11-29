@@ -126,6 +126,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getId(): int|null;
 
     /**
+     * Returns the value for the unique field, which
+     *
+     * @return string|float|int|null
+     */
+    public function getUniqueFieldValue(): string|float|int|null;
+
+    /**
      * Returns id for this database entry that can be used in logs
      *
      * @return string

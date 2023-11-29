@@ -26,20 +26,16 @@ CliDocumentation::usage('./pho accounts users authenticate USER');
 CliDocumentation::help('This script can be used to test the authentication for the specified user
 
 
-
 ARGUMENTS
 
 
-
 -');
-
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
     ->validate();
-
 
 
 try {
@@ -52,5 +48,5 @@ try {
 }
 
 
-
+// Done!
 Log::success(tr('User ":user" was authenticated successfully', [':user' => $user->getDisplayName()]));

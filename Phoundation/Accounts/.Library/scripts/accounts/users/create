@@ -59,7 +59,7 @@ EXTRA INFORMATION
 $retries           = 3;
 $password          = '';
 $password_validate = '';
-$user              = User::new()->apply();
+$user              = User::new()->apply(false);
 
 
 // Validate user roles
@@ -89,12 +89,13 @@ if ($argv['no_password']) {
 
 } else {
     // Read password from stdin stream?
-    while (true) {
-        if (CliCommand::hasStdInStream()) {
-            $password          = CliCommand::readStdInStream();
-            $password_validate = $password;
+    if (CliCommand::hasStdInStream()) {
+        $password          = CliCommand::readStdInStream();
+        $password_validate = $password;
 
-        } else {
+    } else {
+        // Read password from command line (interactive!)
+        while (true) {
             try {
                 $password          = Cli::readPassword(tr('Please type the users password:'));
                 $password_validate = Cli::readPassword(tr('Please re-type the users password:'));
@@ -103,16 +104,16 @@ if ($argv['no_password']) {
             } catch (Throwable) {
                 // Password update failed, fall through to try again?
             }
-        }
 
-        if ($retries-- > 0) {
-            // Borked up, retry!
-            Log::warning(tr('Failed to set password, please try again'));
-            continue;
-        }
+            if ($retries-- > 0) {
+                // Borked up, retry!
+                Log::warning(tr('Failed to set password, please try again'));
+                continue;
+            }
 
-        // Yeah, we're done retrying
-        throw PasswordFailedException::new('Failed to setup a password for the user');
+            // Yeah, we're done retrying
+            throw PasswordFailedException::new('Failed to setup a password for the user');
+        }
     }
 }
 
@@ -122,13 +123,13 @@ $user->save();
 
 
 // Set password?
-if ($argv['no_password']) {
+if (!$argv['no_password']) {
     $user->setPassword($password, $password_validate);
 }
 
 
 // Set users roles
-$user->getRoles()->addRole($argv['roles']);
+$user->getRoles()->add($argv['roles']);
 $user->getEmails()->apply()->save();
 $user->getPhones()->apply()->save();
 

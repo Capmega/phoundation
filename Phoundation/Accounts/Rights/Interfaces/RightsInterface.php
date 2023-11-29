@@ -32,18 +32,20 @@ interface RightsInterface extends DataListInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param RightInterface|array|string|int|null $right
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addRight(RightInterface|array|string|int|null $right): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Remove the specified data entry from the data list
      *
-     * @param RightInterface|Stringable|array|string|float|int $right
+     * @param RightInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RightInterface|Stringable|array|string|float|int $right): static;
+    public function delete(RightInterface|Stringable|array|string|float|int $keys): static;
 
     /**
      * Remove all rights for this role

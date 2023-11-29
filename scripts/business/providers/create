@@ -25,15 +25,12 @@ CliDocumentation::usage('./pho business providers create NAME [OPTIONS]
 CliDocumentation::help('This script allows you to create providers
 
 
-
 ARGUMENTS
-
 
 
 NAME                                    The name for the provider
 
 [-d / --description]                    The description for the provider');
-
 
 
 // Validate arguments
@@ -44,10 +41,8 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Check if the provider already exists
-Provider::notExists('name', $argv['name'], null, true);
-
+Provider::notExists($argv['name'], 'name', null, true);
 
 
 // Ensure that specified providers exist
@@ -60,10 +55,8 @@ if ($argv['rights']) {
 }
 
 
-
 // Create provider and save it
-$provider = Provider::new()->apply($argv)->save();
-
+$provider = Provider::new()->apply(true, $argv)->save();
 
 
 // Done!

@@ -108,6 +108,23 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                     ]
                 ],
             ],
+            tr('System administration') => [
+                'rights' => 'system-administration,development',
+                'icon' => 'fa-lock',
+                'menu' => [
+                    tr('Filesystems') => [
+                        'rights' => 'file-system',
+                        'icon' => 'fa-lock',
+                        'menu' => [
+                            tr('Mounts') => [
+                                'rights' => 'mounts',
+                                'url'    => '/file-system/mounts.html',
+                                'icon'   => 'fa-key'
+                            ],
+                        ],
+                    ],
+                ],
+            ],
             tr('Key / Values store') => [
                 'rights' => 'admin,key-values',
                 'url'  => '/system/key-values.html',

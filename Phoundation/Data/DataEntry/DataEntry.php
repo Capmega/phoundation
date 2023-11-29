@@ -622,7 +622,7 @@ abstract class DataEntry implements DataEntryInterface
             throw DataEntryNotExistsException::new(tr('The ":class" entry ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
                 ':identifier' => $identifier
-            ]))->makeWarning();
+            ]));
         }
 
         if ($entry->isDeleted()) {
@@ -631,7 +631,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryDeletedException::new(tr('The ":class" entry ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
                     ':identifier' => $identifier
-                ]))->makeWarning();
+                ]));
 
             }
         }
@@ -718,7 +718,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" does not exist', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier
-                ]))->makeWarning();
+                ]));
             }
 
             return false;
@@ -731,7 +731,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryDeletedException::new(tr('The ":type" type data entry with identifier ":id" exists but is deleted', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier
-                ]))->makeWarning();
+                ]));
             }
 
             // This entry does not exist
@@ -788,7 +788,7 @@ abstract class DataEntry implements DataEntryInterface
                 throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                     ':type' => static::getClassName(),
                     ':id' => $identifier
-                ]))->makeWarning();
+                ]));
             }
 
             return false;
@@ -829,6 +829,17 @@ abstract class DataEntry implements DataEntryInterface
     public function getId(): int|null
     {
         return $this->getSourceFieldValue('int', 'id');
+    }
+
+
+    /**
+     * Returns the value for the unique field, which
+     *
+     * @return string|float|int|null
+     */
+    public function getUniqueFieldValue(): string|float|int|null
+    {
+        return $this->getSourceFieldValue('string|float|int|null', static::getUniqueField());
     }
 
 
@@ -1160,14 +1171,14 @@ abstract class DataEntry implements DataEntryInterface
         // Are we allowed to create or modify this DataEntry?
         if ($this->getId()) {
             if (!$this->allow_modify) {
-                // auto modify not allowed, sorry!
+                // auto modify is not allowed, sorry!
                 throw new ValidationFailedException(tr('Cannot modify :entry', [
                     ':entry' => static::getDataEntryName()
                 ]));
             }
         } else {
             if (!$this->allow_create) {
-                // auto create not allowed, sorry!
+                // auto create is not allowed, sorry!
                 throw new ValidationFailedException(tr('Cannot create new :entry', [
                     ':entry' => static::getDataEntryName()
                 ]));
@@ -1179,7 +1190,7 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_saved     = false;
 
         // Select the correct data source and validate the source data. Specified data may be a DataValidator, an array
-        // or null. After selecting a data source it will be a DataValidator object which we will then give to the
+        // or null. After selecting a data source, it will be a DataValidator object which we will then give to the
         // DataEntry::validate() method
         //
         // When in force mode we will NOT clear the failed fields so that they can be sent back to the user for

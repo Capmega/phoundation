@@ -491,7 +491,7 @@ class Mc
                         ->setUrl('developer/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('not-available')
-                        ->addRole('developers')
+                        ->add('developers')
                         ->setTitle(tr('Memcached server not available'))
                         ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
                         ->send();

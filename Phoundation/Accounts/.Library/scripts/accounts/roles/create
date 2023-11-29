@@ -3,6 +3,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
@@ -25,15 +26,12 @@ CliDocumentation::usage('./pho accounts roles create NAME [OPTIONS]
 CliDocumentation::help('This script allows you to create roles
 
 
-
 ARGUMENTS
-
 
 
 NAME                                    The name for the role
 
 [-d / --description]                    The description for the role');
-
 
 
 // Validate arguments
@@ -44,31 +42,28 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Check if the role already exists
-Role::notExists('name', $argv['name'], null, true);
+Role::notExists($argv['name'], 'name', null, true);
 
 
-
-// Ensure that specified roles exist
+// Ensure that specified rights exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Role::get($right);
+        $right = Right::get($right);
     }
 
     unset($right);
 }
 
 
-
 // Create role and save it
-$role = Role::new()->apply($argv)->save();
-
+show($argv);
+$role = Role::new()->apply(false, $argv)->save();
+show($role);
 
 
 // Set the rights for this role
 $role->getRights()->setRights($argv['rights']);
-
 
 
 // Done!

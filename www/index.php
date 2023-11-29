@@ -124,8 +124,8 @@ Route::getParameters()
 
 // AdminLte based admin page routes
 Route::try('/^(\w{2})\/ajax\/(.+?).json$/'                          , 'ajax/$2.php', 'Q');            // Execute the requested AJAX page
-Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)-([0-9]+).html$/', 'pages/$2/$3.php?id=$4');            // Show the requested form page
-Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+).html$/'         , 'pages/$2/$3.php');                  // Show the requested table page
+Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z]+)-([0-9-]+).html$/'   , 'pages/$2/$3.php?id=$4');            // Show the requested form page
+Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z]+).html$/'             , 'pages/$2/$3.php');                  // Show the requested table page
 Route::try('/^(\w{2})\/([a-z0-9-]+).html$/'                         , 'pages/$2.php');                     // Show the requested page
 Route::try('/^(\w{2})\/?$/'                                         , '/index.html', 'R301');         // Redirect to index page
 Route::try('/^$/'                                                   , '/index.html', 'R301');         // Redirect to index page

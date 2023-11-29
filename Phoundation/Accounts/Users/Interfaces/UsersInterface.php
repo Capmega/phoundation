@@ -31,10 +31,12 @@ interface UsersInterface extends DataListInterface
     /**
      * Add the specified user to the data list
      *
-     * @param User|array|string|int|null $user
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addUser(User|array|string|int|null $user): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Remove the specified data entry from the data list

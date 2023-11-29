@@ -2,21 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html;
+namespace Phoundation\Developer\Phoundation\Exception;
 
-
-use Phoundation\Web\Html\Script;
 
 /**
- * Class Jquery
+ * Class PhoundationBranchNotExistException
  *
- * This class generates <script> elements with jquery
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package Phoundation\Developer
  */
-class Jquery extends Script
+class PhoundationBranchNotExistException extends PhoundationException
 {
 }

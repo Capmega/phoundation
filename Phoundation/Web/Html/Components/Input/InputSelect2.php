@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Enums\InputType;
-use function Phoundation\Web\Http\Html\Components\Input\ready;
+use function Phoundation\Web\Html\Components\Input\ready;
 
 
 /**

@@ -127,7 +127,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             throw new OutOfBoundsException(tr('No field specified'));
         }
 
-        // Make sure the fields value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken
@@ -177,7 +177,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             ]));
         }
 
-        // Get the value from the arguments list
+        // Get the value from the argument list
         try {
             $value = static::argument($fields, $next);
 

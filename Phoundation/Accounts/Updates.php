@@ -98,60 +98,60 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
                 ->getRights()
-                ->addRight($god);
+                ->add($god);
 
             Role::new('Audit', 'name')
                 ->setName('Audit')
                 ->setDescription('This role will give the user access to the audit system')
                 ->save()
                 ->getRights()
-                ->addRight($audit);
+                ->add($audit);
 
             Role::new('Accounts', 'name')
                 ->setName('Accounts')
                 ->setDescription('This role will give the user access to the accounts management system')
                 ->save()
                 ->getRights()
-                ->addRight($accounts);
+                ->add($accounts);
 
             Role::new('Security', 'name')
                 ->setName('Security')
                 ->setDescription('This role will give the user access to the security system')
                 ->save()
                 ->getRights()
-                ->addRight($security);
+                ->add($security);
 
             Role::new('Administrator', 'name')
                 ->setName('Administrator')
                 ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
                 ->getRights()
-                ->addRight($admin)
-                ->addRight($audit)
-                ->addRight($security)
-                ->addRight($phoundation);
+                ->add($admin)
+                ->add($audit)
+                ->add($security)
+                ->add($phoundation);
 
             Role::new('Accounts administrator', 'name')
                 ->setName('Accounts administrator')
                 ->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
                 ->getRights()
-                ->addRight($admin)
-                ->addRight($accounts);
+                ->add($admin)
+                ->add($accounts);
 
             Role::new('Developer', 'name')
                 ->setName('Developer')
                 ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
                 ->getRights()
-                ->addRight($developer);
+                ->add($developer);
 
             Role::new('Moderator', 'name')
                 ->setName('Moderator')
                 ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
                 ->getRights()
-                ->addRight($admin);
+                ->add($admin);
 
             // Create some default roles and rights
             $rights = [
@@ -178,19 +178,19 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                         ->setName($role)
                         ->save()
                         ->getRights()
-                        ->addRight($role);
+                        ->add($role);
                 }
             }
 
             // Various rights go together...
-            Role::get('Audit')->getRights()->addRight('Admin');
+            Role::get('Audit')->getRights()->add('Admin');
 
-            Role::get('Security')->getRights()->addRight('Admin');
+            Role::get('Security')->getRights()->add('Admin');
 
             Role::get('Impersonate')
                 ->getRights()
-                ->addRight('Admin')
-                ->addRight('Accounts');
+                ->add('Admin')
+                ->add('Accounts');
 
         })->addUpdate('0.0.4', function () {
             // Drop the tables to be sure we have a clean slate

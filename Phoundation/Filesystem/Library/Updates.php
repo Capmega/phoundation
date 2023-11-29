@@ -51,8 +51,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('filesystem_mounts')->drop();
 
-
-            // Create the users table.
+            // Create the filesystem_mounts table.
             sql()->schema()->table('filesystem_mounts')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,

@@ -25,15 +25,12 @@ CliDocumentation::usage('./pho accounts right create -n NAME [OPTIONS]
 CliDocumentation::help('This script allows you to modify user rights
 
 
-
 ARGUMENTS
-
 
 
 -n / --name                             The name for the right
 
 [-d / --description]                    The description for the right');
-
 
 
 // Validate arguments
@@ -44,17 +41,15 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 // Get right, ensure new name doesn't exist yet, and modify it
 $right = Right::get($argv['right']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as its a unique identifier
-    Right::notExists('name', $argv['name'], $right->getId(), true);
+    Right::notExists($argv['name'], 'name', $right->getId(), true);
 }
 
-$right->apply(true, $argv)->save();
-
+$right->apply(false, $argv)->save();
 
 
 // Done!

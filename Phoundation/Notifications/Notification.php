@@ -176,7 +176,7 @@ class Notification extends DataEntry implements NotificationInterface
             ->setCode('E-' . $e->getCode())
             ->setTitle(tr('Phoundation encountered an exception'))
             ->setMessage($e->getMessage())
-            ->addRole('developer')
+            ->add('developer')
             ->setDetails([
             'trace' => $e->getTrace(),
             'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
@@ -253,7 +253,7 @@ class Notification extends DataEntry implements NotificationInterface
         }
 
         foreach (Arrays::force($roles) as $role) {
-            $this->addRole($role);
+            $this->add($role);
         }
 
         return $this;
@@ -266,7 +266,7 @@ class Notification extends DataEntry implements NotificationInterface
      * @param string|null $role
      * @return static
      */
-    public function addRole(?string $role): static
+    public function add(?string $role): static
     {
         $role = trim((string) $role);
 

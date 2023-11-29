@@ -167,7 +167,7 @@ class RoutingParameters
     public function setTemplate(string $template): static
     {
         if (!is_subclass_of($template, 'Phoundation\Web\Html\Template\Template')) {
-            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
+            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Html\Template\Template"', [
                 ':class' => $template
             ]));
         }
@@ -517,7 +517,7 @@ class RoutingParameters
         $this->rights = [];
 
         foreach ($this->getRightsArray($rights) as $right) {
-            $this->addRight($right);
+            $this->add($right);
         }
 
         return $this;
@@ -530,7 +530,7 @@ class RoutingParameters
      * @param Right|string|null $right
      * @return static
      */
-    public function addRight(Right|string|null $right): static
+    public function add(Right|string|null $right): static
     {
         if ($right) {
             if (is_object($right)) {

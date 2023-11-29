@@ -79,4 +79,4 @@ try {
 
 
 // Done!
-Log::success(tr('Modified user ":user"', [':user' => $user->getName()]));
+Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));

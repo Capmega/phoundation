@@ -27,7 +27,7 @@ use Stringable;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
+ * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -45,6 +45,7 @@ class Users extends DataList implements UsersInterface
                                          GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
                                          `accounts_users`.`email`, 
                                          `accounts_users`.`status`, 
+                                         `accounts_users`.`sign_in_count`,
                                          `accounts_users`.`created_on`
                                FROM      `accounts_users` 
                                LEFT JOIN `accounts_users_roles`
@@ -118,7 +119,7 @@ class Users extends DataList implements UsersInterface
             $diff = Arrays::valueDiff(array_keys($this->source), $users_list);
 
             foreach ($diff['add'] as $user) {
-                $this->addUser($user, $column);
+                $this->add($user, $column);
             }
 
             foreach ($diff['delete'] as $user) {
@@ -133,27 +134,28 @@ class Users extends DataList implements UsersInterface
     /**
      * Add the specified user to the data list
      *
-     * @param UserInterface|array|string|int|null $user
-     * @param string|null $column
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addUser(UserInterface|array|string|int|null $user, ?string $column = null): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         $this->ensureParent('add User entry to parent');
 
-        if ($user) {
-            if (is_array($user)) {
+        if ($value) {
+            if (is_array($value)) {
                 // Add multiple rights
-                foreach ($user as $entry) {
-                    $this->addUser($entry, $column);
+                foreach ($value as $entry) {
+                    $this->add($entry, $key, $skip_null);
                 }
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
-                $user = User::get($user,  $column);
+                $value = User::get($value);
 
                 // User already exists for this parent?
-                if ($this->hasUser($user)) {
+                if ($this->hasUser($value)) {
                     // Ignore and continue
                     return $this;
                 }
@@ -162,32 +164,32 @@ class Users extends DataList implements UsersInterface
                 if ($this->parent instanceof RoleInterface) {
                     Log::action(tr('Adding role ":role" to user ":user"', [
                         ':role' => $this->parent->getLogId(),
-                        ':user' => $user->getLogId()
+                        ':user' => $value->getLogId()
                     ]), 3);
 
                     sql()->dataEntryInsert('accounts_users_roles', [
                         'roles_id' => $this->parent->getId(),
-                        'users_id' => $user->getId()
+                        'users_id' => $value->getId()
                     ]);
 
-                    // Add right to internal list
-                    $this->add($user);
+                    // Add right to the internal list
+                    $this->add($value);
 
                 } elseif ($this->parent instanceof RightInterface) {
                     Log::action(tr('Adding right ":right" to user ":user"', [
                         ':right' => $this->parent->getLogId(),
-                        ':user'  => $user->getLogId()
+                        ':user'  => $value->getLogId()
                     ]), 3);
 
                     sql()->dataEntryInsert('accounts_users_rights', [
                         'rights_id' => $this->parent->getId(),
-                        'users_id'  => $user->getId(),
+                        'users_id'  => $value->getId(),
                         'name'      => $this->parent->getName(),
                         'seo_name'  => $this->parent->getSeoName()
                     ]);
 
-                    // Add right to internal list
-                    $this->add($user);
+                    // Add right to the internal list
+                    $this->add($value);
                 }
             }
         }
@@ -199,52 +201,55 @@ class Users extends DataList implements UsersInterface
     /**
      * Remove the specified data entry from the data list
      *
-     * @param UserInterface|Stringable|array|string|float|int $user
+     * @param UserInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(UserInterface|Stringable|array|string|float|int $user): static
+    public function delete(UserInterface|Stringable|array|string|float|int $keys): static
     {
-        $this->ensureParent('delete entry from parent');
+        $this->ensureParent('remove entry from parent');
 
-        if ($user) {
-            if (is_array($user)) {
-                // Add multiple rights
-                foreach ($user as $entry) {
-                    $this->delete($entry);
-                }
+        if (!$keys) {
+            // Nothing to do
+            return $this;
+        }
 
-            } else {
-                // Add single user. Since this is a User object, the entry already exists in the database
-                $user = User::get($user,  null);
+        if (is_array($keys)) {
+            // Add multiple rights
+            foreach ($keys as $key) {
+                $this->delete($key);
+            }
 
-                if ($this->parent instanceof RoleInterface) {
-                    Log::action(tr('Removing user ":user" from role ":role"', [
-                        ':role' => $this->parent->getLogId(),
-                        ':user' => $user->getLogId()
-                    ]), 3);
+        } else {
+            // Add single user. Since this is a User object, the entry already exists in the database
+            $user = User::get($keys);
 
-                    sql()->dataEntryDelete('accounts_users_rights', [
-                        'roles_id' => $this->parent->getId(),
-                        'users_id' => $user->getId()
-                    ]);
+            if ($this->parent instanceof RoleInterface) {
+                Log::action(tr('Removing user ":user" from role ":role"', [
+                    ':role' => $this->parent->getLogId(),
+                    ':user' => $user->getLogId()
+                ]), 3);
 
-                    // Remove user from the internal list
-                    parent::delete($user->getId());
+                sql()->dataEntryDelete('accounts_users_rights', [
+                    'roles_id' => $this->parent->getId(),
+                    'users_id' => $user->getId()
+                ]);
 
-                } elseif ($this->parent instanceof RightInterface) {
-                    Log::action(tr('Removing user ":user" from right ":right"', [
-                        ':right' => $this->parent->getLogId(),
-                        ':user'  => $user->getLogId()
-                    ]), 3);
+                // Remove user from the internal list
+                parent::delete($user->getId());
 
-                    sql()->dataEntryDelete('accounts_users_rights', [
-                        'rights_id' => $this->parent->getId(),
-                        'users_id' => $user->getId()
-                    ]);
+            } elseif ($this->parent instanceof RightInterface) {
+                Log::action(tr('Removing user ":user" from right ":right"', [
+                    ':right' => $this->parent->getLogId(),
+                    ':user'  => $user->getLogId()
+                ]), 3);
 
-                    // Remove user from the internal list
-                    parent::delete($user->getId());
-                }
+                sql()->dataEntryDelete('accounts_users_rights', [
+                    'rights_id' => $this->parent->getId(),
+                    'users_id' => $user->getId()
+                ]);
+
+                // Remove user from the internal list
+                parent::delete($user->getId());
             }
         }
 
@@ -346,7 +351,10 @@ class Users extends DataList implements UsersInterface
             }
 
         } else {
-            parent::load();
+            $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
+                                               FROM   `accounts_users`
+                                               WHERE  `accounts_users`.`status` IS NULL
+                                                 AND  `accounts_users`.`email`    != "guest"');
         }
 
         return $this;

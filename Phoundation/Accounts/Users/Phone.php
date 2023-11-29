@@ -27,6 +27,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\InputElement;
 use Phoundation\Web\Html\Enums\InputType;
+use Stringable;
 
 
 /**
@@ -164,7 +165,7 @@ class Phone extends DataEntry implements PhoneInterface
     /**
      * Returns true if an entry with the specified identifier exists
      *
-     * @param string|int $identifier The unique identifier, but typically not the database id, usually the seo_email,
+     * @param Stringable|string|int $identifier The unique identifier, but typically not the database id, usually the seo_email,
      *                               or seo_name
      * @param string|null $column
      * @param int|null $not_id
@@ -172,7 +173,7 @@ class Phone extends DataEntry implements PhoneInterface
      *                                    DataEntryNotExistsException
      * @return bool
      */
-    public static function exists(string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(Stringable|string|int $identifier, ?string $column = null, ?int $not_id = null, bool $throw_exception = false): bool
     {
         $identifier = Sanitize::new($identifier)->phoneNumber()->getSource();
         return parent::notExists($identifier, $column, $not_id, $throw_exception);
@@ -182,7 +183,7 @@ class Phone extends DataEntry implements PhoneInterface
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param string|int $identifier The unique identifier, but typically not the database id, usually the
+     * @param Stringable|string|int $identifier The unique identifier, but typically not the database id, usually the
      *                                    seo_email, or seo_name
      * @param string|null $column
      * @param int|null $id If specified, will ignore the found entry if it has this ID as it will be THIS
@@ -191,7 +192,7 @@ class Phone extends DataEntry implements PhoneInterface
      *                                    returning false will throw a DataEntryNotExistsException
      * @return bool
      */
-    public static function notExists(string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(Stringable|string|int $identifier, ?string $column = null, ?int $id = null, bool $throw_exception = false): bool
     {
         $identifier = Sanitize::new($identifier)->phoneNumber()->getSource();
         return parent::notExists($identifier, $column, $id, $throw_exception);
