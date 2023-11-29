@@ -5,7 +5,7 @@ use Phoundation\Cli\CliCommand;
 
 
 /**
- * Pho
+ * Pho ... undation!
  *
  * This is the standard phoundation command execution script.
  *
@@ -27,7 +27,7 @@ try {
 } catch (Throwable $e) {
     $message = $e->getMessage();
 
-    if (str_starts_with($message, 'Failed opening required \'./vendor/autoload.php\'')) {
+    if (str_starts_with($message, 'Failed opening required \'') and str_contains($message, '/vendor/autoload.php\'')) {
         // Whoops, no vendor libraries available. Run composer to fix
         echo 'WARNING: Autoloader or vendor libraries could not be found, attempting to fix with composer' . PHP_EOL;
 
@@ -55,6 +55,7 @@ try {
                 exit(1);
             }
         }
+
 
         echo 'WARNING: Libraries successfully installed, retrying execution of PHO script' . PHP_EOL;
         include('./vendor/autoload.php');
