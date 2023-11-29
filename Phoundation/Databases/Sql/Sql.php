@@ -405,9 +405,7 @@ class Sql implements SqlInterface
             // PDO statement can be specified instead of a query?
             if (is_object($query)) {
                 if ($this->log or ($query->queryString[0] === ' ')) {
-                    if (!PLATFORM_CLI or !CliCommand::isScript('init')) {
-                        $log = true;
-                    }
+                    $log = true;
                 }
 
                 $timer = Timers::new('sql', static::getLogPrefix() . $query->queryString);
@@ -417,11 +415,9 @@ class Sql implements SqlInterface
                 $query->execute($execute);
 
             } else {
-                // Log all queries?
+                // Log query?
                 if ($this->log or ($query[0] === ' ')) {
-                    if (!PLATFORM_CLI or !CliCommand::isScript('system/init', true)) {
-                        $log = true;
-                    }
+                    $log = true;
                 }
 
                 $timer = Timers::new('sql', static::getLogPrefix()  . $query);
@@ -430,7 +426,7 @@ class Sql implements SqlInterface
                 $this->checkWriteAllowed($query);
 
                 if (empty($execute)) {
-                    // Just execute plain SQL query string. Only return ASSOC data.
+                    // Execute plain SQL query string. Only return ASSOC data.
                     $query = $this->pdo->query($query);
                     $query->setFetchMode(PDO::FETCH_ASSOC);
 
@@ -1432,21 +1428,25 @@ class Sql implements SqlInterface
     /**
      * Return a list of the specified $columns from the specified source
      *
-     * @param array|string|null $source
+     * @param array|string|null $where
      * @param string|null $prefix
      * @param string $separator
      * @return string
      */
-    protected function whereColumns(array|string|null $source, ?string $prefix = null, string $separator = ' AND '): string
+    protected function whereColumns(array|string|null $where, ?string $prefix = null, string $separator = ' AND '): string
     {
-        if (is_string($source)) {
-            // Source has already been prepared, return it
-            return $source;
+        if (!$where) {
+            throw new OutOfBoundsException(tr('No "where" section specified for the update query'));
+        }
+
+        if (is_string($where)) {
+            // The Source has already been prepared, return it
+            return $where;
         }
 
         $return = [];
 
-        foreach ($source as $key => $value) {
+        foreach ($where as $key => $value) {
             switch ($key) {
                 case 'meta_id':
                     // NEVER update these!
@@ -2188,7 +2188,7 @@ class Sql implements SqlInterface
                     ':e'        => $e->getMessage()
                 ]));
 
-                if (!Core::readRegister('no_time_zone') and (Core::executedPathIs('system/init'))) {
+                if (!Core::readRegister('no_time_zone') and (Core::isExecutedPath('system/init'))) {
                     throw $e;
                 }
 
@@ -2213,7 +2213,7 @@ class Sql implements SqlInterface
             }
 
             if (PLATFORM_CLI) {
-                switch (CliCommand::getCurrent(true)) {
+                switch (CliCommand::getExecutedPath()) {
                     case 'system/init/drop':
                         // no break
                     case 'system/init/init':
