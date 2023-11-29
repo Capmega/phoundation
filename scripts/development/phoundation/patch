@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Phoundation;
 
 
@@ -63,4 +64,10 @@ Log::information(tr('Copying local changes in ":project" project back to your Ph
         ':project' => PROJECT
 ]));
 
-Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+try {
+    Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+
+}catch (PatchPartiallySuccessfulException $e) {
+    $files = $e->getData();
+    showdie($files);
+}
