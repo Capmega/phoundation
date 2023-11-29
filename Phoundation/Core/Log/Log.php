@@ -1100,25 +1100,6 @@ Class Log {
                 echo $messages;
             }
 
-            // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
-            if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
-                if (static::$use_prefix and $use_prefix) {
-                    if (is_bool($use_prefix)) {
-                        // Display the default prefix
-                        echo date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ' . $messages . ($newline ? PHP_EOL : null);
-
-                    } else {
-                        // Display the specified prefix instead of the default one
-                        echo $use_prefix . $messages . ($newline ? PHP_EOL : null);
-                    }
-
-                } else {
-                    // Display the log message without a prefix
-                    echo $messages . ($newline ? PHP_EOL : null);
-                }
-
-            }
-
             static::$lock = false;
             return true;
 
