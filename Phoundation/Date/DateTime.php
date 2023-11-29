@@ -47,6 +47,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     {
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
+        $datetime = $datetime ?? 'now';
 
         if (is_string($timezone)) {
             $timezone = new DateTimeZone($timezone);
