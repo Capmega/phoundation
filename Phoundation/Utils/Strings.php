@@ -1678,7 +1678,7 @@ throw new UnderConstructionException();
             $source = $source->value;
 
         } elseif ($source instanceof Stringable) {
-            $source = '[' . Strings::fromReverse(get_class($source), '\\') . ']' . $source;
+            // Do nothing, display the string version of this object
 
         } elseif (is_object($source)) {
             $source = 'object: ' . get_class($source);
