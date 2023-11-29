@@ -1217,7 +1217,7 @@ class Page implements PageInterface
                     'user'           => Session::getUser()->getLogId(),
                     'uri'            => static::getUri(),
                     'target'         => Strings::from(static::$target, DIRECTORY_ROOT),
-                    ':real_target'   => Strings::from($target, DIRECTORY_ROOT),
+                    'real_target'    => Strings::from($target, DIRECTORY_ROOT),
                     'rights'         => $rights,
                     'missing_rights' => Rights::getNotExist($rights)
                 ])
@@ -1241,7 +1241,7 @@ class Page implements PageInterface
                     'uri'         => static::getUri(),
                     'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
                     'real_target' => Strings::from($target, DIRECTORY_ROOT),
-                    ':rights'      => Session::getUser()->getMissingRights($rights),
+                    'rights'      => Session::getUser()->getMissingRights($rights),
                 ])
                 ->notifyRoles('accounts')
                 ->save();
