@@ -5,9 +5,12 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliColor;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Utils\Arrays;
 
 
 /**
@@ -42,8 +45,15 @@ $argv = ArgvValidator::new()
 
 
 try {
-    // Display role data
-    Cli::displayForm(Role::get($argv['role'])->getSource());
+    $role = Role::get($argv['role']);
+
+    // Display role data and rights
+    Cli::displayForm($role->getSource());
+
+    Log::cli();
+    Log::cli(CliColor::apply('Rights available for this role:', 'white'));
+
+    Cli::displayTable(Arrays::listKeep($role->getRights(), 'id,name'), id_column: null);
 
 }catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
