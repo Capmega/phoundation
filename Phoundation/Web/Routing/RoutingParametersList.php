@@ -7,6 +7,7 @@ namespace Phoundation\Web\Routing;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
 
 
@@ -47,15 +48,15 @@ class RoutingParametersList
     /**
      * Add the specified parameters
      *
-     * @param RoutingParameters $parameters
+     * @param RoutingParametersInterface $parameters
      * @return $this
      */
-    public function add(RoutingParameters $parameters): static
+    public function add(RoutingParametersInterface $parameters): static
     {
         if ($parameters->getSystemPagesOnly()) {
             $this->system_list[$parameters->getPattern()] = $parameters;
         } else {
-            $this->list[$parameters->getPattern()] = $parameters;
+            $this->list[$parameters->getPattern()]        = $parameters;
         }
 
         $this->ordered = false;

@@ -16,6 +16,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\AdminLte\AdminLte;
 
 
@@ -29,7 +30,7 @@ use Templates\AdminLte\AdminLte;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class RoutingParameters
+class RoutingParameters implements RoutingParametersInterface
 {
     /**
      * Sets what template to use
