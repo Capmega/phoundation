@@ -763,13 +763,13 @@ Class Log {
      * @param bool $echo_header
      * @return bool
      */
-    public static function printr(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
+    public static function printr(mixed $messages = null, int $threshold = 10, string|bool $use_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        return static::write(print_r($messages, true), 'debug', $threshold, false, echo_screen: $echo_screen);
+        return static::write(print_r($messages, true), 'debug', $threshold, false, use_prefix: $use_prefix, echo_screen: $echo_screen);
     }
 
 
@@ -929,7 +929,7 @@ Class Log {
                 throw new LogException(tr('Cannot log, no log file specified'));
             }
 
-            // If we received an array then log each line separately
+            // If we received an array, then log each line separately
             if (is_array($messages)) {
                 $success = true;
 
@@ -1076,9 +1076,29 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
-            $prefix_string = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ';
+            // Build message string that should be written to log and (possibly) screen
+            if (static::$use_prefix and $use_prefix) {
+                if (is_bool($use_prefix)) {
+                    // Display the default prefix
+                    $messages = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ' . $messages . ($newline ? PHP_EOL : null);
 
-            static::$streams[static::$file]->write($prefix_string . $messages . ($newline ? PHP_EOL : null));
+                } else {
+                    // Display the specified prefix instead of the default one
+                    $messages = $use_prefix . $messages . ($newline ? PHP_EOL : null);
+                }
+
+            } else {
+                // Display the log message without a prefix
+                $messages = $messages . ($newline ? PHP_EOL : null);
+            }
+
+            // Write the message to the log file
+            static::$streams[static::$file]->write($messages);
+
+            // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
+            if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
+                echo $messages;
+            }
 
             // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
             if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
@@ -1086,12 +1106,14 @@ Class Log {
                     if (is_bool($use_prefix)) {
                         // Display the default prefix
                         echo $prefix_string . $messages . ($newline ? PHP_EOL : null);
+
                     } else {
-                        // Display the specified prefix
-                        echo $prefix_string . $messages . ($newline ? PHP_EOL : null);
+                        // Display the specified prefix instead of the default one
+                        echo $use_prefix . $messages . ($newline ? PHP_EOL : null);
                     }
 
                 } else {
+                    // Display the log message without a prefix
                     echo $messages . ($newline ? PHP_EOL : null);
                 }
 
