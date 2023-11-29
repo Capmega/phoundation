@@ -22,6 +22,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
+use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
@@ -77,6 +78,9 @@ use Throwable;
  */
 class Page implements PageInterface
 {
+    use DataStaticExecuted;
+
+
     /**
      * Classes to apply on default sections of the page
      *
@@ -1326,14 +1330,13 @@ class Page implements PageInterface
     #[NoReturn] public static function execute(string $target, bool $attachment = false): never
     {
         try {
-            // Startup the page
+            // Start the page up
             // See if we have to redirect
             // See if we can use cache.
             static::startup($target);
             static::checkForceRedirect();
             static::tryCache($target, $attachment);
 
-            Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
             // Execute the specified target file
@@ -1581,15 +1584,15 @@ class Page implements PageInterface
 
         // Redirect with time delay
         if ($time_delay) {
-            Log::information(tr('Redirecting with ":time" seconds delay to url ":url"', [
+            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [
                 ':time' => $time_delay,
-                ':url' => $redirect
+                ':url'  => $redirect
             ]));
 
-            header('Refresh: '.$time_delay.';'.$redirect, true, $http_code);
+            header('Refresh: '.$time_delay . ';' . $redirect, true, $http_code);
         } else {
             // Redirect immediately
-            Log::information(tr('Redirecting to url ":url"', [':url' => $redirect]));
+            Log::action(tr('Redirecting to url ":url"', [':url' => $redirect]));
             header('Location:' . $redirect, true, $http_code);
         }
 
@@ -2221,7 +2224,7 @@ class Page implements PageInterface
             exit($exit_message);
         }
 
-        // POST requests should always show a flash message for feedback!
+        // POST-requests should always show a flash message for feedback!
         if (Page::isPostRequestMethod()) {
             if (!Page::getFlashMessages()->getCount()) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
@@ -2230,7 +2233,7 @@ class Page implements PageInterface
 
         if (static::$http_code === 200) {
             Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
+                ':script'   => static::getExecutedPath(),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':httpcode' => static::$http_code
@@ -2238,7 +2241,7 @@ class Page implements PageInterface
 
         } else {
             Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
+                ':script'   => static::getExecutedPath(),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':httpcode' => static::$http_code
@@ -2624,6 +2627,8 @@ class Page implements PageInterface
                 ':language' => LANGUAGE
             ]));
 
+            static::setExecutedPath($target);
+
             switch (Core::getRequestType()) {
                 case EnumRequestTypes::api:
                     // no-break
@@ -2639,11 +2644,13 @@ class Page implements PageInterface
         } catch (AccessDeniedException $e) {
             $new_target = $e->getNewTarget();
 
-            Log::warning(tr('Access denied to target ":target" for user ":user", redirecting to new target ":new"', [
+            Log::warning(tr('Access denied to target ":target" for user ":user", executing target ":new" instead', [
                 ':target' => $target,
                 ':user'   => Session::getUser()->getDisplayId(),
                 ':new'    => $new_target
             ]));
+
+            static::setExecutedPath($new_target);
 
             $output = match (Core::getRequestType()) {
                 EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),

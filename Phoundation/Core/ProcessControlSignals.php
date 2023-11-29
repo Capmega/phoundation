@@ -144,7 +144,7 @@ class ProcessControlSignals
         Log::table($info);
         Core::exit($exit_code, tr('Script ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
             ':signal'   => $signal,
-            ':script'   => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
+            ':script'   => Core::getExecutedPath(),
             ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
             ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
             ':exitcode' => $exit_code

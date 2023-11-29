@@ -905,31 +905,19 @@ class Route
                 // TODO route_postprocess() This should be a class method!
                 Core::unregisterShutdown('route[postprocess]');
 
-                /*
-                 * Execute the page specified in $target (from here, $route)
-                 * Update the current running script name
-                 *
-                 * Flip the routemap keys <=> values foreach language so that its
-                 * now english keys. This way, the routemap can be easily used to
-                 * generate foreign language URLs
-                 */
-                Core::writeRegister($page, 'system', 'script_path');
-                Core::writeRegister(Strings::fromReverse($page, '/'), 'system', 'script');
+                // Execute the page specified in $target (from here, $route)
+                // Update the current running script name
+
+                // Flip the routemap keys <=> values foreach language so that its
+                // now english keys. This way, the routemap can be easily used to
+                // generate foreign language URLs
             }
 
             if ($until) {
-                /*
-                 * Store the request as a rule until it expires
-                 *
-                 * Apply semi-permanent routing for this IP
-                 *
-                 * Remove the "S" flag since we don't want to store the rule again
-                 * in subsequent loads
-                 *
-                 * Remove the "H" flag since subsequent requests may not be a hack
-                 * attempt. Since we are going to act as if the rule AND URI
-                 * apply, we don't know really, avoid unneeded red flags
-                 */
+                // Store the request as a rule until it expires. Apply semi-permanent routing for this IP
+                // Remove the "S" flag since we don't want to store the rule again in subsequent loads
+                // Remove the "H" flag since subsequent requests may not be a hack attempt. Since we are going to act as
+                // if the rule AND URI apply, we don't know really, avoid unneeded red flags
                 foreach ($flags as $id => $flag) {
                     switch ($flag[0]) {
                         case 'H':

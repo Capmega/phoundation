@@ -2188,7 +2188,7 @@ class Sql implements SqlInterface
                     ':e'        => $e->getMessage()
                 ]));
 
-                if (!Core::readRegister('no_time_zone') and (Core::compareRegister('init', 'system', 'script'))) {
+                if (!Core::readRegister('no_time_zone') and (Core::executedPathIs('system/init'))) {
                     throw $e;
                 }
 

@@ -15,6 +15,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -40,9 +41,9 @@ use Throwable;
  * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words separated
  *       by a -. Modifier arguments may have or not have values accompanying them.
  * @note Methods are arguments NOT starting with - or --
- * @note As soon as non method arguments start we can no longer discern if a value like "system" is actually a method or
- *       a value linked to an argument. Because of this, as soon as modifier arguments start, methods may no longer be
- *       specified. An exception to this are system modifier arguments because system modifier arguments are filtered
+ * @note As soon as non-method arguments start, we can no longer discern if a value like "system" is actually a method
+ *       or a value linked to an argument. Because of this, as soon as modifier arguments start, methods may no longer
+ *       be specified. An exception to this is system modifier arguments because system modifier arguments are filtered
  *       out BEFORE methods are processed.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -52,6 +53,9 @@ use Throwable;
  */
 class CliCommand
 {
+    use DataStaticExecuted;
+
+
     /**
      * Management object for the runfile for this command
      *
@@ -125,11 +129,11 @@ class CliCommand
             Core::startup();
 
         } catch (SqlException $e) {
-            $limit = 'system/project/init';
+            $limit  = 'system/project/init';
             $reason = tr('Core database not found, please execute "./cli system project setup"');
 
         } catch (NoProjectException $e) {
-            $limit = 'system/project/setup';
+            $limit  = 'system/project/setup';
             $reason = tr('Project file not found, please execute "./cli system project setup"');
         }
 
@@ -170,7 +174,7 @@ class CliCommand
         }
 
         // See if the script execution should be stopped for some reason. If not, setup a run file
-        static::$script = static::limitScript($command, isset_get($limit), isset_get($reason));
+        static::$script   = static::limitScript($command, isset_get($limit), isset_get($reason));
         static::$run_file = new CliRunFile($command);
 
         Log::action(tr('Executing script ":script"', [
@@ -179,6 +183,7 @@ class CliCommand
 
         // Execute the script and finish execution
         try {
+            static::setExecutedPath(static::$script);
             execute_script(static::$script);
 
         } catch (Throwable $e) {
@@ -514,7 +519,7 @@ class CliCommand
      * code
      * log_console('Started test');
      * cli_run_once_local();
-     * safe_exec(Core::readRegister('system', 'script'));
+     * safe_exec(Core::getExecutedPath());
      * cli_run_once_local(true);
      * /code
      *
@@ -727,9 +732,9 @@ class CliCommand
 
                 Log::warning($e->getMessage());
                 Log::warning(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
-                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':script'   => static::getExecutedPath(),
+                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
                 ]), 10);
             } else {
@@ -737,9 +742,9 @@ class CliCommand
 
                 Log::error($e->getMessage());
                 Log::error(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
-                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':script'   => static::getExecutedPath(),
+                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
                 ]), 10);
             }
@@ -752,9 +757,9 @@ class CliCommand
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                        ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
-                        ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':script'   => static::getExecutedPath(),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -767,9 +772,9 @@ class CliCommand
                 } else {
                     // Script ended with error
                     Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                        ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
-                        ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                        ':script'   => static::getExecutedPath(),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -782,10 +787,10 @@ class CliCommand
 
             // Script ended successfully
             Log::success(tr('Finished ":script" command with PID ":pid" in ":time" with ":usage" peak memory usage', [
-                ':pid' => getmypid(),
-                ':script' => Strings::from(Core::readRegister('system', 'script'), DIRECTORY_ROOT),
-                ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage())
+                ':pid'    => getmypid(),
+                ':script' => static::getExecutedPath(),
+                ':time'   => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'  => Numbers::getHumanReadableBytes(memory_get_peak_usage())
             ]), 8);
         }
 

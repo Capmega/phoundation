@@ -229,7 +229,6 @@ class Core implements CoreInterface
     {
         static::$state = 'startup';
         static::$register['system']['startup'] = microtime(true);
-        static::$register['system']['script'] = Strings::until(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.');
 
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
@@ -239,7 +238,7 @@ class Core implements CoreInterface
         // Define a unique process request ID
         // Define project paths.
 
-        // DIRECTORY_ROOT   is the root directory of this project and should be used as the root for all other paths
+        // DIRECTORY_ROOT   is the root directory of this project, and should be used as the root for all other paths
         // DIRECTORY_TMP    is a private temporary directory
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
         define('REQUEST'          , substr(uniqid(), 7));
@@ -1441,7 +1440,7 @@ class Core implements CoreInterface
      */
     public static function isPhpUnitTest(): bool
     {
-        return static::readRegister('system', 'script') === 'phpunit';
+        return static::executedPathIs('dev/phpunit') or static::executedPathIs('development/phpunit');
     }
 
 
@@ -1556,6 +1555,33 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the executed path
+     *
+     * @return string
+     */
+    public static function getExecutedPath(): string
+    {
+        if (PLATFORM_WEB) {
+            return Page::getExecutedPath();
+        }
+
+        return CliCommand::getExecutedPath();
+    }
+
+
+    /**
+     * Returns true if the executed path is the specified path
+     *
+     * @param string $path
+     * @return bool
+     */
+    public static function executedPathIs(string $path): bool
+    {
+        return static::getExecutedPath() === $path;
+    }
+
+
+    /**
      * This function is called automatically
      *
      * @param Throwable $e
@@ -1646,16 +1672,12 @@ class Core implements CoreInterface
 
                 $executed = true;
 
-                if (empty(static::$register['system']['script'])) {
-                    static::$register['system']['script'] = 'unknown';
-                }
-
                 if (!defined('PLATFORM')) {
-                    // System crashed before platform detection.
+                    // The system crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
-                        ':code' => $e->getCode(),
-                        ':type' => static::getRequestType()->value,
-                        ':script' => static::readRegister('system', 'script')
+                        ':code'   => $e->getCode(),
+                        ':type'   => static::getRequestType()->value,
+                        ':script' => static::getExecutedPath()
                     ]));
 
                     Log::error($e);
@@ -1732,7 +1754,7 @@ class Core implements CoreInterface
 //                                    exit(Script::getExitCode());
 //
 //                                case 'validation':
-//                                    if (static::readRegister('system', 'script') === 'init') {
+//                                    if (static::executedPathIs('system/init')) {
 //                                        /*
 //                                         * In the init script, all validations are fatal!
 //                                         */
@@ -1763,10 +1785,10 @@ class Core implements CoreInterface
 //                            }
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                            ':code' => $e->getCode(),
-                            ':type' => static::getRequestType()->value,
-                            ':state' => static::$state,
-                            ':script' => static::readRegister('system', 'script'),
+                            ':code'        => $e->getCode(),
+                            ':type'        => static::getRequestType()->value,
+                            ':state'       => static::$state,
+                            ':script'      => static::getExecutedPath(),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
 
@@ -1801,10 +1823,10 @@ class Core implements CoreInterface
 
                         // Log exception data
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                            ':code' => $e->getCode(),
-                            ':type' => static::getRequestType()->value,
-                            ':state' => static::$state,
-                            ':script' => static::readRegister('system', 'script'),
+                            ':code'        => $e->getCode(),
+                            ':type'        => static::getRequestType()->value,
+                            ':state'       => static::$state,
+                            ':script'      => static::getExecutedPath(),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
 
@@ -1923,16 +1945,16 @@ class Core implements CoreInterface
                                             <thead>
                                                 <td colspan="2" class="center">
                                                     ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
-                                    ':code' => $e->getCode(),
-                                    ':script' => static::readRegister('system', 'script'),
-                                    ':type' => Core::getRequestType()->value
-                                ]) . '
+                                                            ':code'   => $e->getCode(),
+                                                            ':script' => static::getExecutedPath(),
+                                                            ':type'   => Core::getRequestType()->value
+                                                        ]) . '
                                                 </td>
                                             </thead>
                                             <tbody>
                                                 <tr>
                                                     <td colspan="2" class="center">
-                                                        ' . tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => static::readRegister('system', 'script'))) . '
+                                                        ' . tr('An uncaught exception with code ":code" occurred in script ":script". See the exception core dump below for more information on how to fix this issue', [':code' => $e->getCode(), ':script' => static::getExecutedPath()]) . '
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -1998,7 +2020,7 @@ class Core implements CoreInterface
 //                }
 
                 if (!defined('PLATFORM') or static::inStartupState($state)) {
-                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
+                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', [':script' => static::getExecutedPath()]));
                     Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     Log::error($f->getMessage());
                     Log::error($f->getTrace());
@@ -2010,7 +2032,7 @@ class Core implements CoreInterface
 
                 switch (PLATFORM) {
                     case 'cli':
-                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', [':script' => static::getExecutedPath()]));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                         Debug::setEnabled(true);
@@ -2029,7 +2051,7 @@ class Core implements CoreInterface
                             Route::executeSystem(500);
                         }
 
-                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => static::readRegister('system', 'script'))));
+                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', [':script' => static::getExecutedPath()]));
                         show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
                         show($f);
@@ -2477,7 +2499,7 @@ class Core implements CoreInterface
     protected static function executeShutdownCallbacks(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
     {
         Log::action(tr('Starting shutdown procedure for script ":script"', [
-            ':script' => static::readRegister('system', 'script')
+            ':script' => static::getExecutedPath()
         ]), 2);
 
         if (!is_array(static::readRegister('system', 'shutdown_callback'))) {

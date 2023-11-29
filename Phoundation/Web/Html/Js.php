@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
 
+use Phoundation\Core\Core;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -250,7 +251,7 @@ class Js
          * automatically be added to the end of the <body> tag
          */
         if (!empty($footer)) {
-            $core->register['footer'] .= $footer.$core->register['footer'].Core::readRegister('system', 'script_delayed');
+            $core->register['footer'] .= $footer.$core->register['footer'] . Core::readRegister('system', 'script_delayed');
             unset($core->register['script_delayed']);
         }
 
