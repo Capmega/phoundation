@@ -568,13 +568,17 @@ class Arrays {
     /**
      * Return the source array with the specified keys kept, all else removed.
      *
-     * @param array $source
+     * @param DataListInterface|array $source
      * @param string|array $keys
      * @return array
      */
-    public static function keep(array $source, string|array $keys): array
+    public static function keep(DataListInterface|array $source, string|array $keys): array
     {
         $return = [];
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
 
         foreach (Arrays::force($keys) as $key) {
             if (array_key_exists($key, $source)) {
@@ -589,13 +593,17 @@ class Arrays {
     /**
      * Return the source array with the specified keys kept, all else removed.
      *
-     * @param array $source
+     * @param DataListInterface|array $source
      * @param string|array $keys
      * @return array
      */
-    public static function listKeep(array $source, string|array $keys): array
+    public static function listKeep(DataListInterface|array $source, string|array $keys): array
     {
-        $keys   = Arrays::force($keys);
+        $keys = Arrays::force($keys);
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
 
         foreach ($source as &$entry) {
             $entry = Arrays::keep($entry, $keys);
@@ -610,12 +618,16 @@ class Arrays {
     /**
      * Return the source array with the specified keys removed.
      *
-     * @param array $source
+     * @param DataListInterface|array $source
      * @param array|string $keys
      * @return array
      */
-    public static function remove(array $source, array|string $keys): array
+    public static function remove(DataListInterface|array $source, array|string $keys): array
     {
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
+
         foreach (Arrays::force($keys) as $key) {
             unset($source[$key]);
         }
