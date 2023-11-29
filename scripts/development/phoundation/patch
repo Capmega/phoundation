@@ -9,6 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Utils\Arrays;
 
 
 /**
@@ -70,5 +71,14 @@ try {
 
 }catch (GitPatchException|PatchPartiallySuccessfulException $e) {
     $files = $e->getData();
-    showdie($files);
+
+    if ($files) {
+        Log::warning(tr('Failed to merge the following files:'));
+
+        foreach (Arrays::force($files) as $file) {
+            Log::write($file, 'debug');
+        }
+    }
+
+    throw $e->makeWarning();
 }
