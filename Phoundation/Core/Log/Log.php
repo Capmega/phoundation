@@ -880,7 +880,7 @@ Class Log {
     {
         error_log($message);
 
-        if (PLATFORM_WEB) {
+        if (php_sapi_name() !== 'cli') {
             flush();
         }
     }
@@ -1142,7 +1142,8 @@ Class Log {
         } catch (Throwable $f) {
             // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
             // we won't stand for!
-            throw new LogException('Failed to write to ANY log (Failed to write to both local log files and system log files', data: ['original exception' => $e]);
+            throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files')
+                ->addData(['original exception' => $e]);
         }
 
         // We did NOT log
