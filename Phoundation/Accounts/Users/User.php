@@ -1939,7 +1939,7 @@ class User extends DataEntry implements UserInterface
                 ->setSize(3)
                 ->setSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
                 ->setInputType(InputType::auto_suggest)
-                ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', ':PROTOCOL://:DOMAIN/:LANGUAGE/force-password-update.html'))
+                ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
                 ->setLabel(tr('Redirect URL'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The URL where this user will be redirected to upon sign in')))
