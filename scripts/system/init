@@ -45,28 +45,28 @@ ARGUMENTS
                                         data for all systems. Since this requires (amongst things) downloading and 
                                         importing (sometimes) very large data sets, this may take a little while
 
-[-l / --libraries] LIBRARIES            Comma delimited field. Only available if --import was specified. If specified,  
+[-l / --libraries LIBRARIES]            Comma delimited field. Only available if --import was specified. If specified,  
                                         will only execute import for libraries matching the names specified 
                                         
-[--min] NUMBER (10)                     If demo mode is enabled, this will specified the minimum amount of records added 
+[--min NUMBER (10)]                     If demo mode is enabled, this will specified the minimum amount of records added 
                                         in each library 
 
-[--max] NUMBER (1000)                   If demo mode is enabled, this will specified the maximum amount of records added 
+[--max NUMBER (1000)]                   If demo mode is enabled, this will specified the maximum amount of records added 
                                         in each library 
 
 [-d / --demo]                           If specified, will load demo data into the database tables so the system can 
                                         quickly show actual functionality 
 
--p / --no-plugins                       Do NOT initalize plugin libraries
+[-p, --no-plugins]                      Do NOT initalize plugin libraries
                                        
--s / --no-system                        Do NOT initialize system libraries
+[-s, --no-system]                       Do NOT initialize system libraries
                                        
--t / --no-templates                     Do NOT initialize template libraries
+[-t, --no-templates]                    Do NOT initialize template libraries
                                        
--c / --comments COMMENTS                The optional comments to add in the versions table about this init
+[-c, --comments COMMENTS]               The optional comments to add in the versions table about this init
 
--v / --set-version NAME/VERSION,        Will update the specified libraries to the specified version before 
-                   NAME/VERSION, ...    initialization is executed. This is useful to re-run a specific version update');
+[-v, --set-version [NAME/VERSION],      Will update the specified libraries to the specified version before 
+                   [NAME/VERSION], ...] initialization is executed. This is useful to re-run a specific version update');
 
 
 // Get command line arguments
@@ -91,7 +91,7 @@ if ($argv['drop']) {
 }
 
 
-// Update version for specified libraries
+// Update the version for specified libraries
 if ($argv['set_version']) {
     foreach ($argv['set_version'] as $lib_version) {
         $library = Strings::until($lib_version, '/');

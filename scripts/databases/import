@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\UnderConstructionException;
@@ -36,22 +37,32 @@ ARGUMENTS
 
 -b / --database DATABASE                The database in which to import the import file
 
--f / --file FILE                        The file which to import');
+-f / --file FILE                        The file which to import
+
+[--no-init]                             If specified, Phoundation will not immediately after import execute the init 
+                                        system. Please note that this may leave the database in an incompatible state!
+
+[--no-drop]                             If specified, Phoundation will not drop the database before starting the import
+
+[-c / --comments COMMENTS]              The optional comments to add in the versions table if the init is executed right 
+                                        after import');
 
 CliDocumentation::autoComplete([
     'arguments' => [
-        '--file' => [
+        '-f,--file' => [
             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
         ],
-        '--driver' => [
+        '-d,--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
             'noword' => ['mysql']
         ],
-        '--database' => [
+        '-b,--database' => [
             'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
             'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
-        ]
+        ],
+        '--no-init' => false,
+        '--no-drop' => false
     ]
 ]);
 
@@ -61,10 +72,13 @@ $argv = ArgvValidator::new()
     ->select('-f,--file'    , true)->isFile(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
     ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database', true)->isVariable()
+    ->select('-c,--comments', true)->isOptional()->isPrintable()
     ->select('--no-drop')->isOptional(false)->isBoolean()
+    ->select('--no-init')->isOptional(false)->isBoolean()
     ->validate();
 
 
+// Execute the import for the specified driver
 switch ($argv['driver']) {
     case 'mysql':
         Log::information(tr('Importing MySQL dump file ":file" to database ":database", this may take a while...', [
@@ -78,6 +92,14 @@ switch ($argv['driver']) {
             ':file'     => $argv['file'],
             ':database' => $argv['database'],
         ]));
+
+        if ($argv['no_init']) {
+            Log::warning(tr('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
+
+        } else {
+            Log::information(tr('Executing database init to ensure database layout is compatible with the current code version'));
+            Libraries::initialize(comments: $argv['comments'] ?? tr('Init after database import'));
+        }
 
         break;
 
