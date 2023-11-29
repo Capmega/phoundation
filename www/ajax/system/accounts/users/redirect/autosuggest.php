@@ -29,7 +29,7 @@ $get = GetValidator::new()->validate();
 
 // Reply
 $reply = Json::encode([
-    (string) UrlBuilder::getWww('/force-password-update.html')
+    '/force-password-update.html'
 ]);
 
 $reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';
