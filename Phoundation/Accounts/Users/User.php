@@ -237,7 +237,7 @@ class User extends DataEntry implements UserInterface
         } catch (DataEntryNotExistsException $e) {
             if ($column === 'email') {
                 // Try to find the user by alternative email address
-                $user = sql()->get('SELECT `id`, `verified`
+                $user = sql()->get('SELECT `id`, `verified_on`
                                           FROM   `accounts_emails` 
                                           WHERE  `email` = :email 
                                             AND  `status` IS NULL', [
@@ -245,7 +245,7 @@ class User extends DataEntry implements UserInterface
                 ]);
 
                 if ($user) {
-                    if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
+                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
                         return static::get($user['id'], 'id', $meta_enabled);
                     }
                 }
