@@ -1433,10 +1433,11 @@ class Page implements PageInterface
     {
         // Does this user have a forced redirect?
         if (!Session::getUser()->isGuest()) {
-            if (Session::getUser()->getRedirect()) {
+            $redirect = Session::getUser()->getRedirect();
+
+            if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
-                $redirect = Session::getUser()->getRedirect();
-                $current  = (string) UrlBuilder::getCurrent();
+                $current = (string) UrlBuilder::getCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
