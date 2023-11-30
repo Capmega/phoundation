@@ -235,38 +235,20 @@ class User extends DataEntry implements UserInterface
             return parent::get($identifier, $column, $meta_enabled);
 
         } catch (DataEntryNotExistsException $e) {
-            switch ($column) {
-                case 'email':
-                    // Try to find user by alternative email address
-                    $user = sql()->get('SELECT `id`, `verified`
-                                              FROM   `accounts_emails` 
-                                              WHERE  `email` = :email 
-                                                AND  `status` IS NULL', [
-                        ':email' => $identifier
-                    ]);
+            if ($column === 'email') {
+                // Try to find the user by alternative email address
+                $user = sql()->get('SELECT `id`, `verified`
+                                          FROM   `accounts_emails` 
+                                          WHERE  `email` = :email 
+                                            AND  `status` IS NULL', [
+                    ':email' => $identifier
+                ]);
 
-                    if ($user) {
-                        if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            return static::get($user['id'], 'id', $meta_enabled);
-                        }
+                if ($user) {
+                    if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
+                        return static::get($user['id'], 'id', $meta_enabled);
                     }
-
-                    break;
-
-                case 'phone':
-                    // Try to find the user by alternative phone
-                    $user = sql()->get('SELECT `id`, `verified` 
-                                              FROM   `accounts_phones` 
-                                              WHERE  `phone` = :phone 
-                                                AND  `status` IS NULL', [
-                        ':phone' => $identifier
-                    ]);
-
-                    if ($user) {
-                        if ($user['verified'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                            return static::get($user['id'], 'id', $meta_enabled);
-                        }
-                    }
+                }
             }
 
             // The requested user identifier doesn't exist
