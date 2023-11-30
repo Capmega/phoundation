@@ -291,13 +291,14 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
-                throw new FileNotExistException(tr('The specified file or directory ":directory" with prefix ":prefix" does not exist', [
-                    ':prefix' => $prefix,
-                    ':directory'   => $directory
+                throw new FileNotExistException(tr('The resolved path ":resolved" for the specified path ":directory" with prefix ":prefix" does not exist', [
+                    ':prefix'    => $prefix,
+                    ':directory' => $directory,
+                    ':resolved'  => $return
                 ]));
             }
 
-            // Directory doesn't exist, but apparently that's okay! Continue!
+            // The path doesn't exist, but apparently that's okay! Continue!
         }
 
         return $return;
