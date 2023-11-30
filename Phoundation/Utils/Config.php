@@ -558,7 +558,7 @@ class Config implements Interfaces\ConfigInterface
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$fail = true;
-                    throw ConfigException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist', null, null, $e)
+                    throw ConfigException::new('Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log($environment) . '"', $e)
                         ->makeWarning();
                 }
 
@@ -569,7 +569,7 @@ class Config implements Interfaces\ConfigInterface
                         ]));
                     }
 
-                    // Looks like configuration file was empty
+                    // It looks like the configuration file was empty
                     $data = [];
                 }
 
@@ -589,7 +589,7 @@ class Config implements Interfaces\ConfigInterface
      * Scan the entire project from ROOT for Config::get() and Config::set() and generate a config/default.yaml file
      * with all default values
      *
-     * @return int The amount of configuration paths processed
+     * @return int The number of configuration paths processed
      */
     public static function generateDefaultYaml(): int
     {
