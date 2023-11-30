@@ -238,7 +238,7 @@ class User extends DataEntry implements UserInterface
             switch ($column) {
                 case 'email':
                     // Try to find user by alternative email address
-                    $user = sql()->get('SELECT `id` 
+                    $user = sql()->get('SELECT `id`, `verified`
                                               FROM   `accounts_emails` 
                                               WHERE  `email` = :email 
                                                 AND  `status` IS NULL', [
@@ -255,7 +255,7 @@ class User extends DataEntry implements UserInterface
 
                 case 'phone':
                     // Try to find the user by alternative phone
-                    $user = sql()->get('SELECT `id` 
+                    $user = sql()->get('SELECT `id`, `verified` 
                                               FROM   `accounts_phones` 
                                               WHERE  `phone` = :phone 
                                                 AND  `status` IS NULL', [
@@ -1529,7 +1529,7 @@ class User extends DataEntry implements UserInterface
      */
     protected static function doAuthenticate(string|int $identifier, string $password, ?string $domain = null, bool $test = false): static
     {
-        $user = static::get($identifier,  (is_numeric($identifier) ? 'id' : 'email'));
+        $user = static::get($identifier, (is_numeric($identifier) ? 'id' : 'email'));
 
         if ($user->passwordMatch($password)) {
             if ($user->getDomain()) {
