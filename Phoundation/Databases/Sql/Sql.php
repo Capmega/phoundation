@@ -2028,10 +2028,18 @@ class Sql implements SqlInterface
                     throw new PhpModuleNotAvailableException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
                 }
 
+                // Build up ATTR_INIT_COMMAND
+                $command = 'SET @@SESSION.TIME_ZONE="+00:00"; ';
+
+                if ($configuration['charset']) {
+                    // Set the default character set to use
+                    $command .= 'SET NAMES ' . strtoupper($configuration['charset'] . '; ');
+                }
+
                 // Apply MySQL specific requirements that always apply
                 $configuration['pdo_attributes'][PDO::ATTR_ERRMODE]                  = PDO::ERRMODE_EXCEPTION;
                 $configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$configuration['buffered'];
-                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = 'SET NAMES ' . strtoupper($configuration['charset'] . '; SET @@session.time_zone="+00:00";');
+                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = $command;
                 break;
 
             default:
