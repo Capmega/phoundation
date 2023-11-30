@@ -2187,23 +2187,26 @@ class Sql implements SqlInterface
             // Yay, we're using the database!
             $this->using_database = $this->configuration['name'];
 
-            try {
-                $this->pdo->query('SET time_zone = "' . $this->configuration['timezone'] . '";');
+            if ($this->configuration['timezone']) {
+                // Try to set MySQL timezone
+                try {
+                    $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezone'] . '";');
 
-            } catch (Throwable $e) {
-                Log::warning(static::getLogPrefix() . tr('Failed to set timezone for database instance ":instance" with error ":e"', [
-                    ':instance' => $this->instance,
-                    ':e'        => $e->getMessage()
-                ]));
+                } catch (Throwable $e) {
+                    Log::warning(static::getLogPrefix() . tr('Failed to set timezone for database instance ":instance" with error ":e"', [
+                            ':instance' => $this->instance,
+                            ':e'        => $e->getMessage()
+                        ]));
 
-                if (!Core::readRegister('no_time_zone') and (Core::isExecutedPath('system/init'))) {
-                    throw $e;
+                    if (!Core::readRegister('no_time_zone') and (Core::isExecutedPath('system/init'))) {
+                        throw $e;
+                    }
+
+                    // Indicate that time_zone settings failed (this will subsequently be used by the init system to
+                    // automatically initialize that as well)
+                    // TODO Write somewhere else than Core "system" register as that will be readonly
+                    throw new SqlNoTimezonesException(tr('MySQL has not yet loaded any timezones'));
                 }
-
-                // Indicate that time_zone settings failed (this will subsequently be used by the init system to
-                // automatically initialize that as well)
-                // TODO Write somewhere else than Core "system" register as that will be readonly
-                throw new SqlNoTimezonesException(tr('MySQL has not yet loaded any timezones'));
             }
 
             if (!empty($this->configuration['mode'])) {
