@@ -472,9 +472,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Returns the name for this user that can be displayed
      *
+     * @param bool $official
      * @return string
      */
-    function getDisplayName(): string;
+    function getDisplayName(bool $official = false): string;
 
     /**
      * Returns the name with an id for a user

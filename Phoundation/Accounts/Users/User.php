@@ -227,13 +227,12 @@ class User extends DataEntry implements UserInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @param bool $meta_enabled
-     * @param bool $force
      * @return User|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false): ?static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::get($identifier, $column, $meta_enabled);
 
         } catch (DataEntryNotExistsException $e) {
             if ($column === 'email') {
@@ -1024,9 +1023,10 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the name for this user that can be displayed
      *
+     * @param bool $official
      * @return string
      */
-    function getDisplayName(): string
+    function getDisplayName(bool $official = false): string
     {
         $postfix = match ($this->getStatus()) {
             'deleted' => ' ' . tr('[DELETED]'),
@@ -1034,7 +1034,8 @@ class User extends DataEntry implements UserInterface
             default   => null
         };
 
-        if (!$name = $this->getNickname()) {
+        if ((!$name = $this->getNickname()) or $official) {
+            // Nickname is NOT allowed for official information
             if (!$name = trim($this->getFirstNames() . ' ' . $this->getLastNames())) {
                 if (!$name = $this->getUsername()) {
                     if (!$name = $this->getEmail()) {
