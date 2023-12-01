@@ -580,10 +580,10 @@ abstract class DataEntry implements DataEntryInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @param bool $meta_enabled
+     * @param bool $force
      * @return static|null
-     * @throws OutOfBoundsException|DataEntryNotExistsException|DataEntryDeletedException
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
     {
         if (!$identifier) {
             // No identifier specified, return an empty object
@@ -625,7 +625,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        if ($entry->isDeleted()) {
+        if ($entry->isDeleted() and !$force) {
             // This entry has been deleted and can only be viewed by user with the "deleted" right
             if (!Session::getUser()->hasAllRights('deleted')) {
                 throw DataEntryDeletedException::new(tr('The ":class" entry ":identifier" is deleted', [

@@ -300,26 +300,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns a new DateTime object for the first day of the current monthly period
-     *
-     * @return static
-     */
-    public function getCurrentPeriodStart(): static
-    {
-        $datetime = static::new($this);
-        $date_day = $datetime->format('d');
-
-        if ($date_day >= 16) {
-            // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
-        }
-
-        // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
-    }
-
-
-    /**
      * Returns a new DateTime object for the first day of the next monthly period
      *
      * @return static
@@ -341,13 +321,22 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns true if this date is the first day of a period (the 1st or 16th of a month)
+     * Returns a new DateTime object for the first day of the current monthly period
      *
-     * @return bool
+     * @return static
      */
-    public function isPeriodStart(): bool
+    public function getCurrentPeriodStart(): static
     {
-        return in_array($this->format('d'), [1, 16]);
+        $datetime = static::new($this);
+        $date_day = $datetime->format('d');
+
+        if ($date_day >= 16) {
+            // 15-30 this month
+            return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+        }
+
+        // 16 - 3(0|1) this month
+        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -363,11 +352,50 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-t 00:00:00'), $datetime->getTimezone());
+            return DateTime::new($datetime->format('Y-m-t 23:59:59'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-15 00:00:00'), $datetime->getTimezone());
+        return DateTime::new($datetime->format('Y-m-15 23:59:59'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of the current month
+     *
+     * @return static
+     */
+    public function getCurrentMonthStart(): static
+    {
+        $datetime = static::new($this);
+        $date_day = $datetime->format('d');
+
+        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns the stop date for the month in which this date is
+     *
+     * @return static
+     */
+    public function getCurrentMonthStop(): static
+    {
+        $datetime = static::new($this);
+        $max      = $datetime->format('t');
+
+        return DateTime::new($datetime->format('Y-m-t 23:59:59'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a period (the 1st or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isPeriodStart(): bool
+    {
+        return in_array($this->format('d'), ['1', '16']);
     }
 
 
