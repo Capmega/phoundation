@@ -31,8 +31,8 @@ try {
         // Whoops, no vendor libraries available. Run composer to fix
         echo 'WARNING: Autoloader or vendor libraries could not be found, attempting to fix with composer' . PHP_EOL;
 
-        if (file_exists(__DIR__ . '/composer.phar')) {
-            passthru('php ' . __DIR__ . '/composer.phar update', $exit_code);
+        if (file_exists(__DIR__ . '/data/bin/composer.phar')) {
+            passthru(__DIR__ . '/data/bin/composer.phar update', $exit_code);
 
             if ($exit_code) {
                 throw new Exception('Composer failed to execute, see composer output for more information');
