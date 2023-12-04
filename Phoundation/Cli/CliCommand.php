@@ -236,11 +236,6 @@ class CliCommand
             return;
         }
 
-        if (Core::isPhpUnitTest()) {
-            // Don't restart PHPUnit processes
-            return;
-        }
-
         if (!Core::getProcessUid() and $permit_root) {
             // This script is run as root and root is authorized!
             return;
