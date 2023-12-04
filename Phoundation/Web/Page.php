@@ -202,34 +202,14 @@ class Page implements PageInterface
      *
      * @var array $headers
      */
-    protected static array $headers = [
-        'link'       => [],
-        'meta'       => [],
-        'javascript' => []
-    ];
+    protected static array $headers;
 
     /**
      * Information that goes into the HTML footer
      *
      * @var array $footers
      */
-    protected static array $footers = [
-        'javascript' => []
-    ];
-
-    /**
-     * The files that should be added in the header
-     *
-     * @var array
-     */
-    protected static array $header_files = [];
-
-    /**
-     * The files that should be added in the footer
-     *
-     * @var array
-     */
-    protected static array $footer_files = [];
+    protected static array $footers;
 
     /**
      * The unique hash for this page
@@ -320,14 +300,24 @@ class Page implements PageInterface
 
 
     /**
-     * Page class constructor
+     * Resets all headers / footers
      *
-     * @throws Exception
+     * @return void
      */
-    protected function __construct()
+    protected static function resetHeadersFooters()
     {
-        static::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
-        static::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
+        static::$headers = [
+            'link'       => [],
+            'meta'       => [
+                'charset'  => Config::get('languages.encoding.charset', 'UTF-8'),
+                'viewport' => Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no'),
+            ],
+            'javascript' => []
+        ];
+
+        static::$footers = [
+            'javascript' => []
+        ];
     }
 
 
@@ -408,6 +398,10 @@ class Page implements PageInterface
             throw new PageException(tr('Cannot return routing parameters, this requires the HTTP platform'));
         }
 
+        if (empty(static::$parameters)) {
+            throw new PageException(tr('Cannot return routing parameters, parameters have not yet been set'));
+        }
+
         return static::$parameters;
     }
 
@@ -420,6 +414,7 @@ class Page implements PageInterface
      */
     public static function setRoutingParameters(RoutingParametersInterface $parameters): void
     {
+        static::resetHeadersFooters();
         static::$parameters = $parameters;
 
         // Set the server filesystem restrictions and template for this page
@@ -437,6 +432,18 @@ class Page implements PageInterface
             static::$template      = $parameters->getTemplateObject();
             static::$template_page = static::$template->getPage();
         }
+    }
+
+
+    /**
+     * Sets the template to the specified template name
+     *
+     * @param string $template
+     * @return void
+     */
+    public static function setTemplate(string $template): void
+    {
+        static::setRoutingParameters(static::getRoutingParameters()->setTemplate($template));
     }
 
 
@@ -1331,10 +1338,15 @@ class Page implements PageInterface
      */
     #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
     {
+        // Ensure we have received routing parameters, can't execute without!
+        if (empty(static::$parameters)) {
+            throw new PageException(tr('Cannot execute target ":target", no routing parameters specified', [
+                ':target' => $target
+            ]));
+        }
+
         try {
             // Start the page up
-            // See if we have to redirect
-            // See if we can use cache.
             static::startup($target);
 
             if (!$system) {
@@ -1448,7 +1460,14 @@ class Page implements PageInterface
                             ':url'  => $redirect
                         ]));
 
-                        Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . $current));
+                        // Get URL builder object, ensure that sign-in page gets a redirect=$current_url
+                        $redirect = UrlBuilder::getWww($redirect);
+
+                        if ((string) $redirect === (string) UrlBuilder::getWww('sign-in')) {
+                            $redirect->addQueries('redirect=' . $current);
+                        }
+
+                        Page::redirect($redirect);
                     }
 
                     Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
@@ -1482,7 +1501,7 @@ class Page implements PageInterface
             (string) UrlBuilder::getWww('sign-out'),
         ];
 
-        return in_array((string) $url, $skip);
+        return in_array($url, $skip);
     }
 
 
@@ -2466,7 +2485,10 @@ class Page implements PageInterface
 
 
     /**
-     * Starts up this page object
+     * Starts this page object up
+     *
+     * This method will start up the session, perform a sleep() call  if we're on a system page, convert the target to
+     * an absolute filename, and will check target restrictions.
      *
      * @param string $target
      * @return void
