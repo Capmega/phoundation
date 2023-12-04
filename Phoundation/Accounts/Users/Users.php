@@ -329,35 +329,38 @@ class Users extends DataList implements UsersInterface
      */
     public function load(): static
     {
+
         if ($this->parent) {
             if ($this->parent instanceof RoleInterface) {
-                $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
-                                                   FROM   `accounts_users_roles` 
-                                                   JOIN   `accounts_users` 
-                                                   ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                                   WHERE  `accounts_users_roles`.`roles_id` = :roles_id', [
+                $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
+                                FROM   `accounts_users_roles` 
+                                JOIN   `accounts_users` 
+                                ON     `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                WHERE  `accounts_users_roles`.`roles_id` = :roles_id';
+                $this->execute = [
                     ':roles_id' => $this->parent->getId()
-                ]);
+                ];
 
             } elseif ($this->parent instanceof RightInterface) {
-                $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
-                                                   FROM   `accounts_users_rights` 
-                                                   JOIN   `accounts_users` 
-                                                   ON     `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
-                                                   WHERE  `accounts_users_rights`.`rights_id` = :rights_id', [
-                    ':rights_id' => $this->parent->getId()
-                ]);
+                $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
+                                FROM   `accounts_users_rights` 
+                                JOIN   `accounts_users` 
+                                ON     `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
+                                WHERE  `accounts_users_rights`.`rights_id` = :rights_id';
 
+                $this->execute = [
+                    ':rights_id' => $this->parent->getId()
+                ];
             }
 
         } else {
-            $this->source = sql()->list('SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
-                                               FROM   `accounts_users`
-                                               WHERE  `accounts_users`.`status` IS NULL
-                                                 AND  `accounts_users`.`email`    != "guest"');
+            $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
+                            FROM   `accounts_users`
+                            WHERE  `accounts_users`.`status` IS NULL
+                              AND  `accounts_users`.`email`    != "guest"';
         }
 
-        return $this;
+        return parent::load();
     }
 
 
