@@ -1426,7 +1426,7 @@ abstract class DataEntry implements DataEntryInterface
 
                     throw new OutOfBoundsException(tr('Cannot set source key ":key" because the class definitions have no method defined for DataEntry class ":class"', [
                         ':key'   => $key,
-                        ':class' => Strings::fromReverse(get_class($this), '\\')
+                        ':class' => get_class($this)
                     ]));
                 }
 
