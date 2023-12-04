@@ -246,16 +246,9 @@ abstract class Validator implements ValidatorInterface
      */
     public function isBoolean(): static
     {
-        if ($this->selected_optional === true) {
-            // A default TRUE for boolean values makes no sense as with this they will ALWAYS be TRUE.
-            throw new OutOfBoundsException(tr('Cannot use "TRUE" as a default value for boolean field ":selected" as this means the field will ALWAYS be true', [
-                ':selected' => $this->selected_field
-            ]));
-        }
-
         return $this->validateValues(function(&$value) {
             if ($this->checkIsOptional($value)) {
-                if ($this->selected_optional !== false) {
+                if (!is_bool($this->selected_optional)) {
                     if ($this->selected_optional !== null) {
                         throw new OutOfBoundsException(tr('Invalid default data ":data" specified for field ":selected", it must be boolean', [
                             ':data' => $this->selected_optional,
@@ -264,7 +257,7 @@ abstract class Validator implements ValidatorInterface
                     }
                 }
 
-                $value = false;
+                $value = $this->selected_optional;
 
             } else {
                 $value = Strings::toBoolean($value, false);
