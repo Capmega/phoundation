@@ -2531,6 +2531,7 @@ class Page implements PageInterface
         static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
+        // Check only when in state "script". State "maintentance" for example, requires no rights checking
         if (Core::isState('script')) {
             Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }

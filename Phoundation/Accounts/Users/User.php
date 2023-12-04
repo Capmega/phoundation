@@ -1156,7 +1156,6 @@ class User extends DataEntry implements UserInterface
             } else {
                 $this->roles = Roles::new()->setParent($this);
             }
-
         }
 
         return $this->roles;
