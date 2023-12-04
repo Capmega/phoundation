@@ -355,8 +355,10 @@ class Rights extends DataList implements RightsInterface
 
                 // Added the "everybody" right
                 $this->source['everybody'] = [
-                    'seo_name' => 'everybody',
-                    'name'     => 'everybody'
+                    'id'          => 0,
+                    'seo_name'    => 'everybody',
+                    'name'        => 'everybody',
+                    'description' => tr('This is a default right that applies to all users')
                 ];
 
             } elseif ($this->parent instanceof RoleInterface) {
