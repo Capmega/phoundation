@@ -12,8 +12,8 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryDirectory;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -28,7 +28,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -37,7 +37,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
 class Plugin extends DataEntry implements PluginInterface
 {
     use DataEntryNameDescription;
-    use DataEntryDirectory;
+    use DataEntryPath;
     use DataEntryPriority {
         setPriority as setTraitPriority;
     }
@@ -150,7 +150,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getClass(): ?string
     {
-        $directory = $this->getDirectory();
+        $directory = $this->getPath();
 
         if ($directory) {
             return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Plugin.php');
@@ -204,7 +204,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return string
      */
-    public function getDirectory(): string
+    public function getPath(): string
     {
         return Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT);
     }
@@ -259,7 +259,7 @@ class Plugin extends DataEntry implements PluginInterface
         // Register the plugin
         $plugin
             ->setName($name)
-            ->setDirectory($plugin->getDirectory())
+            ->setPath($plugin->getPath())
             ->setClass($plugin->getClass())
             ->setEnabled($enabled)
             ->setPriority($plugin->getPriority())
