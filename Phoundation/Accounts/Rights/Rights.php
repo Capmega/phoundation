@@ -353,6 +353,12 @@ class Rights extends DataList implements RightsInterface
                     ':users_id' => $this->parent->getId()
                 ]);
 
+                // Added the "everybody" right
+                $this->source['everybody'] = [
+                    'seo_name' => 'everybody',
+                    'name'     => 'everybody'
+                ];
+
             } elseif ($this->parent instanceof RoleInterface) {
                 $this->source = sql()->list('SELECT   `accounts_rights`.`seo_name` AS `key`, 
                                                             `accounts_rights`.*,
