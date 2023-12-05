@@ -1585,12 +1585,8 @@ class Page implements PageInterface
          * 307 Temporary Redirect
          */
         switch ($http_code) {
-            case 0:
-                // no-break
             case 301:
-                $http_code = 301;
-                break;
-
+                // no-break
             case 302:
                 // no-break
             case 303:
@@ -1611,7 +1607,8 @@ class Page implements PageInterface
 
         // Redirect with time delay
         if ($time_delay) {
-            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [
+            Log::action(tr('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
+                ':http' => $http_code,
                 ':time' => $time_delay,
                 ':url'  => $redirect
             ]));
@@ -1619,7 +1616,11 @@ class Page implements PageInterface
             header('Refresh: '.$time_delay . ';' . $redirect, true, $http_code);
         } else {
             // Redirect immediately
-            Log::action(tr('Redirecting to url ":url"', [':url' => $redirect]));
+            Log::action(tr('Redirecting with HTTP ":http" to url ":url"', [
+                ':http' => $http_code,
+                ':url'  => $redirect
+            ]));
+
             header('Location:' . $redirect, true, $http_code);
         }
 
