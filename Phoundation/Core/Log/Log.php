@@ -1157,7 +1157,7 @@ Class Log {
             if (static::$use_prefix and $use_prefix) {
                 if (is_bool($use_prefix)) {
                     // Display the default prefix
-                    $messages = date('Y-m-d H:i:s.') . substr(microtime(FALSE), 2, 3) . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ' . $messages . ($newline ? PHP_EOL : null);
+                    $messages = DateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' . ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' . getmypid() . ' ' . Core::getGlobalId() . ' / ' . Core::getLocalId() . ' ' . $messages . ($newline ? PHP_EOL : null);
 
                 } else {
                     // Display the specified prefix instead of the default one
