@@ -7,6 +7,7 @@ namespace Phoundation\Core\Log;
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Cli\CliColor;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
@@ -69,6 +70,13 @@ Class Log {
     protected static bool $enabled = true;
 
     /**
+     * Sets if logging to a file is enabled or disabled
+     *
+     * @var bool $file_enabled
+     */
+    protected static bool $file_enabled = true;
+
+    /**
      * Keeps track of what log files we're logging to
      */
     protected static array $streams = [];
@@ -76,7 +84,7 @@ Class Log {
     /**
      * Keeps track of the LOG FAILURE status
      */
-    protected static bool $fail = false;
+    protected static bool $failed = false;
 
     /**
      * The current threshold level of the log class. The higher this value, the less will be logged
@@ -184,7 +192,7 @@ Class Log {
         } catch (Throwable $e) {
             static::errorLog(tr('Configuration read failed with ":e"', [':e' => $e->getMessage()]));
 
-            // Likely configuration read failed. Just set defaults
+            // Likely configuration read failed. Set defaults
             static::$restrictions = Restrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
             static::setThreshold(10);
             static::setFile(DIRECTORY_ROOT . 'data/log/syslog');
@@ -216,7 +224,7 @@ Class Log {
 
         } catch (Throwable $e) {
             // Crap, we could not get a Log instance
-            static::$fail = true;
+            static::$failed = true;
 
             static::errorLog('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
             static::errorLog($e->getMessage());
@@ -224,6 +232,28 @@ Class Log {
 
         // TODO static::$instance might not be assigned at this point, if there was an exception. What then?
         return static::$instance;
+    }
+
+
+    /**
+     * Returns true if the log is in failed mode and only logging to error_log()
+     *
+     * @return bool
+     */
+    public static function getFailed(): bool
+    {
+        return static::$failed;
+    }
+
+
+    /**
+     * Sets the log into failed mode
+     *
+     * @return void
+     */
+    public static function setFailed(): void
+    {
+        static::$failed = true;
     }
 
 
@@ -340,6 +370,39 @@ Class Log {
 
 
     /**
+     * Enables to file logging
+     *
+     * @return void
+     */
+    public static function enableFile(): void
+    {
+        static::$file_enabled = true;
+    }
+
+
+    /**
+     * Disables to file logging
+     *
+     * @return void
+     */
+    public static function disableFile(): void
+    {
+        static::$file_enabled = false;
+    }
+
+
+    /**
+     * Returns if logging to file is enabled or not
+     *
+     * @return bool
+     */
+    public static function getFileEnabled(): bool
+    {
+        return static::$file_enabled;
+    }
+
+
+    /**
      * Returns if double messages should be filtered or not
      *
      * @return bool
@@ -382,6 +445,20 @@ Class Log {
      */
     public static function setFile(string $file = null): ?string
     {
+        if (!static::$file_enabled) {
+            // Logging to file is disabled, don't set a file
+            return static::$file;
+        }
+
+        if (static::$failed) {
+            // If the log is in failed mode, we cannot switch file
+            error_log(tr('Not switching log file to ":file", log is running in failed mode', [
+                ':file' => $file
+            ]));
+
+            return static::$file;
+        }
+
         try {
             $return = static::$file;
 
@@ -402,11 +479,10 @@ Class Log {
 
             // Set the class file to the specified file and return the old value and
             static::$file = $file;
-            static::$fail = false;
 
         } catch (Throwable $e) {
             // Something went wrong trying to open the log file. Log the error but do continue
-            static::$fail = true;
+            static::$failed = true;
             static::error(tr('Failed to open log file ":file" because of exception ":e"', [
                 ':file' => $file,
                 ':e'    => $e->getMessage()
@@ -911,7 +987,7 @@ Class Log {
         }
 
         if (static::$init) {
-            // Do not log anything while locked, initialising, or while dealing with a Log internal failure
+            // Do not log anything while locked, initializing, or while dealing with a Log internal failure
             foreach (Arrays::force($messages, null) as $message) {
                 static::errorLog('Phoundation: ' . Strings::force($message));
             }
@@ -925,7 +1001,7 @@ Class Log {
 
         try {
             // Do we have a log file setup?
-            if (empty(static::$file)) {
+            if (empty(static::$file) and !static::$failed) {
                 throw new LogException(tr('Cannot log, no log file specified'));
             }
 
@@ -964,7 +1040,7 @@ Class Log {
                 }
             }
 
-            // If the message to be logged is an exception then extract the log information from there
+            // If the message to be logged is an exception, then extract the log information from there
             if (is_object($messages) and $messages instanceof Throwable) {
                 // This is an exception object, log the warning or error  message data. PHP exceptions have
                 // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
@@ -986,13 +1062,13 @@ Class Log {
                 }
 
                 // Log the initial exception message
-                static::write('Main script: ', 'information', $threshold, true, false, echo_screen: $echo_screen);
+                static::write(tr('Main script: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
                 static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false, $echo_screen);
-                static::write('Exception class: ', 'information', $threshold, true, false, echo_screen: $echo_screen);
+                static::write(tr('Exception class: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
                 static::write(get_class($messages), $class, $threshold, true, true, false, $echo_screen);
-                static::write('Exception location: ', 'information', $threshold, true, false, echo_screen: $echo_screen);
+                static::write(tr('Exception location: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
                 static::write($messages->getFile() . '@' . $messages->getLine(), $class, $threshold, true, true, false, $echo_screen);
-                static::write('Exception message: ', 'information', $threshold, true, false, echo_screen: $echo_screen);
+                static::write(tr('Exception message: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
                 static::write('[' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false, true, false, $echo_screen);
 
                 // Log the exception data
@@ -1000,7 +1076,7 @@ Class Log {
                     $data = $messages->getData();
 
                     if ($data) {
-                        static::write('Exception data: ', 'information', $threshold, echo_screen: $echo_screen);
+                        static::write(tr('Exception data: '), 'information', $threshold, echo_screen: $echo_screen);
 
                         if ($messages->isWarning()) {
                             // Log warning data as individual lines for easier read
@@ -1016,7 +1092,7 @@ Class Log {
                         }
 
                     } else {
-                        static::write('Exception data: ', 'information', $threshold, true, false, echo_screen: $echo_screen);
+                        static::write(tr('Exception data: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
                         static::write(tr('No data attached to exception'), 'error', $threshold, false, $newline, false, $echo_screen);
                     }
                 }
@@ -1046,7 +1122,8 @@ Class Log {
                 return true;
             }
 
-            // Make sure the log message is clean and readable. Don't truncate as we might have very large log mesages!
+            // Make sure the log message is clean and readable.
+            // Don't truncate as we might have huge log messages!
             // If no or an empty class was specified, we do not clean
             if ($class and $clean) {
                 $messages = Strings::log($messages, 0);
@@ -1060,8 +1137,8 @@ Class Log {
 
             static::$last_message = $messages;
 
-            // If we're initializing the log then write to the system log
-            if (static::$fail) {
+            // If we're initializing the log, then write to the system log
+            if (static::$failed) {
                 static::errorLog(Strings::force($messages));
                 static::$lock = false;
                 return true;
@@ -1093,7 +1170,9 @@ Class Log {
             }
 
             // Write the message to the log file
-            static::$streams[static::$file]->write($messages);
+            if (!static::$file_enabled) {
+                static::$streams[static::$file]->write($messages);
+            }
 
             // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
             if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
@@ -1120,7 +1199,7 @@ Class Log {
     protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): bool
     {
         // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
-        static::$fail = true;
+        static::$failed = true;
 
         try {
             $message = $threshold . ' ' . getmypid() . ' ' . Core::getGlobalId() . '/' . Core::getLocalId() . ' Failed to log message to internal log files because "' . $e->getMessage() . '"';
