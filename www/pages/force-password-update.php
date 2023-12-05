@@ -75,6 +75,7 @@ Page::setBuildBody(false);
             </div>
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please update your account to have a new and secure password password before continuing...') ?></p>
+                <p class="login-box-msg"><?= tr('Please ensure that your password has at least 10 characters, is secure, and is known only to you.') ?></p>
 
                 <form action="<?= UrlBuilder::getWww() ?>" method="post">
                     <div class="input-group mb-3">
