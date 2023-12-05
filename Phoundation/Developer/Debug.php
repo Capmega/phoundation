@@ -502,8 +502,10 @@ class Debug {
     {
         if (static::getEnabled()) {
             try {
-                static::show($value, $trace_offset, $quiet);
-                Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+                // Don't log within log to avoid an endless loop
+                if (!function_called('Log::write()')) {
+                    Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+                }
 
             } catch (Throwable $e) {
                 if (php_sapi_name() !== 'cli') {
