@@ -1118,7 +1118,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
             return true;
         }
 
-        // From here the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
+        // From here, the file is not writable. It may not exist, or it may simply not be writable. Lets continue...
 
         if (file_exists($this->path)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.

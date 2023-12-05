@@ -653,7 +653,7 @@ abstract class DataEntry implements DataEntryInterface
             $postfix = ' ' . tr('[DELETED]');
         }
 
-        return $this->getSourceFieldValue('string', static::getUniqueField()) . $postfix;
+        return $this->getSourceFieldValue('string', static::getUniqueField() ?? 'id') . $postfix;
     }
 
 
