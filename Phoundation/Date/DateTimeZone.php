@@ -6,6 +6,7 @@ namespace Phoundation\Date;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Utils\Config;
 
 
@@ -31,7 +32,11 @@ class DateTimeZone extends \DateTimeZone
         if (!is_object($timezone)) {
             switch ($timezone) {
                 case 'system':
-                    $timezone = Config::get('locale::timezone', 'UTC');
+                    $timezone = Config::get('locale.timezone', 'UTC');
+                    break;
+
+                case 'server':
+                    $timezone = static::getServerTimezone();
                     break;
 
                 case 'user':
@@ -43,17 +48,15 @@ $timezone = 'PST';
             }
 
             if (!$timezone) {
-                $timezone = Config::get('locale::timezone', 'UTC');
+                $timezone = Config::get('locale.timezone', 'UTC');
             }
 
             // Ensure the specified timezone is valid
             if (!in_array($timezone, DateTimeZone::listIdentifiers())) {
                 if (!array_key_exists(strtolower($timezone), DateTimeZone::listAbbreviations())) {
-                    Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
+                    throw new DateTimeException(tr('Specified timezone ":timezone" is not supported', [
                         ':timezone' => $timezone
                     ]));
-
-                    $timezone = 'UTC';
                 }
             }
 
@@ -85,5 +88,22 @@ $timezone = 'PST';
     public function getPhpDateTimeZone(): \DateTimeZone
     {
         return new \DateTimeZone($this->getName());
+    }
+
+
+    /**
+     * Returns the timezone for this server
+     *
+     * @return string
+     */
+    protected static function getServerTimezone(): string
+    {
+        static $timezone;
+
+        if (empty($timezone)) {
+            $timezone = Config::get('server.timezone', system('date +%Z'));
+        }
+
+        return $timezone;
     }
 }
