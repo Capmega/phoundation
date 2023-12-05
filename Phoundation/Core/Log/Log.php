@@ -1170,7 +1170,7 @@ Class Log {
             }
 
             // Write the message to the log file
-            if (!static::$file_enabled) {
+            if (static::$file_enabled) {
                 static::$streams[static::$file]->write($messages);
             }
 
