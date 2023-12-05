@@ -1061,6 +1061,44 @@ function has_trait(string $trait, object|string $class): bool
 
 
 /**
+ * Returns true if the specified function was called
+ *
+ * @param string $function
+ * @return bool
+ */
+function function_called(string $function): bool
+{
+    // Clean requested function
+    $function = trim($function);
+
+    if (str_ends_with($function, '()')) {
+        $function = substr($function, 0, -2);
+    }
+
+    // Divide into class and function
+    $class    = Strings::until($function, '::', require: true);
+    $class    = strtolower(trim($class));
+    $function = Strings::from($function, '::');
+    $function = strtolower(trim($function));
+
+    // Scan trace for class and function match
+    foreach (debug_backtrace() as $trace) {
+        $trace['function'] = strtolower(trim((string) $trace['function']));
+        $trace['class']    = strtolower(trim((string) isset_get($trace['class'])));
+        $trace['class']    = Strings::fromReverse($trace['class'], '\\');
+
+        if ($trace['function'] === $function) {
+            if ($trace['class'] === $class) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/**
  * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed
  */
 if (!function_exists('yaml_emit')) {
