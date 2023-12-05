@@ -113,6 +113,20 @@ class CliCommand
      */
     protected static bool $stdin_has_been_read = false;
 
+    /**
+     * Tracks if the UID of the process and the pho file match
+     *
+     * @var bool $pho_uid_match
+     */
+    protected static bool $pho_uid_match = true;
+
+    /**
+     * Tracks if the ./pho file UID
+     *
+     * @var int $pho_uid
+     */
+    protected static int $pho_uid;
+
 
     /**
      * Execute a command by the "cli" script
@@ -122,7 +136,7 @@ class CliCommand
      */
     #[NoReturn] public static function execute(): void
     {
-        static::ensureProcessUidMatchesPhoundationOwner();
+        static::detectProcessUidMatchesPhoundationOwner();
 
         // All scripts will execute the cli_done() call, register basic script information
         try {
@@ -137,11 +151,13 @@ class CliCommand
             $reason = tr('Project file not found, please execute "./cli system project setup"');
         }
 
+        static::ensureProcessUidMatchesPhoundationOwner();
+
         $maintenance = Core::getMaintenanceMode();
 
         if ($maintenance) {
             // We're running in maintenance mode, limit script execution to system/
-            $limit = ['system/', 'info'];
+            $limit  = ['system/', 'info'];
             $reason = tr('system has been placed in maintenance mode by user ":user" and only ./pho system ... commands are available right now. If maintenance mode is stuck then please run "./pho system maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => $maintenance
             ]);
@@ -209,19 +225,18 @@ class CliCommand
 
 
     /**
-     * Ensures that the process owner and file owner are the same.
+     * Detects if the process owner and file owner are the same. If not, will disable file logging and set
+     * CliCommand::getUidMatch() to false
      *
-     * @param bool $auto_switch
-     * @param bool $permit_root
      * @return void
      */
-    protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = false): void
+    protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
-        $uid = fileowner(__DIR__ . '/../../pho');
+        static::$pho_uid = fileowner(__DIR__ . '/../../pho');
 
         Core::getInstance();
 
-        if (Core::getProcessUid() === $uid) {
+        if (Core::getProcessUid() === static::$pho_uid) {
             // Correct user, yay!
             return;
         }
@@ -231,13 +246,33 @@ class CliCommand
             return;
         }
 
+        // UID mismatch, stop logging to file as that likely won't be possible at all
+        Log::disableFile();
+        static::$pho_uid_match = false;
+    }
+
+
+    /**
+     * Ensures that the process owner and file owner are the same.
+     *
+     * @param bool $auto_switch
+     * @param bool $permit_root
+     * @return void
+     */
+    protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = false): void
+    {
+        if (static::$pho_uid_match) {
+            // Correct user, yay!
+            return;
+        }
+
         if (CliAutoComplete::isActive()) {
             // Auto complete does not require same UID
             return;
         }
 
         if (!Core::getProcessUid() and $permit_root) {
-            // This script is run as root and root is authorized!
+            // This script is run as root and the user root is authorized!
             return;
         }
 
@@ -254,19 +289,27 @@ class CliCommand
         foreach ($argv as &$argument) {
             if (in_array($argument, ['-Q', '--quiet'])) {
                 $quiet = true;
+
             } elseif (in_array($argument, ['-V', '--verbose'])) {
                 $verbose = true;
             }
 
-            $argument = escapeshellarg($argument);
+            if ($argument === '--auto-complete') {
+                // Auto complete active, be quiet!
+                $quiet   = true;
+                $verbose = false;
+            }
+
+            $argument = escapeshellarg((string) $argument);
         }
 
-        $user = posix_getpwuid($uid);
+        $user    = posix_getpwuid(static::$pho_uid);
         $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . implode(' ', $argv);
 
         if (empty($quiet)) {
             if (isset($verbose)) {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
+
             } else {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
             }
@@ -1111,5 +1154,27 @@ The following arguments are available to ALL scripts
                 ]));
             }
         }
+    }
+
+
+    /**
+     * Returns true if the UID of the process and pho match
+     *
+     * @return bool
+     */
+    public static function getPhoUidMatch(): bool
+    {
+        return static::$pho_uid_match;
+    }
+
+
+    /**
+     * Returns the UID for the ./pho file
+     *
+     * @return int
+     */
+    public static function getPhoUid(): int
+    {
+        return static::$pho_uid;
     }
 }

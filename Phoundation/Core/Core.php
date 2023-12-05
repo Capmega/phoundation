@@ -308,10 +308,9 @@ class Core implements CoreInterface
                 ]));
             }
 
-            static::getInstance();
-
             // Set timeout and request type, ensure safe PHP configuration, apply general server restrictions, set the
             // project name, platform and request type
+            static::getInstance();
             static::securePhpSettings();
             static::setProject();
             static::setPlatform();
@@ -707,13 +706,20 @@ class Core implements CoreInterface
     {
         static::$request_type = EnumRequestTypes::cli;
 
+        if (!CliCommand::getPhoUidMatch()) {
+            // Do NOT startup CLI because we'll restart soon
+            return;
+        }
+
         // Hide all command line arguments
         ArgvValidator::hideData($GLOBALS['argv']);
 
-        // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
-        // they may be used later down the line by (for example) Documenation class, for example!
+        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart and
+        // we'll need the $argv as-is
         global $argv;
 
+        // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
+        // they may be used later down the line by (for example) Documenation class, for example!
         $argv = ArgvValidator::new()
             ->select('-A,--all')->isOptional(false)->isBoolean()
             ->select('-C,--no-color')->isOptional(false)->isBoolean()
@@ -1591,12 +1597,11 @@ class Core implements CoreInterface
      * This function is called automatically
      *
      * @param Throwable $e
-     * @param boolean $exit Specify false if this exception should be a warning and continue, true if it should die
      * @return never
      * @note: This function should never be called directly
      * @todo Refactor this, its a godawful mess
      */
-    #[NoReturn] public static function uncaughtException(Throwable $e, bool $exit = true): never
+    #[NoReturn] public static function uncaughtException(Throwable $e): never
     {
         try {
             Audio::new('data/audio/critical.mp3')->playLocal(true);
@@ -2403,18 +2408,18 @@ class Core implements CoreInterface
             // Exit during startup == baaaaaaad. We should have an error code but apparently don't have one? Manually
             // executed exit() somewhere?
             if (!$exit_code) {
-                Log::error(tr('Shutdown procedure started before static::$register[script] was ready, possibly on script ":script"', [
-                    ':script' => $_SERVER['PHP_SELF']
-                ]));
+                Log::setFailed();
+                Log::error('Shutdown procedure started before Core was in script execution state');
             }
+
         } else {
             // Try shutdown with cleanup
             try {
                 static::$state = 'shutdown';
                 static::executeShutdownCallbacks($exit_code, $exit_message, $sig_kill);
                 static::executePeriodicals($exit_code, $exit_message, $sig_kill);
-
                 static::exitCleanup();
+
             } catch (Throwable $e) {
                 // Uncaught exception handler for exit
                 Core::uncaughtException($e);
