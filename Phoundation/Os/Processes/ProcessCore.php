@@ -417,11 +417,6 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         // Add arguments to the command
         $this->cached_command_line = $this->real_command . ' ' . implode(' ', $arguments);
 
-//        // Add sudo
-//        if ($this->sudo) {
-//            $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
-//        }
-
         // Add timeout
         if ($this->timeout) {
             $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string)$this->timeout) . ' ' . $this->cached_command_line;
@@ -445,6 +440,13 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         // Execute the command in the specified terminal
         if ($this->term) {
             $this->cached_command_line = 'export TERM=' . $this->term . '; ' . $this->cached_command_line;
+        }
+
+        // Add other environment variables
+        if ($this->environment_variables) {
+            foreach ($this->environment_variables as $key => $value) {
+                $this->cached_command_line = 'export ' . $key . '=' . $value . '; ' . $this->cached_command_line;
+            }
         }
 
         // Pipe the output through to the next command

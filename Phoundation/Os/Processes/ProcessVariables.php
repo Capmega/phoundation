@@ -68,6 +68,13 @@ trait ProcessVariables
     protected array $arguments = [];
 
     /**
+     * Sets environment variables before the command execution
+     *
+     * @var array $environment_variables
+     */
+    protected array $environment_variables = [];
+
+    /**
      * The log file where command output will be written to
      *
      * @var string|null
@@ -1167,6 +1174,115 @@ trait ProcessVariables
     public function setArgument(?string $argument): static
     {
         return $this->setArguments([$argument]);
+    }
+
+
+
+    /**
+     * Returns the environment_variables for the command that will be executed
+     *
+     * @return array
+     */
+    public function getEnvironmentVariables(): array
+    {
+        return $this->environment_variables;
+    }
+
+
+    /**
+     * Clears all cache and environment_variables
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function clearEnvironmentVariables(): static
+    {
+        $this->cached_command_line   = null;
+        $this->environment_variables = [];
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the environment_variables for the command that will be executed
+     *
+     * @note This will reset the currently existing list of environment_variables.
+     * @param array $environment_variables
+     * @param bool $escape
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setEnvironmentVariables(array $environment_variables, bool $escape = true): static
+    {
+        $this->environment_variables = [];
+        return $this->addEnvironmentVariables($environment_variables, $escape);
+    }
+
+
+    /**
+     * Adds multiple environment_variables to the existing list of environment_variables for the command that will be executed
+     *
+     * @param array|string $environment_variables
+     * @param bool $escape
+     * @return static This process so that multiple methods can be chained
+     */
+    public function addEnvironmentVariables(array|string $environment_variables, bool $escape = true): static
+    {
+        $this->cached_command_line = null;
+
+        if ($environment_variables) {
+            foreach (Arrays::force($environment_variables, null) as $key => $value) {
+                $this->addEnvironmentVariable($value, $key, $escape);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds an environment_variable to the existing list of environment_variables for the command that will be executed
+     *
+     * @note All environment_variables will be automatically escaped, but variable environment_variables
+     *       ($variablename$) will NOT be escaped!
+     *
+     * @param Stringable|string|null $value
+     * @param Stringable|string|null $key
+     * @param bool $escape
+     * @return static This process so that multiple methods can be chained
+     */
+    public function addEnvironmentVariable(Stringable|string|null $value, Stringable|string|null $key, bool $escape = true): static
+    {
+        $key   = (string) $key;
+        $value = (string) $value;
+
+        // Do not escape variables!
+        if (!preg_match('/^\$.+?\$$/', $key) and $escape) {
+            $key = escapeshellarg($key);
+        }
+
+        // Do not escape variables!
+        if (!preg_match('/^\$.+?\$$/', $value) and $escape) {
+            $value = escapeshellarg($value);
+        }
+
+        $this->cached_command_line         = null;
+        $this->environment_variables[$key] = $value;
+
+        return $this;
+    }
+
+
+    /**
+     * Sets a single argument for the command that will be executed
+     *
+     * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
+     * @param Stringable|string|null $value
+     * @param Stringable|string|null $key
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setEnvironmentVariable(Stringable|string|null $value, Stringable|string|null $key): static
+    {
+        return $this->setEnvironmentVariables([$key => $value]);
     }
 
 
