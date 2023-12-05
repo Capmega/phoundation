@@ -801,7 +801,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
-        Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 3);
+        Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 2);
 
         // Check filesystem restrictions
         $this->restrictions->check($this->path, true);
