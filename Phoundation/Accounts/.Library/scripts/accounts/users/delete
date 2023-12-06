@@ -25,25 +25,19 @@ CliDocumentation::autoComplete(User::getAutoComplete([
             'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
             'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
         ]
-    ],
-    'arguments' => [
-        '--no-password' => false
     ]
 ]));
 
 CliDocumentation::usage('./pho accounts users delete USER_EMAIL');
 
-CliDocumentation::help('This script will delete the specified user. Note that deleted users will not be removed from the database, 
-the status for the user will be updated to "deleted"
-
+CliDocumentation::help('This script will delete the specified user. Note that deleted users will not be removed 
+from the database, the status for the user will be updated to "deleted"
 
 
 ARGUMENTS
 
 
-
 USER_EMAIL                              The email address for the user to delete');
-
 
 
 // Validate arguments
@@ -52,6 +46,5 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
-// Display user data
+// Delete the user
 User::get($argv['user'])->delete();
