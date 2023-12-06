@@ -11,6 +11,8 @@ use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
@@ -45,9 +47,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Git class constructor
      *
-     * @param string $directory
+     * @param DirectoryInterface|string $directory
      */
-    public function __construct(string $directory)
+    public function __construct(DirectoryInterface|string $directory)
     {
         $this->setDirectory($directory);
     }
@@ -56,10 +58,10 @@ class Git extends Versioning implements GitInterface
     /**
      * Generates and returns a new Git object
      *
-     * @param string $directory
+     * @param DirectoryInterface|string $directory
      * @return static
      */
-    public static function new(string $directory): static
+    public static function new(DirectoryInterface|string $directory): static
     {
         return new static($directory);
     }
@@ -79,13 +81,15 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param string $directory
+     * @param DirectoryInterface|string $directory
      * @return static
      */
-    public function setDirectory(string $directory): static
+    public function setDirectory(DirectoryInterface|string $directory): static
     {
         $this->directory = Filesystem::absolute($directory);
-        $this->git  = Process::new('git')->setExecutionDirectory($this->directory);
+        $this->git       = Process::new('git')
+            ->setExecutionDirectory($this->directory)
+            ->setTimeout(300);
 
         if (!$this->directory) {
             if (!file_exists($directory)) {
@@ -109,7 +113,6 @@ class Git extends Versioning implements GitInterface
         $output = $this->git
             ->clearArguments()
             ->addArgument('clone')
-            ->addArgument($this->url)
             ->addArgument($url)
             ->executeReturnArray();
 
@@ -415,6 +418,63 @@ class Git extends Versioning implements GitInterface
             ->addArgument('push')
             ->addArgument($repository)
             ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string $repository
+     * @param string $branch
+     * @return static
+     */
+    public function pull(string $repository, string $branch): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('pull')
+            ->addArgument($repository)
+            ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string $repository
+     * @return static
+     */
+    public function fetch(string $repository): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('fetch')
+            ->addArgument($repository)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @return static
+     */
+    public function fetchAll(): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArguments(['fetch', '--all'])
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
