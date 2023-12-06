@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateTimeInterface;
+use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -574,5 +578,135 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         $this->setTime((int) $time[0], (int) $time[1], (int) $time[2], (int) $time[3]);
         return $this;
+    }
+
+
+    /**
+     * Returns the date time format from PHP to JS
+     *
+     * @param string $php_date_format
+     * @return string
+     */
+    public static function convertPhpToJsFormat(string $php_date_format): string
+    {
+        throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Returns the date time format from JS to PHP
+     *
+     * @param string $js_format
+     * @return string
+     * @throws OutOfBoundsException|UnsupportedException
+     */
+    public static function convertJsToPhpFormat(string $js_format): string
+    {
+        show($js_format);
+        $php_format = $js_format;
+        $lookup     = [
+                'M'         => ['php'      => 'n'],
+                'Mo'        => ['php'      => 'n',
+                                'callback' => function (&$value) {
+                                     $value = $value . Strings::ordinalIndicator($value);
+                                 }],
+                'MM'        => ['php'      => 'm'],
+                'MMM'       => ['php'      => 'M'],
+                'MMMM'      => ['php'      => 'F'],
+                'Q'         => null,
+                'Qo'        => null,
+                'D'         => ['php' => 'j'],
+                'Do'        => ['php' => 'jS'],
+                'DD'        => ['php' => 'd'],
+                'DDD'       => null,
+                'DDDo'      => null,
+                'DDDD'      => null,
+                'd'         => null,
+                'do'        => null,
+                'dd'        => null,
+                'ddd'       => null,
+                'dddd'      => null,
+                'e'         => null,
+                'E'         => null,
+                'w'         => null,
+                'wo'        => null,
+                'ww'        => null,
+                'W'         => null,
+                'Wo'        => null,
+                'WW'        => null,
+                'YY'        => null,
+                'YYYY'      => ['php' => 'Y'],
+                'YYYYYY'    => null,
+                'Y'         => null,
+                'y'         => null,
+                'N'         => null,
+                'NN'        => null,
+                'NNN'       => null,
+                'NNNN'      => null,
+                'NNNNN'     => null,
+                'gg'        => null,
+                'gggg'      => null,
+                'GG'        => null,
+                'GGGG'      => null,
+                'A'         => null,
+                'a'         => null,
+                'H'         => ['php' => 'G'],
+                'HH'        => ['php' => 'H'],
+                'h'         => ['php' => 'g'],
+                'hh'        => ['php' => 'h'],
+                'k'         => null,
+                'kk'        => null,
+                'm'         => null,
+                'mm'        => ['php' => 'i'],
+                's'         => null,
+                'ss'        => ['php' => 's'],
+                'S'         => null,
+                'SS'        => null,
+                'SSS'       => null,
+                'SSSS'      => null,
+                'SSSSS'     => null,
+                'SSSSSS'    => null,
+                'SSSSSSS'   => null,
+                'SSSSSSSS'  => null,
+                'SSSSSSSSS' => null,
+                'z'         => null,
+                'zz'        => null,
+                'Z'         => null,
+                'ZZ'        => null,
+                'X'         => null,
+                'x'         => null,
+        ];
+
+        // Get all javascript matches
+        preg_match_all('/([a-z])+/i', $js_format, $matches);
+
+        if (empty($matches)) {
+            throw new OutOfBoundsException(tr('Failed to convert Javascript date time format string ":format" to PHP', [
+                ':format' => $js_format
+            ]));
+        }
+
+        $matches = $matches[0];
+        $matches = Arrays::sortByValueLength($matches);
+
+        foreach ($matches as $match) {
+            if (!array_key_exists($match, $lookup)) {
+                throw new OutOfBoundsException(tr('Unknown Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format"', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            if ($lookup[$match] === null) {
+                throw new UnsupportedException(tr('Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format" is currently not supported', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            $php_format = str_replace($match, $lookup[$match]['php'], $php_format);
+        }
+
+        return $php_format;
     }
 }
