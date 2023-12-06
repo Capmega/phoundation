@@ -72,7 +72,7 @@ class TemplatePage extends \Phoundation\Web\Html\Template\TemplatePage
             'https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback',
             'adminlte/plugins/fontawesome-free-6.4.0-web/css/all',
             'adminlte/plugins/fontawesome-free-6.4.0-web/css/regular',
-            'adminlte/plugins/fontawesome-free-6.4.0-web/css/v4-shim',
+//            'adminlte/plugins/fontawesome-free-6.4.0-web/css/v4-shim',
             'adminlte/css/adminlte',
             'adminlte/css/phoundation',
             'adminlte/plugins/overlayScrollbars/css/OverlayScrollbars',
