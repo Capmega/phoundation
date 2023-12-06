@@ -2426,4 +2426,54 @@ class Arrays {
 
         return $source;
     }
+
+
+    /**
+     * Sorts the specified source array by value length
+     *
+     * @note This method will treat all source values as casted string
+     *
+     * @param array $source
+     * @param bool $descending
+     * @return array
+     */
+    public static function sortByValueLength(array $source, bool $descending = true): array
+    {
+        if ($descending) {
+            $callback = function ($a, $b) use ($descending) {
+                $a = strlen((string) $a);
+                $b = strlen((string) $b);
+
+                if ($a < $b) {
+                    return 1;
+                }
+
+                if ($a > $b) {
+                    return -1;
+                }
+
+                return 0;
+            };
+
+        } else {
+            $callback = function ($a, $b) use ($descending) {
+                $a = strlen((string) $a);
+                $b = strlen((string) $b);
+
+                if ($a < $b) {
+                    return -1;
+                }
+
+                if ($a > $b) {
+                    return 1;
+                }
+
+                return 0;
+            };
+        }
+
+        uasort($source, $callback);
+
+        return $source;
+    }
 }
