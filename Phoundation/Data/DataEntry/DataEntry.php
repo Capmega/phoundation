@@ -1196,6 +1196,7 @@ abstract class DataEntry implements DataEntryInterface
         // When in force mode we will NOT clear the failed fields so that they can be sent back to the user for
         // corrections
         $data_source = Validator::get($source);
+        $data_source->setDataEntryClass(static::class);
 
         if ($this->debug) {
             Log::information('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10);

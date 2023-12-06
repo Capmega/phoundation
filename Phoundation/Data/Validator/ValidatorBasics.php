@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataDataEntryClass;
 use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -32,6 +33,7 @@ trait ValidatorBasics
 {
     use DataIntId;
     use DataMaxStringSize;
+    use DataDataEntryClass;
 
 
     /**
@@ -543,6 +545,7 @@ trait ValidatorBasics
         if ($this->failures) {
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                 ->addData($this->failures)
+                ->setDataEntryClass($this->data_entry_class)
                 ->makeWarning();
         }
 
