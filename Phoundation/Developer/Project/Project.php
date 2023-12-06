@@ -561,7 +561,7 @@ class Project implements ProjectInterface
                     $message = tr('Phoundation update');
                 }
 
-                $this->git->add([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_ROOT . 'scripts/']);
+                $this->git->add([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_ROOT]);
                 $this->git->commit($message, $signed);
 
                 Log::warning(tr('Committed local Phoundation update to git'));
