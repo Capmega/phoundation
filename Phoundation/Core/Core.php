@@ -314,7 +314,7 @@ class Core implements CoreInterface
             static::securePhpSettings();
             static::setProject();
             static::setPlatform();
-            static::selectStartup();
+            static::startupPlatform();
             static::setRequestType();
             static::setTimeout();
 
@@ -512,9 +512,9 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function selectStartup(): void
+    protected static function startupPlatform(): void
     {
-        // Detect platform and execute specific platform startup sequence
+        // Detect platform and execute the specific platform startup sequence
         switch (PLATFORM) {
             case 'http':
                 static::startupHttp();
@@ -525,7 +525,7 @@ class Core implements CoreInterface
         }
 
         // We're done, transfer control to script
-        static::$state = 'script';
+        static::$state  = 'script';
         static::$script = true;
     }
 
@@ -1104,7 +1104,7 @@ class Core implements CoreInterface
 
                 static::setPlatform();
                 static::setRequestType();
-                static::selectStartup();
+                static::startupPlatform();
                 static::$state = 'setup';
 
                 throw new NoProjectException('Project file "' . DIRECTORY_ROOT . 'config/project" cannot be read. Please ensure it exists');
