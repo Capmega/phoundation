@@ -101,7 +101,7 @@ $timezone = 'PST';
         static $timezone;
 
         if (empty($timezone)) {
-            $timezone = Config::get('server.timezone', system('date +%Z'));
+            $timezone = Config::get('server.timezone', exec('date +%Z'));
         }
 
         return $timezone;
