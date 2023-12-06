@@ -17,6 +17,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
+use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Mounts;
@@ -1325,5 +1326,47 @@ class Directory extends FileBasics implements DirectoryInterface
     public function find(): FindInterface
     {
         return Find::new($this->restrictions)->setPath($this);
+    }
+
+
+    /**
+     * Returns true if the specified file exists in this directory
+     *
+     * @param FileBasicsInterface|string $file
+     * @return bool
+     */
+    public function fileExists(FileBasicsInterface|string $file): bool
+    {
+        $path = $this->getPath() . Strings::startsNotWith((string) $file, '/');
+
+        $this->restrictions->check($path, false);
+
+        return file_exists($path);
+    }
+
+
+    /**
+     * Returns the specified file added to this directory
+     *
+     * @param FileBasicsInterface|string $file
+     * @return FileInterface
+     */
+    public function addFile(FileBasicsInterface|string $file): FileInterface
+    {
+        $file = $this->getPath() . Strings::startsNotWith((string) $file, '/');
+        return File::new($file, $this->restrictions);
+    }
+
+
+    /**
+     * Returns the specified directory added to this directory
+     *
+     * @param FileBasicsInterface|string $directory
+     * @return DirectoryInterface
+     */
+    public function addDirectory(FileBasicsInterface|string $directory): DirectoryInterface
+    {
+        $directory = $this->getPath() . Strings::startsNotWith((string) $directory, '/');
+        return Directory::new($directory, $this->restrictions);
     }
 }

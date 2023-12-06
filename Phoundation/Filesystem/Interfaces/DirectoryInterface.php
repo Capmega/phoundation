@@ -2,6 +2,8 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
+use Phoundation\Filesystem\File;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -247,4 +249,28 @@ interface DirectoryInterface extends FileBasicsInterface
      * @return string|null
      */
     public function getPath(bool $remove_terminating_slash = false): ?string;
+
+    /**
+     * Returns true if the specified file exists in this directory
+     *
+     * @param FileBasicsInterface|string $file
+     * @return bool
+     */
+    public function fileExists(FileBasicsInterface|string $file): bool;
+
+    /**
+     * Returns the specified file added to this directory
+     *
+     * @param FileBasicsInterface|string $file
+     * @return FileInterface
+     */
+    public function addFile(FileBasicsInterface|string $file): FileInterface;
+
+    /**
+     * Returns the specified directory added to this directory
+     *
+     * @param FileBasicsInterface|string $directory
+     * @return DirectoryInterface
+     */
+    public function addDirectory(FileBasicsInterface|string $directory): DirectoryInterface;
 }

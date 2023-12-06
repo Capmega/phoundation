@@ -119,11 +119,11 @@ interface FileInterface extends FileBasicsInterface
      * Search / replace the object files
      *
      * @param array $replaces The list of keys that will be replaced by values
-     * @param string|null $target
+     * @param FileInterface|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(array $replaces, ?string $target, bool $regex = false): static;
+    public function replace(array $replaces, ?FileInterface $target = null, bool $regex = false): static;
 
     /**
      * Return line count for the specified text file
@@ -322,4 +322,12 @@ interface FileInterface extends FileBasicsInterface
      * @return static
      */
     public function unzip(): static;
+
+    /**
+     * Ensure that the line endings in this file are as specified
+     *
+     * @param string $line_endings
+     * @return $this
+     */
+    public function ensureLineEndings(string $line_endings = PHP_EOL): static;
 }

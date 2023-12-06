@@ -6,6 +6,8 @@ namespace Phoundation\Filesystem;
 
 use Exception;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
@@ -1728,7 +1730,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      * @param $context
      * @return array
      */
-    public function getContentsAsArray(int $flags = 0, $context = null): array
+    public function getContentsAsArray(int $flags = FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES, $context = null): array
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -1741,6 +1743,19 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         }
 
         return $data;
+    }
+
+
+    /**
+     * Returns the contents of this file as an Iterator object
+     *
+     * @param int $flags
+     * @param $context
+     * @return IteratorInterface
+     */
+    public function getContentsAsIterator(int $flags = FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES, $context = null): IteratorInterface
+    {
+        return Iterator::new($this->getContentsAsArray($flags, $context));
     }
 
 

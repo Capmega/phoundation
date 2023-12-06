@@ -309,27 +309,33 @@ class File extends FileBasics implements FileInterface
      * Search / replace the object files
      *
      * @param array $replaces The list of keys that will be replaced by values
-     * @param string|null $target
+     * @param FileInterface|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(array $replaces, ?string $target, bool $regex = false): static
+    public function replace(array $replaces, ?FileInterface $target = null, bool $regex = false): static
     {
         if (!$target) {
             // Default to replacing within the same file
-            $target = $this->path;
+            $target = clone $this;
         }
 
         // Check filesystem restrictions and if file exists
         $this->restrictions->check($this->path, false);
-        $this->restrictions->check($target, true);
+        $target->restrictions->check($target, true);
 
-        // Source file and target directory exist?
-        $this->exists();
-        File::new(dirname($target), $this->restrictions)->exists();
+        // Source file must exist
+        $this->checkExists();
+
+        // Target file must not exist, target parent directory should exist
+        if ($this->path !== $target->getPath()) {
+            // If we're replacing in the same file, then don't have to check
+            $target->getParentDirectory()->ensure();
+            $target->checkNotExists();
+        }
 
         // Copy & replace
-        $data = file_get_contents($this->path);
+        $data = $this->getContentsAsString();
 
         if ($regex) {
             // Execute each regex
@@ -340,9 +346,7 @@ class File extends FileBasics implements FileInterface
             $data = str_replace(array_keys($replaces), $replaces, $data);
         }
 
-        file_put_contents($this->path, $data);
-
-        return File::new($target, $this->restrictions);
+        return $target->putContents($data);
     }
 
 
@@ -1241,5 +1245,17 @@ class File extends FileBasics implements FileInterface
     {
         Zip::new($this->restrictions)->unzip($this->path);
         return $this;
+    }
+
+
+    /**
+     * Ensure that the line endings in this file are as specified
+     *
+     * @param string $line_endings
+     * @return $this
+     */
+    public function ensureLineEndings(string $line_endings = PHP_EOL): static
+    {
+        return $this->replace(['\n' => $line_endings, '\l' => $line_endings, '\r' => $line_endings]);
     }
 }
