@@ -461,7 +461,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * @see https://momentjs.com/docs/#/displaying/format/
      * @return string|null
      */
-    public function getDateFormat(): ?string;
+    public function getJsDateFormat(): ?string;
 
     /**
      * Sets date format for date ordering
@@ -541,5 +541,5 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * @param string|null $date_format
      * @return $this
      */
-    public function setDateFormat(?string $date_format): static;
+    public function setJsDateFormat(?string $date_format): static;
 }

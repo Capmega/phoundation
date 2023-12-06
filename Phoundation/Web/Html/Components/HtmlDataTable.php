@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\Interfaces\PagingTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
 use Phoundation\Web\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Html\Enums\PagingType;
 use Phoundation\Web\Html\Html;
@@ -199,9 +202,14 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Date format for data table ordering
      *
-     * @var string|null $date_format
+     * @var string|null $js_date_format
      */
-    protected ?string $date_format = null;
+    protected ?string $js_date_format = null;
+
+    /**
+     * Sets the date format for PHP
+     */
+    protected ?string $php_date_format = null;
 
 
     /**
@@ -218,6 +226,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             ->setPageLength(Config::getInteger('data.paging.limit', 25))
             ->setOrderClassesEnabled(Config::getBoolean('data.paging.order-classes', true))
             ->setButtons(['copy', 'csv', 'excel', 'pdf', 'print', 'colvis'])
+            ->addCallback(function (IteratorInterface|array &$row, TableRowTypeInterface $type, &$params) {
+                if (isset($row['created_on'])) {
+                    $row['created_on'] = DateTime::new($row['created_on'])->setTimezone('user')->format($this->php_date_format);
+                }
+            })
             ->setLengthMenu([
                  10 =>  10,
                  25 =>  25,
@@ -225,6 +238,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                 100 => 100,
                  -1 => tr('All')
             ]);
+
+        $this->js_date_format  = 'YYYY-MM-DD HH:mm:ss';
+        $this->php_date_format = 'Y-m-d H:i:s';
     }
 
 
@@ -379,9 +395,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * @see https://momentjs.com/docs/#/displaying/format/
      * @return string|null
      */
-    public function getDateFormat(): ?string
+    public function getJsDateFormat(): ?string
     {
-        return $this->date_format;
+        return $this->js_date_format;
     }
 
 
@@ -435,18 +451,18 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *                      GGGG                1970 1971 ... 2029 2030
      * AM/PM                A                   AM PM
      *                      a                   am pm
-     * Hour                 H                   0 1 ... 22 23
-     *                      HH                  00 01 ... 22 23
-     *                      h                   1 2 ... 11 12
-     *                      hh                  01 02 ... 11 12
-     *                      k                   1 2 ... 23 24
-     *                      kk                  01 02 ... 23 24
-     * Minute               m                   0 1 ... 58 59
-     *                      mm                  00 01 ... 58 59
-     * Second               s                   0 1 ... 58 59
-     *                      ss                  00 01 ... 58 59
-     * Fractional Second    S                   0 1 ... 8 9
-     *                      SS                  00 01 ... 98 99
+     * Hour                 H                     0   1 ... 22 23
+     *                      HH                   00  01 ... 22 23
+     *                      h                     1   2 ... 11 12
+     *                      hh                   01  02 ... 11 12
+     *                      k                     1   2 ... 23 24
+     *                      kk                   01  02 ... 23 24
+     * Minute               m                     0   1 ... 58 59
+     *                      mm                   00  01 ... 58 59
+     * Second               s                     0   1 ... 58 59
+     *                      ss                   00  01 ... 58 59
+     * Fractional Second    S                     0   1 ... 8 9
+     *                      SS                   00  01 ... 98 99
      *                      SSS                 000 001 ... 998 999
      *                      SSSS ... SSSSSSSSS  000[0..] 001[0..] ... 998[0..] 999[0..]
      * Time Zone            z or zz             EST CST ... MST PST
@@ -460,12 +476,40 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *      Timestamp
      *
      * @see https://momentjs.com/docs/#/displaying/format/
-     * @param string|null $date_format
+     * @param string|null $js_date_format
      * @return $this
      */
-    public function setDateFormat(?string $date_format): static
+    public function setJsDateFormat(?string $js_date_format): static
     {
-        $this->date_format = $date_format;
+        $this->js_date_format  = $js_date_format;
+        $this->php_date_format = DateTime::convertJsToPhpFormat($js_date_format);
+        return $this;
+    }
+
+
+    /**
+     * Returns date format for date ordering
+     *
+     * @see https://www.php.net/manual/en/datetime.format.php
+     * @return string|null
+     */
+    public function getPhpDateFormat(): ?string
+    {
+        return $this->js_date_format;
+    }
+
+
+    /**
+     * Sets date format for date ordering
+     *
+     * @see https://www.php.net/manual/en/datetime.format.php
+     * @param string|null $php_date_format
+     * @return $this
+     */
+    public function setPhpDateFormat(?string $php_date_format): static
+    {
+        $this->php_date_format = $php_date_format;
+        $this->js_date_format  = DateTime::convertJsToPhpFormat($php_date_format);
         return $this;
     }
 
@@ -1172,14 +1216,14 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             $options[] = $this->getDataTableColumnDefinitions();
         }
 
-        if ($this->date_format) {
+        if ($this->js_date_format) {
             Page::loadJavascript([
                 'adminlte/plugins/moment/moment',
                 'adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
                 'adminlte/plugins/datatables-sorting/datetime-moment',
             ]);
 
-            $content .= 'DataTable.moment("' . $this->date_format . '")' . PHP_EOL;
+            $content .= 'DataTable.moment("' . $this->js_date_format . '")' . PHP_EOL;
         }
 
         $id     = $this->getId();
