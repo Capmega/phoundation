@@ -715,6 +715,10 @@ class Definition implements DefinitionInterface
 
                         break;
 
+                    case InputTypeExtended::variable:
+                        $value = InputType::text;
+                        break;
+
                     case InputType::email:
                         $this->setMaxlength(128)->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isEmail();
@@ -815,9 +819,12 @@ class Definition implements DefinitionInterface
             }
 
             $this->validateType('type', $value->value);
+
+            return $this->setKey($value->value, 'type');
         }
 
-        return $this->setKey($value->value, 'type');
+        // NULL specified
+        return $this->setKey(null, 'type');
     }
 
 

@@ -136,11 +136,12 @@ class Menus extends Iterator implements IteratorInterface
 
 
     /**
-     * Load the menu contents from database
+     * Load the menu contents from the database
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         throw new UnderConstructionException();
 //        if (Core::stateIs('setup')) {

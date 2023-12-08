@@ -146,7 +146,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
 
         foreach ($databases as $database) {
             try {
-                $database = Config::getArray('databases.sql.instances.' . $database);
+                $database = Config::getArray('databases.sql.connectors.' . $database);
 
             } catch (ConfigurationDoesNotExistsException) {
                 // No configuration available for specified database
@@ -410,7 +410,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
 
         // Get database configuration
         // TODO Update to support multiple databases, other databases may have their own configuartion
-        $config = Config::getArray('databases.sql.instances.' . array_first($this->databases));
+        $config = Config::getArray('databases.sql.connectors.' . array_first($this->databases));
 
         // Build the process parameters, then execute
         $this->clearArguments()
@@ -442,7 +442,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
         $this->addArgument('--databases');
 
         foreach ($this->databases as $database) {
-            $this->addArgument(Config::getString('databases.sql.instances.' . $database . '.name'));
+            $this->addArgument(Config::getString('databases.sql.connectors.' . $database . '.name'));
         }
 
         // Optionally add gzip

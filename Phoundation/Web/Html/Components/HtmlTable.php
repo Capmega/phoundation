@@ -845,11 +845,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      *
      * @param string|float|int|null $row_id
      * @param string|float|int|null $column
-     * @param Stringable|string|float|int|null $value
+     * @param Stringable|string|float|int|bool|null $value
      * @param array $params
      * @return string
      */
-    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|null $value, array $params): string
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null $value, array $params): string
     {
         if (($column === 'status') and $value === null) {
             // Default status label for when status is NULL
@@ -912,11 +912,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * Changes the first column to a checkbox
      *
      * @param string $column
-     * @param string|float|int $value
+     * @param string|float|int|null $value
      * @param bool $made_checkbox
      * @return string|int|null
      */
-    protected function renderCheckboxColumn(string $column, string|float|int $value, bool &$made_checkbox): string|int|null
+    protected function renderCheckboxColumn(string $column, string|float|int|null $value, bool &$made_checkbox): string|int|null
     {
         switch ($this->checkbox_selectors) {
             case TableIdColumn::hidden:

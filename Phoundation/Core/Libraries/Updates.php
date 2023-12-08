@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
+use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\Exception;
@@ -22,7 +23,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
-abstract class Updates
+abstract class Updates implements UpdatesInterface
 {
     /**
      * The name for this library
@@ -66,10 +67,17 @@ abstract class Updates
     public function __construct()
     {
         // Detect the library name
-        $library = Strings::untilReverse(get_class($this), '\\');
-        $library = Strings::fromReverse($library, '\\');
-        $library = strtolower($library);
+        $library = strtolower(get_class($this));
 
+        do {
+            $library = Strings::untilReverse($library, '\\');
+            $test    = Strings::fromReverse($library, '\\');
+
+        } while ($test === 'library');
+
+        $library = $test;
+
+        // Load the updates and the code version
         $this->updates();
         $code_version = $this->version();
 

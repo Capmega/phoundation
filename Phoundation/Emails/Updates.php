@@ -63,7 +63,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `users_id` bigint NOT NULL,          /* User to which this email belongs */
@@ -99,7 +99,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `users_id` bigint NOT NULL,          /* User to which this email label belongs */
@@ -144,7 +144,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `users_id` bigint NOT NULL,          /* Optionally, the local user to which this belongs */
@@ -219,7 +219,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `emails_id` bigint DEFAULT NULL,

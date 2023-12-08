@@ -323,11 +323,12 @@ class Users extends DataList implements UsersInterface
 
 
     /**
-     * Load the data for this rights list into the object
+     * Load the data for this users list into the object
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
 
         if ($this->parent) {

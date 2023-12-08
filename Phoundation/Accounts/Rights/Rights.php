@@ -335,9 +335,10 @@ class Rights extends DataList implements RightsInterface
     /**
      * Load the data for this rights list into the object
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         if ($this->parent) {
             // Load only rights for specified parent

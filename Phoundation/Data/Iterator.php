@@ -790,10 +790,23 @@ class Iterator implements IteratorInterface
     /**
      * Returns if the specified value exists in this Iterator or not
      *
+     * @note Wrapper for Iterator::exists()
      * @param mixed $value
      * @return bool
      */
     public function valueExists(mixed $value): bool
+    {
+        return static::exists($value);
+    }
+
+
+    /**
+     * Returns if the specified value exists in this Iterator or not
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function exists(mixed $value): bool
     {
         return in_array($value, $this->source);
     }

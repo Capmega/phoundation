@@ -32,6 +32,7 @@ enum InputTypeExtended: string implements InputTypeExtendedInterface
     case phone           = 'phone';
     case phones          = 'phones';
     case username        = 'username';
+    case variable        = 'variable';
     case description     = 'description';
     case positiveInteger = 'positive_integer';
     case negativeInteger = 'negative_integer';

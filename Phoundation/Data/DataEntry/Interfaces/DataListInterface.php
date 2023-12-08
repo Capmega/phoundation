@@ -185,11 +185,12 @@ interface DataListInterface extends IteratorInterface
     public function getLast(): ?DataEntryInterface;
 
     /**
-     * Load the id list from database
+     * Load the id list from the database
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static;
+    public function load(bool $clear = true): static;
 
     /**
      * Returns the total amounts for all columns together

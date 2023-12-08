@@ -86,10 +86,12 @@ class Languages extends DataList implements LanguagesInterface
 
 
     /**
-     * @return $this
-     * @throws \Throwable
+     * Load the id list from the database
+     *
+     * @param bool $clear
+     * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
                                    FROM     `core_languages`

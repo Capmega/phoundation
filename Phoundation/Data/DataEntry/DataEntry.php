@@ -13,6 +13,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
@@ -238,21 +239,18 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @param bool $meta_enabled
+     * @param bool|null $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
         $column = static::ensureColumn($identifier, $column);
-
-        // Meta enabled?
-        $this->meta_enabled = $meta_enabled;
 
         // Set up the fields for this object
         $this->setMetaDefinitions();
         $this->setDefinitions($this->definitions);
 
         if ($identifier) {
-            $this->load($identifier, $column);
+            $this->load($identifier, $column, $meta_enabled);
 
         } else {
             $this->setMetaData();
@@ -265,10 +263,10 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @param bool $meta_enabled
+     * @param bool|null $meta_enabled
      * @return static
      */
-    public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true): static
+    public static function new(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null): static
     {
         return new static($identifier, $column, $meta_enabled);
     }
@@ -278,12 +276,11 @@ abstract class DataEntry implements DataEntryInterface
      * Returns a new DataEntry object from the specified array source
      *
      * @param array $source
-     * @param bool $meta_enabled
      * @return $this
      */
-    public static function fromSource(array $source, bool $meta_enabled = true): static
+    public static function fromSource(array $source): static
     {
-        return static::new(meta_enabled: $meta_enabled)->setSourceString($source);
+        return static::new()->setSourceString($source);
     }
 
 
@@ -312,7 +309,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns if this DataEntry will validate data before saving
+     * Returns if this DataEntry validates data before saving
      *
      * @return bool
      */
@@ -323,7 +320,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Sets if this DataEntry will validate data before saving
+     * Sets if this DataEntry validates data before saving
      *
      * @return $this
      */
@@ -615,7 +612,7 @@ abstract class DataEntry implements DataEntryInterface
 
                 if (count($entry)) {
                     // Return a new DataEntry object from the configuration source
-                    return static::fromSource($entry, $meta_enabled)->setReadonly(true);
+                    return static::fromSource($entry)->setReadonly(true);
                 }
             }
 
@@ -664,7 +661,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $meta_enabled
      * @return static|null
      */
-    public static function getRandom(string $database_connector = 'system', bool $meta_enabled = true): ?static
+    public static function getRandom(string $database_connector = 'system', bool $meta_enabled = false): ?static
     {
         $table = static::getTable();
         $identifier = sql($database_connector)->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
@@ -897,6 +894,43 @@ abstract class DataEntry implements DataEntryInterface
     public function isDeleted(): bool
     {
         return $this->isStatus('deleted');
+    }
+
+
+    /**
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool
+    {
+        return $this->isStatus('locked');
+    }
+
+
+    /**
+     * Lock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function lock(?string $comments = null): static
+    {
+        Sessions::new()->drop($this);
+        return $this->setStatus('locked', $comments);
+    }
+
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function unlock(?string $comments = null): static
+    {
+        Sessions::new()->drop($this);
+        return $this->setStatus(null, $comments);
     }
 
 
@@ -1425,9 +1459,10 @@ abstract class DataEntry implements DataEntryInterface
                         continue;
                     }
 
-                    throw new OutOfBoundsException(tr('Cannot set source key ":key" because the class definitions have no method defined for DataEntry class ":class"', [
-                        ':key'   => $key,
-                        ':class' => get_class($this)
+                    throw new OutOfBoundsException(tr('Cannot set source key ":key" because the class has no linked method ":method" defined in DataEntry class ":class"', [
+                        ':key'    => $key,
+                        ':method' => $method,
+                        ':class'  => get_class($this)
                     ]));
                 }
 
@@ -1504,13 +1539,10 @@ abstract class DataEntry implements DataEntryInterface
      * Loads the specified data into this DataEntry object
      *
      * @param Iterator|array $source
-     * @param bool $meta_enabled
      * @return static
      */
-    public function setSource(Iterator|array $source, bool $meta_enabled = true): static
+    public function setSource(Iterator|array $source): static
     {
-        $this->meta_enabled = $meta_enabled;
-
         return $this->setMetaData((array) $source)
                     ->copyValuesToSource((array) $source, false);
     }
@@ -1831,7 +1863,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Will save the data from this data entry to database
+     * Will save the data from this data entry to the database
      *
      * @param bool $force
      * @param string|null $comments
@@ -1853,7 +1885,7 @@ abstract class DataEntry implements DataEntryInterface
         if (!$this->is_validated) {
             // Object must ALWAYS be validated before writing!
             if ($this->debug) {
-                Log::information('VALIDATING DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
+                Log::information('VALIDATING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10);
             }
 
             // The data in this object hasn't been validated yet! Do so now...
@@ -1871,7 +1903,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::information('SAVING DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
+            Log::information('SAVING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10);
             $debug = Sql::debug(true);
         }
 
@@ -1879,7 +1911,7 @@ abstract class DataEntry implements DataEntryInterface
         $this->source['id'] = sql($this->database_connector)->dataEntryWrite(static::getTable(), $this->getDataColumns(true), $this->getDataColumns(false), $comments, $this->diff, $this->meta_enabled);
 
         if ($this->debug) {
-            Log::information('SAVED DATAENTRY WITH ID "' . $this->source['id'] . '"', 10);
+            Log::information('SAVED DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10);
         }
 
         // Return debug mode if required
@@ -2107,19 +2139,20 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Load all object data from database
+     * Load all object data from the database
      *
      * @param string|int $identifier
      * @param string|null $column
+     * @param bool|null $meta_enabled
      * @return void
      */
-    protected function load(string|int $identifier, ?string $column): void
+    protected function load(string|int $identifier, ?string $column, ?bool $meta_enabled): void
     {
         $this->is_loading = true;
 
         // Get the data using the query builder
         $data = $this->getQueryBuilder()
-            ->setMetaEnabled($this->meta_enabled)
+            ->setMetaEnabled($meta_enabled ?? $this->meta_enabled)
             ->setDatabaseConnector($this->database_connector)
             ->addSelect('`' . static::getTable() . '`.*')
             ->addWhere('`' . static::getTable() . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])

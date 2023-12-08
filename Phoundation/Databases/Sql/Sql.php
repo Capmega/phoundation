@@ -18,6 +18,8 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Timers;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
@@ -139,6 +141,13 @@ class Sql implements SqlInterface
      */
     protected int $counter = 0;
 
+    /**
+     * SqlConnectors list
+     *
+     * @var ConnectorsInterface
+     */
+    protected static ConnectorsInterface $connectors;
+
 
     /**
      * Sql constructor
@@ -184,6 +193,21 @@ class Sql implements SqlInterface
     }
 
 
+    /**
+     * Returns the SqlConnectors instance
+     *
+     * @return ConnectorsInterface
+     */
+    public static function getConnectors(): ConnectorsInterface
+    {
+        if (empty(static::$connectors)) {
+            static::$connectors = Connectors::new()->load();
+        }
+
+        return static::$connectors;
+    }
+
+
 //    /**
 //     * Create an SQL connector in $_CONFIG['db'][$this->instance_name] = $data
 //     *
@@ -209,7 +233,7 @@ class Sql implements SqlInterface
 //            $configuration['ssh_tunnel']['required'] = true;
 //        }
 //
-//        Config::set('database.instances.' . $instance_name, $configuration);
+//        Config::set('database.connectors.' . $instance_name, $configuration);
 //        return $configuration;
 //    }
 
@@ -372,7 +396,7 @@ class Sql implements SqlInterface
 
                 case 1049:
                     throw new SqlException(tr('Cannot use database ":db", it does not exist', [
-                        ':db' => $this->configuration['name']
+                        ':db' => $this->configuration['database']
                     ]), $e);
             }
 
@@ -1940,7 +1964,7 @@ class Sql implements SqlInterface
         $this->instance = $instance;
 
         try {
-            $configuration = Config::getArray('databases.sql.instances.' . $instance);
+            $configuration = Config::getArray('databases.sql.connectors.' . $instance);
         } catch (ConfigurationDoesNotExistsException) {
             // Configuration not available in Config. Check if its stored in SQL database
             $configuration = $this->readSqlConfiguration($instance);
@@ -1965,7 +1989,7 @@ class Sql implements SqlInterface
 
 
     /**
-     * Load SQL configuration from database
+     * Load SQL configuration from the database
      *
      * @param string $instance
      * @return array|null
@@ -2061,12 +2085,13 @@ class Sql implements SqlInterface
     protected static function getConfigurationTemplate(): array
     {
         return [
+            'type'             => 'sql',
             'driver'           => 'mysql',
-            'host'             => '127.0.0.1',
+            'hostname'         => '127.0.0.1',
             'port'             => null,
-            'name'             => '',
-            'user'             => '',
-            'pass'             => '',
+            'database'         => '',
+            'username'         => '',
+            'password'         => '',
             'autoincrement'    => 1,
             'init'             => false,
             'buffered'         => false,
@@ -2115,8 +2140,8 @@ class Sql implements SqlInterface
 
             while (--$retries >= 0) {
                 try {
-                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['host'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['name']) ? ';dbname=' . $this->configuration['name'] : '');
-                    $this->pdo = new PDO($connect_string, $this->configuration['user'], $this->configuration['pass'], $this->configuration['pdo_attributes']);
+                    $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
+                    $this->pdo = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], $this->configuration['pdo_attributes']);
 
                     Log::success(static::getLogPrefix() . tr('Connected to instance ":instance" with PDO connect string ":string"', [
                         ':instance' => $this->instance,
@@ -2132,7 +2157,7 @@ class Sql implements SqlInterface
                             throw new SqlAccessDeniedException(static::getLogPrefix() . tr('Failed to connect to database instance ":instance" with connection string ":string" and user ":user", access was denied by the database server', [
                                 ':instance' => $this->instance,
                                 ':string'   => $connect_string,
-                                ':user'     => $this->configuration['user']
+                                ':user'     => $this->configuration['username']
                             ]));
 
                         case 1049:
@@ -2140,8 +2165,8 @@ class Sql implements SqlInterface
                             throw new SqlDatabaseDoesNotExistException(static::getLogPrefix() . tr('Failed to connect to database instance ":instance" with connection string ":string" and user ":user" because the database ":database" does not exist', [
                                 ':instance' => $this->instance,
                                 ':string'   => $connect_string,
-                                ':database' => $this->configuration['name'],
-                                ':user'     => $this->configuration['user']
+                                ':database' => $this->configuration['database'],
+                                ':user'     => $this->configuration['username']
                             ]));
                     }
 
@@ -2185,7 +2210,7 @@ class Sql implements SqlInterface
             }
 
             // Yay, we're using the database!
-            $this->using_database = $this->configuration['name'];
+            $this->using_database = $this->configuration['database'];
 
             if ($this->configuration['timezone']) {
                 // Try to set MySQL timezone
@@ -2243,20 +2268,20 @@ class Sql implements SqlInterface
                 case 1044:
                     // Access to database denied
                     throw new SqlException(tr('Cannot access database ":db", this user has no access to it', [
-                        ':db' => $this->configuration['name']
+                        ':db' => $this->configuration['database']
                     ]), $e);
 
                 case 1049:
                     throw new SqlException(tr('Cannot use database ":db", it does not exist', [
-                        ':db' => $this->configuration['name']
+                        ':db' => $this->configuration['database']
                     ]), $e);
 
                 case 2002:
                     // Connection refused
                     if (empty($this->configuration['ssh_tunnel']['required'])) {
                         throw new SqlException(tr('Connection refused for host ":hostname::port"', [
-                            ':hostname' => $this->configuration['host'],
-                            ':port' => $this->configuration['port']
+                            ':hostname' => $this->configuration['hostname'],
+                            ':port'     => $this->configuration['port']
                         ]), $e);
                     }
 
@@ -2286,7 +2311,7 @@ class Sql implements SqlInterface
 
 //:TODO: SSH to the server and check if the msyql process is up!
                     throw new SqlException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', [
-                        ':hostname' => $this->configuration['host'],
+                        ':hostname' => $this->configuration['hostname'],
                         ':port'     => $this->configuration['port']
                     ]), $e);
 
@@ -2363,7 +2388,7 @@ class Sql implements SqlInterface
             return $database;
         }
 
-        return $this->configuration['name'];
+        return $this->configuration['database'];
     }
 
 

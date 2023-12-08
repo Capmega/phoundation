@@ -172,7 +172,7 @@ class Mongo extends Client
         $this->instance = $instance;
 
         try {
-            $configuration = Config::get('databases.mongo.instances.' . $instance);
+            $configuration = Config::get('databases.mongo.connectors.' . $instance);
         } catch (ConfigurationDoesNotExistsException $e) {
             throw new MongoException(tr('The specified mongo instance ":instance" is not configured', [
                 ':instance' => $instance

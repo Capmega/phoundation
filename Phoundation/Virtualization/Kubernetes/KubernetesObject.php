@@ -172,9 +172,10 @@ class KubernetesObject
     /**
      * Load the deployment description
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

@@ -198,7 +198,7 @@ class Table extends SchemaAbstract
 
 
     /**
-     * Load the table parameters from database
+     * Load the table parameters from the database
      *
      * @return void
      */

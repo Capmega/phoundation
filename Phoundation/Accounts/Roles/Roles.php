@@ -346,11 +346,12 @@ class Roles extends DataList implements RolesInterface
 
 
     /**
-     * Load the data for this rights list into the object
+     * Load the data for this roles list into the object
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
 
         if ($this->parent) {

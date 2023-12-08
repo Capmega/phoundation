@@ -132,7 +132,7 @@ class Redis extends \Redis
         $this->instance = $instance;
 
         try {
-            $configuration = Config::get('databases.redis.instances.' . $instance);
+            $configuration = Config::get('databases.redis.connectors.' . $instance);
         } catch (ConfigurationDoesNotExistsException $e) {
             throw new RedisException(tr('The specified redis instance ":instance" is not configured', [
                 ':instance' => $instance

@@ -406,7 +406,7 @@ class Mc
     protected function readConfiguration(): void
     {
         // Read the configuration
-        $this->configuration = Config::getArray('databases.memcached.instances.' . $this->instance_name);
+        $this->configuration = Config::getArray('databases.memcached.connectors.' . $this->instance_name);
 
         // Ensure that all required keys are available
         Arrays::ensure($this->configuration , 'connections');
@@ -432,7 +432,7 @@ class Mc
             if (!is_array($connection)) {
                 if ($connection) {
                     throw new ConfigurationInvalidException(tr('Configuration directory ":directory" contains invalid information', [
-                        ':directory' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                        ':directory' => 'databases.memcached.connectors.' . $this->instance_name . '.connections.' . $weight
                     ]));
                 }
 
@@ -475,7 +475,7 @@ class Mc
                     Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration directory ":directory"', [
                         ':host' => $connection['host'],
                         ':port' => $connection['port'],
-                        ':directory' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                        ':directory' => 'databases.memcached.connectors.' . $this->instance_name . '.connections.' . $weight
                     ]));
                     Log::error($e);
                     $failed++;

@@ -6,6 +6,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
@@ -403,4 +404,35 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return string
      */
     function getDisplayName(): string;
+
+    /**
+     * Lock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function lock(?string $comments = null): static;
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function unlock(?string $comments = null): static;
+
+    /**
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool;
+
+    /**
+     * Loads the specified data into this DataEntry object
+     *
+     * @param Iterator|array $source
+     * @return static
+     */
+    public function setSource(Iterator|array $source): static;
 }

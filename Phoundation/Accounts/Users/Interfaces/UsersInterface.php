@@ -54,14 +54,15 @@ interface UsersInterface extends DataListInterface
     public function clear(): static;
 
     /**
-     * Load the data for this rights list into the object
+     * Load the data for this users list into the object
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static;
+    public function load(bool $clear = true): static;
 
     /**
-     * Save the data for this rights list in the database
+     * Save the data for this users list in the database
      *
      * @return static
      */

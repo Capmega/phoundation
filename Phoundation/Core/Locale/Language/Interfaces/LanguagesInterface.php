@@ -29,8 +29,10 @@ interface LanguagesInterface
     public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface;
 
     /**
-     * @return $this
-     * @throws \Throwable
+     * Load the id list from the database
+     *
+     * @param bool $clear
+     * @return static
      */
-    public function load(): static;
+    public function load(bool $clear = true): static;
 }

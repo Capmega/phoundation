@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core;
+namespace Phoundation\Core\Library;
 
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Libraries;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;
 
@@ -31,7 +30,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.13';
+        return '0.0.15';
     }
 
 
@@ -62,7 +61,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `library` varchar(64) NOT NULL,
@@ -92,7 +91,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `action` varchar(16) DEFAULT NULL,
                     `source` varchar(512) DEFAULT NULL,
                     `comments` varchar(255) DEFAULT NULL,
@@ -171,7 +170,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `key` varchar(64) NOT NULL,
@@ -196,7 +195,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(128) DEFAULT NULL,
@@ -234,7 +233,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `enabled` tinyint NOT NULL,
@@ -267,7 +266,7 @@ class Updates extends Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
-                    `meta_id` bigint NOT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `name` varchar(128) DEFAULT NULL,
@@ -292,7 +291,7 @@ class Updates extends Libraries\Updates
         })->addUpdate('0.0.11', function () {
             sql()->schema()->table('core_templates')->alter()->changeColumn('file', '`directory` varchar(128) NOT NULL');
 
-        })->addUpdate('0.0.13', function () {
+        })->addUpdate('0.0.15', function () {
             // Fix meta_id columns
             Log::action(tr('Fixing meta_id column on all tables'), newline: false);
 

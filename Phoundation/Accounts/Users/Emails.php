@@ -106,10 +106,10 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Returns Emails list object with emails for the specified user.
      *
+     * @param bool $clear
      * @return static
-     * @throws SqlMultipleResultsException, NotExistsException
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         $this->parent  = User::get($this->parent,  'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];

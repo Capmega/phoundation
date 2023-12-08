@@ -7,7 +7,10 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 
@@ -53,8 +56,8 @@ $argv = ArgvValidator::new()
 
 
 // Get repositories and target path
-$repositories = \Phoundation\Filesystem\File::new($argv['source'], $source_restrictions);
-$target       = \Phoundation\Filesystem\Directory::new($argv['target'], $target_restrictions);
+$repositories = File::new($argv['source'], $source_restrictions);
+$target       = Directory::new($argv['target'], $target_restrictions);
 $repositories = $repositories->getContentsAsIterator();
 
 Log::information(tr('About to sync ":count" repositories, this might take a while...', [
@@ -84,3 +87,7 @@ foreach ($repositories as $repository) {
         Git::new($path->getParentDirectory()->ensure())->clone($repository);
     }
 }
+
+Log::success(tr('Finished MDB repository sync, MDB repositories size is now ":size"', [
+    ':size' => Numbers::getHumanReadableBytes(Directory::new($argv['target'])->getSize())
+]));

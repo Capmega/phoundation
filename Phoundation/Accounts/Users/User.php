@@ -178,9 +178,9 @@ class User extends DataEntry implements UserInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @param bool $meta_enabled
+     * @param bool|null $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
         parent::__construct($identifier, $column, $meta_enabled);
 
@@ -1284,43 +1284,6 @@ class User extends DataEntry implements UserInterface
     protected function getDataForValidation(): array
     {
         return Arrays::remove(parent::getDataForValidation(), ['password']);
-    }
-
-
-    /**
-     * Returns true if this user account is locked
-     *
-     * @return bool
-     */
-    public function isLocked(): bool
-    {
-        return $this->isStatus('locked');
-    }
-
-
-    /**
-     * Lock this user account
-     *
-     * @param string|null $comments
-     * @return static
-     */
-    public function lock(?string $comments = null): static
-    {
-        Sessions::new()->drop($this);
-        return $this->setStatus('locked', $comments);
-    }
-
-
-    /**
-     * Unlock this user account
-     *
-     * @param string|null $comments
-     * @return static
-     */
-    public function unlock(?string $comments = null): static
-    {
-        Sessions::new()->drop($this);
-        return $this->setStatus(null, $comments);
     }
 
 

@@ -154,11 +154,12 @@ class Database extends SchemaAbstract
 
 
     /**
-     * Load the table parameters from database
+     * Load the table parameters from the database
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         // Load columns & indices data
         // TODO Implement

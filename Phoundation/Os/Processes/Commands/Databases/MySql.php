@@ -9,6 +9,7 @@ use Phoundation\Data\Traits\DataHostnamePort;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
@@ -45,21 +46,21 @@ class MySql extends Command
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param string $instance
+     * @param string $database
      * @param bool $drop
      * @param string $file
      */
-    public function import(string $instance, string $file, bool $drop, int $timeout = 3600): void
+    public function import(string $database, string $file, bool $drop, int $timeout = 3600): void
     {
         //
         $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
         $restrictions = Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer');
         $threshold    = Log::setThreshold(3);
-        $config       = Config::getArray('databases.sql.instances.' . $instance);
+        $config       = static::getInstanceConfigForDatabase($database);
 
         // Drop the requested database
         if ($drop) {
-            sql($instance, false)->schema(false)
+            sql($database, false)->schema(false)
                 ->database($config['name'])
                 ->drop()
                 ->create();
@@ -223,7 +224,7 @@ class MySql extends Command
     /**
      * Import all timezones in MySQL
      *
-     * @note: This was designed for Ubuntu Linux and currently any support for other operating systems is NON-EXISTENT
+     * @note: This was designed for Ubuntu Linux, and currently any support for other operating systems is NON-EXISTENT
      *        I'll gladly add support later if I ever have time
      * @param string $password
      * @return void
@@ -252,5 +253,20 @@ class MySql extends Command
             ->addArgument('/usr/share/zoneinfo')
             ->setPipe($mysql)
             ->executePassthru();
+    }
+
+
+    /**
+     * Returns the instance configuration
+     *
+     * @param string $database
+     * @return array
+     */
+    protected function getInstanceConfigForDatabase(string $database): array
+    {
+        return Config::getArray('databases.sql.connectors.' . $database);
+        foreach (Sql::getConnectors() as $connector) {
+
+        }
     }
 }

@@ -50,11 +50,13 @@ trait DataEntryHostnamePort
      */
     public function setHostname(?string $hostname): static
     {
-        if ($hostname === null) {
-            $this->setSourceValue('seo_hostname', null);
-        } else {
-            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getSourceFieldValue('int', 'id'), static::getUniqueField());
-            $this->setSourceValue('seo_hostname', $seo_hostname);
+        if ($this->definitions->exists('seo_hostname')) {
+            if ($hostname === null) {
+                $this->setSourceValue('seo_hostname', null);
+            } else {
+                $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getSourceFieldValue('int', 'id'), static::getUniqueField());
+                $this->setSourceValue('seo_hostname', $seo_hostname);
+            }
         }
 
         return $this->setSourceValue('hostname', $hostname);

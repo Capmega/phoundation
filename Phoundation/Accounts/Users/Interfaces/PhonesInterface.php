@@ -31,8 +31,9 @@ interface PhonesInterface extends DataListInterface
     /**
      * Returns Phones list object with phones for the specified user.
      *
+     * @param bool $clear
      * @return static
-     * @throws SqlMultipleResultsException, NotExistsException
+     * @throws SqlMultipleResultsException , NotExistsException
      */
-    public function load(): static;
+    public function load(bool $clear = true): static;
 }

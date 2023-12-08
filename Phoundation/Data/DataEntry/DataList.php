@@ -697,14 +697,21 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Load the id list from database
+     * Load the id list from the database
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
         $this->selectQuery();
-        $this->source = sql()->listKeyValues($this->query, $this->execute);
+
+        if ($clear or empty($this->source)) {
+            $this->source = sql()->listKeyValues($this->query, $this->execute);
+
+        } else {
+            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute));
+        }
 
         return $this;
     }

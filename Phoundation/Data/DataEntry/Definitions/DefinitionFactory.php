@@ -813,6 +813,69 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for a column containing a variable
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getVariable(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setMaxLength(255)
+            ->setOptional(true)
+            ->setSize(6)
+            ->setInputType(InputTypeExtended::variable)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->isVariable();
+            });
+    }
+
+
+    /**
+     * Returns a Definition object for a column containing a number
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getNumber(DataEntryInterface $data_entry, ?string $field = 'number'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setOptional(true)
+            ->setInputType(InputType::number)
+            ->setSize(4)
+            ->setMin(0)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->isNumeric();
+            });
+    }
+
+
+    /**
+     * Returns a Definition object for column password
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getPassword(DataEntryInterface $data_entry, ?string $field = 'password'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setMaxLength(255)
+            ->setOptional(true)
+            ->setSize(6)
+            ->setInputType(InputType::password)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->isVariable();
+            });
+    }
+
+
+    /**
      * Returns a Definition object for column date
      *
      * @param DataEntryInterface $data_entry
@@ -1009,8 +1072,12 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $field)
             ->setOptional(true)
+            ->setDefault(false)
             ->setInputType(InputType::checkbox)
-            ->setSize(2);
+            ->setSize(2)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->isBoolean();
+            });
     }
 
 

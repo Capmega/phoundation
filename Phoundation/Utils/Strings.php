@@ -1544,7 +1544,7 @@ throw new UnderConstructionException();
     /**
      * Truncate string using the specified fill and method
      *
-     * @param Stringable|string|int|null $source
+     * @param Stringable|string|float|int|null $source
      * @param int $length
      * @param Stringable|string $fill
      * @param string $method
@@ -1564,7 +1564,7 @@ throw new UnderConstructionException();
      * /code
      *
      */
-    public static function truncate(Stringable|string|int|bool|null $source, int $length, Stringable|string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
+    public static function truncate(Stringable|string|float|int|bool|null $source, int $length, Stringable|string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
         $source = (string) $source;
         $fill   = (string) $fill;

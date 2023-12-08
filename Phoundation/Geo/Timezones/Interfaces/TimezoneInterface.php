@@ -23,9 +23,9 @@ interface TimezoneInterface extends DataEntryInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @param bool $meta_enabled
+     * @param bool|null $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, bool $meta_enabled = true);
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null);
 
     /**
      * Returns the description for this object

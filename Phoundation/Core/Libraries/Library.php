@@ -8,6 +8,8 @@ use Error;
 use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
 use Phoundation\Core\Libraries\Exception\LibrariesException;
 use Phoundation\Core\Libraries\Exception\LibraryExistsException;
+use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
+use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,7 +31,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Library
+class Library implements LibraryInterface
 {
     /**
      * The library name
@@ -48,9 +50,9 @@ class Library
     /**
      * The Updates object for this library
      *
-     * @var Updates|null
+     * @var UpdatesInterface|null
      */
-    protected ?Updates $updates = null;
+    protected ?UpdatesInterface $updates = null;
 
     /**
      * Tracks if the structure check has been executed and what the result was
@@ -67,10 +69,10 @@ class Library
      */
     public function __construct(string $directory)
     {
-        $directory          = Strings::slash($directory);
-        $this->directory    = $directory;
-        $this->library = Strings::fromReverse(Strings::unslash($directory), '/');
-        $this->library = strtolower($this->library);
+        $directory       = Strings::slash($directory);
+        $this->directory = $directory;
+        $this->library   = Strings::fromReverse(Strings::unslash($directory), '/');
+        $this->library   = strtolower($this->library);
 
         // Get the Init object
         $this->loadUpdatesObject();
@@ -107,9 +109,9 @@ class Library
      * Returns a new Library object for the specified library
      *
      * @param string $name
-     * @return Library
+     * @return LibraryInterface
      */
-    public static function get(string $name): Library
+    public static function get(string $name): LibraryInterface
     {
         if (str_contains($name, '/')) {
             // This is TYPE/NAME
@@ -149,8 +151,8 @@ class Library
         // Execute a structural check on the library
         $this->checkStructure($comments);
 
-        // TODO Check later if we should be able to let init initialize itself
         if ($this->library === 'libraries') {
+            // TODO Check later if we should be able to let init initialize itself
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
             return false;
@@ -514,8 +516,8 @@ class Library
         // Copy the library from the TemplateLibrary and run a search / replace
         Cp::new()->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, Restrictions::new(DIRECTORY_ROOT . $type->value, true));
 
-        foreach (['.Library.php', 'Updates.php'] as $file) {
-            File::new(DIRECTORY_ROOT . $type->value . $name . '/.Library/' . $file, Restrictions::new(DIRECTORY_ROOT . $type->value, true))
+        foreach (['Updates.php'] as $file) {
+            File::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, Restrictions::new(DIRECTORY_ROOT . $type->value, true))
                 ->replace([
                     ':type' => $type,
                     ':name' => $name
@@ -532,7 +534,16 @@ class Library
      */
     protected function loadUpdatesObject(): void
     {
-        $file = Strings::slash($this->directory) . 'Updates.php';
+        // Scan for the Updates.php file
+        $directories = ['', 'Library/'];
+
+        foreach ($directories as $directory) {
+            $file = Strings::slash($this->directory) . $directory . 'Updates.php';
+
+            if (file_exists($file)) {
+                break;
+            }
+        }
 
         if (!file_exists($file)) {
             // There is no init class available
@@ -546,14 +557,15 @@ class Library
             $updates_class_path = static::getClassPath($file);
             $updates            = new $updates_class_path();
 
-            if (!($updates instanceof Updates)) {
-                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
-                    ':directory'    => $this->directory,
-                    ':library' => $this->library
+            if ($updates instanceof UpdatesInterface) {
+                $this->updates = $updates;
+
+            } else {
+                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file has been ignored', [
+                    ':directory' => $this->directory,
+                    ':library'   => $this->library
                 ]));
             }
-
-            $this->updates = $updates;
 
         } catch (Error $e) {
             Log::warning(tr('Failed to load the Updates file for library ":library", see the following exception for more information', [
@@ -593,10 +605,11 @@ class Library
     /**
      * Returns true if the structure for this library is okay, false otherwise
      *
+     * @param string|null $comments
      * @return bool
      */
-    public function getStructureOk(): bool
+    public function getStructureOk(?string $comments): bool
     {
-        return $this->checkStructure();
+        return $this->checkStructure($comments);
     }
 }

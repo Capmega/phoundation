@@ -152,7 +152,6 @@ class Libraries
                     'system'    => $system,
                     'plugins'   => $plugins,
                     'templates' => $templates,
-                    'library'   => $library,
                     'comment'   => $comments
                 ])
                 ->send();
@@ -399,6 +398,7 @@ class Libraries
      * @param bool $plugins
      * @param bool $templates
      * @param string|null $comments
+     * @param array|null $filter_libraries
      * @return int
      */
     protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
@@ -414,11 +414,11 @@ class Libraries
             // Order to have the nearest next init version first
             static::orderLibraries($libraries, $filter_libraries);
 
-            // Go over the libraries list and try to update each one
+            // Go over the list of libraries and try to update each one
             foreach ($libraries as $directory => $library) {
                 // Execute the update inits for this library and update the library information and start over
                 if ($library->init($comments)) {
-                    // Library has been initialized. Break so that we can check which library should be updated next.
+                    // The library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
                     break;
                 }
@@ -433,7 +433,7 @@ class Libraries
         }
 
         // Post initialize all libraries
-        // Go over the libraries list and try to update each one
+        // Go over the list of libraries and try to update each one
         if (false) {
 //        if (TEST) {
             Log::warning('Not executing post init files due to test mode');

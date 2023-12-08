@@ -276,7 +276,7 @@ class TableDefine extends SchemaAbstract
             $query .= ",\n" . Strings::endsNotWith(trim($foreign_keys), ',') . "\n";
         }
 
-        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.instances.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.instances.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.instances.system.collate', 'utf8mb4_general_ci') . '";';
+        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
 
         $this->sql->query($query);
         $this->parent->reload();
