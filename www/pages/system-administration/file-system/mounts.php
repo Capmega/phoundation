@@ -18,7 +18,7 @@ use Phoundation\Web\Page;
 
 
 /**
- * Page filesystem/mounts.php
+ * Page file-system/mounts/mounts.php
  *
  *
  *
@@ -51,22 +51,15 @@ if (Page::isPostRequestMethod()) {
     try {
         // Process buttons
         switch ($post['submit']) {
-            case tr('Mount'):
+            case tr('Delete'):
                 // Delete selected mounts
                 $count = Mounts::directOperations()->deleteKeys($post['id']);
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Mounted ":count" mounts', [':count' => $count]));
+                Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" mounts', [':count' => $count]));
                 Page::redirect('this');
 
-            case tr('Unmount'):
+            case tr('Undelete'):
                 // Undelete selected mounts
-                $count = Mounts::directOperations()->undeleteKeys($post['id']);
-
-                Page::getFlashMessages()->addSuccessMessage(tr('Unmounted ":count" mounts', [':count' => $count]));
-                Page::redirect('this');
-
-            case tr('Test'):
-                // Test selected mounts
                 $count = Mounts::directOperations()->undeleteKeys($post['id']);
 
                 Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" mounts', [':count' => $count]));
@@ -74,7 +67,7 @@ if (Page::isPostRequestMethod()) {
         }
 
     } catch (ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on the page
+        // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
     }
 }
@@ -82,12 +75,13 @@ if (Page::isPostRequestMethod()) {
 
 // Get the mounts list and apply filters
 $mounts   = Mounts::new();
-$builder = $mounts->getQueryBuilder()
+$builder = $mounts->getQueryBuilder()->setDebug(true)
     ->addSelect('`filesystem_mounts`.`id`, 
                  `filesystem_mounts`.`name`, 
+                 `filesystem_mounts`.`source`, 
+                 `filesystem_mounts`.`target`, 
                  `filesystem_mounts`.`status`, 
-                 `filesystem_mounts`.`created_on`')
-    ->addGroupBy('`filesystem_mounts`.`id`');
+                 `filesystem_mounts`.`created_on`');
 
 switch ($filters->getSourceKey('entry_status')) {
     case '__all':
@@ -101,23 +95,21 @@ switch ($filters->getSourceKey('entry_status')) {
         $builder->addWhere('`filesystem_mounts`.`status` = :status', [':status' => $filters->getSourceKey('entry_status')]);
 }
 
-
-// Build mounts table
+// Build SQL mounts table
 $buttons = Buttons::new()
-    ->addButton(tr('Create'), DisplayMode::primary, '/filesystem/mount.html')
+    ->addButton(tr('Create'), DisplayMode::primary, '/system-administration/file-system/mounts/mount.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
 
 $mounts_card = Card::new()
-    ->setTitle('Active mounts')
+    ->setTitle('Available mounts')
     ->setSwitches('reload')
     ->setContent($mounts
         ->load()
         ->getHtmlDataTable()
-            ->setDateFormat('YYYY-MM-DD HH:mm:ss')
-            ->setRowUrl('/filesystem/mount-:ROW.html')
+            ->setRowUrl('/system-administration/file-system/mounts/mount-:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);
@@ -130,7 +122,8 @@ $mounts_card->getForm()
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
-    ->setTitle(tr('Relevant links'));
+    ->setTitle(tr('Relevant links'))
+    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-system/mounts/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
 
 
 // Build documentation
@@ -149,9 +142,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Mounts'));
+Page::setHeaderTitle(tr('Filesystem mounts'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                => tr('Home'),
-    '/filesystem.html' => tr('Filesystem'),
-    ''                 => tr('Mounts')
+    '/'                           => tr('Home'),
+    '/system-administration.html' => tr('System administration'),
+    '/filesystem.html'            => tr('Filesystem'),
+    ''                            => tr('Mounts')
 ]));

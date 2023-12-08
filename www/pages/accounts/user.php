@@ -171,7 +171,7 @@ if ($user->canBeStatusChanged()) {
 }
 
 
-// Audit button. We cannot delete god users
+// Audit button.
 if (!$user->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)

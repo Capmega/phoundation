@@ -14,7 +14,6 @@ use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\DisplaySize;
-use Phoundation\Web\Html\Enums\TableIdColumn;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -22,9 +21,9 @@ use Phoundation\Web\Page;
 
 
 /**
- * Page system-administration/file-system/mount.php
+ * Page file-system/mounts/mount.php
  *
- * This is the primary mount management page where we can manage all the basic information about a mount 
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -38,7 +37,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$path = Mount::get($get['id']);
+$mount = Mount::get($get['id']);
 
 
 // Validate POST and submit
@@ -52,46 +51,43 @@ if (Page::isPostRequestMethod()) {
                     ->validate(false);
 
                 // Update mount, roles, emails, and phones
-                $path->apply(false)->save();
-
-// TODO Implement timers
-//showdie(Timers::get('query'));
+                $mount->apply(false)->save();
 
                 Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
-                    ':mount' => $path->getDisplayName()
+                    ':mount' => $mount->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/file-system/mount-' . $path->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/system-administration/file-system/mounts/mount-' . $mount->getId() . '.html'));
 
             case tr('Delete'):
-                $path->delete();
+                $mount->delete();
                 Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
-                    ':mount' => $path->getDisplayName()
+                    ':mount' => $mount->getDisplayName()
                 ]));
 
                 Page::redirect();
 
-            case tr('Mount'):
-                $path->mount();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been mounted', [
-                    ':mount' => $path->getDisplayName()
+            case tr('Lock'):
+                $mount->lock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
+                    ':mount' => $mount->getDisplayName()
                 ]));
 
                 Page::redirect();
 
-            case tr('Unmount'):
-                $path->unmount();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unmounted', [
-                    ':mount' => $path->getDisplayName()
+            case tr('Unlock'):
+                $mount->unlock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
+                    ':mount' => $mount->getDisplayName()
                 ]));
 
                 Page::redirect();
 
             case tr('Undelete'):
-                $path->undelete();
+                $mount->undelete();
                 Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
-                    ':mount' => $path->getDisplayName()
+                    ':mount' => $mount->getDisplayName()
                 ]));
 
                 Page::redirect();
@@ -100,47 +96,61 @@ if (Page::isPostRequestMethod()) {
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
-        $path->forceApply();
+        $mount->forceApply();
     }
 }
 
 
 // Save button
-if (!$path->getReadonly()) {
+if (!$mount->getReadonly()) {
     $save = Button::new()
         ->setValue(tr('Save'))
         ->setContent(tr('Save'));
 }
 
 
-// Mount button
-// god mounts
-if ($path->canBeMounted()) {
-    if ($path->isMounted()) {
-        $mount_button = Button::new()
+// Delete button.
+if (!$mount->isNew()) {
+    if ($mount->isDeleted()) {
+        $delete = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::danger)
-            ->setValue(tr('Unmount'))
-            ->setContent(tr('Unmount'));
+            ->setMode(DisplayMode::warning)
+            ->setOutlined(true)
+            ->setValue(tr('Undelete'))
+            ->setContent(tr('Undelete'));
+
     } else {
-        $mount_button = Button::new()
+        $delete = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::danger)
-            ->setValue(tr('Mount'))
-            ->setContent(tr('Mount'));
+            ->setMode(DisplayMode::warning)
+            ->setOutlined(true)
+            ->setValue(tr('Delete'))
+            ->setContent(tr('Delete'));
+
+        if ($mount->isLocked()) {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Unlock'))
+                ->setContent(tr('Unlock'));
+
+        } else {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Lock'))
+                ->setContent(tr('Lock'));
+        }
+
+        // Audit button.
+        $audit = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::information)
+            ->setAnchorUrl('/audit/meta-' . $mount->getMeta() . '.html')
+            ->setFloatRight(true)
+            ->setValue(tr('Audit'))
+            ->setContent(tr('Audit'));
     }
-}
-
-
-// Audit button. We cannot delete god mounts
-if (!$path->isNew()) {
-    $audit = Button::new()
-        ->setFloatRight(true)
-        ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $path->getMeta() . '.html')
-        ->setFloatRight(true)
-        ->setValue(tr('Audit'))
-        ->setContent(tr('Audit'));
 }
 
 
@@ -148,63 +158,15 @@ if (!$path->isNew()) {
 $mount_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
-    ->setTitle(tr('Edit profile for mount :name', [':name' => $path->getDisplayName()]))
-    ->setContent($path->getHtmlDataEntryForm()->render())
+    ->setTitle(tr('Edit mount :name', [':name' => $mount->getDisplayName()]))
+    ->setContent($mount->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/file-system/mounts.html'), true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/system-administration/file-system/mounts/mounts.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($lock))
-        ->addButton(isset_get($mount_button)));
-
-
-// Build the additional cards only if we're not working on a new mount
-if ($path->getId()) {
-    $roles_card = Card::new()
-        ->setCollapseSwitch(true)
-        ->setCollapsed(true)
-        ->setTitle(tr('Edit roles for this mount [:count]', [':count' => $path->getRoles()->getCount()]))
-        ->setContent($path->getRolesHtmlDataEntryForm()->render())
-        ->setButtons(Buttons::new()
-            ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/file-system/mounts.html'), true));
-
-    $rights_card = Card::new()
-        ->setCollapseSwitch(true)
-        ->setCollapsed(true)
-        ->setTitle(tr('Rights for this mount [:count]', [':count' => $path->getRights()->getCount()]))
-        ->setDescription(tr('This is a list of rights that this mount has available because of its assigned roles. Each role gives the mount a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a mount has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
-        ->setContent($path->getRights(true, true)
-                            ->getHtmlDataTable('id,name,description')
-                                ->setLengthChangeEnabled(false)
-                                ->setSearchingEnabled(false)
-                                ->setPagingEnabled(false)
-                                ->setButtons('copy,csv,excel,pdf,print')
-                                ->setOrder([0 => 'asc'])
-                                ->setColumnsOrderable([0 => true, 1 => false])
-                                ->setInfoEnabled(false)
-                                ->setTableIdColumn(TableIdColumn::hidden)
-                                ->render());
-
-    $emails_card = Card::new()
-        ->setCollapseSwitch(true)
-        ->setCollapsed(true)
-        ->setTitle(tr('Additional email addresses for this mount [:count]', [':count' => $path->getEmails()->getCount()]))
-        ->setContent($path->getEmails()->getHtmlDataEntryForm()->render())
-        ->setButtons(Buttons::new()
-            ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/file-system/mounts.html'), true));
-
-    $phones_card = Card::new()
-        ->setCollapseSwitch(true)
-        ->setCollapsed(true)
-        ->setTitle(tr('Additional phone numbers for this mount [:count]', [':count' => $path->getPhones()->getCount()]))
-        ->setContent($path->getPhones()->getHtmlDataEntryForm()->render())
-        ->setButtons(Buttons::new()
-            ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/file-system/mounts.html'), true));
-}
+        ->addButton(isset_get($impersonate)));
 
 
 // Build profile picture card
@@ -214,16 +176,14 @@ $picture = Card::new()
         ->addClass('w100')
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
 //        ->setSrc($mount->getPicture())
-        ->setAlt(tr('Profile picture for :mount', [':mount' => $path->getDisplayName()])));
+        ->setAlt(tr('Profile picture for :mount', [':mount' => $mount->getDisplayName()])));
 
 
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/file-system/password-' . $path->getId() . '.html') . '">' . tr('Change password for this mount') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/file-system/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/file-system/rights.html') . '">' . tr('Rights management') . '</a>');
+->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-system/filesystem.html') . '">' . tr('Manage filesystem') . '</a><br>');
 
 
 // Build documentation
@@ -239,11 +199,7 @@ $documentation = Card::new()
 $grid = Grid::new()
     ->addColumn(GridColumn::new()
         // The mount card and all additional cards
-        ->addContent($mount_card->render() .
-            isset_get($roles_card)?->render() .
-            isset_get($rights_card)?->render() .
-            isset_get($emails_card)?->render() .
-            isset_get($phones_card)?->render())
+        ->addContent($mount_card->render())
         ->setSize(9)
         ->useForm(true))
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
@@ -252,11 +208,13 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setPageTitle(tr('Mount :mount', [':mount' => $path->getDisplayName()]));
+Page::setPageTitle(tr('Mount :mount', [':mount' => $mount->getDisplayName()]));
 Page::setHeaderTitle(tr('Mount'));
-Page::setHeaderSubTitle($path->getDisplayName());
+Page::setHeaderSubTitle($mount->getDisplayName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                    => tr('Home'),
-    '/file-system/mounts.html' => tr('Mounts'),
-    ''                     => $path->getDisplayName()
+    '/'                                                     => tr('Home'),
+    '/system-administration.html'                           => tr('System administration'),
+    '/filesystem.html'                                      => tr('Filesystem'),
+    '/system-administration/file-system/mounts/mounts.html' => tr('Mounts'),
+    ''                                                      => $mount->getDisplayName()
 ]));
