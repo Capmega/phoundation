@@ -61,7 +61,7 @@ class MySql extends Command
         // Drop the requested database
         if ($drop) {
             sql($database, false)->schema(false)
-                ->database($config['name'])
+                ->database($config['database'])
                 ->drop()
                 ->create();
         }
@@ -75,7 +75,7 @@ class MySql extends Command
             case 'text/plain':
                 $this->setInternalCommand('mysql')
                     ->setTimeout($timeout)
-                    ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']])
+                    ->addArguments(['-h', $config['hostname'], '-u', $config['username'], '-p' . $config['password'], '-B', $config['database']])
                     ->setInputRedirect($file)
                     ->executeNoReturn();
                 break;
@@ -83,7 +83,7 @@ class MySql extends Command
             case 'application/gzip':
                 $this->setInternalCommand('mysql')
                     ->setTimeout($timeout)
-                    ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']]);
+                    ->addArguments(['-h', $config['hostname'], '-u', $config['username'], '-p' . $config['password'], '-B', $config['database']]);
 
                 Zcat::new()
                     ->setTimeout($timeout)
@@ -264,7 +264,7 @@ class MySql extends Command
      */
     protected function getInstanceConfigForDatabase(string $database): array
     {
-        return Config::getArray('databases.sql.connectors.' . $database);
+        return Config::getArray('databases.connectors.sql.' . $database);
         foreach (Sql::getConnectors() as $connector) {
 
         }

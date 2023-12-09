@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataHost;
 use Phoundation\Data\Traits\DataPort;
 use Phoundation\Data\Traits\DataTarget;
 use Phoundation\Data\Traits\DataUserPass;
-use Phoundation\Databases\Exception\ExportException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Os\Processes\Commands\Command;
-use Phoundation\Os\Processes\Commands\Databases\Interfaces\MysqlDumpInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 
 
 /**
@@ -142,23 +137,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
      */
     public function setDatabases(array|string $databases): static
     {
-        $databases = Arrays::force($databases);
-
-        foreach ($databases as $database) {
-            try {
-                $database = Config::getArray('databases.sql.connectors.' . $database);
-
-            } catch (ConfigurationDoesNotExistsException) {
-                // No configuration available for specified database
-                throw ExportException::new(tr('Specified database ":database" is not configured', [
-                    ':database' => $database
-                ]))->makeWarning();
-            }
-        }
-
-        $this->databases = $databases;
-
-        unset($database);
+        $this->databases = Arrays::force($databases);
         return $this;
     }
 
@@ -397,34 +376,21 @@ class MysqlDump extends Command implements MysqlDumpInterface
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethodInterface $method
-     * @return string|int|bool|array|null
+     * @return static
      */
-    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
+    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
     {
-        // Add restrictions for the log file
-        $this->target = Filesystem::absolute($this->target, DIRECTORY_DATA . 'sources/', false);
-        $this->restrictions->addDirectory(DIRECTORY_DATA . 'log', true);
-
-        // Apply file restrictions
-        File::new($this->target, $this->restrictions)->checkWritable();
-
-        // Get database configuration
-        // TODO Update to support multiple databases, other databases may have their own configuartion
-        $config = Config::getArray('databases.sql.connectors.' . array_first($this->databases));
-
         // Build the process parameters, then execute
-        $this->clearArguments()
-             ->setInternalCommand('mysqldump')
-             ->addArgument( $this->disable_keys                   ? '--disable-keys'    : null)
-             ->addArgument( $this->events                         ? '--events'          : null)
-             ->addArgument( $this->routines                       ? '--routines'        : null)
-             ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
-             ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
-             ->addArgument( $this->extended_insert                ? '--extended-insert' : null)
-             ->addArgument( $this->comments                       ? '--comments'        : '--skip-comments')
-             ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null)
-             ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass']]) // Database config
-             ->setOutputRedirect(DIRECTORY_DATA . 'log/mysqldump_error.log', 2, true);
+        $this->setInternalCommand('mysqldump')
+            ->clearArguments()
+            ->addArgument( $this->disable_keys                   ? '--disable-keys'    : null)
+            ->addArgument( $this->events                         ? '--events'          : null)
+            ->addArgument( $this->routines                       ? '--routines'        : null)
+            ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
+            ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
+            ->addArgument( $this->extended_insert                ? '--extended-insert' : null)
+            ->addArgument( $this->comments                       ? '--comments'        : '--skip-comments')
+            ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
 
         if ($this->host) {
             $this->addArguments(['-h', $this->host]);
@@ -439,11 +405,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
         }
 
         // Add databases
-        $this->addArgument('--databases');
-
-        foreach ($this->databases as $database) {
-            $this->addArgument(Config::getString('databases.sql.connectors.' . $database . '.name'));
-        }
+        $this->addArgument('--databases')
+            ->addArguments($this->databases);
 
         // Optionally add gzip
         if ($this->gzip) {
@@ -458,6 +421,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
             Log::debug($results, 4);
         }
 
-        return $results;
+        return $this;
     }
 }
