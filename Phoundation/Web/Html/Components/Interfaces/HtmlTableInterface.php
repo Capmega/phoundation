@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Enums\Interfaces\TableIdColumnInterface;
 use Stringable;
@@ -217,4 +218,19 @@ interface HtmlTableInterface extends ResourceElementInterface
      * @return string
      */
     public function renderBody(): string;
+
+    /**
+     * Returns the columns specified for this table
+     *
+     * @return array|null
+     */
+    public function getColumns(): ?array;
+
+    /**
+     * Sets if the table is header_text or not
+     *
+     * @param ArrayableInterface|array|string|null $columns
+     * @return static
+     */
+    public function setColumns(ArrayableInterface|array|string|null $columns): static;
 }

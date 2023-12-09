@@ -176,7 +176,7 @@ if (!$user->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)
         ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $user->getMeta() . '.html')
+        ->setAnchorUrl('/audit/meta-' . $user->getMetaId() . '.html')
         ->setFloatRight(true)
         ->setValue(tr('Audit'))
         ->setContent(tr('Audit'));

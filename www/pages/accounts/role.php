@@ -88,7 +88,7 @@ if (!$role->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)
         ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $role->getMeta() . '.html')
+        ->setAnchorUrl('/audit/meta-' . $role->getMetaId() . '.html')
         ->setFloatRight(true)
         ->setValue(tr('Audit'))
         ->setContent(tr('Audit'));

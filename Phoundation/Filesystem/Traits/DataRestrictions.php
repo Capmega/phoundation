@@ -67,6 +67,10 @@ trait DataRestrictions
      */
     public function ensureRestrictions(?RestrictionsInterface $restrictions): RestrictionsInterface
     {
-        return Restrictions::default($restrictions, $this->restrictions);
+        if (isset($this->restrictions)) {
+            return Restrictions::default($restrictions, $this->restrictions);
+        }
+
+        return Restrictions::default($restrictions);
     }
 }

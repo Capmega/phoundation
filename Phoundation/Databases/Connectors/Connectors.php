@@ -4,6 +4,7 @@ namespace Phoundation\Databases\Connectors;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
 
@@ -19,6 +20,15 @@ use Phoundation\Utils\Config;
  */
 class Connectors extends DataList implements ConnectorsInterface
 {
+    /**
+     * DataList class constructor
+     */
+    public function __construct(?array $ids = null)
+    {
+        $this->query = 'SELECT * FROM `databases_connectors`';
+    }
+
+
     /**
      * @inheritDoc
      */
@@ -54,11 +64,20 @@ class Connectors extends DataList implements ConnectorsInterface
     {
         parent::load($clear);
 
-        // Load connectors from the configuration
-        $connectors = Config::getArray('databases.sql.connectors');
+        // Get connectors from the configuration
+        $connectors = Config::getArray(Connector::new()->getConfigPath());
+        $count      = 0;
 
-        foreach ($connectors as $name => &$connector) {
-            $this->source[$name] = Connector::fromSource($connector);
+        // Load all connectors by type
+        foreach ($connectors as $type => $type_connectors) {
+            foreach ($type_connectors as $name => &$connector) {
+                $connector['id']       = --$count;
+                $connector['type']     = $type;
+                $connector['name']     = $name;
+                $connector['seo_name'] = Seo::string($name);
+
+                $this->source[$count] = Connector::fromSource($connector);
+            }
         }
 
         return $this;

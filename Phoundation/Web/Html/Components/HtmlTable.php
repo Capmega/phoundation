@@ -12,6 +12,7 @@ use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
@@ -159,6 +160,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected bool $process_entities = true;
 
+    /**
+     * If specified, the table will filter out these columns from the data source, regardless of if they contain more
+     *
+     * @var array $columns
+     */
+    protected array $columns;
+
 
     /**
      * Table constructor
@@ -168,6 +176,40 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         parent::__construct();
         parent::setElement('table');
         $this->setNullStatus(tr('Active'));
+    }
+
+
+    /**
+     * Returns the columns specified for this table
+     *
+     * @return array|null
+     */
+    public function getColumns(): ?array
+    {
+        if (isset($this->columns)) {
+            return $this->columns;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets if the table is header_text or not
+     *
+     * @param ArrayableInterface|array|string|null $columns
+     * @return static
+     */
+    public function setColumns(ArrayableInterface|array|string|null $columns): static
+    {
+        $columns = Arrays::force($columns);
+
+        if ($columns instanceof ArrayableInterface) {
+            $columns = $columns->__toArray();
+        }
+
+        $this->columns = $columns;
+        return $this;
     }
 
 
@@ -582,6 +624,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
                 // Row values is actually an object, get its content
                 $row = $row->__toArray();
+            }
+
+            if (isset($this->columns)) {
+                $row = Arrays::keep($row, $this->columns);
             }
 
             $this->executeCallbacks($row, TableRowType::row, $params);

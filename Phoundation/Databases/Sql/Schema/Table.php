@@ -122,7 +122,7 @@ class Table extends SchemaAbstract
     {
         Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
-            ':instance' => $this->sql->getInstance(),
+            ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase()
         ]),3);
 

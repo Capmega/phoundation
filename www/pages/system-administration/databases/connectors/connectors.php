@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Phoundation\Filesystem\Mounts\FilterForm;
-use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Databases\Connectors\FilterForm;
+use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\BreadCrumbs;
@@ -18,19 +18,19 @@ use Phoundation\Web\Page;
 
 
 /**
- * Page file-system/mounts.php
+ * Page databases/connectors/connectors.php
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Filesystem
+ * @package Phoundation\Databases
  */
 
 
 // Build the page content
-// Build mounts filter card
+// Build connectors filter card
 $filters      = FilterForm::new()->apply();
 $filters_card = Card::new()
     ->setCollapseSwitch(true)
@@ -43,7 +43,7 @@ $filters_card = Card::new()
 if (Page::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
-        ->select('filesystem_mounts_length')->isOptional()->isNumeric()    // This is paging length, ignore
+        ->select('databases_connectors_length')->isOptional()->isNumeric()    // This is paging length, ignore
         ->select('submit')->isOptional()->isVariable()
         ->select('id')->isOptional()->isArray()->each()->isDbId()
         ->validate();
@@ -52,17 +52,17 @@ if (Page::isPostRequestMethod()) {
         // Process buttons
         switch ($post['submit']) {
             case tr('Delete'):
-                // Delete selected mounts
-                $count = Mounts::directOperations()->deleteKeys($post['id']);
+                // Delete selected connectors
+                $count = Connectors::directOperations()->deleteKeys($post['id']);
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" mounts', [':count' => $count]));
+                Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" connectors', [':count' => $count]));
                 Page::redirect('this');
 
             case tr('Undelete'):
-                // Undelete selected mounts
-                $count = Mounts::directOperations()->undeleteKeys($post['id']);
+                // Undelete selected connectors
+                $count = Connectors::directOperations()->undeleteKeys($post['id']);
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" mounts', [':count' => $count]));
+                Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" connectors', [':count' => $count]));
                 Page::redirect('this');
         }
 
@@ -73,48 +73,50 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-// Get the mounts list and apply filters
-$mounts   = Mounts::new();
-$builder = $mounts->getQueryBuilder()->setDebug(true)
-    ->addSelect('`filesystem_mounts`.`id`, 
-                 `filesystem_mounts`.`name`, 
-                 `filesystem_mounts`.`source`, 
-                 `filesystem_mounts`.`target`, 
-                 `filesystem_mounts`.`status`, 
-                 `filesystem_mounts`.`created_on`');
+// Get the connectors list and apply filters
+$connectors = Connectors::new();
+$builder    = $connectors->getQueryBuilder()->setDebug(true)
+    ->addSelect('`databases_connectors`.`id`, 
+                 `databases_connectors`.`name`, 
+                 `databases_connectors`.`hostname`, 
+                 `databases_connectors`.`username`, 
+                 `databases_connectors`.`database`, 
+                 `databases_connectors`.`status`, 
+                 `databases_connectors`.`created_on`');
 
 switch ($filters->getSourceKey('entry_status')) {
     case '__all':
         break;
 
     case null:
-        $builder->addWhere('`filesystem_mounts`.`status` IS NULL');
+        $builder->addWhere('`databases_connectors`.`status` IS NULL');
         break;
 
     default:
-        $builder->addWhere('`filesystem_mounts`.`status` = :status', [':status' => $filters->getSourceKey('entry_status')]);
+        $builder->addWhere('`databases_connectors`.`status` = :status', [':status' => $filters->getSourceKey('entry_status')]);
 }
 
-// Build SQL mounts table
+// Build SQL connectors table
 $buttons = Buttons::new()
-    ->addButton(tr('Create'), DisplayMode::primary, '/system-administration/file-system/mount.html')
+    ->addButton(tr('Create'), DisplayMode::primary, '/system-administration/databases/connectors/connector.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
 
-$mounts_card = Card::new()
-    ->setTitle('Available mounts')
+$connectors_card = Card::new()
+    ->setTitle('Available connectors')
     ->setSwitches('reload')
-    ->setContent($mounts
+    ->setContent($connectors
         ->load()
         ->getHtmlDataTable()
-            ->setRowUrl('/system-administration/file-system/mount-:ROW.html')
+            ->setRowUrl('/system-administration/databases/connectors/connector-:ROW.html')
+            ->setColumns('id,name,hostname,username,database,status,created_on')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);
 
-$mounts_card->getForm()
+$connectors_card->getForm()
         ->setAction(UrlBuilder::getCurrent())
         ->setMethod('POST');
 
@@ -123,7 +125,8 @@ $mounts_card->getForm()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-system/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/system-administration/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
@@ -135,17 +138,17 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters_card->render() . $mounts_card->render(), DisplaySize::nine)
+    ->addColumn($filters_card->render() . $connectors_card->render(), DisplaySize::nine)
     ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Filesystem mounts'));
+Page::setHeaderTitle(tr('Database connectors'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                           => tr('Home'),
-    '/system-administration.html' => tr('System administration'),
-    '/filesystem.html'            => tr('Filesystem'),
-    ''                            => tr('Mounts')
+    '/'                                     => tr('Home'),
+    '/system-administration.html'           => tr('System administration'),
+    '/system-administration/databases.html' => tr('Databases'),
+    ''                                      => tr('Connectors')
 ]));

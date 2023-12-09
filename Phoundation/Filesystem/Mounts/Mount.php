@@ -10,8 +10,8 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryOptions;
-use Phoundation\Data\DataEntry\Traits\DataEntrySource;
-use Phoundation\Data\DataEntry\Traits\DataEntryTarget;
+use Phoundation\Data\DataEntry\Traits\DataEntrySourcePath;
+use Phoundation\Data\DataEntry\Traits\DataEntryTargetString;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\MountInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
@@ -36,8 +36,6 @@ class Mount extends DataEntry implements MountInterface
 {
     use DataEntryNameDescription;
     use DataRestrictions;
-    use DataEntrySource;
-    use DataEntryTarget;
     use DataEntryOptions;
 
 
@@ -99,12 +97,12 @@ class Mount extends DataEntry implements MountInterface
                     $mount = Config::getArray('filesystem.mounts.' . $identifier);
                     return static::fromSource($mount, $meta_enabled);
 
-                case 'source':
+                case 'source_path':
                     // This is a mount that SHOULD already exist on the system
                     $mount = Mounts::getMountSources($identifier);
                     return static::fromSource($mount, $meta_enabled);
 
-                case 'target':
+                case 'target_path':
                     // This is a mount that SHOULD already exist on the system
                     $mount = Mounts::getMountTargets($identifier);
                     return static::fromSource($mount, $meta_enabled);
@@ -116,6 +114,121 @@ class Mount extends DataEntry implements MountInterface
 
 
     /**
+     * Returns the filesystem for this object
+     *
+     * @return string|null
+     */
+    public function getFilesystem(): ?string
+    {
+        return $this->getSourceFieldValue('string', 'filesystem');
+    }
+
+
+    /**
+     * Sets the filesystem for this object
+     *
+     * @param string|null $filesystem
+     * @return static
+     */
+    public function setFilesystem(?string $filesystem): static
+    {
+        return $this->setSourceValue('filesystem', $filesystem);
+    }
+
+
+    /**
+     * Returns the auto_mount for this object
+     *
+     * @return bool|null
+     */
+    public function getAutoMount(): ?bool
+    {
+        return $this->getSourceFieldValue('bool', 'auto_mount');
+    }
+
+
+    /**
+     * Sets the auto_mount for this object
+     *
+     * @param int|bool|null $auto_mount
+     * @return static
+     */
+    public function setAutoMount(int|bool|null $auto_mount): static
+    {
+        return $this->setSourceValue('auto_mount', (bool) $auto_mount);
+    }
+
+
+    /**
+     * Returns the auto_unmount for this object
+     *
+     * @return bool|null
+     */
+    public function getAutoUnmount(): ?bool
+    {
+        return $this->getSourceFieldValue('bool', 'auto_unmount');
+    }
+
+
+    /**
+     * Sets the auto_unmount for this object
+     *
+     * @param int|bool|null $auto_unmount
+     * @return static
+     */
+    public function setAutoUnmount(int|bool|null $auto_unmount): static
+    {
+        return $this->setSourceValue('auto_unmount', (bool) $auto_unmount);
+    }
+
+
+    /**
+     * Returns the source_path for this object
+     *
+     * @return string|null
+     */
+    public function getSourcePath(): ?string
+    {
+        return $this->getSourceFieldValue('string', 'source_path');
+    }
+
+
+    /**
+     * Sets the source_path for this object
+     *
+     * @param string|null $source_path
+     * @return static
+     */
+    public function setSourcePath(?string $source_path): static
+    {
+        return $this->setSourceValue('source_path', $source_path);
+    }
+
+
+    /**
+     * Returns the $target_path for this object
+     *
+     * @return string|null
+     */
+    public function getTargetPath(): ?string
+    {
+        return $this->getSourceFieldValue('string', 'target_path');
+    }
+
+
+    /**
+     * Sets the $target_path for this object
+     *
+     * @param string|null $target_path
+     * @return static
+     */
+    public function setTargetPath(?string $target_path): static
+    {
+        return $this->setSourceValue('target_path', $target_path);
+    }
+
+
+    /**
      * Mounts this mount point
      *
      * @return $this
@@ -123,7 +236,7 @@ class Mount extends DataEntry implements MountInterface
     public function mount(): static
     {
         \Phoundation\Os\Processes\Commands\Mount::new($this->restrictions)
-            ->mount($this->getSource(), $this->getTarget());
+            ->mount($this->getSource(), $this->getTargetString());
 
         return $this;
     }
@@ -137,7 +250,7 @@ class Mount extends DataEntry implements MountInterface
     public function unmount(): static
     {
         UnMount::new($this->restrictions)
-            ->unmount($this->getTarget());
+            ->unmount($this->getTargetString());
 
         return $this;
     }
@@ -153,39 +266,75 @@ class Mount extends DataEntry implements MountInterface
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
-                ->setHelpText(tr('The name for this role'))
+                ->setLabel(tr('Name'))
+                ->setHelpText(tr('The unique identifier name for this mount'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'source')
+            ->addDefinition(Definition::new($this, 'source_path')
                 ->setInputType(InputTypeExtended::name)
-                ->setSize(6)
+                ->setSize(4)
                 ->setMaxlength(255)
+                ->setLabel(tr('Source'))
                 ->setHelpText(tr('The source file for this mount'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(Definition::new($this, 'target')
+            ->addDefinition(Definition::new($this, 'target_path')
                 ->setInputType(InputTypeExtended::name)
-                ->setSize(6)
+                ->setSize(4)
                 ->setMaxlength(255)
+                ->setLabel(tr('Target'))
                 ->setHelpText(tr('The target file for this mount'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
+            ->addDefinition(Definition::new($this, 'filesystem')
+                ->setSize(4)
+                ->setSource([
+                    ''             => tr('Auto detect'),
+                    'ext2'         => tr('EXT2'),
+                    'ext3'         => tr('EXT3'),
+                    'ext4'         => tr('EXT4'),
+                    'reiserfs4'    => tr('ReiserFS 4'),
+                    'xfs'          => tr('XFS'),
+                    'btrfs'        => tr('BTRFS'),
+                    'zfs'          => tr('ZFS'),
+                    'nfs'          => tr('NFS'),
+                    'smb'          => tr('SMB'),
+                    'cifs'         => tr('CIFS'),
+                    'ipfs'         => tr('IPFS'),
+                    'sysfs'        => tr('SysFS'),
+                    'tmpfs'        => tr('TmpFS'),
+                    'dev'          => tr('DevFS'),
+                    'proc'         => tr('Proc'),
+                    'loop'         => tr('Loop device'),
+                    'luks'         => tr('LUKS'),
+                    'hfs'          => tr('HFS'),
+                    'vfat'         => tr('vfat'),
+                    'ntfs'         => tr('NTFS'),
+                    'iso9660:1999' => tr('ISO 9660:1999')
+                ])
+                ->setLabel(tr('Filesystem'))
+                ->setHelpText(tr('The filesystem with which to mount this source')))
             ->addDefinition(Definition::new($this, 'options')
-                ->setInputType(InputTypeExtended::name)
-                ->setSize(10)
+                ->setSize(8)
+                ->setDefault('defaults')
                 ->setMaxlength(508)
+                ->setLabel(tr('Options'))
                 ->setHelpText(tr('The options for this mount'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(Definition::new($this, 'auto_mount')
-                ->setInputType(InputType::checkbox)
+            ->addDefinition(DefinitionFactory::getBoolean($this, 'auto_mount')
                 ->setSize(2)
-                ->setHelpText(tr('Auto mount')))
+                ->setHelpText(tr('If checked, this mount will automatically be mounted by the process using a path in this mount'))
+                ->setLabel(tr('Auto mount')))
+            ->addDefinition(DefinitionFactory::getBoolean($this, 'auto_unmount')
+                ->setSize(2)
+                ->setHelpText(tr('If checked, this mount will automatically be unmounted after use when the process using a path in this mount terminates'))
+                ->setLabel(tr('Auto unmount')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this mount')));
     }

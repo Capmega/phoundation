@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Filesystem\Mounts\Mount;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -21,23 +21,23 @@ use Phoundation\Web\Page;
 
 
 /**
- * Page file-system/mount.php
+ * Page databases/connectors/connector.php
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Filesystem
+ * @package Phoundation\Databases
  */
 
 
-// Validate GET and get the requested mount
+// Validate GET and get the requested connector
 $get = GetValidator::new()
-    ->select('id')->isOptional()->isDbId()
+    ->select('id')->isOptional()->isDbId(false, true)
     ->validate();
 
-$mount = Mount::get($get['id']);
+$connector = Connector::get($get['id']);
 
 
 // Validate POST and submit
@@ -50,44 +50,44 @@ if (Page::isPostRequestMethod()) {
                     ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
                     ->validate(false);
 
-                // Update mount, roles, emails, and phones
-                $mount->apply(false)->save();
+                // Update connector, roles, emails, and phones
+                $connector->apply(false)->save();
 
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
-                    ':mount' => $mount->getDisplayName()
+                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been saved', [
+                    ':connector' => $connector->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/system-administration/file-system/mount-' . $mount->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/system-administration/databases/connectors/connector-' . $connector->getId() . '.html'));
 
             case tr('Delete'):
-                $mount->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
-                    ':mount' => $mount->getDisplayName()
+                $connector->delete();
+                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been deleted', [
+                    ':connector' => $connector->getDisplayName()
                 ]));
 
                 Page::redirect();
 
             case tr('Lock'):
-                $mount->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
-                    ':mount' => $mount->getDisplayName()
+                $connector->lock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been locked', [
+                    ':connector' => $connector->getDisplayName()
                 ]));
 
                 Page::redirect();
 
             case tr('Unlock'):
-                $mount->unlock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
-                    ':mount' => $mount->getDisplayName()
+                $connector->unlock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been unlocked', [
+                    ':connector' => $connector->getDisplayName()
                 ]));
 
                 Page::redirect();
 
             case tr('Undelete'):
-                $mount->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
-                    ':mount' => $mount->getDisplayName()
+                $connector->undelete();
+                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been undeleted', [
+                    ':connector' => $connector->getDisplayName()
                 ]));
 
                 Page::redirect();
@@ -96,13 +96,13 @@ if (Page::isPostRequestMethod()) {
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Page::getFlashMessages()->addMessage($e);
-        $mount->forceApply();
+        $connector->forceApply();
     }
 }
 
 
 // Save button
-if (!$mount->getReadonly()) {
+if (!$connector->getReadonly()) {
     $save = Button::new()
         ->setValue(tr('Save'))
         ->setContent(tr('Save'));
@@ -110,8 +110,8 @@ if (!$mount->getReadonly()) {
 
 
 // Delete button.
-if (!$mount->isNew()) {
-    if ($mount->isDeleted()) {
+if (!$connector->isNew() and !$connector->isReadonly()) {
+    if ($connector->isDeleted()) {
         $delete = Button::new()
             ->setFloatRight(true)
             ->setMode(DisplayMode::warning)
@@ -127,7 +127,7 @@ if (!$mount->isNew()) {
             ->setValue(tr('Delete'))
             ->setContent(tr('Delete'));
 
-        if ($mount->isLocked()) {
+        if ($connector->isLocked()) {
             $lock = Button::new()
                 ->setFloatRight(true)
                 ->setMode(DisplayMode::warning)
@@ -146,7 +146,7 @@ if (!$mount->isNew()) {
         $audit = Button::new()
             ->setFloatRight(true)
             ->setMode(DisplayMode::information)
-            ->setAnchorUrl('/audit/meta-' . $mount->getMetaId() . '.html')
+            ->setAnchorUrl('/audit/meta-' . $connector->getMetaId() . '.html')
             ->setFloatRight(true)
             ->setValue(tr('Audit'))
             ->setContent(tr('Audit'));
@@ -154,15 +154,15 @@ if (!$mount->isNew()) {
 }
 
 
-// Build the mount form
-$mount_card = Card::new()
+// Build the connector form
+$connector_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
-    ->setTitle(tr('Edit mount :name', [':name' => $mount->getDisplayName()]))
-    ->setContent($mount->getHtmlDataEntryForm()->render())
+    ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
+    ->setContent($connector->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/system-administration/file-system/mounts.html'), true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/system-administration/databases/connectors/connectors.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($lock))
@@ -171,19 +171,19 @@ $mount_card = Card::new()
 
 // Build profile picture card
 $picture = Card::new()
-    ->setTitle(tr('Mount profile picture'))
+    ->setTitle(tr('Connector profile picture'))
     ->setContent(Img::new()
         ->addClass('w100')
         ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
-//        ->setSrc($mount->getPicture())
-        ->setAlt(tr('Profile picture for :mount', [':mount' => $mount->getDisplayName()])));
+//        ->setSrc($connector->getPicture())
+        ->setAlt(tr('Profile picture for :connector', [':connector' => $connector->getDisplayName()])));
 
 
 // Build relevant links
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-system/filesystem.html') . '">' . tr('Manage filesystem') . '</a><br>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
 
 
 // Build documentation
@@ -198,8 +198,8 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn(GridColumn::new()
-        // The mount card and all additional cards
-        ->addContent($mount_card->render())
+        // The connector card and all additional cards
+        ->addContent($connector_card->render())
         ->setSize(9)
         ->useForm(true))
     ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
@@ -208,13 +208,13 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setPageTitle(tr('Mount :mount', [':mount' => $mount->getDisplayName()]));
-Page::setHeaderTitle(tr('Mount'));
-Page::setHeaderSubTitle($mount->getDisplayName());
+Page::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
+Page::setHeaderTitle(tr('Connector'));
+Page::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured() ? ' [' . tr('Configured') . ']' : ''));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                                     => tr('Home'),
-    '/system-administration.html'                           => tr('System administration'),
-    '/filesystem.html'                                      => tr('Filesystem'),
-    '/system-administration/file-system/mounts.html' => tr('Mounts'),
-    ''                                                      => $mount->getDisplayName()
+    '/'                                                           => tr('Home'),
+    '/system-administration.html'                                 => tr('System administration'),
+    '/system-administration/databases.html'                       => tr('Databases'),
+    '/system-administration/databases/connectors/connectors.html' => tr('Connectors'),
+    ''                                                            => $connector->getDisplayName()
 ]));

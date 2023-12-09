@@ -114,7 +114,7 @@ class Database extends SchemaAbstract
     {
         // This query cannot use bound variables!
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
-            ':instance' => $this->sql->getInstance(),
+            ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase()
         ]), 3);
 

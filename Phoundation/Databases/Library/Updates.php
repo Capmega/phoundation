@@ -68,7 +68,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `username` varchar(255) DEFAULT NULL,
                     `password` varchar(255) DEFAULT NULL,
                     `database` varchar(255) DEFAULT NULL,
-                    `autoincrement` tinyint(1) NOT NULL DEFAULT 0,
+                    `auto_increment` tinyint(1) NOT NULL DEFAULT 0,
                     `init` tinyint(1) NOT NULL DEFAULT 0,
                     `buffered` tinyint(1) NOT NULL DEFAULT 0,
                     `log` tinyint(1) NOT NULL DEFAULT 0,

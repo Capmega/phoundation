@@ -81,7 +81,7 @@ if (!$right->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)
         ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $right->getMeta() . '.html')
+        ->setAnchorUrl('/audit/meta-' . $right->getMetaId() . '.html')
         ->setFloatRight(true)
         ->setValue(tr('Audit'))
         ->setContent(tr('Audit'));

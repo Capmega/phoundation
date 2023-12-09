@@ -7,7 +7,9 @@ namespace Phoundation\Date;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Exception\DateTimeException;
+use Phoundation\Date\Exception\DateTimeZoneException;
 use Phoundation\Utils\Config;
+use Throwable;
 
 
 /**
@@ -31,34 +33,46 @@ class DateTimeZone extends \DateTimeZone
     {
         if (!is_object($timezone)) {
             switch ($timezone) {
+                case '':
+                    // Default to system timezone
                 case 'system':
-                    $timezone = Config::get('locale.timezone', 'UTC');
+                    $detected = Config::get('locale.timezone', 'UTC');
                     break;
 
                 case 'server':
-                    $timezone = static::getServerTimezone();
+                    // The timezone which the server is using
+                    $detected = static::getServerTimezone();
                     break;
 
                 case 'user':
                     // no break
                 case 'display':
-                    $timezone = Session::getUser()->getTimezone();
-$timezone = 'PST';
+                    // The timezone requested by the user
+                    $detected = Session::getUser()->getTimezone();
+$detected = 'PST';
                     break;
+
+                default:
+                    $detected = $timezone;
             }
 
-            if (!$timezone) {
-                $timezone = Config::get('locale.timezone', 'UTC');
+            if (!$detected) {
+                throw new DateTimeZoneException(tr('Failed to convert requested timezone ":timezone"', [
+                    ':timezone' => $timezone
+                ]));
             }
 
             // Ensure the specified timezone is valid
-            if (!in_array($timezone, DateTimeZone::listIdentifiers())) {
-                if (!array_key_exists(strtolower($timezone), DateTimeZone::listAbbreviations())) {
-                    throw new DateTimeException(tr('Specified timezone ":timezone" is not supported', [
-                        ':timezone' => $timezone
+            if (!in_array($detected, DateTimeZone::listIdentifiers())) {
+                if (!array_key_exists(strtolower($detected), DateTimeZone::listAbbreviations())) {
+                    throw new DateTimeException(tr('Detected timezone ":timezone" (from specified ":timezone") is not supported', [
+                        ':timezone' => $timezone,
+                        ':detected' => $detected
                     ]));
                 }
             }
+
+            $timezone = $detected;
 
         } elseif (!($timezone instanceof DateTimeZone)) {
             $timezone = $timezone->getName();
@@ -101,7 +115,12 @@ $timezone = 'PST';
         static $timezone;
 
         if (empty($timezone)) {
-            $timezone = Config::get('server.timezone', exec('date +%Z'));
+            try {
+                $timezone = Config::get('server.timezone', exec('date +%Z'));
+
+            } catch (Throwable $e) {
+                throw new DateTimeZoneException(tr('Failed to get server timezone'), $e);
+            }
         }
 
         return $timezone;

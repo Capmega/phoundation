@@ -337,17 +337,6 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getHtmlDataEntryForm(): DataEntryFormInterface;
 
     /**
-     * Load all data directly from the specified array.
-     *
-     * @note ONLY use this to load data that came from a trusted and validated source! This method will NOT validate
-     *       your data, use DataEntry::apply() instead for untrusted data.
-     * @param array $source
-     * @param bool $init
-     * @return $this
-     */
-    public function setSourceString(array $source, bool $init = false): static;
-
-    /**
      * Returns the definitions for the fields in this table
      *
      * @return DefinitionsInterface|null

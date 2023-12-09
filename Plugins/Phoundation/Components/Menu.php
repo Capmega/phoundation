@@ -118,7 +118,18 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                         'menu' => [
                             tr('Mounts') => [
                                 'rights' => 'mounts',
-                                'url'    => '/file-system/mounts.html',
+                                'url'    => '/system-administration/file-system/mounts.html',
+                                'icon'   => 'fa-key'
+                            ],
+                        ],
+                    ],
+                    tr('Databases') => [
+                        'rights' => 'databases',
+                        'icon' => 'fa-lock',
+                        'menu' => [
+                            tr('Connectors') => [
+                                'rights' => 'mounts',
+                                'url'    => '/system-administration/databases/connectors/connectors.html',
                                 'icon'   => 'fa-key'
                             ],
                         ],

@@ -114,7 +114,7 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Change password'));
-Page::setHeaderSubTitle($user->getDisplayName());
+Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                          => tr('Home'),
     '/accounts/users.html'                       => tr('Users'),

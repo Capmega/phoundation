@@ -18,14 +18,14 @@ use Phoundation\Seo\Seo;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataEntryTarget
+trait DataEntryTargetString
 {
     /**
      * Returns the target for this object
      *
      * @return string|null
      */
-    public function getTarget(): ?string
+    public function getTargetString(): ?string
     {
         return $this->getSourceFieldValue('string', 'target');
     }
@@ -37,7 +37,7 @@ trait DataEntryTarget
      * @param string|null $target
      * @return static
      */
-    public function setTarget(?string $target): static
+    public function setTargetString(?string $target): static
     {
         return $this->setSourceValue('target', $target);
     }

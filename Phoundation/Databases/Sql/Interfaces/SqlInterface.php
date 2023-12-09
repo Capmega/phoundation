@@ -44,7 +44,7 @@ interface SqlInterface
      *
      * @return string|null
      */
-    public function getInstance(): ?string;
+    public function getConnector(): ?string;
 
     /**
      * Returns an SQL schema object for this instance
@@ -422,10 +422,10 @@ interface SqlInterface
     /**
      * Reads, validates structure and returns the configuration for the specified instance
      *
-     * @param string $instance
+     * @param string $connector
      * @return array
      */
-    public function readConfiguration(string $instance): array;
+    public function readConfiguration(string $connector): array;
 
     /**
      * Apply configuration template over the specified configuration array
