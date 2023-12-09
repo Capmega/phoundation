@@ -280,7 +280,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public static function fromSource(array $source): static
     {
-        return static::new()->setSourceString($source);
+        return static::new()->setSource($source);
     }
 
 
@@ -391,16 +391,28 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns true if this object can be saved in the database
+     * Returns true if this object was read from configuration
      *
-     * Objects loaded from configuration (for the moment) cannot be saved and will return false. Trying to execute the
-     * DataEntry::save() call will result in an exception
+     * Objects loaded from configuration (for the moment) cannot be saved and will return true.
      *
      * @return bool
      */
-    public function canBeSaved(): bool
+    public function isReadonly(): bool
     {
-        return !$this->config_path;
+        return $this->readonly or $this->isConfigured();
+    }
+
+
+    /**
+     * Returns true if this object was read from configuration
+     *
+     * Objects loaded from configuration (for the moment) cannot be saved and will return true.
+     *
+     * @return bool
+     */
+    public function isConfigured(): bool
+    {
+        return $this->getId() < 0;
     }
 
 
@@ -1470,6 +1482,10 @@ abstract class DataEntry implements DataEntryInterface
             }
         }
 
+        if ($this->getId() < 0) {
+            $this->readonly = true;
+        }
+
         $this->is_validated = $validated;
         return $this;
     }
@@ -1543,8 +1559,15 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function setSource(Iterator|array $source): static
     {
-        return $this->setMetaData((array) $source)
-                    ->copyValuesToSource((array) $source, false);
+        $this->is_loading = true;
+
+        // Load data with object init
+        $this->setMetaData($source)->copyValuesToSource($source, false);
+
+        $this->is_modified = false;
+        $this->is_loading  = false;
+        $this->is_saved    = false;
+        return $this;
     }
 
 
@@ -2070,34 +2093,6 @@ abstract class DataEntry implements DataEntryInterface
         $alt = trim($alt);
 
         return get_null($alt) ?? $field;
-    }
-
-
-    /**
-     * Load all data directly from the specified array.
-     *
-     * @note ONLY use this to load data that came from a trusted and validated source! This method will NOT validate
-     *       your data, use DataEntry::apply() instead for untrusted data.
-     * @param array $source
-     * @param bool $init
-     * @return $this
-     */
-    public function setSourceString(array $source, bool $init = true): static
-    {
-        $this->is_loading = true;
-
-        if ($init) {
-            // Load data with object init
-            $this->setMetaData($source)->copyValuesToSource($source, false);
-
-        } else {
-            $this->source = $source;
-        }
-
-        $this->is_modified = false;
-        $this->is_loading  = false;
-        $this->is_saved    = false;
-        return $this;
     }
 
 
