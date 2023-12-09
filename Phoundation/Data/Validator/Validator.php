@@ -445,13 +445,21 @@ abstract class Validator implements ValidatorInterface
      * @param bool $allow_zero
      * @return static
      */
-    public function isDbId(bool $allow_zero = false): static
+    public function isDbId(bool $allow_zero = false, bool $allow_negative = false): static
     {
         $this->isInteger();
 
         if ($this->process_value_failed) {
             // Validation already failed, don't test anything more
             return $this;
+        }
+
+        if ($allow_negative) {
+            if ($allow_zero) {
+                return $this;
+            }
+
+            return $this->isNotValue(0);
         }
 
         return $this->isPositive($allow_zero);
@@ -1419,6 +1427,57 @@ abstract class Validator implements ValidatorInterface
                 if ($compare_value != $validate_value) {
                     if ($secret) {
                         $this->addFailure(tr('must be value ":value"', [':value' => $value]));
+                    } else {
+                        $this->addFailure(tr('has an incorrect value'));
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is the specified value
+     *
+     * @param mixed $validate_value
+     * @param bool $strict If true, will perform a strict check
+     * @param bool $secret If specified the $validate_value will not be shown
+     * @param bool $ignore_case
+     * @return static
+     * @todo Change these individual flag parameters to one bit flag parameter
+     */
+    public function isNotValue(mixed $validate_value, bool $strict = false, bool $secret = false, bool $ignore_case = true): static
+    {
+        return $this->validateValues(function(&$value) use ($validate_value, $strict, $secret, $ignore_case) {
+            if ($strict) {
+                // Strict validation
+                if ($value === $validate_value) {
+                    if ($secret) {
+                        $this->addFailure(tr('must not be exactly value ":value"', [':value' => $value]));
+
+                    } else {
+                        $this->addFailure(tr('has an incorrect value'));
+                    }
+                }
+
+            } else {
+                $this->isScalar();
+
+                if ($this->process_value_failed) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+
+                if ($ignore_case) {
+                    $compare_value  = strtolower((string) $value);
+                    $validate_value = strtolower((string) $validate_value);
+                } else {
+                    $compare_value  = $value;
+                }
+
+                if ($compare_value == $validate_value) {
+                    if ($secret) {
+                        $this->addFailure(tr('must not be value ":value"', [':value' => $value]));
                     } else {
                         $this->addFailure(tr('has an incorrect value'));
                     }
