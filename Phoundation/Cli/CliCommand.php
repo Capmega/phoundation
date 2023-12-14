@@ -19,6 +19,7 @@ use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\Time;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -26,6 +27,7 @@ use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
@@ -202,6 +204,21 @@ class CliCommand
         // Execute the script and finish execution
         try {
             execute_script(static::$script);
+
+        } catch (SqlNoTimezonesException) {
+            Log::warning('MySQL does not yet have the required timezones loaded. Attempting to load them now');
+
+            Log::cli(CliColor::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
+            Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
+            Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
+
+            $password = Cli::readPassword('Please specify the MySQL root password');
+
+            if (!$password) {
+                throw OutOfBoundsException::new(tr('No MySQL root password specified'))->makeWarning();
+            }
+
+            Mysql::new()->importTimezones($password);
 
         } catch (Throwable $e) {
             // In auto complete mode, do not dump the exception on screen; it will fubar everything
