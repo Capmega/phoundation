@@ -411,6 +411,20 @@ class DataEntryForm extends Renderer
                                     ->render();
                                 break;
 
+                            case 'select':
+                                // Render the HTML for this element
+                                $html = $element_class::new()
+                                    ->setClasses($definition->getClasses())
+                                    ->setDisabled((bool) $definition_array['disabled'])
+                                    ->setReadOnly((bool) $definition_array['readonly'])
+                                    ->setHidden($definition->getHidden())
+                                    ->setRequired($definition->getRequired())
+                                    ->setName($field_name)
+                                    ->setValue($source[$field])
+                                    ->setAutoFocus($definition->getAutoFocus())
+                                    ->render();
+                                break;
+
                             default:
                                 // Render the HTML for this element
                                 $html = $element_class::new()
