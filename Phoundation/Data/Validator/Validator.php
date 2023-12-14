@@ -2375,6 +2375,30 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Validates if the selected field is a valid domain name or IP address
+     *
+     * @return static
+     */
+    public function isDomainOrIp(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            if (!filter_var($value, FILTER_VALIDATE_DOMAIN)) {
+                if (!filter_var($value, FILTER_VALIDATE_IP)) {
+                    $this->addFailure(tr('must contain a valid domain or IP address'));
+                }
+            }
+        });
+    }
+
+
+    /**
      * Validates if the selected field is a valid formatted UUID
      *
      * @return static
