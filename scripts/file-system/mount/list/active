@@ -3,14 +3,14 @@
 
 declare(strict_types=1);
 
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\Mount;
+use Phoundation\Cli\Cli;
+use Phoundation\Filesystem\Mounts\Mounts;
 
 
 /**
- * Script file-system/mount/mount
+ * Script file-system/mount/all
  *
- * Mounts the specified mount
+ * This command mounts all mountss
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,11 +19,5 @@ use Phoundation\Filesystem\Mounts\Mount;
  */
 
 
-// Get the arguments
-$argv = ArgvValidator::new()
-    ->select('mount')->isName()
-    ->validate();
-
-
-// Mount the specified mount
-Mount::new($argv['mount'])->mount();
+// Display the current mounts
+Cli::displayTable(Mounts::listMountTargets(), 'source,target,filesystem');

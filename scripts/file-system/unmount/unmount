@@ -3,7 +3,10 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
+use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
 use Phoundation\Filesystem\Mounts\Mount;
 
 
@@ -19,9 +22,25 @@ use Phoundation\Filesystem\Mounts\Mount;
  */
 
 
+// Get the arguments
 $argv = ArgvValidator::new()
-    ->select('mount')->isVariable()
+    ->select('mount')->isName()
     ->validate();
 
 
-Mount::new($argv['mount'])->unmount();
+// Unmount the specified mount
+try {
+    Mount::new($argv['mount'])->unmount();
+
+} catch (NotMountedException) {
+    Log::warning(tr('Cannot unmount ":path", it is not mounted', [
+        ':path' => $argv['mount']
+    ]));
+
+} catch (UnmountBusyException $e) {
+    Log::warning(tr('Cannot unmount ":path", it is busy', [
+        ':path' => $argv['mount']
+    ]));
+
+    Log::printr($e->getDataKey('processes'));
+}

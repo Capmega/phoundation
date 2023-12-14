@@ -3,6 +3,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Mount;
 
@@ -26,4 +27,4 @@ $argv = ArgvValidator::new()
 
 
 // Mount the specified mount
-Mount::new($argv['mount'])->mount();
+Log::cli(Mount::new($argv['mount'])->isMounted() ? 1 : 0);
