@@ -458,7 +458,7 @@ interface UserInterface extends DataEntryInterface
      * @param string $validation
      * @return static
      */
-    public function setPassword(string $password, string $validation): static;
+    public function changePassword(string $password, string $validation): static;
 
     /**
      * Validates the specified password

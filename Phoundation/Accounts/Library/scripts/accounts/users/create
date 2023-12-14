@@ -124,7 +124,7 @@ $user->save();
 
 // Set password?
 if (!$argv['no_password']) {
-    $user->setPassword($password, $password_validate);
+    $user->changePassword($password, $password_validate);
 }
 
 

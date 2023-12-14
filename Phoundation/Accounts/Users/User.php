@@ -182,6 +182,8 @@ class User extends DataEntry implements UserInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
+        $this->protected_fields = ['password', 'key'];
+
         parent::__construct($identifier, $column, $meta_enabled);
 
         if ($this->isGuest() or $this->isSystem()) {
@@ -944,17 +946,30 @@ class User extends DataEntry implements UserInterface
     /**
      * Sets the password for this user
      *
+     * @param string|null $password
+     * @return static
+     */
+    protected function setPassword(?string $password): static
+    {
+        $this->source['password'] = $password;
+        return $this;
+    }
+
+
+    /**
+     * Sets the password for this user
+     *
      * @param string $password
      * @param string $validation
      * @return static
      */
-    public function setPassword(string $password, string $validation): static
+    public function changePassword(string $password, string $validation): static
     {
         $password   = trim($password);
         $validation = trim($validation);
 
         $this->validatePassword($password, $validation);
-        $this->setPasswordDirectly(Password::hash($password, $this->source['id']));
+        $this->setPassword(Password::hash($password, $this->source['id']));
 
         return $this->savePassword();
     }
@@ -967,7 +982,7 @@ class User extends DataEntry implements UserInterface
      */
     public function clearPassword(): static
     {
-        $this->setPasswordDirectly(null);
+        $this->setPassword(null);
         return $this->savePassword();
     }
 
