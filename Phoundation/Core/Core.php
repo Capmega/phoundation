@@ -223,6 +223,13 @@ class Core implements CoreInterface
      */
     protected static bool $init = false;
 
+    /**
+     * Contains a list of functions with identifiers to be executed on shutdown
+     *
+     * @var array $shutdown_callbacks
+     */
+    protected static array $shutdown_callbacks = [];
+
 
     /**
      * Core class constructor
@@ -1432,7 +1439,7 @@ class Core implements CoreInterface
     /**
      * Sets the internal INIT state to true. Can NOT be disabled!
      *
-     * @return bool
+     * @return void
      * @see Core::inInitState()
      */
     public static function setInitState(): void
@@ -1606,9 +1613,9 @@ class Core implements CoreInterface
         try {
             Audio::new('data/audio/critical.mp3')->playLocal(true);
 
-        } catch (Throwable $e) {
+        } catch (Throwable $f) {
             Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
-                ':e' => $e->getMessage()
+                ':e' => $f->getMessage()
             ]));
         }
 
@@ -1849,7 +1856,7 @@ class Core implements CoreInterface
                         }
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
 
                         // Remove all caching headers
                         if (!headers_sent()) {
@@ -1865,7 +1872,7 @@ class Core implements CoreInterface
                         }
 
                         //
-                        static::unregisterShutdown('route_postprocess');
+                        static::removeShutdownCallback('route_postprocess');
 
                         Notification::new()
                             ->setException($e)
@@ -2325,15 +2332,10 @@ class Core implements CoreInterface
      * @param mixed $data
      * @return void
      */
-    public static function registerShutdown(string $identifier, array|string|callable $function, mixed $data = null): void
+    public static function addShutdownCallback(string $identifier, array|string|callable $function, mixed $data = null): void
     {
-        if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
-            // Libraries shutdown list
-            static::$register['system']['shutdown_callback'] = [];
-        }
-
-        static::$register['system']['shutdown_callback'][$identifier] = [
-            'data' => $data,
+        static::$shutdown_callbacks[$identifier] = [
+            'data'     => $data,
             'function' => $function
         ];
     }
@@ -2352,19 +2354,14 @@ class Core implements CoreInterface
      * @category Function reference
      * @package system
      * @see exit()
-     * @see Core::registerShutdown()
+     * @see Core::addShutdownCallback()
      * @version 1.27.0: Added function and documentation
      *
      */
-    public static function unregisterShutdown(string $identifier): bool
+    public static function removeShutdownCallback(string $identifier): bool
     {
-        if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
-            // Libraries shutdown list
-            static::$register['system']['shutdown_callback'] = [];
-        }
-
-        if (array_key_exists($identifier, static::$register['system']['shutdown_callback'])) {
-            unset(static::$register['system']['shutdown_callback'][$identifier]);
+        if (array_key_exists($identifier, static::$shutdown_callbacks)) {
+            unset(static::$shutdown_callbacks[$identifier]);
             return true;
         }
 
@@ -2509,19 +2506,18 @@ class Core implements CoreInterface
      */
     protected static function executeShutdownCallbacks(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): void
     {
-        Log::action(tr('Starting shutdown procedure for script ":script"', [
+        if (!static::$shutdown_callbacks) {
+            return;
+        }
+
+        Log::action(tr('Executing shutdown callbacks for script ":script"', [
             ':script' => static::getExecutedPath()
         ]), 2);
 
-        if (!is_array(static::readRegister('system', 'shutdown_callback'))) {
-            // Libraries shutdown list
-            static::$register['system']['shutdown_callback'] = [];
-        }
-
         // Reverse the shutdown calls to execute them last added first, first added last
-        static::$register['system']['shutdown_callback'] = array_reverse(static::$register['system']['shutdown_callback']);
+        static::$shutdown_callbacks = array_reverse(static::$shutdown_callbacks);
 
-        foreach (static::$register['system']['shutdown_callback'] as $identifier => $data) {
+        foreach (static::$shutdown_callbacks as $identifier => $data) {
             try {
                 $function = $data['function'];
                 $data     = Arrays::force($data['data'], null);
