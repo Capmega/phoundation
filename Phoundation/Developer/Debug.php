@@ -367,7 +367,7 @@ class Debug {
         }
 
         try {
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
 
             if (Debug::production()) {
                 // This is not usually something you want to happen!
@@ -701,39 +701,7 @@ class Debug {
             case 'object':
                 // Format exception nicely
                 if ($value instanceof Throwable) {
-                    $exception  = tr(':type Exception', [':type' => get_class($value)]) . '<br><br>';
-                    $exception .= tr('Messages:') . '<br>';
-
-                    if ($value instanceof Exception) {
-                        foreach ($value->getMessages() as $message) {
-                            $exception .= htmlspecialchars((string) $message) . '<br>';
-                        }
-                    }else {
-                        $exception .= htmlspecialchars($value->getMessage()) . '<br>';
-                    }
-
-                    $exception .= '<br>' . tr('Location: ') . htmlspecialchars($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
-
-                    foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
-                        if (!$full_backtrace) {
-                            if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
-                                break;
-                            }
-                        }
-
-                        $exception .= htmlspecialchars((string) $line) . '<br>';
-                    }
-
-                    $exception .= '<br><br>' . tr('Data: ') . '<br>';
-
-                    if ($value instanceof Exception) {
-                        $exception .= htmlspecialchars((string)print_r($value->getData() ?? '-', true)) . '<br>';
-
-                    } else {
-                        $exception .= htmlspecialchars('-') . '<br>';
-                    }
-
-                    $value = $exception;
+                    $value =  static::displayException($value, $full_backtrace, 0);
 
                 } else {
                     $value  = print_r($value, true);
@@ -780,6 +748,57 @@ class Debug {
     }
 
 
+    /**
+     * Returns displayable information for the specified exception
+     *
+     * @param Throwable $e
+     * @param bool $full_backtrace
+     * @return string
+     */
+    protected static function displayException(Throwable $e, bool $full_backtrace, int $indent): string
+    {
+        $prefix  = str_repeat(' ', $indent);
+        $return  = $prefix . tr(':type Exception', [':type' => get_class($e)]) . '<br><br>';
+        $return .= $prefix . tr('Messages:') . '<br>';
+
+        if ($e instanceof Exception) {
+            foreach ($e->getMessages() as $message) {
+                $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+            }
+        }else {
+            $return .= $prefix . htmlspecialchars($e->getMessage()) . '<br>';
+        }
+
+        $return .= '<br>' . $prefix . tr('Location: ') . htmlspecialchars($e->getFile()) . '@' . $e->getLine() . '<br><br>' . $prefix . tr('Backtrace: ') . '<br>';
+
+        foreach (Debug::formatBacktrace($e->getTrace()) as $line) {
+            if (!$full_backtrace) {
+                if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
+                    break;
+                }
+            }
+
+            $return .= $prefix . htmlspecialchars((string) $line) . '<br>';
+        }
+
+        $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
+
+        if ($e instanceof Exception) {
+            $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r($e->getData() ?? '-', true))) . '<br>';
+
+        } else {
+            $return .= $prefix . htmlspecialchars('-') . '<br>';
+        }
+
+        if ($e->getPrevious()) {
+            $return .= tr('Previous exception: ') . '<br>';
+            $return .= static::displayException($e->getPrevious(), $full_backtrace, $indent + 4);
+        }
+
+        return $return;
+    }
+    
+    
     /**
      * Displays the specified query in a show() output
      *
@@ -1063,7 +1082,7 @@ class Debug {
 
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
 
             exit(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
