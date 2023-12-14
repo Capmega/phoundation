@@ -100,6 +100,7 @@ class Definition implements DefinitionInterface
         'range',
         'reset',
         'search',
+        'select',
         'submit',
         'tel',
         'text',

@@ -819,6 +819,27 @@ class DefinitionFactory
      * @param string|null $field
      * @return DefinitionInterface
      */
+    public static function getHostname(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setMaxLength(255)
+            ->setOptional(true)
+            ->setSize(6)
+            ->setInputType(InputType::text)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->isDomainOrIp();
+            });
+    }
+
+
+    /**
+     * Returns a Definition object for a column containing a variable
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
     public static function getVariable(DataEntryInterface $data_entry, ?string $field = 'name'): DefinitionInterface
     {
         return Definition::new($data_entry, $field)

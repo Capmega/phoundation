@@ -548,38 +548,38 @@ abstract class DataList extends Iterator implements DataListInterface
         if (!$value instanceof DataEntryInterface) {
             // Value might be NULL if we skip NULLs?
             if (($value !== null) or !$skip_null) {
-
                 throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
                     ':value' => $value
                 ]));
             }
         }
 
-        if ($this->store_with_unique_field) {
-            if ($key and ($key != $value->getUniqueFieldValue())) {
-                // Key must either not be specified or match the id of the DataEntry
-                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
-                    ':type' => $value::getDataEntryName(),
-                    ':id'   => $value->getId(),
-                    ':key'  => $key
-                ]));
-            }
-
-            $key = $value->getUniqueFieldValue();
-
-        } else {
-            if ($key and ($key != $value->getId())) {
-                // Key must either not be specified or match the id of the DataEntry
-                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
-                    ':type' => $value::getDataEntryName(),
-                    ':id'   => $value->getId(),
-                    ':key'  => $key
-                ]));
-            }
-
-            $key = $value->getId();
-        }
-
+//        if ($this->store_with_unique_field) {
+//            if ($key and ($key != $value->getUniqueFieldValue())) {
+//                // Key must either not be specified or match the id of the DataEntry
+//                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique field ":unique" or be null', [
+//                    ':value'  => $value->getUniqueFieldValue(),
+//                    ':unique' => $value::getUniqueField(),
+//                    ':type'   => $value::getDataEntryName(),
+//                    ':id'     => $value->getId() ?? 'N/A',
+//                    ':key'    => $key
+//                ]));
+//            }
+//
+//            $key = $value->getUniqueFieldValue();
+//
+//        } else {
+//            if ($key and ($key != $value->getId())) {
+//                // Key must either not be specified or match the id of the DataEntry
+//                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
+//                    ':type' => $value::getDataEntryName(),
+//                    ':id'   => $value->getId(),
+//                    ':key'  => $key
+//                ]));
+//            }
+//
+//            $key = $value->getId();
+//        }
 
         return parent::add($value, $key, $skip_null);
     }
@@ -690,9 +690,8 @@ abstract class DataList extends Iterator implements DataListInterface
             $this->execute = $this->query_builder->getExecute();
 
         } elseif (!isset($this->query)) {
-            throw new OutOfBoundsException(tr('Cannot generate ":class" datalist, no query or query builder specified', [
-                ':class' => get_class($this)
-            ]));
+            // Default query
+            $this->query = 'SELECT * FROM `' . static::getTable() . '` WHERE `status` IS NULL';
         }
     }
 

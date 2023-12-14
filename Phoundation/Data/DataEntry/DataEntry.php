@@ -90,7 +90,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @var array|string[]
      */
-    protected array $protected_fields = ['password', 'key'];
+    protected array $protected_fields = [];
 
     /**
      * These keys should not ever be processed
@@ -994,19 +994,6 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Sets the password for this user
-     *
-     * @param string|null $password
-     * @return static
-     */
-    protected function setPasswordDirectly(?string $password): static
-    {
-        $this->source['password'] = $password;
-        return $this;
-    }
-
-
-    /**
      * Delete the specified entries
      *
      * @param string|null $comments
@@ -1245,13 +1232,13 @@ abstract class DataEntry implements DataEntryInterface
         $data_source->setDataEntryClass(static::class);
 
         if ($this->debug) {
-            Log::information('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10);
-            Log::information('CURRENT DATA', 10);
-            Log::vardump($this->source);
-            Log::information('SOURCE', 10);
-            Log::vardump($data_source);
-            Log::information('SOURCE DATA', 10);
-            Log::vardump($data_source->getSource());
+            Log::debug('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
+            Log::debug('CURRENT DATA', 10, echo_header: false);
+            Log::vardump($this->source, echo_header: false);
+            Log::debug('SOURCE', 10, echo_header: false);
+            Log::vardump($data_source, echo_header: false);
+            Log::debug('SOURCE DATA', 10, echo_header: false);
+            Log::vardump($data_source->getSource(), echo_header: false);
         }
 
         // Get the source array from the validator into the DataEntry object
@@ -1266,8 +1253,8 @@ abstract class DataEntry implements DataEntryInterface
             $data_source = $this->validate($data_source, $clear_source);
 
             if ($this->debug) {
-                Log::information('APPLYING DATA', 10);
-                Log::vardump($data_source);
+                Log::debug('APPLYING DATA', 10, echo_header: false);
+                Log::vardump($data_source, echo_header: false);
             }
 
             // Ensure DataEntry Meta state is okay, then generate the diff data and copy data array to internal data
@@ -1280,8 +1267,8 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_applying = false;
 
         if ($this->debug) {
-            Log::information('DATA AFTER APPLY', 10);
-            Log::vardump($this->source);
+            Log::debug('DATA AFTER APPLY', 10, echo_header: false);
+            Log::vardump($this->source, echo_header: false);
         }
 
         return $this;
@@ -1434,12 +1421,6 @@ abstract class DataEntry implements DataEntryInterface
                 }
             }
 
-            switch ($key) {
-                case 'password':
-                    $this->setPasswordDirectly($value);
-                    continue 2;
-            }
-
             if (!$modify) {
                 // Remove prefix / postfix if defined
                 if ($definition->getPrefix()) {
@@ -1460,7 +1441,7 @@ abstract class DataEntry implements DataEntryInterface
                 $method = $this->convertFieldToSetMethod($key);
 
                 if ($this->debug) {
-                    Log::information('ABOUT TO SET SOURCE KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10);
+                    Log::debug('ABOUT TO SET SOURCE KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10, echo_header: false);
                 }
 
                 // Only apply if a method exists for this variable
@@ -1677,7 +1658,7 @@ abstract class DataEntry implements DataEntryInterface
     protected function setSourceValue(string $field, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
-            Log::information('TRY SET SOURCE VALUE FIELD "' . $field . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10);
+            Log::debug('TRY SET SOURCE VALUE FIELD "' . $field . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
         // Only save values that are defined for this object
@@ -1739,7 +1720,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         if ($this->debug) {
-            Log::debug('MODIFIED FIELD "' . $field . '" FROM "' . $this->source[$field] . '" [' . gettype(isset_get($this->source[$field])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10);
+            Log::debug('MODIFIED FIELD "' . $field . '" FROM "' . $this->source[$field] . '" [' . gettype(isset_get($this->source[$field])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
         }
 
         // Update the field value
@@ -1877,8 +1858,8 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         if ($this->debug) {
-            Log::information('DATA SENT TO SQL', 10);
-            Log::vardump($return);
+            Log::debug('DATA SENT TO SQL', 10, echo_header: false);
+            Log::vardump($return, echo_header: false);
         }
 
         return $return;
@@ -1899,7 +1880,7 @@ abstract class DataEntry implements DataEntryInterface
         if (!$this->is_modified and !$force) {
             // Nothing changed, no reason to save
             if ($this->debug) {
-                Log::information('NOTHING CHANGED FOR ID "' . $this->source['id'] . '"', 10);
+                Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR ID "' . $this->source['id'] . '"', 10, echo_header: false);
             }
 
             return $this;
@@ -1908,7 +1889,7 @@ abstract class DataEntry implements DataEntryInterface
         if (!$this->is_validated) {
             // Object must ALWAYS be validated before writing!
             if ($this->debug) {
-                Log::information('VALIDATING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10);
+                Log::debug('VALIDATING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10, echo_header: false);
             }
 
             // The data in this object hasn't been validated yet! Do so now...
@@ -1926,12 +1907,13 @@ abstract class DataEntry implements DataEntryInterface
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::information('SAVING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10);
-            $debug = Sql::debug(true);
+            Log::debug('SAVING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10, echo_header: false);
+            $debug = sql()->getQueryLogging();
+            sql()->setQueryLogging(true);
         }
 
         // Write the entry
-        $this->source['id'] = sql($this->database_connector)->dataEntryWrite(static::getTable(), $this->getDataColumns(true), $this->getDataColumns(false), $comments, $this->diff, $this->meta_enabled);
+        $this->source['id'] = sql($this->database_connector)->setQueryLogging($this->debug)->dataEntryWrite(static::getTable(), $this->getDataColumns(true), $this->getDataColumns(false), $comments, $this->diff, $this->meta_enabled);
 
         if ($this->debug) {
             Log::information('SAVED DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10);
@@ -1939,7 +1921,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Return debug mode if required
         if (isset($debug)) {
-            Sql::debug($debug);
+            sql()->setQueryLogging($debug);
         }
 
         // Write the list, if set
