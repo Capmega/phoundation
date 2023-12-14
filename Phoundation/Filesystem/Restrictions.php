@@ -380,4 +380,21 @@ class Restrictions implements RestrictionsInterface
 
         return $restrictions;
     }
+
+
+    /**
+     * Return these restrictions but with write enabled
+     *
+     * @return RestrictionsInterface
+     */
+    public function getWritable(): RestrictionsInterface
+    {
+        $restrictions = new Restrictions();
+
+        foreach ($this->directories as $path => $write) {
+            $restrictions->addDirectory($path, true);
+        }
+
+        return $restrictions;
+    }
 }
