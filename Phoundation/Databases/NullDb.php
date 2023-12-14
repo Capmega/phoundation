@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
+use Phoundation\Databases\Interfaces\DatabaseInterface;
+
 
 /**
  * Class NullDb
@@ -15,7 +17,7 @@ namespace Phoundation\Databases;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class NullDb
+class NullDb implements DatabaseInterface
 {
     /**
      * Do nothing, really
@@ -62,5 +64,16 @@ class NullDb
      */
     public function set(mixed $value, string $key, ?string $namespace = null): void
     {
+    }
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        return $this;
     }
 }

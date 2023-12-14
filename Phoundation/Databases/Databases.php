@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
-
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Exception\UnderConstructionException;
 
 
 /**
@@ -58,22 +62,50 @@ class Databases
 
 
     /**
-     * Access SQL database instances
+     * Returns a Database instance for the specified connector
      *
-     * @param string $instance
+     * @param ConnectorInterface $connector
      * @param bool $use_database
-     * @return Sql
+     * @return DatabaseInterface
      * @throws Exception
      */
-    public static function Sql(string $instance = 'system', bool $use_database = true): Sql
+    public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
     {
-        if (!array_key_exists($instance, static::$sql)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
-            // Try connecting
-            static::$sql[$instance] = new Sql($instance, $use_database);
+        return match ($connector->getType()) {
+            'sql'   => Databases::Sql($connector, $use_database),
+            default => throw new UnderConstructionException(),
+        };
+    }
+
+
+    /**
+     * Access SQL database instances
+     *
+     * @param ConnectorInterface|string $connector
+     * @param bool $use_database
+     * @return SqlInterface
+     */
+    public static function Sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
+    {
+        if ($connector instanceof ConnectorInterface) {
+            $connector_name = $connector->getName();
+
+            if (!array_key_exists($connector_name, static::$sql)) {
+                // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+                // Try connecting
+                static::$sql[$connector_name] = new Sql($connector, $use_database);
+            }
+
+            return static::$sql[$connector_name];
         }
 
-        return static::$sql[$instance];
+        if (!array_key_exists($connector, static::$sql)) {
+            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+            // Try connecting
+            static::$sql[$connector] = new Sql($connector, $use_database);
+        }
+
+        return static::$sql[$connector];
     }
 
 

@@ -18,8 +18,12 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Timers;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Databases\Exception\DatabaseTestException;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
@@ -30,6 +34,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Developer\Debug;
@@ -154,20 +159,28 @@ class Sql implements SqlInterface
     /**
      * Sql constructor
      *
-     * @param string|null $instance
+     * @param ConnectorInterface|string|null $connector
      * @param bool $use_database
      */
-    public function __construct(?string $instance = null, bool $use_database = true)
+    public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true)
     {
-        if ($instance === null) {
-            $instance = 'system';
-        }
-
-        $this->connector = $instance;
         $this->uniqueid = Strings::randomSafe();
 
-        // Read configuration and connect
-        $this->configuration = static::readConfiguration($instance);
+        if ($connector instanceof ConnectorInterface) {
+            // Connector specified directly. Take configuration from connector and connect
+            $this->connector     = $connector->getName();
+            $this->configuration = $connector->getSource();
+
+        } else {
+            // Connector specified by name (or null, default)
+            if ($connector === null) {
+                $connector = 'system';
+            }
+
+            // Read configuration and connect
+            $this->connector     = $connector;
+            $this->configuration = static::readConfiguration($connector);
+        }
 
         if ($this->configuration['log'] === null) {
             $this->configuration['log'] = Config::getBoolean('databases.sql.log', false);
@@ -311,33 +324,6 @@ class Sql implements SqlInterface
 
 
     /**
-     * Sets or returns debug for SQL
-     *
-     * If setting the debug value, the previous value will be returned for easy switching
-     *
-     * @param bool|null $debug
-     * @return bool
-     */
-    public static function debug(?bool $debug = null): bool
-    {
-        if ($debug === null) {
-            // Set debug
-            return static::$debug;
-        }
-
-        if (static::$debug === null) {
-            // Default debug
-            static::$debug = Config::get('databases.sql.debug', false);
-        }
-
-        // Return the previous value
-        $previous    = static::$debug;
-        static::$debug = $debug;
-        return $previous;
-    }
-
-
-    /**
      * Returns an SQL schema object for this instance
      *
      * @param bool $use_database
@@ -376,8 +362,12 @@ class Sql implements SqlInterface
      */
     public function use(?string $database = null): void
     {
-        $database             = $this->getDatabaseName($database);
-        $this->using_database = $database;
+        if ($database === '') {
+            $this->using_database = null;
+            return;
+        }
+
+        $database = $this->getDatabaseName($database);
 
         Log::action(tr('(:uniqueid) Using database ":database"', [
             ':uniqueid' => $this->uniqueid,
@@ -386,6 +376,7 @@ class Sql implements SqlInterface
 
         try {
             $this->pdo->query('USE `' . $database . '`');
+            $this->using_database = $database;
 
         } catch (Throwable $e) {
             // We failed to use the specified database, oh noes!
@@ -649,8 +640,8 @@ class Sql implements SqlInterface
         $where  = $this->whereColumns($where);
 
         $statement = $this->query('UPDATE `' . $table . '`
-                                         SET     ' . $update . '
-                                         WHERE   ' . $where, $values);
+                                         SET     ' . $update .
+                                         $where, $values);
 
         return $statement->rowCount();
     }
@@ -1462,7 +1453,7 @@ class Sql implements SqlInterface
     protected function whereColumns(array|string|null $where, ?string $prefix = null, string $separator = ' AND '): string
     {
         if (!$where) {
-            throw new OutOfBoundsException(tr('No "where" section specified for the update query'));
+            return '';
         }
 
         if (is_string($where)) {
@@ -1483,7 +1474,7 @@ class Sql implements SqlInterface
             }
         }
 
-        return implode($separator, $return);
+        return ' WHERE ' . implode($separator, $return);
     }
 
 
@@ -1965,28 +1956,33 @@ class Sql implements SqlInterface
         // Read in the entire SQL configuration for the specified instance
         $this->connector = $connector;
 
-        try {
-            $configuration = Config::getArray('databases.connectors.sql.' . $connector);
-        } catch (ConfigurationDoesNotExistsException) {
-            // Configuration not available in Config. Check if its stored in SQL database
-            $configuration = $this->readSqlConfiguration($connector);
+        if ($connector === 'system') {
+            try {
+                $configuration = Config::getArray('databases.connectors.sql.' . $connector);
 
-            if (!$configuration) {
-                // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
-                if (!array_key_exists($connector, static::$configurations)) {
-                    // Yeah, it's not found
-                    throw new SqlException(tr('The specified SQL connector ":connector" is not configured', [
-                        ':connector' => $connector
-                    ]));
+            } catch (ConfigurationDoesNotExistsException) {
+                // Configuration not available in Config. Check if its stored in SQL database
+                $configuration = $this->readSqlConfiguration($connector);
+
+                if (!$configuration) {
+                    // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
+                    if (!array_key_exists($connector, static::$configurations)) {
+                        // Yeah, it's not found
+                        throw new SqlException(tr('The specified SQL connector ":connector" is not configured', [
+                            ':connector' => $connector
+                        ]));
+                    }
+
+                    // This is a dynamically configured instance
+                    $configuration = static::$configurations[$connector];
                 }
-
-                // This is a dynamically configured instance
-                $configuration = static::$configurations[$connector];
             }
+
+            // Copy the configuration options over the template
+            return $this->applyConfigurationTemplate($configuration);
         }
 
-        // Copy the configuration options over the template
-        return $this->applyConfigurationTemplate($configuration);
+        return Connector::get($connector, 'name')->getSource();
     }
 
 
@@ -2111,25 +2107,25 @@ class Sql implements SqlInterface
             ],
             'pdo_attributes'   => [],
             'version'          => '0.0.0',
-            'timezone'         => 'UTC'
+            'timezones_name'   => 'UTC'
         ];
     }
 
 
     /**
-     * Connect to database and do a DB version check.
-     * If the database was already connected, then just ignore and continue.
+     * Connect to the database and do a DB version check.
+     * If the database was already connected, then ignore and continue.
      * If the database version check fails, then exception
      *
      * @param bool $use_database
-     * @return void
+     * @return static
      */
-    public function connect(bool $use_database = true): void
+    public function connect(bool $use_database = true): static
     {
         try {
             if (!empty($this->pdo)) {
                 // Already connected to requested DB
-                return;
+                return $this;
             }
 
             // Does this connector require an SSH tunnel?
@@ -2143,7 +2139,7 @@ class Sql implements SqlInterface
             while (--$retries >= 0) {
                 try {
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
-                    $this->pdo = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], $this->configuration['pdo_attributes']);
+                    $this->pdo = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
 
                     Log::success(static::getLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
                         ':connector' => $this->connector,
@@ -2156,7 +2152,7 @@ class Sql implements SqlInterface
                     if (!$this->configuration['hostname']) {
                         throw new SqlInvalidConfigurationException(static::getLogPrefix() . tr('Failed to connect to database instance ":connector" with connection string ":string" and user ":user", the database configuration is invalid', [
                                 ':connector' => $this->connector,
-                                ':string'    => $connect_string,
+                                ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username']
                             ]));
                     }
@@ -2166,7 +2162,7 @@ class Sql implements SqlInterface
                             // Access  denied!
                             throw new SqlAccessDeniedException(static::getLogPrefix() . tr('Failed to connect to database instance ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
                                 ':connector' => $this->connector,
-                                ':string'    => $connect_string,
+                                ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username']
                             ]));
 
@@ -2174,15 +2170,28 @@ class Sql implements SqlInterface
                             // Database doesn't exist!
                             throw new SqlDatabaseDoesNotExistException(static::getLogPrefix() . tr('Failed to connect to database instance ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
                                 ':connector' => $this->connector,
-                                ':string'    => $connect_string,
+                                ':string'    => isset_get($connect_string),
                                 ':database'  => $this->configuration['database'],
                                 ':user'      => $this->configuration['username']
                             ]));
                     }
 
+                    if ($e->getMessage() == 'could not find driver') {
+                        if ($this->configuration['driver']) {
+                            throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver from connector ":connector", it looks like its not available', [
+                                ':connector' => $this->connector,
+                                ':driver'    => $this->configuration['driver']
+                            ]));
+                        }
+
+                        throw new PhpModuleNotAvailableException(tr('Failed to connect connector ":connector", it has no SQL driver specified', [
+                            ':connector' => $this->connector
+                        ]));
+                    }
+
                     Log::error(static::getLogPrefix() . tr('Failed to connect to instance ":connector" with PDO connect string ":string", error follows below', [
                         ':connector' => $this->connector,
-                        ':string'    => $connect_string
+                        ':string'    => isset_get($connect_string)
                     ]));
 
                     Log::error($e);
@@ -2225,13 +2234,14 @@ class Sql implements SqlInterface
             // Yay, we're using the database!
             $this->using_database = $this->configuration['database'];
 
-            if ($this->configuration['timezone']) {
+            if ($this->configuration['timezones_name']) {
                 // Try to set MySQL timezone
                 try {
-                    $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezone'] . '";');
+                    $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezones_name'] . '";');
 
                 } catch (Throwable $e) {
-                    Log::warning(static::getLogPrefix() . tr('Failed to set timezone for database instance ":connector" with error ":e"', [
+                    Log::warning(static::getLogPrefix() . tr('Failed to set timezone ":timezone" for database instance ":connector" with error ":e"', [
+                            ':timezone'  => $this->configuration['timezones_name'],
                             ':connector' => $this->connector,
                             ':e'         => $e->getMessage()
                         ]));
@@ -2255,12 +2265,6 @@ class Sql implements SqlInterface
             throw $e;
 
         } catch (Throwable $e) {
-            if ($e->getMessage() == 'could not find driver') {
-                throw new PhpModuleNotAvailableException(tr('Failed to connect with ":driver" driver, it looks like its not available', [
-                    ':driver' => $this->configuration['driver']
-                ]));
-            }
-
             if (PLATFORM_CLI) {
                 switch (CliCommand::getExecutedPath()) {
                     case 'system/init/drop':
@@ -2268,7 +2272,7 @@ class Sql implements SqlInterface
                     case 'system/init/init':
                         // This is not an issue, we're either dropping DB or initializing it.
                         $this->connect(false);
-                        return;
+                        return $this;
                 }
             }
 
@@ -2319,7 +2323,7 @@ class Sql implements SqlInterface
                         // The server was not registerd in the DIRECTORY_ROOT/data/ssh/known_hosts file, but was registered in the
                         // ssh_fingerprints table, and automatically updated. Retry to connect
                         $this->connect();
-                        return;
+                        return $this;
                     }
 
 //:TODO: SSH to the server and check if the msyql process is up!
@@ -2386,6 +2390,8 @@ class Sql implements SqlInterface
                     throw $e;
             }
         }
+
+        return $this;
     }
 
 
@@ -2549,6 +2555,12 @@ class Sql implements SqlInterface
 
                 exit(1);
 
+            case '42S02':
+                throw new SqlTableDoesNotExistException(Strings::from($e->getMessage(), '1146'), $e);
+
+            case '3D000':
+                throw new SqlDatabaseDoesNotExistException(Strings::from($e->getMessage(), '1146'), $e);
+
             case 'HY093':
                 // Invalid parameter number: number of bound variables does not match number of tokens
                 // Get tokens from query
@@ -2561,7 +2573,7 @@ class Sql implements SqlInterface
                 ]));
 
             default:
-                throw $e;
+                throw $e->setCode($e->getSqlState());
 //                switch (isset_get($error[1])) {
 //                    case 1052:
 //                        // Integrity constraint violation
@@ -2756,4 +2768,24 @@ class Sql implements SqlInterface
     //        throw new SqlException(tr('Failed'), $e);
     //    }
     //}
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        $result = $this->connect(true)->getColumn('SELECT 1');
+
+        if ($result === 1) {
+            return $this;
+        }
+
+        throw new DatabaseTestException(tr('Database test for connector ":connector" should return "1" but returned ":result" instead', [
+            ':connector' => $this->connector,
+            ':result'    => $result
+        ]));
+    }
 }

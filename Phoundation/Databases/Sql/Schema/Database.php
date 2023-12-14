@@ -84,12 +84,15 @@ class Database extends SchemaAbstract
     /**
      * Create this database
      *
+     * @param bool $use
      * @return static
      */
-    public function create(): static
+    public function create(bool $use = true): static
     {
         if ($this->exists()) {
-            throw new SqlException(tr('Cannot create database ":name", it already exists', [':name' => $this->sql->getDatabase()]));
+            throw new SqlException(tr('Cannot create database ":name", it already exists', [
+                ':name' => $this->sql->getDatabase()
+            ]));
         }
 
         Log::action(tr('Creating database ":database"', [':database' => $this->sql->getDatabase()]));
@@ -100,7 +103,10 @@ class Database extends SchemaAbstract
             ':collate' => $this->configuration['collate']
         ]);
 
-        $this->sql->use($this->sql->getDatabase());
+        if ($use) {
+            $this->sql->use($this->sql->getDatabase());
+        }
+
         return $this;
     }
 
@@ -116,7 +122,7 @@ class Database extends SchemaAbstract
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase()
-        ]), 3);
+        ]), 5);
 
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
         return $this;

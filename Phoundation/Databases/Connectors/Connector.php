@@ -3,10 +3,12 @@
 namespace Phoundation\Databases\Connectors;
 
 use MongoDB\Exception\UnsupportedException;
+use PDO;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryCharacterSet;
 use Phoundation\Data\DataEntry\Traits\DataEntryCollate;
@@ -18,7 +20,12 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Databases;
+use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
@@ -55,6 +62,11 @@ class Connector extends DataEntry implements ConnectorInterface
     {
         $this->config_path = 'databases.connectors';
         parent::__construct($identifier, $column, $meta_enabled);
+
+        if (!$identifier) {
+            // No identifier specified? This is a new object, apply defaults
+            $this->source = $this->applyDefaults($this->source);
+        }
     }
 
 
@@ -105,6 +117,29 @@ class Connector extends DataEntry implements ConnectorInterface
     public function setType(?string $type): static
     {
         return $this->setSourceValue('type', $type);
+    }
+
+
+    /**
+     * Returns the driver for this connector
+     *
+     * @return string|null
+     */
+    public function getDriver(): ?string
+    {
+        return $this->getSourceFieldValue('string', 'driver');
+    }
+
+
+    /**
+     * Sets the driver for this connector
+     *
+     * @param string|null $driver
+     * @return static
+     */
+    public function setDriver(?string $driver): static
+    {
+        return $this->setSourceValue('driver', $driver);
     }
 
 
@@ -207,7 +242,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getSshTunnelsId(): ?int
     {
-        return $this->getSourceFieldValue('bool', 'ssh_tunnels_id');
+        return $this->getSourceFieldValue('int', 'ssh_tunnels_id');
     }
 
 
@@ -224,7 +259,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns the log for this connector
+     * Returns the log flag for this connector
      *
      * @return bool|null
      */
@@ -235,7 +270,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Sets the log for this connector
+     * Sets the log flag for this connector
      *
      * @param int|bool|null $log
      * @return static
@@ -247,7 +282,30 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns the init for this connector
+     * Returns the persist flag for this connector
+     *
+     * @return bool|null
+     */
+    public function getPersist(): ?bool
+    {
+        return $this->getSourceFieldValue('bool', 'persist');
+    }
+
+
+    /**
+     * Sets the persist flag for this connector
+     *
+     * @param int|bool|null $persist
+     * @return static
+     */
+    public function setPersist(int|bool|null $persist): static
+    {
+        return $this->setSourceValue('persist', (bool) $persist);
+    }
+
+
+    /**
+     * Returns the init flag for this connector
      *
      * @return bool|null
      */
@@ -258,7 +316,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Sets the init for this connector
+     * Sets the init flag for this connector
      *
      * @param int|bool|null $init
      * @return static
@@ -346,7 +404,22 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
 
-        return parent::get($identifier, $column, $meta_enabled, $force);
+        try {
+            $connector = parent::get($identifier, $column, $meta_enabled, $force);
+
+        } catch (DataEntryNotExistsException $e) {
+            // Requested connector not found in DB. Maybe it exists as a configured connector?
+            if ($column === 'name') {
+                $connector = Config::getArray('databases.connectors.' . $identifier, []);
+            }
+
+            if (empty($connector)) {
+                // Nope, not in config either
+                throw $e;
+            }
+        }
+
+        return $connector;
     }
 
 
@@ -373,19 +446,96 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Sets all data for this data entry at once with an array of information
+     *
+     * @param array $source The data for this DataEntry object
+     * @param bool $modify
+     * @param bool $directly
+     * @param bool $force
+     * @return static
+     */
+    protected function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
+    {
+        // Merge this source with the defaults
+        if (isset_get($source['id']) < 1) {
+            $source = $this->applyDefaults($source);
+        }
+
+        return parent::copyValuesToSource($this->applyDefaults($source), $modify, $directly, $force);
+    }
+
+
+    /**
+     * Merges the given source with the connector defaults
+     *
+     * @param array $source
+     * @return array
+     */
+    protected function applyDefaults(array $source): array
+    {
+        return Arrays::mergeFull(static::getDefaultSource(), $source);
+    }
+
+
+    /**
+     * Tests this connector by connecting to the database and executing a test query
+     *
+     * @return $this
+     */
+    public function test(): static
+    {
+        Databases::fromConnector($this)->test();
+        return $this;
+    }
+
+
+    /**
+     * Returns default source for a connector
+     *
+     * @return array
+     */
+    protected static function getDefaultSource(): array
+    {
+        return [
+            'type'             => 'sql',
+            'driver'           => 'mysql',
+            'hostname'         => '127.0.0.1',
+            'port'             => null,
+            'database'         => '',
+            'username'         => '',
+            'password'         => '',
+            'auto_increment'   => 1,
+            'persist'          => false,
+            'init'             => false,
+            'buffered'         => false,
+            'character_set'    => 'utf8mb4',
+            'collate'          => 'utf8mb4_general_ci',
+            'limit_max'        => 10000,
+            'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',
+            'log'              => null,
+            'statistics'       => null,
+            'ssh_tunnels_id'   => null,
+            'pdo_attributes'   => '',
+            'version'          => '0.0.0',
+            'timezone'         => 'UTC'
+        ];
+    }
+
+
+    /**
      * @inheritDoc
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->addDefinition(DefinitionFactory::getName($this)
-                ->setSize(6)
+                ->setSize(4)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique();
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(DefinitionFactory::getVariable($this, 'type')
-                ->setSize(6)
+                ->setSize(4)
                 ->setLabel('Connector type')
                 ->setInputType(null)
                 ->setElement(InputElement::select)
@@ -395,12 +545,25 @@ class Connector extends DataEntry implements ConnectorInterface
                     'mongodb'   => tr('MongoDB'),
                     'redis'     => tr('Redis'),
                 ]))
-            ->addDefinition(DefinitionFactory::getVariable($this, 'hostname')
+            ->addDefinition(DefinitionFactory::getVariable($this, 'driver')
+                ->setSize(4)
+                ->setOptional(true)
+                ->setLabel('Driver')
+                ->setInputType(null)
+                ->setElement(InputElement::select)
+                ->setSource([
+                    ''        => tr('Not specified'),
+                    'mysql'   => tr('MySQL'),
+                    'postgre' => tr('PostGRE'),
+                    'oracle'  => tr('Oracle'),
+                    'mssql'   => tr('MSSQL'),
+                ]))
+            ->addDefinition(DefinitionFactory::getHostname($this, 'hostname')
                 ->setLabel(tr('Hostname'))
-                ->setSize(9))
+                ->setSize(8))
             ->addDefinition(DefinitionFactory::getNumber($this, 'port')
                 ->setLabel(tr('Port'))
-                ->setSize(3)
+                ->setSize(4)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger()->isBetween(0, 65535);
                 }))
@@ -427,7 +590,21 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSize(3))
             ->addDefinition(DefinitionFactory::getTimezonesId($this, 'timezones_id')
                 ->setLabel(tr('Timezone'))
-                ->setSize(2))
+                ->setVirtual(true)
+                ->setSize(2)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->orField('timezones_name')->isDbId()->setColumnFromQuery('timezones_name', 'SELECT `name` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                }))
+            ->addDefinition(DefinitionFactory::getTimezone($this, 'timezones_name')
+                ->setLabel(tr('Timezone'))
+                ->setVisible(false)
+                ->setSize(2)
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->orField('timezones_id')->isName()->isTrue(function ($value) {
+                        // This timezone must exist.
+                        return Timezone::exists($value, 'name');
+                    }, tr('The specified timezone does not exist'));
+                }))
             ->addDefinition(DefinitionFactory::getNumber($this, 'auto_increment')
                 ->setLabel(tr('Auto increment'))
                 ->setInputType(InputTypeExtended::positiveInteger)
@@ -439,12 +616,23 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSize(2))
             ->addDefinition(Definition::new($this, 'ssh_tunnels_id')
                 ->setLabel(tr('SSL Tunnel'))
-                ->setSize(2))
+                ->setOptional(true)
+                ->setSource([
+
+                ])
+                ->setInputType(InputType::select)
+                ->setSize(1))
+            ->addDefinition(DefinitionFactory::getBoolean($this, 'persist')
+                ->setLabel(tr('Persist'))
+                ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
+                ->setSize(1))
             ->addDefinition(DefinitionFactory::getBoolean($this, 'log')
                 ->setLabel(tr('Log'))
+                ->setHelpText(tr('If enabled, Phoundation will log all queries to this database'))
                 ->setSize(1))
             ->addDefinition(DefinitionFactory::getBoolean($this, 'init')
                 ->setLabel(tr('Initializes'))
+                ->setHelpText(tr('If enabled, Phoundation will try to initialize this database during the init phase'))
                 ->setSize(1))
             ->addDefinition(DefinitionFactory::getBoolean($this, 'buffered')
                 ->setLabel(tr('Buffered'))

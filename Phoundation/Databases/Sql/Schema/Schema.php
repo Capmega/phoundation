@@ -76,7 +76,7 @@ class Schema
     {
         if (!$name) {
             // Default to system database
-            $name = Config::get('databases.connectors.sql.system.name', 'phoundation');
+            $name = Config::get('databases.sql.connectors.system.name', 'phoundation');
         }
 
         // If we don't have this database yet, create it now

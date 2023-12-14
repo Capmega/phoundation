@@ -2,16 +2,17 @@
 
 namespace Phoundation\Databases\Sql\Interfaces;
 
-
 use Exception;
 use PDO;
 use PDOStatement;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Throwable;
+
 
 /**
  * Sql class
@@ -23,7 +24,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-interface SqlInterface
+interface SqlInterface extends DatabaseInterface
 {
     /**
      * Returns the configuration for this SQL object

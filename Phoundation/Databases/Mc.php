@@ -8,8 +8,10 @@ use Memcached;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -27,7 +29,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Mc
+class Mc implements DatabaseInterface
 {
     /**
      * PHP Memcached drivers
@@ -498,5 +500,17 @@ class Mc
                 }
             }
         }
+    }
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        throw new UnderConstructionException();
+        return $this;
     }
 }

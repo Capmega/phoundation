@@ -7,6 +7,8 @@ namespace Phoundation\Databases;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Databases\Exception\RedisException;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -22,7 +24,7 @@ use Phoundation\Utils\Json;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Redis extends \Redis
+class Redis extends \Redis implements DatabaseInterface
 {
     /**
      * Configuration
@@ -159,5 +161,17 @@ class Redis extends \Redis
         // Copy the configuration options over the template
         $this->configuration = Arrays::mergeFull($template, $configuration);
         $this->database      = $this->configuration['database'];
+    }
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        throw new UnderConstructionException();
+        return $this;
     }
 }
