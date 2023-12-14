@@ -2119,4 +2119,58 @@ throw new UnderConstructionException();
 
         return ($source[0] === strtoupper($source[0])) and ($source[1] === strtolower($source[1]));
     }
+
+
+    /**
+     * Converts the specified source string to an array
+     *
+     * @param Stringable|string $source
+     * @param array|int $sizes
+     * @return array
+     */
+    public static function sizeSplit(Stringable|string $source, array|int $sizes): array
+    {
+        $source   = trim((string) $source);
+        $sizes    = Arrays::force($sizes, null);
+        $return   = [];
+        $position = 0;
+
+        if (!$source) {
+            return [];
+        }
+
+        foreach ($sizes as $column => $size) {
+            $return[$column] = substr($source, $position, $size);
+            $position += $size;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Converts the specified source string to an array
+     *
+     * @param Stringable|string $source
+     * @param Stringable|string $character
+     * @param array|int $headers
+     * @return array
+     */
+    public static function characterSplit(Stringable|string $source, Stringable|string $character, array|int $headers): array
+    {
+        $source   = trim((string) $source);
+        $source   = Strings::noDouble($source, ' ', ' ');
+        $source   = explode($character, $source);
+        $return   = [];
+
+        if (!$source) {
+            return [];
+        }
+
+        foreach ($source as $position => $value) {
+            $return[$headers[$position]] = $value;
+        }
+
+        return $return;
+    }
 }
