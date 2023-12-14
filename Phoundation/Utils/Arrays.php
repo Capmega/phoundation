@@ -33,6 +33,7 @@ class Arrays {
     const MATCH_END      = 8;
     const MATCH_ANYWHERE = 16;
     const MATCH_NO_CASE  = 32;
+    const MATCH_RECURSE  = 64;
 
 
     /**
@@ -2194,9 +2195,10 @@ class Arrays {
      *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
      * Arrays::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
      *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
+     * Arrays::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
      * @return array
      */
-    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE): array
+    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): array
     {
         if (!$needles) {
             throw new OutOfBoundsException(tr('No needles specified'));
@@ -2209,6 +2211,7 @@ class Arrays {
         $match_begin    = (bool) ($options & self::MATCH_BEGIN);
         $match_end      = (bool) ($options & self::MATCH_END);
         $match_anywhere = (bool) ($options & self::MATCH_ANYWHERE);
+        $recurse        = (bool) ($options & self::MATCH_RECURSE);
 
         // Validate options
         if ($match_begin) {
@@ -2257,10 +2260,16 @@ class Arrays {
             }
 
             if (!is_scalar($value)) {
-                Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
-                    ':key'   => $key,
-                    ':value' => $value
-                ]));
+                if (!is_array($value) or !$recurse) {
+                    Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
+                        ':key'   => $key,
+                        ':value' => $value
+                    ]), 3);
+                    continue;
+                }
+
+                // Recurse!
+                $return = array_merge($return, static::match($value, $needles, $options));
                 continue;
             }
 
