@@ -156,7 +156,7 @@ class Route
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]), 9);
 
-        Core::registerShutdown('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
+        Core::addShutdownCallback('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
 
 
@@ -598,7 +598,7 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         $block = true;
                         break;
 
@@ -701,7 +701,7 @@ class Route
                                 ]));
                         }
 
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                         Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
@@ -817,7 +817,7 @@ class Route
                                 ':key' => $key
                             ]));
 
-                            Core::unregisterShutdown('route[postprocess]');
+                            Core::removeShutdownCallback('route[postprocess]');
                             Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                             Page::redirect($domain);
                     }
@@ -851,7 +851,7 @@ class Route
                         ]));
 
                         // TODO route_postprocess() This should be a class method!
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Route::executeSystem(404);
 
@@ -869,7 +869,7 @@ class Route
                         if (!file_exists($page)) {
                             // TODO route_postprocess() This should be a class method!
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::unregisterShutdown('route[postprocess]');
+                            Core::removeShutdownCallback('route[postprocess]');
                             // TODO Check if this should be 404 or maybe some other HTTP code?
                             Route::executeSystem(404);
                         }
@@ -885,7 +885,7 @@ class Route
                         ]));
 
                         // TODO route_postprocess() This should be a class method!
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Route::executeSystem(404);
                     }
@@ -904,7 +904,7 @@ class Route
 
                 // We are going to show the matched page so we no longer need to default to 404
                 // TODO route_postprocess() This should be a class method!
-                Core::unregisterShutdown('route[postprocess]');
+                Core::removeShutdownCallback('route[postprocess]');
 
                 // Execute the page specified in $target (from here, $route)
                 // Update the current running script name
@@ -973,7 +973,7 @@ class Route
             Log::warning(tr('Page ":page" does not exist', [':page' => $e->getDataKey('target') ?? $page]));
 
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
             // TODO Check if this should be 404 or maybe some other HTTP code?
             Route::executeSystem(404);
         }
@@ -1125,7 +1125,7 @@ class Route
             }
 
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
 
             // TODO Check if this should be 404 or maybe some other HTTP code?
             Route::executeSystem(404);
@@ -1137,7 +1137,7 @@ class Route
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
             Page::execute($target, $attachment, $system);
         }
 
