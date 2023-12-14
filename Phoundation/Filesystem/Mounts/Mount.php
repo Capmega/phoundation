@@ -2,6 +2,8 @@
 
 namespace Phoundation\Filesystem\Mounts;
 
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -13,8 +15,13 @@ use Phoundation\Data\DataEntry\Traits\DataEntryOptions;
 use Phoundation\Data\DataEntry\Traits\DataEntrySourcePath;
 use Phoundation\Data\DataEntry\Traits\DataEntryTargetString;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Exception\NotExistsException;
+use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\MountInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Mounts\Exception\MountsException;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Phoundation\Utils\Config;
@@ -78,6 +85,33 @@ class Mount extends DataEntry implements MountInterface
     public static function getUniqueField(): ?string
     {
         return 'name';
+    }
+
+
+    /**
+     * Returns the mount object for the path that is mounted as close as possible to the specified path
+     *
+     * @param FileBasics|string $path
+     * @param RestrictionsInterface $restrictions
+     * @return static|null
+     */
+    public static function getForPath(FileBasics|string $path, RestrictionsInterface $restrictions): ?static
+    {
+        if (sql()->getDatabase()) {
+            $paths = sql()->query('SELECT   `id`, `target_path` 
+                                 FROM     `filesystem_mounts` 
+                                 ORDER BY LENGTH(`target_path`)');
+
+            while($mount_path = $paths->fetch()) {
+                $mount_path['target_path'] = Filesystem::absolute($mount_path['target_path'], must_exist: false);
+
+                if (str_starts_with($path, $mount_path['target_path'])) {
+                    return static::new($mount_path['id'], 'id')->setRestrictions($restrictions);
+                }
+            }
+        }
+
+        return null;
     }
 
 
@@ -194,6 +228,17 @@ class Mount extends DataEntry implements MountInterface
 
 
     /**
+     * Returns the absolute $source_path for this object
+     *
+     * @return string|null
+     */
+    public function getAbsoluteSourcePath(): ?string
+    {
+        return Filesystem::absolute($this->getSourcePath(), must_exist: false);
+    }
+
+
+    /**
      * Sets the source_path for this object
      *
      * @param string|null $source_path
@@ -217,6 +262,17 @@ class Mount extends DataEntry implements MountInterface
 
 
     /**
+     * Returns the absolute $target_path for this object
+     *
+     * @return string|null
+     */
+    public function getAbsoluteTargetPath(): ?string
+    {
+        return Filesystem::absolute($this->getTargetPath(), must_exist: false);
+    }
+
+
+    /**
      * Sets the $target_path for this object
      *
      * @param string|null $target_path
@@ -236,7 +292,7 @@ class Mount extends DataEntry implements MountInterface
     public function mount(): static
     {
         \Phoundation\Os\Processes\Commands\Mount::new($this->restrictions)
-            ->mount($this->getSource(), $this->getTargetString());
+            ->mount($this->getSourcePath(), $this->getAbsoluteTargetPath(), $this->getFilesystem());
 
         return $this;
     }
@@ -250,9 +306,116 @@ class Mount extends DataEntry implements MountInterface
     public function unmount(): static
     {
         UnMount::new($this->restrictions)
-            ->unmount($this->getTargetString());
+            ->unmount($this->getAbsoluteTargetPath());
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the target path is mounted at the correct path
+     *
+     * Returns false if the target path is not mounted
+     *
+     * Throws an exception if the target path is mounted at a different path
+     *
+     * @return bool
+     */
+    public function isMounted(): bool
+    {
+        try {
+            foreach (Mounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)->getSourceColumn('source_path') as $source_path) {
+                if ($this->getSourcePath() !== $source_path) {
+                    throw new MountsException(tr('The target path ":target" should be mounted from ":source" but is mounted from ":current"', [
+                        ':source'  => $this->getTargetPath(),
+                        ':target'  => $this->getSourcePath(),
+                        ':current' => $source_path
+                    ]));
+                }
+            }
+
+            return true;
+
+        } catch (NotExistsException) {
+            return false;
+        }
+    }
+
+
+    /**
+     * Returns the current source for the mount on the target_path
+     *
+     * Returns null if the target path is not mounted
+     *
+     * @return string|null
+     */
+    public function getCurrentSource(): string|null
+    {
+        try {
+            $mounts = Mounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)->getSourceColumn('source_path');
+            return end($mounts);
+
+        } catch (NotExistsException) {
+            return null;
+        }
+    }
+
+
+    /**
+     * Will automatically mount this target if it isn't mounted yet and configured for auto mount
+     *
+     * Returns null if the target path is mounted correctly
+     *
+     * Returns false if the target path is not mounted but not configured for auto mount
+     *
+     * Returns true if the target path is not mounted and was automatically mounted
+     *
+     * Throws an exception if the target path is mounted on a different path
+     *
+     * @return bool|null
+     */
+    public function autoMount(): ?bool
+    {
+        // This path is inside a mount
+        if ($this->isMounted()) {
+            if ($this->getCurrentSource() !== $this->getSourceValue('source_path')) {
+                throw new MountsException(tr('The target path ":target" should be mounted on ":source" but is currently mounted on ":current"', [
+                    ':target'  => $this->getTargetPath(),
+                    ':source'  => $this->getSourcePath(),
+                    ':current' => $this->getCurrentSource()
+                ]));
+            }
+
+            // Path is mounted already on the correct location, all is fine
+            return null;
+        }
+
+        // The target path mount part isn't mounted!
+        if (!$this->getAutoMount()) {
+            return false;
+        }
+
+        if ($this->getAutoUnmount()) {
+            // This mount must be removed once the process finishes!
+            Core::addShutdownCallback('unmount-' . $this->getSeoName(), function () {
+                Log::action(tr('Automatically unmounting ":source" from ":target"', [
+                    ':source' => $this->getSourcePath(),
+                    ':target' => $this->getTargetPath(),
+                ]));
+
+                $this->unmount();
+            });
+        }
+
+        // Mount and try again!
+        Log::action(tr('Automatically mounting ":source" to ":target"', [
+            ':source' => $this->getSourcePath(),
+            ':target' => $this->getTargetPath(),
+        ]));
+
+        $this->mount();
+
+        return true;
     }
 
 
@@ -291,6 +454,7 @@ class Mount extends DataEntry implements MountInterface
                     $validator->isFile();
                 }))
             ->addDefinition(Definition::new($this, 'filesystem')
+                ->setOptional(true)
                 ->setSize(4)
                 ->setSource([
                     ''             => tr('Auto detect'),

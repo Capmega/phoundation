@@ -117,4 +117,11 @@ interface RestrictionsInterface
      * @return RestrictionsInterface
      */
     public static function getSystem(): RestrictionsInterface;
+
+    /**
+     * Return these restrictions but with write enabled
+     *
+     * @return RestrictionsInterface
+     */
+    public function getWritable(): RestrictionsInterface;
 }

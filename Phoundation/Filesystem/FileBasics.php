@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
@@ -29,6 +34,7 @@ use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Mounts\Mount;
 use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Filesystem\Traits\DataBufferSize;
 use Phoundation\Filesystem\Traits\DataRestrictions;
@@ -127,7 +133,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         } elseif (is_resource($file)) {
             // This is an input stream resource
             $this->stream = $file;
-            $this->path = '?';
+            $this->path   = '?';
 
         } else {
             throw new OutOfBoundsException(tr('Invalid file ":file" specified. Must be one if FileBasicsInterface, Stringable, string, null, or resource', [
@@ -279,7 +285,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
             $this->close();
         }
 
-        $this->path = Filesystem::absolute($file, $prefix, $must_exist);
+        $this->path      = Filesystem::absolute($file, $prefix, $must_exist);
         $this->real_path = realpath($this->path);
 
         return $this;
@@ -318,11 +324,41 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     /**
      * Checks if the specified file exists
      *
+     * @param bool $auto_mount
      * @return bool
      */
-    public function exists(): bool
+    public function exists(bool $auto_mount = true): bool
     {
-        return file_exists($this->path);
+        $exists = file_exists($this->path);
+
+        if (!$exists and $auto_mount) {
+            // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
+            if ($this->attemptAutomount()){
+                // The path was auto mounted, so try again!
+                return $this->exists(false);
+            }
+        }
+
+        return $exists;
+    }
+
+
+    /**
+     * Checks if the specified file exists
+     *
+     * @param bool $auto_mount
+     * @return static
+     */
+    protected function existsWithMount(bool $auto_mount = true): static
+    {
+        $exists = file_exists($this->path);
+
+        if (!$exists and $auto_mount) {
+            // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
+            $this->attemptAutomount();
+        }
+
+        return $this;
     }
 
 
@@ -367,6 +403,36 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Ensures that the path is completely mounted and executes the callback if a mount was made
+     *
+     * @return bool
+     */
+    protected function attemptAutomount(): bool
+    {
+        try {
+            // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
+            $mount = Mount::getForPath($this->path, $this->restrictions->getWritable());
+
+            if ($mount) {
+                if ($mount->autoMount()) {
+                    return true;
+                }
+            }
+
+        } catch (SqlDatabaseDoesNotExistException|SqlTableDoesNotExistException $e) {
+            // If during init either the database or table doensn't exist, we're fine and we can ignore this error
+            if (!Core::inInitState()) {
+                Log::warning(tr('Failed to scan for filesystem mounts because ":e", skipping auto mount', [
+                    ':e' => $e->getMessage()
+                ]));
+            }
+        }
+
+        return false;
     }
 
 
@@ -447,7 +513,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         // Check filesystem restrictions
         $this->restrictions->check($this->path, false);
 
-        if (!file_exists($this->path)) {
+        if (!$this->exists()) {
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":directory" does not exist', [
@@ -504,7 +570,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         // Check filesystem restrictions
         $this->restrictions->check($this->path, true);
 
-        if (!file_exists($this->path)) {
+        if (!$this->exists()) {
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
@@ -844,7 +910,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         // Ensure restrictions and ensure target is absolute
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, ($target instanceof FileBasicsInterface ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target = Filesystem::absolute($target, must_exist: false);
+        $target       = Filesystem::absolute($target, must_exist: false);
 
         // Ensure the target directory exists
         if (file_exists($target)) {
@@ -1165,7 +1231,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
             return 0;
         }
 
-        // Return the amount of all files in this directory
+        // Return the number of all files in this directory
         $files = scandir($this->path);
         $size = 0;
 
@@ -1397,7 +1463,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
         // Ensure default restrictions and absolute target.
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, (($target instanceof FileBasicsInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target = Filesystem::absolute($target, must_exist: false);
+        $target       = Filesystem::absolute($target, must_exist: false);
 
         if (file_exists($target)) {
             if (readlink($target) === $this->path) {
@@ -1578,7 +1644,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      */
     public function readLine(?int $buffer = null): string|false
     {
-        $this->checkOpen('read');
+        $this->checkOpen('readLine');
 
         if (!$buffer) {
             $buffer = $this->getBufferSize();
@@ -1605,7 +1671,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      */
     public function readCsv(?int $max_length = null, string $separator = ",", string $enclosure = "\"", string $escape = "\\"): array|false
     {
-        $this->checkOpen('read');
+        $this->checkOpen('readCsv');
 
         $data = fgetcsv($this->stream, $max_length, $separator, $enclosure, $escape);
 
@@ -1624,7 +1690,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      */
     public function readCharacter(): string|false
     {
-        $this->checkOpen('read');
+        $this->checkOpen('readCharacter');
 
         $data = fgetc($this->stream);
 
@@ -1647,6 +1713,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     public function readBytes(int $length, int $start = 0): string|false
     {
         $data = $this
+            ->existsWithMount()
             ->checkClosed('readBytes')
             ->open(EnumFileOpenMode::readOnly)
             ->read($start + $length);
@@ -1711,9 +1778,16 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->checkClosed('getContents');
+        $this->existsWithMount()->checkClosed('getContents');
 
-        $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
+        try {
+            $data = file_get_contents($this->path, $use_include_path, $context, $offset, $length);
+
+        } catch (PhpException $e) {
+            $this->checkReadable('', new FilesystemException(tr('Failed to get contents of file ":file" as string', [
+                ':file' => $this->path
+            ]), previous: $e));
+        }
 
         if ($data === false) {
             return $this->processReadFailure('contents', '', false);
@@ -1734,9 +1808,16 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        $this->checkClosed('getContents');
+        $this->existsWithMount()->checkClosed('getContents');
 
-        $data = file($this->path, $flags, $context);
+        try {
+            $data = file($this->path, $flags, $context);
+
+        } catch (PhpException $e) {
+            $this->checkReadable('', new FilesystemException(tr('Failed to get contents of file ":file" as array', [
+                ':file' => $this->path
+            ]), previous: $e));
+        }
 
         if ($data === false) {
             return $this->processReadFailure('contents', [], false);
@@ -1863,6 +1944,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     {
         // Check filesystem restrictions
         $this
+            ->existsWithMount()
             ->checkClosed('appendFiles')
             ->restrictions->check($this->path, true);
 

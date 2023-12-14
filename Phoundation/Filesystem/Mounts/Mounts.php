@@ -8,7 +8,7 @@ use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Os\Processes\Commands\Mount;
+use Phoundation\Filesystem\Mounts\Interfaces\MountsInterface;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Stringable;
 
@@ -23,7 +23,7 @@ use Stringable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
-class Mounts extends DataList
+class Mounts extends DataList implements MountsInterface
 {
     /**
      *
@@ -58,7 +58,7 @@ class Mounts extends DataList
      */
     public static function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, ?array $options = null): void
     {
-        Mount::new()->mount($source, $target, $filesystem, $options);
+        \Phoundation\Os\Processes\Commands\Mount::new()->mount($source, $target, $filesystem, $options);
     }
 
 
@@ -97,11 +97,11 @@ class Mounts extends DataList
     /**
      * Returns a list of all devices as keys with value information about where they are mounted with what options
      *
-     * @return array
+     * @return static
      */
-    public static function listMountSources(): array
+    public static function listMountSources(): static
     {
-        return static::loadMounts('source');
+        return static::listMounts('source_path');
     }
 
 
@@ -109,16 +109,16 @@ class Mounts extends DataList
      * Returns a list of all directories as keys with value information about where they are mounted from with what
      * options
      *
-     * @return array
+     * @return static
      */
-    public static function listMountTargets(): array
+    public static function listMountTargets(): static
     {
-        return static::loadMounts('target');
+        return static::listMounts('target_path');
     }
 
 
     /**
-     * Returns a list of all devices as keys with value information about where they are mounted with what options
+     * Returns a list of all source devices / paths as keys for the specified target path and with what options
      *
      * @param Stringable|string $target
      * @param RestrictionsInterface $restrictions
@@ -127,18 +127,18 @@ class Mounts extends DataList
     public static function getMountSources(Stringable|string $target, RestrictionsInterface $restrictions): static
     {
         $target = Directory::new($target, $restrictions)->getPath(true);
-        $mounts = static::loadMounts('target');
+        $mounts = static::listMounts('target_path');
         $return = static::new();
 
-        foreach ($mounts as $path => $target) {
-            if ($target === $path) {
-                return $return->add($target, $target);
+        foreach ($mounts as $path => $source) {
+            if ($path === $target) {
+                $return->add($source, $path);
             }
         }
 
         if ($return->isEmpty()) {
             throw new NotExistsException(tr('The specified mount target ":target" does not exist', [
-                ':target' => $target->getPath()
+                ':target' => $target
             ]));
         }
 
@@ -147,8 +147,8 @@ class Mounts extends DataList
 
 
     /**
-     * Returns a list of all directories as keys with value information about where they are mounted from with what
-     * options
+     * Returns a list of all target directories as keys with value information about where they are mounted from and
+     * with what options
      *
      * @param string $source
      * @param RestrictionsInterface $restrictions
@@ -156,13 +156,12 @@ class Mounts extends DataList
      */
     public static function getMountTargets(string $source, RestrictionsInterface $restrictions): static
     {
-        $source = Directory::new($source, $restrictions)->getPath(true);
-        $mounts = static::loadMounts('target');
+        $mounts = static::listMounts('source_path');
         $return = static::new();
 
-        foreach ($mounts as $target) {
-            if ($target === $target['source']) {
-                return $return->add($target['source'], $target);
+        foreach ($mounts as $path => $target) {
+            if ($path === $source) {
+                $return->add($target, $path);
             }
         }
 
@@ -180,25 +179,25 @@ class Mounts extends DataList
      * Loads all mounts data into an array and returns it with the specified key
      *
      * @param string $key Should ONLY be one of "source", or "target"
-     * @return array
+     * @return static
      */
-    protected static function loadMounts(string $key): array
+    protected static function listMounts(string $key): static
     {
-        $return = [];
+        $return = static::new();
         $mounts = File::new('/proc/mounts')->getContentsAsArray();
 
         foreach ($mounts as $mount) {
             $mount = explode(' ', $mount);
             $mount = [
-                'source'     => $mount[0],
-                'target'     => $mount[1],
-                'filesystem' => $mount[2],
-                'options'    => $mount[3],
-                'fs_freq'    => $mount[4],
-                'fs_passno'  => $mount[5],
+                'source_path' => $mount[0],
+                'target_path' => $mount[1],
+                'filesystem'  => $mount[2],
+                'options'     => $mount[3],
+                'fs_freq'     => $mount[4],
+                'fs_passno'   => $mount[5],
             ];
 
-            $return[$mount[$key]] = $mount;
+            $return->add(Mount::fromSource($mount), $mount[$key]);
         }
 
         return $return;
