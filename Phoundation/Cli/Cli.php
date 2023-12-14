@@ -138,11 +138,15 @@ class Cli
 
                     $headers[$header] = $value;
                 }
+
+            } else {
+                // Validate and clean headers
+                $headers = static::cleanHeaders($headers);
             }
 
             // Display header
             if (!VERY_QUIET) {
-                foreach ($headers as $column => $header) {
+                foreach (Arrays::force($headers) as $column => $header) {
                     $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
                     Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
                 }
@@ -178,6 +182,32 @@ class Cli
             // Oops, empty source!
             Log::warning(tr('No results'));
         }
+    }
+
+
+    /**
+     * Returns cleaned headers from the specified headers value
+     *
+     * @param array|string $headers
+     * @return array
+     */
+    protected static function cleanHeaders(array|string $headers): array
+    {
+        $headers = Arrays::force($headers);
+        $return  = [];
+
+        foreach (Arrays::force($headers) as $column => $header) {
+            if (is_numeric($column)) {
+                // Headers were assigned only a label, which will be the column name
+                $column = $header;
+                $header = str_replace(['_', '-'], ' ', (string) $header);
+                $header = Strings::capitalize($header) . ':';
+            }
+
+            $return[$column] = $header;
+        }
+
+        return $return;
     }
 
 
