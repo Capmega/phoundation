@@ -106,6 +106,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
         $message = reset($messages);
         $message = Strings::force($message);
+        $message = trim($message);
 
         $this->addMessages($messages);
         parent::__construct($message, 0, $previous);
@@ -162,22 +163,34 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
-     * Return exception data that matches the specified needles
+     * Returns exception data that matches the specified needle(s)
      *
      * @param array|string $needles
      * @param int $options
+     * @param string|float|int|null $key
      * @return array
      */
-    public function getDataMatch(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE): array
+    public function getDataMatch(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE, string|float|int|null $key = null): array
     {
-        if (!is_array($this->data)) {
-            throw OutOfBoundsException::new(tr('Cannot return exception data match, the data is not an array'), $this)->addData([
-                'exception' => $this,
-                'data'      => $this->getData()
-            ]);
+        if ($key) {
+            return Arrays::match(isset_get($this->data[$key], []), $needles, $options);
         }
 
         return Arrays::match($this->data, $needles, $options);
+    }
+
+
+    /**
+     * Returns true if the exception data matches the specified needle(s)
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @param string|float|int|null $key
+     * @return bool
+     */
+    public function dataContains(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE, string|float|int|null $key = null): bool
+    {
+        return (bool) $this->getDataMatch($needles, $options, $key);
     }
 
 
@@ -239,7 +252,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function addMessages(array $messages): static
     {
         foreach ($messages as $message) {
-            $this->messages[] = $message;
+            $this->messages[] = trim($message);
         }
 
         return $this;
