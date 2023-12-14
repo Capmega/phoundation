@@ -53,7 +53,8 @@ class Mount extends Command
      */
     public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null): void
     {
-showdie(static::isMounted($target));
+        Directory::new($target, $this->restrictions)->ensure();
+
         // Build the process parameters, then execute
         $this->clearArguments()
             ->setSudo(true)
@@ -129,11 +130,11 @@ showdie(static::isMounted($target));
      */
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
-        $path       = Directory::new($path, Restrictions::new('/'))->getPath(true);
-        $sources    = Mounts::listMountSources();
-        $targets    = Mounts::listMountTargets();
-        $is_source  = array_key_exists($path, $sources);
-        $is_target  = array_key_exists($path, $targets);
+        $path      = Directory::new($path, Restrictions::new('/'))->getPath(true);
+        $sources   = Mounts::listMountSources();
+        $targets   = Mounts::listMountTargets();
+        $is_source = $sources->keyExists($path);
+        $is_target = $targets->keyExists($path);
 
         if ($is_source) {
             if ($is_target) {
@@ -151,7 +152,7 @@ showdie(static::isMounted($target));
 
             // Not even mounted!
             if ($exception) {
-                throw new NotMountedException(tr('Cannot check path ":path" if it is a mount source, is not mounted', [
+                throw new NotMountedException(tr('Cannot check path ":path" to see if it is a mount source, is neither a mount source or target', [
                     ':path' => $path
                 ]));
             }
@@ -184,9 +185,7 @@ showdie(static::isMounted($target));
      */
     public static function isMounted(Stringable|string $path): bool
     {
-        $path    = Directory::new($path, Restrictions::new('/'))->getPath(true);
-        $targets = Mounts::listMountTargets();
-
-        return array_key_exists($path, $targets);
+        $path = Directory::new($path, Restrictions::new('/'))->getPath(true);
+        return Mounts::listMountTargets()->keyExists($path);
     }
 }

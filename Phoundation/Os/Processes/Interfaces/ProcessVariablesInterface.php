@@ -302,11 +302,11 @@ interface ProcessVariablesInterface
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array|string $arguments
+     * @param array|string|null $arguments
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string $arguments, bool $escape = true): static;
+    public function addArguments(array|string|null $arguments, bool $escape = true): static;
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed

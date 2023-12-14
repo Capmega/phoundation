@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataHostnamePort;
 use Phoundation\Data\Traits\DataSource;
@@ -52,11 +53,16 @@ class MySql extends Command
      */
     public function import(string $database, string $file, bool $drop, int $timeout = 3600): void
     {
-        //
+        // Get file and database information
         $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
         $restrictions = Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer');
         $threshold    = Log::setThreshold(3);
         $config       = static::getInstanceConfigForDatabase($database);
+
+        // If we're importing the system database, then switch to init mode!
+        if ($config['database'] === sql()->getDatabase()) {
+            Core::setInitState();
+        }
 
         // Drop the requested database
         if ($drop) {
@@ -64,6 +70,8 @@ class MySql extends Command
                 ->database($config['database'])
                 ->drop()
                 ->create();
+
+            sql($database)->use($config['database']);
         }
 
         // Check file restrictions and start the import

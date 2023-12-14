@@ -7,7 +7,9 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Data\Traits\DataForce;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
+use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
 use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Stringable;
 
 
@@ -80,7 +82,7 @@ class UnMount extends Command
      */
     public function unmount(Stringable|string $target): void
     {
-        if (Mount::isSource($target)) {
+        if (Mount::isSource($target, false)) {
             // This is a mount source. Unmount all its targets
             $targets = Mounts::listMountTargets($target);
 
@@ -96,13 +98,27 @@ class UnMount extends Command
             }
 
             // Build the process parameters, then execute
-            $this->clearArguments()
-                ->setSudo(true)
-                ->setInternalCommand('umount')
-                ->addArgument($this->force ? '-f' : null)
-                ->addArgument($this->lazy  ? '-l' : null)
-                ->addArgument($target)
-                ->executeNoReturn();
+            try {
+                $this->clearArguments()
+                    ->setSudo(true)
+                    ->setInternalCommand('umount')
+                    ->addArgument($this->force ? '-f' : null)
+                    ->addArgument($this->lazy  ? '-l' : null)
+                    ->addArgument($target)
+                    ->executeNoReturn();
+
+            } catch (ProcessFailedException $e) {
+                if (!$e->dataContains('device is busy', key: 'output')) {
+                    throw $e;
+                }
+
+                $processes = Lsof::new()->getForFile($target);
+
+                // The device is busy. Check by who and add it to the exception
+                throw UnmountBusyException::new(tr('Cannot unmount target ":target", it is busy', [
+                    ':target' => $target
+                ]))->addData(['processes' => $processes]);
+            }
         }
     }
 }
