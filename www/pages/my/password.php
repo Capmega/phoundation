@@ -41,7 +41,7 @@ if (Page::isPostRequestMethod()) {
             User::authenticate($user->getEmail(), $post['current']);
 
             // Update user password
-            $user->setPassword($post['password'], $post['passwordv']);
+            $user->changePassword($post['password'], $post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
             Page::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
@@ -115,7 +115,7 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('Change your password'));
-Page::setHeaderSubTitle($user->getDisplayName());
+Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                  => tr('Home'),
     '/your/profile.html' => tr('Your profile'),

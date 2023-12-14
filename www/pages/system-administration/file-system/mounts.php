@@ -78,8 +78,8 @@ $mounts   = Mounts::new();
 $builder = $mounts->getQueryBuilder()->setDebug(true)
     ->addSelect('`filesystem_mounts`.`id`, 
                  `filesystem_mounts`.`name`, 
-                 `filesystem_mounts`.`source`, 
-                 `filesystem_mounts`.`target`, 
+                 `filesystem_mounts`.`source_path`, 
+                 `filesystem_mounts`.`target_path`, 
                  `filesystem_mounts`.`status`, 
                  `filesystem_mounts`.`created_on`');
 

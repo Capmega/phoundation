@@ -46,7 +46,7 @@ if (Page::isPostRequestMethod()) {
             ->validate();
 
         // Update the password for this session user
-        Session::getUser()->setPassword($post['password'], $post['passwordv'])->save();
+        Session::getUser()->changePassword($post['password'], $post['passwordv'])->save();
 
         // Register a security incident
         Incident::new()

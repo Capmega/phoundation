@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -44,14 +45,29 @@ $connector = Connector::get($get['id']);
 if (Page::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
-            case tr('Save'):
-                // Validate roles
-                $post = PostValidator::new()
-                    ->select('roles_id')->isOptional()->isArray()->each()->isOptional()->isDbId()
-                    ->validate(false);
+            case tr('Test'):
+                // Test the connector
+                try {
+                    $connector->test();
 
+                    Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been tested successfully', [
+                        ':connector' => $connector->getDisplayName()
+                    ]));
+
+                } catch (\Phoundation\Exception\Exception $e) {
+                    Log::error($e);
+
+                    Page::getFlashMessages()->addWarningMessage(tr('The connector ":connector" test failed, please check the logs', [
+                        ':connector' => $connector->getDisplayName()
+                    ]));
+                }
+
+                // Redirect away from POST
+                Page::redirect();
+
+            case tr('Save'):
                 // Update connector, roles, emails, and phones
-                $connector->apply(false)->save();
+                $connector->setDebug(true)->apply(false)->save();
 
                 Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been saved', [
                     ':connector' => $connector->getDisplayName()
@@ -109,48 +125,56 @@ if (!$connector->getReadonly()) {
 }
 
 
-// Delete button.
-if (!$connector->isNew() and !$connector->isReadonly()) {
-    if ($connector->isDeleted()) {
-        $delete = Button::new()
-            ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
-            ->setOutlined(true)
-            ->setValue(tr('Undelete'))
-            ->setContent(tr('Undelete'));
-
-    } else {
-        $delete = Button::new()
-            ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
-            ->setOutlined(true)
-            ->setValue(tr('Delete'))
-            ->setContent(tr('Delete'));
-
-        if ($connector->isLocked()) {
-            $lock = Button::new()
+// Buttons.
+if (!$connector->isNew()) {
+    if (!$connector->isReadonly()) {
+        if ($connector->isDeleted()) {
+            $delete = Button::new()
                 ->setFloatRight(true)
                 ->setMode(DisplayMode::warning)
-                ->setValue(tr('Unlock'))
-                ->setContent(tr('Unlock'));
+                ->setOutlined(true)
+                ->setValue(tr('Undelete'))
+                ->setContent(tr('Undelete'));
 
         } else {
-            $lock = Button::new()
+            $delete = Button::new()
                 ->setFloatRight(true)
                 ->setMode(DisplayMode::warning)
-                ->setValue(tr('Lock'))
-                ->setContent(tr('Lock'));
-        }
+                ->setOutlined(true)
+                ->setValue(tr('Delete'))
+                ->setContent(tr('Delete'));
 
-        // Audit button.
-        $audit = Button::new()
-            ->setFloatRight(true)
-            ->setMode(DisplayMode::information)
-            ->setAnchorUrl('/audit/meta-' . $connector->getMetaId() . '.html')
-            ->setFloatRight(true)
-            ->setValue(tr('Audit'))
-            ->setContent(tr('Audit'));
+            if ($connector->isLocked()) {
+                $lock = Button::new()
+                    ->setFloatRight(true)
+                    ->setMode(DisplayMode::warning)
+                    ->setValue(tr('Unlock'))
+                    ->setContent(tr('Unlock'));
+
+            } else {
+                $lock = Button::new()
+                    ->setFloatRight(true)
+                    ->setMode(DisplayMode::warning)
+                    ->setValue(tr('Lock'))
+                    ->setContent(tr('Lock'));
+            }
+
+            // Audit button.
+            $audit = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::information)
+                ->setAnchorUrl('/audit/meta-' . $connector->getMetaId() . '.html')
+                ->setValue(tr('Audit'))
+                ->setContent(tr('Audit'));
+        }
     }
+
+    // Test button.
+    $test = Button::new()
+        ->setFloatRight(true)
+        ->setMode(DisplayMode::information)
+        ->setValue(tr('Test'))
+        ->setContent(tr('Test'));
 }
 
 
@@ -163,20 +187,11 @@ $connector_card = Card::new()
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
         ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/system-administration/databases/connectors/connectors.html'), true)
+        ->addButton(isset_get($test))
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($lock))
         ->addButton(isset_get($impersonate)));
-
-
-// Build profile picture card
-$picture = Card::new()
-    ->setTitle(tr('Connector profile picture'))
-    ->setContent(Img::new()
-        ->addClass('w100')
-        ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
-//        ->setSrc($connector->getPicture())
-        ->setAlt(tr('Profile picture for :connector', [':connector' => $connector->getDisplayName()])));
 
 
 // Build relevant links
@@ -202,7 +217,7 @@ $grid = Grid::new()
         ->addContent($connector_card->render())
         ->setSize(9)
         ->useForm(true))
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 

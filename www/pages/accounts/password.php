@@ -45,7 +45,7 @@ if (Page::isPostRequestMethod()) {
                 ->validate();
 
             // Update user password
-            $user->setPassword($post['password'] ,$post['passwordv']);
+            $user->changePassword($post['password'] ,$post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
             Page::redirect(UrlBuilder::getPrevious('accounts/user-' . $user->getId() . '.html'));

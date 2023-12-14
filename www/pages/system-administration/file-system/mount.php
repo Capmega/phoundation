@@ -183,7 +183,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-system/filesystem.html') . '">' . tr('Manage filesystem') . '</a><br>');
+->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation
@@ -212,9 +212,9 @@ Page::setPageTitle(tr('Mount :mount', [':mount' => $mount->getDisplayName()]));
 Page::setHeaderTitle(tr('Mount'));
 Page::setHeaderSubTitle($mount->getDisplayName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                                     => tr('Home'),
-    '/system-administration.html'                           => tr('System administration'),
-    '/filesystem.html'                                      => tr('Filesystem'),
-    '/system-administration/file-system/mounts.html' => tr('Mounts'),
-    ''                                                      => $mount->getDisplayName()
+    '/'                                               => tr('Home'),
+    '/system-administration.html'                     => tr('System administration'),
+    '/system-administration/file-systems.html'        => tr('Filesystems'),
+    '/system-administration/file-systems/mounts.html' => tr('Mounts'),
+    ''                                                => $mount->getDisplayName()
 ]));

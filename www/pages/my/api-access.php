@@ -84,7 +84,7 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('My API access'));
-Page::setHeaderSubTitle($user->getDisplayName());
+Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('My API access')

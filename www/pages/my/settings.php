@@ -41,7 +41,7 @@ $get = GetValidator::new()
 $user  = Session::getUser();
 $form  = $user->getSettings()->getHtmlDataEntryForm();
 $card  = Card::new()
-    ->setTitle(tr('Edit data for right :name', [':name' => $user->getDisplayName()]))
+    ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
     ->setContent($form->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Save'))
@@ -74,7 +74,7 @@ echo $grid->render();
 
 // Set page meta data
 Page::setHeaderTitle(tr('My settings'));
-Page::setHeaderSubTitle($user->getDisplayName());
+Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                => tr('Home'),
     '/my/profile.html' => tr('My profile'),

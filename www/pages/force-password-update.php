@@ -40,7 +40,7 @@ if (Page::isPostRequestMethod()) {
 
         // Update the password for this sessions user and remove the forced redirect to this page
         Session::getUser()
-            ->setPassword($post['password'], $post['passwordv'])
+            ->changePassword($post['password'], $post['passwordv'])
             ->setRedirect()
             ->save();
 
