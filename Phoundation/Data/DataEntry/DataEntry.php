@@ -19,6 +19,7 @@ use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
+use Phoundation\Data\DataEntry\Exception\BadDataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
@@ -275,11 +276,22 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Returns a new DataEntry object from the specified array source
      *
-     * @param array $source
+     * @param DataEntryInterface|array $source
      * @return $this
      */
-    public static function fromSource(array $source): static
+    public static function fromSource(DataEntryInterface|array $source): static
     {
+        if ($source instanceof DataEntryInterface) {
+            if ($source instanceof static) {
+                return $source;
+            }
+
+            throw new BadDataEntryException(tr('The specified source ":source" must be either an array or an instance of ":static"', [
+                ':static' => static::class,
+                ':source' => get_class($source)
+            ]));
+        }
+
         return static::new()->setSource($source);
     }
 
@@ -2130,7 +2142,7 @@ abstract class DataEntry implements DataEntryInterface
         // Get the data using the query builder
         $data = $this->getQueryBuilder()
             ->setMetaEnabled($meta_enabled ?? $this->meta_enabled)
-            ->setDatabaseConnector($this->database_connector)
+            ->setDatabaseConnectorName($this->database_connector)
             ->addSelect('`' . static::getTable() . '`.*')
             ->addWhere('`' . static::getTable() . '`.`' . $column . '` = :identifier', [':identifier' => $identifier])
             ->get();
