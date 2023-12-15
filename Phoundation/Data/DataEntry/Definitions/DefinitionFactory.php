@@ -960,6 +960,29 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for column file
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $field
+     * @return DefinitionInterface
+     */
+    public static function getFile(DataEntryInterface $data_entry, ?string $field = 'file'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $field)
+            ->setMaxLength(255)
+            ->setOptional(true)
+            ->setSize(3)
+            ->setLabel(tr('File'))
+            ->setCliField(tr('-f,--file NAME'))
+            ->setInputType(InputType::text)
+            ->setCliAutoComplete(true)
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->isName();
+            });
+    }
+
+
+    /**
      * Returns a Definition object for column email
      *
      * @param DataEntryInterface $data_entry
