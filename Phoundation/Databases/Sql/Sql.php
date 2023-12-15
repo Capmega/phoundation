@@ -1958,7 +1958,7 @@ class Sql implements SqlInterface
 
         if ($connector === 'system') {
             try {
-                $configuration = Config::getArray('databases.connectors.sql.' . $connector);
+                $configuration = Config::getArray('databases.connectors.' . $connector);
 
             } catch (ConfigurationDoesNotExistsException) {
                 // Configuration not available in Config. Check if its stored in SQL database
