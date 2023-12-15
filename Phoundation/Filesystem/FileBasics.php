@@ -424,7 +424,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
             }
 
         } catch (SqlDatabaseDoesNotExistException|SqlTableDoesNotExistException $e) {
-            // If during init either the database or table doensn't exist, we're fine and we can ignore this error
+            // If during init either the database or table doesn't exist, we're fine, and we can ignore this error
             if (!Core::inInitState()) {
                 Log::warning(tr('Failed to scan for filesystem mounts because ":e", skipping auto mount', [
                     ':e' => $e->getMessage()

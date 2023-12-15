@@ -179,7 +179,7 @@ interface QueryBuilderInterface
      * @param string $database_connector
      * return static
      */
-    public function setDatabaseConnector(string $database_connector): static;
+    public function setDatabaseConnectorName(string $database_connector): static;
 
     /**
      * Returns if the meta-system is enabled or disabled for this (type of) DataEntry

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+
 /**
  * Trait DataDatabaseConnector
  *
@@ -28,9 +31,20 @@ trait DataDatabaseConnector
     /**
      * Returns the name of the database connector where this DataEntry is stored
      *
+     * @return ConnectorInterface
+     */
+    public function getDatabaseConnector(): ConnectorInterface
+    {
+        return Connector::get($this->database_connector);
+    }
+
+
+    /**
+     * Returns the name of the database connector where this DataEntry is stored
+     *
      * @return string
      */
-    public function getDatabaseConnector(): string
+    public function getDatabaseConnectorName(): string
     {
         return $this->database_connector;
     }
@@ -42,7 +56,7 @@ trait DataDatabaseConnector
      * @param string $database_connector
      * return static
      */
-    public function setDatabaseConnector(string $database_connector): static
+    public function setDatabaseConnectorName(string $database_connector): static
     {
         $this->database_connector = $database_connector;
         return $this;

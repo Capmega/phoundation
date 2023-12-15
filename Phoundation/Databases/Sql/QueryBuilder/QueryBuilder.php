@@ -9,8 +9,6 @@ use Phoundation\Data\Traits\DataDatabaseConnector;
 use Phoundation\Data\Traits\DataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
-use function Phoundation\Databases\Sql\count;
-use function Phoundation\Databases\Sql\gettype;
 
 
 /**
