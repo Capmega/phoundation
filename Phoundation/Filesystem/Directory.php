@@ -19,6 +19,7 @@ use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Os\Processes\Commands\Find;
@@ -422,6 +423,23 @@ class Directory extends FileBasics implements DirectoryInterface
 
         // Ensure again to be sure the target directories too have been created
         return Strings::slash(Directory::new($this->path, $this->restrictions)->ensure()->getPath());
+    }
+
+
+    /**
+     * Return all files in this directory
+     *
+     * @return FilesInterface The files
+     */
+    public function list(): FilesInterface
+    {
+        $list = Arrays::filterValues(scandir($this->path), ['.', '..']);
+
+        foreach ($list as $value) {
+            $return[$value] = $this->path . $value;
+        }
+
+        return Files::new($return, $this->restrictions);
     }
 
 
@@ -976,7 +994,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
                 if (is_dir($file)) {
                     // Count all files in this sub directory, minus the directory itself
-                    $count += Filesystem::get($file, $this->restrictions)->getCount($recursive) - 1;
+                    $count += FileBsics::newExisting($file, $this->restrictions)->getCount($recursive) - 1;
                 }
             }
         }
@@ -1001,8 +1019,8 @@ class Directory extends FileBasics implements DirectoryInterface
 
         // Get directory pattern part and file pattern part
         if ($file_patterns) {
-            $directory_pattern  = dirname($file_patterns);
-            $file_patterns = basename($file_patterns);
+            $directory_pattern = dirname($file_patterns);
+            $file_patterns     = basename($file_patterns);
 
             // Parse file patterns
             switch (substr_count($file_patterns, '{')) {
@@ -1332,12 +1350,12 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * @param FileBasicsInterface|string $file
+     * @param FileBasicsInterface|string $path
      * @return bool
      */
-    public function fileExists(FileBasicsInterface|string $file): bool
+    public function pathExists(FileBasicsInterface|string $path): bool
     {
-        $path = $this->getPath() . Strings::startsNotWith((string) $file, '/');
+        $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
 
         $this->restrictions->check($path, false);
 
