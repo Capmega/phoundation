@@ -34,6 +34,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
+use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
@@ -357,14 +358,14 @@ class Sql implements SqlInterface
      *
      * @param string|null $database The database to use. If none was specified, the configured system database will be
      *                              used
-     * @return void
+     * @return static
      * @throws SqlException
      */
-    public function use(?string $database = null): void
+    public function use(?string $database = null): static
     {
         if ($database === '') {
             $this->using_database = null;
-            return;
+            return $this;
         }
 
         $database = $this->getDatabaseName($database);
@@ -377,6 +378,7 @@ class Sql implements SqlInterface
         try {
             $this->pdo->query('USE `' . $database . '`');
             $this->using_database = $database;
+            return $this;
 
         } catch (Throwable $e) {
             // We failed to use the specified database, oh noes!
@@ -1564,7 +1566,7 @@ class Sql implements SqlInterface
 
 
     /**
-     * Get the current last insert id for this SQL database instance
+     * Get the current last insert id for this SQL database connector
      *
      * @return ?int
      */
@@ -2148,9 +2150,9 @@ class Sql implements SqlInterface
 
                     break;
 
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     if (!$this->configuration['hostname']) {
-                        throw new SqlInvalidConfigurationException(static::getLogPrefix() . tr('Failed to connect to database instance ":connector" with connection string ":string" and user ":user", the database configuration is invalid', [
+                        throw new SqlInvalidConfigurationException(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", the database configuration is invalid', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username']
@@ -2160,20 +2162,29 @@ class Sql implements SqlInterface
                     switch ($e->getCode()) {
                         case 1045:
                             // Access  denied!
-                            throw new SqlAccessDeniedException(static::getLogPrefix() . tr('Failed to connect to database instance ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
+                            throw SqlAccessDeniedException::new(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username']
-                            ]));
+                            ]))->makeWarning();
 
                         case 1049:
                             // Database doesn't exist!
-                            throw new SqlDatabaseDoesNotExistException(static::getLogPrefix() . tr('Failed to connect to database instance ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
+                            throw SqlDatabaseDoesNotExistException::new(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':database'  => $this->configuration['database'],
                                 ':user'      => $this->configuration['username']
-                            ]));
+                            ]))->makeWarning();
+
+                        case 2002:
+                            // Database service not available, connection refused!
+                            throw SqlServerNotAvailableException::new(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
+                                    ':connector' => $this->connector,
+                                    ':string'    => isset_get($connect_string),
+                                    ':database'  => $this->configuration['database'],
+                                    ':user'      => $this->configuration['username']
+                                ]))->makeWarning();
                     }
 
                     if ($e->getMessage() == 'could not find driver') {
@@ -2240,7 +2251,7 @@ class Sql implements SqlInterface
                     $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezones_name'] . '";');
 
                 } catch (Throwable $e) {
-                    Log::warning(static::getLogPrefix() . tr('Failed to set timezone ":timezone" for database instance ":connector" with error ":e"', [
+                    Log::warning(static::getLogPrefix() . tr('Failed to set timezone ":timezone" for database connector ":connector" with error ":e"', [
                             ':timezone'  => $this->configuration['timezones_name'],
                             ':connector' => $this->connector,
                             ':e'         => $e->getMessage()
@@ -2275,10 +2286,6 @@ class Sql implements SqlInterface
                         return $this;
                 }
             }
-
-            Log::Warning(static::getLogPrefix() . tr('Encountered exception ":e" while connecting to database server', [
-                ':e' => $e->getMessage()
-            ]));
 
             // We failed to use the specified database, oh noes!
             switch ($e->getCode()) {
