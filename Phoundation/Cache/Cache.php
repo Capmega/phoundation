@@ -12,6 +12,7 @@ use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Config;
 
@@ -36,7 +37,7 @@ class Cache
     public static function clear(): void
     {
         // TODO Implement
-        static::driver()->clear();
+        static::driver()?->clear();
         Log::success(tr('Cleared cache'));
     }
 
@@ -52,7 +53,7 @@ class Cache
     public static function write(array|string $data, string $key, ?string $namespace = null): void
     {
         try {
-            static::driver()->set($data, $key, $namespace);
+            static::driver()?->set($data, $key, $namespace);
 
         } catch (ConfigurationDoesNotExistsException $e) {
             Log::warning(tr('Cannot cache because the current driver is not properly configured, see exception information'));
@@ -66,6 +67,7 @@ class Cache
      *
      * @note: NULL will be returned if the specified hash does not exist in cache
      * @param string $key
+     * @param string|null $namespace
      * @return string|null
      */
     public static function read(string $key, ?string $namespace = null): ?string
@@ -77,7 +79,7 @@ class Cache
 
         return null;
 
-        $result = static::driver()->get($key, $namespace);
+        $result = static::driver()?->get($key, $namespace);
 
         if (!$result) {
             return null;
@@ -101,17 +103,21 @@ class Cache
      */
     public static function delete(string $key, ?string $namespace = null): void
     {
-        static::driver()->dataEntryDelete($key, $namespace);
+        static::driver()?->dataEntryDelete($key, $namespace);
     }
 
 
     /**
      * Selects and returns the correct cache database driver
      *
-     * @return Mc|Mongo|Redis|Sql|NullDb
+     * @return Mc|Mongo|Redis|SqlInterface|NullDb|null
      */
-    protected static function driver(): Mc|Mongo|Redis|Sql|NullDb
+    protected static function driver(): Mc|Mongo|Redis|SqlInterface|NullDb|null
     {
+        if (!Config::get('cache.enabled', false)) {
+            return null;
+        }
+
         $driver = Config::get('cache.driver', 'memcached');
 
         switch ($driver) {
