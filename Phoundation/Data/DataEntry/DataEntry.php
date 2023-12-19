@@ -967,7 +967,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function setStatus(?string $status, ?string $comments = null): static
     {
-        $this->checkReadonly('set-status ' . $status);
+        $this->checkReadonly('set-status "' . $status . '"');
 
         if ($this->getId()) {
             sql($this->database_connector)->dataEntrySetStatus($status, static::getTable(), [
@@ -978,7 +978,6 @@ abstract class DataEntry implements DataEntryInterface
 
         $this->source['status'] = $status;
         return $this;
-//        return $this->setSourceValue('status', $status);
     }
 
 
