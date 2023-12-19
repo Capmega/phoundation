@@ -95,6 +95,32 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
+     * Returns a new writable Restrictions object with the specified restrictions
+     *
+     * @param Stringable|string|array|null $directories
+     * @param string|null $label
+     * @return static
+     */
+    public static function writable(Stringable|string|array|null $directories = null, ?string $label = null): static
+    {
+        return new static($directories, true, $label);
+    }
+
+
+    /**
+     * Returns a new readonly Restrictions object with the specified restrictions
+     *
+     * @param Stringable|string|array|null $directories
+     * @param string|null $label
+     * @return static
+     */
+    public static function readonly(Stringable|string|array|null $directories = null, ?string $label = null): static
+    {
+        return new static($directories, false, $label);
+    }
+
+
+    /**
      * Returns the default restrictions object if the given specified restrictions are empty
      *
      * @param RestrictionsInterface|null ...$restrictions
@@ -357,10 +383,10 @@ class Restrictions implements RestrictionsInterface
                 ':patterns' => $pattern,
                 ':label'    => $this->label
             ]))->addData([
-                'label'    => $this->label,
-                'patterns' => $patterns,
-                'directories'    => $this->directories
-            ])->makeWarning();
+                'label'       => $this->label,
+                'patterns'    => $patterns,
+                'directories' => $this->directories
+            ]);
         }
     }
 
