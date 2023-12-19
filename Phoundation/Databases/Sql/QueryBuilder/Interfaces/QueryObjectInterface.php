@@ -130,4 +130,13 @@ interface QueryObjectInterface
      * @return static
      */
     public function addExecuteArray(?array $execute): static;
+
+    /**
+     * Add the specified predefined column
+     *
+     * @param string $name
+     * @param callable $callback
+     * @return static
+     */
+    public function addPredefine(string $name, callable $callback): static;
 }

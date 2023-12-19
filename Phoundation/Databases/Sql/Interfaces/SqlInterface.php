@@ -68,10 +68,10 @@ interface SqlInterface extends DatabaseInterface
      *
      * @param string|null $database The database to use. If none was specified, the configured system database will be
      *                              used
-     * @return void
+     * @return static
      * @throws Throwable
      */
-    public function use(?string $database = null): void;
+    public function use(?string $database = null): static;
 
     /**
      * Executes specified query and returns a PDOStatement object
