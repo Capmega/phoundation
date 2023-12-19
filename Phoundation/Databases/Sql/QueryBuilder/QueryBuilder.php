@@ -45,6 +45,11 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     {
         $query = (($this->debug or $debug) ? ' ' : '');
 
+        // Execute all predefines before executing the query
+        foreach ($this->predefines as $predefine) {
+            $predefine();
+        }
+
         if ($this->select) {
             $query .= implode(', ', $this->select) . ' FROM ' . implode(', ', $this->from) . ' ';
 

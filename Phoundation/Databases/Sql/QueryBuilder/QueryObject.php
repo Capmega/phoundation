@@ -40,7 +40,7 @@ class QueryObject implements QueryObjectInterface
     /**
      * Select part of query
      *
-     * @var string $select
+     * @var array $select
      */
     protected array $select = [];
 
@@ -99,6 +99,13 @@ class QueryObject implements QueryObjectInterface
      * @var array $order_by
      */
     protected array $order_by = [];
+
+    /**
+     * Predefined columns
+     *
+     * @var array $predefines
+     */
+    protected array $predefines = [];
 
     /**
      * The build variables
@@ -410,6 +417,31 @@ class QueryObject implements QueryObjectInterface
             }
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns all predefines for this query builder
+     *
+     * @return array
+     */
+    public function getPredefines(): array
+    {
+        return $this->predefines;
+    }
+
+
+    /**
+     * Add the specified predefined column
+     *
+     * @param string $name
+     * @param callable $callback
+     * @return static
+     */
+    public function addPredefine(string $name, callable $callback): static
+    {
+        $this->predefines[$name] = $callback;
         return $this;
     }
 }

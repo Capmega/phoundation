@@ -8,8 +8,8 @@ use Exception;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
+use Phoundation\Databases\Sql\Exception\SqlConnectorException;
 use Phoundation\Databases\Sql\Sql;
-use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Exception\UnderConstructionException;
 
 
@@ -87,25 +87,32 @@ class Databases
      */
     public static function Sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
     {
+        if (!$connector) {
+            // Default to system instance
+            $connector = 'system';
+        }
+
         if ($connector instanceof ConnectorInterface) {
             $connector_name = $connector->getName();
 
-            if (!array_key_exists($connector_name, static::$sql)) {
-                // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
-                // Try connecting
-                static::$sql[$connector_name] = new Sql($connector, $use_database);
+            if (!$connector_name) {
+                throw new SqlConnectorException(tr('Specified connector ":connector" has empty name', [
+                    ':connector' => $connector->getSource()
+                ]));
             }
 
-            return static::$sql[$connector_name];
+        } else {
+            // The connector specified was a connector name
+            $connector_name = $connector;
         }
 
-        if (!array_key_exists($connector, static::$sql)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
-            // Try connecting
-            static::$sql[$connector] = new Sql($connector, $use_database);
+        if (!array_key_exists($connector_name, static::$sql)) {
+            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it.
+            // Connect and add it
+            static::$sql[$connector_name] = new Sql($connector, $use_database);
         }
 
-        return static::$sql[$connector];
+        return static::$sql[$connector_name];
     }
 
 
