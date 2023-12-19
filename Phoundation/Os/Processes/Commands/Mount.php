@@ -7,10 +7,12 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Exception\FilesystemDriverMissingException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -55,14 +57,29 @@ class Mount extends Command
     {
         Directory::new($target, $this->restrictions)->ensure();
 
-        // Build the process parameters, then execute
-        $this->clearArguments()
-            ->setSudo(true)
-            ->setInternalCommand('mount')
-            ->addArguments([(string) $source, (string) $target])
-            ->addArguments($options ? ['-o', Strings::force($options, ',')] : null)
-            ->addArguments($filesystem ? ['-t', $filesystem] : null)
-            ->executeNoReturn();
+        try {
+            // Build the process parameters, then execute
+            $this->clearArguments()
+                ->setSudo(true)
+                ->setInternalCommand('mount')
+                ->addArguments([(string)$source, (string)$target])
+                ->addArguments($options ? ['-o', Strings::force($options, ',')] : null)
+                ->addArguments($filesystem ? ['-t', $filesystem] : null)
+                ->executeNoReturn();
+
+        } catch (ProcessFailedException $e) {
+            // Failed to mount, try to figure out what went wrong to give a clear error message
+            if ($e->dataContains('you might need a /sbin/mount.<type> helper program.', key: 'output') and in_array($filesystem, ['nfs'])) {
+                // This is a missing filesystem driver
+                throw FilesystemDriverMissingException::new(tr('Failed to mount ":source" to ":target", a driver is missing for filesystem ":fs". On Debian type systems, try "sudo apt install nfs-common"', [
+                    ':source' => $source,
+                    ':target' => $target,
+                    ':fs'     => $filesystem
+                ]), $e)->makeWarning();
+            }
+
+            throw $e;
+        }
     }
 
 
