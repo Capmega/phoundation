@@ -114,28 +114,6 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * DataList class constructor
-     */
-    public function __construct(?array $ids = null)
-    {
-        parent::__construct();
-
-        if ($ids) {
-            $this->load();
-        }
-    }
-
-
-    /**
-     * Returns a new DataList object
-     */
-    public static function new(?array $ids = null): static
-    {
-        return new static($ids);
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string
