@@ -8,11 +8,13 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
@@ -951,13 +953,13 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 /**
  * Returns the system SQL database object
  *
- * @param string $instance_name
+ * @param ConnectorInterface|string $connector
  * @param bool $use_database
- * @return Sql
+ * @return SqlInterface
  */
-function sql(string $instance_name = 'system', bool $use_database = true): Sql
+function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
 {
-    return Databases::Sql($instance_name, $use_database);
+    return Databases::Sql($connector, $use_database);
 }
 
 
