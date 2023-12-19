@@ -131,11 +131,4 @@ interface LibraryInterface
      */
     public function setVersion(string $version, ?string $comments = null): void;
 
-    /**
-     * Returns true if the structure for this library is okay, false otherwise
-     *
-     * @param string|null $comments
-     * @return bool
-     */
-    public function getStructureOk(?string $comments): bool;
 }

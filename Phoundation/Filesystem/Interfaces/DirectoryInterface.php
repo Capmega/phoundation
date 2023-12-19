@@ -256,7 +256,7 @@ interface DirectoryInterface extends FileBasicsInterface
      * @param FileBasicsInterface|string $file
      * @return bool
      */
-    public function fileExists(FileBasicsInterface|string $file): bool;
+    public function pathExists(FileBasicsInterface|string $file): bool;
 
     /**
      * Returns the specified file added to this directory
