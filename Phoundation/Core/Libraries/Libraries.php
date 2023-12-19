@@ -128,6 +128,7 @@ class Libraries
         try {
             // Wipe all cache data
             Cache::clear();
+
         } catch (ConfigurationDoesNotExistsException $e) {
             Log::warning($e->getMessage());
         }
@@ -174,6 +175,8 @@ class Libraries
         }
 
         $return = [];
+
+        Log::action(tr('Scanning libraries'));
 
         // List system libraries
         if ($system) {
@@ -409,10 +412,15 @@ class Libraries
         $library_count  = count($libraries);
         $update_count   = 0;
 
+        // First ensure all libraries have the correct structure
+        static::verifyLibraries($libraries);
+
+        Log::action(tr('Initializing libraries'));
+
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
-            static::orderLibraries($libraries, $filter_libraries);
+            static::orderAndFilterLibraries($libraries, $filter_libraries);
 
             // Go over the list of libraries and try to update each one
             foreach ($libraries as $directory => $library) {
@@ -469,13 +477,29 @@ class Libraries
 
 
     /**
+     * Ensure that all libraries have the
+     *
+     * @param array $libraries
+     * @return void
+     */
+    protected static function verifyLibraries(array $libraries): void
+    {
+        Log::action(tr('Verifying libraries'));
+
+        foreach ($libraries as $library) {
+            $library->verify();
+        }
+    }
+
+
+    /**
      * Order the libraries by next_init_version first
      *
      * @param array $libraries
      * @param array|null $filter_libraries
      * @return void
      */
-    protected static function orderLibraries(array &$libraries, array $filter_libraries = null): void
+    protected static function orderAndFilterLibraries(array &$libraries, array $filter_libraries = null): void
     {
         // Prepare libraries filter if specified
         if ($filter_libraries) {

@@ -15,6 +15,9 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
@@ -148,9 +151,6 @@ class Library implements LibraryInterface
      */
     public function init(?string $comments): bool
     {
-        // Execute a structural check on the library
-        $this->checkStructure($comments);
-
         if ($this->library === 'libraries') {
             // TODO Check later if we should be able to let init initialize itself
             // Never initialize the Init library itself!
@@ -535,15 +535,7 @@ class Library implements LibraryInterface
     protected function loadUpdatesObject(): void
     {
         // Scan for the Updates.php file
-        $directories = ['', 'Library/'];
-
-        foreach ($directories as $directory) {
-            $file = Strings::slash($this->directory) . $directory . 'Updates.php';
-
-            if (file_exists($file)) {
-                break;
-            }
-        }
+        $file = Strings::slash($this->directory) . 'Library/Updates.php';
 
         if (!file_exists($file)) {
             // There is no init class available
@@ -584,32 +576,58 @@ class Library implements LibraryInterface
 
 
     /**
-     * This method will check the structure of the library and make sure everything is in working order
+     * This method will verify that the library is in working order, that the commands are symlinked, etc
      *
-     * @param string|null $comments
-     * @return bool
+     * @return static
      */
-    protected function checkStructure(?string $comments): bool
+    public function verify(): static
     {
         if ($this->structure_ok === null) {
             // Execute the structural check for this library
-            // TODO IMPLEMENT
+            $this->symlinksCommands();
+
+            // TODO IMPLEMENT MORE
 
             $this->structure_ok = true;
         }
 
-        return $this->structure_ok;
+        return $this;
     }
 
 
     /**
-     * Returns true if the structure for this library is okay, false otherwise
+     * Ensure that the Library/scripts is symlinked
      *
-     * @param string|null $comments
-     * @return bool
+     * @return void
      */
-    public function getStructureOk(?string $comments): bool
+    protected function symlinksCommands(): void
     {
-        return $this->checkStructure($comments);
+        $library_path         = Strings::slash($this->directory) . 'Library/scripts/';
+        $scripts_path         = DIRECTORY_ROOT . 'scripts/';
+
+        $library_restrictions = Restrictions::readonly($library_path, tr('Library command symlink validation'));
+        $scripts_restrictions = Restrictions::writable($scripts_path, tr('Library command symlink validation'));
+
+        $library_path_o       = Directory::new($library_path, $library_restrictions);
+        $scripts_path_o       = Directory::new($scripts_path, $scripts_restrictions)->ensure();
+
+        if (!$library_path_o->exists()) {
+            // This library does not have a scripts/ directory, we're fine
+            return;
+        }
+
+        foreach ($library_path_o->list() as $file => $path) {
+            if ($scripts_path_o->pathExists($file)) {
+                continue;
+            }
+
+            // Symlink doesn't exist yet, place it now
+            Log::action(tr('Adding commands symlink for ":path"', [
+                ':path' => $file
+            ]));
+
+            FileBasics::newExisting($path, $library_restrictions)
+                ->symlink($scripts_path . $file, $scripts_restrictions);
+        }
     }
 }
