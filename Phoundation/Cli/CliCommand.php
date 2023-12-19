@@ -18,6 +18,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\Time;
@@ -144,7 +145,7 @@ class CliCommand
         try {
             Core::startup();
 
-        } catch (SqlException $e) {
+        } catch (SqlDatabaseDoesNotExistException $e) {
             $limit  = 'system/project/init';
             $reason = tr('Core database not found, please execute "./cli system project setup"');
 
@@ -409,7 +410,7 @@ class CliCommand
                 ->makeWarning()
                 ->addData([
                     'position' => 0,
-                    'methods' => Arrays::filterValues(scandir(DIRECTORY_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
+                    'methods'  => Arrays::filterValues(scandir(DIRECTORY_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex),
                 ]);
         }
 
@@ -433,8 +434,9 @@ class CliCommand
                     ':file' => $file
                 ]))->makeWarning()
                     ->addData([
-                        'position' => $position,
-                        'methods' => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
+                        'position'         => $position,
+                        'methods'          => Arrays::filterValues(scandir(dirname($file))         , '/^\./', EnumMatchMode::regex),
+                        'previous_methods' => Arrays::filterValues(scandir(dirname(dirname($file))), '/^\./', EnumMatchMode::regex)
                     ]);
             }
 
@@ -479,8 +481,9 @@ class CliCommand
         ]))
             ->makeWarning()
             ->addData([
-                'position' => $position + 1,
-                'methods' => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
+                'position'         => $position + 1,
+                'methods'          => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex),
+                'previous_methods' => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
             ]);
     }
 
@@ -929,7 +932,6 @@ class CliCommand
      */
     #[NoReturn] protected static function autoComplete(): ?string
     {
-        // We're doing auto complete mode!
         try {
             // Get the script file to execute and execute auto complete for within this script, if available
             $script = static::findScript();
@@ -942,7 +944,7 @@ class CliCommand
                 ]))->makeWarning()
                     ->addData([
                         'position' => CliAutoComplete::getPosition(),
-                        'methods' => [basename($script)]
+                        'methods'  => [basename($script)]
                     ]);
             }
 

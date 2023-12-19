@@ -192,14 +192,29 @@ class CliAutoComplete
 
         } elseif (static::$position > count($cli_methods)) {
             // Invalid situation, supposedly the location was beyond, after the amount of arguments?
-            exit('Invalid auto complete arguments' . PHP_EOL);
+            exit('Invalid-auto-complete-arguments' . PHP_EOL);
 
         } elseif ($data['position'] > static::$position) {
-            // The findScript() method already found this particular word, so we know it exists!
-            echo $cli_methods[static::$position];
+            // The findScript() method already found this particular word, so we know it exists! However, there may be
+            // other methods starting with this particular word, so we may have to display multiple options instead
+            $matches = static::getMethodsStartingWith($data['previous_methods'], $cli_methods[static::$position]);
+
+            switch (count($matches)) {
+                case 0:
+                    // This shouldn't happen at all, there is a match or we wouldn't be here!
+                    throw new AutoCompleteException(tr('Found no match while there should be a match'));
+
+                case 1:
+                    echo $cli_methods[static::$position];
+                    break;
+
+                default:
+                    // Multiple options available, still, show all!
+                    static::displayMultipleMatches($matches);
+            }
 
         } else {
-            $contains        = [];
+            $matches        = [];
             $argument_method = isset_get($cli_methods[static::$position], '');
 
             if (!$argument_method) {
@@ -227,26 +242,19 @@ class CliAutoComplete
                     }
                 }
 
-                foreach ($data['methods'] as $method) {
-                    if (str_contains($method, $argument_method)) {
-                        // A method contains the word we try to auto complete
-                        $contains[] = $method;
-                    }
-                }
+                $matches = static::getMethodsStartingWith($data['methods'], $argument_method);
 
-                switch (count($contains)) {
+                switch (count($matches)) {
                     case 0:
                         break;
 
                     case 1:
                         // We found a single method that contains the word we have, we'll use that
-                        echo array_shift($contains);
+                        echo array_shift($matches);
                         break;
 
                     default:
-                        foreach ($contains as $method) {
-                            echo $method . PHP_EOL;
-                        }
+                        static::displayMultipleMatches($matches);
                 }
 
             } else {
@@ -261,6 +269,42 @@ class CliAutoComplete
         exit();
     }
 
+
+    /**
+     * Displays multiple auto complete matches on screen
+     *
+     * @param array $matches
+     * @return void
+     */
+    protected static function displayMultipleMatches(array $matches): void
+    {
+        // We have multiple matches. Check if any of the matches
+        foreach ($matches as $method) {
+            echo $method . PHP_EOL;
+        }
+    }
+
+
+    /**
+     * Returns the methods starting with the specified word
+     *
+     * @param array $methods
+     * @param string $word
+     * @return array
+     */
+    protected static function getMethodsStartingWith(array $methods, string $word): array
+    {
+        $return = [];
+
+        foreach ($methods as $method) {
+            if (str_starts_with($method, $word)) {
+                // A method contains the word we try to auto complete
+                $return[] = $method;
+            }
+        }
+
+        return $return;
+    }
 
 
     /**
