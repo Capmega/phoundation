@@ -55,12 +55,12 @@ class Iterator implements IteratorInterface
     /**
      * Iterator class constructor
      *
-     * @param array|null $source
+     * @param ArrayableInterface|array|null $source
      */
-    public function __construct(?array $source = null)
+    public function __construct(ArrayableInterface|array|null $source = null)
     {
         if ($source) {
-            $this->source = $source;
+            $this->source = (array) $source;
 
         } elseif (empty($this->source)) {
             $this->source = [];
