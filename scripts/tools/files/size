@@ -42,7 +42,7 @@ $argv = ArgvValidator::new()
     ->validate();
 
 if ($argv['human_readable']) {
-    CliCommand::echo(Numbers::getHumanReadableBytes(Filesystem::get($argv['path'], Restrictions::new('/'))->getSize()));
+    CliCommand::echo(Numbers::getHumanReadableBytes(FileBsics::newExisting($argv['path'], Restrictions::new('/'))->getSize()));
 } else {
-    CliCommand::echo(Filesystem::get($argv['path'], Restrictions::new('/'))->getSize());
+    CliCommand::echo(FileBsics::newExisting($argv['path'], Restrictions::new('/'))->getSize());
 }

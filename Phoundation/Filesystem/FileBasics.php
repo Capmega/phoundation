@@ -172,17 +172,22 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      *
      * @param mixed $path
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
+     * @return FileBasicsInterface
+     * @throws FileNotExistException
      */
-    public static function newExisting(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public static function newExisting(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null): FileBasicsInterface
     {
-        $file = File::new($path, $restrictions);
-
-        if ($file->isDir()) {
-            return Directory::new($file, $restrictions);
+        if (is_dir($path)) {
+            return Directory::new($path, $restrictions);
         }
 
-        return $file;
+        if (file_exists($path)) {
+            return File::new($path, $restrictions);
+        }
+
+        throw new FileNotExistException(tr('The specified path ":path" does not exist', [
+            ':path' => $path
+        ]));
     }
 
 
@@ -1247,7 +1252,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
             if (is_dir($file)) {
                 if ($recursive) {
                     // Get file size of this entire directory
-                    $size += Filesystem::get($file, $this->restrictions)->getSize($recursive);
+                    $size += FileBsics::newExisting($file, $this->restrictions)->getSize($recursive);
                 }
             } else {
                 // Get file size of this file

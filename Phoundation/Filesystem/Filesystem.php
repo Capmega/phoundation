@@ -483,27 +483,4 @@ class Filesystem
 
         return $file;
     }
-
-
-    /**
-     * Returns a File object for the specified file or Directory object for the specified directory
-     *
-     * @param Stringable|string $file
-     * @param RestrictionsInterface $restrictions
-     * @return FileBasicsInterface
-     */
-    public static function get(Stringable|string $file, RestrictionsInterface $restrictions): FileBasicsInterface
-    {
-        if (is_dir($file)) {
-            return Directory::new($file, $restrictions);
-        }
-
-        if (file_exists($file)) {
-            return File::new($file, $restrictions);
-        }
-
-        throw new FileNotExistException(tr('The specified file ":file" does not exist', [
-            ':file' => $file
-        ]));
-    }
 }
