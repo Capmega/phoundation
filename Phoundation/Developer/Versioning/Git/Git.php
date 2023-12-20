@@ -12,7 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
