@@ -701,15 +701,8 @@ class Project implements ProjectInterface
         try {
             Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
 
-//            $files['scripts']     = Directory::new(DIRECTORY_ROOT . 'scripts/'    , Restrictions::new([DIRECTORY_ROOT . 'scripts/'    , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
 //            $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
 //            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
-
-            // Copy new script versions
-            $rsync
-                ->setSource($phoundation->getDirectory() . 'scripts/')
-                ->setTarget(DIRECTORY_ROOT . 'scripts')
-                ->execute();
 
             // Copy new core library versions
             $rsync
@@ -727,7 +720,6 @@ class Project implements ProjectInterface
 //            // All is well? Get rid of the garbage
 //            $files['phoundation']->delete();
 //            $files['templates']->delete();
-//            $files['scripts']->delete();
 
             // Switch phoundation back to its previous branch
             $phoundation->switchBranch();
@@ -737,11 +729,6 @@ class Project implements ProjectInterface
 //            if (isset($files['phoundation'])) {
 //                Log::warning(tr('Moving Phoundation core libraries back from garbage'));
 //                $files['phoundation']->move(DIRECTORY_ROOT . 'Phoundation/');
-//            }
-//
-//            if (isset($files['scripts'])) {
-//                Log::warning(tr('Moving Phoundation core scripts back from garbage'));
-//                $files['scripts']->move(DIRECTORY_ROOT . 'scripts/');
 //            }
 //
 //            if (isset($files['templates'])) {
