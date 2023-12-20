@@ -1468,11 +1468,13 @@ abstract class Path implements Stringable, PathInterface
         // Ensure default restrictions and absolute target.
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, (($target instanceof PathInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target       = Filesystem::absolute($target, must_exist: false);
 
-        if (!$absolute) {
+        if ($absolute) {
+            $target = Filesystem::absolute($target, must_exist: false);
+
+        } else {
             // Convert this symlink in a relative link
-
+            $target = $this->getRelativePathTo($target);
         }
 
         if (file_exists($target)) {
@@ -2203,5 +2205,37 @@ throw new UnderConstructionException();
     {
         return Find::new($this->restrictions)
             ->setPath($this->path);
+    }
+
+
+    /**
+     * Returns the relative path between the specified path and this objects path
+     *
+     * @param mixed $path
+     * @return string
+     */
+    public function getRelativePathTo(mixed $path): string
+    {
+        // First make the path absolute, then calculate how to get to this path.
+        $path            = static::new($path)->getPath();
+        $position        = strspn($this->path ^ $path, "\0");
+        $directory_count = static::countDirectories(substr($path, $position));
+        $prefix          = str_repeat('../', $directory_count - 1);
+
+        return $prefix . substr($this->path, $position);
+    }
+
+
+    /**
+     * Returns the amount of directories counted in the specified path
+     *
+     * @param mixed $path
+     * @return int
+     */
+    public static function countDirectories(mixed $path): int
+    {
+        // Remove any file that might contain / in the path name
+        $path = str_replace('\\/', '_', $path);
+        return substr_count($path, '/');
     }
 }

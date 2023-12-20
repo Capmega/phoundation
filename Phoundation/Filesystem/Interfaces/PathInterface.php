@@ -575,4 +575,20 @@ interface PathInterface
      * @return $this
      */
     public function shred(int $passes = 3): static;
+
+    /**
+     * Returns the relative path between the specified path and this objects path
+     *
+     * @param mixed $path
+     * @return string
+     */
+    public function getRelativePathTo(mixed $path): string;
+
+    /**
+     * Returns the amount of directories counted in the specified path
+     *
+     * @param mixed $path
+     * @return int
+     */
+    public static function countDirectories(mixed $path): int;
 }
