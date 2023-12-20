@@ -241,7 +241,6 @@ class Project implements ProjectInterface
             'data',
             'Phoundation',
             'Plugins',
-            'scripts',
             'Templates',
             'tests',
             'www',
