@@ -23,7 +23,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FileBasicsInterface
+interface PathInterface
 {
     /**
      * Returns the configured file buffer size
@@ -395,9 +395,10 @@ interface FileBasicsInterface
      * @note Will return a NEW FileBasics object (File or Directory, basically) for the specified target
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
+     * @param bool $absolute
      * @return $this
      */
-    public function symlink(Stringable|string $target, ?Restrictions $restrictions = null): static;
+    public function symlink(Stringable|string $target, ?Restrictions $restrictions = null, bool $absolute = false): static;
 
     /**
      * Returns true if the file pointer is at EOF

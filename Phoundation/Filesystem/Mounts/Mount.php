@@ -17,7 +17,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTargetString;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Exception\NotExistsException;
-use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\MountInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
@@ -91,11 +91,11 @@ class Mount extends DataEntry implements MountInterface
     /**
      * Returns the mount object for the path that is mounted as close as possible to the specified path
      *
-     * @param FileBasics|string $path
+     * @param Path|string $path
      * @param RestrictionsInterface $restrictions
      * @return static|null
      */
-    public static function getForPath(FileBasics|string $path, RestrictionsInterface $restrictions): ?static
+    public static function getForPath(Path|string $path, RestrictionsInterface $restrictions): ?static
     {
         if (sql()->getDatabase()) {
             $paths = sql()->query('SELECT   `id`, `target_path` 

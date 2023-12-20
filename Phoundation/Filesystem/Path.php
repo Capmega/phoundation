@@ -10,7 +10,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
-use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
@@ -31,7 +30,7 @@ use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Mount;
@@ -60,7 +59,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-abstract class FileBasics implements Stringable, FileBasicsInterface
+abstract class Path implements Stringable, PathInterface
 {
     use DataRestrictions;
     use DataBufferSize;
@@ -120,7 +119,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     {
         if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
             // The Specified file was actually a File or Directory object, get the file from there
-            if ($file instanceof FileBasicsInterface) {
+            if ($file instanceof PathInterface) {
                 $this->setPath($file->getPath());
                 $this->setTarget($file->getTarget());
                 $this->setRestrictions($restrictions ?? $file->getRestrictions());
@@ -172,10 +171,10 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      *
      * @param mixed $path
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @return FileBasicsInterface
+     * @return PathInterface
      * @throws FileNotExistException
      */
-    public static function newExisting(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null): FileBasicsInterface
+    public static function newExisting(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null): PathInterface
     {
         if (is_dir($path)) {
             return Directory::new($path, $restrictions);
@@ -218,11 +217,11 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      * . Is DIRECTORY_ROOT
      * ~ is the current shell's user home directory
      *
-     * @param FileBasics|Stringable|string|null $file
+     * @param Path|Stringable|string|null $file
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function default(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public static function default(Path|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         // Determine what path to choose from the specified file
         if ($file) {
@@ -914,7 +913,7 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
     {
         // Ensure restrictions and ensure target is absolute
         // Restrictions are either specified, included in the target, or this object's restrictions
-        $restrictions = Restrictions::default($restrictions, ($target instanceof FileBasicsInterface ? $target->getRestrictions() : null), $this->getRestrictions());
+        $restrictions = Restrictions::default($restrictions, ($target instanceof PathInterface ? $target->getRestrictions() : null), $this->getRestrictions());
         $target       = Filesystem::absolute($target, must_exist: false);
 
         // Ensure the target directory exists
@@ -1461,14 +1460,20 @@ abstract class FileBasics implements Stringable, FileBasicsInterface
      * @note Will return a NEW FileBasics object (File or Directory, basically) for the specified target
      * @param Stringable|string $target
      * @param Restrictions|null $restrictions
+     * @param bool $absolute
      * @return $this
      */
-    public function symlink(Stringable|string $target, ?Restrictions $restrictions = null): static
+    public function symlink(Stringable|string $target, ?Restrictions $restrictions = null, bool $absolute = false): static
     {
         // Ensure default restrictions and absolute target.
         // Restrictions are either specified, included in the target, or this object's restrictions
-        $restrictions = Restrictions::default($restrictions, (($target instanceof FileBasicsInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
+        $restrictions = Restrictions::default($restrictions, (($target instanceof PathInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
         $target       = Filesystem::absolute($target, must_exist: false);
+
+        if (!$absolute) {
+            // Convert this symlink in a relative link
+
+        }
 
         if (file_exists($target)) {
             if (readlink($target) === $this->path) {

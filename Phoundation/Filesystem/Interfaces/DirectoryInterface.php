@@ -21,7 +21,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface DirectoryInterface extends FileBasicsInterface
+interface DirectoryInterface extends PathInterface
 {
     /**
      * Returns an Execute object to execute callbacks on each file in specified directories
@@ -253,24 +253,24 @@ interface DirectoryInterface extends FileBasicsInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * @param FileBasicsInterface|string $file
+     * @param PathInterface|string $file
      * @return bool
      */
-    public function pathExists(FileBasicsInterface|string $file): bool;
+    public function pathExists(PathInterface|string $file): bool;
 
     /**
      * Returns the specified file added to this directory
      *
-     * @param FileBasicsInterface|string $file
+     * @param PathInterface|string $file
      * @return FileInterface
      */
-    public function addFile(FileBasicsInterface|string $file): FileInterface;
+    public function addFile(PathInterface|string $file): FileInterface;
 
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FileBasicsInterface|string $directory
+     * @param PathInterface|string $directory
      * @return DirectoryInterface
      */
-    public function addDirectory(FileBasicsInterface|string $directory): DirectoryInterface;
+    public function addDirectory(PathInterface|string $directory): DirectoryInterface;
 }

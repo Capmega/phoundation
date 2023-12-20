@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
-use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
@@ -45,7 +45,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Directory extends FileBasics implements DirectoryInterface
+class Directory extends Path implements DirectoryInterface
 {
     /**
      * Temporary directory (public data), if set
@@ -85,10 +85,10 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Directory class constructor
      *
-     * @param FileBasics|string|null $path
+     * @param Path|string|null $path
      * @param array|string|Restrictions|null $restrictions
      */
-    public function __construct(FileBasics|string|null $path = null, array|string|Restrictions|null $restrictions = null)
+    public function __construct(Path|string|null $path = null, array|string|Restrictions|null $restrictions = null)
     {
         parent::__construct($path, $restrictions);
 
@@ -1350,10 +1350,10 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * @param FileBasicsInterface|string $path
+     * @param PathInterface|string $path
      * @return bool
      */
-    public function pathExists(FileBasicsInterface|string $path): bool
+    public function pathExists(PathInterface|string $path): bool
     {
         $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
 
@@ -1366,10 +1366,10 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns the specified file added to this directory
      *
-     * @param FileBasicsInterface|string $file
+     * @param PathInterface|string $file
      * @return FileInterface
      */
-    public function addFile(FileBasicsInterface|string $file): FileInterface
+    public function addFile(PathInterface|string $file): FileInterface
     {
         $file = $this->getPath() . Strings::startsNotWith((string) $file, '/');
         return File::new($file, $this->restrictions);
@@ -1379,10 +1379,10 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param FileBasicsInterface|string $directory
+     * @param PathInterface|string $directory
      * @return DirectoryInterface
      */
-    public function addDirectory(FileBasicsInterface|string $directory): DirectoryInterface
+    public function addDirectory(PathInterface|string $directory): DirectoryInterface
     {
         $directory = $this->getPath() . Strings::startsNotWith((string) $directory, '/');
         return Directory::new($directory, $this->restrictions);

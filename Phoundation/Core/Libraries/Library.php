@@ -15,9 +15,9 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
@@ -626,7 +626,7 @@ class Library implements LibraryInterface
                 ':path' => $file
             ]));
 
-            FileBasics::newExisting($path, $library_restrictions)
+            Path::newExisting($path, $library_restrictions)
                 ->symlink($scripts_path . $file, $scripts_restrictions);
         }
     }

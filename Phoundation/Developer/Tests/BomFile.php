@@ -6,7 +6,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Mtime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
 
@@ -24,7 +24,7 @@ use Stringable;
  */
 class BomFile extends File
 {
-    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(Path|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
         parent::__construct($file, $restrictions);
 

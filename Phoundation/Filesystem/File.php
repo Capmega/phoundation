@@ -38,7 +38,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class File extends FileBasics implements FileInterface
+class File extends Path implements FileInterface
 {
     /**
      * The default size of the file buffer

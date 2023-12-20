@@ -20,7 +20,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FileInterface extends FileBasicsInterface
+interface FileInterface extends PathInterface
 {
     /**
      * Move uploaded image to correct target
