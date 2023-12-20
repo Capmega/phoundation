@@ -621,6 +621,8 @@ class Library implements LibraryInterface
                 continue;
             }
 
+            // TODO Check first if a symlink with this name already exists! If so, make a directory instead and put all sub commands as symlinks in that shared directory
+
             // Symlink doesn't exist yet, place it now
             Log::action(tr('Adding commands symlink for ":path"', [
                 ':path' => $file

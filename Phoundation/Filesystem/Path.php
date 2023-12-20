@@ -59,7 +59,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-abstract class Path implements Stringable, PathInterface
+class Path implements Stringable, PathInterface
 {
     use DataRestrictions;
     use DataBufferSize;
@@ -1347,6 +1347,27 @@ abstract class Path implements Stringable, PathInterface
 
 
     /**
+     * Returns the path that this link points to
+     *
+     * @return PathInterface
+     */
+    public function readlink(): PathInterface
+    {
+        $path = readlink($this->path);
+
+        if (is_dir($path)) {
+            return new Directory($path, $this->restrictions);
+        }
+
+        if (file_exists($path)) {
+            return new File($path, $this->restrictions);
+        }
+
+        return new static($path, $this->restrictions);
+    }
+
+
+    /**
      * Returns true if the file is a symlink AND its target exists
      *
      * @return bool
@@ -1468,34 +1489,36 @@ abstract class Path implements Stringable, PathInterface
         // Ensure default restrictions and absolute target.
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, (($target instanceof PathInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
+        $target       = Path::new($target);
 
+        // Calculate absolute or relative path
         if ($absolute) {
-            $target = Filesystem::absolute($target, must_exist: false);
+            $calculated_target = $this->path;
 
         } else {
             // Convert this symlink in a relative link
-            $target = $this->getRelativePathTo($target);
+            $calculated_target = $this->getRelativePathTo($target);
         }
 
-        if (file_exists($target)) {
-            if (readlink($target) === $this->path) {
+        if ($target->exists()) {
+            if ($target->readlink()->getPath() === $this->path) {
                 // Symlink already exists and points to the same file, all fine
                 return static::new($target, $restrictions);
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
-                ':target' => $target,
-                ':source' => $this->path,
-                ':current' => readlink($target)
+                ':target'  => $target,
+                ':source'  => $this->path,
+                ':current' => $target->readlink()->getPath()
             ]));
         }
 
         // Ensure that we have restrictions access and target path exists
         $restrictions->check($target, true);
-        Directory::new(dirname($target), $this->restrictions->getParent())->ensure();
+        $target->getParentDirectory()->ensure();
 
         // Symlink
-        symlink($this->path, $target);
+        symlink($calculated_target, $target->getPath());
         return static::new($target, $this->restrictions);
     }
 
@@ -2216,11 +2239,13 @@ throw new UnderConstructionException();
      */
     public function getRelativePathTo(mixed $path): string
     {
+        $a = $path;
         // First make the path absolute, then calculate how to get to this path.
         $path            = static::new($path)->getPath();
+        $path            = Strings::endsNotWith($path, '/');
         $position        = strspn($this->path ^ $path, "\0");
         $directory_count = static::countDirectories(substr($path, $position));
-        $prefix          = str_repeat('../', $directory_count - 1);
+        $prefix          = str_repeat('../', $directory_count);
 
         return $prefix . substr($this->path, $position);
     }

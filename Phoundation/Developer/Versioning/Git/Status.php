@@ -266,6 +266,11 @@ class Status
                 $this->readable      = tr('Renamed indexed and modified');
                 break;
 
+            case 'T ':
+                $this->flag_modified = true;
+                $this->readable      = tr('Type changed');
+                break;
+
             case '??':
                 $this->flag_tracked  = false;
                 $this->readable      = tr('Not tracked');

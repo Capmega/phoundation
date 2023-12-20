@@ -14,6 +14,7 @@ use Phoundation\Cli\Exception\StdInException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -28,6 +29,7 @@ use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -405,6 +407,26 @@ class CliCommand
      */
     protected static function findScript(): string
     {
+        $position = 0;
+        $file     = DIRECTORY_ROOT . 'scripts/';
+        $methods  = ArgvValidator::getMethods();
+
+        static::$methods = $methods;
+
+        // Ensure ROOT/scripts exists
+        if (!file_exists($file)) {
+            Log::warning(tr('Scripts directory ":path" does not yet exists, executing system initialization', [
+                ':path' => $file
+            ]));
+
+            // Commands directory does not exist! Init first!
+            Directory::new($file, Restrictions::writable(DIRECTORY_ROOT . 'scripts/', tr('CliCommand::findScript() initialization')))->ensure();
+
+            // Initialize the system
+            Libraries::initialize();
+        }
+
+        // Is any method specified at all?
         if (!ArgvValidator::getMethodCount()) {
             throw NoMethodSpecifiedException::new('No method specified!')
                 ->makeWarning()
@@ -414,11 +436,7 @@ class CliCommand
                 ]);
         }
 
-        $position = 0;
-        $file = DIRECTORY_ROOT . 'scripts/';
-        $methods = ArgvValidator::getMethods();
-        static::$methods = $methods;
-
+        // Process methods
         foreach ($methods as $position => $method) {
             if (!static::validateMethod($method)) {
                 continue;
