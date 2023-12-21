@@ -6,7 +6,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait DataTarget
+ * Trait DataType
  *
  *
  *
@@ -15,36 +15,36 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataTarget
+trait DataType
 {
     /**
-     * The target to use
+     * The type for this object
      *
-     * @var string|null $target
+     * @var string|null $type
      */
-    protected ?string $target;
+    protected ?string $type = null;
 
 
     /**
-     * Returns the source
+     * Returns the type
      *
      * @return string|null
      */
-    public function getTarget(): ?string
+    public function getType(): ?string
     {
-        return $this->target;
+        return $this->type;
     }
 
 
     /**
-     * Sets the source
+     * Sets the type
      *
-     * @param string|null $target
+     * @param string|null $type
      * @return static
      */
-    public function setTarget(?string $target): static
+    public function setType(?string $type): static
     {
-        $this->target = $target;
+        $this->type = get_null($type);
         return $this;
     }
 }

@@ -59,18 +59,21 @@ trait DataEntryName
      * Sets the name for this object
      *
      * @param string|null $name
+     * @param bool $set_seo_name
      * @return static
      */
-    public function setName(?string $name): static
+    public function setName(?string $name, bool $set_seo_name = true): static
     {
-        if ($name === null) {
-            $this->setSourceValue('seo_name', null, true);
+        if ($set_seo_name) {
+            if ($name === null) {
+                $this->setSourceValue('seo_name', null, true);
 
-        } else {
-            // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
-            // the entry if it does!
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
-            $this->setSourceValue('seo_name', $seo_name, true);
+            } else {
+                // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
+                // the entry if it does!
+                $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+                $this->setSourceValue('seo_name', $seo_name, true);
+            }
         }
 
         return $this->setSourceValue('name', $name);

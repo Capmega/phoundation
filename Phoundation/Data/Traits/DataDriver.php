@@ -6,7 +6,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait DataTarget
+ * Trait DataDriver
  *
  *
  *
@@ -15,36 +15,36 @@ namespace Phoundation\Data\Traits;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataTarget
+trait DataDriver
 {
     /**
-     * The target to use
+     * The driver for this object
      *
-     * @var string|null $target
+     * @var string|null $driver
      */
-    protected ?string $target;
+    protected ?string $driver = null;
 
 
     /**
-     * Returns the source
+     * Returns the driver
      *
      * @return string|null
      */
-    public function getTarget(): ?string
+    public function getDriver(): ?string
     {
-        return $this->target;
+        return $this->driver;
     }
 
 
     /**
-     * Sets the source
+     * Sets the driver
      *
-     * @param string|null $target
+     * @param string|null $driver
      * @return static
      */
-    public function setTarget(?string $target): static
+    public function setDriver(?string $driver): static
     {
-        $this->target = $target;
+        $this->driver = get_null($driver);
         return $this;
     }
 }

@@ -48,7 +48,7 @@ trait DataPort
     {
         if ($port) {
             if (($port < 1) or ($port > 65535)) {
-                throw new OutOfBoundsException(tr('Invalid port ":port" specified', [
+                throw new OutOfBoundsException(tr('Invalid port ":port" specified, it must be an integer value between 1 and 65535', [
                     ':port' => $port
                 ]));
             }
