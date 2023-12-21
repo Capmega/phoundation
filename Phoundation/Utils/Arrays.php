@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Interfaces\EnumMatchModeInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Throwable;
 use UnitEnum;
 
@@ -459,54 +460,6 @@ class Arrays {
 
 
     /**
-     * Filter the specified values out of the source array
-     *
-     * @param array $source
-     * @param array|string $values
-     * @param EnumMatchModeInterface $match_mode
-     * @return array
-     */
-    public static function filterValues(array $source, array|string $values, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
-    {
-        switch ($match_mode) {
-            case EnumMatchMode::full:
-                // Perform full match
-                foreach (Arrays::force($values, null) as $filter_value) {
-                    if (($key = array_search($filter_value, $source)) !== false) {
-                        unset($source[$key]);
-                    }
-                }
-
-                return $source;
-
-            case EnumMatchMode::partial:
-                // Perform partial match
-                foreach ($source as $key => $value) {
-                    foreach (Arrays::force($values, null) as $filter_value) {
-                        if (str_contains($filter_value, $value)) {
-                            unset($source[$key]);
-                        }
-                    }
-                }
-
-                return $source;
-
-            case EnumMatchMode::regex:
-                // Perform regex match
-                foreach ($source as $key => $value) {
-                    foreach (Arrays::force($values, null) as $filter_value) {
-                        if (preg_match($filter_value, $value)) {
-                            unset($source[$key]);
-                        }
-                    }
-                }
-
-                return $source;
-        }
-    }
-
-
-    /**
      * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
      *
      * @param int $count
@@ -570,24 +523,24 @@ class Arrays {
      * Return the source array with the specified keys kept, all else removed.
      *
      * @param DataListInterface|array $source
-     * @param string|array $keys
+     * @param string|array $needles
+     * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function keep(DataListInterface|array $source, string|array $keys): array
+    public static function listKeepKeys(DataListInterface|array $source, string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
-        $return = [];
+        $needles = Arrays::force($needles);
 
         if ($source instanceof DataListInterface) {
             $source = $source->getSource();
         }
 
-        foreach (Arrays::force($keys) as $key) {
-            if (array_key_exists($key, $source)) {
-                $return[$key] = $source[$key];
-            }
+        foreach ($source as &$entry) {
+            $entry = Arrays::keepKeys($entry, $needles, $match_mode);
         }
 
-        return $return;
+        unset($entry);
+        return $source;
     }
 
 
@@ -595,24 +548,222 @@ class Arrays {
      * Return the source array with the specified keys kept, all else removed.
      *
      * @param DataListInterface|array $source
-     * @param string|array $keys
+     * @param string|array $needles
+     * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function listKeep(DataListInterface|array $source, string|array $keys): array
+    public static function listKeepValues(DataListInterface|array $source, string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
-        $keys = Arrays::force($keys);
+        $needles = Arrays::force($needles);
 
         if ($source instanceof DataListInterface) {
             $source = $source->getSource();
         }
 
         foreach ($source as &$entry) {
-            $entry = Arrays::keep($entry, $keys);
+            $entry = Arrays::keepValues($entry, $needles, $match_mode);
         }
 
         unset($entry);
-
         return $source;
+    }
+
+
+    /**
+     * Return the source array with the specified keys kept, all else removed.
+     *
+     * @param DataListInterface|array $source
+     * @param string|array $needles
+     * @param EnumMatchModeInterface $match_mode
+     * @return array
+     */
+    public static function listRemoveKeys(DataListInterface|array $source, string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
+    {
+        $needles = Arrays::force($needles);
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
+
+        foreach ($source as &$entry) {
+            $entry = Arrays::removeKeys($entry, $needles, $match_mode);
+        }
+
+        unset($entry);
+        return $source;
+    }
+
+
+    /**
+     * Return the source array with the specified keys kept, all else removed.
+     *
+     * @param DataListInterface|array $source
+     * @param string|array $needles
+     * @param string|null $column
+     * @param EnumMatchModeInterface $match_mode
+     * @return array
+     */
+    public static function listRemoveValues(DataListInterface|array $source, string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
+    {
+        $needles = Arrays::force($needles);
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
+
+        foreach ($source as &$entry) {
+            $entry = Arrays::removeValues($entry, $needles, $column, $match_mode);
+        }
+
+        unset($entry);
+        return $source;
+    }
+
+
+    /**
+     * Return the source array with the specified keys kept, all else removed.
+     *
+     * @param DataListInterface|array $source
+     * @param string|array $needles
+     * @param EnumMatchModeInterface $match_mode
+     * @return array
+     */
+    public static function keepKeys(DataListInterface|array $source, string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
+    {
+        $return  = [];
+        $needles = Arrays::force($needles);
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
+
+        switch ($match_mode) {
+            case EnumMatchMode::not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if ($key != $needle) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::full:
+                foreach ($needles as $needle) {
+                    if (array_key_exists($needle, $source)) {
+                        $return[$needle] = $source[$needle];
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::strict:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if ($key === $needle) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::regex:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (preg_match($needle, $key)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::case_ignore:
+                foreach ($needles as $needle) {
+                    $needle = strtolower($needle);
+
+                    foreach ($source as $key => $value) {
+                        if (strtolower($key) === $needle) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::contains:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (str_contains($needle, $key)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::contains_not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (!str_contains($needle, $key)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::starts_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (str_starts_with($key, $needle)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::starts_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (!str_starts_with($key, $needle)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::ends_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (str_ends_with($key, $needle)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::ends_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (!str_ends_with($key, $needle)) {
+                            $return[$key] = $value;
+                        }
+                    }
+                }
+
+                return $return;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                    ':mode' => $match_mode
+                ]));
+        }
     }
 
 
@@ -620,20 +771,574 @@ class Arrays {
      * Return the source array with the specified keys removed.
      *
      * @param DataListInterface|array $source
-     * @param array|string $keys
+     * @param array|string $needles
+     * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function remove(DataListInterface|array $source, array|string $keys): array
+    public static function removeKeys(DataListInterface|array $source, array|string $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
+        $needles = Arrays::force($needles);
+
         if ($source instanceof DataListInterface) {
             $source = $source->getSource();
         }
 
-        foreach (Arrays::force($keys) as $key) {
-            unset($source[$key]);
+        switch ($match_mode) {
+            case EnumMatchMode::not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if ($key != $needle) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::full:
+                foreach (Arrays::force($needles) as $needle) {
+                    unset($source[$needle]);
+                }
+
+                return $source;
+
+            case EnumMatchMode::strict:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if ($key === $needle) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::regex:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (preg_match($needle, $key)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::case_ignore:
+                foreach ($needles as $needle) {
+                    $needle = strtolower($needle);
+
+                    foreach ($source as $key => $value) {
+                        if (strtolower($key) === $needle) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::contains:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (str_contains($needle, $key)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::contains_not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (!str_contains($needle, $key)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::starts_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (str_starts_with($key, $needle)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::starts_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (!str_starts_with($key, $needle)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::ends_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (str_ends_with($key, $needle)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::ends_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        if (!str_ends_with($key, $needle)) {
+                            unset($source[$key]);
+                        }
+                    }
+                }
+
+                return $source;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                    ':mode' => $match_mode
+                ]));
+        }
+    }
+
+
+    /**
+     * Return the source array with the specified values kept, all else removed.
+     *
+     * @param DataListInterface|array $source
+     * @param string|array $needles
+     * @param string|null $column
+     * @param EnumMatchModeInterface $match_mode
+     * @param bool $single
+     * @return array
+     */
+    public static function keepValues(DataListInterface|array $source, string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
+    {
+        $return  = [];
+        $needles = Arrays::force($needles);
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
         }
 
-        return $source;
+        switch ($match_mode) {
+            case EnumMatchMode::not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if ($test_value != $needle) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::full:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if ($test_value == $needle) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::strict:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if ($test_value === $needle) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::regex:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (preg_match($needle, $test_value)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::case_ignore:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+                        $test_value = strtolower($test_value);
+
+                        if ($test_value === strtolower($needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::contains:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (str_contains($test_value, $needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::contains_not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (!str_contains($test_value, $needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::starts_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (str_starts_with($test_value, $needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::starts_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (!str_starts_with($test_value, $needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::ends_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (str_ends_with($test_value, $needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            case EnumMatchMode::ends_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (!str_ends_with($test_value, $needle)) {
+                            $return[$key] = $value;
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $return;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                    ':keysmode' => $match_mode
+                ]));
+        }
+    }
+
+
+    /**
+     * Return the source array with the specified values removed.
+     *
+     * @param DataListInterface|array $source
+     * @param array|string $needles
+     * @param string|null $column
+     * @param EnumMatchModeInterface $match_mode
+     * @param bool $single
+     * @return array
+     */
+    public static function removeValues(DataListInterface|array $source, array|string $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
+    {
+        $needles = Arrays::force($needles);
+
+        if ($source instanceof DataListInterface) {
+            $source = $source->getSource();
+        }
+
+        switch ($match_mode) {
+            case EnumMatchMode::not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if ($test_value != $needle) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::full:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if ($test_value == $needle) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::strict:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if ($test_value === $needle) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::regex:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (preg_match($needle, $test_value)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::case_ignore:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+                        $test_value = strtolower($test_value);
+
+                        if ($test_value === strtolower($needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::contains:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (str_contains($test_value, $needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::contains_not:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (!str_contains($test_value, $needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::starts_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (str_starts_with($test_value, $needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::starts_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (!str_starts_with($test_value, $needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::ends_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (str_ends_with($test_value, $needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            case EnumMatchMode::ends_not_with:
+                foreach ($needles as $needle) {
+                    foreach ($source as $key => $value) {
+                        $test_value = static::getStringValue($value, $column);
+
+                        if (!str_ends_with($test_value, $needle)) {
+                            unset($source[$key]);
+
+                            if ($single) {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $source;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                    ':mode' => $match_mode
+                ]));
+        }
     }
 
 
@@ -899,7 +1604,7 @@ class Arrays {
         $arguments = static::getArgumentArrays(func_get_args(), 3);
         $filters   = array_shift($arguments);
         $source    = array_shift($arguments);
-        $source    = Arrays::remove($source, $filters);
+        $source    = Arrays::removeKeys($source, $filters);
 
         array_unshift($arguments, $source);
 
@@ -2484,5 +3189,43 @@ class Arrays {
         uasort($source, $callback);
 
         return $source;
+    }
+
+
+    /**
+     * Returns the value if it's a scalar, the key value if it's an array, or the object value if it's a
+     * DataEntryInterface object
+     *
+     * @param mixed $value
+     * @param string|null $column
+     * @return string
+     */
+    protected static function getStringValue(mixed $value, ?string $column): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_scalar($value)) {
+            return Strings::force($value);
+        }
+
+        if (!$column) {
+            throw new OutOfBoundsException(tr('Cannot extract string value from array or DataEntryInterface object, no column specified', [
+                ':value' => $value
+            ]));
+        }
+
+        if (is_array($value)) {
+            return $value[$column];
+        }
+
+        if ($value instanceof DataEntryInterface) {
+            return $value->getSourceValue($column);
+        }
+
+        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
+            ':value' => $value
+        ]));
     }
 }

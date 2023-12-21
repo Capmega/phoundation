@@ -627,7 +627,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
 
             if (isset($this->columns)) {
-                $row = Arrays::keep($row, $this->columns);
+                $row = Arrays::keepKeys($row, $this->columns);
             }
 
             $this->executeCallbacks($row, TableRowType::row, $params);

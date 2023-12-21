@@ -187,7 +187,7 @@ class Email extends DataEntry implements EmailInterface
                     'other'    => tr('Other'),
                 ])
                 ->setCliAutoComplete([
-                    'word'   => function (string $word) { return Arrays::filterValues([tr('Business'), tr('Personal'), tr('Other')], $word); },
+                    'word'   => function (string $word) { return Arrays::removeValues([tr('Business'), tr('Personal'), tr('Other')], $word); },
                     'noword' => function ()             { return [tr('Business'), tr('Personal'), tr('Other')]; },
                 ])
                 ->setLabel(tr('Type'))

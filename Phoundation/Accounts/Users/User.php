@@ -1298,7 +1298,7 @@ class User extends DataEntry implements UserInterface
      */
     protected function getDataForValidation(): array
     {
-        return Arrays::remove(parent::getDataForValidation(), ['password']);
+        return Arrays::removeKeys(parent::getDataForValidation(), ['password']);
     }
 
 
@@ -1698,7 +1698,7 @@ class User extends DataEntry implements UserInterface
                     'other'  => tr('Other')
                 ])
                 ->setCliAutoComplete([
-                    'word'   => function (string $word) { return Arrays::filterValues([tr('Male'), tr('Female'), tr('Other')], $word); },
+                    'word'   => function (string $word) { return Arrays::removeValues([tr('Male'), tr('Female'), tr('Other')], $word); },
                     'noword' => function ()             { return [tr('Male'), tr('Female'), tr('Other')]; },
                 ])
                 ->setLabel(tr('Gender'))

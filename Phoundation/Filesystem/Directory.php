@@ -433,8 +433,8 @@ class Directory extends Path implements DirectoryInterface
      */
     public function list(): FilesInterface
     {
-        $list   = Arrays::filterValues(scandir($this->path), ['.', '..']);
         $return = [];
+        $list   = Arrays::removeValues(scandir($this->path), ['.', '..']);
 
         foreach ($list as $value) {
             $return[$value] = $this->path . $value;

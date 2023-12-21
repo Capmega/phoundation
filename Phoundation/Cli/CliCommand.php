@@ -12,7 +12,6 @@ use Phoundation\Cli\Exception\MethodNotFoundException;
 use Phoundation\Cli\Exception\NoMethodSpecifiedException;
 use Phoundation\Cli\Exception\StdInException;
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
@@ -20,7 +19,6 @@ use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
-use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\Time;
 use Phoundation\Exception\Exception;
@@ -33,6 +31,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Throwable;
@@ -432,7 +431,7 @@ class CliCommand
                 ->makeWarning()
                 ->addData([
                     'position' => 0,
-                    'methods'  => Arrays::filterValues(scandir(DIRECTORY_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex),
+                    'methods'  => Arrays::removeValues(scandir(DIRECTORY_ROOT . 'scripts/'), '/^\./', match_mode: EnumMatchMode::regex),
                 ]);
         }
 
@@ -453,8 +452,8 @@ class CliCommand
                 ]))->makeWarning()
                     ->addData([
                         'position'         => $position,
-                        'methods'          => Arrays::filterValues(scandir(dirname($file))         , '/^\./', EnumMatchMode::regex),
-                        'previous_methods' => Arrays::filterValues(scandir(dirname(dirname($file))), '/^\./', EnumMatchMode::regex)
+                        'methods'          => Arrays::removeValues(scandir(dirname($file))         , '/^\./', match_mode: EnumMatchMode::regex),
+                        'previous_methods' => Arrays::removeValues(scandir(dirname(dirname($file))), '/^\./', match_mode: EnumMatchMode::regex)
                     ]);
             }
 
@@ -500,8 +499,8 @@ class CliCommand
             ->makeWarning()
             ->addData([
                 'position'         => $position + 1,
-                'methods'          => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex),
-                'previous_methods' => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
+                'methods'          => Arrays::removeValues(scandir($file), '/^\./'         , match_mode: EnumMatchMode::regex),
+                'previous_methods' => Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex)
             ]);
     }
 

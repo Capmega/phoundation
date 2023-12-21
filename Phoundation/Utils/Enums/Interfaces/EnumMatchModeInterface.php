@@ -1,10 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Core\Enums;
-
-use Phoundation\Core\Interfaces\EnumMatchModeInterface;
+namespace Phoundation\Utils\Enums\Interfaces;
 
 
 /**
@@ -17,9 +13,6 @@ use Phoundation\Core\Interfaces\EnumMatchModeInterface;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @package Phoundation\Core
  */
-enum EnumMatchMode: string implements EnumMatchModeInterface
+interface EnumMatchModeInterface
 {
-    case full    = 'full';
-    case partial = 'partial';
-    case regex   = 'regex';
 }
