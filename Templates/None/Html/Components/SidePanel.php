@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace Templates\None\Html\Components;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -44,7 +45,7 @@ class SidePanel extends Renderer
     {
         $this->render = ' <aside class="main-sidebar sidebar-dark-primary elevation-4">
                             <a href="' . Html::safe(UrlBuilder::getCurrent()) . '" class="brand-link">
-                              <img src="' . Html::safe(UrlBuilder::getImg('img/logos/' . Page::getProjectName() . '/project-square-64.png')) . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Html::safe(Config::get('project.name')))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
+                              <img src="' . Html::safe(UrlBuilder::getImg('img/logos/' . Core::getProjectSeoName() . '/project-square-64.png')) . '" alt="' . tr(':project logo', [':project' => Strings::capitalize(Html::safe(Config::get('project.name')))]) . '" class="brand-image img-circle elevation-3" style="opacity: .8">
                               <span class="brand-text font-weight-light">' . Html::safe(Strings::capitalize(Config::get('project.name'))) . '</span>
                             </a>
                             <div class="sidebar">

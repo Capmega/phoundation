@@ -1,5 +1,6 @@
 <?php
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Html;
@@ -26,7 +27,7 @@ Page::setHeaderSubTitle(tr('Demo'));
 Page::setBuildBody(false);
 
 ?>
-<body class="hold-transition lockscreen" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/lock-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+<body class="hold-transition lockscreen" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lock-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <!-- Automatic element centering -->
     <div class="lockscreen-wrapper card card-outline card-info">
         <div class="card-header text-center">

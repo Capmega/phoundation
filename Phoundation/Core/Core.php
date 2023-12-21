@@ -2785,4 +2785,21 @@ class Core implements CoreInterface
             Log::warning('-', 10);
         }
     }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getProjectSeoName():string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(PROJECT));
+        }
+
+        return $return;
+    }
 }

@@ -536,17 +536,6 @@ class Page implements PageInterface
 
 
     /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectName():string
-    {
-        return str_replace('_', '-', strtolower(PROJECT));
-    }
-
-
-    /**
      * Sets an alternative class for the <body> tag
      *
      * @param bool $build_body
@@ -1868,7 +1857,7 @@ class Page implements PageInterface
     {
         try {
             if (!$url) {
-                $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
+                $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
                 $file = Filesystem::absolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 

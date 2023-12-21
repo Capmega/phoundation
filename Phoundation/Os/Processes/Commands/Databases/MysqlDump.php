@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataDebug;
@@ -381,7 +382,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
     {
         if (!$file) {
             // Generate default file
-            $file = strtolower(PROJECT) . '/mysql/' . strtolower(PROJECT) . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+
+            $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
         }
 
         $file = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/', false);
