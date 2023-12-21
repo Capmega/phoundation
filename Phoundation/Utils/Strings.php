@@ -9,6 +9,7 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Zend_Utf8;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -1677,8 +1678,12 @@ throw new UnderConstructionException();
         } elseif (is_enum($source)) {
             $source = $source->value;
 
+        } elseif ($source instanceof DataEntryInterface) {
+            $source = $source->getLogId();
+
         } elseif ($source instanceof Stringable) {
             // Do nothing, display the string version of this object
+            $source = (string) $source;
 
         } elseif (is_object($source)) {
             $source = 'object: ' . get_class($source);
