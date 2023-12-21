@@ -4,8 +4,12 @@ namespace Phoundation\Databases\Connectors;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+use Phoundation\Databases\Sql\Exception\SqlConnectorException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
+use Throwable;
 
 
 /**
@@ -60,24 +64,44 @@ class Connectors extends DataList implements ConnectorsInterface
      * @param bool $clear
      * @return $this
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $ignore_sql_exceptions = false): static
     {
-        parent::load($clear);
+        try {
+            parent::load($clear);
+
+        } catch (SqlExceptionInterface $e) {
+            if (!$ignore_sql_exceptions) {
+                // In some cases we need access to configured connectors while database connectors are not available
+                // because the database may not exist, or a database version may be so old that the databases_connectors
+                // table doesn't exist. In those cases where we know that this might happen, we will ignore SQL
+                // exceptions and continue loading connectors from configuration
+                throw $e;
+            }
+        }
 
         // Get connectors from the configuration
         $connectors = Config::getArray(Connector::new()->getConfigPath());
         $count      = 0;
 
         // Load all connectors by type
-        foreach ($connectors as $type => $type_connectors) {
-            foreach ($type_connectors as $name => &$connector) {
-                $connector['id']       = --$count;
-                $connector['type']     = $type;
-                $connector['name']     = $name;
-                $connector['seo_name'] = Seo::string($name);
-
-                $this->source[$count] = Connector::fromSource($connector);
+        foreach ($connectors as $name => &$connector) {
+            if (!is_array($connector)) {
+                throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it should contain an array with at least "type"', [
+                    ':connector' => $name
+                ]));
             }
+
+            if (empty($connector['type'])) {
+                throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it has no type specified', [
+                    ':connector' => $name
+                ]));
+            }
+
+            $connector['id']       = --$count;
+            $connector['name']     = $name;
+            $connector['seo_name'] = Seo::string($name);
+
+            $this->source[$count]  = Connector::fromSource($connector, true);
         }
 
         return $this;

@@ -62,6 +62,17 @@ class Databases
 
 
     /**
+     * Returns an array with the available drivers
+     *
+     * @return array
+     */
+    public static function getDrivers(): array
+    {
+        return ['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'];
+    }
+
+
+    /**
      * Returns a Database instance for the specified connector
      *
      * @param ConnectorInterface $connector

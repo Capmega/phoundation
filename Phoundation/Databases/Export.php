@@ -2,34 +2,50 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Os\Processes\Commands\Databases;
+namespace Phoundation\Databases;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataDebug;
+use Phoundation\Data\Traits\DataDriver;
 use Phoundation\Data\Traits\DataFile;
-use Phoundation\Filesystem\Filesystem;
-use Phoundation\Os\Processes\Commands\Command;
-use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
+use Phoundation\Data\Traits\DataHost;
+use Phoundation\Data\Traits\DataPort;
+use Phoundation\Data\Traits\DataTimeout;
+use Phoundation\Data\Traits\DataUserPass;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**
- * Class MysqlDump
+ * Class Export
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package Phoundation\Databases
  */
-class MysqlDump extends Command implements MysqlDumpInterface
+class Export
 {
+    use DataTimeout;
+    use DataDriver;
+    use DataPort;
+    use DataHost;
+    use DataUserPass;
     use DataDebug;
     use DataConnector;
+    use DataRestrictions;
 
 
     /**
@@ -112,6 +128,29 @@ class MysqlDump extends Command implements MysqlDumpInterface
      * @var bool $gzip
      */
     protected bool $gzip = true;
+
+
+    /**
+     * Exporter class constructor
+     *
+     * @param RestrictionsInterface|null $restrictions
+     */
+    public function __construct(?RestrictionsInterface $restrictions = null)
+    {
+        $this->restrictions = Restrictions::default($restrictions, Restrictions::writable('/', 'Mysql exporter'));
+    }
+
+
+    /**
+     * Returns a new Export object
+     *
+     * @param RestrictionsInterface|null $restrictions
+     * @return static
+     */
+    public static function new(?RestrictionsInterface $restrictions = null): static
+    {
+        return new static($restrictions);
+    }
 
 
     /**
@@ -374,43 +413,29 @@ class MysqlDump extends Command implements MysqlDumpInterface
      * @param string $file
      * @param EnumExecuteMethodInterface $method
      * @return static
+     * @throws SqlExceptionInterface
      */
     public function dump(string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
     {
-        $file = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/', false);
+        switch ($this->driver) {
+            case null:
+                throw new OutOfBoundsException(tr('No export driver specified'));
 
-        // Build the process parameters, then execute
-        $this->setInternalCommand('mysqldump')
-            ->clearArguments()
-            ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword()])
-            ->addArgument( $this->disable_keys                   ? '--disable-keys'    : null)
-            ->addArgument( $this->events                         ? '--events'          : null)
-            ->addArgument( $this->routines                       ? '--routines'        : null)
-            ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
-            ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
-            ->addArgument( $this->extended_insert                ? '--extended-insert' : null)
-            ->addArgument( $this->comments                       ? '--comments'        : '--skip-comments')
-            ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
+            case 'mysql':
+                Log::information(tr('Exporting to MySQL dump file ":file" from databases ":database", this may take a while...', [
+                    ':file'     => $file,
+                    ':database' => Strings::force($this->databases, ', '),
+                ]));
 
-        if ($this->connector->getPort()) {
-            $this->addArguments(['-p', $this->connector->getPort()]);
-        }
+                MysqlDump::new($this->restrictions)
+                    ->setConnector($this->connector)
+                    ->setTimeout($this->timeout)
+                    ->setDatabases($this->databases)
+                    ->dump($file);
+                break;
 
-        // Add databases
-        $this->addArgument('--databases')
-            ->addArguments($this->databases);
-
-        // Optionally add gzip
-        if ($this->gzip) {
-            $this->setPipe('gzip');
-        }
-
-        // Add pipe to output and execute
-        $results = $this->setOutputRedirect($file)->executeReturnArray();
-
-        if ($this->debug) {
-            Log::information(tr('Output of the mysqldump command:'), 4);
-            Log::debug($results, 4);
+            default:
+                throw new UnderConstructionException();
         }
 
         return $this;

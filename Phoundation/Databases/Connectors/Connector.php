@@ -404,22 +404,7 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
 
-        try {
-            $connector = parent::get($identifier, $column, $meta_enabled, $force);
-
-        } catch (DataEntryNotExistsException $e) {
-            // Requested connector not found in DB. Maybe it exists as a configured connector?
-            if ($column === 'name') {
-                $connector = Config::getArray('databases.connectors.' . $identifier, []);
-            }
-
-            if (empty($connector)) {
-                // Nope, not in config either
-                throw $e;
-            }
-        }
-
-        return $connector;
+        return parent::get($identifier, $column, $meta_enabled, $force);
     }
 
 

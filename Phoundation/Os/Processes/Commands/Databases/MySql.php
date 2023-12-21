@@ -6,6 +6,7 @@ namespace Phoundation\Os\Processes\Commands\Databases;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataHostnamePort;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataUserPass;
@@ -14,6 +15,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
@@ -42,36 +44,65 @@ class MySql extends Command
     use DataHostnamePort;
     use DataUserPass;
     use DataSource;
+    use DataConnector;
+
+
+    /**
+     * Drops the specified database
+     *
+     * @param string|null $database
+     * @return static
+     */
+    public function drop(?string $database): static
+    {
+        if ($database) {
+            // Drop the requested database
+            sql($this->connector, false)->schema(false)
+                ->database($database)
+                ->drop();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Drops the specified database
+     *
+     * @param string|null $database
+     * @return static
+     */
+    public function create(?string $database): static
+    {
+        if ($database) {
+            // Drop the requested database
+            sql($this->connector, false)->schema(false)
+                ->database($database)
+                ->create();
+        }
+
+        return $this;
+    }
 
 
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param string $database
-     * @param bool $drop
      * @param string $file
+     * @param RestrictionsInterface $restrictions
+     * @param int $timeout
+     * @throws Throwable
      */
-    public function import(string $database, string $file, bool $drop, int $timeout = 3600): void
+    public function import(string $file, RestrictionsInterface $restrictions, int $timeout = 3600): void
     {
         // Get file and database information
         $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
-        $restrictions = Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer');
+        $restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
         $threshold    = Log::setThreshold(3);
-        $config       = static::getInstanceConfigForDatabase($database);
 
         // If we're importing the system database, then switch to init mode!
-        if ($config['database'] === sql()->getDatabase()) {
+        if ($this->connector->getDatabase() === sql()->getDatabase()) {
             Core::setInitState();
-        }
-
-        // Drop the requested database
-        if ($drop) {
-            sql($database, false)->schema(false)
-                ->database($config['database'])
-                ->drop()
-                ->create();
-
-            sql($database)->use($config['database']);
         }
 
         // Check file restrictions and start the import
@@ -83,7 +114,7 @@ class MySql extends Command
             case 'text/plain':
                 $this->setInternalCommand('mysql')
                     ->setTimeout($timeout)
-                    ->addArguments(['-h', $config['hostname'], '-u', $config['username'], '-p' . $config['password'], '-B', $config['database']])
+                    ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()])
                     ->setInputRedirect($file)
                     ->executeNoReturn();
                 break;
@@ -91,7 +122,7 @@ class MySql extends Command
             case 'application/gzip':
                 $this->setInternalCommand('mysql')
                     ->setTimeout($timeout)
-                    ->addArguments(['-h', $config['hostname'], '-u', $config['username'], '-p' . $config['password'], '-B', $config['database']]);
+                    ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()]);
 
                 Zcat::new()
                     ->setTimeout($timeout)
@@ -272,7 +303,7 @@ class MySql extends Command
      */
     protected function getInstanceConfigForDatabase(string $database): array
     {
-        return Config::getArray('databases.connectors.sql.' . $database);
+        return Config::getArray('databases.connectors.' . $database);
         foreach (Sql::getConnectors() as $connector) {
 
         }

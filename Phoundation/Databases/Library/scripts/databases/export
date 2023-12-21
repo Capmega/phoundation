@@ -6,11 +6,16 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Databases;
+use Phoundation\Databases\Export;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Enums\EnumCompareMode;
+use Phoundation\Utils\Enums\EnumMatchMode;
 
 
 /**
@@ -31,31 +36,38 @@ CliDocumentation::help('This script will export the specified database to the sp
 ARGUMENTS
 
 
+-b / --database DATABASE                The database in which to export
+
 -d / --driver DRIVER                    The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
                                         The name is not case sensitive (NOTE: For the moment only MySQL is supported)
 
--g / --gzip                             Will produce a gzip compressed database dump file
+-f / --file FILE                        The file which to export to
 
--t / --timeout TIMEOUT                  Timeout in integer seconds before the process will be terminated due to timeout
-                                        (defaults to 3600)
+[-c / --connector CONNECTOR]            The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
+                                        The name is not case sensitive (NOTE: For the moment only MySQL is supported)
 
--b / --database DATABASE                The database in which to export
+[-g / --gzip]                           Will produce a gzip compressed database dump file
 
--f / --file FILE                        The file which to export to');
+[-t / --timeout TIMEOUT]                Timeout in integer seconds before the process will be terminated due to timeout
+                                        (defaults to 3600)');
 
 CliDocumentation::autoComplete([
     'arguments' => [
-        '-t,--timeout' => false,
+        '-t,--timeout' => true,
         '-g,--gzip'    => false,
         '--file' => [
             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.sql'); },
             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan('*.sql'); },
         ],
-        '--driver' => [
-            'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
-            'noword' => ['mysql']
+        '-c,--connector' => [
+            'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getSourceColumn('name'); },
+            'noword' => function ()      { return Connectors::new()->load(true, true)->getSourceColumn('name'); },
         ],
-        '--database' => [
+        '-d,--driver' => [
+            'word'   => function ($word) { return Arrays::keepValues(Databases::getDrivers(), $word, match_mode: EnumMatchMode::starts_with); },
+            'noword' => Databases::getDrivers()
+        ],
+        '-b,--database' => [
             'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
             'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
         ]
@@ -66,26 +78,24 @@ CliDocumentation::autoComplete([
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('-g,--gzip')->isOptional(false)->isBoolean()
-    ->select('-t,--timeout' , true)->isOptional(3600)->isInteger()->isMoreThan(0)
-    ->select('-f,--file'    , true)->isFile(DIRECTORY_DATA . 'sources/', new Restrictions(DIRECTORY_DATA . 'sources/', true), false)
-    ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
-    ->select('-b,--database', true)->isVariable()
+    ->select('-t,--timeout'  , true)->isOptional(3600)->isInteger()->isMoreThan(0)
+    ->select('-f,--file'     , true)->isFile(DIRECTORY_DATA . 'sources/', Restrictions::writable(DIRECTORY_DATA . 'sources/', tr('Export')), false)
+    ->select('-d,--driver'   , true)->sanitizeLowercase()->isInArray(Databases::getDrivers())
+    ->select('-c,--connector', true)->isOptional()->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
+    ->select('-b,--database' , true)->isVariable()
     ->validate();
 
 
 // Export data for the requested driver
 switch ($argv['driver']) {
     case 'mysql':
-        Log::information(tr('Exporting to MySQL dump file ":file" from database ":database", this may take a while...', [
-            ':file'     => $argv['file'],
-            ':database' => $argv['database'],
-        ]));
-
-        MysqlDump::new(Restrictions::new('/', true, 'Mysql exporter'))
+        Export::new()
+            ->setDriver($argv['driver'])
+            ->setConnector($argv['connector'])
             ->setTimeout($argv['timeout'])
-            ->setTarget($argv['file'])
             ->setDatabases($argv['database'])
-            ->dump();
+            ->setGzip($argv['gzip'])
+            ->dump($argv['file']);
 
         Log::success(tr('Finished exporting MySQL dump file ":file" from database ":database"', [
             ':file'     => $argv['file'],

@@ -7,6 +7,8 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Import;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
@@ -32,26 +34,36 @@ CliDocumentation::help('This script will import the specified database file into
 ARGUMENTS
 
 
+-b / --database DATABASE                The database in which to import the import file
+
+[-c / --connector CONNECTOR]            The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
+                                        The name is not case sensitive (NOTE: For the moment only MySQL is supported)
+
+[--comments COMMENTS]                   The optional comments to add in the versions table if the init is executed right
+                                        after import
+
 -d / --driver DRIVER                    The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
                                         The name is not case sensitive (NOTE: For the moment only MySQL is supported)
 
--b / --database DATABASE                The database in which to import the import file
-
 -f / --file FILE                        The file which to import
+
+[--no-drop]                             If specified, Phoundation will not drop the database before starting the import
 
 [--no-init]                             If specified, Phoundation will not immediately after import execute the init
                                         system. Please note that this may leave the database in an incompatible state!
 
-[--no-drop]                             If specified, Phoundation will not drop the database before starting the import
-
-[-c / --comments COMMENTS]              The optional comments to add in the versions table if the init is executed right
-                                        after import');
+[-t / --timeout TIMEOUT]                Timeout in integer seconds before the process will be terminated due to timeout
+                                        (defaults to 3600)');
 
 CliDocumentation::autoComplete([
     'arguments' => [
         '-f,--file' => [
             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
+        ],
+        '-c,--connector' => [
+            'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getSourceColumn('name'); },
+            'noword' => function ()      { return Connectors::new()->load(true, true)->getSourceColumn('name'); },
         ],
         '-d,--driver' => [
             'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
@@ -61,57 +73,46 @@ CliDocumentation::autoComplete([
             'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
             'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
         ],
-        '--no-init' => false,
-        '--no-drop' => false
+        '-t,--timeout' => true,
+        '--no-init'    => false,
+        '--no-drop'    => false,
     ]
 ]);
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--file'    , true)->isFile(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
-    ->select('-d,--driver'  , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
-    ->select('-b,--database', true)->isVariable()
-    ->select('-c,--comments', true)->isOptional()->isPrintable()
+    ->select('-f,--file'     , true)->isFile(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
+    ->select('-d,--driver'   , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
+    ->select('-b,--database' , true)->isVariable()
+    ->select('-c,--comments' , true)->isOptional()->isPrintable()
+    ->select('-c,--connector', true)->isOptional()->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
+    ->select('-t,--timeout'  , true)->isOptional(3600)->isNatural(true)
     ->select('--no-drop')->isOptional(false)->isBoolean()
     ->select('--no-init')->isOptional(false)->isBoolean()
     ->validate();
 
 
 // Execute the import for the specified driver
-switch ($argv['driver']) {
-    case 'mysql':
-        Log::information(tr('Importing MySQL dump file ":file" to database ":database", this may take a while...', [
-            ':file'     => $argv['file'],
-            ':database' => $argv['database'],
-        ]));
+Import::new()
+    ->setConnector($argv['connector'], true)
+    ->setDatabase($argv['database'])
+    ->setDriver($argv['driver'])
+    ->setDrop(!$argv['no_drop'])
+    ->setFile($argv['file'])
+    ->setTimeout($argv['timeout'])
+    ->import();
 
-        MySql::new(Restrictions::new('/'))->import($argv['database'], $argv['file'], !$argv['no_drop']);
 
-        Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
-            ':file'     => $argv['file'],
-            ':database' => $argv['database'],
-        ]));
+// Execute init?
+if ($argv['no_init']) {
+    Log::warning(tr('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
 
-        if ($argv['no_init']) {
-            Log::warning(tr('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
-
-        } else {
-            Log::information(tr('Executing database init to ensure database layout is compatible with the current code version'));
-            Libraries::initialize(comments: $argv['comments'] ?? tr('Init after database import'));
-        }
-
-        break;
-
-    case 'redis':
-        // no break
-    case 'mongo':
-        // no break
-    case 'mongodb':
-        // no break
-    case 'elastic':
-        // no break
-    case 'elasticsearch':
-        // no break
-        throw new UnderConstructionException();
+} else {
+    Log::information(tr('Executing database init to ensure database layout is compatible with the current code version'));
+    Libraries::initialize(comments: $argv['comments'] ?? tr('Init after database import'));
 }
+
+
+// Done!
+Log::success(tr('Finished database import'));

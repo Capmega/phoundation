@@ -185,8 +185,9 @@ interface MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
+     * @param string $file
      * @param EnumExecuteMethodInterface $method
      * @return string|int|bool|array|null
      */
-    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null;
+    public function dump(string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null;
 }
