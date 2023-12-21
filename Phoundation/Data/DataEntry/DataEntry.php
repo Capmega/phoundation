@@ -633,10 +633,11 @@ abstract class DataEntry implements DataEntryInterface
 
             if ($path) {
                 // See if there is a configuration entry in the specified path
-                $entry = Config::getArray(Strings::endsWith($path, '.') . $identifier, []);
+                $entry = Config::getArray(Strings::endsWith($path, '.') . Config::escape($identifier), []);
 
                 if (count($entry)) {
                     // Return a new DataEntry object from the configuration source
+                    $entry['id']   = -1;
                     $entry['name'] = $identifier;
 
                     return static::fromSource($entry)
@@ -1426,13 +1427,20 @@ abstract class DataEntry implements DataEntryInterface
 
             if (array_key_exists($key, $source)) {
                 $value = $source[$key];
+
             } else {
                 // This key doesn't exist at all in the data entry, default it
-                $value = $definition->getDefault();
-
-                // Still empty? If it's a new entry, there maybe an initial default value
-                if (!$value and $this->isNew()) {
+                if ($this->isNew()) {
                     $value = $definition->getInitialDefault();
+
+                } else {
+                    $value = $definition->getDefault();
+                }
+
+                // No default available?
+                if ($value === null) {
+                    // This value wasn't specified in the source, there are no default values, so continue
+                    continue;
                 }
             }
 
@@ -1719,17 +1727,17 @@ abstract class DataEntry implements DataEntryInterface
 //            }
 //        }
 
-        $default = $definition->getDefault();
+//        $default = $definition->getDefault();
+//
+//        // What to do if we don't have a value? Data should already have been validated, so we know the value is
+//        // optional (would not have passed validation otherwise), so it either defaults or NULL
+//        if ($value === null) {
+//            //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
+//            $value = $default;
+//        }
 
-        // What to do if we don't have a value? Data should already have been validated, so we know the value is
-        // optional (would not have passed validation otherwise), so it either defaults or NULL
-        if ($value === null) {
-            //  By default, all columns with empty values will be pushed to NULL unless specified otherwise
-            $value = $default;
-        }
-
-        // Value may be set with default value while the field was empty, which is the same. Make value empty
-        if ((isset_get($this->source[$field]) === null) and ($value === $default)) {
+        // Detect if setting this value constitutes a modification or not
+        if ((isset_get($this->source[$field]) === null) and ($value === $definition->getDefault())) {
             // If the previous value was empty and the current value is the same as the default value then there was no
             // modification, we simply applied a default value
 
