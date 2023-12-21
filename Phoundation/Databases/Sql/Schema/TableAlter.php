@@ -80,7 +80,7 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No after column specified'));
         }
 
-        $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . $column . ' ' . $after);
+        $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . Strings::endsNotWith($column, ',') . ' ' . $after);
 
         return $this;
     }
@@ -218,7 +218,7 @@ class TableAlter extends SchemaAbstract
     public function addIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD ' . $index);
+            $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD ' . Strings::endsNotWith($index, ','));
         }
 
         return $this;
