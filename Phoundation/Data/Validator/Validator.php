@@ -2874,7 +2874,9 @@ abstract class Validator implements ValidatorInterface
             }
 
             try {
-                $value = mb_strtoupper($value);
+                if (!$this->selected_is_default or ($value !== null)) {
+                    $value = mb_strtoupper($value);
+                }
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid string'));
             }
@@ -2902,7 +2904,10 @@ abstract class Validator implements ValidatorInterface
             }
 
             try {
-                $value = mb_strtolower($value);
+                if (!$this->selected_is_default or ($value !== null)) {
+                    $value = mb_strtolower($value);
+                }
+
             } catch (Throwable) {
                 $this->addFailure(tr('must contain a valid string'));
             }
