@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils\Enums;
 
-use Phoundation\Utils\Enums\Interfaces\JsonAfterReplyInterface;
+use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
 
-enum JsonAfterReply: string implements JsonAfterReplyInterface
+enum EnumJsonAfterReply: string implements EnumJsonAfterReplyInterface
 {
     case die                     = 'die';
     case continue                = 'continue';
