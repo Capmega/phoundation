@@ -47,6 +47,10 @@ class Zcat extends Command
      */
     public function getFullCommandLine(bool $background = false): string
     {
+        if ($this->cached_command_line) {
+            return $this->cached_command_line;
+        }
+
         $this->addArgument($this->file);
         return parent::getFullCommandLine($background);
     }
