@@ -511,10 +511,10 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @param mixed $default
+     * @param mixed $initial_default
      * @return static
      */
-    public function setOptional(?bool $value, mixed $default = null): static;
+    public function setOptional(?bool $value, mixed $initial_default = null): static;
 
     /**
      * Returns the placeholder for this field

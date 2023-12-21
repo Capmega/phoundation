@@ -1197,20 +1197,20 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @param bool|null $value
-     * @param mixed $default
+     * @param mixed $initial_default
      * @return static
      */
-    public function setOptional(?bool $value, mixed $default = null): static
+    public function setOptional(?bool $value, mixed $initial_default = null): static
     {
-        if (!$value and $default) {
+        if (!$value and $initial_default) {
             // If not optional, we cannot have a default value
             throw new OutOfBoundsException(tr('Cannot assign default value ":value" when the definition is not optional', [
-                ':value' => $default
+                ':value' => $initial_default
             ]));
         }
 
-        $this->setKey($default, 'default');
-        $this->setKey((bool) $value, 'optional');
+        $this->setKey($initial_default, 'default');
+        $this->setKey((bool) $value   , 'optional');
 
         return $this;
     }
