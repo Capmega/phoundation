@@ -650,10 +650,11 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  * @param bool $quiet
  * @return mixed
  */
-function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
+function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         $backtrace = Debug::backtrace();
+        $backtrace = Debug::formatBackTrace($backtrace);
 
         if ($count) {
             $backtrace = Arrays::limit($backtrace, $count);
