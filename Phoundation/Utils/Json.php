@@ -11,8 +11,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Enums\Interfaces\JsonAfterReplyInterface;
-use Phoundation\Utils\Enums\JsonAfterReply;
+use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
+use Phoundation\Utils\Enums\EnumJsonAfterReply;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
@@ -37,10 +37,10 @@ class Json
      * Send correct JSON reply
      *
      * @param array|Stringable|string|null $data
-     * @param JsonAfterReplyInterface $action_after
+     * @param EnumJsonAfterReplyInterface $action_after
      * @return void
      */
-    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, JsonAfterReplyInterface $action_after = JsonAfterReply::die): void
+    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReplyInterface $action_after = EnumJsonAfterReply::die): void
     {
         // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
         if (is_array($data)) {
@@ -71,15 +71,15 @@ class Json
         echo $data;
 
         switch ($action_after) {
-            case JsonAfterReply::die:
+            case EnumJsonAfterReply::die:
                 // We're done, kill the connection % process (default)
                 exit();
 
-            case JsonAfterReply::continue:
+            case EnumJsonAfterReply::continue:
                 // Continue running, keep the HTTP connection open
                 break;
 
-            case JsonAfterReply::closeConnectionContinue:
+            case EnumJsonAfterReply::closeConnectionContinue:
                 // Close the current HTTP connection but continue in the background
                 session_write_close();
                 fastcgi_finish_request();
