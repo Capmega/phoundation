@@ -13,15 +13,22 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
+use Phoundation\Data\DataEntry\Traits\DataEntryCity;
+use Phoundation\Data\DataEntry\Traits\DataEntryCode;
+use Phoundation\Data\DataEntry\Traits\DataEntryCountry;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
+use Phoundation\Data\DataEntry\Traits\DataEntryState;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Servers\Exception\SshException;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 use Phoundation\Web\Html\Enums\InputType;
@@ -41,8 +48,13 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
  */
 class Server extends DataEntry implements ServerInterface
 {
+    use DataEntryCountry;
+    use DataEntryState;
+    use DataEntryCity;
+    use DataEntryCategory;
+    use DataEntryCode;
     use DataEntryHostnamePort;
-    use DataEntryDescription;
+    use DataEntryNameDescription;
     use DataEntryCustomer;
     use DataEntryProvider;
     use DataEntrySshAccount;
@@ -77,7 +89,21 @@ class Server extends DataEntry implements ServerInterface
      */
     public static function getUniqueField(): ?string
     {
-        return 'seo_hostname';
+        return 'hostname';
+    }
+
+
+    /**
+     * Server class constructor
+     *
+     * @param int|string|DataEntryInterface|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        $this->config_path = 'servers.';
+        parent::__construct($identifier, $column, $meta_enabled);
     }
 
 
@@ -294,9 +320,9 @@ class Server extends DataEntry implements ServerInterface
     /**
      * Returns the username for the SSH account for this server
      *
-     * @return string
+     * @return string|null
      */
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->getSshAccount()->getUsername();
     }
@@ -310,12 +336,34 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getSshCommandLine(string $command_line): string
     {
+        if (!$this->getHostname()) {
+            throw new SshException(tr('Cannot generate SSH command line, this server has no hostname'));
+        }
+
+        if (empty($this->ssh_account)) {
+            throw new SshException(tr('Cannot generate SSH command line, no account specified for hostname ":hostname"', [
+                ':hostname' => $this->getHostname()
+            ]));
+        }
+
+        if (!$this->ssh_account->getFile()) {
+            throw new SshException(tr('Cannot generate SSH command line, the SSH account ":account" has no private key specified', [
+                ':account' => $this->ssh_account->getLogId()
+            ]));
+        }
+
+        $username = $this->getUsername();
+
+        if ($username) {
+            $username .= '@';
+        }
+
         return Process::new('ssh')
-            ->addArgument('-p')
-            ->addArgument($this->getPort())
-            ->addArgument($this->getUsername() . '@' . $this->getHostname())
+            ->addArguments($this->getPort() ? ['-p', $this->getPort()] : null)
+            ->addArguments(['-i', $this->getSshAccount()->getFile()])
+            ->addArgument($username . $this->getHostname())
             ->addArgument($command_line)
-            ->getFullCommandLine();
+            ->getBasicCommandLine();
     }
 
 
@@ -330,17 +378,6 @@ class Server extends DataEntry implements ServerInterface
             ->addDefinition(Definition::new($this, 'seo_hostname')
                 ->setVirtual(true)
                 ->setReadonly(true))
-            ->addDefinition(Definition::new($this, 'ssh_account')
-                ->setVirtual(true)
-                ->setInputType(InputTypeExtended::name)
-                ->setCliField('-a,--account ACCOUNT-NAME')
-                ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
-                    'noword' => function()      { return SshAccounts::new()->getSource(); },
-                ])
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
-                }))
             ->addDefinition(Definition::new($this, 'category')
                 ->setOptional(true)
                 ->setVirtual(true)
@@ -413,6 +450,16 @@ class Server extends DataEntry implements ServerInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorField('cities_id')->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
                 }))
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->setOptional(false)
+                ->setInputType(InputTypeExtended::name)
+                ->setSize(12)
+                ->setMaxlength(64)
+                ->setHelpText(tr('The name for this role'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                }))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(Definition::new($this, 'hostname')
                 ->setInputType(InputType::text)
                 ->setMaxlength(128)
@@ -422,11 +469,12 @@ class Server extends DataEntry implements ServerInterface
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete(true))
-            ->addDefinition(Definition::new($this, 'account')
+            ->addDefinition(Definition::new($this, 'ssh_accounts_name')
                 ->setVirtual(true)
+                ->setVisible(false)
                 ->setInputType(InputTypeExtended::name)
-                ->setLabel(tr('account'))
-                ->setCliField('--accounts-id DATABASE-ID')
+                ->setLabel(tr('Account'))
+                ->setCliField('-a,--account ACCOUNT-NAME')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
@@ -434,6 +482,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
+showdie('fuck!');
                     $validator->xorField('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
             ->addDefinition(Definition::new($this, 'ssh_accounts_id')
@@ -446,10 +495,10 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
+                    $validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$ssh_accounts_id']);
                 }))
             ->addDefinition(Definition::new($this, 'port')
-                ->setOptional(true)
+                ->setOptional(true, 22)
                 ->setInputType(InputTypeExtended::integer)
                 ->setMin(1)
                 ->setMax(65535)
@@ -616,8 +665,8 @@ class Server extends DataEntry implements ServerInterface
             ->addDefinition(Definition::new($this, 'os_version')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
-                ->setSize(9)
-                ->setSize(16)
+                ->setMinlength(9)
+                ->setMaxlength(16)
                 ->setLabel(tr('Operating system version'))
                 ->setCliField('-v,--os-version VERSION')
                 ->setHelpText(tr('The current version of the installed operating system')))

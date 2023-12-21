@@ -154,9 +154,9 @@ interface ServerInterface
     /**
      * Returns the username for the SSH account for this server
      *
-     * @return string
+     * @return string|null
      */
-    public function getUsername(): string;
+    public function getUsername(): ?string;
 
     /**
      * Returns the command line as it should be executed for this server

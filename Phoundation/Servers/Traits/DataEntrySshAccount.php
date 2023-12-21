@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Servers\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Servers\SshAccount;
 
 
@@ -20,6 +21,12 @@ use Phoundation\Servers\SshAccount;
  */
 trait DataEntrySshAccount
 {
+    /**
+     * @var SshAccountInterface|null
+     */
+    protected ?SshAccountInterface $ssh_account = null;
+
+
     /**
      * Returns the ssh_accounts_id for this object
      *
@@ -39,6 +46,13 @@ trait DataEntrySshAccount
      */
     public function setSshAccountsId(?int $ssh_accounts_id): static
     {
+        if ($ssh_accounts_id) {
+            $this->ssh_account = new SshAccount($ssh_accounts_id);
+
+        } else {
+            $this->ssh_account = null;
+        }
+
         return $this->setSourceValue('ssh_accounts_id', $ssh_accounts_id);
     }
 
@@ -48,15 +62,9 @@ trait DataEntrySshAccount
      *
      * @return SshAccount|null
      */
-    public function getSshAccount(): ?SshAccount
+    public function getSshAccount(): ?SshAccountInterface
     {
-        $ssh_accounts_id = $this->getSourceFieldValue('int', 'ssh_accounts_id');
-
-        if ($ssh_accounts_id) {
-            return new SshAccount($ssh_accounts_id);
-        }
-
-        return null;
+        return $this->ssh_account;
     }
 
 
@@ -72,13 +80,33 @@ trait DataEntrySshAccount
 
 
     /**
-     * Sets the ssh_accounts_name for this user
+     * Sets the ssh_accounts_name for this object
      *
      * @param string|null $ssh_accounts_name
      * @return static
      */
-    public function setSshAccount(?string $ssh_accounts_name): static
+    public function setSshAccountsName(?string $ssh_accounts_name): static
     {
-        return $this->setSourceValue('ssh_accounts_name', $ssh_accounts_name);
+        if ($ssh_accounts_name) {
+            $this->ssh_account = SshAccount::get($ssh_accounts_name, 'name');
+            return $this->setSourceValue('ssh_accounts_id', $this->ssh_account->getId());
+
+        }
+
+        $this->ssh_account = null;
+        return $this->setSourceValue('ssh_accounts_id', null);
+    }
+
+
+    /**
+     * Sets the ssh_accounts_name for this user
+     *
+     * @param SshAccountInterface|null $account
+     * @return static
+     */
+    public function setSshAccount(SshAccountInterface|null $account): static
+    {
+        $this->ssh_account = $account;
+        return $this->setSourceValue('ssh_accounts_id', $account?->getId());
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Servers;
+namespace Phoundation\Servers\Library;
 
 
 /**
@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.12';
+        return '0.0.15';
     }
 
 
@@ -142,6 +142,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_servers_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_servers_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.0.15', function () {
+            // Add support for SSH accounts key file
+            // Add support for server name / seo_name
+            sql()->schema()
+                ->table('ssh_accounts')
+                    ->alter()
+                        ->addColumn('`file` VARCHAR(255) NULL DEFAULT NULL', 'AFTER `description`');
+
+            sql()->schema()
+                ->table('servers')
+                    ->alter()
+                        ->addColumn('`name` varchar(128) NOT NULL,'    , 'AFTER `code`')
+                        ->addColumn('`seo_name` varchar(128) NOT NULL,', 'AFTER `name`')
+                        ->addIndex('UNIQUE KEY `name` (`name`)')
+                        ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
         });
     }
 }

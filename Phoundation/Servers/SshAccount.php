@@ -8,10 +8,13 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryFile;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
@@ -26,11 +29,12 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
-class SshAccount extends DataEntry
+class SshAccount extends DataEntry implements SshAccountInterface
 {
     use DataRestrictions;
     use DataEntryNameDescription;
     use DataEntryUsername;
+    use DataEntryFile;
 
 
     /**
@@ -62,7 +66,32 @@ class SshAccount extends DataEntry
      */
     public static function getUniqueField(): ?string
     {
-        return 'seo_name';
+        return 'name';
+    }
+
+
+    /**
+     * SshAccount class constructor
+     *
+     * @param int|string|DataEntryInterface|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        $this->config_path = 'ssh.accounts.';
+        parent::__construct($identifier, $column, $meta_enabled);
+    }
+
+
+    /**
+     * Returns a unique log identifier that is both unique but also human readable
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        return $this->getSourceFieldValue('int', 'id') . ' / ' . (static::getUniqueField() ? $this->getSourceFieldValue('string', static::getUniqueField()) : '-') . '(' . $this->getUsername() . ')';
     }
 
 
@@ -114,9 +143,16 @@ class SshAccount extends DataEntry
                 ->setHelpText(tr('The username on the server for this account')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this account')))
+            ->addDefinition(DefinitionFactory::getFile($this)
+                ->setLabel(tr('SSH key file'))
+                ->setCliField(tr('-i,--ssh-key-file FILE'))
+                ->setHelpText(tr('The SSH key file for this account'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFile('/');
+                }))
             ->addDefinition(Definition::new($this, 'ssh_key')
                 ->setLabel(tr('SSH key'))
-                ->setCliField(tr('-i,--ssh-key-file FILE'))
+                ->setCliField(tr('-k,--ssh-key "KEY"'))
                 ->setCliAutoComplete(true)
                 ->setSize(12)
                 ->setMaxlength(65_535)
