@@ -13,7 +13,6 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
-use Phoundation\Filesystem\Traits\DataServer;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Command;
@@ -25,6 +24,7 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
+use Phoundation\Servers\Traits\DataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -1138,11 +1138,11 @@ trait ProcessVariables
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param Stringable|array|string|null $argument
+     * @param Stringable|array|string|float|int|null $argument
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(Stringable|array|string|null $argument, bool $escape = true): static
+    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape = true): static
     {
         if ($argument !== null) {
             if (is_array($argument)) {

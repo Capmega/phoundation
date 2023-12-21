@@ -61,30 +61,6 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
 
     /**
-     * Sets the server on which this command should be executed
-     *
-     * @return Server
-     */
-    public function getServer(): Server
-    {
-        return $this->server;
-    }
-
-
-    /**
-     * Sets the server on which this command should be executed
-     *
-     * @param Server|string $server
-     * @return $this
-     */
-    public function setServer(Server|string $server): static
-    {
-        $this->server = Server::get($server);
-        return $this;
-    }
-
-
-    /**
      * Sets the actual CLI exit code after the process finished its execution
      *
      * This method will check if the specified exit code is accepted and if not, throw a Process exception
@@ -374,7 +350,6 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function getFullCommandLine(bool $background = false): string
     {
-        $arguments = [];
         $this->failed = false;
 
         if ($this->cached_command_line) {
@@ -386,36 +361,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             $this->setRunFile();
         }
 
-        if (!$this->command) {
-            throw new ProcessException(tr('Cannot execute process, no command specified'));
-        }
-
-        // Update the arguments with the variables
-        foreach ($this->arguments as $argument) {
-            // Does this argument contain variables? If so, apply them here
-            if (preg_match('/^\$.+?\$$/', $argument)) {
-                if (!array_key_exists($argument, $this->variables)) {
-                    // This variable was not defined, cannot apply it.
-                    throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [
-                        ':variable' => $argument
-                    ]));
-                }
-
-                // Update and escape the argument
-                $argument = escapeshellarg($this->variables[$argument]);
-            }
-
-            // Escape quotes if required so for shell
-            for ($i = 0; $i < $this->escape_quotes; $i++) {
-                $argument = str_replace('\\', '\\\\', $argument);
-                $argument = str_replace('\'', '\\\'', $argument);
-            }
-
-            $arguments[] = $argument;
-        }
-
-        // Add arguments to the command
-        $this->cached_command_line = $this->real_command . ' ' . implode(' ', $arguments);
+        // Build up the basic command line
+        $this->cached_command_line = $this->getBasicCommandLine();
 
         // Add timeout
         if ($this->timeout) {
@@ -434,6 +381,11 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
         // Execute on a server?
         if (isset($this->server)) {
+            // Add sudo
+            if ($this->sudo) {
+                $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
+            }
+
             $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
         }
 
@@ -531,11 +483,55 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         // Add sudo
-        if ($this->sudo) {
+        if (!$this->server and $this->sudo) {
             $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 
         return $this->cached_command_line;
+    }
+
+
+    /**
+     * Builds and returns the basic command line that will be executed
+     *
+     * @return string
+     */
+    public function getBasicCommandLine(): string
+    {
+        $arguments = [];
+
+        if (!$this->command) {
+            throw new ProcessException(tr('Cannot execute process, no command specified'));
+        }
+
+        // Update the arguments with the variables
+        foreach ($this->arguments as $argument) {
+            // Does this argument contain variables? If so, apply them here
+            if (preg_match('/^\$.+?\$$/', $argument)) {
+                if (!array_key_exists($argument, $this->variables)) {
+                    // This variable was not defined, cannot apply it.
+                    throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [
+                        ':variable' => $argument
+                    ]));
+                }
+
+                // Update and escape the argument
+                $argument = escapeshellarg($this->variables[$argument]);
+            }
+
+            // Escape quotes if required so for shell
+            for ($i = 0; $i < $this->escape_quotes; $i++) {
+                $argument = str_replace('\\', '\\\\', $argument);
+                $argument = str_replace('\'', '\\\'', $argument);
+            }
+
+            $arguments[] = $argument;
+        }
+
+        // Add arguments to the command
+        $return = $this->real_command . ' ' . implode(' ', $arguments);
+
+        return $return;
     }
 
 

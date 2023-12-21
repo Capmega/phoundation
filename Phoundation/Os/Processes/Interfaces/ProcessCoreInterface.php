@@ -4,6 +4,7 @@ namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
 
 
@@ -23,17 +24,17 @@ interface ProcessCoreInterface
     /**
      * Sets the server on which this command should be executed
      *
-     * @return Server
+     * @return ServerInterface|null
      */
-    public function getServer(): Server;
+    public function getServer(): ?ServerInterface;
 
     /**
      * Sets the server on which this command should be executed
      *
-     * @param Server|string $server
+     * @param ServerInterface|string|null $server
      * @return $this
      */
-    public function setServer(Server|string $server): static;
+    public function setServer(ServerInterface|string|null $server): static;
 
     /**
      * Execute the command using the PHP exec() call and return an array
