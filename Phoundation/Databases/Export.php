@@ -410,12 +410,12 @@ class Export
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param string $file
+     * @param string|null $file
      * @param EnumExecuteMethodInterface $method
-     * @return static
+     * @return string
      * @throws SqlExceptionInterface
      */
-    public function dump(string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
+    public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string
     {
         switch ($this->driver) {
             case null:
@@ -427,17 +427,14 @@ class Export
                     ':database' => Strings::force($this->databases, ', '),
                 ]));
 
-                MysqlDump::new($this->restrictions)
+                return MysqlDump::new($this->restrictions)
                     ->setConnector($this->connector)
                     ->setTimeout($this->timeout)
                     ->setDatabases($this->databases)
                     ->dump($file);
-                break;
 
             default:
                 throw new UnderConstructionException();
         }
-
-        return $this;
     }
 }

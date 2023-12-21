@@ -8,6 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataFile;
+use Phoundation\Date\DateTime;
+use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
@@ -371,13 +373,20 @@ class MysqlDump extends Command implements MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param string $file
+     * @param string|null $file
      * @param EnumExecuteMethodInterface $method
-     * @return static
+     * @return string
      */
-    public function dump(string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
+    public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string
     {
+        if (!$file) {
+            // Generate default file
+            $file = strtolower(PROJECT) . '/mysql/' . strtolower(PROJECT) . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+        }
+
         $file = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/', false);
+        $file = File::new($file, $this->restrictions);
+        $file->getParentDirectory()->ensure();
 
         // Build the process parameters, then execute
         $this->setInternalCommand('mysqldump')
@@ -406,13 +415,13 @@ class MysqlDump extends Command implements MysqlDumpInterface
         }
 
         // Add pipe to output and execute
-        $results = $this->setOutputRedirect($file)->executeReturnArray();
+        $results = $this->setOutputRedirect((string) $file)->executeReturnArray();
 
         if ($this->debug) {
             Log::information(tr('Output of the mysqldump command:'), 4);
             Log::debug($results, 4);
         }
 
-        return $this;
+        return (string) $file;
     }
 }

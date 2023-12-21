@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Filesystem\Traits;
+namespace Phoundation\Servers\Traits;
 
 use Phoundation\Servers\Interfaces\ServerInterface;
+use Phoundation\Servers\Server;
 
 
 /**
@@ -15,20 +16,20 @@ use Phoundation\Servers\Interfaces\ServerInterface;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package Phoundation\Data
  */
 trait DataServer
 {
     /**
-     * Server object where the image conversion commands will be executed
+     * Tracks the server
      *
-     * @var ServerInterface|null $server
+     * @var ServerInterface|null
      */
     protected ?ServerInterface $server = null;
 
 
     /**
-     * Returns the server servers
+     * Returns the server
      *
      * @return ServerInterface|null
      */
@@ -39,14 +40,14 @@ trait DataServer
 
 
     /**
-     * Returns the server servers
+     * Sets the server
      *
-     * @param ServerInterface|null $server
-     * @return static
+     * @param ServerInterface|string|null $server
+     * @return $this
      */
-    public function setServer(?ServerInterface $server): static
+    public function setServer(ServerInterface|string|null $server): static
     {
-        $this->server = $server;
+        $this->server = Server::get($server);
         return $this;
     }
 }
