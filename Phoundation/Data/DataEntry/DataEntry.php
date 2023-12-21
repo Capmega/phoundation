@@ -277,9 +277,10 @@ abstract class DataEntry implements DataEntryInterface
      * Returns a new DataEntry object from the specified array source
      *
      * @param DataEntryInterface|array $source
+     * @param bool $direct
      * @return $this
      */
-    public static function fromSource(DataEntryInterface|array $source): static
+    public static function fromSource(DataEntryInterface|array $source, bool $direct = false): static
     {
         if ($source instanceof DataEntryInterface) {
             if ($source instanceof static) {
@@ -292,7 +293,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        return static::new()->setSource($source);
+        return static::new()->setSource($source, $direct);
     }
 
 
@@ -620,7 +621,7 @@ abstract class DataEntry implements DataEntryInterface
                 ]));
             }
 
-            $entry = $identifier;
+            return $identifier;
 
         } else {
             $entry = new static($identifier, $column, $meta_enabled);
@@ -632,11 +633,14 @@ abstract class DataEntry implements DataEntryInterface
 
             if ($path) {
                 // See if there is a configuration entry in the specified path
-                $entry = Config::getArray($path . $identifier, []);
+                $entry = Config::getArray(Strings::endsWith($path, '.') . $identifier, []);
 
                 if (count($entry)) {
                     // Return a new DataEntry object from the configuration source
-                    return static::fromSource($entry)->setReadonly(true);
+                    $entry['name'] = $identifier;
+
+                    return static::fromSource($entry)
+                        ->setReadonly(true);
                 }
             }
 
@@ -1536,10 +1540,10 @@ abstract class DataEntry implements DataEntryInterface
     {
         if ($filter_meta) {
             // Remove meta-fields too
-            return Arrays::remove(Arrays::remove($this->source, static::$meta_fields), $this->protected_fields);
+            return Arrays::removeKeys(Arrays::removeKeys($this->source, static::$meta_fields), $this->protected_fields);
         }
 
-        return Arrays::remove($this->source, $this->protected_fields);
+        return Arrays::removeKeys($this->source, $this->protected_fields);
     }
 
 
@@ -1547,14 +1551,21 @@ abstract class DataEntry implements DataEntryInterface
      * Loads the specified data into this DataEntry object
      *
      * @param Iterator|array $source
+     * @param bool $direct
      * @return static
      */
-    public function setSource(Iterator|array $source): static
+    public function setSource(Iterator|array $source, bool $direct = false): static
     {
         $this->is_loading = true;
 
-        // Load data with object init
-        $this->setMetaData($source)->copyValuesToSource($source, false);
+        if ($direct) {
+            // Load data directly without object init. THIS MAY CAUSE PROBLEMS
+            $this->source = $source;
+
+        } else {
+            // Load data with object init
+            $this->setMetaData($source)->copyValuesToSource($source, false);
+        }
 
         $this->is_modified = false;
         $this->is_loading  = false;
@@ -1608,7 +1619,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected function getDataForValidation(): array
     {
-        return Arrays::remove($this->source, [
+        return Arrays::removeKeys($this->source, [
             'id',
             'created_by',
             'created_on',
