@@ -96,7 +96,7 @@ class Export
      *
      * @var bool $create_tables
      */
-    protected bool $create_tables = false;
+    protected bool $create_tables = true;
 
     /**
      * Write INSERT statements using multiple-row syntax that includes several VALUES lists. This results in a smaller
