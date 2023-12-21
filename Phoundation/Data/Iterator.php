@@ -13,6 +13,8 @@ use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
 use Stringable;
@@ -436,7 +438,7 @@ class Iterator implements IteratorInterface
         $value = $this->get($key, $exception);
         $value = $this->validateValue($value, $columns);
 
-        return Arrays::keep($value, $columns);
+        return Arrays::keepKeys($value, $columns);
     }
 
 
@@ -458,7 +460,7 @@ class Iterator implements IteratorInterface
 
         $value = $this->get($key, $exception);
         $value = $this->validateValue($value, $column);
-        $value = Arrays::keep($value, $column, true);
+        $value = Arrays::keepKeys($value, $column, true);
 
         return $value[$column];
     }
@@ -488,7 +490,7 @@ class Iterator implements IteratorInterface
 
         foreach ($this->source as $key => $value) {
             $value = $this->validateValue($value, $columns);
-            $return[$key] = Arrays::keep($value, $columns);
+            $return[$key] = Arrays::keepKeys($value, $columns);
         }
 
         return $return;
@@ -950,5 +952,63 @@ class Iterator implements IteratorInterface
     public function getShortestValueLength(): int
     {
         return Arrays::getShortestValueLength($this->source);
+    }
+
+
+    /**
+     * Keep source keys on the specified needles with the specified match mode
+     *
+     * @param string|array $needles
+     * @param EnumMatchModeInterface $match_mode
+     * @return $this
+     */
+    public function keepKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    {
+        $this->source = Arrays::keepKeys($this->source, $needles, $match_mode);
+        return $this;
+    }
+
+
+    /**
+     * Remove source keys on the specified needles with the specified match mode
+     *
+     * @param string|array $needles
+     * @param EnumMatchModeInterface $match_mode
+     * @return $this
+     */
+    public function removeKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    {
+        $this->source = Arrays::removeKeys($this->source, $needles, $match_mode);
+        return $this;
+    }
+
+
+    /**
+     * Keep source values on the specified needles with the specified match mode
+     *
+     * @param string|array $needles
+     * @param string|null $column
+     * @param EnumMatchModeInterface $match_mode
+     * @return $this
+     */
+    public function keepValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    {
+        $this->source = Arrays::keepValues($this->source, $needles, $column, $match_mode);
+        return $this;
+    }
+
+
+    /**
+     * Remove source values on the specified needles with the specified match mode
+     *
+     * @param string|array $needles
+     * @param string|null $column
+     * @param EnumMatchModeInterface $match_mode
+     * @return $this
+     */
+    public function removeValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    {
+        $this->source = Arrays::removeValues($this->source, $needles, $column, $match_mode);
+        return $this;
     }
 }
