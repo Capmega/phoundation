@@ -31,12 +31,10 @@ With this, a production environment can easily be tested locally, for example
 ARGUMENTS
 
 
--f / --from ENVIRONMENT                 The single source environment from which the data will be synced
+ENVIRONMENT                             The single source environment to which the data will be synced
 
 [-i / --no-init]                        If specified, will NOT execute the system initialization right after the sync
                                         process has finished
-
-[-t / --to]                             If specified, will sync not FROM, but TO the specified environment
 
 [-l / --lock]                           If specified, will readonly lock the target environment until sync has
                                         finished');
@@ -44,29 +42,20 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--from', true)->isVariable()
+    ->select('environment', true)->isVariable()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
     ->select('-i,--no-init')->isOptional(false)->isBoolean()
-    ->select('-t,--to', true)->isOptional()->isVariable()
     ->validate();
 
 
 // Sync environments
-$sync = Sync::new()
+Sync::new()
     ->setLock($argv['lock'])
-    ->setInit(!$argv['no_init']);
+    ->setInit(!$argv['no_init'])
+    ->from($argv['environment']);
 
-if ($argv['to']) {
-    $sync->toEnvironment($argv['to']);
 
-    Log::Success(tr('Finished syncing process to environment ":environment"', [
-        ':environment' => $argv['environment']
-    ]));
-
-} else {
-    $sync->fromEnvironment($argv['from']);
-
-    Log::Success(tr('Finished syncing process from environment ":environment"', [
-        ':environment' => $argv['environment']
-    ]));
-}
+// Done!
+Log::Success(tr('Finished syncing process from environment ":environment"', [
+    ':environment' => $argv['environment']
+]));

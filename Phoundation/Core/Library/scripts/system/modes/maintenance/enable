@@ -11,7 +11,7 @@ use Phoundation\Developer\Project\Project;
 
 
 /**
- * Script system/maintenance/enable
+ * Script system/modes/maintenance/enable
  *
  * This script will enable maintenance mode
  *
@@ -20,7 +20,7 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho system maintenance enable');
+CliDocumentation::usage('./pho system modes maintenance enable');
 
 CliDocumentation::help('This script will enable maintenance mode
 
@@ -38,7 +38,7 @@ for example:
 ./pho system deploy
 ./pho system sync
 
-Disable maintenance mode manually with ./pho system maintenance disable
+Disable maintenance mode manually with ./pho system modes maintenance disable
 
 
 ARGUMENTS
@@ -49,4 +49,4 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()->validate();
-Core::enableMaintenanceMode(true);
+Core::setMaintenanceMode(true);

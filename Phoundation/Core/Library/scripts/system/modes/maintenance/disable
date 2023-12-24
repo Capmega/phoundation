@@ -38,7 +38,7 @@ for example:
 ./pho system deploy
 ./pho system sync
 
-Enable maintenance mode manually with ./pho system maintenance enable
+Enable maintenance mode manually with ./pho system modes maintenance enable
 
 
 ARGUMENTS
@@ -49,4 +49,4 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()->validate();
-Core::enableMaintenanceMode(false);
+Core::setMaintenanceMode(false);
