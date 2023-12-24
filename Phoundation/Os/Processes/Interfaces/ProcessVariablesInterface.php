@@ -208,10 +208,10 @@ interface ProcessVariablesInterface
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @param string|bool $sudo
+     * @param string|bool|null $sudo
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(string|bool $sudo): static;
+    public function setSudo(string|bool|null $sudo): static;
 
     /**
      * Returns the CLI return values that are accepted as "success" and won't cause an exception

@@ -152,7 +152,7 @@ trait ProcessVariables
      *
      * @note This may require nocache to be installed first!
      *
-     * @var int|bool $sudo
+     * @var int|bool $nocache = false
      */
     protected int|bool $nocache = false;
 
@@ -856,10 +856,10 @@ trait ProcessVariables
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @param string|bool $sudo
+     * @param string|bool|null $sudo
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(string|bool $sudo, ?string $user = null): static
+    public function setSudo(string|bool|null $sudo, ?string $user = null): static
     {
         $this->cached_command_line = null;
 

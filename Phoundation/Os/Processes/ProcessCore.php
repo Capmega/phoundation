@@ -380,9 +380,10 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         // Execute on a server?
-        if (isset($this->server)) {
-            // Add sudo
+        if (!empty($this->server)) {
+            // Execute on a server!
             if ($this->sudo) {
+                // Add sudo
                 $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
             }
 

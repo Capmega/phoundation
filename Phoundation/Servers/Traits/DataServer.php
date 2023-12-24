@@ -47,7 +47,7 @@ trait DataServer
      */
     public function setServer(ServerInterface|string|null $server): static
     {
-        $this->server = Server::get($server);
+        $this->server = $server ? Server::get($server) : null;
         return $this;
     }
 }

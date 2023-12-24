@@ -337,7 +337,9 @@ class Server extends DataEntry implements ServerInterface
     public function getSshCommandLine(string $command_line): string
     {
         if (!$this->getHostname()) {
-            throw new SshException(tr('Cannot generate SSH command line, this server has no hostname'));
+            throw new SshException(tr('Cannot generate SSH command line, server ":server" has no hostname', [
+                ':server' => $this->getLogId()
+            ]));
         }
 
         if (empty($this->ssh_account)) {
@@ -360,7 +362,7 @@ class Server extends DataEntry implements ServerInterface
 
         return Process::new('ssh')
             ->addArguments($this->getPort() ? ['-p', $this->getPort()] : null)
-            ->addArguments(['-i', $this->getSshAccount()->getFile()])
+            ->addArguments(['-t', '-i', $this->getSshAccount()->getFile()])
             ->addArgument($username . $this->getHostname())
             ->addArgument($command_line)
             ->getBasicCommandLine();
