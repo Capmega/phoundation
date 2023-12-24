@@ -7,7 +7,6 @@ namespace Phoundation\Utils;
 use Exception;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
-use Phoundation\Core\Interfaces;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
@@ -31,7 +30,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Config implements Interfaces\ConfigInterface
+class Config implements ConfigInterface
 {
     /**
      * Singleton variable for main config object
@@ -76,6 +75,13 @@ class Config implements Interfaces\ConfigInterface
     protected static array $cache = [];
 
     /**
+     * The configuration section used by this configuration object
+     *
+     * @var string|null $section
+     */
+    protected static ?string $section = null;
+
+    /**
      * The environment used by this configuration object
      *
      * @var string|null $environment
@@ -91,7 +97,7 @@ class Config implements Interfaces\ConfigInterface
 
 
     /**
-     * Singleton, ensure to always return the same Log object.
+     * Singleton, ensure to always return the same Config object.
      *
      * @return static
      */
@@ -116,6 +122,17 @@ class Config implements Interfaces\ConfigInterface
     }
 
 
+    /**environment
+     * Returns the current section for the configuration object
+     *
+     * @return string|null
+     */
+    public static function getSection(): ?string
+    {
+        return substr(static::$section, 0, -1);
+    }
+
+
     /**
      * Returns a config object for the specified environment
      *
@@ -134,6 +151,26 @@ class Config implements Interfaces\ConfigInterface
 
 
     /**
+     * Returns a config object for the specified environment
+     *
+     * @param string $section
+     * @param string $environment
+     * @return ConfigInterface
+     */
+    public static function forSection(string $section, string $environment): ConfigInterface
+    {
+        $key = $section . '-' . $environment;
+
+        if (empty(static::$instances[$key])) {
+            static::$instances[$key] = new static();
+            static::$instances[$key]->setSection($section, $environment);
+        }
+
+        return static::$instances[$key];
+    }
+
+
+    /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
      * @param string $environment
@@ -142,6 +179,38 @@ class Config implements Interfaces\ConfigInterface
      */
     public static function setEnvironment(string $environment, bool $include_production = true): void
     {
+        if (!$environment) {
+            // Environment was specified as "", use no environment!
+            static::$environment = null;
+            static::reset();
+            return;
+        }
+
+        // Use the specified environment
+        static::$include_production = $include_production;
+        static::$environment        = strtolower(trim($environment));
+
+        static::reset();
+        static::read();
+    }
+
+
+    /**
+     * Lets the Config object use the specified (or if not specified, the current global) environment
+     *
+     * @param string $section
+     * @param string $environment
+     * @param bool $include_production
+     * @return void
+     */
+    public static function setSection(string $section, string $environment, bool $include_production = true): void
+    {
+        static::$section = get_null(strtolower(trim($section)));
+
+        if (static::$section) {
+            static::$section .= '/';
+        }
+
         if (!$environment) {
             // Environment was specified as "", use no environment!
             static::$environment = null;
@@ -178,6 +247,7 @@ class Config implements Interfaces\ConfigInterface
 
             // Try to interpret as boolean
             return Strings::toBoolean($return);
+
         } catch(OutOfBoundsException) {
             // Do nothing, following exception will do the job
         }
@@ -385,7 +455,7 @@ class Config implements Interfaces\ConfigInterface
      *                             (developer) specified value we should be using, overriding configuration and defaults
      * @return mixed
      */
-    public static function get(string|array $path, mixed $default = null, mixed $specified = null): mixed
+    public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
     {
         if (!static::$environment) {
             // We don't really have an environment, don't check configuration, just return default values
@@ -534,10 +604,10 @@ class Config implements Interfaces\ConfigInterface
 
             // What environments should be read?
             if (static::$environment === 'production') {
-                $environments = ['production'];
+                $environments = ['default', 'production'];
 
             } elseif(static::$include_production) {
-                $environments = ['production', static::$environment];
+                $environments = ['default', 'production', static::$environment];
 
             } else {
                 // Read only the specified environment
@@ -546,13 +616,13 @@ class Config implements Interfaces\ConfigInterface
 
             // Read the section for each environment
             foreach ($environments as $environment) {
-                $file = DIRECTORY_ROOT . 'config/' . $environment . '.yaml';
+                $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
                 Restrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
 
                 // Check if a configuration file exists for this environment
                 if (!file_exists($file)) {
                     // Do NOT use tr() here as it will cause endless loops!
-                    throw ConfigException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log($environment) . '" does not exist')
+                    throw ConfigException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
                         ->makeWarning();
                 }
 
@@ -563,7 +633,7 @@ class Config implements Interfaces\ConfigInterface
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
                     static::$fail = true;
-                    throw ConfigException::new('Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log($environment) . '"', $e)
+                    throw ConfigException::new('Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '"', $e)
                         ->makeWarning();
                 }
 
@@ -583,8 +653,7 @@ class Config implements Interfaces\ConfigInterface
 
         } catch (ConfigException $e) {
             // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
-            echo 'Failed to load configuration file "' . $file . '"' . PHP_EOL;
-
+            echo 'Failed to load configuration file "' . $file . '" because: ' . $e->getMessage() . PHP_EOL;
             static::$fail = true;
         }
     }
