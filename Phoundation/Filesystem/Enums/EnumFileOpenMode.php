@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Filesystem\Enums;
 
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;

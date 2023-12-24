@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Accounts\Users\Password;

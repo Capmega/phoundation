@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Content\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FileInterface;

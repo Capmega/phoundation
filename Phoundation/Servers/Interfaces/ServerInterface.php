@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Servers\Interfaces;
+
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 
 
 /**
@@ -14,7 +18,7 @@ namespace Phoundation\Servers\Interfaces;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
-interface ServerInterface
+interface ServerInterface extends DataEntryInterface
 {
     /**
      * Returns the cost for this object

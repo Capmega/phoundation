@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core\Meta\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;

@@ -15,6 +15,6 @@ namespace Phoundation\Core\Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class MaintenanceModeException extends CoreException
+class MaintenanceModeException extends ModeException
 {
 }

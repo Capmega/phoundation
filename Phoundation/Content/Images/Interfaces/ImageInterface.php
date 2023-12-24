@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Content\Images\Interfaces;
 
 use Phoundation\Content\Images\Convert;

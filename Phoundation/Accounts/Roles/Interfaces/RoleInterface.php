@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Accounts\Roles\Interfaces;
 
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Packages;
 
 use Phoundation\Data\Interfaces\IteratorInterface;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Date\Enums;
 
 use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;

@@ -42,6 +42,7 @@ use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Servers\Traits\DataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -63,6 +64,7 @@ class Path implements Stringable, PathInterface
 {
     use DataRestrictions;
     use DataBufferSize;
+    use DataServer;
 
 
     /**

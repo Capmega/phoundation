@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Processes\Commands\Databases\Interfaces;
 
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;

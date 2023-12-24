@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Html\Components\Tooltips\Enums;
 
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;

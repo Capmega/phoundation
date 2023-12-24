@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Filesystem\Mounts;
 
 use Phoundation\Data\DataEntry\DataList;

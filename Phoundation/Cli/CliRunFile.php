@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Cli;
 
 use Phoundation\Cli\Interfaces\CliRunFileInterface;
@@ -62,9 +64,9 @@ class CliRunFile implements CliRunFileInterface
     /**
      * The pid for which we are creating a runfile
      *
-     * @var string $pid
+     * @var int $pid
      */
-    protected string $pid;
+    protected int $pid;
 
 
     /**

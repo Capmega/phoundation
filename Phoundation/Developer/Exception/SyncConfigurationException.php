@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Tests;
+namespace Phoundation\Developer\Exception;
 
 
 /**
- * Class Tests
+ * Class SyncConfigurationException
  *
  *
  *
@@ -15,10 +15,6 @@ namespace Phoundation\Tests;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Tests
+class SyncConfigurationException extends SyncException
 {
-    public static function unit(): void
-    {
-
-    }
 }

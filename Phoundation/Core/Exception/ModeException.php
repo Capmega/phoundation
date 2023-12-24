@@ -2,23 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Tests;
+namespace Phoundation\Core\Exception;
 
 
 /**
- * Class Tests
+ * Class ModeException
  *
- *
+ * This is the base exception thrown for kernel Mode issues
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package Phoundation\Core
  */
-class Tests
+class ModeException extends CoreException
 {
-    public static function unit(): void
-    {
-
-    }
 }

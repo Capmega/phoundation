@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Notifications;
 
 use Phoundation\Web\Html\Components\Modals\LargeModal;
