@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Connectors;
 
 use MongoDB\Exception\UnsupportedException;
@@ -67,6 +69,23 @@ class Connector extends DataEntry implements ConnectorInterface
             // No identifier specified? This is a new object, apply defaults
             $this->source = $this->applyDefaults($this->source);
         }
+    }
+
+
+    /**
+     * Returns the name for this user that can be displayed
+     *
+     * @return string
+     */
+    function getDisplayName(): string
+    {
+        $name = parent::getDisplayName();
+
+        if (!$name) {
+            $name = $this->getType() . ':' . $this->getUsername() . '@' . $this->getHostname();
+        }
+
+        return $name;
     }
 
 

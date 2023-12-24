@@ -36,15 +36,15 @@ CliDocumentation::help('This script will export the specified database to the sp
 ARGUMENTS
 
 
--b / --database DATABASE                The database in which to export
+-c / --connector CONNECTOR              The database connector to use. Must either exist in configuration or in the
+                                        system database as a database connector.
+
+[-b / --database] DATABASE              The database to export.
 
 -d / --driver DRIVER                    The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
                                         The name is not case sensitive (NOTE: For the moment only MySQL is supported)
 
 -f / --file FILE                        The file which to export to
-
-[-c / --connector CONNECTOR]            The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
-                                        The name is not case sensitive (NOTE: For the moment only MySQL is supported)
 
 [-g / --gzip]                           Will produce a gzip compressed database dump file
 
@@ -81,7 +81,7 @@ $argv = ArgvValidator::new()
     ->select('-t,--timeout'  , true)->isOptional(3600)->isInteger()->isMoreThan(0)
     ->select('-f,--file'     , true)->isOptional()->isFile(DIRECTORY_DATA . 'sources/', Restrictions::writable(DIRECTORY_DATA . 'sources/', tr('Export')), false)
     ->select('-d,--driver'   , true)->sanitizeLowercase()->isInArray(Databases::getDrivers())
-    ->select('-c,--connector', true)->isOptional()->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
+    ->select('-c,--connector', true)->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
     ->select('-b,--database' , true)->isVariable()
     ->validate();
 
