@@ -31,10 +31,11 @@ CliDocumentation::help('This script will import the specified database file into
 ARGUMENTS
 
 
--b / --database DATABASE                The database in which to import. Must specify either database, or connector
-
 -c / --connector CONNECTOR              The database connector to use. Must either exist in configuration or in the
-                                        system database as a database connector.
+                                        system database as a database connector. If not specified, the system connector
+                                        will be assumed
+
+-b / --database DATABASE                The database in which to import. Must specify either database, or connector
 
 [--comments COMMENTS]                   The optional comments to add in the versions table if the init is executed right
                                         after import
@@ -83,7 +84,7 @@ $argv = ArgvValidator::new()
     ->select('-d,--driver'   , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database' , true)->isVariable()
     ->select('-c,--comments' , true)->isOptional()->isPrintable()
-    ->select('-c,--connector', true)->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
+    ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
     ->select('-t,--timeout'  , true)->isOptional(3600)->isNatural(true)
     ->select('--no-drop')->isOptional(false)->isBoolean()
     ->select('--no-init')->isOptional(false)->isBoolean()

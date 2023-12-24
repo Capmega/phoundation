@@ -51,9 +51,9 @@ class Export
     /**
      * The databases that will be dumped
      *
-     * @var array $databases
+     * @var string|null $database
      */
-    protected array $databases = [];
+    protected ?string $database = null;
 
     /**
      * The tables that will be dumped
@@ -156,23 +156,23 @@ class Export
     /**
      * Returns the databases that will be dumped
      *
-     * @return array
+     * @return string|null
      */
-    public function getDatabases(): array
+    public function getDatabase(): ?string
     {
-        return $this->databases;
+        return $this->database;
     }
 
 
     /**
      * Sets the databases that will be dumped
      *
-     * @param array|string $databases
+     * @param string|null $database
      * @return static
      */
-    public function setDatabases(array|string $databases): static
+    public function setDatabase(?string $database): static
     {
-        $this->databases = Arrays::force($databases);
+        $this->database = $database;
         return $this;
     }
 
@@ -424,13 +424,13 @@ class Export
             case 'mysql':
                 Log::information(tr('Exporting to MySQL dump file ":file" from databases ":database", this may take a while...', [
                     ':file'     => $file,
-                    ':database' => Strings::force($this->databases, ', '),
+                    ':database' => Strings::force($this->database, ', '),
                 ]));
 
                 return MysqlDump::new($this->restrictions)
                     ->setConnector($this->connector)
                     ->setTimeout($this->timeout)
-                    ->setDatabases($this->databases)
+                    ->setDatabases($this->database)
                     ->dump($file);
 
             default:

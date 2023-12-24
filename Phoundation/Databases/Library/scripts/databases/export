@@ -37,7 +37,8 @@ ARGUMENTS
 
 
 -c / --connector CONNECTOR              The database connector to use. Must either exist in configuration or in the
-                                        system database as a database connector.
+                                        system database as a database connector. If not specified, the system connector
+                                        will be assumed
 
 [-b / --database] DATABASE              The database to export.
 
@@ -81,17 +82,17 @@ $argv = ArgvValidator::new()
     ->select('-t,--timeout'  , true)->isOptional(3600)->isInteger()->isMoreThan(0)
     ->select('-f,--file'     , true)->isOptional()->isFile(DIRECTORY_DATA . 'sources/', Restrictions::writable(DIRECTORY_DATA . 'sources/', tr('Export')), false)
     ->select('-d,--driver'   , true)->sanitizeLowercase()->isInArray(Databases::getDrivers())
-    ->select('-c,--connector', true)->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
+    ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
     ->select('-b,--database' , true)->isVariable()
     ->validate();
 
 
 // Export data for the requested driver
 $file = Export::new()
-    ->setDriver($argv['driver'])
     ->setConnector($argv['connector'])
+    ->setDatabase($argv['database'])
+    ->setDriver($argv['driver'])
     ->setTimeout($argv['timeout'])
-    ->setDatabases($argv['database'])
     ->setGzip($argv['gzip'])
     ->dump($argv['file']);
 
