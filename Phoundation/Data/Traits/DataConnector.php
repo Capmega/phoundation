@@ -7,6 +7,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
@@ -28,7 +29,7 @@ trait DataConnector
      *
      * @var ConnectorInterface|null $connector
      */
-    protected ?ConnectorInterface $connector;
+    protected ?ConnectorInterface $connector = null;
 
 
     /**

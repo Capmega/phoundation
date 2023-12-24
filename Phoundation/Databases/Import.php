@@ -13,6 +13,8 @@ use Phoundation\Data\Traits\DataHost;
 use Phoundation\Data\Traits\DataPort;
 use Phoundation\Data\Traits\DataTimeout;
 use Phoundation\Data\Traits\DataUserPass;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
@@ -41,7 +43,9 @@ class Import
     use DataUserPass;
     use DataDebug;
     use DataFile;
-    use DataConnector;
+    use DataConnector {
+        setConnector as __setConnector;
+    }
     use DataRestrictions;
 
 
@@ -80,6 +84,59 @@ class Import
     public static function new(?RestrictionsInterface $restrictions = null): static
     {
         return new static($restrictions);
+    }
+
+
+    /**
+     * Sets the driver
+     *
+     * @note Overrides trait DataDriver::setDriver()
+     *
+     * @param string|null $driver
+     * @return static
+     */
+    public function setDriver(?string $driver): static
+    {
+        if ($driver and $this->connector) {
+            // Connector was specified separately, this driver must match connector driver
+            if ($driver !== $this->connector->getDriver()) {
+                throw new OutOfBoundsException(tr('Specified driver ":driver" does not match driver for already specified connector ":connector"', [
+                    ':connector' => $this->connector->getDriver(),
+                    ':driver'    => $driver
+                ]));
+            }
+        }
+
+        $this->driver = get_null($driver);
+        return $this;
+    }
+
+
+    /**
+     * Sets the source
+     *
+     * @param ConnectorInterface|string|null $connector
+     * @param bool $ignore_sql_exceptions
+     * @return static
+     */
+    public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
+    {
+        $this->__setConnector($connector, $ignore_sql_exceptions);
+
+        if ($this->getDriver()) {
+            // Driver was specified separately, must match driver for this connector
+            if ($this->getDriver() !== $this->connector->getDriver()) {
+                throw new OutOfBoundsException(tr('Specified connector is for driver ":connector", however a different driver ":driver" has already been specified separately', [
+                    ':connector' => $this->connector->getDriver(),
+                    ':driver'    => $this->getDriver()
+                ]));
+            }
+
+        } else {
+            $this->setDriver($this->connector->getDriver());
+        }
+
+        return $this;
     }
 
 

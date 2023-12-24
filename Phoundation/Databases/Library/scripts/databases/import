@@ -81,7 +81,7 @@ CliDocumentation::autoComplete([
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('-f,--file'     , true)->isFile(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
-    ->select('-d,--driver'   , true)->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
+    ->select('-d,--driver'   , true)->isOptional()->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database' , true)->isVariable()
     ->select('-c,--comments' , true)->isOptional()->isPrintable()
     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))

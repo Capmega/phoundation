@@ -221,11 +221,11 @@ class Sync
 
         return $this
             ->initConfiguration($environment)
-//            ->scan($this->server)
-//            ->lock($this->server)
-            ->dumpAllConnectors($this->server)
-//            ->unlock($this->server)
-            ->copyConnectors($this->server, null)
+            ->scan($this->server)
+            ->lock($this->server)
+            ->dumpAllDatabases($this->server)
+            ->unlock($this->server)
+            ->copyDatabases($this->server, null)
             ->copyContent($this->server, null)
             ->cleanTemporary($this->server)
             ->importConnectors(null)
@@ -245,9 +245,9 @@ class Sync
         return $this->initConfiguration($environment)
             ->scan($this->server)
             ->lock(null)
-            ->dumpAllConnectors(null)
+            ->dumpAllDatabases(null)
             ->unlock(null)
-            ->copyConnectors(null, $this->server)
+            ->copyDatabases(null, $this->server)
             ->copyContent(null, $this->server)
             ->cleanTemporary(null)
             ->importConnectors($this->server)
@@ -472,7 +472,7 @@ class Sync
      * @param ServerInterface|null $server
      * @return static
      */
-    protected function dumpAllConnectors(?ServerInterface $server): static
+    protected function dumpAllDatabases(?ServerInterface $server): static
     {
         Log::action(tr('Dumping all configured connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
@@ -491,6 +491,7 @@ class Sync
         foreach ($connectors as $name => $connector) {
             if ($this->getDumpConnector($name)) {
                 $connector = Connector::fromSource($connector);
+                $connector->setName($name);
 
                 if ($connector->getType() === 'memcached') {
                     // Memcached is volatile, contains only temp data, and cannot (and should not) be dumped
@@ -514,14 +515,15 @@ class Sync
      */
     protected function dumpConnector(?ServerInterface $server, ConnectorInterface $connector): static
     {
-        Log::action(tr('Dumping connector with connector ":connector" for environment ":environment"', [
+        Log::action(tr('Dumping ":driver" database with connector ":connector" for environment ":environment"', [
+            ':driver'      => $connector->getDriver(),
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName()
         ]));
 
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
-             ->addArguments(['export', '--driver', 'mysql', '--connector', $connector->getName()])
+             ->addArguments(['databases', 'export', '--connector', $connector->getName(), '--database', $connector->getDatabase()])
              ->executeReturnString();
 
         return $this->executeHook('post-dump-connector');
@@ -553,7 +555,7 @@ class Sync
      * @param ServerInterface|null $to
      * @return static
      */
-    protected function copyConnectors(?ServerInterface $from, ?ServerInterface $to): static
+    protected function copyDatabases(?ServerInterface $from, ?ServerInterface $to): static
     {
         Log::action(tr('Copying all dumped connector from environment ":from" to ":to"', [
             ':from' => $this->getEnvironmentForServer($from),
