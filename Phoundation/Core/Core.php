@@ -583,22 +583,23 @@ class Core implements CoreInterface
         if ($enable) {
             // Enable maintenance mode
             if ($enabled) {
-                throw MaintenanceModeException::new(tr('Cannot place the system in maintenance mode, the system was already placed in maintenance mode by ":user"', [
+                Log::warning(tr('Not placing system in maintenance mode, the system was already placed in maintenance mode by ":user"', [
                     ':user' => $enabled
-                ]))->makeWarning();
+                ]));
+                return;
             }
 
             Directory::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->ensure();
             touch(DIRECTORY_DATA . 'system/maintenance/' . (Session::getUser()->getEmail() ?? get_current_user()));
 
-            throw MaintenanceModeException::new(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'))
-                ->makeWarning();
+            Log::warning(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
+            return;
         }
 
         // Disable maintenance mode
         if (!$enabled) {
-            throw MaintenanceModeException::new(tr('Cannot disable maintenance mode, the system is not in maintenance mode'))
-                ->makeWarning();
+            Log::Warning(tr('Not disabling maintenance mode, the system is not in maintenance mode'));
+            return;
         }
 
         File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->delete();
@@ -651,26 +652,26 @@ class Core implements CoreInterface
         if ($enable) {
             // Enable readonly mode
             if ($enabled) {
-                throw ReadonlyModeException::new(tr('Cannot place the system in readonly mode, the system was already placed in readonly mode by ":user"', [
+                Log::warning(tr('Cannot place the system in readonly mode, the system was already placed in readonly mode by ":user"', [
                     ':user' => $enabled
-                ]))->makeWarning();
+                ]));
+                return;
             }
 
             Directory::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->ensure();
             touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUser()->getEmail() ?? get_current_user()));
 
-            throw ReadonlyModeException::new(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'))
-                ->makeWarning();
+            Log::warning(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
+            return;
         }
 
         // Disable readonly mode
         if (!$enabled) {
-            throw ReadonlyModeException::new(tr('Cannot disable readonly mode, the system is not in readonly mode'))
-                ->makeWarning();
+            Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
+        } else {
+            File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
+            Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
-
-        File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
-        Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
     }
 
 
