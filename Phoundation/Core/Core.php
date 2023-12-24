@@ -20,6 +20,7 @@ use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
 use Phoundation\Core\Exception\MaintenanceModeException;
 use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Exception\ReadonlyModeException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
@@ -77,7 +78,7 @@ class Core implements CoreInterface
      * Framework version and minimum required PHP version
      */
     public const FRAMEWORKCODEVERSION = '4.2.0';
-    public const PHP_MINIMUM_VERSION = '8.1.0';
+    public const PHP_MINIMUM_VERSION  = '8.2.0';
 
     /**
      * Singleton variable
@@ -575,7 +576,7 @@ class Core implements CoreInterface
      * @param bool $enable
      * @return void
      */
-    public static function enableMaintenanceMode(bool $enable): void
+    public static function setMaintenanceMode(bool $enable): void
     {
         $enabled = static::getMaintenanceMode();
 
@@ -601,9 +602,89 @@ class Core implements CoreInterface
         }
 
         File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
+    }
 
-        throw MaintenanceModeException::new(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'))
-            ->makeWarning();
+
+    /**
+     * Returns information on if the system is in readonly mode or not.
+     *
+     * This method will return null if the system is not in readonly mode
+     *
+     * This method will return an email address if the system is in maintenance mode. The email address will be the
+     * email for the person who placed the system in readonly mode
+     *
+     * @return string|null
+     */
+    public static function getReadonlyMode(): ?string
+    {
+        if (file_exists(DIRECTORY_DATA . 'system/readonly')) {
+            // System is in maintenance mode, show who put it there
+            $files = Directory::new(DIRECTORY_DATA . 'system/readonly')->scan();
+
+            if ($files) {
+                return array_first(Directory::new(DIRECTORY_DATA . 'system/readonly')->scan());
+            }
+
+            // ??? The maintenance directory is empty? It should contain a file with the email address of who locked it
+            return tr('Unknown');
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns true if the system is in readonly mode
+     *
+     * @note This mode is global, and will immediately block all future web requests and block all future commands with
+     * the exception to commands under ./pho system. Readonly mode will remain enabled until disabled either by this
+     * call or manually with ./pho system readonly disable
+     *
+     * @param bool $enable
+     * @return void
+     */
+    public static function setReadonlyMode(bool $enable): void
+    {
+        $enabled = static::getReadonlyMode();
+
+        if ($enable) {
+            // Enable readonly mode
+            if ($enabled) {
+                throw ReadonlyModeException::new(tr('Cannot place the system in readonly mode, the system was already placed in readonly mode by ":user"', [
+                    ':user' => $enabled
+                ]))->makeWarning();
+            }
+
+            Directory::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->ensure();
+            touch(DIRECTORY_DATA . 'system/readonly/' . (Session::getUser()->getEmail() ?? get_current_user()));
+
+            throw ReadonlyModeException::new(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'))
+                ->makeWarning();
+        }
+
+        // Disable readonly mode
+        if (!$enabled) {
+            throw ReadonlyModeException::new(tr('Cannot disable readonly mode, the system is not in readonly mode'))
+                ->makeWarning();
+        }
+
+        File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
+    }
+
+
+    /**
+     * Removes both maintenance and readonly modes
+     *
+     * @return void
+     */
+    public static function resetModes(): void
+    {
+        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'system/readonly'  , Restrictions::new(DIRECTORY_DATA, true))->delete();
+
+        Log::warning(tr('System has been relieved from readonly mode. All web requests will now again be answered, all commands are available'), 10);
     }
 
 
