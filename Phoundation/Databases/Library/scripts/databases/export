@@ -37,7 +37,7 @@ ARGUMENTS
 
 
 -c / --connector CONNECTOR              The database connector to use. Must either exist in configuration or in the
-                                        system database as a database connector. If not specified, the system connector
+                                        system database as a database connector. If not specified, the system connector 
                                         will be assumed
 
 [-b / --database] DATABASE              The database to export.
