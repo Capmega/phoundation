@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
@@ -733,5 +734,21 @@ abstract class DataList extends Iterator implements DataListInterface
         // Clear the source to avoid having a parent with the wrong children
         $this->source = [];
         return $this->setParentTrait($parent);
+    }
+
+
+    /**
+     * Returns an array of
+     *
+     * @param string|null $word
+     * @return array
+     */
+    public function autoCompleteFind(?string $word = null): array
+    {
+        return sql()->listKeyValue('SELECT `id`, `' . static::getUniqueField() . '`
+                                          FROM   `' . static::getTable() . '`'
+                              . $word ? ' WHERE `' . static::getUniqueField() . '` LIKE :like' : null . '
+                                          LIMIT ' . CliAutoComplete::getLimit(),
+            $word ? [':like' => '%' . $word] : null);
     }
 }
