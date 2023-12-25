@@ -16,6 +16,7 @@ use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -329,6 +330,13 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 case 'null':
                     if (is_null($variable)) {
+                        break;
+                    }
+
+                    return $variable;
+
+                case 'datetime':
+                    if ($variable instanceof DateTimeInterface) {
                         break;
                     }
 
@@ -1098,6 +1106,18 @@ function function_called(string $function): bool
     }
 
     return false;
+}
+
+
+/**
+ * Returns a DateTime object for NOW
+ *
+ * @param DateTimeZoneInterface|string|null $timezone
+ * @return DateTimeInterface
+ */
+function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeInterface
+{
+    return new \Phoundation\Date\DateTime('now', $timezone);
 }
 
 
