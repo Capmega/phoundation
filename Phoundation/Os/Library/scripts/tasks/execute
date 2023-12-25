@@ -4,8 +4,10 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Task;
+use Phoundation\Os\Processes\Tasks;
 
 
 /**
@@ -19,9 +21,11 @@ use Phoundation\Os\Processes\Task;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho tasks execute');
+
 CliDocumentation::help('This script can execute one or multiple tasks.
 
-If a task id has been specified, then that specific task will be executed. If not, the system will scan for tasks that are due to be executed and execute them in order.
+If a task id has been specified, then that specific task will be executed. If not, the system will scan for tasks that
+are due to be executed and execute them in order.
 
 
 ARGUMENTS
@@ -29,15 +33,35 @@ ARGUMENTS
 
 [-t, --task ID]                         The ID of a specific task that should be executed');
 
+CliDocumentation::autoComplete([
+    'arguments' => [
+        '-t,--task' => [
+            'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
+            'noword' => function ()      { return Tasks::new()->autoCompleteFind(); },
+        ],
+    ]
+]);
 
+
+// Get arguments
 $argv = ArgvValidator::new()
-    ->select('-t,--task', true)->isInteger()
+    ->select('-t,--task', true)->isOptional()->isInteger()
     ->validate();
 
 
+// Start executing all tasks and finish
 if (empty($argv['task'])) {
+    $count = Tasks::new()->load()->execute();
+
+    Log::success(tr('Executed ":count" tasks', [
+        ':count' => $count
+    ]));
 
 } else {
     // Execute this specific task
     $task = Task::get($argv['task'])->execute();
+
+    Log::success(tr('Executed task ":task"', [
+        ':task' => $task
+    ]));
 }

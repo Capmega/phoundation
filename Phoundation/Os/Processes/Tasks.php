@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Os\Processes\Exception\TasksException;
+use Phoundation\Os\Processes\Interfaces\TasksInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
@@ -19,7 +22,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class Tasks extends DataList
+class Tasks extends DataList implements TasksInterface
 {
     /**
      * Returns the table name used by this object
@@ -76,5 +79,28 @@ class Tasks extends DataList
             ->setName('tasks_id')
             ->setNone(tr('Select a task'))
             ->setObjectEmpty(tr('No tasks available'));
+    }
+
+
+    /**
+     * Execute the tasks in this list
+     *
+     * @return $this
+     */
+    public function execute(): static
+    {
+        foreach ($this as $task) {
+            try {
+                $task->execute();
+
+            } catch (TasksException $e) {
+                Log::warning(tr('Task ":task" failed because: :e', [
+                    ':task' => $task->getId(),
+                    ':e'    => $e
+                ]));
+            }
+        }
+
+        return $this;
     }
 }
