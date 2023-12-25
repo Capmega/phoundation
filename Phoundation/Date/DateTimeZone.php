@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Exception\DateTimeZoneException;
+use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Utils\Config;
 use Throwable;
 
@@ -22,7 +23,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class DateTimeZone extends \DateTimeZone
+class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
 {
     /**
      * Ensures we have a valid DateTimeZone object, even when "system" or "user" or a timezone name string was specified
