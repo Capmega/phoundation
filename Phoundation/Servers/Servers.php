@@ -6,6 +6,7 @@ namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -109,8 +110,9 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    public function load(): static
+    public function load(bool $clear = true): static
     {
+        throw new UnderConstructionException();
         $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
                                    FROM     `servers` 
                                    WHERE    `servers`.`status` IS NULL
