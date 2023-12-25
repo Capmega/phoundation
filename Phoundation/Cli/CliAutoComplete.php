@@ -455,7 +455,18 @@ complete -F _phoundation pho');
      */
     public static function limit(array $source): array
     {
-        return Arrays::limit($source, Config::getInteger('shell.autocomplete.limit', 50));
+        return Arrays::limit($source, static::getLimit());
+    }
+
+
+    /**
+     * Returns the limit for auto complete
+     *
+     * @return int
+     */
+    public static function getLimit(): int
+    {
+        return Config::getInteger('shell.autocomplete.limit', 50);
     }
 
 
