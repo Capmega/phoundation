@@ -344,10 +344,6 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 default:
                     // This should be an object
-                    if (is_object($variable)) {
-                        return $variable;
-                    }
-
                     if ($variable instanceof $type) {
                         return $variable;
                     }
