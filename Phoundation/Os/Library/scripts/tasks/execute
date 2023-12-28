@@ -6,62 +6,43 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Os\Processes\Task;
 use Phoundation\Os\Processes\Tasks;
 
 
 /**
- * Script tasks/execute
+ * Script workers/execute
  *
- * This script will display detailed information about the current framework, project, database ,etc.
+ * This script will execute a parent worker that will execute its task through multiple parallel child workers
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho tasks execute');
+CliDocumentation::usage('./pho workers execute');
 
-CliDocumentation::help('This script can execute one or multiple tasks.
-
-If a task id has been specified, then that specific task will be executed. If not, the system will scan for tasks that
-are due to be executed and execute them in order.
+CliDocumentation::help('This script executes a worker parent that will execute multiple worker children in parallel
+as background processes.
 
 
 ARGUMENTS
 
 
-[-t, --task ID]                         The ID of a specific task that should be executed');
+[-w,--workers COUNT]                    The maximum amount of parallel tasks to execute');
 
 CliDocumentation::autoComplete([
     'arguments' => [
-        '-t,--task' => [
-            'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
-            'noword' => function ()      { return Tasks::new()->autoCompleteFind(); },
-        ],
+        '-w,--workers' => true,
     ]
 ]);
 
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('-t,--task', true)->isOptional()->isInteger()
+    ->select('-w,--workers', true)->isOptional()->isNatural()
     ->validate();
 
 
-// Start executing all tasks and finish
-if (empty($argv['task'])) {
-    $count = Tasks::new()->load()->execute();
-
-    Log::success(tr('Executed ":count" tasks', [
-        ':count' => $count
-    ]));
-
-} else {
-    // Execute this specific task
-    $task = Task::get($argv['task'])->execute();
-
-    Log::success(tr('Executed task ":task"', [
-        ':task' => $task
-    ]));
-}
+throw new UnderConstructionException();

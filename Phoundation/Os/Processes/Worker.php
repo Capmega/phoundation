@@ -17,5 +17,4 @@ namespace Phoundation\Os\Processes;
  */
 class Worker extends Process
 {
-
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
+use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
@@ -12,6 +13,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
+use Phoundation\Data\DataEntry\Traits\DataEntryRole;
 use Phoundation\Data\DataEntry\Traits\DataEntryStart;
 use Phoundation\Data\DataEntry\Traits\DataEntryStop;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -19,8 +21,14 @@ use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Exception\TasksException;
+use Phoundation\Os\Processes\Interfaces\TaskInterface;
+use Phoundation\Os\Processes\Traits\DataEntryTask;
+use Phoundation\Os\Processes\Traits\DataEntryWorkers;
+use Phoundation\Servers\Traits\DataEntryServer;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\InputElement;
 use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -33,13 +41,15 @@ use Phoundation\Web\Html\Enums\InputType;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
-class Task extends DataEntry
+class Task extends DataEntry implements TaskInterface
 {
+    use DataEntryRole;
     use DataEntryStart;
     use DataEntryStop;
     use DataEntryServer;
     use DataEntryTask;
     use DataEntryName;
+    use DataEntryWorkers;
     use DataEntryResults;
     use DataEntryDescription;
 
@@ -91,6 +101,26 @@ class Task extends DataEntry
 
 
     /**
+     * Returns the amount of time in seconds spent on this task
+     *
+     * @param DateTimeInterface|string|null $execute_after
+     * @return float
+     */
+    public function getTimeSpent(DateTimeInterface|string|null $execute_after): float
+    {
+        if (!$this->getStart()) {
+            throw new TasksException(tr('Cannot calculate time spent on task, it has not yet started'));
+        }
+
+        if (!$this->getStop()) {
+            throw new TasksException(tr('Cannot calculate time spent on task, it has not yet finished'));
+        }
+
+        return $this->getStop()->diff($this->getStart())->getTotalMilliSeconds() * 1000;
+    }
+
+
+    /**
      * Returns the datetime after which this task should be executed
      *
      * @return DateTimeInterface|null
@@ -137,29 +167,6 @@ class Task extends DataEntry
 
 
     /**
-     * Returns the servers_id for where this task should be executed
-     *
-     * @return DateTimeInterface|null
-     */
-    public function getServersId(): ?DateTimeInterface
-    {
-        return $this->getSourceFieldValue('int', 'servers_id');
-    }
-
-
-    /**
-     * Sets the servers_id for where this task should be executed
-     *
-     * @param int|null $servers_id
-     * @return static
-     */
-    public function setServersId(int|null $servers_id): static
-    {
-        return $this->setSourceValue('servers_id', get_null($servers_id));
-    }
-
-
-    /**
      * Returns the send_to_id for where this task should be executed
      *
      * @return int|null
@@ -179,29 +186,6 @@ class Task extends DataEntry
     public function setSendToId(int|null $send_to_id): static
     {
         return $this->setSourceValue('send_to_id', get_null($send_to_id));
-    }
-
-
-    /**
-     * Returns the notifications_roles_id for where this task should be executed
-     *
-     * @return int|null
-     */
-    public function getNotificationsRolesId(): ?int
-    {
-        return $this->getSourceFieldValue('int', 'notifications_roles_id');
-    }
-
-
-    /**
-     * Sets the notifications_roles_id for where this task should be executed
-     *
-     * @param int|null $notifications_roles_id
-     * @return static
-     */
-    public function setNotificationsRolesId(int|null $notifications_roles_id): static
-    {
-        return $this->setSourceValue('notifications_roles_id', get_null($notifications_roles_id));
     }
 
 
@@ -432,29 +416,6 @@ class Task extends DataEntry
     public function setClearLogs(int|bool|null $clear_logs): static
     {
         return $this->setSourceValue('clear_logs', (bool) $clear_logs);
-    }
-
-
-    /**
-     * Returns the debug for where this task should be executed
-     *
-     * @return bool
-     */
-    public function getDebugExecution(): bool
-    {
-        return $this->getSourceFieldValue('bool', 'debug_execution');
-    }
-
-
-    /**
-     * Sets the debug for where this task should be executed
-     *
-     * @param bool|null $debug
-     * @return static
-     */
-    public function setDebugExecution(int|bool|null $debug): static
-    {
-        return $this->setSourceValue('debug_execution', (bool) $debug);
     }
 
 
@@ -866,7 +827,7 @@ class Task extends DataEntry
      * @param array|null $arguments
      * @return static
      */
-    public function setArguments(array|null $arguments): static
+    public function setArguments(?array $arguments): static
     {
         return $this->setSourceValue('arguments', $arguments);
     }
@@ -986,49 +947,103 @@ class Task extends DataEntry
 
 
     /**
+     * Generates the UUID code for this object
+     *
+     * @param string|null $code
+     * @return static
+     */
+    protected function generateCode(): static
+    {
+        return $this->setSourceValue('code', Strings::generateUuid());
+    }
+
+
+    /**
      * Executes this task, and stores all relevant results data in the database
      *
-     * @param bool $immediately
      * @return static
      */
     public function execute(): static
     {
-        if ($this->getStartedOn()) {
-            if ($this->getStoppedOn()) {
-                throw new TasksException(tr('Cannot execute task ":id", it has already been executed', [
+        if ($this->getStart()) {
+            // This task has already started
+            if ($this->getStop()) {
+                // This task has already stopped
+                throw new TasksException(tr('Cannot execute task ":id", it has already finished execution', [
                     ':id' => $this->getId()
                 ]));
             }
 
-            throw new TasksException(tr('Cannot execute task ":id", it is already being executed', [
+            throw new TasksException(tr('Cannot execute task ":id", it is currently being executed', [
                 ':id' => $this->getId()
             ]));
         }
 
         if ($this->getExecuteAfter() and ($this->getExecuteAfter() > now())) {
-            Log::warning('Not yet executing task ":task" as it should not be executed until after ":date"', [
+            Log::warning(tr('Not yet executing task ":task" as it should not be executed until after ":date"', [
                 ':task' => $this->getLogId(),
                 ':date' => $this->getExecuteAfter()
-            ]);
+            ]));
         }
+
+        Hook::new('tasks')->execute('pre-execute' , ['task' => $this]);
+
+        // Execute the command
+        $worker = Workers::new()
+            ->setCommand($this->getCommand())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->set($this->get())
+            ->executeReturnString();
+
+        Hook::new('tasks')->execute('post-execute', [
+            'task'   => $this,
+            'worker' => $worker
+        ]);
 
         return $this;
     }
 
 
     /**
-     * Apply the given source
+     * Save this task to disk
      *
-     * @param bool $clear_source
-     * @param array|ValidatorInterface|null $source
+     * @param bool $force
+     * @param string|null $comments
      * @return $this
-     * @throws \Exception
      */
-    public function apply(bool $clear_source = true, array|ValidatorInterface|null &$source = null): static
+    public function save(bool $force = false, ?string $comments = null): static
     {
-        parent::apply($clear_source, $source);
-
-        $this->generateCode();
+        if ($this->saveBecauseModified($force)) {
+            // Validate data and write it to database
+            $this
+                ->ensureValidation()
+                ->generateCode()
+                ->write($comments);
+        }
 
         return $this;
     }
@@ -1042,26 +1057,29 @@ class Task extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'name')
-                ->setLabel(tr('Name'))
+            ->addDefinition(DefinitionFactory::getCode($this)
+                ->setReadonly(true)
                 ->setOptional(true)
+                ->setLabel(tr('Code'))
                 ->setSize(4)
-                ->setMaxlength(64)
+                ->setMaxlength(36)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isName();
+                    $validator->isCode();
                 }))
-            ->addDefinition(Definition::new($this, 'seo_name')
-                ->setVisible(false))
+            ->addDefinition(DefinitionFactory::getName($this))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(Definition::new($this, 'parents_id')
+                ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('Parent task')
-                ->setSource('SELECT `id`, CONCAT(`email`, " (", `name`, ")") FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
+                ->setSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
                 }))
             ->addDefinition(Definition::new($this, 'execute_after')
+                ->setOptional(true)
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Execute after')
                 ->setSize(4)
@@ -1070,6 +1088,8 @@ class Task extends DataEntry
                     $validator->isDateTime();
                 }))
             ->addDefinition(Definition::new($this, 'start')
+                ->setOptional(true)
+                ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Executed on')
                 ->setSize(4)
@@ -1078,6 +1098,8 @@ class Task extends DataEntry
                     $validator->isDateTime();
                 }))
             ->addDefinition(Definition::new($this, 'stop')
+                ->setOptional(true)
+                ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Finished on')
                 ->setSize(4)
@@ -1086,39 +1108,52 @@ class Task extends DataEntry
                     $validator->isDateTime();
                 }))
             ->addDefinition(Definition::new($this, 'send_to')
-                ->setVisible(false)
+                ->setOptional(true)
+                ->setVirtual(true)
                 ->setMaxlength(128)
+                ->setLabel('Send to user')
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isEmail();
                 }))
             ->addDefinition(Definition::new($this, 'send_to_id')
+                ->setOptional(true)
+                ->setVisible(false)
                 ->setInputType(InputType::select)
-                ->setLabel('Send to user')
-                ->setSource('SELECT `id`, CONCAT(`email`, " <", `firstnames`, " ", `lastnames`, ">") FROM `accounts_users` WHERE `status` IS NULL')
+                ->setSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
+                }))
+            ->addDefinition(Definition::new($this, 'server')
+                ->setOptional(true)
+                ->setVirtual(true)
+                ->setMaxlength(255)
+                ->setLabel('Execute on server')
+                ->setSize(4)
+                ->addValidationFunction(function(ValidatorInterface $validator) {
+                    $validator->orField('servers_id')->isName()->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
                 }))
             ->addDefinition(Definition::new($this, 'servers_id')
+                ->setOptional(true)
+                ->setVisible(false)
                 ->setInputType(InputType::select)
-                ->setLabel('Execute on server')
                 ->setSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
-                ->setSize(4)
-                ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isDbId();
+                    $validator->orField('server')->isDbId()->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
                 }))
-            ->addDefinition(Definition::new($this, 'notifications_roles_id')
+            ->addDefinition(Definition::new($this, 'roles_id')
+                ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('Execute on server')
-                ->setSource('SELECT `id` FROM `notifications_groups` WHERE `status` IS NULL')
+                ->setSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
                 }))
             ->addDefinition(Definition::new($this, 'execution_path')
+                ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setLabel('Execution path')
                 ->setSize(4)
@@ -1130,32 +1165,28 @@ class Task extends DataEntry
                 ->setLabel('Command')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'executed_command')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::text)
                 ->setLabel('Command')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'arguments')
-                ->setInputType(InputType::text)
+                ->setOptional(true)
+                ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Arguments')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'variables')
-                ->setInputType(InputType::text)
+                ->setOptional(true)
+                ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Argument variables')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'environment_variables')
-                ->setInputType(InputType::text)
+                ->setOptional(true)
+                ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Environment variables')
                 ->setSize(4))
-            ->addDefinition(Definition::new($this, 'time_spent')
-                ->setInputType(InputType::number)
-                ->setLabel('Time spent')
-                ->setDisabled(true)
-                ->setMin(0)
-                ->setSize(4)
-                ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isPositive(true);
-                }))
             ->addDefinition(Definition::new($this, 'background')
+                ->setOptional(true, false)
                 ->setInputType(InputType::checkbox)
                 ->setLabel('Execute in background')
                 ->setSize(4)
@@ -1163,20 +1194,15 @@ class Task extends DataEntry
                     $validator->isBoolean();
                 }))
             ->addDefinition(Definition::new($this, 'clear_logs')
+                ->setOptional(true, false)
                 ->setInputType(InputType::checkbox)
                 ->setLabel('Clear logs')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
-            ->addDefinition(Definition::new($this, 'debug')
-                ->setInputType(InputType::checkbox)
-                ->setLabel('Run in debug mode')
-                ->setSize(4)
-                ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isBoolean();
-                }))
             ->addDefinition(Definition::new($this, 'escape_quotes')
+                ->setOptional(true, false)
                 ->setInputType(InputType::checkbox)
                 ->setLabel('Escape quotes')
                 ->setSize(4)
@@ -1184,6 +1210,7 @@ class Task extends DataEntry
                     $validator->isBoolean();
                 }))
             ->addDefinition(Definition::new($this, 'nocache')
+                ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('No cache mode')
                 ->setSource([
@@ -1193,15 +1220,7 @@ class Task extends DataEntry
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                 }))
             ->addDefinition(Definition::new($this, 'ionice')
-                ->setInputType(InputType::select)
-                ->setLabel('IO Nice')
-                ->setSource([
-
-                ])
-                ->setSize(4)
-                ->addValidationFunction(function(ValidatorInterface $validator) {
-                }))
-            ->addDefinition(Definition::new($this, 'ionice')
+                ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('IO nice')
                 ->setSource([
@@ -1212,12 +1231,14 @@ class Task extends DataEntry
                 ])
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'ionice_level')
+                ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('IO nice level')
                 ->setMin(0)
                 ->setMax(7)
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'nice')
+                ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Nice level')
                 ->setOptional(true, 0)
@@ -1225,91 +1246,79 @@ class Task extends DataEntry
                 ->setMax(20)
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'timeout')
+                ->setOptional(true, 30)
                 ->setInputType(InputType::number)
                 ->setLabel('Time limit')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'wait')
+                ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Start wait')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setSize(4))
-            ->addDefinition(Definition::new($this, 'verbose')
-                ->setInputType(InputType::checkbox)
-                ->setLabel('Verbose output')
-                ->setSize(4)
-                ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isBoolean();
-                }))
-            ->addDefinition(Definition::new($this, 'quiet')
-                ->setInputType(InputType::checkbox)
-                ->setLabel('Quiet')
-                ->setSize(4)
-                ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isBoolean();
-                }))
             ->addDefinition(Definition::new($this, 'sudo')
+                ->setOptional(true, false)
                 ->setLabel('Sudo required / command')
                 ->setSize(6)
                 ->setMaxlength(32))
             ->addDefinition(Definition::new($this, 'term')
+                ->setOptional(true)
                 ->setLabel('Terminal command')
                 ->setSize(6)
                 ->setMaxlength(32))
             ->addDefinition(Definition::new($this, 'pipe')
+                ->setOptional(true)
                 ->setLabel('Pipe to')
                 ->setSize(6)
                 ->setMaxlength(510))
             ->addDefinition(Definition::new($this, 'input_redirect')
+                ->setOptional(true)
                 ->setLabel('Input redirect')
                 ->setSize(6)
                 ->setMaxlength(64))
             ->addDefinition(Definition::new($this, 'output_redirect')
+                ->setOptional(true)
                 ->setLabel('Output redirect')
                 ->setSize(6)
                 ->setMaxlength(510))
             ->addDefinition(Definition::new($this, 'restrictions')
+                ->setOptional(true)
                 ->setLabel('Restrictions')
                 ->setSize(6)
                 ->setMaxlength(510))
             ->addDefinition(Definition::new($this, 'packages')
+                ->setOptional(true)
                 ->setLabel('Packages')
                 ->setSize(6)
                 ->setMaxlength(510))
             ->addDefinition(Definition::new($this, 'pre_exec')
+                ->setOptional(true)
                 ->setLabel('Pre execute')
                 ->setSize(6)
                 ->setMaxlength(510))
             ->addDefinition(Definition::new($this, 'post_exec')
+                ->setOptional(true)
                 ->setLabel('Post execute')
                 ->setSize(6)
                 ->setMaxlength(510))
-            ->addDefinition(Definition::new($this, 'command')
-                ->setLabel('Command')
-                ->setSize(6)
-                ->setMaxlength(64))
             ->addDefinition(Definition::new($this, 'accepted_exit_codes')
+                ->setOptional(true, [0])
                 ->setLabel('Accepted Exit Codes')
                 ->setSize(6)
                 ->setMaxlength(64))
-            ->addDefinition(Definition::new($this, 'arguments')
-                ->setLabel('Arguments')
-                ->setSize(12)
-                ->setMaxlength(65_535))
-            ->addDefinition(Definition::new($this, 'executed_command')
-                ->setLabel('Executed command')
-                ->setElement(InputElement::textarea)
-                ->setSize(12)
-                ->setMaxlength(65_535))
             ->addDefinition(Definition::new($this, 'results')
+                ->setOptional(true)
+                ->setReadonly(true)
                 ->setLabel('Results')
                 ->setElement(InputElement::textarea)
                 ->setSize(12)
                 ->setMaxlength(16_777_215)
                 ->setReadonly(true))
             ->addDefinition(Definition::new($this, 'pid')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Process ID')
@@ -1319,25 +1328,22 @@ class Task extends DataEntry
                     $validator->isDbId();
                 }))
             ->addDefinition(Definition::new($this, 'exit_code')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('Exit code')
                 ->setInputType(InputType::number)
                 ->setSize(2)
                 ->setMin(0)
                 ->setMax(255))
-            ->addDefinition(Definition::new($this, 'results')
-                ->setLabel('Results')
-                ->setElement(InputElement::textarea)
-                ->setSize(12)
-                ->setMaxlength(16_777_215)
-                ->setReadonly(true))
             ->addDefinition(Definition::new($this, 'log_file')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('Log file')
                 ->setInputType(InputType::text)
                 ->setSize(6)
                 ->setMaxLength(512))
             ->addDefinition(Definition::new($this, 'pid_file')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('PID file')
                 ->setInputType(InputType::text)

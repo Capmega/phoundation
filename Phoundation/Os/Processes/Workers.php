@@ -21,7 +21,7 @@ use Phoundation\Utils\Strings;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
- * @uses \Phoundation\Os\Processes\ProcessVariables
+ * @uses ProcessVariables
  */
 class Workers extends Process
 {
@@ -298,7 +298,7 @@ class Workers extends Process
 
 
     /**
-     * Returns the current amount of workers running
+     * Returns the current number of workers running
      *
      * @return int
      */
@@ -362,7 +362,7 @@ class Workers extends Process
 
 
     /**
-     * Stop all background running workers
+     * Stop all background-running workers
      *
      * @return void
      */
@@ -389,9 +389,12 @@ class Workers extends Process
             ->executeBackground();
 
         $this->workers[$worker->getPid()] = $worker;
-
-        Log::success(tr('Started worker with PID ":pid" for value ":value"', [':pid' => $worker->getPid(), ':value' => $value]));
         $this->workers_executed++;
+
+        Log::success(tr('Started worker with PID ":pid" for value ":value"', [
+            ':pid'   => $worker->getPid(),
+            ':value' => $value
+        ]));
     }
 
 

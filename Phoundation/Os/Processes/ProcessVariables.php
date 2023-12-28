@@ -1095,11 +1095,11 @@ trait ProcessVariables
      * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
-     * @param array $arguments
+     * @param array|null $arguments
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(array $arguments, bool $escape = true): static
+    public function setArguments(?array $arguments, bool $escape = true): static
     {
         $this->arguments = [];
         return $this->addArguments($arguments, $escape);

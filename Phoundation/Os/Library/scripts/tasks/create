@@ -28,7 +28,7 @@ If a task id has been specified, then that specific task will be executed. If no
 ARGUMENTS
 
 
-[-t, --task ID]                         The ID of a specific task that should be executed');
+[-c, --command COMMAND]                 The command to execute for this task');
 
 
 $argv = ArgvValidator::new()
