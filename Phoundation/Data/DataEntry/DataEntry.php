@@ -667,6 +667,26 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
+     * identifier was specified
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @return static|null
+     */
+    public static function getOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
+    {
+       if ($identifier === null) {
+           return null;
+       }
+
+       return static::get($identifier, $column, $meta_enabled, $force);
+    }
+
+
+    /**
      * Returns the name for this user that can be displayed
      *
      * @return string
@@ -1463,6 +1483,11 @@ abstract class DataEntry implements DataEntryInterface
                 // Store this data through the set method to ensure datatype and filtering is done correctly
                 $method = $this->convertFieldToSetMethod($key);
 
+                if (!$definition->inputTypeIsScalar()) {
+                    // This input type is not scalar and as such has been stored as a JSON array
+                    $value = Json::ensureDecoded($value);
+                }
+
                 if ($this->debug) {
                     Log::debug('ABOUT TO SET SOURCE KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10, echo_header: false);
                 }
@@ -1864,12 +1889,12 @@ abstract class DataEntry implements DataEntryInterface
             $return[$field] = isset_get($this->source[$field]) ?? $definition->getDefault();
 
             // Ensure value is scalar
-            if ($return[$field] and !is_scalar($return[$field])) {
+            if (($return[$field] !== null) and !is_scalar($return[$field])) {
                 if (is_enum($return[$field])) {
                     $return[$field] = $return[$field]->value;
 
                 } else {
-                    $return[$field] = (string) $return[$field];
+                    $return[$field] = Json::ensureEncoded($return[$field]);
                 }
             }
 
@@ -1905,6 +1930,23 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function save(bool $force = false, ?string $comments = null): static
     {
+        if ($this->saveBecauseModified($force)) {
+            // Validate data and write it to database
+            return $this->ensureValidation()->write($comments);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     *
+     *
+     * @param bool $force
+     * @return bool
+     */
+    protected function saveBecauseModified(bool $force): bool
+    {
         $this->checkReadonly('save');
 
         if (!$this->is_modified and !$force) {
@@ -1913,9 +1955,20 @@ abstract class DataEntry implements DataEntryInterface
                 Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR ID "' . $this->source['id'] . '"', 10, echo_header: false);
             }
 
-            return $this;
+            return false;
         }
 
+        return true;
+    }
+
+
+    /**
+     * Do validation for save()
+     *
+     * @return $this
+     */
+    public function ensureValidation(): static
+    {
         if (!$this->is_validated) {
             // Object must ALWAYS be validated before writing!
             if ($this->debug) {
@@ -1929,6 +1982,18 @@ abstract class DataEntry implements DataEntryInterface
             $this->source = array_merge($this->source, $this->validate(ArrayValidator::new($source), true));
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Writes the data to the database
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function write(?string $comments = null): static
+    {
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
                 ':name' => static::getDataEntryName()

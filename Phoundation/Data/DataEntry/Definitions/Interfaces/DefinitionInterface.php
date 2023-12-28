@@ -401,19 +401,19 @@ interface DefinitionInterface
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @return array|PDOStatement|Stringable|null
+     * @return array|PDOStatement|Stringable|string|null
      */
-    public function getSource(): array|PDOStatement|Stringable|null;
+    public function getSource(): array|PDOStatement|Stringable|string|null;
 
     /**
      * Sets a data source for the HTML client element contents of this field
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @param array|PDOStatement|Stringable|null $value
+     * @param array|PDOStatement|Stringable|string|null $value
      * @return static
      */
-    public function setSource(array|PDOStatement|Stringable|null $value): static;
+    public function setSource(array|PDOStatement|Stringable|string|null $value): static;
 
     /**
      * Returns variables for the component

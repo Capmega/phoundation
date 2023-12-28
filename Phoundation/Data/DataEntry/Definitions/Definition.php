@@ -21,6 +21,7 @@ use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
 use Phoundation\Web\Html\Html;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -107,7 +108,8 @@ class Definition implements DefinitionInterface
         'time',
         'url',
         'week',
-        'auto-suggest'
+        'auto-suggest',
+        'array_json'
     ];
 
     /**
@@ -640,6 +642,45 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns true if the input type is scalar, false if it is not
+     *
+     * @return bool
+     */
+    public function inputTypeIsScalar(): bool
+    {
+        switch ($this->getInputType()?->value) {
+            case 'array_json':
+                return false;
+
+            default:
+                return true;
+        }
+    }
+
+
+    /**
+     * Sets the type of input element.
+     *
+     * @return InputTypeExtendedInterface|InputTypeInterface|null
+     */
+    public function getInputType(): InputTypeExtendedInterface|InputTypeInterface|null
+    {
+        $return = $this->getKey('type');
+
+        if ($return === null) {
+            return null;
+        }
+
+        try {
+            return InputType::tryFrom($return);
+
+        } catch (Throwable $e) {
+            return InputTypeExtended::tryFrom($return);
+        }
+    }
+
+
+    /**
      * Sets the type of input element.
      *
      * @param InputTypeInterface|InputTypeExtendedInterface|null $value
@@ -989,11 +1030,11 @@ class Definition implements DefinitionInterface
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @return array|PDOStatement|Stringable|null
+     * @return array|PDOStatement|Stringable|string|null
      */
-    public function getSource(): array|PDOStatement|Stringable|null
+    public function getSource(): array|PDOStatement|Stringable|string|null
     {
-        return isset_get_typed('array|PDOStatement|Stringable|null', $this->rules['source']);
+        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->rules['source']);
     }
 
 
@@ -1002,10 +1043,10 @@ class Definition implements DefinitionInterface
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @param array|PDOStatement|Stringable|null $value
+     * @param array|PDOStatement|Stringable|string|null $value
      * @return static
      */
-    public function setSource(array|PDOStatement|Stringable|null $value): static
+    public function setSource(array|PDOStatement|Stringable|string|null $value): static
     {
         return $this->setKey($value, 'source');
     }
@@ -1837,6 +1878,10 @@ class Definition implements DefinitionInterface
 
                             break;
 
+                        case 'array_json':
+                            $validator->sanitizeForceArray(',');
+                            break;
+
                         default:
                             // Validate input text strings
                             $validator->sanitizeTrim();
@@ -1859,6 +1904,14 @@ class Definition implements DefinitionInterface
             $source = $this->getSource();
 
             if ($source) {
+                if (is_string($source) or ($source instanceof Stringable)) {
+                    $source = sql()->query($source);
+                }
+
+                if ($source instanceof PDOStatement) {
+                    $source = $source->fetchAll();
+                }
+
                 if (is_array($source)) {
                     // The data value must be in the definition source
                     $validator->isInArray(array_keys($source));
