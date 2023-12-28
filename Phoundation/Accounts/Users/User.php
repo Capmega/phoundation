@@ -229,6 +229,7 @@ class User extends DataEntry implements UserInterface
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
      * @param bool $meta_enabled
+     * @param bool $force
      * @return User|null
      */
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
