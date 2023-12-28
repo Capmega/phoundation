@@ -295,20 +295,20 @@ interface ProcessVariablesInterface
      * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
-     * @param array $arguments
+     * @param array|null $arguments
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(array $arguments, bool $escape = true): static;
+    public function setArguments(?array $arguments, bool $escape = true): static;
 
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array|string|null $arguments
+     * @param array|null $arguments
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string|null $arguments, bool $escape = true): static;
+    public function addArguments(array|null $arguments, bool $escape = true): static;
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
