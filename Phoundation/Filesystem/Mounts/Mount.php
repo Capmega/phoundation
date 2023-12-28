@@ -485,6 +485,7 @@ class Mount extends DataEntry implements MountInterface
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem with which to mount this source')))
             ->addDefinition(Definition::new($this, 'options')
+                ->setOptional(true)
                 ->setSize(8)
                 ->setDefault('defaults')
                 ->setMaxlength(508)
