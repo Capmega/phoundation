@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks;
 
+use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\File;
 use Phoundation\Utils\Arrays;
@@ -26,7 +27,7 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Hook
+class Hook implements HookInterface
 {
     /**
      * The class of hooks that will be executed
@@ -76,7 +77,7 @@ class Hook
      * @param array|string $hooks
      * @return $this
      */
-    public function execute(array|string $hooks): static
+    public function execute(array|string $hooks, ?array $params = null): static
     {
         foreach (Arrays::force($hooks) as $hook) {
             $file = $this->directory . $hook;
