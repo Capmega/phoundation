@@ -72,6 +72,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         'week',
         'auto-suggest',
         'select',
+        'array_json'
     ];
 
 
