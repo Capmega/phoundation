@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigFailedException;
+use Phoundation\Core\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -37,14 +39,14 @@ use Phoundation\Utils\Strings;
 class Sync
 {
     /**
-     * Sets if the system will initialize after syncing
+     * Sets if the system initializes after syncing
      *
      * @var bool $init
      */
     protected bool $init = true;
 
     /**
-     * Sets if the system will use locking or not
+     * Sets if the system uses locking or not
      *
      * @var bool $lock
      */
@@ -89,7 +91,7 @@ class Sync
 
 
     /**
-     * Returns new Sync object
+     * Returns a new Sync object
      *
      * @return static
      */
@@ -100,7 +102,7 @@ class Sync
 
 
     /**
-     * Returns if the system will initialize after syncing
+     * Returns if the system initializes after syncing
      *
      * @return bool
      */
@@ -111,7 +113,7 @@ class Sync
 
 
     /**
-     * Sets if the system will initialize after syncing
+     * Sets if the system initializes after syncing
      *
      * @param bool $init
      * @return Sync
@@ -140,7 +142,6 @@ class Sync
         $result = Process::new('ls')
             ->setServer($server)
             ->setSudo($this->configuration['sudo'])
-            ->setOutputRedirect('/dev/null', 2)
             ->addArgument(Strings::slash($this->configuration['path']))
             ->executeReturnString();
 
@@ -148,7 +149,6 @@ class Sync
             $result = Process::new('ls')
                 ->setServer($server)
                 ->setSudo($this->configuration['sudo'])
-                ->setOutputRedirect('/dev/null', 2)
                 ->addArgument(Strings::slash($this->configuration['path']) . 'pho')
                 ->executeReturnString();
 
@@ -207,6 +207,19 @@ class Sync
 
 
     /**
+     * Initialized the temporary path for the specified server
+     *
+     * @param ServerInterface|null $server
+     * @return $this
+     */
+    protected function initTemporaryPath(?ServerInterface $server): static
+    {
+
+        return $this;
+    }
+
+
+    /**
      * Sync from the specified environment to this environment
      *
      * @param string $environment
@@ -219,9 +232,11 @@ class Sync
             ':local'       => ENVIRONMENT
         ]));
 
+
         return $this
             ->initConfiguration($environment)
             ->scan($this->server)
+            ->initTemporaryPath($this->server)
             ->lock($this->server)
             ->dumpAllDatabases($this->server)
             ->unlock($this->server)
@@ -523,8 +538,8 @@ class Sync
 
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
-             ->addArguments(['databases', 'export', '--connector', $connector->getName(), '--database', $connector->getDatabase()])
-             ->executeReturnString();
+                 ->addArguments(['databases', 'export', '--connector', $connector->getName(), '--database', $connector->getDatabase()])
+                 ->executeReturnString();
 
         return $this->executeHook('post-dump-connector');
     }
@@ -721,10 +736,13 @@ class Sync
             $this->environment   = $environment;
             $this->configuration = Config::forSection('deploy', $environment)->get();
 
-            // Return Config to default section
+            // Return Config to the default section
             Config::setSection('', ENVIRONMENT);
 
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigFileDoesNotExistsException $e) {
+            // Return Config to the default section
+            Config::setSection('', ENVIRONMENT);
+
             throw SyncEnvironmentDoesNotExistsException::new(tr('The specified target environment ":environment" does not exist', [
                 ':environment' => $environment
             ]), $e)->makeWarning();
