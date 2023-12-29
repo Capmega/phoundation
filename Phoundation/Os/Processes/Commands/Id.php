@@ -35,7 +35,7 @@ class Id extends Command
             ]));
         }
 
-        $this->setInternalCommand('id')
+        $this->setCommand('id')
              ->addArgument('-' . $section)
              ->setTimeout(1);
 

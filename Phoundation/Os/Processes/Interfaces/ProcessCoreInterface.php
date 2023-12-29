@@ -86,7 +86,7 @@ interface ProcessCoreInterface
      *
      * @return bool
      */
-    public function hasExecuted(): bool;
+    public function isFinished(): bool;
 
     /**
      * Returns if the process is currently executing

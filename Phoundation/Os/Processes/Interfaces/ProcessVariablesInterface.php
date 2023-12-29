@@ -79,7 +79,7 @@ interface ProcessVariablesInterface
     public function getExecutionTime(bool $require_stop = true): ?float;
 
     /**
-     * Increases the amount of times quotes should be escaped
+     * Increases the number of times quotes should be escaped
      *
      * @return ProcessVariables
      */
@@ -125,11 +125,11 @@ interface ProcessVariablesInterface
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null $execution_path
+     * @param Directory|Stringable|string|null $execution_directory
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Sets the execution path to private temp dir
@@ -349,10 +349,10 @@ interface ProcessVariablesInterface
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
      * @param string $key
-     * @param string $value
-     * @return ProcessVariables This process so that multiple methods can be chained
+     * @param string|float|int $value
+     * @return static
      */
-    public function setVariable(string $key, string $value): static;
+    public function setVariable(string $key, string|float|int $value): static;
 
     /**
      * Returns the process where the output of this command will be piped to, IF specified

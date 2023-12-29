@@ -29,7 +29,7 @@ class AptGet extends Command
     {
         Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
 
-        $this->setInternalCommand('apt-get')
+        $this->setCommand('apt-get')
              ->setSudo(true)
              ->addArguments(['-y', 'install'])
              ->addArguments($packages)

@@ -307,11 +307,11 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
 
     /**
-     * Returns if the process has executed or not
+     * Returns if the process has finished or not
      *
      * @return bool
      */
-    public function hasExecuted(): bool
+    public function isFinished(): bool
     {
         return !($this->exit_code === null);
     }
@@ -356,6 +356,10 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             return $this->cached_command_line;
         }
 
+        if (!$this->command) {
+            throw new OutOfBoundsException(tr('Cannot generate full command line, no command specified'));
+        }
+
         if ($this->register_run_file) {
             // Make sure we have a Pid file
             $this->setRunFile();
@@ -366,7 +370,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
         // Add timeout
         if ($this->timeout) {
-            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string)$this->timeout) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
         }
 
         // Add wait
@@ -375,8 +379,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         // Execute the command in this directory
-        if ($this->execution_path) {
-            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_path) . '; ' . $this->cached_command_line;
+        if ($this->execution_directory) {
+            $this->cached_command_line = 'cd ' . escapeshellarg($this->execution_directory) . '; ' . $this->cached_command_line;
         }
 
         // Execute on a server?
@@ -517,7 +521,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
                 }
 
                 // Update and escape the argument
-                $argument = escapeshellarg($this->variables[$argument]);
+                $argument = escapeshellarg((string) $this->variables[$argument]);
             }
 
             // Escape quotes if required so for shell
@@ -559,10 +563,10 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             }
 
             // Handlers were unable to make a clear exception out of this, show the standard command exception
-            throw new CommandsException(tr('The command :command failed with ":output"', [
+            throw new CommandsException(tr('The command :command failed with ":output", see following exception', [
                 ':command' => $command,
-                ':output' => $data
-            ]));
+                ':output'  => $data
+            ]), $e);
         }
 
         // The process generated no output. Process specified handlers
@@ -571,8 +575,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         // Something else went wrong, no CLI output available
-        throw new CommandsException(tr('The command :command failed for unknown reasons', [
+        throw new CommandsException(tr('The command :command failed, see following exception', [
             ':command' => $command
-        ]));
+        ]), $e);
     }
 }

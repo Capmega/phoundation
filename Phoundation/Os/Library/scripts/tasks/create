@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Task;
 
 
@@ -19,21 +18,11 @@ use Phoundation\Os\Processes\Task;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+CliDocumentation::autoComplete(Task::getAutoComplete());
+
 CliDocumentation::usage('./pho tasks execute');
-CliDocumentation::help('This script can execute one or multiple tasks.
 
-If a task id has been specified, then that specific task will be executed. If not, the system will scan for tasks that are due to be executed and execute them in order.
-
-
-ARGUMENTS
-
-
-[-c, --command COMMAND]                 The command to execute for this task');
-
-
-$argv = ArgvValidator::new()
-    ->select('-t,--task', true)->isInteger()
-    ->validate();
+CliDocumentation::help(Task::getHelpText());
 
 
 // Create the new task
@@ -41,4 +30,9 @@ $task = Task::new()->apply()->save();
 
 
 // Done!
-Log::success(tr('Created new task ":task"', [':task' => $task->getLogId()]));
+if ($task->isSaved()) {
+    Log::success(tr('Created new task ":task"', [':task' => $task->getLogId()]));
+
+} else {
+    Log::warning(tr('Did NOT creat new task'));
+}

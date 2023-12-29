@@ -55,7 +55,7 @@ try {
     }
 
     if (count($pids) < $argv['minimum']) {
-        throw MonitorException::new(tr('The service ":service" has ":count" processes available, less than the minimum amount of ":minimum"', [
+        throw MonitorException::new(tr('The service ":service" has ":count" processes available, less than the minimum number of ":minimum"', [
             ':count'   => count($pids),
             ':minimum' => $argv['minimum'],
             ':service' => $argv['service'],

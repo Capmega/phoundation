@@ -35,7 +35,7 @@ class Zcat extends Command
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($restrictions, $operating_system, $packages);
-        $this->setInternalCommand('zcat');
+        $this->setCommand('zcat');
     }
 
 

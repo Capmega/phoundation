@@ -36,7 +36,7 @@ class Mkdir extends Command
             $mode = Strings::fromOctal($mode);
 
             $this
-                ->setInternalCommand('mkdir')
+                ->setCommand('mkdir')
                 ->addArguments([$file, '-p', '-m', $mode])
                 ->setTimeout(1)
                 ->executeReturnArray();

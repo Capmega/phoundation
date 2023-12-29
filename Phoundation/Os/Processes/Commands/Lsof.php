@@ -34,7 +34,7 @@ class Lsof extends Command
     {
         $return    = [];
         $processes = $this->clearArguments()
-            ->setInternalCommand('lsof')
+            ->setCommand('lsof')
             ->addArgument($file)
             ->executeReturnArray();
 

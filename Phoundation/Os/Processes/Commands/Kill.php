@@ -46,7 +46,7 @@ class Kill extends Command
             }
 
             $this
-                ->setInternalCommand('kill')
+                ->setCommand('kill')
                 ->addArgument('-' . $signal)
                 ->addArguments($pids)
                 ->setTimeout(10)
@@ -85,7 +85,7 @@ class Kill extends Command
             }
 
             $this
-                ->setInternalCommand('pkill')
+                ->setCommand('pkill')
                 ->addArgument('-' . $signal)
                 ->addArguments($processes)
                 ->setTimeout(10)

@@ -51,7 +51,7 @@ class Gzip extends Command
                 ]));
             }
 
-            $this->setInternalCommand('gzip')
+            $this->setCommand('gzip')
                  ->addArgument($file)
                  ->setTimeout(120)
                  ->executeNoReturn();
@@ -93,7 +93,7 @@ class Gzip extends Command
                 ]));
             }
 
-            $this->setInternalCommand('gunzip')
+            $this->setCommand('gunzip')
                  ->addArguments($file)
                  ->setTimeout(120)
                  ->executeNoReturn();

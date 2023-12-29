@@ -22,9 +22,9 @@ trait DataEntryWorkers
      *
      * @return int|null
      */
-    public function getWorkers(): ?int
+    public function getMinimumWorkers(): ?int
     {
-        return $this->getSourceFieldValue('int', 'workers');
+        return $this->getSourceFieldValue('int', 'maximum_workers');
     }
 
 
@@ -34,8 +34,31 @@ trait DataEntryWorkers
      * @param int|null $workers
      * @return static
      */
-    public function setWorkers(?int $workers): static
+    public function setMinimumWorkers(?int $workers): static
     {
-        return $this->setSourceValue('workers', $workers);
+        return $this->setSourceValue('maximum_workers', $workers);
+    }
+
+
+    /**
+     * Returns the workers for this object
+     *
+     * @return int|null
+     */
+    public function getMaximumWorkers(): ?int
+    {
+        return $this->getSourceFieldValue('int', 'maximum_workers');
+    }
+
+
+    /**
+     * Sets the workers for this object
+     *
+     * @param int|null $workers
+     * @return static
+     */
+    public function setMaximumWorkers(?int $workers): static
+    {
+        return $this->setSourceValue('maximum_workers', $workers);
     }
 }

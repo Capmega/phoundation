@@ -44,7 +44,7 @@ class Cp extends Command
         Directory::new(dirname($target), $target_restrictions)->ensure();
 
         // Build the process parameters, then execute
-        $this->setInternalCommand('cp')
+        $this->setCommand('cp')
              ->clearArguments()
              ->addArgument('-a')
              ->addArguments($source)

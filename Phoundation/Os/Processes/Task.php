@@ -14,18 +14,24 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
 use Phoundation\Data\DataEntry\Traits\DataEntryRole;
+use Phoundation\Data\DataEntry\Traits\DataEntrySpent;
 use Phoundation\Data\DataEntry\Traits\DataEntryStart;
 use Phoundation\Data\DataEntry\Traits\DataEntryStop;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Notifications\Notification;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
 use Phoundation\Os\Processes\Exception\TasksException;
 use Phoundation\Os\Processes\Interfaces\TaskInterface;
 use Phoundation\Os\Processes\Traits\DataEntryTask;
 use Phoundation\Os\Processes\Traits\DataEntryWorkers;
 use Phoundation\Servers\Traits\DataEntryServer;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\InputElement;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
@@ -46,12 +52,21 @@ class Task extends DataEntry implements TaskInterface
     use DataEntryRole;
     use DataEntryStart;
     use DataEntryStop;
+    use DataEntrySpent;
     use DataEntryServer;
     use DataEntryTask;
     use DataEntryName;
     use DataEntryWorkers;
     use DataEntryResults;
     use DataEntryDescription;
+
+
+    /**
+     * Cached parent Task object
+     *
+     * @var TaskInterface|null $parent
+     */
+    protected TaskInterface|null $parent;
 
 
     /**
@@ -74,6 +89,43 @@ class Task extends DataEntry implements TaskInterface
     public function setParentsId(?int $parents_id): static
     {
         return $this->setSourceValue('parents_id', $parents_id);
+    }
+
+
+    /**
+     * Returns a parent task for this task or NULL if none is available
+     *
+     * @return static|null
+     */
+    public function getParent(): ?static
+    {
+        if (!isset($this->parent)) {
+            $this->parent = static::getOrNull($this->getParentsId());
+        }
+
+        return $this->parent;
+    }
+
+
+    /**
+     * Returns true if this task has a non-NULL stop time, false if it has started, but not yet stopped, and NULL if it
+     * has not yet started
+     *
+     * @return bool|null
+     */
+    public function isFinished(): ?bool
+    {
+        if ($this->getStop()) {
+            // Task has stopped
+            return true;
+        }
+
+        if ($this->getStart()) {
+            // Task has started
+            return false;
+        }
+
+        return null;
     }
 
 
@@ -101,7 +153,7 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
-     * Returns the amount of time in seconds spent on this task
+     * Returns the number of time in seconds spent on this task
      *
      * @param DateTimeInterface|string|null $execute_after
      * @return float
@@ -445,9 +497,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the log_file for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogFile(): string
+    public function getLogFile(): ?string
     {
         return $this->getSourceFieldValue('string', 'log_file');
     }
@@ -459,7 +511,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $log_file
      * @return static
      */
-    protected function setLogFile(string|null $log_file): static
+    protected function setLogFile(?string $log_file): static
     {
         return $this->setSourceValue('log_file', $log_file);
     }
@@ -468,9 +520,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the pid_file for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPidFile(): string
+    public function getPidFile(): ?string
     {
         return $this->getSourceFieldValue('string', 'pid_file');
     }
@@ -482,7 +534,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $pid_file
      * @return static
      */
-    protected function setPidFile(string|null $pid_file): static
+    protected function setPidFile(?string $pid_file): static
     {
         return $this->setSourceValue('pid_file', $pid_file);
     }
@@ -491,9 +543,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the sudo string for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getSudo(): string
+    public function getSudo(): ?string
     {
         return $this->getSourceFieldValue('string', 'sudo');
     }
@@ -505,7 +557,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $sudo
      * @return static
      */
-    public function setSudo(string|null $sudo): static
+    public function setSudo(?string $sudo): static
     {
         return $this->setSourceValue('sudo', $sudo);
     }
@@ -514,9 +566,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the term string for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getTerm(): string
+    public function getTerm(): ?string
     {
         return $this->getSourceFieldValue('string', 'term');
     }
@@ -528,7 +580,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $term
      * @return static
      */
-    public function setTerm(string|null $term): static
+    public function setTerm(?string $term): static
     {
         return $this->setSourceValue('term', $term);
     }
@@ -537,9 +589,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns where the ouput of this command should be piped to
      *
-     * @return string
+     * @return string|null
      */
-    public function getPipe(): string
+    public function getPipe(): ?string
     {
         return $this->getSourceFieldValue('string', 'pipe');
     }
@@ -551,7 +603,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $pipe
      * @return static
      */
-    public function setPipe(string|null $pipe): static
+    public function setPipe(?string $pipe): static
     {
         return $this->setSourceValue('pipe', $pipe);
     }
@@ -560,9 +612,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns where the input should be redirected from
      *
-     * @return string
+     * @return string|null
      */
-    public function getInputRedirect(): string
+    public function getInputRedirect(): ?string
     {
         return $this->getSourceFieldValue('string', 'input_redirect');
     }
@@ -574,7 +626,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $input_redirect
      * @return static
      */
-    public function setInputRedirect(string|null $input_redirect): static
+    public function setInputRedirect(?string $input_redirect): static
     {
         return $this->setSourceValue('input_redirect', $input_redirect);
     }
@@ -583,9 +635,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns where the output should be redirected from
      *
-     * @return string
+     * @return string|null
      */
-    public function getOutputRedirect(): string
+    public function getOutputRedirect(): ?string
     {
         return $this->getSourceFieldValue('string', 'output_redirect');
     }
@@ -597,7 +649,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $output_redirect
      * @return static
      */
-    public function setOutputRedirect(string|null $output_redirect): static
+    public function setOutputRedirect(?string $output_redirect): static
     {
         return $this->setSourceValue('output_redirect', $output_redirect);
     }
@@ -606,9 +658,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns access restrictions for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getRestrictions(): string
+    public function getRestrictions(): ?string
     {
         return $this->getSourceFieldValue('string', 'restrictions');
     }
@@ -620,7 +672,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $restrictions
      * @return static
      */
-    public function setRestrictions(string|null $restrictions): static
+    public function setRestrictions(?string $restrictions): static
     {
         return $this->setSourceValue('restrictions', $restrictions);
     }
@@ -629,9 +681,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns packages required for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPackages(): string
+    public function getPackages(): ?string
     {
         return $this->getSourceFieldValue('string', 'packages');
     }
@@ -643,7 +695,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $packages
      * @return static
      */
-    public function setPackages(string|null $packages): static
+    public function setPackages(?string $packages): static
     {
         return $this->setSourceValue('packages', $packages);
     }
@@ -652,9 +704,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns pre_exec for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPreExec(): string
+    public function getPreExec(): ?string
     {
         return $this->getSourceFieldValue('string', 'pre_exec');
     }
@@ -666,7 +718,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $pre_exec
      * @return static
      */
-    public function setPreExec(string|null $pre_exec): static
+    public function setPreExec(?string $pre_exec): static
     {
         return $this->setSourceValue('pre_exec', $pre_exec);
     }
@@ -675,9 +727,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns post_exec for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPostExec(): string
+    public function getPostExec(): ?string
     {
         return $this->getSourceFieldValue('string', 'post_exec');
     }
@@ -689,7 +741,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $post_exec
      * @return static
      */
-    public function setPostExec(string|null $post_exec): static
+    public function setPostExec(?string $post_exec): static
     {
         return $this->setSourceValue('post_exec', $post_exec);
     }
@@ -698,9 +750,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns comments for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getComments(): string
+    public function getComments(): ?string
     {
         return $this->getSourceFieldValue('string', 'comments');
     }
@@ -712,7 +764,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $comments
      * @return static
      */
-    public function setComments(string|null $comments): static
+    public function setComments(?string $comments): static
     {
         return $this->setSourceValue('comments', $comments);
     }
@@ -735,41 +787,41 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $results
      * @return static
      */
-    protected function setResults(string|null $results): static
+    protected function setResults(?string $results): static
     {
         return $this->setSourceValue('results', $results);
     }
 
 
     /**
-     * Returns execution_path for this task
+     * Returns execution_directory for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getExecutionPath(): string
+    public function getExecutionDirectory(): ?string
     {
-        return $this->getSourceFieldValue('string', 'execution_path');
+        return $this->getSourceFieldValue('string', 'execution_directory');
     }
 
 
     /**
-     * Sets execution_path for this task
+     * Sets execution_directory for this task
      *
-     * @param string|null $execution_path
+     * @param string|null $execution_directory
      * @return static
      */
-    public function setExecutionPath(string|null $execution_path): static
+    public function setExecutionDirectory(?string $execution_directory): static
     {
-        return $this->setSourceValue('execution_path', $execution_path);
+        return $this->setSourceValue('execution_directory', $execution_directory);
     }
 
 
     /**
      * Returns command for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getCommand(): string
+    public function getCommand(): ?string
     {
         return $this->getSourceFieldValue('string', 'command');
     }
@@ -781,7 +833,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $command
      * @return static
      */
-    public function setCommand(string|null $command): static
+    public function setCommand(?string $command): static
     {
         return $this->setSourceValue('command', $command);
     }
@@ -804,7 +856,7 @@ class Task extends DataEntry implements TaskInterface
      * @param string|null $executed_command
      * @return static
      */
-    protected function setExecutedCommand(string|null $executed_command): static
+    protected function setExecutedCommand(?string $executed_command): static
     {
         return $this->setSourceValue('executed_command', $executed_command);
     }
@@ -813,9 +865,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns arguments for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getArguments(): array
+    public function getArguments(): ?array
     {
         return $this->getSourceFieldValue('array', 'arguments');
     }
@@ -836,9 +888,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns variables for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getVariables(): array
+    public function getVariables(): ?array
     {
         return $this->getSourceFieldValue('array', 'variables');
     }
@@ -859,9 +911,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns environment_variables for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getEnvironmentVariables(): array
+    public function getEnvironmentVariables(): ?array
     {
         return $this->getSourceFieldValue('array', 'environment_variables');
     }
@@ -882,9 +934,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns accepted_exit_codes for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getAcceptedExitCodes(): array
+    public function getAcceptedExitCodes(): ?array
     {
         return $this->getSourceFieldValue('array', 'accepted_exit_codes');
     }
@@ -949,12 +1001,24 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Generates the UUID code for this object
      *
-     * @param string|null $code
      * @return static
+     * @throws \Exception
      */
     protected function generateCode(): static
     {
-        return $this->setSourceValue('code', Strings::generateUuid());
+        return $this->setCode(Strings::generateUuid());
+    }
+
+
+    /**
+     * Sets the UUID code for this object
+     *
+     * @param string|null $code
+     * @return static
+     */
+    protected function setCode(?string $code): static
+    {
+        return $this->setSourceValue('code', $code);
     }
 
 
@@ -965,64 +1029,182 @@ class Task extends DataEntry implements TaskInterface
      */
     public function execute(): static
     {
+        // The Task should not yet have started
         if ($this->getStart()) {
             // This task has already started
             if ($this->getStop()) {
                 // This task has already stopped
-                throw new TasksException(tr('Cannot execute task ":id", it has already finished execution', [
-                    ':id' => $this->getId()
+                throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it has already finished execution at ":datetime"', [
+                    ':id'       => $this->getId(),
+                    ':datetime' => $this->getStop()
                 ]));
             }
 
-            throw new TasksException(tr('Cannot execute task ":id", it is currently being executed', [
-                ':id' => $this->getId()
+            throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it is currently being executed since ":datetime"', [
+                ':id'       => $this->getId(),
+                ':datetime' => $this->getStart()
             ]));
         }
 
+        // The Task should not yet have started
+        if ($this->getStatus()) {
+            throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it must have status NULL to execute but has status ":status" instead', [
+                ':id'     => $this->getId(),
+                ':status' => $this->getStatus()
+            ]));
+        }
+
+        // Task should be executed immediately (execute_after will be NULL) or after now()
         if ($this->getExecuteAfter() and ($this->getExecuteAfter() > now())) {
             Log::warning(tr('Not yet executing task ":task" as it should not be executed until after ":date"', [
                 ':task' => $this->getLogId(),
                 ':date' => $this->getExecuteAfter()
             ]));
+
+            return $this;
         }
 
+        // Task should have its parent task finished
+        if ($this->getParentsId()) {
+            if (!$this->getParent()->isFinished()) {
+                Log::warning(tr('Not yet executing task ":task" as its parent ":parent" has not finished yet', [
+                    ':task'   => $this->getLogId(),
+                    ':parent' => $this->getParent()->getCode()
+                ]));
+
+                return $this;
+            }
+        }
+
+        return $this->doExecute();
+    }
+
+
+    /**
+     * Does the actual execution part of executing the task
+     *
+     * @return $this
+     */
+    protected function doExecute(): static
+    {
+        // Execute hook
         Hook::new('tasks')->execute('pre-execute' , ['task' => $this]);
 
         // Execute the command
-        $worker = Workers::new()
-            ->setCommand($this->getCommand())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->set($this->get())
-            ->executeReturnString();
+        $worker = Workers::new($this->getCommand(), $this->getRestrictions())
+            ->setServer($this->getServer())
+            ->setArguments($this->getArguments())
+            ->setVariables($this->getVariables())
+            ->setExecutionDirectory($this->getExecutionDirectory())
+            ->setEnvironmentVariables($this->getEnvironmentVariables())
+            ->setAcceptedExitCodes($this->getAcceptedExitCodes())
+            ->setTimeout($this->getTimeout())
+            ->setWait($this->getWait())
+            ->setNice($this->getNice())
+            ->setIoNiceClass($this->getIonice())
+            ->setIoNiceLevel($this->getIoniceLevel())
+            ->setNoCache($this->getNocache())
+            ->setSudo($this->getSudo())
+            ->setTerm($this->getTerm())
+            ->setInputRedirect($this->getInputRedirect())
+            ->setOutputRedirect($this->getOutputRedirect())
+            ->setMinimumWorkers($this->getMinimumWorkers())
+            ->setMaximumWorkers($this->getMaximumWorkers());
 
-        Hook::new('tasks')->execute('post-execute', [
-            'task'   => $this,
-            'worker' => $worker
-        ]);
+        // Update task in database
+        $this->setStart(now())
+             ->setStatus('executing')
+             ->setExecutedCommand($worker->getFullCommandLine())
+             ->save();
+
+        // Execute the task
+        try {
+            $results = $worker->executeReturnString();
+
+            Log::success(tr('Task ":task" finished execution in ":time"', [
+                ':task' => $this->getCode(),
+                ':time' => $worker->getExecutionTimeHumanReadable()
+            ]));
+
+            // Update task in database
+            $this->setStop(now())
+                 ->setSpent($worker->getExecutionTime())
+                 ->setStatus('executed')
+                 ->setPid($worker->getPid())
+                 ->setLogFile($worker->getLogFile())
+                 ->setExitCode($worker->getExitCode())
+                 ->setResults($results)
+                 ->save();
+
+            // Notify the specified role?
+            if ($this->getRolesId()) {
+                // Notify the specified role!
+                Notification::new()
+                    ->setUrl('/tasks/task-' . $this->getId() . '.html')
+                    ->setMode(DisplayMode::info)
+                    ->setRoles($this->getRolesId())
+                    ->setTitle(tr('A task has been completed'))
+                    ->setMessage(tr('Task ":task" has been completed successfully'))
+                    ->setDetails([
+                        'tasks_id'  => $this->getId(),
+                        'code'      => $this->getCode(),
+                        'command'   => $this->getCommand(),
+                        'arguments' => $this->getArguments(),
+                    ])
+                    ->send();
+
+            }
+
+            // Execute hook
+            Hook::new('tasks')->execute('post-execute', [
+                'task'   => $this,
+                'worker' => $worker
+            ]);
+
+        } catch (ProcessFailedException $e) {
+            Log::warning(tr('Task ":task" failed execution with ":e"', [
+                ':task' => $this->getCode(),
+                ':e'    => $e->getMessage()
+            ]));
+
+            Log::warning($e);
+
+            // Update task in database
+            $this->setStop(now())
+                 ->setSpent($worker->getExecutionTime())
+                 ->setStatus('failed')
+                 ->setPid($worker->getPid())
+                 ->setLogFile($worker->getLogFile())
+                 ->setExitCode($worker->getExitCode())
+                 ->setResults(Json::encode($e->getDataKey('output')))
+                 ->save();
+
+            // Notify the specified role?
+            if ($this->getRolesId()) {
+                // Notify the specified role!
+                Notification::new()
+                    ->setUrl('/tasks/task-' . $this->getId() . '.html')
+                    ->setMode(DisplayMode::info)
+                    ->setRoles($this->getRolesId())
+                    ->setTitle(tr('A task has failed'))
+                    ->setMessage(tr('Task ":task" failed to complete successfully'))
+                    ->setDetails([
+                        'tasks_id'  => $this->getId(),
+                        'code'      => $this->getCode(),
+                        'command'   => $this->getCommand(),
+                        'arguments' => $this->getArguments(),
+                        'exception' => $e,
+                    ])
+                    ->send();
+
+            }
+
+            // Execute hook
+            Hook::new('tasks')->execute('execution-failed', [
+                'task'   => $this,
+                'worker' => $worker
+            ]);
+        }
 
         return $this;
     }
@@ -1038,8 +1220,13 @@ class Task extends DataEntry implements TaskInterface
     public function save(bool $force = false, ?string $comments = null): static
     {
         if ($this->saveBecauseModified($force)) {
-            // Validate data and write it to database
-            $this
+            if (!$this->isNew()) {
+                // This is not a new entry, save as normal
+                return parent::save();
+            }
+
+            // Validate data, generate a new code, and write it to database
+            return $this
                 ->ensureValidation()
                 ->generateCode()
                 ->write($comments);
@@ -1082,6 +1269,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Execute after')
+                ->setCliField('[--execute-after DATETIME]')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
@@ -1091,7 +1279,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
-                ->setLabel('Executed on')
+                ->setLabel('Execution started on')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
@@ -1101,17 +1289,28 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(InputType::datetime_local)
-                ->setLabel('Finished on')
+                ->setLabel('Execution finished on')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDateTime();
+                }))
+            ->addDefinition(Definition::new($this, 'spent')
+                ->setOptional(true)
+                ->setReadonly(true)
+                ->setInputType(InputTypeExtended::float)
+                ->setLabel('Time spent on task execution')
+                ->setSize(4)
+                ->setMin(0)
+                ->addValidationFunction(function(ValidatorInterface $validator) {
+                    $validator->isFloat();
                 }))
             ->addDefinition(Definition::new($this, 'send_to')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setMaxlength(128)
                 ->setLabel('Send to user')
+                ->setCliField('[--send-to EMAIL]')
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isEmail();
                 }))
@@ -1130,6 +1329,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setVirtual(true)
                 ->setMaxlength(255)
                 ->setLabel('Execute on server')
+                ->setCliField('[-s,--server HOSTNAME]')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->orField('servers_id')->isName()->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
@@ -1145,17 +1345,19 @@ class Task extends DataEntry implements TaskInterface
             ->addDefinition(Definition::new($this, 'roles_id')
                 ->setOptional(true)
                 ->setInputType(InputType::select)
-                ->setLabel('Execute on server')
+                ->setLabel('Notify roles')
+                ->setCliField('[-r,--roles "ROLE,ROLE,..."]')
                 ->setSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDbId();
                 }))
-            ->addDefinition(Definition::new($this, 'execution_path')
+            ->addDefinition(Definition::new($this, 'execution_directory')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setLabel('Execution path')
+                ->setCliField('[-d,--execution-directory PATH]')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDirectory('/', Restrictions::writable('/'));
@@ -1163,6 +1365,7 @@ class Task extends DataEntry implements TaskInterface
             ->addDefinition(Definition::new($this, 'command')
                 ->setInputType(InputType::text)
                 ->setLabel('Command')
+                ->setCliField('[-c,--command COMMAND]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'executed_command')
                 ->setOptional(true)
@@ -1174,25 +1377,20 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Arguments')
+                ->setCliField('[-a,--arguments ARGUMENTS]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'variables')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Argument variables')
+                ->setCliField('[-v,--variables VARIABLES]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'environment_variables')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Environment variables')
+                ->setCliField('[-e,--environment-variables VARIABLES]')
                 ->setSize(4))
-            ->addDefinition(Definition::new($this, 'background')
-                ->setOptional(true, false)
-                ->setInputType(InputType::checkbox)
-                ->setLabel('Execute in background')
-                ->setSize(4)
-                ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->isBoolean();
-                }))
             ->addDefinition(Definition::new($this, 'clear_logs')
                 ->setOptional(true, false)
                 ->setInputType(InputType::checkbox)
@@ -1223,6 +1421,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('IO nice')
+                ->setCliField('[-i,--ionice CLASSNUMBER]')
                 ->setSource([
                     0 => 'none',
                     1 => 'realtime',
@@ -1234,6 +1433,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('IO nice level')
+                ->setCliField('[-l,--ionice-level LEVEL]')
                 ->setMin(0)
                 ->setMax(7)
                 ->setSize(4))
@@ -1241,6 +1441,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Nice level')
+                ->setCliField('[-n,--nice LEVEL]')
                 ->setOptional(true, 0)
                 ->setMin(-20)
                 ->setMax(20)
@@ -1249,6 +1450,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true, 30)
                 ->setInputType(InputType::number)
                 ->setLabel('Time limit')
+                ->setCliField('[-t,--timeout SECONDS]')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setSize(4))
@@ -1256,17 +1458,38 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Start wait')
+                ->setCliField('[-w,--wait SECONDS]')
                 ->setOptional(true, 0)
                 ->setMin(0)
+                ->setSize(4))
+            ->addDefinition(Definition::new($this, 'minimum_workers')
+                ->setOptional(true)
+                ->setInputType(InputType::number)
+                ->setLabel('Minimum workers')
+                ->setCliField('[--minimum-workers AMOUNT]')
+                ->setOptional(true, 0)
+                ->setMin(0)
+                ->setMax(10_000)
+                ->setSize(4))
+            ->addDefinition(Definition::new($this, 'maximum_workers')
+                ->setOptional(true)
+                ->setInputType(InputType::number)
+                ->setLabel('Maximum workers')
+                ->setCliField('[--maximum-workers AMOUNT]')
+                ->setOptional(true, 0)
+                ->setMin(0)
+                ->setMax(10_000)
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'sudo')
                 ->setOptional(true, false)
                 ->setLabel('Sudo required / command')
+                ->setCliField('[-s,--sudo "string"]')
                 ->setSize(6)
                 ->setMaxlength(32))
             ->addDefinition(Definition::new($this, 'term')
                 ->setOptional(true)
                 ->setLabel('Terminal command')
+                ->setCliField('[-t,--term "command"]')
                 ->setSize(6)
                 ->setMaxlength(32))
             ->addDefinition(Definition::new($this, 'pipe')
@@ -1307,6 +1530,7 @@ class Task extends DataEntry implements TaskInterface
             ->addDefinition(Definition::new($this, 'accepted_exit_codes')
                 ->setOptional(true, [0])
                 ->setLabel('Accepted Exit Codes')
+                ->setInputType(InputTypeExtended::array_json)
                 ->setSize(6)
                 ->setMaxlength(64))
             ->addDefinition(Definition::new($this, 'results')

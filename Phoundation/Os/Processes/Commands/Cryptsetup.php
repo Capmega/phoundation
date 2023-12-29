@@ -48,7 +48,7 @@ class Cryptsetup extends Command
             Process::new('echo')
                 ->addArgument($key)
                 ->setPipe($this
-                    ->setInternalCommand('cryptsetup')
+                    ->setCommand('cryptsetup')
                     ->setSudo(true)
                     ->addArguments(['-q', '-v', 'luksFormat', $device])
                     ->setTimeout(30))
@@ -61,7 +61,7 @@ class Cryptsetup extends Command
             }
 
             $this
-                ->setInternalCommand('cryptsetup')
+                ->setCommand('cryptsetup')
                 ->setSudo(true)
                 ->addArguments(['-q', '-v', 'luksFormat', $device, '--key-file', $key_file])
                 ->setTimeout(10)

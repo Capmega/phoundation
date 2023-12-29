@@ -260,23 +260,23 @@ interface TaskInterface
     /**
      * Returns the log_file for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogFile(): string;
+    public function getLogFile(): ?string;
 
     /**
      * Returns the pid_file for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPidFile(): string;
+    public function getPidFile(): ?string;
 
     /**
      * Returns the sudo string for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getSudo(): string;
+    public function getSudo(): ?string;
 
     /**
      * Sets if this task should use sudo
@@ -284,14 +284,14 @@ interface TaskInterface
      * @param string|null $sudo
      * @return static
      */
-    public function setSudo(string|null $sudo): static;
+    public function setSudo(?string $sudo): static;
 
     /**
      * Returns the term string for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getTerm(): string;
+    public function getTerm(): ?string;
 
     /**
      * Sets if this task should use term
@@ -299,14 +299,14 @@ interface TaskInterface
      * @param string|null $term
      * @return static
      */
-    public function setTerm(string|null $term): static;
+    public function setTerm(?string $term): static;
 
     /**
      * Returns where the ouput of this command should be piped to
      *
-     * @return string
+     * @return string|null
      */
-    public function getPipe(): string;
+    public function getPipe(): ?string;
 
     /**
      * Sets where the ouput of this command should be piped to
@@ -314,14 +314,14 @@ interface TaskInterface
      * @param string|null $pipe
      * @return static
      */
-    public function setPipe(string|null $pipe): static;
+    public function setPipe(?string $pipe): static;
 
     /**
      * Returns where the input should be redirected from
      *
-     * @return string
+     * @return string|null
      */
-    public function getInputRedirect(): string;
+    public function getInputRedirect(): ?string;
 
     /**
      * Sets where the input should be redirected from
@@ -329,14 +329,14 @@ interface TaskInterface
      * @param string|null $input_redirect
      * @return static
      */
-    public function setInputRedirect(string|null $input_redirect): static;
+    public function setInputRedirect(?string $input_redirect): static;
 
     /**
      * Returns where the output should be redirected from
      *
-     * @return string
+     * @return string|null
      */
-    public function getOutputRedirect(): string;
+    public function getOutputRedirect(): ?string;
 
     /**
      * Sets where the output should be redirected from
@@ -344,14 +344,14 @@ interface TaskInterface
      * @param string|null $output_redirect
      * @return static
      */
-    public function setOutputRedirect(string|null $output_redirect): static;
+    public function setOutputRedirect(?string $output_redirect): static;
 
     /**
      * Returns access restrictions for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getRestrictions(): string;
+    public function getRestrictions(): ?string;
 
     /**
      * Sets access restrictions for this task
@@ -359,14 +359,14 @@ interface TaskInterface
      * @param string|null $restrictions
      * @return static
      */
-    public function setRestrictions(string|null $restrictions): static;
+    public function setRestrictions(?string $restrictions): static;
 
     /**
      * Returns packages required for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPackages(): string;
+    public function getPackages(): ?string;
 
     /**
      * Sets packages required for this task
@@ -374,14 +374,14 @@ interface TaskInterface
      * @param string|null $packages
      * @return static
      */
-    public function setPackages(string|null $packages): static;
+    public function setPackages(?string $packages): static;
 
     /**
      * Returns pre_exec for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPreExec(): string;
+    public function getPreExec(): ?string;
 
     /**
      * Sets pre_exec for this task
@@ -389,14 +389,14 @@ interface TaskInterface
      * @param string|null $pre_exec
      * @return static
      */
-    public function setPreExec(string|null $pre_exec): static;
+    public function setPreExec(?string $pre_exec): static;
 
     /**
      * Returns post_exec for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getPostExec(): string;
+    public function getPostExec(): ?string;
 
     /**
      * Sets post_exec for this task
@@ -404,14 +404,14 @@ interface TaskInterface
      * @param string|null $post_exec
      * @return static
      */
-    public function setPostExec(string|null $post_exec): static;
+    public function setPostExec(?string $post_exec): static;
 
     /**
      * Returns comments for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getComments(): string;
+    public function getComments(): ?string;
 
     /**
      * Sets comments for this task
@@ -419,7 +419,7 @@ interface TaskInterface
      * @param string|null $comments
      * @return static
      */
-    public function setComments(string|null $comments): static;
+    public function setComments(?string $comments): static;
 
     /**
      * Returns results for this task
@@ -429,26 +429,26 @@ interface TaskInterface
     public function getResults(): string;
 
     /**
-     * Returns execution_path for this task
+     * Returns execution_directory for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getExecutionPath(): string;
+    public function getExecutionDirectory(): ?string;
 
     /**
-     * Sets execution_path for this task
+     * Sets execution_directory for this task
      *
-     * @param string|null $execution_path
+     * @param string|null $execution_directory
      * @return static
      */
-    public function setExecutionPath(string|null $execution_path): static;
+    public function setExecutionDirectory(?string $execution_directory): static;
 
     /**
      * Returns command for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getCommand(): string;
+    public function getCommand(): ?string;
 
     /**
      * Sets command for this task
@@ -456,7 +456,7 @@ interface TaskInterface
      * @param string|null $command
      * @return static
      */
-    public function setCommand(string|null $command): static;
+    public function setCommand(?string $command): static;
 
     /**
      * Returns executed_command for this task
@@ -468,9 +468,9 @@ interface TaskInterface
     /**
      * Returns arguments for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getArguments(): array;
+    public function getArguments(): ?array;
 
     /**
      * Sets arguments for this task
@@ -483,9 +483,9 @@ interface TaskInterface
     /**
      * Returns variables for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getVariables(): array;
+    public function getVariables(): ?array;
 
     /**
      * Sets variables for this task
@@ -498,9 +498,9 @@ interface TaskInterface
     /**
      * Returns environment_variables for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getEnvironmentVariables(): array;
+    public function getEnvironmentVariables(): ?array;
 
     /**
      * Sets environment_variables for this task
@@ -513,9 +513,9 @@ interface TaskInterface
     /**
      * Returns accepted_exit_codes for this task
      *
-     * @return array
+     * @return array|null
      */
-    public function getAcceptedExitCodes(): array;
+    public function getAcceptedExitCodes(): ?array;
 
     /**
      * Sets accepted_exit_codes for this task

@@ -47,7 +47,7 @@ class Grep extends Command
         // Return results
         return $this
             ->clearArguments()
-            ->setInternalCommand('grep')
+            ->setCommand('grep')
             ->addArgument($this->value)
             ->addArgument($this->directory ?? $this->file)
             ->addArgument($this->directory ? '-R' : null)

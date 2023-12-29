@@ -7,6 +7,8 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
+use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
 use Phoundation\Os\Processes\Task;
 use Phoundation\Os\Processes\Tasks;
 
@@ -21,28 +23,52 @@ use Phoundation\Os\Processes\Tasks;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
 CliDocumentation::usage('./pho workers execute');
 
-CliDocumentation::help('This script executes a worker parent that will execute multiple worker children in parallel
-as background processes.
+CliDocumentation::help('This script executes either a specific task (if specified) or will try to execute all 
+pending tasks that should be executed
 
 
 ARGUMENTS
 
 
-[-w,--workers COUNT]                    The maximum amount of parallel tasks to execute');
+[-t,--task TASK]                        The specific task code to execute');
 
 CliDocumentation::autoComplete([
     'arguments' => [
-        '-w,--workers' => true,
+        '-t,--task' => [
+            'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
+            'noword' => function ()      { return Tasks::new()->autoCompleteFind(); },
+        ],
     ]
 ]);
 
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('-w,--workers', true)->isOptional()->isNatural()
+    ->select('-t,--task', true)->isOptional()->isUuid()
     ->validate();
 
 
-throw new UnderConstructionException();
+// Execute the task(s)
+if ($argv['task']) {
+    try {
+        // Execute a specific task
+        $task = Task::get($argv['task'])->execute();
+
+    } catch (TaskAlreadyExecutedException) {
+        throw TaskAlreadyExecutedException::new(tr('Task ":task" has already been executed', [
+            ':task' => $argv['task']
+        ]))->makeWarning();
+    }
+
+} else {
+    try {
+        // Try to execute all pending tasks
+        Tasks::new()->load()->execute();
+
+    } catch (NoTasksPendingExceptions $e) {
+        Log::warning($e->getMessage());
+    }
+}

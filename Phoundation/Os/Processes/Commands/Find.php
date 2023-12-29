@@ -76,7 +76,7 @@ class Find extends Command implements FindInterface
     public function find(): FilesInterface
     {
         $output = $this
-            ->setInternalCommand('find')
+            ->setCommand('find')
             ->setTimeout(10)
             ->executeReturnArray();
 

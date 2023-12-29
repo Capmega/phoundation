@@ -31,7 +31,7 @@ class Sha256 extends Command
     {
         try {
             $output = $this
-                ->setInternalCommand('sha256sum')
+                ->setCommand('sha256sum')
                 ->addArguments($file)
                 ->setTimeout(120)
                 ->executeReturnString();

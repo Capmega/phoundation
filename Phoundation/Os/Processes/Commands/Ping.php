@@ -29,7 +29,7 @@ class Ping extends Command
     {
         try {
             $output = $this
-                ->setInternalCommand('ping')
+                ->setCommand('ping')
                 ->addArguments(['-c', 1, $restrictions])
                 ->setTimeout(1)
                 ->executeReturnArray();

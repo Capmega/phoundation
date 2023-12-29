@@ -34,7 +34,7 @@ class Chmod extends Command
         try {
             $mode = Strings::fromOctal($mode);
 
-            $this->setInternalCommand('chmod')
+            $this->setCommand('chmod')
                  ->addArguments([$mode, $file, ($recurse ? '-R' : '')])
                  ->setTimeout(2)
                  ->executeReturnArray();

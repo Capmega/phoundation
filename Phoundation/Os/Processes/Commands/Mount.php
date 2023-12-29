@@ -61,7 +61,7 @@ class Mount extends Command
             // Build the process parameters, then execute
             $this->clearArguments()
                 ->setSudo(true)
-                ->setInternalCommand('mount')
+                ->setCommand('mount')
                 ->addArguments([(string)$source, (string)$target])
                 ->addArguments($options ? ['-o', Strings::force($options, ',')] : null)
                 ->addArguments($filesystem ? ['-t', $filesystem] : null)
@@ -92,7 +92,7 @@ class Mount extends Command
     {
         // Build the process parameters, then execute
         return $this->clearArguments()
-            ->setInternalCommand('mount')
+            ->setCommand('mount')
             ->executeReturnIterator();
     }
 
@@ -106,14 +106,14 @@ class Mount extends Command
     public function deviceMountList(FileInterface|string $device): IteratorInterface
     {
         return $this->clearArguments()
-            ->setInternalCommand('mount')
+            ->setCommand('mount')
             ->setPipe(Process::new('grep')->addArgument($device))
             ->executeReturnIterator();
     }
 
 
     /**
-     * Returns the amount of times this device is mounted
+     * Returns the number of times this device is mounted
      *
      * @param FileInterface|string $device
      * @return int

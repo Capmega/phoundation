@@ -21,14 +21,14 @@ use Phoundation\Utils\Strings;
 class Free extends Command
 {
     /**
-     * Returns the available amount of memory
+     * Returns the available number of memory
      *
      * @return array
      */
     public function free(): array
     {
         $output = $this
-            ->setInternalCommand('free')
+            ->setCommand('free')
             ->setTimeout(1)
             ->executeReturnArray();
 

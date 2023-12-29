@@ -101,7 +101,7 @@ class UnMount extends Command
             try {
                 $this->clearArguments()
                     ->setSudo(true)
-                    ->setInternalCommand('umount')
+                    ->setCommand('umount')
                     ->addArgument($this->force ? '-f' : null)
                     ->addArgument($this->lazy  ? '-l' : null)
                     ->addArgument($target)

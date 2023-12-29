@@ -21,7 +21,7 @@ use Stringable;
 interface FindInterface extends CommandInterface
 {
     /**
-     * Returns the available amount of memory
+     * Returns the available number of memory
      *
      * @return FilesInterface
      */

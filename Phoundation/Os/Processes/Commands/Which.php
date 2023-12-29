@@ -36,7 +36,7 @@ class Which extends Command
             return $cache[$command];
         }
 
-        $this->setInternalCommand('which', false)
+        $this->setCommand('which', false)
              ->addArgument($command)
              ->setRegisterRunfile(false)
              ->setTimeout(1);

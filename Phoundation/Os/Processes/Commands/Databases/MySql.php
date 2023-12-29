@@ -112,7 +112,7 @@ class MySql extends Command
 
         switch ($file->getMimetype()) {
             case 'text/plain':
-                $this->setInternalCommand('mysql')
+                $this->setCommand('mysql')
                     ->setTimeout($timeout)
                     ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()])
                     ->setInputRedirect($file)
@@ -120,7 +120,7 @@ class MySql extends Command
                 break;
 
             case 'application/gzip':
-                $this->setInternalCommand('mysql')
+                $this->setCommand('mysql')
                     ->setTimeout($timeout)
                     ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()]);
 
@@ -193,7 +193,7 @@ class MySql extends Command
 
         try {
             // Build the process parameters, then execute
-            $this->setInternalCommand('mysql')
+            $this->setCommand('mysql')
                  ->addArgument($this->hostname ? '--host' . $this->hostname : null)
                  ->addArgument($this->port     ? '--port' . $this->port     : null)
                  ->addArgument('--user' . $this->user)

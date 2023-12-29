@@ -7,6 +7,7 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
@@ -117,7 +118,7 @@ trait ProcessVariables
     protected ?int $exit_code = null;
 
     /**
-     * The maximum amount of time in seconds that a command is allowed to run before it will timeout. Zero to disable,
+     * The maximum number of time in seconds that a command is allowed to run before it will timeout. Zero to disable,
      * defaults to 30
      *
      * @var int $timeout
@@ -258,9 +259,9 @@ trait ProcessVariables
     /**
      * If set, the process will first CD to this directory before continuing
      *
-     * @var string|null $execution_path
+     * @var string|null $execution_directory
      */
-    protected ?string $execution_path = null;
+    protected ?string $execution_directory = null;
 
     /**
      * If true, commands will be printed and logged
@@ -333,6 +334,17 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
+    }
+
+
+    /**
+     * Returns the exit code from the executed process, NULL if the process has not yet been executed
+     *
+     * @return ?int
+     */
+    public function getExitCode(): ?int
+    {
+        return $this->exit_code;
     }
 
 
@@ -414,27 +426,49 @@ trait ProcessVariables
      */
     public function getExecutionTime(bool $require_stop = true): ?float
     {
-        if (!$this->start) {
-            throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
-        }
-
-        if (!$this->stop) {
-            if ($require_stop) {
-                throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
-            }
-
-            $stop = microtime(true);
-
-        } else {
-            $stop = $this->stop;
-        }
-
-        return $stop - $this->start;
+        return $this->getStopTime($require_stop) - $this->start;
     }
 
 
     /**
-     * Increases the amount of times quotes should be escaped
+     * Returns the time spent on executing this process in a human readable form
+     *
+     * @param bool $require_stop
+     * @param int $decimals
+     * @return string
+     */
+    public function getExecutionTimeHumanReadable(bool $require_stop = true, int $decimals = 5): string
+    {
+        return Time::difference($this->start, $this->getStopTime($require_stop), 'auto', $decimals);
+    }
+
+
+    /**
+     * Returns the stop time for this process
+     *
+     * @param bool $require_stop
+     * @return float
+     */
+    protected function getStopTime(bool $require_stop = true): float
+    {
+        if (!$this->start) {
+            throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
+        }
+
+        if ($this->stop) {
+            return $this->stop;
+        }
+
+        if ($require_stop) {
+            throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
+        }
+
+        return microtime(true);
+    }
+
+
+    /**
+     * Increases the number of times quotes should be escaped
      *
      * @return ProcessVariables
      */
@@ -483,11 +517,18 @@ trait ProcessVariables
     /**
      * Sets the ionice class for this process
      *
-     * @param EnumIoNiceClassInterface $ionice_class
+     * @param EnumIoNiceClassInterface|int|null $ionice_class
      * @return static This process so that multiple methods can be chained
      */
-    public function setIoNiceClass(EnumIoNiceClassInterface $ionice_class): static
+    public function setIoNiceClass(EnumIoNiceClassInterface|int|null $ionice_class): static
     {
+        if (is_null($ionice_class)) {
+            $ionice_class = EnumIoNiceClass::none;
+
+        } elseif (is_int($ionice_class)) {
+            $ionice_class = EnumIoNiceClass::from($ionice_class);
+        }
+
         $this->ionice_class = $ionice_class;
         return $this;
     }
@@ -507,25 +548,28 @@ trait ProcessVariables
     /**
      * Sets the ionice level for this process
      *
-     * @param int $ionice_level
+     * @param int|null $ionice_level
      * @return static This process so that multiple methods can be chained
      */
-    public function setIoNiceLevel(int $ionice_level): static
+    public function setIoNiceLevel(?int $ionice_level): static
     {
-        switch ($this->ionice_class) {
-            case EnumIoNiceClass::realtime:
-                // no break
+        if ($ionice_level) {
+            switch ($this->ionice_class) {
+                case EnumIoNiceClass::realtime:
+                    // no break
 
-            case EnumIoNiceClass::best_effort:
-                break;
+                case EnumIoNiceClass::best_effort:
+                    break;
 
-            default:
-                throw new OutOfBoundsException(tr('Cannot set IO nice level, the IO nice class ":class" is not one of "EnumIoNiceClass::realtime, EnumIoNiceClass::best_effort"', [
-                    ':class' => $this->ionice_class->value
-                ]));
+                default:
+                    throw new OutOfBoundsException(tr('Cannot set IO nice level ":level", the IO nice class ":class" is not one of "EnumIoNiceClass::realtime, EnumIoNiceClass::best_effort"', [
+                        ':level' => $ionice_level,
+                        ':class' => $this->ionice_class->value
+                    ]));
+            }
         }
 
-        $this->ionice_level = $ionice_level;
+        $this->ionice_level = (int) $ionice_level;
         return $this;
     }
 
@@ -544,12 +588,12 @@ trait ProcessVariables
     /**
      * Sets the nice level for this process
      *
-     * @param int $nice
+     * @param int|null $nice
      * @return static This process so that multiple methods can be chained
      */
-    public function setNice(int $nice): static
+    public function setNice(?int $nice): static
     {
-        $this->nice = $nice;
+        $this->nice = (int) $nice;
         return $this;
     }
 
@@ -568,12 +612,12 @@ trait ProcessVariables
     /**
      * Sets the nocache option for this process
      *
-     * @param int|bool $nocache
+     * @param int|bool|null $nocache
      * @return static This process so that multiple methods can be chained
      */
-    public function setNoCache(int|bool $nocache): static
+    public function setNoCache(int|bool|null $nocache): static
     {
-        $this->nocache = $nocache;
+        $this->nocache = $nocache ?? false;
         return $this;
     }
 
@@ -609,21 +653,21 @@ trait ProcessVariables
      */
     public function getExecutionDirectory(): Directory
     {
-        return Directory::new($this->execution_path);
+        return Directory::new($this->execution_directory);
     }
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null $execution_path
+     * @param Directory|Stringable|string|null $execution_directory
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
-        $this->execution_path      = (string) $execution_path;
+        $this->execution_directory      = (string) $execution_directory;
 
         if ($restrictions) {
             $this->restrictions = $restrictions;
@@ -812,9 +856,10 @@ trait ProcessVariables
      * Sets the terminal to execute this command
      *
      * @param string|null $term
+     * @param bool $only_if_empty
      * @return static This process so that multiple methods can be chained
      */
-    public function setTerm(string $term = null, bool $only_if_empty = false): static
+    public function setTerm(?string $term = null, bool $only_if_empty = false): static
     {
         if (!$this->term or !$only_if_empty) {
             $this->cached_command_line = null;
@@ -857,6 +902,7 @@ trait ProcessVariables
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
      * @param string|bool|null $sudo
+     * @param string|null $user
      * @return static This process so that multiple methods can be chained
      */
     public function setSudo(string|bool|null $sudo, ?string $user = null): static
@@ -911,10 +957,10 @@ trait ProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array|int $exit_codes
+     * @param array|int|null $exit_codes
      * @return static This process so that multiple methods can be chained
      */
-    public function setAcceptedExitCodes(array|int $exit_codes): static
+    public function setAcceptedExitCodes(array|int|null $exit_codes): static
     {
         $this->cached_command_line = null;
         $this->accepted_exit_codes = [];
@@ -926,13 +972,15 @@ trait ProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array|int $exit_codes
+     * @param array|int|null $exit_codes
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCodes(array|int $exit_codes): static
+    public function addAcceptedExitCodes(array|int|null $exit_codes): static
     {
-        foreach (Arrays::force($exit_codes) as $exit_code) {
-            $this->addAcceptedExitCode($exit_code);
+        if ($exit_codes) {
+            foreach (Arrays::force($exit_codes) as $exit_code) {
+                $this->addAcceptedExitCode($exit_code);
+            }
         }
 
         return $this;
@@ -981,7 +1029,7 @@ trait ProcessVariables
      * @param bool $which_command
      * @return static This process so that multiple methods can be chained
      */
-    protected function setInternalCommand(?string $command, bool $which_command = true): static
+    public function setCommand(?string $command, bool $which_command = true): static
     {
         if ($command) {
             // Make sure we have a clean command
@@ -1207,11 +1255,11 @@ trait ProcessVariables
      * Sets the environment_variables for the command that will be executed
      *
      * @note This will reset the currently existing list of environment_variables.
-     * @param array $environment_variables
+     * @param array|string|null $environment_variables
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function setEnvironmentVariables(array $environment_variables, bool $escape = true): static
+    public function setEnvironmentVariables(array|string|null $environment_variables, bool $escape = true): static
     {
         $this->environment_variables = [];
         return $this->addEnvironmentVariables($environment_variables, $escape);
@@ -1221,11 +1269,11 @@ trait ProcessVariables
     /**
      * Adds multiple environment_variables to the existing list of environment_variables for the command that will be executed
      *
-     * @param array|string $environment_variables
+     * @param array|string|null $environment_variables
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function addEnvironmentVariables(array|string $environment_variables, bool $escape = true): static
+    public function addEnvironmentVariables(array|string|null $environment_variables, bool $escape = true): static
     {
         $this->cached_command_line = null;
 
@@ -1301,15 +1349,17 @@ trait ProcessVariables
      * Sets the variables for the command that will be executed
      *
      * @note This will reset the currently existing list of variables.
-     * @param array $variables
+     * @param array|null $variables
      * @return static This process so that multiple methods can be chained
      */
-    public function setVariables(array $variables): static
+    public function setVariables(?array $variables): static
     {
         $this->variables = [];
 
-        foreach ($variables as $key => $value) {
-            return $this->setVariable($key, $value);
+        if ($variables) {
+            foreach ($variables as $key => $value) {
+                return $this->setVariable($key, $value);
+            }
         }
 
         return $this;
@@ -1320,10 +1370,10 @@ trait ProcessVariables
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
      * @param string $key
-     * @param string $value
-     * @return ProcessVariables This process so that multiple methods can be chained
+     * @param string|float|int $value
+     * @return static
      */
-    public function setVariable(string $key, string $value): static
+    public function setVariable(string $key, string|float|int $value): static
     {
         $this->cached_command_line = null;
         $this->variables[$key]     = $value;
@@ -1409,7 +1459,7 @@ trait ProcessVariables
             }
 
         } else {
-            $this->output_redirect[$channel] = null;
+            unset($this->output_redirect[$channel]);
         }
 
         $this->cached_command_line = null;
@@ -1449,10 +1499,13 @@ trait ProcessVariables
      */
     public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static
     {
-        File::new($redirect, $this->restrictions)->checkReadable();
+        $redirect                  = get_null($redirect);
+        $this->cached_command_line = null;
 
-        $this->cached_command_line      = null;
-        $this->input_redirect[$channel] = get_null($redirect);
+        if ($redirect) {
+            File::new($redirect, $this->restrictions)->checkReadable();
+            $this->input_redirect[$channel] = $redirect;
+        }
 
         return $this;
     }
@@ -1498,15 +1551,19 @@ trait ProcessVariables
      *
      * Defaults to 0, the process will NOT wait and start immediately
      *
-     * @param int $wait
+     * @param int|null $wait
      * @return static
      */
-    public function setWait(int $wait): static
+    public function setWait(?int $wait): static
     {
         if (!is_natural($wait,  0)) {
-            throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
-                ':wait' => $wait
-            ]));
+            if ($wait) {
+                throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
+                    ':wait' => $wait
+                ]));
+            }
+
+            $wait = 0;
         }
 
         $this->cached_command_line = null;
@@ -1563,15 +1620,19 @@ trait ProcessVariables
      * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
      * 0 seconds  to disable, defaults to 30 seconds
      *
-     * @param int $timeout
+     * @param int|null $timeout
      * @return static
      */
-    public function setTimeout(int $timeout): static
+    public function setTimeout(?int $timeout): static
     {
         if (!is_natural($timeout,  0)) {
-            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
-                ':timeout' => $timeout
-            ]));
+            if ($timeout) {
+                throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
+                    ':timeout' => $timeout
+                ]));
+            }
+
+            $timeout = 0;
         }
 
         $this->cached_command_line = null;

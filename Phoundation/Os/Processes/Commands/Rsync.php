@@ -388,7 +388,7 @@ class Rsync extends Command
         }
 
         // Build the process parameters, then execute
-        $this->setInternalCommand('rsync')
+        $this->setCommand('rsync')
              ->clearArguments()
              ->addArgument($this->progress   ? '--progress'   : null)
              ->addArgument($this->archive    ? '-a'           : null)

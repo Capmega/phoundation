@@ -32,7 +32,7 @@ class Lsblk extends Command
     {
         // Build the process parameters, then execute
         $devices = $this->clearArguments()
-            ->setInternalCommand('lsblk')
+            ->setCommand('lsblk')
             ->addArgument('-J')
             ->executeReturnString();
 
@@ -52,7 +52,7 @@ class Lsblk extends Command
     {
         // Build the process parameters, then execute
         $devices = $this->clearArguments()
-            ->setInternalCommand('lsblk')
+            ->setCommand('lsblk')
             ->addArgument('-J')
             ->executeReturnString();
 

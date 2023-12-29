@@ -391,7 +391,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
         $file->getParentDirectory()->ensure();
 
         // Build the process parameters, then execute
-        $this->setInternalCommand('mysqldump')
+        $this->setCommand('mysqldump')
             ->clearArguments()
             ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword()])
             ->addArgument( $this->disable_keys                   ? '--disable-keys'    : null)

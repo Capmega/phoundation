@@ -36,13 +36,14 @@ class Ps extends Command
             }
 
             $output = $this
-                ->setInternalCommand('ps')
+                ->setCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                 ->setTimeout(1)
+                ->setAcceptedExitCodes(1)
                 ->executeReturnArray();
 
             if (count($output) < 1) {
-                //only the top line was returned, so the specified PID was not found
+                // Only the top line was returned, so the specified PID was not found
                 return null;
             }
 
@@ -57,7 +58,6 @@ class Ps extends Command
             ];
 
         } catch (ProcessFailedException $e) {
-            // The command pkill failed
             static::handleException('ps', $e);
         }
     }
@@ -81,7 +81,7 @@ class Ps extends Command
             }
 
             $output = $this
-                ->setInternalCommand('ps')
+                ->setCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid:1,ppid:1,uid:1,gid:1,nice:1,fuid:1,%cpu:1,%mem:1,size:1,cputime:1,cputimes:1,drs:1,etime:1,etimes:1,euid:1,egid:1,egroup:1,start_time:1,bsdtime:1,state:1,stat:1,time:1,vsize:1,rss:1,args'])
                 ->setTimeout(1)
                 ->executeReturnArray();

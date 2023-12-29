@@ -32,7 +32,7 @@ class Pgrep extends Command
     {
         try {
             $output = $this
-                ->setInternalCommand('pgrep')
+                ->setCommand('pgrep')
                 ->addArgument($process)
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -66,7 +66,7 @@ class Pgrep extends Command
             }
 
             $output = $this
-                ->setInternalCommand('pgrep')
+                ->setCommand('pgrep')
                 ->addArguments(['-P', $pid])
                 ->setTimeout(1)
                 ->executeReturnArray();

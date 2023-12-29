@@ -44,7 +44,7 @@ class Process extends ProcessCore implements ProcessInterface
         }
 
         if ($command) {
-            $this->setInternalCommand($command);
+            $this->setCommand($command);
         }
     }
 
@@ -102,19 +102,6 @@ class Process extends ProcessCore implements ProcessInterface
 
 
     /**
-     * Set the command to be executed for this process
-     *
-     * @param string|null $command
-     * @param bool $which_command
-     * @return static This process so that multiple methods can be chained
-     */
-    public function setCommand(?string $command, bool $which_command = true): static
-    {
-        return $this->setInternalCommand($command, $which_command);
-    }
-
-
-    /**
      * Command exception handler
      *
      * @param string $command
@@ -139,7 +126,7 @@ class Process extends ProcessCore implements ProcessInterface
             // Handlers were unable to make a clear exception out of this, show the standard command exception
             throw new CommandsException(tr('The command :command failed with ":output"', [
                 ':command' => $command,
-                ':output' => $data
+                ':output'  => $data
             ]));
         }
 

@@ -30,7 +30,7 @@ class Fprint extends Command
     public function enroll(string|int $id, EnumExecuteMethodInterface $method = EnumExecuteMethod::background): ?int
     {
         // Build the process parameters, then execute
-        $this->setInternalCommand('fprint-enroll')
+        $this->setCommand('fprint-enroll')
              ->clearArguments()
              ->addArgument($id);
 

@@ -38,7 +38,7 @@ class Wget extends Command
     {
         // Build the process parameters, then execute
         $this->clearArguments()
-             ->setInternalCommand('wget')
+             ->setCommand('wget')
              ->addArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
              ->addArguments($this->target ? ['-O', $this->target] : null)
              ->addArgument($this->source)
