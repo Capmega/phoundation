@@ -71,6 +71,15 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     protected function setExitCode(int $exit_code, string|array|null $output = null): int
     {
+        if (empty($output)) {
+            // Output was redirected to log file, get output from there
+            if ($this->log_file) {
+                if (file_exists($this->log_file)) {
+                    $output = file_get_contents($this->log_file);
+                }
+            }
+        }
+
         $this->stop      = microtime(true);
         $this->exit_code = $exit_code;
 
@@ -80,14 +89,10 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         }
 
         if (!in_array($exit_code, $this->accepted_exit_codes)) {
-            switch ($exit_code) {
-                case 124:
-                    $cause = 'timeout';
-                    break;
-
-                default:
-                    $cause = 'unknown';
-            }
+            $cause = match ($exit_code) {
+                124     => 'timeout',
+                default => 'unknown, see exception for details',
+            };
 
             // The command finished with an error
             throw ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
@@ -111,6 +116,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
                 'execution_time'       => $this->getExecutionTime(),
                 'execution_stop_time'  => $this->getExecutionStopTime(),
                 'execution_start_time' => $this->getExecutionStartTime(),
+                'execution_method'     => $this->getExecutionMethod()?->name,
             ]);
         }
 
@@ -126,6 +132,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executeReturnIterator(): IteratorInterface
     {
+        $this->setExecutionMethod(EnumExecuteMethod::returnIterator);
         return Iterator::new()->setSource($this->executeReturnArray());
     }
 
@@ -137,6 +144,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executeReturnArray(): array
     {
+        $this->setExecutionMethod(EnumExecuteMethod::returnArray);
+
         if ($this->debug) {
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
 
@@ -165,6 +174,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executeReturnString(): string
     {
+        $this->setExecutionMethod(EnumExecuteMethod::returnString);
+
         $output = $this->executeReturnArray();
         $output = implode(PHP_EOL, $output);
 
@@ -179,6 +190,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executeNoReturn(): void
     {
+        $this->setExecutionMethod(EnumExecuteMethod::noReturn);
         $this->executeReturnArray();
     }
 
@@ -231,6 +243,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executePassthru(): bool
     {
+        $this->setExecutionMethod(EnumExecuteMethod::passthru);
+
         $output_file = File::newTemporary(false)->getPath();
         $commands    = $this->getFullCommandLine();
         $commands    = Strings::endsNotWith($commands, ';');
@@ -239,7 +253,9 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
 
         } elseif (Debug::getEnabled()) {
-            Log::action(tr('Executing command ":commands" using passthru()', [':commands' => $commands]), 2);
+            Log::action(tr('Executing command ":commands" using passthru()', [
+                ':commands' => $commands
+            ]), 2);
         }
 
         $this->start = microtime(true);
@@ -273,6 +289,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
      */
     public function executeBackground(): int
     {
+        $this->setExecutionMethod(EnumExecuteMethod::background);
+
         // Ensure that this background command uses a terminal,
         $this->setTerm('xterm', true);
 

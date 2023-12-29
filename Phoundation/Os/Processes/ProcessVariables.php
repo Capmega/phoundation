@@ -20,7 +20,9 @@ use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Which;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
+use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
@@ -118,7 +120,7 @@ trait ProcessVariables
     protected ?int $exit_code = null;
 
     /**
-     * The maximum number of time in seconds that a command is allowed to run before it will timeout. Zero to disable,
+     * The maximum amount of time in seconds that a command is allowed to run before it will time out. Zero to disable,
      * defaults to 30
      *
      * @var int $timeout
@@ -305,6 +307,13 @@ trait ProcessVariables
      */
     protected ?Process $post_exec = null;
 
+    /**
+     * The method used to execute this process
+     *
+     * @var EnumExecuteMethodInterface|null $method
+     */
+    protected ?EnumExecuteMethodInterface $method = null;
+
 
     /**
      * Process class constructor
@@ -334,6 +343,34 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
+    }
+
+
+    /**
+     * Returns the execution method for this process
+     *
+     * @return EnumExecuteMethodInterface|null
+     */
+    public function getExecutionMethod(): ?EnumExecuteMethodInterface
+    {
+        return $this->method;
+    }
+
+
+    /**
+     * Sets the execution method for this process
+     *
+     * @note Will set the execution method only once. When already set, it will ignore the next specified method
+     * @param EnumExecuteMethodInterface|null $method
+     * @return static
+     */
+    protected function setExecutionMethod(?EnumExecuteMethodInterface $method): static
+    {
+        if ($this->method === null) {
+            $this->method = $method;
+        }
+
+        return $this;
     }
 
 
@@ -685,7 +722,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        $directory               = Directory::getTemporaryBase($public);
+        $directory               = Directory::getTemporary($public);
         $this->restrictions = $directory->getRestrictions();
 
         $this->setExecutionDirectory($directory, $directory->getRestrictions());
@@ -1437,7 +1474,7 @@ trait ProcessVariables
 
         if ($redirect) {
             if ($redirect[0] === '&') {
-                // Redirect output to other channel
+                // Redirect output to another channel
                 if (strlen($redirect) !== 2) {
                     throw new OutOfBoundsException(tr('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [
                         ':redirect' => $redirect
