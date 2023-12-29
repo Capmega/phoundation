@@ -39,7 +39,7 @@ class Ps extends Command
                 ->setCommand('ps')
                 ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                 ->setTimeout(1)
-                ->setAcceptedExitCodes(1)
+                ->setAcceptedExitCodes([0, 1])
                 ->executeReturnArray();
 
             if (count($output) < 1) {
