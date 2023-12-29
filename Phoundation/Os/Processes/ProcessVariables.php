@@ -230,9 +230,9 @@ trait ProcessVariables
     /**
      * Variable data that can modify the process command that will be executed
      *
-     * @var array|null $variables
+     * @var array $variables
      */
-    protected ?array $variables = [];
+    protected array $variables = [];
 
     /**
      * If set true, the log output files will be deleted as soon as this object is destroyed.
@@ -1185,7 +1185,6 @@ trait ProcessVariables
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
-     * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
      * @param Stringable|array|string|float|int|null $argument
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
@@ -1197,15 +1196,8 @@ trait ProcessVariables
                 return $this->addArguments($argument);
             }
 
-            $argument = (string) $argument;
-
-            // Do not escape variables!
-            if (!preg_match('/^\$.+?\$$/', $argument) and $escape) {
-                $argument = escapeshellarg($argument);
-            }
-
             $this->cached_command_line = null;
-            $this->arguments[]         = $argument;
+            $this->arguments[]         = (string) $argument;
         }
 
         return $this;

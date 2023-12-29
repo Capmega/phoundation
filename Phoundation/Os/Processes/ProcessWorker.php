@@ -3,6 +3,7 @@
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
 
 
 /**
@@ -16,7 +17,7 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
  * @package Phoundation\Os
  * @uses ProcessVariables
  */
-class Workers extends WorkersCore
+class ProcessWorker extends WorkersCore implements ProcessWorkerInterface
 {
     /**
      * Returns a new Workers object
@@ -25,7 +26,7 @@ class Workers extends WorkersCore
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function new(?string $command, RestrictionsInterface|array|string|null $restrictions = null): static
+    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $static = new static($restrictions);
         return $static->setCommand($command);

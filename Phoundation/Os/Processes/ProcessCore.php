@@ -74,6 +74,11 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
         $this->stop      = microtime(true);
         $this->exit_code = $exit_code;
 
+        if (empty($this->accepted_exit_codes)) {
+            // By default, always accept exit code 0
+            $this->accepted_exit_codes = [0];
+        }
+
         if (!in_array($exit_code, $this->accepted_exit_codes)) {
             switch ($exit_code) {
                 case 124:
@@ -509,20 +514,14 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             throw new ProcessException(tr('Cannot execute process, no command specified'));
         }
 
-        // Update the arguments with the variables
+        // Update the arguments with the variables and escape all of them
         foreach ($this->arguments as $argument) {
-            // Does this argument contain variables? If so, apply them here
-            if (preg_match('/^\$.+?\$$/', $argument)) {
-                if (!array_key_exists($argument, $this->variables)) {
-                    // This variable was not defined, cannot apply it.
-                    throw new ProcessException(tr('Specified variable ":variable" in the argument list was not defined', [
-                        ':variable' => $argument
-                    ]));
-                }
-
-                // Update and escape the argument
-                $argument = escapeshellarg((string) $this->variables[$argument]);
+            // Apply variables
+            foreach ($this->variables as $key => $variable) {
+                $argument = str_replace((string) $key, (string) $variable, $argument);
             }
+
+            $argument = escapeshellarg($argument);
 
             // Escape quotes if required so for shell
             for ($i = 0; $i < $this->escape_quotes; $i++) {
@@ -533,10 +532,8 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
             $arguments[] = $argument;
         }
 
-        // Add arguments to the command
-        $return = $this->real_command . ' ' . implode(' ', $arguments);
-
-        return $return;
+        // Add arguments to the command and return
+        return $this->real_command . ' ' . implode(' ', $arguments);
     }
 
 

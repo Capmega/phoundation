@@ -11,15 +11,18 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntryKey;
 use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryResults;
 use Phoundation\Data\DataEntry\Traits\DataEntryRole;
 use Phoundation\Data\DataEntry\Traits\DataEntrySpent;
 use Phoundation\Data\DataEntry\Traits\DataEntryStart;
 use Phoundation\Data\DataEntry\Traits\DataEntryStop;
+use Phoundation\Data\DataEntry\Traits\DataEntryValues;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -49,16 +52,18 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
  */
 class Task extends DataEntry implements TaskInterface
 {
+    use DataEntryDescription;
+    use DataEntryKey;
+    use DataEntryName;
+    use DataEntryResults;
     use DataEntryRole;
+    use DataEntryServer;
+    use DataEntrySpent;
     use DataEntryStart;
     use DataEntryStop;
-    use DataEntrySpent;
-    use DataEntryServer;
     use DataEntryTask;
-    use DataEntryName;
+    use DataEntryValues;
     use DataEntryWorkers;
-    use DataEntryResults;
-    use DataEntryDescription;
 
 
     /**
@@ -904,6 +909,17 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setVariables(array|null $variables): static
     {
+        // Ensure that variables are valid
+        if ($variables) {
+            foreach ($variables as $key => $value) {
+                if (!preg_match('/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/', $key)) {
+                    throw new OutOfBoundsException(tr('Specified variable key ":key" is invalid, it should match regex "/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/", so a : symbol, and then at least 2 characters that can be only uppercase letters, or numbers, or dash, and cannot begin or end with a dash', [
+                        ':key' => $key,
+                    ]));
+                }
+            }
+        }
+
         return $this->setSourceValue('variables', $variables);
     }
 
@@ -1091,7 +1107,7 @@ class Task extends DataEntry implements TaskInterface
         Hook::new('tasks')->execute('pre-execute' , ['task' => $this]);
 
         // Execute the command
-        $worker = Workers::new($this->getCommand(), $this->getRestrictions())
+        $worker = ProcessWorker::new($this->getCommand(), $this->getRestrictions())
             ->setServer($this->getServer())
             ->setArguments($this->getArguments())
             ->setVariables($this->getVariables())

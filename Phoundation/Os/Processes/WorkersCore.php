@@ -244,8 +244,10 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      */
     public function setKey(string $key): static
     {
-        if (!preg_match('/^\$.+?\$$/', $key)) {
-            throw new OutOfBoundsException(tr('Specified key ":key" is invalid, it should be in the form of "$keyname$"', [':key' => $key]));
+        if (!preg_match('/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/', $key)) {
+            throw new OutOfBoundsException(tr('Specified key ":key" is invalid, it should match regex "/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/", so a : symbol, and then at least 2 characters that can be only uppercase letters, or numbers, or dash, and cannot begin or end with a dash', [
+                ':key' => $key,
+            ]));
         }
 
         $this->key = $key;
@@ -385,7 +387,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
 
         Log::success(tr('Started worker with PID ":pid" for ":label" ":value"', [
             ':pid'   => $worker->getPid(),
-            ':label' => not_empty($this->label, tr('Value')),
+            ':label' => not_empty($this->label, tr('value')),
             ':value' => $value
         ]));
     }

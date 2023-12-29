@@ -160,8 +160,8 @@ class Tasks extends DataList implements TasksInterface
         try {
             PhoCommand::new('tasks,execute')
                 ->setLabel(tr('task'))
-                ->addArguments(['-t', '$TASKSID$'])
-                ->setKey('$TASKSID$')
+                ->addArguments(['-t', ':TASKSID'])
+                ->setKey(':TASKSID')
                 ->setValues($keys)
                 ->setMaximumWorkers(static::$max_task_workers)
                 ->start();
