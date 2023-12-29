@@ -99,6 +99,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `pre_exec` varchar(64) DEFAULT NULL,
                     `post_exec` varchar(64) DEFAULT NULL,
                     `comments` text DEFAULT NULL,
+                    `key` varchar(32) DEFAULT NULL,
+                    `values` text DEFAULT NULL,
                     `minimum_workers` int DEFAULT NULL,
                     `maximum_workers` int DEFAULT NULL,
                     `pid` int DEFAULT NULL,
