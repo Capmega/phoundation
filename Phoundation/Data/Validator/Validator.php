@@ -255,6 +255,8 @@ abstract class Validator implements ValidatorInterface
                             ':selected' => $this->selected_field
                         ]));
                     }
+
+                    $this->selected_optional = false;
                 }
 
                 $value = $this->selected_optional;

@@ -6,7 +6,7 @@ namespace Phoundation\Cache;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -55,7 +55,7 @@ class Cache
         try {
             static::driver()?->set($data, $key, $namespace);
 
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigPathDoesNotExistsException $e) {
             Log::warning(tr('Cannot cache because the current driver is not properly configured, see exception information'));
             Log::warning($e);
         }

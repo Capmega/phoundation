@@ -6,7 +6,10 @@ namespace Phoundation\Utils;
 
 use Exception;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigFailedException;
+use Phoundation\Core\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigParseFailedException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
@@ -49,9 +52,9 @@ class Config implements ConfigInterface
     /**
      * Keeps track of configuration failures
      *
-     * @var bool $fail
+     * @var string|false $failed
      */
-    protected static bool $fail = false;
+    protected static string|false $failed = false;
 
     /**
      * The generic system register to store data
@@ -191,7 +194,7 @@ class Config implements ConfigInterface
         static::$environment        = strtolower(trim($environment));
 
         static::reset();
-        static::read();
+        static::read(false);
     }
 
 
@@ -223,7 +226,18 @@ class Config implements ConfigInterface
         static::$environment        = strtolower(trim($environment));
 
         static::reset();
-        static::read();
+        static::read(true);
+    }
+
+
+    /**
+     * Returns true if the Config object has failed
+     *
+     * @return string|false
+     */
+    public static function getFailed(): string|false
+    {
+        return static::$failed;
     }
 
 
@@ -416,7 +430,7 @@ class Config implements ConfigInterface
             static::get($path);
             return true;
 
-        } catch (ConfigurationDoesNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             // Ignore, just return null
             return false;
         }
@@ -437,7 +451,7 @@ class Config implements ConfigInterface
         try {
             return static::get($path);
 
-        } catch (ConfigurationDoesNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             // Ignore, just return null
             return null;
         }
@@ -464,8 +478,14 @@ class Config implements ConfigInterface
 
         Debug::counter('Config::get()')->increase();
 
-        if (static::$fail) {
-            // Config class failed, always return all default values
+        if (static::$failed) {
+            // Config class failed, return all default values when not NULL
+            if ($default === null) {
+                throw new ConfigFailedException(tr('Cannot get configuration, Config failed with ":e"', [
+                    ':e' => static::$failed
+                ]));
+            }
+
             return $default;
         }
 
@@ -513,7 +533,7 @@ class Config implements ConfigInterface
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
-                    throw ConfigurationDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
+                    throw ConfigPathDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
                         ':path'        => Strings::force($path, '.')
@@ -590,11 +610,10 @@ class Config implements ConfigInterface
     /**
      * Reads the configuration file for the specified configuration environment
      *
+     * @param bool $exception
      * @return void
-     * @throws ConfigException
-     * @throws OutOfBoundsException
      */
-    protected static function read(): void
+    protected static function read(bool $exception): void
     {
         try {
             if (!static::$environment) {
@@ -622,7 +641,7 @@ class Config implements ConfigInterface
                 // Check if a configuration file exists for this environment
                 if (!file_exists($file)) {
                     // Do NOT use tr() here as it will cause endless loops!
-                    throw ConfigException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
+                    throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
                         ->makeWarning();
                 }
 
@@ -632,9 +651,8 @@ class Config implements ConfigInterface
 
                 } catch (Throwable $e) {
                     // Failed to read YAML data from configuration file
-                    static::$fail = true;
-                    throw ConfigException::new('Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '"', $e)
-                        ->makeWarning();
+                    static::$failed = 'Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" because "' . $e->getMessage() . '"';
+                    throw ConfigParseFailedException::new(static::$failed, $e)->makeWarning();
                 }
 
                 if (!is_array($data)) {
@@ -653,8 +671,13 @@ class Config implements ConfigInterface
 
         } catch (ConfigException $e) {
             // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
-            echo 'Failed to load configuration file "' . $file . '" because: ' . $e->getMessage() . PHP_EOL;
-            static::$fail = true;
+            static::$failed = 'Failed to load configuration file "' . isset_get($file) . '" because: ' . $e->getMessage();
+
+            if ($exception) {
+                throw $e;
+            }
+
+            echo static::$failed . PHP_EOL;
         }
     }
 
@@ -914,10 +937,10 @@ class Config implements ConfigInterface
      */
     protected static function reset(): void
     {
-        static::$fail  = false;
-        static::$data  = [];
-        static::$files = [];
-        static::$cache = [];
+        static::$failed = false;
+        static::$data   = [];
+        static::$files  = [];
+        static::$cache  = [];
     }
 
 

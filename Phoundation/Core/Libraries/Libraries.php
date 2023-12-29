@@ -6,7 +6,7 @@ namespace Phoundation\Core\Libraries;
 
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Tmp;
 use Phoundation\Developer\Debug;
@@ -83,7 +83,7 @@ class Libraries
                     try {
                         mc()->flush();
 
-                    } catch (ConfigurationDoesNotExistsException $e) {
+                    } catch (ConfigPathDoesNotExistsException $e) {
                         Log::warning(tr('Cannot flush memcached because the current driver is not properly configured, see exception information'));
                         Log::warning($e);
                     }
@@ -129,7 +129,7 @@ class Libraries
             // Wipe all cache data
             Cache::clear();
 
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigPathDoesNotExistsException $e) {
             Log::warning($e->getMessage());
         }
 

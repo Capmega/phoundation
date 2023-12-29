@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -84,7 +84,7 @@ class GeoIp
                     ]));
             }
 
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigPathDoesNotExistsException $e) {
             if (Debug::production()) {
                 throw $e;
             }

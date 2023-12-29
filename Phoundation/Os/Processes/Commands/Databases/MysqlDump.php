@@ -17,6 +17,7 @@ use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -382,7 +383,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     {
         if (!$file) {
             // Generate default file
-
             $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
         }
 
@@ -415,6 +415,11 @@ class MysqlDump extends Command implements MysqlDumpInterface
         if ($this->gzip) {
             $this->setPipe('gzip');
         }
+
+        Log::action(tr('Creating MySQL dump file ":file" from databases ":databases", this may take a while...', [
+            ':file'      => $file,
+            ':databases' => Strings::force($this->databases, ', '),
+        ]));
 
         // Add pipe to output and execute
         $results = $this->setOutputRedirect((string) $file)->executeReturnArray();

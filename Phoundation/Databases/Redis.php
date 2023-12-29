@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\UnderConstructionException;
@@ -135,7 +135,7 @@ class Redis extends \Redis implements DatabaseInterface
 
         try {
             $configuration = Config::get('databases.redis.connectors.' . $instance);
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigPathDoesNotExistsException $e) {
             throw new RedisException(tr('The specified redis instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));

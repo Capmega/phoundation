@@ -11,7 +11,7 @@ use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
@@ -1968,7 +1968,7 @@ class Sql implements SqlInterface
             try {
                 $configuration = Config::getArray('databases.connectors.' . $connector);
 
-            } catch (ConfigurationDoesNotExistsException) {
+            } catch (ConfigPathDoesNotExistsException) {
                 // Configuration not available in Config. Check if its stored in SQL database
                 $configuration = $this->readSqlConfiguration($connector);
 

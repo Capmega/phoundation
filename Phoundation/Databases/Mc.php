@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Memcached;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -420,7 +420,7 @@ class Mc implements DatabaseInterface
         if (empty($this->configuration['connections'])) {
             showbacktrace();
             showdie();
-            throw ConfigurationDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
+            throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
                 ':instance' => $this->instance_name
             ]))->makeWarning();
         }

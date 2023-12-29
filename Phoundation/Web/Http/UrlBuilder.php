@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -82,7 +82,7 @@ class UrlBuilder implements UrlBuilderInterface
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
                 $this->cloak();
             }
-        } catch (ConfigurationDoesNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             // This domain is not configured, ignore it
         }
 

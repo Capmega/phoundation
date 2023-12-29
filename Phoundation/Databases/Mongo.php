@@ -6,7 +6,7 @@ namespace Phoundation\Databases;
 
 use MongoDB\Client;
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Databases\Exception\MongoException;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\UnderConstructionException;
@@ -175,7 +175,7 @@ class Mongo extends Client implements DatabaseInterface
 
         try {
             $configuration = Config::get('databases.mongo.connectors.' . $instance);
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigPathDoesNotExistsException $e) {
             throw new MongoException(tr('The specified mongo instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));

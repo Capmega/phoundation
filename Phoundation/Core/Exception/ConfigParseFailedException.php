@@ -6,15 +6,15 @@ namespace Phoundation\Core\Exception;
 
 
 /**
- * Class ConfigNotExistsException
+ * Class ConfigParseFailedException
  *
- * This exception is thrown when the specified configuration path does not exist
+ * This exception is thrown when the specified configuration file could not be parsed (likely due to syntax error)
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class ConfigurationDoesNotExistsException extends ConfigException
+class ConfigParseFailedException extends ConfigException
 {
 }

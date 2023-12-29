@@ -481,16 +481,19 @@ class Export
                 throw new OutOfBoundsException(tr('No export driver specified'));
 
             case 'mysql':
-                Log::information(tr('Exporting to MySQL dump file ":file" from databases ":database", this may take a while...', [
-                    ':file'     => $file,
-                    ':database' => Strings::force($this->database, ', '),
-                ]));
-
-                return MysqlDump::new($this->restrictions)
+                $file = MysqlDump::new($this->restrictions)
                     ->setConnector($this->connector)
                     ->setTimeout($this->timeout)
                     ->setDatabases($this->database)
                     ->dump($file, $method);
+
+                Log::success(tr('Exported to MySQL dump file ":file" from databases ":database", this may take a while...', [
+                    ':file'     => $file,
+                    ':database' => Strings::force($this->database, ', '),
+                ]));
+
+                return $file;
+
 
             default:
                 throw new UnderConstructionException();
