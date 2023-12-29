@@ -781,38 +781,62 @@ class Directory extends Path implements DirectoryInterface
 
 
     /**
-     * Returns a temporary directory specific for this process
+     * Returns a temporary directory specific for this process that will be removed once the process terminates
+     *
+     * The temporary directory returned will always be the same within one process, if per
      *
      * @param bool $public
+     * @param bool $persist If specified, the temporary directory will persist and not be removed once the process
+     *                      terminates
      * @return DirectoryInterface
      */
-    public static function getTemporaryBase(bool $public): DirectoryInterface
+    public static function getTemporary(bool $public, bool $persist = false): DirectoryInterface
     {
+        static $temp_directory_public, $temp_directory_private;
+
         if ($public) {
             // Return public temp directory
-            if (!static::$temp_directory_public) {
-                static::$temp_directory_public = static::new(DIRECTORY_PUBTMP . Session::getUUID(), Restrictions::new(DIRECTORY_PUBTMP, true, 'base public temporary directory'))
+            if (empty($temp_directory_public)) {
+                // Initialize public temp directory first
+                $path                  = DIRECTORY_PUBTMP . Session::getUUID();
+                $temp_directory_public = static::new($path, Restrictions::writable($path, 'public temporary directory'))
                     ->delete()
                     ->ensure();
 
                 // Put lock file to avoid delete cleanup removing this session directory
-                touch(static::$temp_directory_public->getPath() . '.lock');
+                touch($temp_directory_public->getPath() . '.lock');
+                static::$temp_directory_public = $temp_directory_public;
             }
 
-            return static::$temp_directory_public;
+            // Public temp directory has been initialized, return it
+            if (!$persist) {
+                // Public temp directory should persist, so remove its public registration to avoid deleting it
+                static::$temp_directory_public = null;
+            }
+
+            return $temp_directory_public;
         }
 
-        if (!static::$temp_directory_private) {
-            // Return private temp directory
-            static::$temp_directory_private = static::new(DIRECTORY_TMP . Session::getUUID(), Restrictions::new(DIRECTORY_TMP, true, 'base private temporary directory'))
+        // Return private temp directory
+        if (empty($temp_directory_private)) {
+            // Initialize private temp directory first
+            $path                   = DIRECTORY_TMP . Session::getUUID();
+            $temp_directory_private = static::new($path, Restrictions::writable($path, 'private temporary directory'))
                 ->delete()
                 ->ensure();
 
             // Put lock file to avoid delete cleanup removing this session directory
-            touch(static::$temp_directory_private->getPath() . '.lock');
+            touch($temp_directory_private->getPath() . '.lock');
+            static::$temp_directory_private = $temp_directory_private;
         }
 
-        return static::$temp_directory_private;
+        // Public temp directory has been initialized, return it
+        if (!$persist) {
+            // Public temp directory should persist, so remove its private registration to avoid deleting it
+            static::$temp_directory_private = null;
+        }
+
+        return $temp_directory_private;
     }
 
 

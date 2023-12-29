@@ -200,7 +200,7 @@ class Path implements Stringable, PathInterface
      */
     public static function newTemporary(bool $public, ?string $name = null, bool $create = true): static
     {
-        $directory = Directory::getTemporaryBase($public);
+        $directory = Directory::getTemporary($public);
         $name = ($name ?? Strings::generateUuid());
         $file = static::new($directory->getPath() . $name, $directory->getRestrictions());
 
