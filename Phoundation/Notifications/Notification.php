@@ -225,10 +225,10 @@ class Notification extends DataEntry implements NotificationInterface
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered roles
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function setRoles(IteratorInterface|array|string $roles): static
+    public function setRoles(IteratorInterface|array|string|int $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
@@ -243,10 +243,10 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Will send this notification to the specified roles
      *
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function addRoles(IteratorInterface|array|string $roles): static
+    public function addRoles(IteratorInterface|array|string|int $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');

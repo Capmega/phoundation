@@ -55,18 +55,18 @@ interface NotificationInterface extends DataEntryInterface
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered roles
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function setRoles(IteratorInterface|array|string $roles): static;
+    public function setRoles(IteratorInterface|array|string|int $roles): static;
 
     /**
      * Sets the message for this notification
      *
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function addRoles(IteratorInterface|array|string $roles): static;
+    public function addRoles(IteratorInterface|array|string|int $roles): static;
 
     /**
      * Sets the message for this notification
