@@ -359,7 +359,7 @@ class Password extends DataEntry implements PasswordInterface
                 $start = microtime(true);
                 password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
                 $end = microtime(true);
-                CliCommand::dot();
+                Log::dot();
             } while (($end - $start) < $time);
 
             $costs[] = $cost;

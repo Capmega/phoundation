@@ -309,7 +309,7 @@ class Updates extends Libraries\Updates
 
                 // This table has a NOT NULL meta_id, fix it
                 sql()->query('ALTER TABLE `' . $table['TABLE_NAME'] . '` MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
-                CliCommand::dot(5);
+                Log::dot(5);
             }
 
             Log::success('Finished', use_prefix: false);
