@@ -25,6 +25,7 @@ trait DataEntryServer
      */
     protected ?ServerInterface $server;
 
+
     /**
      * Returns the servers_id for this object
      *

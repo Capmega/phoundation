@@ -630,7 +630,7 @@ class Sql implements SqlInterface
      * @param string $table
      * @param array $set
      * @param array|null $where
-     * @return int The amount of rows that were updated
+     * @return int The number of rows that were updated
      */
     public function update(string $table, array $set, array|null $where = null): int
     {
@@ -1237,13 +1237,19 @@ class Sql implements SqlInterface
      * @param array|null $execute
      * @return array
      */
-    public function listKeyValues(string|PDOStatement $query, ?array $execute = null): array
+    public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $column = null): array
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
 
         while ($row = $this->fetch($statement)) {
-            $return[array_first($row)] = $row;
+            if (!$column) {
+                $key = array_first($row);
+            } else {
+                $key = $row[$column];
+            }
+
+            $return[$key] = $row;
         }
 
         return $return;

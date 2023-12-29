@@ -200,7 +200,7 @@ class TestDataGenerator
 
 
     /**
-     * Returns a random amount of lorem ipsum paragraps
+     * Returns a random number of lorem ipsum paragraps
      *
      * @param int $min_paragraphs
      * @param int $max_paragraphs

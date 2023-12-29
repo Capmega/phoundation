@@ -44,7 +44,7 @@ trait DataMaxStringSize
         }
 
         if ($characters > $this->max_string_size) {
-            Log::warning(tr('The specified amount of maximum characters ":specified" surpasses the configured maximum amount of ":configured". Forcing configured maximum amount instead', [
+            Log::warning(tr('The specified number of maximum characters ":specified" surpasses the configured maximum number of ":configured". Forcing configured maximum amount instead', [
                 ':specified'  => $characters,
                 ':configured' => $this->max_string_size
             ]));

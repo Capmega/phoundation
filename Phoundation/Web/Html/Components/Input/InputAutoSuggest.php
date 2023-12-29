@@ -48,14 +48,14 @@ class InputAutoSuggest extends InputText
     protected IteratorInterface|null $variables = null;
 
     /**
-     * The amount of mS after typing stopped before auto suggest will start querying the source URL
+     * The number of mS after typing stopped before auto suggest will start querying the source URL
      *
      * @var int $delay
      */
     protected int $delay = 300;
 
     /**
-     * The minimal amount of characters typed before auto suggest starts
+     * The minimal number of characters typed before auto suggest starts
      *
      * @var int $min_suggest_length
      */

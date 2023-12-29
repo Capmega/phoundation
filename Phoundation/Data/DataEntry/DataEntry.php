@@ -1862,20 +1862,21 @@ abstract class DataEntry implements DataEntryInterface
     {
         $return = [];
 
+        // Run over all definitions and generate a data column
         foreach ($this->definitions as $field => $definition) {
             if ($insert) {
                 // We're about to insert
                 if (in_array($field, $this->fields_filter_on_insert)) {
                     continue;
                 }
-            } else {
-                // We're about to update
-                if ($definition->getReadonly() or $definition->getDisabled()) {
-                    // Don't update readonly or disabled columns, only meta-fields should pass
-                    if (!$definition->isMeta()) {
-                        continue;
-                    }
-                }
+//            } else {
+//                // We're about to update
+//                if ($definition->getReadonly() or $definition->getDisabled()) {
+//                    // Don't update readonly or disabled columns, only meta-fields should pass
+//                    if (!$definition->isMeta()) {
+//                        continue;
+//                    }
+//                }
             }
 
             $field = $definition->getField();
@@ -1888,10 +1889,13 @@ abstract class DataEntry implements DataEntryInterface
             // Apply definition default
             $return[$field] = isset_get($this->source[$field]) ?? $definition->getDefault();
 
-            // Ensure value is scalar
+            // Ensure value is string, float, int, or NULL
             if (($return[$field] !== null) and !is_scalar($return[$field])) {
                 if (is_enum($return[$field])) {
                     $return[$field] = $return[$field]->value;
+
+                } elseif ($return[$field] instanceof Stringable) {
+                    $return[$field] = (string) $return[$field];
 
                 } else {
                     $return[$field] = Json::ensureEncoded($return[$field]);
@@ -1940,7 +1944,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     *
+     * Returns true if this DataEntry should be saved, false if it should not be saved
      *
      * @param bool $force
      * @return bool

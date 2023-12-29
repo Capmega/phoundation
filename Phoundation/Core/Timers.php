@@ -86,7 +86,7 @@ class Timers implements TimersInterface
 
 
     /**
-     * Returns the amount of timer groups
+     * Returns the number of timer groups
      *
      * @return int
      */

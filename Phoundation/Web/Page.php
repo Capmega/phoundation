@@ -2181,9 +2181,9 @@ class Page implements PageInterface
     /**
      * Send all the specified HTTP headers
      *
-     * @note The amount of sent bytes does NOT include the bytes sent for the HTTP response code header
+     * @note The number of sent bytes does NOT include the bytes sent for the HTTP response code header
      * @param array|null $headers
-     * @return int The amount of bytes sent. -1 if static::sendHeaders() was called for the second time.
+     * @return int The number of bytes sent. -1 if static::sendHeaders() was called for the second time.
      */
     public static function sendHttpHeaders(?array $headers): int
     {

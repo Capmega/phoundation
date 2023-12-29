@@ -287,7 +287,7 @@ class Route
      *                  must be taken when encountered
      * R301             Redirect to the specified page argument using HTTP 301
      * R302             Redirect to the specified page argument using HTTP 302
-     * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is
+     * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ number of seconds. $SECONDS$ is
      *                  optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing
      *                  naughty things for at least a day
      * T$TEMPLATE$      Use the specified template instead of the current template for this try

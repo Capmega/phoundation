@@ -143,7 +143,7 @@ class Table extends SchemaAbstract
 
 
     /**
-     * Returns the amount of records in this table
+     * Returns the number of records in this table
      *
      * @return int
      */

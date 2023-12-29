@@ -686,10 +686,10 @@ abstract class DataList extends Iterator implements DataListInterface
         $this->selectQuery();
 
         if ($clear or empty($this->source)) {
-            $this->source = sql()->listKeyValues($this->query, $this->execute);
+            $this->source = sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_field ? static::getUniqueField() : 'id');
 
         } else {
-            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute));
+            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_field ? static::getUniqueField() : 'id'));
         }
 
         return $this;
@@ -747,8 +747,8 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return sql()->listKeyValue('SELECT `id`, `' . static::getUniqueField() . '`
                                           FROM   `' . static::getTable() . '`'
-                              . $word ? ' WHERE `' . static::getUniqueField() . '` LIKE :like' : null . '
+                             . ($word ? ' WHERE `' . static::getUniqueField() . '` LIKE :like' : null) . '
                                           LIMIT ' . CliAutoComplete::getLimit(),
-            $word ? [':like' => '%' . $word] : null);
+            $word ? [':like' => $word. '%'] : null);
     }
 }

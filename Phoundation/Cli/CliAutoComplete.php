@@ -174,7 +174,7 @@ class CliAutoComplete
      */
     #[NoReturn] public static function processMethods(?array $cli_methods, array $data): never
     {
-        // $data['position'] is the amount of found methods
+        // $data['position'] is the number of found methods
         // static::$position is the word # where the cursor was when <TAB> was pressed
         if ($cli_methods === null) {
             // No CLI methods have been specified yet, so all arguments are assumed system arguments
@@ -191,7 +191,7 @@ class CliAutoComplete
             }
 
         } elseif (static::$position > count($cli_methods)) {
-            // Invalid situation, supposedly the location was beyond, after the amount of arguments?
+            // Invalid situation, supposedly the location was beyond, after the number of arguments?
             exit('Invalid-auto-complete-arguments' . PHP_EOL);
 
         } elseif ($data['position'] > static::$position) {
@@ -567,7 +567,7 @@ complete -F _phoundation pho');
             $results = $definition($word);
 
             if (is_array($results)) {
-                // Limit the amount of results
+                // Limit the number of results
                 $results = static::limit($results);
             }
 

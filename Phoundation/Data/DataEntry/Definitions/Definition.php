@@ -672,10 +672,16 @@ class Definition implements DefinitionInterface
         }
 
         try {
-            return InputType::tryFrom($return);
+            return InputType::from($return);
 
         } catch (Throwable $e) {
-            return InputTypeExtended::tryFrom($return);
+            if (str_contains($e->getMessage(), 'is not a valid backing value for enum')) {
+                // So the input type is not from InputTypeInterface, it must be from InputTypeExtendedInterface
+                return InputTypeExtended::from($return);
+            }
+
+            // WTF else could possibly have happened?
+            throw $e;
         }
     }
 
@@ -861,7 +867,6 @@ class Definition implements DefinitionInterface
             }
 
             $this->validateType('type', $value->value);
-
             return $this->setKey($value->value, 'type');
         }
 
@@ -1192,7 +1197,14 @@ class Definition implements DefinitionInterface
             return null;
         }
 
-        return isset_get_typed('string', $this->rules['cli_field']);
+        $return = isset_get_typed('string', $this->rules['cli_field']);
+
+        if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
+            // Strip the []
+            $return = substr($return, 1, -1);
+        }
+
+        return $return;
     }
 
 

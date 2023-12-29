@@ -125,7 +125,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Subtracts an amount of days, months, years, hours, minutes and seconds from a DateTime object
+     * Subtracts an number of days, months, years, hours, minutes and seconds from a DateTime object
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
      * @param \DateInterval $interval
@@ -138,7 +138,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Adds an amount of days, months, years, hours, minutes and seconds to a DateTime object
+     * Adds an number of days, months, years, hours, minutes and seconds to a DateTime object
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
      * @param \DateInterval $interval

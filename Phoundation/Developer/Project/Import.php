@@ -28,7 +28,7 @@ abstract class Import
     protected bool $demo;
 
     /**
-     * The amount of entries to import in case of demo
+     * The number of entries to import in case of demo
      *
      * @var int $count
      */

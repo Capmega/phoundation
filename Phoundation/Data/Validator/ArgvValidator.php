@@ -249,7 +249,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns the amount of command line arguments still available.
+     * Returns the number of command line arguments still available.
      *
      * @return int
      */
@@ -260,7 +260,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns the amount of command line method arguments still available.
+     * Returns the number of command line method arguments still available.
      *
      * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
      *       separated by a -. Modifier arguments may have or not have values accompanying them.

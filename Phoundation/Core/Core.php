@@ -470,7 +470,7 @@ class Core implements CoreInterface
      *
      * @see https://www.php.net/manual/en/function.pcntl-signal.php#124049
      * @param int $seconds
-     * @param int|null $offset The amount of seconds to add to the sleep as they were lost
+     * @param int|null $offset The number of seconds to add to the sleep as they were lost
      * @return void
      */
     protected static function doSleep(int $seconds, int $offset = null): void
@@ -2170,7 +2170,7 @@ class Core implements CoreInterface
     /**
      * Set the timeout value for this script
      *
-     * @param null|int $timeout The amount of seconds this script can run until it is aborted automatically
+     * @param null|int $timeout The number of seconds this script can run until it is aborted automatically
      * @return bool Returns TRUE on success, or FALSE on failure.
      * @see set_time_limit()
      * @version 2.7.5: Added function and documentation

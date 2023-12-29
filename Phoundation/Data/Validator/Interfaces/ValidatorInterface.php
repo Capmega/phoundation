@@ -330,7 +330,7 @@ interface ValidatorInterface
     public function isString(): static;
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -338,7 +338,7 @@ interface ValidatorInterface
     public function hasCharacters(int $characters): static;
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -346,7 +346,7 @@ interface ValidatorInterface
     public function hasMinCharacters(int $characters): static;
 
     /**
-     * Validates that the selected field is equal or shorter than the specified amount of characters
+     * Validates that the selected field is equal or shorter than the specified number of characters
      *
      * @param int|null $characters
      * @return static
@@ -552,7 +552,7 @@ interface ValidatorInterface
     public function isArray(): static;
 
     /**
-     * Validates that the selected field array has a minimal amount of elements
+     * Validates that the selected field array has a minimal number of elements
      *
      * @param int $count
      * @return static
@@ -560,7 +560,7 @@ interface ValidatorInterface
     public function hasElements(int $count): static;
 
     /**
-     * Validates that the selected field array has a minimal amount of elements
+     * Validates that the selected field array has a minimal number of elements
      *
      * @param int $count
      * @return static
@@ -568,7 +568,7 @@ interface ValidatorInterface
     public function hasMinimumElements(int $count): static;
 
     /**
-     * Validates that the selected field array has a maximum amount of elements
+     * Validates that the selected field array has a maximum number of elements
      *
      * @param int $count
      * @return static

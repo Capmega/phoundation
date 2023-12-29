@@ -74,7 +74,7 @@ interface CliRunFileInterface
     public function getPidsForCommand(): array;
 
     /**
-     * Return the amount of this command being run
+     * Return the number of this command being run
      *
      * @return int
      */

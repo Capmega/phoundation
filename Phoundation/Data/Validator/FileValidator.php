@@ -97,7 +97,7 @@ class FileValidator
 
 
     /**
-     * Validates that the file is smaller than the specified amount of bytes
+     * Validates that the file is smaller than the specified number of bytes
      *
      * @param int $size
      * @return FileValidator

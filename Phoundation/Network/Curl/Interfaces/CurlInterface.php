@@ -135,21 +135,21 @@ interface CurlInterface
     public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static;
 
     /**
-     * Returns the amount of retries executed for this request
+     * Returns the number of retries executed for this request
      *
      * @return int
      */
     public function getRetry(): int;
 
     /**
-     * Sets the maximum amount of retries executed for this request
+     * Sets the maximum number of retries executed for this request
      *
      * @return int
      */
     public function getRetries(): int;
 
     /**
-     * Returns the maximum amount of retries executed for this request
+     * Returns the maximum number of retries executed for this request
      *
      * @param int $retries
      * @return static
@@ -157,14 +157,14 @@ interface CurlInterface
     public function setRetries(int $retries): static;
 
     /**
-     * Sets the amount of time this object will wait before retrying a failed connection
+     * Sets the number of time this object will wait before retrying a failed connection
      *
      * @return int
      */
     public function getSleep(): int;
 
     /**
-     * Returns the amount of time this object will wait before retrying a failed connection
+     * Returns the number of time this object will wait before retrying a failed connection
      *
      * @param int $sleep
      * @return static
@@ -172,14 +172,14 @@ interface CurlInterface
     public function setSleep(int $sleep): static;
 
     /**
-     * Sets the amount of time in seconds before a complete request times out
+     * Sets the number of time in seconds before a complete request times out
      *
      * @return int
      */
     public function getTimeout(): int;
 
     /**
-     * Returns the amount of time in seconds before a complete request times out
+     * Returns the number of time in seconds before a complete request times out
      *
      * @param int $timeout
      * @return static
@@ -187,14 +187,14 @@ interface CurlInterface
     public function setTimeout(int $timeout): static;
 
     /**
-     * Sets the amount of time in seconds before a connection times out
+     * Sets the number of time in seconds before a connection times out
      *
      * @return int
      */
     public function getConnectTimeout(): int;
 
     /**
-     * Returns the amount of time in seconds before a connection times out
+     * Returns the number of time in seconds before a connection times out
      *
      * @param int $connect_timeout
      * @return static

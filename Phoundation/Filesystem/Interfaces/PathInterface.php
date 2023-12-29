@@ -127,7 +127,7 @@ interface PathInterface
     /**
      * Output all remaining data on a file pointer to the output buffer
      *
-     * @return int The amount of bytes
+     * @return int The number of bytes
      */
     public function fpassthru(): int;
 
@@ -443,7 +443,7 @@ interface PathInterface
     public function rewind(): static;
 
     /**
-     * Reads and returns the specified amount of bytes from the current pointer location
+     * Reads and returns the specified number of bytes from the current pointer location
      *
      * @param int|null $buffer
      * @param int|null $seek
@@ -478,7 +478,7 @@ interface PathInterface
     public function readCharacter(): string|false;
 
     /**
-     * Reads and returns the specified amount of bytes at the specified location from this CLOSED file
+     * Reads and returns the specified number of bytes at the specified location from this CLOSED file
      *
      * @note Will throw an exception if the file is already open
      * @param int $length
@@ -587,7 +587,7 @@ interface PathInterface
     public function getRelativePathTo(mixed $path): string;
 
     /**
-     * Returns the amount of directories counted in the specified path
+     * Returns the number of directories counted in the specified path
      *
      * @param mixed $path
      * @return int

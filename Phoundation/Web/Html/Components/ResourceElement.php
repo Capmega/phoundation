@@ -71,7 +71,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     protected array $source_data = [];
 
     /**
-     * The amount of entries added to this element from the source data (query or array)
+     * The number of entries added to this element from the source data (query or array)
      *
      * @var int $count
      */

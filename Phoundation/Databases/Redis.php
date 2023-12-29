@@ -114,7 +114,7 @@ class Redis extends \Redis implements DatabaseInterface
      * Get the document for the specified key from the specified collection
      *
      * @param $key
-     * @return int The amount of documents deleted
+     * @return int The number of documents deleted
      */
     public function delete($key): int
     {

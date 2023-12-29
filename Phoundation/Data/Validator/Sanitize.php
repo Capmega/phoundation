@@ -16,7 +16,7 @@ use Phoundation\Utils\Strings;
 /**
  * Validate class
  *
- * This class can apply a large amount of validation tests on a single value
+ * This class can apply a large number of validation tests on a single value
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

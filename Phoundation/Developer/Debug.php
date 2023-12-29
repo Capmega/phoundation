@@ -1066,7 +1066,7 @@ class Debug {
 
 
     /**
-     * Die when this method has been called the $count specified amount of times, and display the optional message
+     * Die when this method has been called the $count specified number of times, and display the optional message
      *
      * @param int $count
      * @param string|null $message

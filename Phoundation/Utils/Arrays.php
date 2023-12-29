@@ -431,7 +431,7 @@ class Arrays {
 
 
     /**
-     * Limit the specified array to the specified amount of entries
+     * Limit the specified array to the specified number of entries
      *
      * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      * @param array $source
@@ -460,7 +460,7 @@ class Arrays {
 
 
     /**
-     * Return an array with the amount of values where each value name is $base_value_name# and # is a sequential number
+     * Return an array with the number of values where each value name is $base_value_name# and # is a sequential number
      *
      * @param int $count
      * @param string|int $base_value_name
@@ -1745,7 +1745,7 @@ class Arrays {
      * Arrays::countDuplicates(array(0, 1, 2, 1));
      *
      * @param array $source The array to check
-     * @return int Returns the amount of duplicate entries in the specified source array
+     * @return int Returns the number of duplicate entries in the specified source array
      */
     public static function countDuplicates(array $source): int
     {

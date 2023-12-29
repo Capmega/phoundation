@@ -37,7 +37,7 @@ CliDocumentation::help('This script will send out emails that are pending sendin
 ARGUMENTS
 
 
--l, --limit LIMIT                      The maximum amount of mails to send
+-l, --limit LIMIT                      The maximum number of mails to send
 
 -r, --auto-restart                     If specified and there are more mails than the maximim specified limit, the
                                        command will automatically restart. Each restart will also pass along the

@@ -217,7 +217,7 @@ class Cli
      * @param array $source
      * @param string|null $key_header
      * @param string|null $value_header
-     * @param int $offset If specified, the text will be set $offset amount of characters to the right
+     * @param int $offset If specified, the text will be set $offset number of characters to the right
      * @return void
      */
     public static function displayForm(array $source, ?string $key_header = null, string $value_header = null, int $offset = 0): void

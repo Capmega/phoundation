@@ -23,7 +23,7 @@ use Phoundation\Utils\Config;
 class Cdn
 {
     /**
-     * Adds the required amount of copies of the specified file to random CDN servers
+     * Adds the required number of copies of the specified file to random CDN servers
      *
      * @param $files
      * @param $section

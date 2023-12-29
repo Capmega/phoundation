@@ -165,7 +165,7 @@ class Timer implements TimerInterface
 
 
     /**
-     * Returns the amount of laps
+     * Returns the number of laps
      *
      * @return int
      */

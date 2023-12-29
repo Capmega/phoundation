@@ -209,11 +209,11 @@ class Password extends DataEntry implements PasswordInterface
         // Bonus for long passwords
         $strength += ($length * 2);
 
-        // Get the amount of upper case letters in the password
+        // Get the number of upper case letters in the password
         preg_match_all('/[A-Z]/', $password, $matches);
         $a = (count($matches[0]) / strlen($password) * 100);
 
-        // Get the amount of lower case letters in the password
+        // Get the number of lower case letters in the password
         preg_match_all('/[a-z]/', $password, $matches);
         $b = (count($matches[0]) / strlen($password) * 100);
 

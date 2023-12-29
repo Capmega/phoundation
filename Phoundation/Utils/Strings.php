@@ -230,7 +230,7 @@ class Strings
         $charlen = mb_strlen($characters);
 
         if ($unique and ($length > $charlen)) {
-            throw new OutOfBoundsException(tr('Can not create unique character random string with size ":length". When $unique is requested, the string length can not be larger than ":charlen" because there are no more then that amount of unique characters', ['length' => $length, 'charlen' => $charlen]));
+            throw new OutOfBoundsException(tr('Can not create unique character random string with size ":length". When $unique is requested, the string length can not be larger than ":charlen" because there are no more then that number of unique characters', ['length' => $length, 'charlen' => $charlen]));
         }
 
         for ($i = 0; $i < $length; $i++) {

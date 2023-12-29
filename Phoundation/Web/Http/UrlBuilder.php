@@ -547,7 +547,7 @@ class UrlBuilder implements UrlBuilderInterface
      * Since the URL cloaking table might fill up over time with new entries, this function will be periodically executed by url_decloak() to cleanup the table
      *
      * @see Url::decloak()
-     * @return int The amount of expired entries removed from the `url_cloaks` table
+     * @return int The number of expired entries removed from the `url_cloaks` table
      */
     public static function cleanupCloak(): int
     {

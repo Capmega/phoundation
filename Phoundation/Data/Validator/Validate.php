@@ -14,7 +14,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 /**
  * Validate class
  *
- * This class can apply a large amount of validation tests on a single value
+ * This class can apply a large number of validation tests on a single value
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -242,7 +242,7 @@ class Validate
 
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -260,7 +260,7 @@ class Validate
 
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -278,7 +278,7 @@ class Validate
 
 
     /**
-     * Validates that the selected field is equal or shorter than the specified amount of characters
+     * Validates that the selected field is equal or shorter than the specified number of characters
      *
      * @param int|null $characters
      * @return static
@@ -287,7 +287,7 @@ class Validate
     {
         $this->isString();
 
-        // Validate the maximum amount of characters
+        // Validate the maximum number of characters
         $characters = $this->getMaxStringSize($characters);
 
         if (strlen($this->source) > $characters) {

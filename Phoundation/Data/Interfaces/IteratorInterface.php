@@ -17,7 +17,7 @@ use Stringable;
  * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
  * methods:
  *
- * - getCount() Returns the amount of elements contained in this object
+ * - getCount() Returns the number of elements contained in this object
  *
  * - getFirst() Returns the first element contained in this object without changing the internal pointer
  *
@@ -203,7 +203,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
-     * Returns the amount of items contained in this object
+     * Returns the number of items contained in this object
      *
      * @return int
      */

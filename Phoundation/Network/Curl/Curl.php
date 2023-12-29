@@ -95,14 +95,14 @@ abstract class Curl implements CurlInterface
     protected ?Restrictions $log_restrictions = null;
 
     /**
-     * The maximum amount of retries executed for this request
+     * The maximum number of retries executed for this request
      *
      * @var int $retries
      */
     protected int $retries = 5;
 
     /**
-     * The amount of retries executed for this request
+     * The number of retries executed for this request
      *
      * @var int $retry
      */
@@ -116,14 +116,14 @@ abstract class Curl implements CurlInterface
     protected int $cache_timeout = 0;
 
     /**
-     * The amount of time in seconds before a connection times out
+     * The number of time in seconds before a connection times out
      *
      * @var int $connect_timeout
      */
     protected int $connect_timeout = 2;
 
     /**
-     * The amount of time this object will wait before retrying a failed connection
+     * The number of time this object will wait before retrying a failed connection
      *
      * @var int $sleep
      */
@@ -481,7 +481,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of retries executed for this request
+     * Returns the number of retries executed for this request
      *
      * @return int
      */
@@ -492,7 +492,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the maximum amount of retries executed for this request
+     * Sets the maximum number of retries executed for this request
      *
      * @return int
      */
@@ -503,7 +503,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the maximum amount of retries executed for this request
+     * Returns the maximum number of retries executed for this request
      *
      * @param int $retries
      * @return static
@@ -516,7 +516,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the amount of time this object will wait before retrying a failed connection
+     * Sets the number of time this object will wait before retrying a failed connection
      *
      * @return int
      */
@@ -527,7 +527,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of time this object will wait before retrying a failed connection
+     * Returns the number of time this object will wait before retrying a failed connection
      *
      * @param int $sleep
      * @return static
@@ -540,7 +540,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the amount of time in seconds before a complete request times out
+     * Sets the number of time in seconds before a complete request times out
      *
      * @return int
      */
@@ -551,7 +551,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of time in seconds before a complete request times out
+     * Returns the number of time in seconds before a complete request times out
      *
      * @param int $timeout
      * @return static
@@ -564,7 +564,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the amount of time in seconds before a connection times out
+     * Sets the number of time in seconds before a connection times out
      *
      * @return int
      */
@@ -575,7 +575,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of time in seconds before a connection times out
+     * Returns the number of time in seconds before a connection times out
      *
      * @param int $connect_timeout
      * @return static

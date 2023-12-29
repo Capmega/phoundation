@@ -42,10 +42,10 @@ ARGUMENTS
 [-d / --demo]                           If specified, will load demo data into the database tables so the system can
                                         quickly show actual functionality
 
-[--min] (10)                            If demo mode is enabled, this will specified the minimum amount of records added
+[--min] (10)                            If demo mode is enabled, this will specified the minimum number of records added
                                         in each library
 
-[--max] (1000)                          If demo mode is enabled, this will specified the maximum amount of records added
+[--max] (1000)                          If demo mode is enabled, this will specified the maximum number of records added
                                         in each library');
 
 

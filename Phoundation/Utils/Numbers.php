@@ -60,7 +60,7 @@ class Numbers
      */
     public static function getHumanReadableBytes(string|float|int $amount, string $unit = 'AUTO', int $precision = 2, bool $add_suffix = true): string
     {
-        // We can only have an integer amount of bytes
+        // We can only have an integer number of bytes
         $amount = Numbers::fromBytes($amount);
 
         if ($unit === 'auto') {
@@ -178,7 +178,7 @@ class Numbers
 
 
     /**
-     * Reads a bytes string like "4MB" and returns the amount of bytes
+     * Reads a bytes string like "4MB" and returns the number of bytes
      *
      * @param string|float|int $amount
      * @return int
@@ -217,8 +217,8 @@ class Numbers
             };
         }
 
-        // We can only have an integer amount of bytes
-        // We can only have an integer amount of bytes
+        // We can only have an integer number of bytes
+        // We can only have an integer number of bytes
         return (int) ceil((float) $amount);
     }
 
@@ -306,11 +306,11 @@ class Numbers
                 $value = '0';
             }
 
-            // Get the amount of decimals behind the .
+            // Get the number of decimals behind the .
             $decimals = substr(strrchr($value, '.'), 1);
             $decimals = strlen($decimals);
 
-            // Remember the highest amount of decimals
+            // Remember the highest number of decimals
             if ($decimals > $return) {
                 $return = $decimals;
             }

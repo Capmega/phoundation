@@ -48,10 +48,10 @@ ARGUMENTS
 [-l / --libraries LIBRARIES]            Comma delimited field. Only available if --import was specified. If specified,
                                         will only execute import for libraries matching the names specified
 
-[--min NUMBER (10)]                     If demo mode is enabled, this will specified the minimum amount of records added
+[--min NUMBER (10)]                     If demo mode is enabled, this will specified the minimum number of records added
                                         in each library
 
-[--max NUMBER (1000)]                   If demo mode is enabled, this will specified the maximum amount of records added
+[--max NUMBER (1000)]                   If demo mode is enabled, this will specified the maximum number of records added
                                         in each library
 
 [-d / --demo]                           If specified, will load demo data into the database tables so the system can

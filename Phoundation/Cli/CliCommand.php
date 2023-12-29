@@ -862,7 +862,7 @@ class CliCommand
 
 
     /**
-     * Limit the amount of processes to the specified amount
+     * Limit the number of processes to the specified amount
      *
      * @param int $count
      * @param bool $global
@@ -1098,7 +1098,7 @@ The following arguments are available to ALL scripts
 
 --version                               Will display the current version for your Phoundation installation
 
---limit NUMBER                          Will limit table output to the amount of specified fields
+--limit NUMBER                          Will limit table output to the number of specified fields
 
 --timezone STRING                       Sets the specified timezone for the command you are executing
 

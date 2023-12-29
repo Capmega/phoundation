@@ -578,7 +578,7 @@ class User extends DataEntry implements UserInterface
      * @param string|null $notifications_hash
      * @return static
      */
-    public function setNotificationsHash(string|null $notifications_hash): static
+    public function setNotificationsHash(?string $notifications_hash): static
     {
         sql()->update('accounts_users', ['notifications_hash' => $notifications_hash], ['id' => $this->getId()]);
         return $this->setSourceValue('notifications_hash', $notifications_hash);

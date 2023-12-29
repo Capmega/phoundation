@@ -29,7 +29,7 @@ class Audio extends Element
      */
     public function getPreload(): ?EnumAudioPreloadInterface
     {
-        return EnumAudioPreload::tryFrom($this->attributes->get('preload', false));
+        return EnumAudioPreload::from($this->attributes->get('preload', false));
     }
 
 

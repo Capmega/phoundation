@@ -269,7 +269,7 @@ class CliRunFile implements CliRunFileInterface
 
 
     /**
-     * Return the amount of this command being run
+     * Return the number of this command being run
      *
      * @return int
      */

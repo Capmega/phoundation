@@ -21,14 +21,14 @@ use Phoundation\Utils\Strings;
 class InputTextArea extends Input
 {
     /**
-     * The amount of columns to use for this text area
+     * The number of columns to use for this text area
      *
      * @var int|null $cols
      */
     protected ?int $cols = null;
 
     /**
-     * The amount of rows to use for this text area
+     * The number of rows to use for this text area
      *
      * @var int|null $cols
      */
@@ -48,7 +48,7 @@ class InputTextArea extends Input
 
 
     /**
-     * Returns the amount of cols to use for this text area
+     * Returns the number of cols to use for this text area
      *
      * @return int|null
      */
@@ -59,7 +59,7 @@ class InputTextArea extends Input
 
 
     /**
-     * Sets the amount of cols to use for this text area
+     * Sets the number of cols to use for this text area
      *
      * @param int|null $cols
      * @return $this
@@ -72,7 +72,7 @@ class InputTextArea extends Input
 
 
     /**
-     * Returns the amount of rows to use for this text area
+     * Returns the number of rows to use for this text area
      *
      * @return int|null
      */
@@ -83,7 +83,7 @@ class InputTextArea extends Input
 
 
     /**
-     * Sets the amount of rows to use for this text area
+     * Sets the number of rows to use for this text area
      *
      * @param int|null $rows
      * @return $this

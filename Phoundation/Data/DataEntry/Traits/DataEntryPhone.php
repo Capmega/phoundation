@@ -36,7 +36,7 @@ trait DataEntryPhone
      * @param string|null $phone
      * @return static
      */
-    public function setPhone(string|null $phone): static
+    public function setPhone(?string $phone): static
     {
         return $this->setSourceValue('phone', $phone);
     }

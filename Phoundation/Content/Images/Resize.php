@@ -231,7 +231,7 @@ class Resize extends Path
 
 
     /**
-     * Resize image to the specified amount of pixels, irrespective of the width or height
+     * Resize image to the specified number of pixels, irrespective of the width or height
      *
      * @param int $pixel_count
      * @return void

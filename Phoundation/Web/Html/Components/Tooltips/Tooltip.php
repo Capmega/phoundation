@@ -95,7 +95,7 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
         // Set default values
         $this->setRenderBefore(Config::getBoolean('web.html.tooltips.icon.before', false))
              ->setPlacement(EnumTooltipPlacement::right)
-             ->setTriggers(EnumTooltipTrigger::tryFrom(Config::getString('web.html.tooltips.trigger', 'click')))
+             ->setTriggers(EnumTooltipTrigger::from(Config::getString('web.html.tooltips.trigger', 'click')))
              ->setUseIcon(Config::getBoolean('web.html.tooltips.icon.use', false))
              ->setHtml(Config::getBoolean('web.html.tooltips.html', false));
     }
@@ -134,7 +134,7 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
         $triggers = $this->data->get('trigger', false);
 
         foreach ($triggers as &$trigger) {
-            $trigger = EnumTooltipTrigger::tryFrom($trigger);
+            $trigger = EnumTooltipTrigger::from($trigger);
         }
 
         unset($trigger);
@@ -368,7 +368,7 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
      */
     public function getPlacement(): EnumTooltipPlacementInterface
     {
-        return EnumTooltipPlacement::tryFrom($this->data->get('placement', false));
+        return EnumTooltipPlacement::from($this->data->get('placement', false));
     }
 
 
@@ -392,7 +392,7 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
      */
     public function getFallbackPlacements(): EnumTooltipPlacementInterface
     {
-        return EnumTooltipPlacement::tryFrom($this->data->get('fallbackPlacements', false));
+        return EnumTooltipPlacement::from($this->data->get('fallbackPlacements', false));
     }
 
 
@@ -471,7 +471,7 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
             return EnumTooltipBoundary::scrollParent;
         }
 
-        return EnumTooltipBoundary::tryFrom($boundary) ?? $boundary;
+        return EnumTooltipBoundary::from($boundary) ?? $boundary;
     }
 
 

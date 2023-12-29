@@ -44,7 +44,7 @@ ARGUMENTS
 [-a,--days [COUNT]                      Amount of days a files must exist before being deleted.
 
 [-s,--shred]                            Shreds the files instead of merely deleting them. NOTE: Depending on amount and
-                                        sizes of the files, this may take a significantly longer amount of time!
+                                        sizes of the files, this may take a significantly longer number of time!
 ');
 
 

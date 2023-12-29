@@ -1275,7 +1275,7 @@ Class Log {
      * @param bool $echo_screen
      * @param bool $from_script
      * @param string|bool $use_prefix
-     * @return int The amount of lines that were logged. -1 in case of an exception while trying to log the backtrace.
+     * @return int The number of lines that were logged. -1 in case of an exception while trying to log the backtrace.
      */
     protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true, bool $from_script = true, string|bool $use_prefix = true): int
     {

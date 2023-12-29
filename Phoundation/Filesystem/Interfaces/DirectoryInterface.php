@@ -146,14 +146,14 @@ interface DirectoryInterface extends PathInterface
     /**
      * Returns the total size in bytes of the tree under the specified directory
      *
-     * @return int The amount of bytes this tree takes
+     * @return int The number of bytes this tree takes
      */
     public function treeFileSize(): int;
 
     /**
-     * Returns the amount of files under the object directory (directories not included in count)
+     * Returns the number of files under the object directory (directories not included in count)
      *
-     * @return int The amount of files
+     * @return int The number of files
      */
     public function treeFileCount(): int;
 
@@ -202,7 +202,7 @@ interface DirectoryInterface extends PathInterface
     public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): DirectoryInterface;
 
     /**
-     * Returns the amount of available files in the current file directory
+     * Returns the number of available files in the current file directory
      *
      * @param bool $recursive
      * @return int

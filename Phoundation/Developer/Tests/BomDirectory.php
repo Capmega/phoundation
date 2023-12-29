@@ -21,7 +21,7 @@ use Phoundation\Filesystem\Directory;
 class BomDirectory extends Directory
 {
     /**
-     * Checks for BOM bytes from all files in this path and returns the amount of files that have it
+     * Checks for BOM bytes from all files in this path and returns the number of files that have it
      *
      * @return int
      */

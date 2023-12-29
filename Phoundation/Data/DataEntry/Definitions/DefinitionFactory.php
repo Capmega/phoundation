@@ -950,7 +950,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setSize(3)
             ->setLabel(tr('Name'))
-            ->setCliField(tr('-n,--name NAME'))
+            ->setCliField(tr('[-n,--name NAME]'))
             ->setInputType(InputTypeExtended::name)
             ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {

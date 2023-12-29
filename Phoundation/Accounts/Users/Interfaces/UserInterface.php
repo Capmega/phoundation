@@ -595,7 +595,7 @@ interface UserInterface extends DataEntryInterface
      * @param string|null $notifications_hash
      * @return static
      */
-    public function setNotificationsHash(string|null $notifications_hash): static;
+    public function setNotificationsHash(?string $notifications_hash): static;
 
     /**
      * Send a notification to only this user.
