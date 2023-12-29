@@ -1311,6 +1311,72 @@ Class Log {
 
 
     /**
+     * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal
+     * counter will reset if a different $each is received.
+     *
+     * @note While log_console() will log towards the DIRECTORY_ROOT/data/log/ log files, cli_dot() will only log one
+     *       single dot even though on the command line multiple dots may be shown
+     *
+     * @param int $each
+     * @param string $color
+     * @param string $dot
+     * @param boolean $quiet
+     * @return boolean True if a dot was printed, false if not
+     * @example
+     * for($i=0; $i < 100; $i++) {
+     *     Log::dot();
+     * }
+     * /code
+     *
+     * This will return something like
+     *
+     * ..........
+     *
+     * @see Log::write()
+     */
+    public static function dot(int $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
+    {
+        static $count = 0,
+        $l_each = 0;
+
+        if (!PLATFORM_CLI) {
+            return false;
+        }
+
+        if ($quiet and QUIET) {
+            // Don't show this in QUIET mode
+            return false;
+        }
+
+        if (!$each) {
+            if ($count) {
+                // Only show "Done" if we have shown any dot at all
+                Log::write(tr('Done'), $color, 10, false, true, false);
+            }
+
+            $l_each = 0;
+            $count = 0;
+            return true;
+        }
+
+        $count++;
+
+        if ($l_each != $each) {
+            $l_each = $each;
+            $count = 0;
+        }
+
+        if ($count >= $l_each) {
+            $count = 0;
+            Log::write($dot, $color, 10, false, false, false);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
      * Rotates the current log file
      *
      * @return FileInterface
