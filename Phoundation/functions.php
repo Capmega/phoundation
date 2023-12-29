@@ -15,8 +15,8 @@ use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\Interfaces\DateTimeZoneInterface;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -61,7 +61,7 @@ function is_version(string $version): bool
 
 
 /**
- * Sleep for the specified amount of milliseconds
+ * Sleep for the specified number of milliseconds
  *
  * @param int $milliseconds
  * @return void
@@ -336,7 +336,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     return $variable;
 
                 case 'datetime':
-                    if ($variable instanceof DateTimeInterface) {
+                    if ($variable instanceof \DateTimeInterface) {
                         break;
                     }
 
@@ -437,11 +437,11 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
  * A natural number here is defined as one of the set of positive whole numbers; a positive integer and the number 1 and
  * any other number obtained by adding 1 to it repeatedly. For ease of use, the number one can be adjusted if needed.
  *
- * @param $number
+ * @param mixed $number
  * @param int $start
  * @return bool
  */
-function is_natural($number, int $start = 1): bool
+function is_natural(mixed $number, int $start = 1): bool
 {
     if (!is_numeric($number)) {
         return false;
