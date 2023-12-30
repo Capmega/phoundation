@@ -1135,8 +1135,7 @@ trait ProcessVariables
         $this->command      = escapeshellcmd($command);
         $this->real_command = escapeshellcmd($real_command);
 
-        $this->setIdentifier();
-        return $this;
+        return $this->setIdentifier()->clearArguments();
     }
 
 
