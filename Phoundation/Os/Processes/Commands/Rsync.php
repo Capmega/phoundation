@@ -8,7 +8,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataNetworkConnection;
 use Phoundation\Data\Traits\DataSource;
+use Phoundation\Data\Traits\DataSourceServer;
 use Phoundation\Data\Traits\DataTarget;
+use Phoundation\Data\Traits\DataTargetServer;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
@@ -27,9 +29,11 @@ use Phoundation\Utils\Arrays;
 class Rsync extends Command
 {
     use DataDebug;
-    use DataSource;
-    use DataTarget;
     use DataNetworkConnection;
+    use DataSource;
+    use DataSourceServer;
+    use DataTarget;
+    use DataTargetServer;
 
 
     /**
@@ -382,6 +386,13 @@ class Rsync extends Command
     {
         // If port is a non-default SSH port, then generate the RSH variable
         if (empty($this->rsh)) {
+            if ($this->source_server) {
+                $this->port = $this->source_server->getPort();
+
+            } elseif ($this->target_server) {
+                $this->port = $this->target_server->getPort();
+            }
+
             if ($this->port) {
                 $this->rsh = 'ssh -p ' . $this->port;
             }
@@ -389,7 +400,6 @@ class Rsync extends Command
 
         // Build the process parameters, then execute
         $this->setCommand('rsync')
-             ->clearArguments()
              ->addArgument($this->progress   ? '--progress'   : null)
              ->addArgument($this->archive    ? '-a'           : null)
              ->addArgument($this->quiet      ? '-q'           : null)
