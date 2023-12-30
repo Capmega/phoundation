@@ -10,7 +10,9 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Enums\EnumMatchMode;
 
 
 /**
@@ -23,6 +25,8 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+$restrictions = Restrictions::readonly([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP],  tr('Import'));
+
 CliDocumentation::usage('./pho system databases import -d mysql -b system -f system.sql');
 
 CliDocumentation::help('This script will import the specified database file into the specified database
@@ -56,8 +60,8 @@ ARGUMENTS
 CliDocumentation::autoComplete([
     'arguments' => [
         '-f,--file' => [
-            'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.{sql,sql.gz}'); },
-            'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan(        '*.{sql,sql.gz}'); },
+            'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan(        '*.{sql,sql.gz}'); },
         ],
         '-c,--connector' => [
             'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getSourceColumn('name'); },
@@ -80,7 +84,7 @@ CliDocumentation::autoComplete([
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--file'     , true)->isFile(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
+    ->select('-f,--file'     , true)->isFile([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], $restrictions)
     ->select('-d,--driver'   , true)->isOptional()->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database' , true)->isVariable()
     ->select('-c,--comments' , true)->isOptional()->isPrintable()

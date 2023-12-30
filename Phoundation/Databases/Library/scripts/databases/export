@@ -28,6 +28,8 @@ use Phoundation\Utils\Enums\EnumMatchMode;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+$restrictions = Restrictions::writable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP],  tr('Export'));
+
 CliDocumentation::usage('./pho system databases export -d mysql -b system -f system.sql');
 
 CliDocumentation::help('This script will export the specified database to the specified database dump file
@@ -57,8 +59,8 @@ CliDocumentation::autoComplete([
         '-t,--timeout' => true,
         '-g,--gzip'    => false,
         '--file' => [
-            'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan($word . '*.sql'); },
-            'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scan('*.sql'); },
+            'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.sql'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.sql'); },
         ],
         '-c,--connector' => [
             'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getSourceColumn('name'); },
@@ -80,7 +82,7 @@ CliDocumentation::autoComplete([
 $argv = ArgvValidator::new()
     ->select('-g,--gzip')->isOptional(false)->isBoolean()
     ->select('-t,--timeout'  , true)->isOptional(3600)->isInteger()->isMoreThan(0)
-    ->select('-f,--file'     , true)->isOptional()->isFile(DIRECTORY_DATA . 'sources/', Restrictions::writable(DIRECTORY_DATA . 'sources/', tr('Export')), false)
+    ->select('-f,--file'     , true)->isOptional()->isFile([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], $restrictions, false)
     ->select('-d,--driver'   , true)->isOptional()->sanitizeLowercase()->isInArray(Databases::getDrivers())
     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
     ->select('-b,--database' , true)->isVariable()
@@ -88,18 +90,19 @@ $argv = ArgvValidator::new()
 
 
 // Export data for the requested driver
-$file = Export::new()
+$export = Export::new()
     ->setConnector($argv['connector'])
     ->setDatabase($argv['database'])
     ->setDriver($argv['driver'])
     ->setTimeout($argv['timeout'])
-    ->setGzip($argv['gzip'])
-    ->dump($argv['file']);
+    ->setGzip($argv['gzip']);
+
+$file = $export->dump($argv['file']);
 
 
 // Done!
 Log::success(tr('Finished exporting ":type" type database ":database" to file ":file"', [
-    ':type'     => $argv['driver'],
+    ':type'     => $export->getConnector()->getType(),
     ':file'     => $file,
     ':database' => $argv['database'],
 ]));

@@ -637,32 +637,32 @@ interface ValidatorInterface
     /**
      * Validates if the selected field is a valid path
      *
-     * @param Stringable|string|null $check_in_path
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param array|Stringable|string|null $exists_in_directories
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isPath(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param Stringable|string|null $check_in_path
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param array|Stringable|string|null $exists_in_directories
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isDirectory(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param Stringable|string|null $check_in_directory
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param array|Stringable|string|null $exists_in_directories
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isFile(Stringable|string|null $check_in_directory = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid description

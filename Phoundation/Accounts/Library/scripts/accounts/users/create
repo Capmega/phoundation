@@ -18,7 +18,6 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This command will create a new user with the specified properties
  *
- * @todo Add support for receiving the user password over STDIN so that interactive mode is no longer required
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
