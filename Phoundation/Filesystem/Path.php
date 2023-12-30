@@ -134,7 +134,7 @@ class Path implements Stringable, PathInterface
         } elseif (is_resource($file)) {
             // This is an input stream resource
             $this->stream = $file;
-            $this->path   = '?';
+            $this->path = '?';
 
         } else {
             throw new OutOfBoundsException(tr('Invalid file ":file" specified. Must be one if FileBasicsInterface, Stringable, string, null, or resource', [
@@ -227,7 +227,7 @@ class Path implements Stringable, PathInterface
     {
         // Determine what path to choose from the specified file
         if ($file) {
-            $file = trim((string) $file);
+            $file = trim((string)$file);
 
             switch ($file[0]) {
                 case '/':
@@ -291,7 +291,7 @@ class Path implements Stringable, PathInterface
             $this->close();
         }
 
-        $this->path      = Filesystem::absolute($file, $prefix, $must_exist);
+        $this->path = Filesystem::absolute($file, $prefix, $must_exist);
         $this->real_path = realpath($this->path);
 
         return $this;
@@ -339,7 +339,7 @@ class Path implements Stringable, PathInterface
 
         if (!$exists and $auto_mount) {
             // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
-            if ($this->attemptAutomount()){
+            if ($this->attemptAutomount()) {
                 // The path was auto mounted, so try again!
                 return $this->exists(false);
             }
@@ -456,7 +456,7 @@ class Path implements Stringable, PathInterface
         if (!$result) {
             throw new FileRenameException(tr('Failed to rename file or directory ":file" to ":to"', [
                 ':file' => $this->path,
-                ':to'   => $to_filename
+                ':to' => $to_filename
             ]));
         }
 
@@ -517,7 +517,7 @@ class Path implements Stringable, PathInterface
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, false);
+        $this->checkRestrictions(false);
 
         if (!$this->exists()) {
             if (!file_exists(dirname($this->path))) {
@@ -574,7 +574,7 @@ class Path implements Stringable, PathInterface
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         if (!$this->exists()) {
             if (!file_exists(dirname($this->path))) {
@@ -610,7 +610,7 @@ class Path implements Stringable, PathInterface
     public function getHumanReadableFileType(): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
         $this->exists();
 
         $return = [];
@@ -670,7 +670,7 @@ class Path implements Stringable, PathInterface
     public function getHumanReadableFileMode(): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, false);
+        $this->checkRestrictions(false);
         $this->exists();
 
         $perms = fileperms($this->path);
@@ -789,7 +789,7 @@ class Path implements Stringable, PathInterface
         static $finfo = null;
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, false);
+        $this->checkRestrictions(false);
 
         try {
             if (is_dir($this->path)) {
@@ -827,7 +827,7 @@ class Path implements Stringable, PathInterface
     public function secureDelete(string|bool $clean_path = true, bool $sudo = false): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         // Delete all specified patterns
         // Execute the rm command
@@ -878,7 +878,7 @@ class Path implements Stringable, PathInterface
         Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 2);
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         // Delete all specified patterns
         // Execute the rm command
@@ -916,7 +916,7 @@ class Path implements Stringable, PathInterface
         // Ensure restrictions and ensure target is absolute
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, ($target instanceof PathInterface ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target       = Filesystem::absolute($target, must_exist: false);
+        $target = Filesystem::absolute($target, must_exist: false);
 
         // Ensure the target directory exists
         if (file_exists($target)) {
@@ -1010,7 +1010,7 @@ class Path implements Stringable, PathInterface
     public function getStat(): array
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, false);
+        $this->checkRestrictions(false);
 
         try {
             $stat = stat($this->path);
@@ -1044,7 +1044,7 @@ class Path implements Stringable, PathInterface
     public function chown(?string $user = null, ?string $group = null, bool $recursive = false): static
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         if (!$user) {
             $user = posix_getpwuid(posix_getuid());
@@ -1090,7 +1090,7 @@ class Path implements Stringable, PathInterface
         }
 
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         if ($recursive or is_string($mode)) {
             // Use operating system chmod command as PHP chmod does not support these functions
@@ -1118,7 +1118,7 @@ class Path implements Stringable, PathInterface
     public function ensureFileReadable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         // If the object file exists and is writable, then we're done.
         if (is_writable($this->path)) {
@@ -1185,7 +1185,7 @@ class Path implements Stringable, PathInterface
     public function ensureFileWritable(?int $mode = null): bool
     {
         // Check filesystem restrictions
-        $this->restrictions->check($this->path, true);
+        $this->checkRestrictions(true);
 
         // If the object file exists and is writable, then we're done.
         if (is_writable($this->path)) {
@@ -1298,7 +1298,7 @@ class Path implements Stringable, PathInterface
         $this
             ->checkClosed('open')
             ->restrictions
-                ->check($this->path, ($mode !== EnumFileOpenMode::readOnly));
+            ->check($this->path, ($mode !== EnumFileOpenMode::readOnly));
 
         try {
             $stream = fopen($this->path, $mode->value, false, $context);
@@ -1491,7 +1491,7 @@ class Path implements Stringable, PathInterface
         // Ensure default restrictions and absolute target.
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, (($target instanceof PathInterface) ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target       = Path::new($target);
+        $target = Path::new($target);
 
         // Calculate absolute or relative path
         if ($absolute) {
@@ -1509,8 +1509,8 @@ class Path implements Stringable, PathInterface
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists and points to ":current" instead', [
-                ':target'  => $target,
-                ':source'  => $this->path,
+                ':target' => $target,
+                ':source' => $this->path,
                 ':current' => $target->readlink()->getPath()
             ]));
         }
@@ -1775,8 +1775,8 @@ class Path implements Stringable, PathInterface
      */
     protected function save(string $data, EnumFileOpenModeInterface $write_mode = EnumFileOpenMode::writeOnly): static
     {
-        $this->restrictions->check($this->path, true);
-        $this->checkWriteMode($write_mode);
+        $this->checkRestrictions(true)
+             ->checkWriteMode($write_mode);
 
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -1841,7 +1841,7 @@ class Path implements Stringable, PathInterface
      * @param $context
      * @return array
      */
-    public function getContentsAsArray(int $flags = FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES, $context = null): array
+    public function getContentsAsArray(int $flags = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES, $context = null): array
     {
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -1871,7 +1871,7 @@ class Path implements Stringable, PathInterface
      * @param $context
      * @return IteratorInterface
      */
-    public function getContentsAsIterator(int $flags = FILE_IGNORE_NEW_LINES|FILE_SKIP_EMPTY_LINES, $context = null): IteratorInterface
+    public function getContentsAsIterator(int $flags = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES, $context = null): IteratorInterface
     {
         return Iterator::new($this->getContentsAsArray($flags, $context));
     }
@@ -2091,10 +2091,10 @@ class Path implements Stringable, PathInterface
         }
 
         if ($this instanceof DirectoryInterface) {
-throw new UnderConstructionException();
+            throw new UnderConstructionException();
         }
 
-        $count = (int) ceil($this->getSize() / 4096);
+        $count = (int)ceil($this->getSize() / 4096);
 
         for ($pass = 1; $pass <= $passes; $pass++) {
             Log::action(tr('Shredding file ":file" with pass ":pass"', [
@@ -2125,7 +2125,7 @@ throw new UnderConstructionException();
     {
         if ($this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is already open', [
-                ':file'   => $this->path,
+                ':file' => $this->path,
                 ':method' => $method
             ]));
         }
@@ -2145,7 +2145,7 @@ throw new UnderConstructionException();
     {
         if (!$this->isOpen()) {
             throw new FileOpenException(tr('Cannot execute method ":method()" on file ":file", it is closed', [
-                ':file'   => $this->path,
+                ':file' => $this->path,
                 ':method' => $method
             ]));
         }
@@ -2243,11 +2243,11 @@ throw new UnderConstructionException();
     {
         $a = $path;
         // First make the path absolute, then calculate how to get to this path.
-        $path            = static::new($path)->getPath();
-        $path            = Strings::endsNotWith($path, '/');
-        $position        = strspn($this->path ^ $path, "\0");
+        $path = static::new($path)->getPath();
+        $path = Strings::endsNotWith($path, '/');
+        $position = strspn($this->path ^ $path, "\0");
         $directory_count = static::countDirectories(substr($path, $position));
-        $prefix          = str_repeat('../', $directory_count);
+        $prefix = str_repeat('../', $directory_count);
 
         return $prefix . substr($this->path, $position);
     }
@@ -2264,5 +2264,18 @@ throw new UnderConstructionException();
         // Remove any file that might contain / in the path name
         $path = str_replace('\\/', '_', $path);
         return substr_count($path, '/');
+    }
+
+
+    /**
+     * Checks restrictions
+     *
+     * @param bool $write
+     * @return $this
+     */
+    public function checkRestrictions(bool $write): static
+    {
+        $this->restrictions->check($this->path, $write);
+        return $this;
     }
 }
