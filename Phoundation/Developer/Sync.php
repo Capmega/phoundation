@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-use Phoundation\Core\Exception\ConfigFailedException;
 use Phoundation\Core\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -15,6 +13,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
 use Phoundation\Developer\Exception\SyncEnvironmentDoesNotExistsException;
 use Phoundation\Developer\Exception\SyncException;
+use Phoundation\Os\Processes\Commands\Rsync;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Interfaces\ServerInterface;
@@ -88,6 +87,20 @@ class Sync
      * @var ServerInterface|null $server
      */
     protected ?ServerInterface $server = null;
+
+    /**
+     * The temp path
+     *
+     * @var string|null $temp_path
+     */
+    protected ?string $temp_path = null;
+
+    /**
+     * Tracks the dump files to sync
+     *
+     * @var array $dump_files
+     */
+    protected array $dump_files = [];
 
 
     /**
@@ -178,7 +191,9 @@ class Sync
             ]));
         }
 
-        return $this->executeHook('post-scan');
+        return $this
+            ->initTemporaryPath($server)
+            ->executeHook('post-scan');
     }
 
 
@@ -214,6 +229,11 @@ class Sync
      */
     protected function initTemporaryPath(?ServerInterface $server): static
     {
+        $path = $this->getPhoCommand($server)
+            ->addArguments(['system', 'temporary', 'get', '-Q'])
+            ->executeReturnArray();
+
+        $this->temp_path = Strings::slash(Arrays::firstValue($path));
 
         return $this;
     }
@@ -236,11 +256,10 @@ class Sync
         return $this
             ->initConfiguration($environment)
             ->scan($this->server)
-            ->initTemporaryPath($this->server)
             ->lock($this->server)
             ->dumpAllDatabases($this->server)
             ->unlock($this->server)
-            ->copyDatabases($this->server, null)
+            ->copyDumps($this->server, null)
             ->copyContent($this->server, null)
             ->cleanTemporary($this->server)
             ->importConnectors(null)
@@ -262,7 +281,7 @@ class Sync
             ->lock(null)
             ->dumpAllDatabases(null)
             ->unlock(null)
-            ->copyDatabases(null, $this->server)
+            ->copyDumps(null, $this->server)
             ->copyContent(null, $this->server)
             ->cleanTemporary(null)
             ->importConnectors($this->server)
@@ -536,12 +555,35 @@ class Sync
             ':connector'   => $connector->getDisplayName()
         ]));
 
+        // Create a temporary dump filename
+        $file = $this->addDumpFile($this->temp_path . $connector->getDatabase() . '.' . $connector->getType() . '.gz');
+
+        // Execute the dump on the specified server
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
-                 ->addArguments(['databases', 'export', '--connector', $connector->getName(), '--database', $connector->getDatabase()])
+                 ->addArguments([
+                     'databases', 'export',
+                     '--connector', $connector->getName(),
+                     '--database', $connector->getDatabase(),
+                     '--file', $file,
+                     '--gzip'
+                 ])
                  ->executeReturnString();
 
         return $this->executeHook('post-dump-connector');
+    }
+
+
+    /**
+     * Adds the specified file to the list of files to sync
+     *
+     * @param string $file
+     * @return string
+     */
+    protected function addDumpFile(string $file): string
+    {
+        $this->dump_files[] = $file;
+        return $file;
     }
 
 
@@ -570,12 +612,30 @@ class Sync
      * @param ServerInterface|null $to
      * @return static
      */
-    protected function copyDatabases(?ServerInterface $from, ?ServerInterface $to): static
+    protected function copyDumps(?ServerInterface $from, ?ServerInterface $to): static
     {
         Log::action(tr('Copying all dumped connector from environment ":from" to ":to"', [
             ':from' => $this->getEnvironmentForServer($from),
             ':to'   => $this->getEnvironmentForServer($to),
         ]));
+
+        Config::setEnvironment($this->getEnvironmentForServer($to));
+        $target_path = Config::get('');
+
+        foreach ($this->dump_files as $path) {
+            $file   = basename($path);
+            $target = $target_path . $file;
+
+            Rsync::new()
+                ->setSource($path)
+                ->setTarget($target)
+                ->setArchive(true)
+                ->setVerbose(true)
+                ->setSourceServer($from)
+                ->setTargetServer($to)
+                ->setRemoteSudo($this->configuration['sudo'])
+                ->execute();
+        }
 
         $this->executeHook('pre-copy-connectors');
 
@@ -819,7 +879,7 @@ class Sync
 
         // Does this server have an SSH account after all this?
         if (!$this->server->getSshAccount()) {
-            // Server has no SSH account configured, and no SSH account was configured
+            // The server has no SSH account configured, and no SSH account was configured
             throw SyncException::new(tr('Cannot sync with server ":server" for environment ":environment", server has no SSH account configured and no SSH account was specified', [
                 ':environment' => $environment,
                 ':server'      => $this->server->getId()
