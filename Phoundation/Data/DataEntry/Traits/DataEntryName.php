@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Seo\Seo;
 
 
@@ -71,8 +73,16 @@ trait DataEntryName
             } else {
                 // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
                 // the entry if it does!
-                $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
-                $this->setSourceValue('seo_name', $seo_name, true);
+                try {
+                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+                    $this->setSourceValue('seo_name', $seo_name, true);
+                } catch (SqlTableDoesNotExistException $e) {
+                    // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
+                    // then we can ignore this issue as we're likely working from configuration instead
+                    if (!Core::inInitState()) {
+                        throw $e;
+                    }
+                }
             }
         }
 
