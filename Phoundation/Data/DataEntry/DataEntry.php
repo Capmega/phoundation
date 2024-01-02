@@ -9,6 +9,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliColor;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
@@ -39,6 +40,7 @@ use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
@@ -624,7 +626,17 @@ abstract class DataEntry implements DataEntryInterface
             return $identifier;
 
         } else {
-            $entry = new static($identifier, $column, $meta_enabled);
+            try {
+                $entry = new static($identifier, $column, $meta_enabled);
+
+            } catch (SqlTableDoesNotExistException $e) {
+                // The table for this object does not exist. This means that we're missing an init, perhaps, or maybe
+                // even the entire databse doesn't exist? Maybe we're in init or sync mode? Allow the system to continue
+                // to check if this entry perhaps is configured, so we can continue
+                if (Core::inInitState()) {
+                    $entry = new static();
+                }
+            }
         }
 
         if ($entry->isNew()) {
@@ -643,6 +655,11 @@ abstract class DataEntry implements DataEntryInterface
                     return static::fromSource($entry)
                         ->setReadonly(true);
                 }
+            }
+
+            if (isset($e)) {
+                // We already had another exception pending, possibly SqlTableDoesNotExistException, continue with that.
+                throw $e;
             }
 
             throw DataEntryNotExistsException::new(tr('The ":class" entry ":identifier" does not exist', [
