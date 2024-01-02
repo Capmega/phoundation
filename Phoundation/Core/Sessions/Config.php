@@ -20,7 +20,7 @@ use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
 class Config extends \Phoundation\Utils\Config implements ConfigInterface
 {
     /**
-     * Singleton variable for main config object
+     * Singleton variable for the main config object
      *
      * @var ConfigInterface|null $session_instance
      */
@@ -45,15 +45,15 @@ class Config extends \Phoundation\Utils\Config implements ConfigInterface
     /**
      * Gets session configuration if available, or default configuration if not
      *
-     * @param string|array $directory
+     * @param string|array $path
      * @param mixed|null $default
      * @param mixed|null $specified
      * @return mixed
      */
-    public static function get(string|array $directory, mixed $default = null, mixed $specified = null): mixed
+    public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
     {
         // TODO Add support for user configuration
-        return parent::get($directory, $default, $specified);
+        return parent::get($path, $default, $specified);
     }
 
 
