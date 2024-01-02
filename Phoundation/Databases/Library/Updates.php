@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.20';
+        return '0.0.24';
     }
 
 
@@ -100,6 +100,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_databases_connectors_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_databases_connectors_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
+
+        })->addUpdate('0.0.24', function () {
+            sql()->schema()->table('databases_connectors')->alter()
+                ->addColumn('`sync` tinyint DEFAULT 0 NOT NULL', 'AFTER `statistics`');
         });
     }
 }
