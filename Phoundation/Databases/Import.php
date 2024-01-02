@@ -97,17 +97,19 @@ class Import
      */
     public function setDriver(?string $driver): static
     {
-        if ($driver and $this->connector) {
+        if ($this->connector) {
             // Connector was specified separately, this driver must match connector driver
-            if ($driver !== $this->connector->getDriver()) {
+            if ($driver and ($driver !== $this->connector->getDriver())) {
                 throw new OutOfBoundsException(tr('Specified driver ":driver" does not match driver for already specified connector ":connector"', [
                     ':connector' => $this->connector->getDriver(),
                     ':driver'    => $driver
                 ]));
             }
+
+        } else {
+            $this->driver = get_null($driver);
         }
 
-        $this->driver = get_null($driver);
         return $this;
     }
 
@@ -133,7 +135,7 @@ class Import
             }
 
         } else {
-            $this->setDriver($this->connector->getDriver());
+            $this->driver = get_null($this->connector->getDriver());
         }
 
         return $this;
