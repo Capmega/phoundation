@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -13,6 +15,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
 use Phoundation\Developer\Exception\SyncEnvironmentDoesNotExistsException;
 use Phoundation\Developer\Exception\SyncException;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Os\Processes\Commands\Rsync;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
@@ -91,9 +94,9 @@ class Sync
     /**
      * The temp path
      *
-     * @var string|null $temp_path
+     * @var string|null $remote_temp_path
      */
-    protected ?string $temp_path = null;
+    protected ?string $remote_temp_path = null;
 
     /**
      * Tracks the dump files to sync
@@ -135,6 +138,17 @@ class Sync
     {
         $this->init = $init;
         return $this;
+    }
+
+
+    /**
+     * Returns the remote temporary path
+     *
+     * @return string|null
+     */
+    public function getRemoteTempPath(): ?string
+    {
+        return $this->remote_temp_path;
     }
 
 
@@ -233,7 +247,7 @@ class Sync
             ->addArguments(['system', 'temporary', 'get', '-Q'])
             ->executeReturnArray();
 
-        $this->temp_path = Strings::slash(Arrays::firstValue($path));
+        $this->remote_temp_path = Strings::slash(Arrays::firstValue($path));
 
         return $this;
     }
@@ -252,6 +266,7 @@ class Sync
             ':local'       => ENVIRONMENT
         ]));
 
+        Core::setInitState();
 
         return $this
             ->initConfiguration($environment)
@@ -262,7 +277,7 @@ class Sync
             ->copyDumps($this->server, null)
             ->copyContent($this->server, null)
             ->cleanTemporary($this->server)
-            ->importConnectors(null)
+            ->importAllConnectors(null)
             ->init(null)
             ->clearCaches(null);
     }
@@ -284,7 +299,7 @@ class Sync
             ->copyDumps(null, $this->server)
             ->copyContent(null, $this->server)
             ->cleanTemporary(null)
-            ->importConnectors($this->server)
+            ->importAllConnectors($this->server)
             ->init($this->server)
             ->clearCaches($this->server);
     }
@@ -532,6 +547,14 @@ class Sync
                     continue;
                 }
 
+                if (!$connector->getSync() and ($connector->getName() !== 'system')) {
+                    // This connector should not be sync. The connector "system" will always be synced, though!
+                    Log::warning(tr('Not dumping database ":database" because it should not be synced', [
+                        ':database' => $connector->getDatabase()
+                    ]));
+                    continue;
+                }
+
                 $this->dumpConnector($server, $connector);
             }
         }
@@ -556,7 +579,7 @@ class Sync
         ]));
 
         // Create a temporary dump filename
-        $file = $this->addDumpFile($this->temp_path . $connector->getDatabase() . '.' . $connector->getType() . '.gz');
+        $file = $this->addDumpFile($connector->getName(), $connector->getDatabase() . '.' . $connector->getType() . '.gz');
 
         // Execute the dump on the specified server
         $this->executeHook('pre-dump-connector')
@@ -565,7 +588,7 @@ class Sync
                      'databases', 'export',
                      '--connector', $connector->getName(),
                      '--database', $connector->getDatabase(),
-                     '--file', $file,
+                     '--file', $this->remote_temp_path . $file,
                      '--gzip'
                  ])
                  ->executeReturnString();
@@ -577,12 +600,13 @@ class Sync
     /**
      * Adds the specified file to the list of files to sync
      *
+     * @param string $connector_name
      * @param string $file
      * @return string
      */
-    protected function addDumpFile(string $file): string
+    protected function addDumpFile(string $connector_name, string $file): string
     {
-        $this->dump_files[] = $file;
+        $this->dump_files[$connector_name] = $file;
         return $file;
     }
 
@@ -619,15 +643,26 @@ class Sync
             ':to'   => $this->getEnvironmentForServer($to),
         ]));
 
-        Config::setEnvironment($this->getEnvironmentForServer($to));
-        $target_path = Config::get('');
+        $this->executeHook('pre-copy-connectors');
 
-        foreach ($this->dump_files as $path) {
-            $file   = basename($path);
-            $target = $target_path . $file;
+        $local_path = Directory::newTemporary();
 
+        foreach ($this->dump_files as $file) {
+            // Build source / target strings
+            if ($from) {
+                // We're syncing FROM a server TO LOCAL
+                $source = $from->getHostname() . ':' . $this->remote_temp_path . $file;
+                $target = $local_path . $file;
+
+            } else {
+                // We're syncing FROM LOCAL TO a server
+                $source = $local_path . $file;
+                $target = $from->getHostname() . ':' . $this->remote_temp_path . $file;
+            }
+
+            // Execute rsync
             Rsync::new()
-                ->setSource($path)
+                ->setSource($source)
                 ->setTarget($target)
                 ->setArchive(true)
                 ->setVerbose(true)
@@ -636,8 +671,6 @@ class Sync
                 ->setRemoteSudo($this->configuration['sudo'])
                 ->execute();
         }
-
-        $this->executeHook('pre-copy-connectors');
 
         return $this->executeHook('post-copy-connectors');
     }
@@ -669,20 +702,74 @@ class Sync
      * @param ServerInterface|null $server
      * @return static
      */
-    protected function importConnectors(?ServerInterface $server): static
+    protected function importAllConnectors(?ServerInterface $server): static
     {
         Log::action(tr('Importing connector dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 
-        return $this
-            ->executeHook('pre-import-connectors')
-            ->lock($server)
-            ->importSql($server)
-            ->importMongoDb($server)
-            ->importRedis($server)
-            ->unlock($server)
-            ->executeHook('post-import-connectors');
+        $this->executeHook('pre-import-connectors');
+
+        // Get connectors from target environment
+        Config::setEnvironment($this->getEnvironmentForServer($server));
+        $connectors = Config::getArray('databases.connectors');
+
+        // Return Config to default environment
+        Config::setEnvironment(ENVIRONMENT);
+
+        // Dump all connectors
+        foreach ($this->dump_files as $connector_name => $file) {
+            $connector = Connector::fromSource($connectors[$connector_name]);
+            $connector->setName($connector_name);
+
+            if ($connector->getType() === 'memcached') {
+                // Memcached is volatile, contains only temp data, and cannot (and should not) be dumped
+                continue;
+            }
+
+            if (!$connector->getSync() and ($connector->getName() !== 'system')) {
+                // This connector should not be sync. The connector "system" will always be synced, though!
+                Log::warning(tr('Not importing database ":database" because it should not be synced', [
+                    ':database' => $connector->getDatabase()
+                ]));
+                continue;
+            }
+
+            $this->importConnector($server, $file, $connector);
+        }
+
+        return $this->executeHook('post-import-connectors');
+    }
+
+
+    /**
+     * Import the specified connector
+     *
+     * @param ServerInterface|null $server
+     * @param string $file
+     * @param ConnectorInterface $connector
+     * @return $this
+     */
+    public function importConnector(?ServerInterface $server, string $file, ConnectorInterface $connector): static
+    {
+        Log::action(tr('Importing ":driver" database with connector ":connector" for environment ":environment"', [
+            ':driver'      => $connector->getDriver(),
+            ':environment' => $this->getEnvironmentForServer($server),
+            ':connector'   => $connector->getDisplayName()
+        ]));
+
+        // Execute the dump on the specified server
+        $this->executeHook('pre-import-connector')
+            ->getPhoCommand($server)->setDebug(true)
+            ->addArguments([
+                'databases', 'import',
+                '--connector', $connector->getName(),
+                '--database', $connector->getDatabase(),
+                '--file', $this->remote_temp_path . $file
+            ])
+            ->executePassthru();
+
+        return $this->executeHook('post-import-connector');
     }
 
 
@@ -849,11 +936,12 @@ class Sync
             ]))->makeWarning();
         }
 
-        // Setup remote server
+        // Setup remote server, MUST be from configuration!
         try {
-            $this->server = Server::get($this->configuration['server']);
+            $server       = Config::get('servers.' . $this->configuration['server']);
+            $this->server = Server::fromSource($server);
 
-        } catch (DataEntryNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             throw SyncException::new(tr('The configured server ":server" for environment ":environment" does not exist', [
                 ':environment' => $environment,
                 ':server'      => $this->configuration['server'],
@@ -866,11 +954,11 @@ class Sync
 
             if ($this->configuration['ssh_accounts_name']) {
                 // Ignore the default SSH account for this server, use the one from configuration
-                $account = SshAccount::get($this->configuration['ssh_accounts_name']);
+                $account = Config::get('ssh.accounts.' . $this->configuration['ssh_accounts_name']);
                 $this->server->setSshAccount($account);
             }
 
-        } catch (DataEntryNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             throw SyncException::new(tr('The configured SSH account ":account" for environment ":environment" does not exist', [
                 ':environment' => $environment,
                 ':account'     => $this->configuration['ssh_accounts_name'],
