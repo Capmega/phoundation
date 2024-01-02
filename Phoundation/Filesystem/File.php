@@ -49,6 +49,26 @@ class File extends Path implements FileInterface
 
 
     /**
+     * Returns a new temporary file with the specified restrictions
+     *
+     * @param bool $public
+     * @return static
+     */
+    public static function newTemporary(bool $public = false, ?string $name = null, bool $create = true): static
+    {
+        $directory = Directory::newTemporary($public);
+        $name = ($name ?? Strings::generateUuid());
+        $file = static::new($directory->getPath() . $name, $directory->getRestrictions());
+
+        if ($create) {
+            $file->create();
+        }
+
+        return $file;
+    }
+
+
+    /**
      * Move uploaded image to correct target
      *
      * @param array|string $source The source file to process

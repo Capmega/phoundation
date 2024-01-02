@@ -722,7 +722,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        $directory               = Directory::getTemporary($public);
+        $directory               = Directory::newTemporary($public);
         $this->restrictions = $directory->getRestrictions();
 
         $this->setExecutionDirectory($directory, $directory->getRestrictions());

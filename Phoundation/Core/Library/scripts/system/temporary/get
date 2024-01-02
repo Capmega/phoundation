@@ -41,4 +41,4 @@ $argv = ArgvValidator::new()
 
 
 // Get persistent temporary directory and we're done
-Log::cli(Directory::getTemporary($argv['public'], true)->getPath());
+Log::cli(Directory::newTemporary($argv['public'], true)->getPath());

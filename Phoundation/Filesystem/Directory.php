@@ -790,7 +790,7 @@ class Directory extends Path implements DirectoryInterface
      *                      terminates
      * @return DirectoryInterface
      */
-    public static function getTemporary(bool $public, bool $persist = false): DirectoryInterface
+    public static function newTemporary(bool $public = false, bool $persist = false): DirectoryInterface
     {
         static $temp_directory_public, $temp_directory_private;
 

@@ -193,26 +193,6 @@ class Path implements Stringable, PathInterface
 
 
     /**
-     * Returns a new temporary file with the specified restrictions
-     *
-     * @param bool $public
-     * @return static
-     */
-    public static function newTemporary(bool $public, ?string $name = null, bool $create = true): static
-    {
-        $directory = Directory::getTemporary($public);
-        $name = ($name ?? Strings::generateUuid());
-        $file = static::new($directory->getPath() . $name, $directory->getRestrictions());
-
-        if ($create) {
-            $file->create();
-        }
-
-        return $file;
-    }
-
-
-    /**
      * Returns a new Directory object with the specified restrictions starting from the specified path, applying a
      * number of defaults
      *
