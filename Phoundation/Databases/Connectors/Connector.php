@@ -18,6 +18,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryDatabase;
 use Phoundation\Data\DataEntry\Traits\DataEntryPassword;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\DataEntrySync;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -51,6 +52,7 @@ class Connector extends DataEntry implements ConnectorInterface
     use DataEntryTimezone;
     use DataEntryCharacterSet;
     use DataEntryCollate;
+    use DataEntrySync;
 
 
     /**
@@ -609,15 +611,6 @@ class Connector extends DataEntry implements ConnectorInterface
                         return Timezone::exists($value, 'name');
                     }, tr('The specified timezone does not exist'));
                 }))
-            ->addDefinition(DefinitionFactory::getNumber($this, 'auto_increment')
-                ->setLabel(tr('Auto increment'))
-                ->setInputType(InputTypeExtended::positiveInteger)
-                ->setSize(2))
-            ->addDefinition(DefinitionFactory::getNumber($this, 'limit_max')
-                ->setLabel(tr('Maximum row limit'))
-                ->setDefault(1_000_000)
-                ->setInputType(InputTypeExtended::positiveInteger)
-                ->setSize(2))
             ->addDefinition(Definition::new($this, 'ssh_tunnels_id')
                 ->setLabel(tr('SSL Tunnel'))
                 ->setOptional(true)
@@ -625,10 +618,23 @@ class Connector extends DataEntry implements ConnectorInterface
 
                 ])
                 ->setInputType(InputType::select)
+                ->setSize(2))
+            ->addDefinition(DefinitionFactory::getNumber($this, 'auto_increment')
+                ->setLabel(tr('Auto increment'))
+                ->setInputType(InputTypeExtended::positiveInteger)
+                ->setSize(1))
+            ->addDefinition(DefinitionFactory::getNumber($this, 'limit_max')
+                ->setLabel(tr('Maximum row limit'))
+                ->setDefault(1_000_000)
+                ->setInputType(InputTypeExtended::positiveInteger)
                 ->setSize(1))
             ->addDefinition(DefinitionFactory::getBoolean($this, 'persist')
                 ->setLabel(tr('Persist'))
                 ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
+                ->setSize(1))
+            ->addDefinition(DefinitionFactory::getBoolean($this, 'sync')
+                ->setLabel(tr('Sync'))
+                ->setHelpText(tr('If enabled, Phoundation will sync this database when executing the sync command'))
                 ->setSize(1))
             ->addDefinition(DefinitionFactory::getBoolean($this, 'log')
                 ->setLabel(tr('Log'))
