@@ -651,7 +651,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
                 'do'        => null,
                 'dd'        => null,
                 'ddd'       => null,
-                'dddd'      => null,
+                'dddd'      => ['php' => 'l'],
                 'e'         => null,
                 'E'         => null,
                 'w'         => null,
