@@ -1093,7 +1093,7 @@ Class Log {
 
                     } else {
                         static::write(tr('Exception data: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
-                        static::write(tr('No data attached to exception'), 'error', $threshold, false, $newline, false, $echo_screen);
+                        static::write(tr('No data attached to exception'), 'warning', $threshold, false, $newline, false, $echo_screen);
                     }
                 }
 
