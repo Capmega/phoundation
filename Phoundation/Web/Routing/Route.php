@@ -29,6 +29,7 @@ use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+use Phoundation\Web\Routing\Interfaces\MappingInterface;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Throwable;
 
@@ -108,6 +109,13 @@ class Route
      */
     protected static bool $dynamic_pagematch = false;
 
+    /**
+     * URL mappings object
+     *
+     * @var MappingInterface $mapping
+     */
+    protected static MappingInterface $mapping;
+
 
     /**
      * Route constructor
@@ -162,7 +170,7 @@ class Route
 
 
     /**
-     * Will execute a few initial checks
+     * Will execute a few initial checks and apply URL mappings
      *
      * @return void
      */
@@ -194,6 +202,9 @@ class Route
 
             static::executeSystem(404);
         }
+
+        // Apply mappings
+        static::$uri = static::applyMappings(static::$uri);
     }
 
 
@@ -218,6 +229,33 @@ class Route
         }
 
         return static::$instance;
+    }
+
+
+    /**
+     * Returns the mapping object
+     *
+     * @return MappingInterface
+     */
+    public static function getMapping(): MappingInterface
+    {
+        if (empty(static::$mapping)) {
+            static::$mapping = new Mapping();
+        }
+
+        return static::$mapping;
+    }
+
+
+    /**
+     * Applies any configured URL mappings
+     *
+     * @param string $url
+     * @return string
+     */
+    protected static function applyMappings(string $url): string
+    {
+        return static::getMapping()->apply($url);
     }
 
 

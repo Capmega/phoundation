@@ -72,7 +72,7 @@ class RoutingParameters implements RoutingParametersInterface
      *
      * @var bool $system_pages_only
      */
-    protected bool $system_pages_only;
+    protected bool $system_pages_only = false;
 
     /**
      * The required rights to access this resource
@@ -115,20 +115,21 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * RouteParameters class constructor
      */
-    public function __construct(bool $system_pages_only = false)
+    public function __construct(?string $pattern = null)
     {
-        $this->system_pages_only = $system_pages_only;
+        $this->pattern = $pattern;
     }
 
 
     /**
      * Returns a new RouteParameters object
      *
+     * @param string|null $pattern
      * @return static
      */
-    public static function new(): static
+    public static function new(?string $pattern = null): static
     {
-        return new static();
+        return new static($pattern);
     }
 
 
