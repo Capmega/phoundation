@@ -838,7 +838,7 @@ Log::warning('RESTART SESSION');
 
         // Notify the target user
         Notification::new()
-            ->setUrl('profiles/profile-' . $original_user->getId() . '.html')
+            ->setUrl('profiles/profile+' . $original_user->getId() . '.html')
             ->setMode(DisplayMode::warning)
             ->setUsersId($_SESSION['user']['impersonate_id'])
             ->setTitle(tr('Your account was impersonated'))
