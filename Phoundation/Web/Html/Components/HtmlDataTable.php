@@ -476,13 +476,13 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *      Timestamp
      *
      * @see https://momentjs.com/docs/#/displaying/format/
-     * @param string|null $js_date_format
+     * @param string|null $date_format
      * @return $this
      */
-    public function setJsDateFormat(?string $js_date_format): static
+    public function setJsDateFormat(?string $date_format): static
     {
-        $this->js_date_format  = $js_date_format;
-        $this->php_date_format = DateTime::convertJsToPhpFormat($js_date_format);
+        $this->js_date_format  = $date_format;
+        $this->php_date_format = DateTime::convertJsToPhpFormat($date_format);
         return $this;
     }
 
