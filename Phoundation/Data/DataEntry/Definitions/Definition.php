@@ -11,6 +11,8 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\DataField;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Databases\Sql\SqlQuery;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
@@ -1916,18 +1918,22 @@ class Definition implements DefinitionInterface
             $source = $this->getSource();
 
             if ($source) {
-                if (is_string($source) or ($source instanceof Stringable)) {
+                if ($source instanceof SqlQueryInterface) {
                     $source = sql()->query($source);
-                }
 
-                if ($source instanceof PDOStatement) {
+                } elseif ($source instanceof PDOStatement) {
                     $source = $source->fetchAll();
-                }
 
-                if (is_array($source)) {
+                } elseif (is_array($source)) {
                     // The data value must be in the definition source
                     $validator->isInArray(array_keys($source));
+
+                } elseif (is_string($source)) {
+                    throw new OutOfBoundsException(tr('Invalid source specified for DataEntry Definition ":field"', [
+                        ':field' => $this->field
+                    ]));
                 }
+
             }
         }
 
