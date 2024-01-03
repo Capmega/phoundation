@@ -38,6 +38,7 @@ use Phoundation\Data\Traits\DataMetaEnabled;
 use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
@@ -2130,7 +2131,7 @@ abstract class DataEntry implements DataEntryInterface
         $prefix = $this->definitions->getFieldPrefix();
 
         // Go over each field and let the field definition do the validation since it knows the specs
-        foreach ($this->definitions as $definition) {
+        foreach ($this->definitions as $field => $definition) {
             if ($definition->isMeta()) {
                 // This field is metadata and should not be modified or validated, plain ignore it.
                 continue;
@@ -2144,7 +2145,17 @@ abstract class DataEntry implements DataEntryInterface
                 }
             }
 
-            $definition->validate($validator, $prefix);
+            try {
+                $definition->validate($validator, $prefix);
+
+            } catch (ValidationFailedException $e) {
+                throw $e;
+
+            } catch (Throwable $e) {
+                throw ValidatorException::new(tr('Failed to validate field ":field"', [
+                    ':field' => $field
+                ]), $e);
+            }
         }
 
         try {
