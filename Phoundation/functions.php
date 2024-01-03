@@ -248,8 +248,9 @@ function array_get_safe(array $source, string|float|int|null $key, mixed $defaul
  * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
  * @param array|string $types If the data exists, it must have one of these data types. Can be specified as array or |
  *                            separated string
- * @param mixed $variable The variable to test
- * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @param mixed $variable     The variable to test
+ * @param mixed $default      (optional) The value to return in case the specified $variable did not exist or was NULL.
+ * @param bool $exception
  * @return mixed
  */
 function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null, bool $exception = true): mixed
@@ -314,33 +315,40 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 case 'resource':
                     if (is_resource($variable)) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                    break;
 
                 case 'function':
                     // no-break
                 case 'callable':
                     if (is_callable($variable)) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                break;
 
                 case 'null':
                     if (is_null($variable)) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                    break;
 
                 case 'datetime':
                     if ($variable instanceof \DateTimeInterface) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                    break;
+
+                case 'object':
+                    if (is_object($variable)) {
+                        return $variable;
+                    }
+
+                    break;
 
                 default:
                     // This should be an object
