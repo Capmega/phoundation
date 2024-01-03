@@ -151,6 +151,32 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
+     * Returns a new DateTime object for the end of the day of the specified date
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getBeginningOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(static::new($datetime)->format('Y-m-d 00:00:00'), DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the end of the day of the specified date
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getEndOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(static::new($datetime)->format('Y-m-d 23:59:59.999999'), DateTimeZone::new($timezone));
+    }
+
+
+    /**
      * Returns a new DateTime object
      *
      * @param \DateTimeZone|string|null $timezone
@@ -356,11 +382,11 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-t 23:59:59'), $datetime->getTimezone());
+            return DateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-15 23:59:59'), $datetime->getTimezone());
+        return DateTime::new($datetime->format('Y-m-15 23:59:59.999999'), $datetime->getTimezone());
     }
 
 
@@ -388,7 +414,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
         $datetime = static::new($this);
         $max      = $datetime->format('t');
 
-        return DateTime::new($datetime->format('Y-m-t 23:59:59'), $datetime->getTimezone());
+        return DateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
     }
 
 
