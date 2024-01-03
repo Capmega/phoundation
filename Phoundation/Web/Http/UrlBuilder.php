@@ -893,7 +893,7 @@ throw new UnderConstructionException();
         $url = (string) $url;
 
         // Configured page?
-        $configured = match ($url) {
+        $configured = match (Strings::until($url, '.html')) {
             'index'    => Config::getString('web.pages.index'   , '/index.html'),
             'sign-in'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
             'sign-up'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
