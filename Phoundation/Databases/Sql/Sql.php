@@ -37,6 +37,7 @@ use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
+use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -403,12 +404,12 @@ class Sql implements SqlInterface
     /**
      * Executes specified query and returns a PDOStatement object
      *
-     * @param string|PDOStatement $query
+     * @param PDOStatement|SqlQueryInterface|string $query
      * @param array|null $execute
      * @return PDOStatement
      * @throws SqlException
      */
-    public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement
+    public function query(PDOStatement|SqlQueryInterface|string $query, ?array $execute = null): PDOStatement
     {
         static $retry = 0;
 

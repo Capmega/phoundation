@@ -78,11 +78,11 @@ interface SqlInterface extends DatabaseInterface
     /**
      * Executes specified query and returns a PDOStatement object
      *
-     * @param string|PDOStatement $query
+     * @param PDOStatement|SqlQueryInterface|string $query
      * @param array|null $execute
      * @return PDOStatement
      */
-    public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement;
+    public function query(PDOStatement|SqlQueryInterface|string $query, ?array $execute = null): PDOStatement;
 
     /**
      * Write the specified data row in the specified table
