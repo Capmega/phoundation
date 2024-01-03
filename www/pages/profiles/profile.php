@@ -91,7 +91,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
         ->setMode(DisplayMode::secondary)
         ->setValue(tr('Edit'))
         ->setContent(tr('Edit'))
-        ->setAnchorUrl('/accounts/user-' . $user->getId() . '.html');
+        ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
 
     if ($user->canBeImpersonated()) {
         $impersonate = Button::new()

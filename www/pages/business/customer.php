@@ -50,7 +50,7 @@ if (Page::isPostRequestMethod()) {
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/customers.html'), true)
-    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $customer->getMetaId() . '.html', false, true);
+    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
 
 
 // Build the customer form

@@ -110,7 +110,7 @@ $mounts_card = Card::new()
     ->setContent($mounts
         ->load()
         ->getHtmlDataTable()
-            ->setRowUrl('/system-administration/file-system/mount-:ROW.html')
+            ->setRowUrl('/system-administration/file-system/mount+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);

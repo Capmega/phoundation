@@ -58,7 +58,7 @@ if (Page::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/system-administration/file-system/mount-' . $mount->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/system-administration/file-system/mount+' . $mount->getId() . '.html'));
 
             case tr('Delete'):
                 $mount->delete();
@@ -146,7 +146,7 @@ if (!$mount->isNew()) {
         $audit = Button::new()
             ->setFloatRight(true)
             ->setMode(DisplayMode::information)
-            ->setAnchorUrl('/audit/meta-' . $mount->getMetaId() . '.html')
+            ->setAnchorUrl('/audit/meta+' . $mount->getMetaId() . '.html')
             ->setFloatRight(true)
             ->setValue(tr('Audit'))
             ->setContent(tr('Audit'));

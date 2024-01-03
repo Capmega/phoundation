@@ -46,7 +46,7 @@ $buttons = Buttons::new()
 // Build rights table
 $table = Rights::new()
     ->getHtmlDataTable()
-    ->setRowUrl('/accounts/right-:ROW.html');
+    ->setRowUrl('/accounts/right+:ROW.html');
 
 $rights = Card::new()
     ->setTitle('Active rights')

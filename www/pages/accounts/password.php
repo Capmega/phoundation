@@ -48,7 +48,7 @@ if (Page::isPostRequestMethod()) {
             $user->changePassword($post['password'] ,$post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
-            Page::redirect(UrlBuilder::getPrevious('accounts/user-' . $user->getId() . '.html'));
+            Page::redirect(UrlBuilder::getPrevious('accounts/user+' . $user->getId() . '.html'));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
             Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
@@ -91,7 +91,7 @@ $column = GridColumn::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
+    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
@@ -118,6 +118,6 @@ Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                          => tr('Home'),
     '/accounts/users.html'                       => tr('Users'),
-    '/accounts/user-' . $user->getId() . '.html' => $user->getDisplayName(),
+    '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),
     ''                                           => tr('Modify password')
 ]));

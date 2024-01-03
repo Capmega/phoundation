@@ -46,7 +46,7 @@ $buttons = Buttons::new()
 // Build roles table
 $table = Roles::new()
     ->getHtmlDataTable()
-    ->setRowUrl('/accounts/role-:ROW.html');
+    ->setRowUrl('/accounts/role+:ROW.html');
 
 $roles = Card::new()
     ->setTitle('Active roles')

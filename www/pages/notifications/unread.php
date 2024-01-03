@@ -58,7 +58,7 @@ $filters = Card::new()
 
 // Build notifications table
 $table = $notifications->getHtmlDataTable()
-    ->setRowUrl('/notifications/notification-:ROW.html');
+    ->setRowUrl('/notifications/notification+:ROW.html');
 
 $notifications = Card::new()
     ->setTitle('Active notifications')

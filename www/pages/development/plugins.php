@@ -49,7 +49,7 @@ $filters = Card::new()
 
 // Build plugins table
 $table = Plugins::new()->getHtmlDataTable()
-    ->setRowUrl('/development/plugin-:ROW.html');
+    ->setRowUrl('/development/plugin+:ROW.html');
 
 $plugins = Card::new()
     ->setTitle('Available plugins')

@@ -126,7 +126,7 @@ $users_card = Card::new()
     ->setContent($users
         ->load()
         ->getHtmlDataTable()
-            ->setRowUrl('/accounts/user-:ROW.html')
+            ->setRowUrl('/accounts/user+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);

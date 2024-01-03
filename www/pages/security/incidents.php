@@ -29,7 +29,7 @@ $filters = Card::new()
 
 // Build users table
 $table = Incidents::new()->getHtmlDataTable()
-    ->setRowUrl('/security/incident-:ROW.html');
+    ->setRowUrl('/security/incident+:ROW.html');
 
 $users = Card::new()
     ->setTitle('Security incidents')

@@ -65,7 +65,7 @@ if (Page::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html'));
 
             case tr('Impersonate'):
                 $user->impersonate();
@@ -176,7 +176,7 @@ if (!$user->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)
         ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $user->getMetaId() . '.html')
+        ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
         ->setFloatRight(true)
         ->setValue(tr('Audit'))
         ->setContent(tr('Audit'));
@@ -213,7 +213,7 @@ if ($user->getId()) {
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
         ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRights()->getCount()]))
-        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
+        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain number of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
         ->setContent($user->getRights(true, true)
                             ->getHtmlDataTable('id,name,description')
                                 ->setLengthChangeEnabled(false)
@@ -260,7 +260,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent(($user->isNew() ? '' : '<a href="' . UrlBuilder::getWww('/accounts/password-' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
+    ->setContent(($user->isNew() ? '' : '<a href="' . UrlBuilder::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
                         <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 

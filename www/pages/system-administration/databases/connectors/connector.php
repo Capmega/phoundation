@@ -74,7 +74,7 @@ if (Page::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/system-administration/databases/connectors/connector-' . $connector->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/system-administration/databases/connectors/connector+' . $connector->getId() . '.html'));
 
             case tr('Delete'):
                 $connector->delete();
@@ -163,7 +163,7 @@ if (!$connector->isNew()) {
             $audit = Button::new()
                 ->setFloatRight(true)
                 ->setMode(DisplayMode::information)
-                ->setAnchorUrl('/audit/meta-' . $connector->getMetaId() . '.html')
+                ->setAnchorUrl('/audit/meta+' . $connector->getMetaId() . '.html')
                 ->setValue(tr('Audit'))
                 ->setContent(tr('Audit'));
         }

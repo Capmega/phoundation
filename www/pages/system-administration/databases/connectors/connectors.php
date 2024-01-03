@@ -110,7 +110,7 @@ $connectors_card = Card::new()
     ->setContent($connectors
         ->load()
         ->getHtmlDataTable()
-            ->setRowUrl('/system-administration/databases/connectors/connector-:ROW.html')
+            ->setRowUrl('/system-administration/databases/connectors/connector+:ROW.html')
             ->setColumns('id,name,hostname,username,database,status,created_on')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
