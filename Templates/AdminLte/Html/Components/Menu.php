@@ -51,6 +51,8 @@ class Menu extends Renderer
      */
     protected function renderMenu(array $source, int $sub_menu): string
     {
+        $menu_label = '';
+
         if ($sub_menu) {
             $html = '<ul class="nav nav-treeview sub-menu-' . Html::safe($sub_menu) . '">';
         } else {
@@ -59,24 +61,27 @@ class Menu extends Renderer
 
         foreach ($source as $label => $entry) {
             // Build menu entry
-            if (isset($entry['url']) or isset($entry['menu'])) {
-                $html .= '<li class="nav-item">
-                            <a href="' . Html::safe(isset_get($entry['url']) ?? '#') . '" class="nav-link">
-                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas fa ' . Html::safe($entry['icon']) . '"></i>' : '') . '
-                                <p>' . Html::safe($label) . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '')) . '</p>
-                            </a>';
+            if (empty($entry['url']) and empty($entry['menu'])) {
+                // Not a clickable menu element, just a label
+                $menu_label = '<li class="nav-header">
+                                   ' . (isset($entry['icon']) ? '<i class="nav-icon fas fa ' . Html::safe($entry['icon']) . '"></i>' : '') . '
+                                   ' . strtoupper(Html::safe($label)) . (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '') . '
+                               </li>';
+            } else {
+                $html .= $menu_label . '<li class="nav-item">
+                                            <a href="' . Html::safe(isset_get($entry['url']) ?? '#') . '" class="nav-link">
+                                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas fa ' . Html::safe($entry['icon']) . '"></i>' : '') . '
+                                                <p>' . Html::safe($label) . (isset($entry['menu']) ? '<i class="right fas fa-angle-left"></i>' : (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '')) . '</p>
+                                            </a>';
 
                 if (isset($entry['menu'])) {
                     $html .= $this->renderMenu($entry['menu'], ++$sub_menu);
                 }
-            } else {
-                // Not a clickable menu element, just a label
-                $html .= '<li class="nav-header">
-                                ' . (isset($entry['icon']) ? '<i class="nav-icon fas fa ' . Html::safe($entry['icon']) . '"></i>' : '') . '
-                                ' . strtoupper(Html::safe($label)) . (isset($entry['badge']) ? '<span class="right badge badge-' . Html::safe($entry['badge']['type']) . '">' . Html::safe($entry['badge']['label']) . '</span>' : '');
+
+                $menu_label = '';
+                $html      .= '</li>';
             }
 
-            $html .= '</li>';
         }
 
         $html .= '</ul>' . PHP_EOL;

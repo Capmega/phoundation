@@ -26,18 +26,13 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
         parent::__construct();
 
         $this->setSource([
+            tr('System') => [
+                'icon' => '',
+            ],
             tr('Dashboard') => [
                 'rights' => 'admin',
                 'url'    => '/',
                 'icon'   => 'fa-tachometer-alt',
-            ],
-            tr('Test') => [
-                'rights' => 'admin',
-                'url'    => '/test.html',
-                'icon'   => 'fa-tachometer-alt',
-            ],
-            tr('System') => [
-                'icon' => '',
             ],
             tr('Accounts') => [
                 'rights' => 'admin,accounts',
@@ -308,12 +303,9 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                     ]
                 ]
             ],
-            tr('Other') => [
-                'icon' => ''
-            ],
             tr('About') => [
                 'rights' => 'admin',
-                'url'  => '/about',
+                'url'  => '/about.html',
                 'icon' => ''
             ]
         ]);
