@@ -628,7 +628,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
      */
     public static function convertJsToPhpFormat(string $js_format): string
     {
-        show($js_format);
         $php_format = $js_format;
         $lookup     = [
                 'M'         => ['php'      => 'n'],
