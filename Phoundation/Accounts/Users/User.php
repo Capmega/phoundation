@@ -1734,7 +1734,7 @@ class User extends DataEntry implements UserInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
-            ->addDefinition(DefinitionFactory::getCode($this)
+            ->addDefinition(DefinitionFactory::getCode($this, 'code')
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The code associated with this user')))
             ->addDefinition(Definition::new($this, 'priority')
