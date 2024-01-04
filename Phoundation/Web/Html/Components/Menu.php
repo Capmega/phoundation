@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Components;
 use PDOStatement;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -20,7 +21,7 @@ use Phoundation\Web\Http\UrlBuilder;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
-class Menu extends ElementsBlock
+class Menu extends ElementsBlock implements MenuInterface
 {
     /**
      * Set the menu source and ensure all URL's are absolute
@@ -78,16 +79,16 @@ class Menu extends ElementsBlock
     /**
      * Append the specified menu to the end of this menu
      *
-     * @param Menu|array $menu
+     * @param MenuInterface|array $menu
      * @return $this
      */
-    public function appendMenu(Menu|array $menu): static
+    public function appendMenu(MenuInterface|array $menu): static
     {
         if (is_object($menu)) {
             $menu = $menu->__toArray();
         }
 
-        $this->source = array_merge($this->source, $menu);
+        $this->source = array_merge($menu, $this->source);
         return $this;
     }
 
@@ -95,16 +96,16 @@ class Menu extends ElementsBlock
     /**
      * Append the specified menu to the beginning of this menu
      *
-     * @param Menu|array $menu
+     * @param MenuInterface|array $menu
      * @return $this
      */
-    public function prependMenu(Menu|array $menu): static
+    public function prependMenu(MenuInterface|array $menu): static
     {
         if (is_object($menu)) {
             $menu = $menu->__toArray();
         }
 
-        $this->source = array_merge($menu, $this->source);
+        $this->source = array_merge($this->source, $menu);
         return $this;
     }
 }

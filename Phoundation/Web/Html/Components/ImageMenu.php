@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Content\Images\UsesImage;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
 
 
 /**
@@ -26,9 +27,9 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * The menu items [label => url]
      *
-     * @var Menu|null $menu
+     * @var MenuInterface|null $menu
      */
-    protected ?Menu $menu = null;
+    protected ?MenuInterface $menu = null;
 
     /**
      * The image URL, if no menu is available
@@ -61,9 +62,9 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * Returns the menu items
      *
-     * @return Menu|null
+     * @return MenuInterface|null
      */
-    public function getMenu(): ?Menu
+    public function getMenu(): ?MenuInterface
     {
         return $this->menu;
     }
@@ -72,10 +73,10 @@ abstract class ImageMenu extends ElementsBlock
     /**
      * Sets the menu items
      *
-     * @param Menu|null $menu
+     * @param MenuInterface|null $menu
      * @return static
      */
-    public function setMenu(?Menu $menu): static
+    public function setMenu(?MenuInterface $menu): static
     {
         if ($menu and $this->url) {
             throw new OutOfBoundsException(tr('Cannot set menu for image menu, the image URL has already been configured'));

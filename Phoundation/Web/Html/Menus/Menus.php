@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Menus;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Menu;
 
 
@@ -32,9 +33,9 @@ class Menus extends Iterator implements IteratorInterface
      * Returns the specified menu
      *
      * @param string $menu
-     * @return Menu|null
+     * @return MenuInterface|null
      */
-    public function getMenu(string $menu): ?Menu
+    public function getMenu(string $menu): ?MenuInterface
     {
         return isset_get($this->menus[$menu], Menu::new());
     }
@@ -43,9 +44,9 @@ class Menus extends Iterator implements IteratorInterface
     /**
      * Returns the primary menu
      *
-     * @return Menu|null
+     * @return MenuInterface|null
      */
-    public function getPrimaryMenu(): ?Menu
+    public function getPrimaryMenu(): ?MenuInterface
     {
         return $this->getMenu('primary');
     }
@@ -54,10 +55,10 @@ class Menus extends Iterator implements IteratorInterface
     /**
      * Sets the primary menu
      *
-     * @param Menu|null $menu
+     * @param MenuInterface|null $menu
      * @return static
      */
-    public function setPrimaryMenu(?Menu $menu): static
+    public function setPrimaryMenu(?MenuInterface $menu): static
     {
         $this->menus['primary'] = $menu;
         return $this;
@@ -67,9 +68,9 @@ class Menus extends Iterator implements IteratorInterface
     /**
      * Returns the secondary menu
      *
-     * @return Menu|null
+     * @return MenuInterface|null
      */
-    public function getSecondaryMenu(): ?Menu
+    public function getSecondaryMenu(): ?MenuInterface
     {
         return $this->getMenu('secondary');
     }
@@ -78,10 +79,10 @@ class Menus extends Iterator implements IteratorInterface
     /**
      * Sets the secondary menu
      *
-     * @param Menu|null $menu
+     * @param MenuInterface|null $menu
      * @return static
      */
-    public function setSecondaryMenu(?Menu $menu): static
+    public function setSecondaryMenu(?MenuInterface $menu): static
     {
         $this->menus['secondary'] = $menu;
         return $this;
@@ -122,10 +123,10 @@ class Menus extends Iterator implements IteratorInterface
      * Add a menu
      *
      * @param string $name
-     * @param Menu|null $menu
+     * @param MenuInterface|null $menu
      * @return static
      */
-    public function addMenu(string $name, Menu|null $menu): static
+    public function addMenu(string $name, MenuInterface|null $menu): static
     {
         if ($menu !== null) {
             $this->menus[$name] = $menu;
