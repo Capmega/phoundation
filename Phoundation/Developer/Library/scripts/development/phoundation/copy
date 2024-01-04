@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
 
 
 /**
@@ -42,7 +43,7 @@ FILE                                    The file to copy
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('file')->isFile(Directory::default(DIRECTORY_ROOT), DIRECTORY_ROOT)
+    ->select('file')->isFile(Directory::default(DIRECTORY_ROOT), Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source file')))
     ->select('-b,--branch', true)->isOptional()->isVariable()
     ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
     ->validate();

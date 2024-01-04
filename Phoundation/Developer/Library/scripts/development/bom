@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Tests\BomFile;
 use Phoundation\Developer\Tests\Exception\BomException;
+use Phoundation\Filesystem\Restrictions;
 
 
 /**
@@ -50,7 +51,7 @@ $argv = ArgvValidator::new()
     ->select('--test')->isOptional(false)->isBoolean()
     ->select('--no-mtime')->isOptional(false)->isBoolean()
     ->select('--cache-mtime', true)->isOptional()->isDateTime()
-    ->select('file')->isFile(DIRECTORY_ROOT, DIRECTORY_ROOT)
+    ->select('file')->isFile(DIRECTORY_ROOT, Restrictions::writable(DIRECTORY_ROOT))
     ->validate();
 
 
