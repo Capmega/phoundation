@@ -16,7 +16,7 @@ use Phoundation\Exception\UnderConstructionException;
 /**
  * Databases class
  *
- * This class is the quick access to all database instances, SQL or NoSQL alike
+ * This class is the quick access to all database connectors, SQL or NoSQL alike
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -26,35 +26,35 @@ use Phoundation\Exception\UnderConstructionException;
 class Databases
 {
     /**
-     * The register with all SQL database instances
+     * The register with all SQL database connectors
      *
      * @var array $sql
      */
     protected static array $sql = [];
 
     /**
-     * The register with all Memcached instances
+     * The register with all Memcached connectors
      *
      * @var array $mc
      */
     protected static array $mc = [];
 
     /**
-     * The register with all Redis database instances
+     * The register with all Redis database connectors
      *
      * @var array $redis
      */
     protected static array $redis = [];
 
     /**
-     * The register with all Mongo database instances
+     * The register with all Mongo database connectors
      *
      * @var array $mongo
      */
     protected static array $mongo = [];
 
     /**
-     * The register with all NullDb database instances
+     * The register with all NullDb database connectors
      *
      * @var array $null_db
      */
@@ -73,7 +73,7 @@ class Databases
 
 
     /**
-     * Returns a Database instance for the specified connector
+     * Returns a Database connector for the specified connector
      *
      * @param ConnectorInterface $connector
      * @param bool $use_database
@@ -90,7 +90,7 @@ class Databases
 
 
     /**
-     * Access SQL database instances
+     * Access SQL database connectors
      *
      * @param ConnectorInterface|string $connector
      * @param bool $use_database
@@ -99,7 +99,7 @@ class Databases
     public static function Sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
     {
         if (!$connector) {
-            // Default to system instance
+            // Default to system connector
             $connector = 'system';
         }
 
@@ -118,7 +118,7 @@ class Databases
         }
 
         if (!array_key_exists($connector_name, static::$sql)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it.
+            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
             // Connect and add it
             static::$sql[$connector_name] = new Sql($connector, $use_database);
         }
@@ -128,97 +128,97 @@ class Databases
 
 
     /**
-     * Access Memcached database instances
+     * Access Memcached database connectors
      *
-     * @param string|null $instance
+     * @param string|null $connector
      * @return Mc
      * @throws Exception
      */
-    public static function Mc(?string $instance): Mc
+    public static function Mc(?string $connector): Mc
     {
-        if (!$instance) {
-            // Default to system instance
-            $instance = 'system';
+        if (!$connector) {
+            // Default to system connector
+            $connector = 'system_mc';
         }
 
-        if (!array_key_exists($instance, static::$mc)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+        if (!array_key_exists($connector, static::$mc)) {
+            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            static::$mc[$instance] = new Mc($instance);
+            static::$mc[$connector] = new Mc($connector);
         }
 
-        return static::$mc[$instance];
+        return static::$mc[$connector];
     }
 
 
     /**
-     * Access Redis database instances
+     * Access Redis database connectors
      *
-     * @param string|null $instance
+     * @param string|null $connector
      * @return Redis
      * @throws Exception
      */
-    public static function Redis(?string $instance): Redis
+    public static function Redis(?string $connector): Redis
     {
-        if (!$instance) {
-            // Default to system instance
-            $instance = 'system';
+        if (!$connector) {
+            // Default to system connector
+            $connector = 'system_redis';
         }
 
-        if (!array_key_exists($instance, static::$redis)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+        if (!array_key_exists($connector, static::$redis)) {
+            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            static::$redis[$instance] = new Redis($instance);
+            static::$redis[$connector] = new Redis($connector);
         }
 
-        return static::$redis[$instance];
+        return static::$redis[$connector];
     }
 
 
     /**
-     * Access Mongo database instances
+     * Access Mongo database connectors
      *
-     * @param string|null $instance
+     * @param string|null $connector
      * @return Mongo
      * @throws Exception
      */
-    public static function Mongo(?string $instance): Mongo
+    public static function Mongo(?string $connector): Mongo
     {
-        if (!$instance) {
-            // Default to system instance
-            $instance = 'system';
+        if (!$connector) {
+            // Default to system connector
+            $connector = 'system_mongodb';
         }
 
-        if (!array_key_exists($instance, static::$mongo)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+        if (!array_key_exists($connector, static::$mongo)) {
+            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            static::$mongo[$instance] = new Mongo($instance);
+            static::$mongo[$connector] = new Mongo($connector);
         }
 
-        return static::$mongo[$instance];
+        return static::$mongo[$connector];
     }
 
 
     /**
-     * Access NullDb database instances
+     * Access NullDb database connectors
      *
-     * @param string|null $instance
+     * @param string|null $connector
      * @return NullDb
      * @throws Exception
      */
-    public static function NullDb(?string $instance): NullDb
+    public static function NullDb(?string $connector): NullDb
     {
-        if (!$instance) {
-            // Default to system instance
-            $instance = 'system';
+        if (!$connector) {
+            // Default to system connector
+            $connector = 'system_nulldb';
         }
 
-        if (!array_key_exists($instance, static::$null_db)) {
-            // No panic now! This instance isn't registered yet, so it might very well be the first time we're using it
+        if (!array_key_exists($connector, static::$null_db)) {
+            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
             // Try connecting
-            static::$null_db[$instance] = new NullDb($instance);
+            static::$null_db[$connector] = new NullDb($connector);
         }
 
-        return static::$null_db[$instance];
+        return static::$null_db[$connector];
     }
 }
