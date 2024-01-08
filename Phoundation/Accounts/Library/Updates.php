@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Accounts;
+namespace Phoundation\Accounts\Library;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\GuestUser;
-use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Seo\Seo;
-use Phoundation\Utils\Strings;
 
 
 /**
@@ -33,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.3';
+        return '0.2.0';
     }
 
 
@@ -823,6 +821,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     'id' => $entry['id']
                 ]);
             }
+
+        })->addUpdate('0.2.0', function () {
+            // Add parents_id to roles table
+            sql()->schema()->table('accounts_roles')->alter()
+                ->addColumn('`parents_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
+                ->addIndex('KEY `parents_id` (`parents_id`)')
+                ->addForeignKey('CONSTRAINT `fk_accounts_roles_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `accounts_roles` (`id`) ON DELETE RESTRICT');
         });
     }
 }
