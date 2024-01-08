@@ -333,6 +333,7 @@ class Phoundation extends Project
                                     $file = Strings::untilReverse($file, ':');
                                     $file = Strings::from($file, ':');
                                     $file = trim($file);
+                                    $git  = Git::new(DIRECTORY_ROOT);
 
                                     Log::warning(tr('Stashing already existing and unmergeable file ":file"', [
                                         ':file' => $file
