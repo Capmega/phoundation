@@ -349,6 +349,18 @@ abstract class Validator implements ValidatorInterface
                     }
 
                     $value = 0;
+
+                } else {
+                    // Yay, the value is numeric, but is it a float or an integer? Detect and convert here.
+                    $original = $value;
+                    $value    = (int) $value;
+
+                    if ($original == $value) {
+                        // Looks like value was an int, keep it
+                        return;
+                    }
+
+                    $value = (float) $original;
                 }
             }
         });
