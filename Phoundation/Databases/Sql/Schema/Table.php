@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
 
 
 /**
@@ -167,11 +170,18 @@ class Table extends SchemaAbstract
     /**
      * Returns the table columns
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getColumns(): array
+    public function getColumns(): IteratorInterface
     {
-        return $this->columns;
+        $columns = [];
+        $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+
+        foreach ($results as $result) {
+            $columns[$result['Field']] = Arrays::lowercaseKeys($result);
+        }
+
+        return Iterator::new($columns);
     }
 
 
