@@ -3063,14 +3063,60 @@ class Arrays {
 
 
     /**
-     * Returns an array with all values uppercase strings
+     * Returns an array with all keys lowercase strings
+     *
+     * @param array $source
+     * @return array
+     */
+    public static function lowercaseKeys(array $source): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if (is_string($key)) {
+                $return[strtolower($key)] = $value;
+
+            } else {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns an array with all keys uppercase strings
+     *
+     * @param array $source
+     * @return array
+     */
+    public static function uppercaseKeys(array $source): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if (is_string($key)) {
+                $return[strtoupper($key)] = $value;
+
+            } else {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns an array with all values lowercase strings
      *
      * @note Non scalar values (except NULL) will cause OutOfBoundsException
      * @note NULL values will remain NULL
      * @param array $source
      * @return array
      */
-    public static function lowercase(array $source): array
+    public static function lowercaseValues(array $source): array
     {
         foreach ($source as &$value) {
             if (!is_scalar($value)) {
@@ -3100,7 +3146,7 @@ class Arrays {
      * @param array $source
      * @return array
      */
-    public static function uppercase(array $source): array
+    public static function uppercaseValues(array $source): array
     {
         foreach ($source as &$value) {
             if (!is_scalar($value)) {
