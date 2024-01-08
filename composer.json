@@ -9,7 +9,7 @@
     "ext-mbstring": "*",
     "ext-posix": "*",
     "ext-fileinfo": "*",
-    "mongodb/mongodb":"^1.6",
+    "mongodb/mongodb":"1.15",
     "mrclay/minify": "*",
     "ext-redis": "*",
     "ext-mongodb": "*",
@@ -28,7 +28,8 @@
     "phpmailer/phpmailer": "^6.8",
     "robthree/twofactorauth": "^2.1",
     "endroid/qr-code": "^3.0",
-    "bacon/bacon-qr-code": "^2.0"
+    "bacon/bacon-qr-code": "^2.0",
+    "cboden/ratchet": "^0.4.4"    
   },
   "require-dev": {
     "phpmd/phpmd": "@stable",
