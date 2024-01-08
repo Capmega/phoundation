@@ -316,9 +316,11 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.1.0', function () {
             // Add table support in meta system
-            sql()->schema()->table('meta')->alter()
-                ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
-                ->addIndex('KEY `table` (`table`)');
+            if (!sql()->schema()->table('meta')->getColumns()->keyExists('table')) {
+                sql()->schema()->table('meta')->alter()
+                    ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
+                    ->addIndex('KEY `table` (`table`)');
+            }
 
             sql()->schema()->table('meta_users')->drop();
 
@@ -328,7 +330,7 @@ class Updates extends Libraries\Updates
                 `users_id` bigint NOT NULL,
                 `histories_id` bigint NOT NULL,
             ')->setIndices('
-                KEY `meta_id` (`meta_id`),
+                KEY `users_id` (`users_i`),
                 KEY `histories_id` (`histories_id`),
             ')->setForeignKeys('
                 CONSTRAINT `fk_meta_users_histories_id` FOREIGN KEY (`histories_id`) REFERENCES `meta_history` (`id`) ON DELETE CASCADE,

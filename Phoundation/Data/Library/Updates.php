@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data;
+namespace Phoundation\Data\Library;
 
 
 /**

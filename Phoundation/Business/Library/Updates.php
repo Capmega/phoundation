@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Business;
+namespace Phoundation\Business\Library;
 
 
 /**

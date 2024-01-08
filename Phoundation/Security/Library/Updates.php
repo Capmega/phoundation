@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Security;
+namespace Phoundation\Security\Library;
 
 
 /**
