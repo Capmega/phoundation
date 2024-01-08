@@ -418,8 +418,6 @@ class Mc implements DatabaseInterface
 
         // Default connections to localhost if nothing was defined
         if (empty($this->configuration['connections'])) {
-            showbacktrace();
-            showdie();
             throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
                 ':instance' => $this->instance_name
             ]))->makeWarning();
