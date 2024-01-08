@@ -15,6 +15,7 @@ use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
+use Stringable;
 
 
 /**
@@ -243,10 +244,10 @@ class Git extends Versioning implements GitInterface
      * Resets the current branch to the specified revision
      *
      * @param string $revision
-     * @param array|string|null $files
+     * @param Stringable|array|string|null $files
      * @return static
      */
-    public function reset(string $revision, array|string|null $files = null): static
+    public function reset(string $revision, Stringable|array|string|null $files = null): static
     {
         $output = $this->git
             ->clearArguments()
@@ -308,13 +309,13 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param string|null $directory
+     * @param string|null $path
      * @return StatusFiles
      */
-    public function getStatus(?string $directory = null): StatusFiles
+    public function getStatus(?string $path = null): StatusFiles
     {
         return StatusFiles::new()
-            ->setDirectory($directory ?? $this->directory)
+            ->setDirectory($path ?? $this->directory)
             ->scanChanges();
     }
 

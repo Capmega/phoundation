@@ -10,6 +10,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
@@ -30,6 +31,7 @@ use Phoundation\Utils\Strings;
 class StatusFiles extends Iterator
 {
     use GitProcess;
+
 
     /**
      * A git object specifically for this path
@@ -168,9 +170,9 @@ class StatusFiles extends Iterator
     /**
      * Returns a git object for this path
      *
-     * @return Git
+     * @return GitInterface
      */
-    public function getGit(): Git
+    public function getGit(): GitInterface
     {
         if (!isset($this->git)) {
             $this->git = Git::new($this->directory);

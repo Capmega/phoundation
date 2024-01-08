@@ -8,6 +8,7 @@ use Phoundation\Developer\Versioning\Git\Branches;
 use Phoundation\Developer\Versioning\Git\RemoteRepositories;
 use Phoundation\Developer\Versioning\Git\Stash;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
+use Stringable;
 
 
 /**
@@ -92,10 +93,10 @@ interface GitInterface
      * Resets the current branch to the specified revision
      *
      * @param string $revision
-     * @param array|string|null $files
+     * @param Stringable|array|string|null $files
      * @return static
      */
-    public function reset(string $revision, array|string|null $files = null): static;
+    public function reset(string $revision, Stringable|array|string|null $files = null): static;
 
     /**
      * Apply the specified patch to the specified target file
