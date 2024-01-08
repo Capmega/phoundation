@@ -520,6 +520,18 @@ class Project implements ProjectInterface
 
 
     /**
+     * Resets the git pointer to HEAD for this project
+     *
+     * @return $this
+     */
+    public function resetHead(): static
+    {
+        $this->git->reset('HEAD');
+        return $this;
+    }
+
+
+    /**
      * Updates your Phoundation installation
      *
      * @param string|null $branch
