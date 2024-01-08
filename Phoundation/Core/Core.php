@@ -261,8 +261,7 @@ class Core implements CoreInterface
         define('DIRECTORY_SCRIPTS', DIRECTORY_ROOT . 'scripts/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
-        error_reporting(E_ALL);
-        set_error_handler(['\Phoundation\Core\Core'         , 'phpErrorHandler']);
+        static::resetErrorHandling();
         set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
         register_shutdown_function(['\Phoundation\Core\Core', 'exit']);
 
@@ -2474,6 +2473,7 @@ class Core implements CoreInterface
         }
 
         $exit = true;
+        static::resetErrorHandling();
 
         if ($direct_exit) {
             // Exit without logging, cleaning, etc.
@@ -2883,5 +2883,29 @@ class Core implements CoreInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Resets error handling to be managed by Phoundation
+     *
+     * @return void
+     */
+    public static function resetErrorHandling()
+    {
+        error_reporting(E_ALL);
+        set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
+    }
+
+
+    /**
+     * Disables error handling completely
+     *
+     * @return void
+     */
+    public static function disableErrorHandling()
+    {
+        error_reporting(0);
+        set_error_handler(null);
     }
 }
