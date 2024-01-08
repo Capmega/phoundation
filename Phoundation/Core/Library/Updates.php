@@ -30,7 +30,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.15';
+        return '0.1.0';
     }
 
 
@@ -313,6 +313,27 @@ class Updates extends Libraries\Updates
             }
 
             Log::success('Finished', use_prefix: false);
+
+        })->addUpdate('0.1.0', function () {
+            // Add table support in meta system
+            sql()->schema()->table('meta')->alter()
+                ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
+                ->addIndex('KEY `table` (`table`)');
+
+            sql()->schema()->table('meta_users')->drop();
+
+            // Add users meta tracking table
+            sql()->schema()->table('meta_users')->define()
+                ->setColumns('
+                `users_id` bigint NOT NULL,
+                `histories_id` bigint NOT NULL,
+            ')->setIndices('
+                KEY `meta_id` (`meta_id`),
+                KEY `histories_id` (`histories_id`),
+            ')->setForeignKeys('
+                CONSTRAINT `fk_meta_users_histories_id` FOREIGN KEY (`histories_id`) REFERENCES `meta_history` (`id`) ON DELETE CASCADE,
+                CONSTRAINT `fk_meta_users_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
+            ')->create();
         });
     }
 }
