@@ -269,7 +269,9 @@ class Phoundation extends Project
             ':branch' => $branch
         ]));
 
-        // Update the local project
+
+        // Reset local project to HEAD and update
+        Project::new()->resetHead();
         Project::new()->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
@@ -278,11 +280,11 @@ class Phoundation extends Project
         try {
             // Execute the patching
             $stash    = new Iterator();
-            $sections = ['Phoundation'];
+            $sections = ['Phoundation', 'Plugins/Phoundation'];
 
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
-                while(true) {
+                while (true) {
                     try {
                         StatusFiles::new()
                             ->setDirectory(DIRECTORY_ROOT . $section)
@@ -296,6 +298,7 @@ class Phoundation extends Project
                         // un-stash it after for manual review / copy
                         $output = $e->getDataKey('output');
                         $output = Arrays::match($output, 'patch failed', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+                        $git    = Git::new(DIRECTORY_ROOT);
 
                         if ($output) {
                             Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
@@ -310,7 +313,13 @@ class Phoundation extends Project
                                 $stash->add($file);
 
                                 Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
-                                Git::new(DIRECTORY_ROOT)->add($file)->getStash()->stash($file);
+                                // Deleted files cannot be stashed after being added!
+                                if (File::new($file)->exists()) {
+                                    $git->add($file)->getStash()->stash($file);
+
+                                } else {
+                                    $git->reset('HEAD', $file)->getStash()->stash($file);
+                                }
                             }
 
                         } else {
@@ -329,7 +338,7 @@ class Phoundation extends Project
                                         ':file' => $file
                                     ]));
 
-                                    Git::new(DIRECTORY_ROOT)->add($file)->getStash()->stash($file);
+                                    $git->add($file)->getStash()->stash($file);
                                 }
                             } else {
                                 // Other unknown error
