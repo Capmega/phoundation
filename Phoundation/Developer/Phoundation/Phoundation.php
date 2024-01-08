@@ -269,7 +269,9 @@ class Phoundation extends Project
             ':branch' => $branch
         ]));
 
-        // Update the local project
+
+        // Reset local project to HEAD and update
+        Project::new()->resetHead();
         Project::new()->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation installation and ensure its clean and on the right branch
@@ -278,11 +280,11 @@ class Phoundation extends Project
         try {
             // Execute the patching
             $stash    = new Iterator();
-            $sections = ['Phoundation'];
+            $sections = ['Phoundation', 'Plugins/Phoundation'];
 
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
-                while(true) {
+                while (true) {
                     try {
                         StatusFiles::new()
                             ->setDirectory(DIRECTORY_ROOT . $section)
@@ -324,12 +326,19 @@ class Phoundation extends Project
                                     $file = Strings::untilReverse($file, ':');
                                     $file = Strings::from($file, ':');
                                     $file = trim($file);
+                                    $git  = Git::new(DIRECTORY_ROOT);
 
                                     Log::warning(tr('Stashing already existing and unmergeable file ":file"', [
                                         ':file' => $file
                                     ]));
 
-                                    Git::new(DIRECTORY_ROOT)->add($file)->getStash()->stash($file);
+                                    // Deleted files cannot be stashed after being added!
+                                    if (File::new($file)->exists()) {
+                                        $git->add($file)->getStash()->stash($file);
+
+                                    } else {
+                                        $git->reset('HEAD', $file)->getStash()->stash($file);
+                                    }
                                 }
                             } else {
                                 // Other unknown error
