@@ -412,7 +412,7 @@ class Path implements Stringable, PathInterface
         } catch (SqlDatabaseDoesNotExistException|SqlTableDoesNotExistException $e) {
             // If during init either the database or table doesn't exist, we're fine, and we can ignore this error
             if (!Core::inInitState()) {
-                Log::warning(tr('Failed to scan for filesystem mounts because ":e", skipping auto mount', [
+                Log::warning(tr('Failed to scan for filesystem mounts because ":e", but skipping auto mount because system is in init state (allows to skip auto mounting)', [
                     ':e' => $e->getMessage()
                 ]));
             }
