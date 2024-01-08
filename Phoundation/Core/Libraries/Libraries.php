@@ -9,6 +9,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Tmp;
+use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
@@ -66,22 +67,22 @@ class Libraries
     public static function reset(): void
     {
         Log::warning('Executing system reset, dropping all databases!');
-        $databases = Config::get('databases');
+        $connectors = Config::getArray('databases.connectors');
 
-        foreach ($databases as $driver => $data) {
-            switch ($driver) {
+        foreach ($connectors as $connector => $configuration) {
+            switch (isset_get($configuration['driver'])) {
                 case 'sql':
-                    foreach ($data['instances'] as $instance => $configuration) {
-                        if (($instance === 'system') or isset_get($configuration['init'])) {
-                            sql($instance, false)->schema(false)->database()->drop();
-                        }
+                    // no break
+                case 'mysql':
+                    if (($connector === 'system') or isset_get($configuration['init'])) {
+                        sql($connector, false)->schema(false)->database()->drop();
                     }
 
                     break;
 
                 case 'memcached':
                     try {
-                        mc()->flush();
+                        mc($connector)->flush();
 
                     } catch (ConfigPathDoesNotExistsException $e) {
                         Log::warning(tr('Cannot flush memcached because the current driver is not properly configured, see exception information'));
@@ -93,11 +94,22 @@ class Libraries
                 case 'mongo':
                 case 'redis':
                 case 'elasticsearch':
-                    Log::error(tr('Support for resetting driver ":driver" is under construction', [':driver' => $driver]));
+                    Log::error(tr('Ignoring connector ":driver", support for required driver ":driver" is under construction', [
+                        ':driver'    => $configuration['driver'],
+                        ':connector' => $connector
+                    ]));
                     break;
 
+                case '':
+                    throw new DatabasesConnectorException(tr('No driver specified for connector ":connector"', [
+                        ':connector' => $connector
+                    ]));
+
                 default:
-                    // Ignore, only process drivers
+                    throw new DatabasesConnectorException(tr('Unknown driver ":driver" specified for connector ":connector"', [
+                        ':driver'    => $configuration['driver'],
+                        ':connector' => $connector
+                    ]));
             }
         }
     }
@@ -503,7 +515,7 @@ class Libraries
     {
         // Prepare libraries filter if specified
         if ($filter_libraries) {
-            $filter_libraries = Arrays::lowerCase($filter_libraries);
+            $filter_libraries = Arrays::lowercaseValues($filter_libraries);
             $filter_libraries = array_flip($filter_libraries);
         }
 
