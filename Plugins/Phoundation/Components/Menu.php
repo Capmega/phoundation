@@ -259,6 +259,11 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                     ],
                 ]
             ],
+            tr('About') => [
+                'rights' => 'admin',
+                'url'  => '/about.html',
+                'icon' => ''
+            ],
             tr('Productivity') => [
                 'icon' => '',
             ],
@@ -302,11 +307,6 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                         'icon'   => 'fa-shopping-cart'
                     ]
                 ]
-            ],
-            tr('About') => [
-                'rights' => 'admin',
-                'url'  => '/about.html',
-                'icon' => ''
             ]
         ]);
     }
