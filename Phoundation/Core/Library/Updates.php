@@ -330,7 +330,7 @@ class Updates extends Libraries\Updates
                 `users_id` bigint NOT NULL,
                 `histories_id` bigint NOT NULL,
             ')->setIndices('
-                KEY `users_id` (`users_i`),
+                KEY `users_id` (`users_id`),
                 KEY `histories_id` (`histories_id`),
             ')->setForeignKeys('
                 CONSTRAINT `fk_meta_users_histories_id` FOREIGN KEY (`histories_id`) REFERENCES `meta_history` (`id`) ON DELETE CASCADE,
