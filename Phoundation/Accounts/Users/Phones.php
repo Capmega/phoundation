@@ -184,7 +184,7 @@ class Phones extends DataList implements PhonesInterface
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {
                 throw new OutOfBoundsException(tr('Specified phone ":phone" has a different users id than the users id ":parent" for the phones in this list', [
-                    ':phone' => $value->getId(),
+                    ':phone' => $value->getPhone(),
                     ':parent' => $this->parent->getId()
                 ]));
             }

@@ -182,7 +182,7 @@ class Emails extends DataList implements EmailsInterface
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {
                 throw new OutOfBoundsException(tr('Specified email ":email" has a different users id than the users id ":parent" for the emails in this list', [
-                    ':email' => $value->getId(),
+                    ':email' => $value->getEmail(),
                     ':parent' => $this->parent->getId()
                 ]));
             }
