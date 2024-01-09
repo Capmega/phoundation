@@ -1493,40 +1493,7 @@ abstract class DataEntry implements DataEntryInterface
                 }
             }
 
-            if ($directly or $this->definitions->get($key)?->getDirectUpdate()) {
-                // Store data directly, bypassing the set method for this key
-                $this->setSourceValue($key, $value);
-
-            } else {
-                // Store this data through the set method to ensure datatype and filtering is done correctly
-                $method = $this->convertFieldToSetMethod($key);
-
-                if (!$definition->inputTypeIsScalar()) {
-                    // This input type is not scalar and as such has been stored as a JSON array
-                    $value = Json::ensureDecoded($value);
-                }
-
-                if ($this->debug) {
-                    Log::debug('ABOUT TO SET SOURCE KEY "' . $key . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10, echo_header: false);
-                }
-
-                // Only apply if a method exists for this variable
-                if (!method_exists($this, $method)){
-                    // There is no method accepting this data. This might be because it is a virtual column that gets
-                    // resolved at validation time. Check this with the definitions object
-                    if ($this->definitions->get($key)?->getVirtual()) {
-                        continue;
-                    }
-
-                    throw new OutOfBoundsException(tr('Cannot set source key ":key" because the class has no linked method ":method" defined in DataEntry class ":class"', [
-                        ':key'    => $key,
-                        ':method' => $method,
-                        ':class'  => get_class($this)
-                    ]));
-                }
-
-                $this->$method($value);
-            }
+            $this->setFieldValueWithObjectSetter($key, $value, $directly, $definition);
         }
 
         if ($this->getId() < 0) {
@@ -1535,6 +1502,54 @@ abstract class DataEntry implements DataEntryInterface
 
         $this->is_validated = $validated;
         return $this;
+    }
+
+
+    /**
+     * Updates the specified field with the given value, using the objects setter method (which MUST exist)
+     *
+     * @param string $field
+     * @param mixed $value
+     * @param bool $directly
+     * @param DefinitionInterface $definition
+     * @return void
+     */
+    protected function setFieldValueWithObjectSetter(string $field, mixed $value, bool $directly, DefinitionInterface $definition): void
+    {
+        if ($directly or $this->definitions->get($field)?->getDirectUpdate()) {
+            // Store data directly, bypassing the set method for this key
+            $this->setSourceValue($field, $value);
+
+        } else {
+            // Store this data through the set method to ensure datatype and filtering is done correctly
+            $method = $this->convertFieldToSetMethod($field);
+
+            if (!$definition->inputTypeIsScalar()) {
+                // This input type is not scalar and as such has been stored as a JSON array
+                $value = Json::ensureDecoded($value);
+            }
+
+            if ($this->debug) {
+                Log::debug('ABOUT TO SET SOURCE KEY "' . $field . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value). '"', 10, echo_header: false);
+            }
+
+            // Only apply if a method exists for this variable
+            if (!method_exists($this, $method)){
+                // There is no method accepting this data. This might be because it is a virtual column that gets
+                // resolved at validation time. Check this with the definitions object
+                if ($this->definitions->get($field)?->getVirtual()) {
+                    return;
+                }
+
+                throw new OutOfBoundsException(tr('Cannot set source key ":key" because the class has no linked method ":method" defined in DataEntry class ":class"', [
+                    ':key'    => $field,
+                    ':method' => $method,
+                    ':class'  => get_class($this)
+                ]));
+            }
+
+            $this->$method($value);
+        }
     }
 
 
@@ -2271,9 +2286,10 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_saved    = false;
         $this->is_modified = false;
 
-        // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier!)
+        // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier
+        // meaning that it would HAVE to exist!)
         if ($this->isNew() and $column !== 'id') {
-            $this->setSourceValue($column, $identifier, true);
+            $this->setFieldValueWithObjectSetter($column, $identifier, false, $this->definitions->get($column));
         }
     }
 
