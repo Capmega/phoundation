@@ -1764,15 +1764,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('Main phone number where this user may be contacted'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Validate the email address
-                    $validator->isUnique(tr('already exists as a primary email address'));
-
-                    $exists = sql()->get('SELECT `id` FROM `accounts_emails` WHERE `email` = :email', [
-                        ':email' => $validator->getSelectedValue()
-                    ]);
-
-                    if ($exists) {
-                        $validator->addFailure(tr('value ":email" already exists as an additional email address', [':email' => $validator->getSelectedValue()]));
-                    }
+                    $validator->isUnique(tr('already exists as a primary phone number'));
                 }))
             ->addDefinition(Definition::new($this, 'address')
                 ->setOptional(true)
