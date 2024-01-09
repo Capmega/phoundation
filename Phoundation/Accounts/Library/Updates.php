@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.2.0';
+        return '0.2.1';
     }
 
 
@@ -53,147 +53,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function updates(): void
     {
-        $this->addUpdate('post_once', function () {
-            // Ensure Guest user is available
-            GuestUser::new('guest', 'email')->save();
-
-            // Create default rights and roles
-            $god = Right::new('God', 'name')
-                ->setName('God')
-                ->setDescription('This right will give the user access to everything, everywhere')
-                ->save();
-
-            $admin = Right::new('Admin', 'name')
-                ->setName('Admin')
-                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
-                ->save();
-
-            $developer = Right::new('Developer', 'name')
-                ->setName('Developer')
-                ->setDescription('This right will give the user access to the developer area of the site')
-                ->save();
-
-            $accounts = Right::new('Accounts', 'name')
-                ->setName('Accounts')
-                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
-                ->save();
-
-            $security = Right::new('Security', 'name')
-                ->setName('Security')
-                ->setDescription('This right will give the user access to the administrative security pages of the site')
-                ->save();
-
-            $phoundation = Right::new('Phoundation', 'name')
-                ->setName('Phoundation')
-                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
-                ->save();
-
-            $audit = Right::new('Audit', 'name')
-                ->setName('Audit')
-                ->setDescription('This right will give the user access to the audit information system of the site')
-                ->save();
-
-            // Define basic roles
-            Role::new('God', 'name')
-                ->setName('God')
-                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
-                ->save()
-                ->getRights()
-                ->add($god);
-
-            Role::new('Audit', 'name')
-                ->setName('Audit')
-                ->setDescription('This role will give the user access to the audit system')
-                ->save()
-                ->getRights()
-                ->add($audit);
-
-            Role::new('Accounts', 'name')
-                ->setName('Accounts')
-                ->setDescription('This role will give the user access to the accounts management system')
-                ->save()
-                ->getRights()
-                ->add($accounts);
-
-            Role::new('Security', 'name')
-                ->setName('Security')
-                ->setDescription('This role will give the user access to the security system')
-                ->save()
-                ->getRights()
-                ->add($security);
-
-            Role::new('Administrator', 'name')
-                ->setName('Administrator')
-                ->setDescription('This role gives access to all the administrative pages except user account management')
-                ->save()
-                ->getRights()
-                ->add($admin)
-                ->add($audit)
-                ->add($security)
-                ->add($phoundation);
-
-            Role::new('Accounts administrator', 'name')
-                ->setName('Accounts administrator')
-                ->setDescription('This role gives access to only the administrative user account pages')
-                ->save()
-                ->getRights()
-                ->add($admin)
-                ->add($accounts);
-
-            Role::new('Developer', 'name')
-                ->setName('Developer')
-                ->setDescription('This role will give the user access to the developer pages of the site')
-                ->save()
-                ->getRights()
-                ->add($developer);
-
-            Role::new('Moderator', 'name')
-                ->setName('Moderator')
-                ->setDescription('This role will give the user basic access to the administrative pages of the site')
-                ->save()
-                ->getRights()
-                ->add($admin);
-
-            // Create some default roles and rights
-            $rights = [
-                'Logs',
-                'Admin',
-                'Accounts',
-                'Impersonate',
-                'Notifications',
-            ];
-
-            // Add default rights
-            foreach ($rights as $right) {
-                if (!Right::exists($right, 'name')) {
-                    Right::new($right, 'name')
-                        ->setName($right)
-                        ->save();
-                }
-            }
-
-            // Add default roles and assign the default rights to them
-            foreach ($rights as $role) {
-                if (!Role::exists($role, 'name')) {
-                    Role::new($role, 'name')
-                        ->setName($role)
-                        ->save()
-                        ->getRights()
-                        ->add($role);
-                }
-            }
-
-            // Various rights go together...
-            Role::get('Audit')->getRights()->add('Admin');
-
-            Role::get('Security')->getRights()->add('Admin');
-
-            Role::get('Impersonate')
-                ->getRights()
-                ->add('Admin')
-                ->add('Accounts');
-
-        })->addUpdate('0.0.4', function () {
+        $this->addUpdate('0.0.4', function () {
             // Drop the tables to be sure we have a clean slate
             sql()->schema()->table('accounts_roles_rights')->drop();
             sql()->schema()->table('accounts_users_roles')->drop();
@@ -828,6 +688,150 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->addColumn('`parents_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
                 ->addIndex('KEY `parents_id` (`parents_id`)')
                 ->addForeignKey('CONSTRAINT `fk_accounts_roles_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `accounts_roles` (`id`) ON DELETE RESTRICT');
+
+        })->addUpdate('0.2.1', function () {
+            // Ensure Guest user is available
+            GuestUser::new('guest', 'email')->save();
+
+            // Create default rights and roles
+            $god = Right::new('God', 'name')
+                ->setName('God')
+                ->setDescription('This right will give the user access to everything, everywhere')
+                ->save();
+
+            $admin = Right::new('Admin', 'name')
+                ->setName('Admin')
+                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                ->save();
+
+            $developer = Right::new('Developer', 'name')
+                ->setName('Developer')
+                ->setDescription('This right will give the user access to the developer area of the site')
+                ->save();
+
+            $accounts = Right::new('Accounts', 'name')
+                ->setName('Accounts')
+                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
+                ->save();
+
+            $security = Right::new('Security', 'name')
+                ->setName('Security')
+                ->setDescription('This right will give the user access to the administrative security pages of the site')
+                ->save();
+
+            $phoundation = Right::new('Phoundation', 'name')
+                ->setName('Phoundation')
+                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
+                ->save();
+
+            $audit = Right::new('Audit', 'name')
+                ->setName('Audit')
+                ->setDescription('This right will give the user access to the audit information system of the site')
+                ->save();
+
+            // Define basic roles
+            Role::new('God', 'name')
+                ->setName('God')
+                ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
+                ->save()
+                ->getRights()
+                ->add($god);
+
+            Role::new('Audit', 'name')
+                ->setName('Audit')
+                ->setDescription('This role will give the user access to the audit system')
+                ->save()
+                ->getRights()
+                ->add($audit);
+
+            Role::new('Accounts', 'name')
+                ->setName('Accounts')
+                ->setDescription('This role will give the user access to the accounts management system')
+                ->save()
+                ->getRights()
+                ->add($accounts);
+
+            Role::new('Security', 'name')
+                ->setName('Security')
+                ->setDescription('This role will give the user access to the security system')
+                ->save()
+                ->getRights()
+                ->add($security);
+
+            Role::new('Administrator', 'name')
+                ->setName('Administrator')
+                ->setDescription('This role gives access to all the administrative pages except user account management')
+                ->save()
+                ->getRights()
+                ->add($admin)
+                ->add($audit)
+                ->add($security)
+                ->add($phoundation);
+
+            Role::new('Accounts administrator', 'name')
+                ->setName('Accounts administrator')
+                ->setDescription('This role gives access to only the administrative user account pages')
+                ->save()
+                ->getRights()
+                ->add($admin)
+                ->add($accounts);
+
+            Role::new('Developer', 'name')
+                ->setName('Developer')
+                ->setDescription('This role will give the user access to the developer pages of the site')
+                ->save()
+                ->getRights()
+                ->add($developer);
+
+            Role::new('Moderator', 'name')
+                ->setName('Moderator')
+                ->setDescription('This role will give the user basic access to the administrative pages of the site')
+                ->save()
+                ->getRights()
+                ->add($admin);
+
+            // Create some default roles and rights
+            $rights = [
+                'Accounts',
+                'Admin',
+                'Impersonate',
+                'Logs',
+                'My',
+                'Notifications',
+                'Profiles',
+                'System',
+            ];
+
+            // Add default rights
+            foreach ($rights as $right) {
+                if (!Right::exists($right, 'name')) {
+                    Right::new($right, 'name')
+                        ->setName($right)
+                        ->save();
+                }
+            }
+
+            // Add default roles and assign the default rights to them
+            foreach ($rights as $role) {
+                if (!Role::exists($role, 'name')) {
+                    Role::new($role, 'name')
+                        ->setName($role)
+                        ->save()
+                        ->getRights()
+                        ->add($role);
+                }
+            }
+
+            // Various rights go together...
+            Role::get('Audit')->getRights()->add('Admin');
+
+            Role::get('Security')->getRights()->add('Admin');
+
+            Role::get('Impersonate')
+                ->getRights()
+                ->add('Admin')
+                ->add('Accounts');
+
         });
     }
 }
