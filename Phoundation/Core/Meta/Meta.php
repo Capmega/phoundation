@@ -66,6 +66,13 @@ class Meta implements MetaInterface
     protected static bool $buffer;
 
     /**
+     * Maximum buffer size until a flush is forced
+     *
+     * @var int $max_buffer
+     */
+    protected static int $max_buffer = 100;
+
+        /**
      * In case buffer mode is enabled, all meta updates will be stored here until flushing
      *
      * @var array $updates
@@ -89,7 +96,8 @@ class Meta implements MetaInterface
     public function __construct(?int $id = null, bool $load = true)
     {
         if (!isset(static::$buffer)) {
-            static::$buffer = Config::getBoolean('meta.buffer', false);
+            static::$buffer     = Config::getBoolean('meta.buffer.enabled', false);
+            static::$max_buffer = Config::getInteger('meta.buffer.max-size', 100);
         }
 
         if ($id) {
@@ -339,6 +347,11 @@ throw new UnderConstructionException();
             }
         }
 
+
+        if (static::$pointer > static::$max_buffer) {
+            static::flush();
+        }
+
         return $this;
     }
 
@@ -365,6 +378,10 @@ throw new UnderConstructionException();
     {
         try {
             if (static::$updates) {
+                Log::action(tr('Flushing ":count" meta entries to database', [
+                    ':count' => count(static::$updates)
+                ]), 4);
+
                 $values  = ' (:meta_id_:ID , :created_by_:ID , :action_:ID , :source_:ID , :comments_:ID , :data_:ID)';
                 $execute = [];
 
@@ -379,6 +396,9 @@ throw new UnderConstructionException();
 
                 // Flush!
                 sql()->query($query, $execute);
+
+                static::$updates = [];
+                static::$pointer = 1;
             }
 
         } catch (Throwable $e) {
