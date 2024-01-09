@@ -93,7 +93,7 @@ class Connectors extends DataList implements ConnectorsInterface
                 ]));
             }
 
-            if (empty($connector['type'])) {
+            if (empty($connector['driver'])) {
                 throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it has no type specified', [
                     ':connector' => $name
                 ]));
