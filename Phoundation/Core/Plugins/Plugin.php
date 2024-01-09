@@ -153,7 +153,7 @@ class Plugin extends DataEntry implements PluginInterface
         $directory = $this->getPath();
 
         if ($directory) {
-            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Plugin.php');
+            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
         }
 
         return null;

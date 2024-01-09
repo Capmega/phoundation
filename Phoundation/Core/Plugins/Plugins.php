@@ -141,7 +141,7 @@ class Plugins extends DataList implements PluginsInterface
             try {
                 if ($plugin['enabled']) {
                     Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
-                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Plugin.php');
+                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
 
@@ -259,7 +259,7 @@ class Plugins extends DataList implements PluginsInterface
             'status'   => tr('Ok'),
             'enabled'  => tr('Enabled'),
             'priority' => 0,
-            'class'    => 'Plugins\Phoundation\Plugin',
+            'class'    => 'Plugins\Phoundation\Library\Plugin',
             'path'     => 'Plugins/Phoundation/',
         ];
     }
@@ -312,7 +312,7 @@ class Plugins extends DataList implements PluginsInterface
                 continue;
             }
 
-            $file = $directory . $plugin . '/Plugin.php';
+            $file = $directory . $plugin . '/Library/Plugin.php';
 
             if ($plugin === 'disabled') {
                 // The "disabled" directory is for disabled plugins, ignore it completely
@@ -330,7 +330,7 @@ class Plugins extends DataList implements PluginsInterface
             }
 
             if (!file_exists($file)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", it has no required Plugin.php file', [
+                Log::warning(tr('Ignoring possible plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
                     ':plugin' => $plugin
                 ]));
 
