@@ -45,6 +45,19 @@ class Role extends DataEntry implements RoleInterface
 
 
     /**
+     * Role class constructor
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        return parent::__construct(static::convertToLowerCaseDash($identifier), $column, $meta_enabled);
+    }
+
+
+    /**
      * Returns the table name used by this object
      *
      * @return string
@@ -129,7 +142,7 @@ class Role extends DataEntry implements RoleInterface
 
 
     /**
-     * Returns a DataEntry object matching the specified identifier
+     * Returns a Role object matching the specified identifier
      *
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
@@ -143,7 +156,7 @@ class Role extends DataEntry implements RoleInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);

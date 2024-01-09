@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Rights;
 
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Roles\Exception\RightNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
+use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -32,6 +36,18 @@ class Right extends DataEntry implements RightInterface
     use DataEntryNameLowercaseDash;
     use DataEntryDescription;
 
+
+    /**
+     * Right class constructor
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        return parent::__construct(static::convertToLowerCaseDash($identifier), $column, $meta_enabled);
+    }
 
 
     /**
@@ -64,6 +80,29 @@ class Right extends DataEntry implements RightInterface
     public static function getUniqueField(): ?string
     {
         return 'seo_name';
+    }
+
+
+    /**
+     * Returns a Right object matching the specified identifier
+     *
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @return static|null
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
+    {
+        try {
+            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+
+        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            throw new RightNotExistsException($e);
+        }
     }
 
 
