@@ -24,7 +24,7 @@ trait DataEntryWorkers
      */
     public function getMinimumWorkers(): ?int
     {
-        return $this->getSourceFieldValue('int', 'maximum_workers');
+        return $this->getSourceColumnValue('int', 'maximum_workers');
     }
 
 
@@ -47,7 +47,7 @@ trait DataEntryWorkers
      */
     public function getMaximumWorkers(): ?int
     {
-        return $this->getSourceFieldValue('int', 'maximum_workers');
+        return $this->getSourceColumnValue('int', 'maximum_workers');
     }
 
 

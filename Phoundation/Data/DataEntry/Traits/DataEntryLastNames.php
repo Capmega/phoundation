@@ -24,7 +24,7 @@ trait DataEntryLastNames
      */
     public function getLastNames(): ?string
     {
-        return $this->getSourceFieldValue('string', 'last_names');
+        return $this->getSourceColumnValue('string', 'last_names');
     }
 
 

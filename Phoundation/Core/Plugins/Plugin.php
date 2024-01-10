@@ -70,7 +70,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }
@@ -98,7 +98,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getSourceFieldValue('bool', 'enabled', false);
+        return $this->getSourceColumnValue('bool', 'enabled', false);
     }
 
 
@@ -352,7 +352,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
-                ->setCliField('-d,--disable'))
+                ->setCliColumn('-d,--disable'))
             ->addDefinition(DefinitionFactory::getName($this, 'seo_name')
                 ->setVisible(false))
             ->addDefinition(DefinitionFactory::getName($this)
@@ -363,7 +363,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setInputType(InputType::number)
                 ->setNullDb(false, 5)
                 ->setSize(3)
-                ->setCliField('--priority')
+                ->setCliColumn('--priority')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Priority'))
                 ->setMin(0)
@@ -376,7 +376,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
-                ->setCliField('-e,--enabled')
+                ->setCliColumn('-e,--enabled')
                 ->setLabel(tr('Enabled'))
                 ->setDefault(true)
                 ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))

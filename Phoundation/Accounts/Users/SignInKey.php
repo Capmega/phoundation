@@ -93,7 +93,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * @inheritDoc
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'uuid';
     }
@@ -106,7 +106,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getValidUntil(): ?string
     {
-        return $this->getSourceFieldValue('int', 'valid_until');
+        return $this->getSourceColumnValue('int', 'valid_until');
     }
 
 
@@ -129,7 +129,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getAllowNavigation(): bool
     {
-        return (bool) $this->getSourceFieldValue('bool', 'allow_navigation', false);
+        return (bool) $this->getSourceColumnValue('bool', 'allow_navigation', false);
     }
 
 
@@ -152,7 +152,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getOnce(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'once', true);
+        return $this->getSourceColumnValue('bool', 'once', true);
     }
 
 

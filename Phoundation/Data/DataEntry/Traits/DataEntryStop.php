@@ -27,7 +27,7 @@ trait DataEntryStop
      */
     public function getStop(): ?DateTimeInterface
     {
-        return $this->getSourceFieldValue('datetime', 'stop');
+        return $this->getSourceColumnValue('datetime', 'stop');
     }
 
 

@@ -87,7 +87,7 @@ class Users extends DataList implements UsersInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'email';
     }

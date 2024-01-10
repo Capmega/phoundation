@@ -320,7 +320,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return string|null
      */
-    abstract public static function getUniqueField(): ?string;
+    abstract public static function getUniqueColumn(): ?string;
 
 
     /**
@@ -491,8 +491,8 @@ abstract class DataEntry implements DataEntryInterface
 
         // Extract auto complete for cli parameters from column definitions
         foreach (static::new()->getDefinitions() as $definitions) {
-            if ($definitions->getCliField() and $definitions->getCliAutoComplete()) {
-                $arguments[$definitions->getCliField()] = $definitions->getCliAutoComplete();
+            if ($definitions->getCliColumn() and $definitions->getCliAutoComplete()) {
+                $arguments[$definitions->getCliColumn()] = $definitions->getCliAutoComplete();
             }
         }
 
@@ -508,13 +508,13 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return array
      */
-    public function getCliFields(): array
+    public function getCliColumns(): array
     {
         $return = [];
 
         foreach ($this->definitions as $column => $definitions) {
-            if ($definitions->getCliField()) {
-                $return[$column] = $definitions->getCliField();
+            if ($definitions->getCliColumn()) {
+                $return[$column] = $definitions->getCliColumn();
             }
         }
 
@@ -547,7 +547,7 @@ abstract class DataEntry implements DataEntryInterface
         foreach ($columns as $id => $definitions) {
             if (!$definitions->getOptional()) {
                 $columns->delete($id);
-                $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
+                $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
             }
 
             $groups[$definitions->getHelpGroup()] = true;
@@ -566,7 +566,7 @@ abstract class DataEntry implements DataEntryInterface
             foreach ($columns as $id => $definitions) {
                 if ($definitions->getHelpGroup() === $group) {
                     $columns->delete($id);
-                    $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliField(), 39) . ' ' . $definitions->getHelpText();
+                    $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
                 }
             }
 
@@ -718,7 +718,7 @@ abstract class DataEntry implements DataEntryInterface
             $postfix = ' ' . tr('[DELETED]');
         }
 
-        return $this->getSourceFieldValue('string', static::getUniqueField() ?? 'id') . $postfix;
+        return $this->getSourceColumnValue('string', static::getUniqueColumn() ?? 'id') . $postfix;
     }
 
 
@@ -893,7 +893,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getId(): int|null
     {
-        return $this->getSourceFieldValue('int', 'id');
+        return $this->getSourceColumnValue('int', 'id');
     }
 
 
@@ -902,9 +902,9 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return string|float|int|null
      */
-    public function getUniqueFieldValue(): string|float|int|null
+    public function getUniqueColumnValue(): string|float|int|null
     {
-        return $this->getSourceFieldValue('string|float|int|null', static::getUniqueField());
+        return $this->getSourceColumnValue('string|float|int|null', static::getUniqueColumn());
     }
 
 
@@ -915,7 +915,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceFieldValue('int', 'id') . ' / ' . (static::getUniqueField() ? $this->getSourceFieldValue('string', static::getUniqueField()) : '-');
+        return $this->getSourceColumnValue('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceColumnValue('string', static::getUniqueColumn()) : '-');
     }
 
 
@@ -926,7 +926,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getStatus(): ?string
     {
-        return $this->getSourceFieldValue('string', 'status');
+        return $this->getSourceColumnValue('string', 'status');
     }
 
 
@@ -938,7 +938,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function hasStatus(string $status): bool
     {
-        return $status === $this->getSourceFieldValue('string', 'status');
+        return $status === $this->getSourceColumnValue('string', 'status');
     }
 
 
@@ -950,7 +950,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function isStatus(?string $status): bool
     {
-        return $this->getSourceFieldValue('string', 'status') === $status;
+        return $this->getSourceColumnValue('string', 'status') === $status;
     }
 
 
@@ -1032,7 +1032,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaState(): ?string
     {
-        return $this->getSourceFieldValue('string', 'meta_state');
+        return $this->getSourceColumnValue('string', 'meta_state');
     }
 
 
@@ -1092,9 +1092,9 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return ?string
      */
-    public function getFieldPrefix(): ?string
+    public function getColumnPrefix(): ?string
     {
-        return $this->definitions->getFieldPrefix();
+        return $this->definitions->getColumnPrefix();
     }
 
 
@@ -1104,9 +1104,9 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $prefix
      * @return static
      */
-    public function setFieldPrefix(?string $prefix): static
+    public function setColumnPrefix(?string $prefix): static
     {
-        $this->definitions->setFieldPrefix($prefix);
+        $this->definitions->setColumnPrefix($prefix);
         return $this;
     }
 
@@ -1119,7 +1119,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedBy(): ?UserInterface
     {
-        $created_by = $this->getSourceFieldValue('int', 'created_by');
+        $created_by = $this->getSourceColumnValue('int', 'created_by');
 
         if ($created_by === null) {
             return null;
@@ -1137,7 +1137,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedOn(): ?DateTime
     {
-        $created_on = $this->getSourceFieldValue('string', 'created_on');
+        $created_on = $this->getSourceColumnValue('string', 'created_on');
 
         if ($created_on === null) {
             return null;
@@ -1163,7 +1163,7 @@ abstract class DataEntry implements DataEntryInterface
             return null;
         }
 
-        $meta_id = $this->getSourceFieldValue('int', 'meta_id');
+        $meta_id = $this->getSourceColumnValue('int', 'meta_id');
 
         if ($meta_id === null) {
             throw new DataEntryException(tr('DataEntry ":id" does not have meta_id information', [
@@ -1204,7 +1204,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'meta_id');
+        return $this->getSourceColumnValue('int', 'meta_id');
     }
 
 
@@ -1494,7 +1494,7 @@ abstract class DataEntry implements DataEntryInterface
                 }
             }
 
-            $this->setFieldValueWithObjectSetter($key, $value, $directly, $definition);
+            $this->setColumnValueWithObjectSetter($key, $value, $directly, $definition);
         }
 
         if ($this->getId() < 0) {
@@ -1515,7 +1515,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param DefinitionInterface $definition
      * @return void
      */
-    protected function setFieldValueWithObjectSetter(string $column, mixed $value, bool $directly, DefinitionInterface $definition): void
+    protected function setColumnValueWithObjectSetter(string $column, mixed $value, bool $directly, DefinitionInterface $definition): void
     {
         if ($directly or $this->definitions->get($column)?->getDirectUpdate()) {
             // Store data directly, bypassing the set method for this key
@@ -1523,7 +1523,7 @@ abstract class DataEntry implements DataEntryInterface
 
         } else {
             // Store this data through the set method to ensure datatype and filtering is done correctly
-            $method = $this->convertFieldToSetMethod($column);
+            $method = $this->convertColumnToSetMethod($column);
 
             if (!$definition->inputTypeIsScalar()) {
                 // This input type is not scalar and as such has been stored as a JSON array
@@ -1669,7 +1669,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param mixed|null $default
      * @return mixed
      */
-    protected function getSourceFieldValue(string $type, string $column, mixed $default = null): mixed
+    protected function getSourceColumnValue(string $type, string $column, mixed $default = null): mixed
     {
         $this->checkProtected($column);
         return isset_get_typed($type, $this->source[$column], $default, false);
@@ -1870,12 +1870,12 @@ abstract class DataEntry implements DataEntryInterface
      * @param string $column
      * @return string
      */
-    protected function convertFieldToSetMethod(string $column): string
+    protected function convertColumnToSetMethod(string $column): string
     {
         // Convert underscore to camelcase
         // Remove the prefix from the column
-        if ($this->definitions->getFieldPrefix()) {
-            $column = Strings::from($column, $this->definitions->getFieldPrefix());
+        if ($this->definitions->getColumnPrefix()) {
+            $column = Strings::from($column, $this->definitions->getColumnPrefix());
         }
 
         $return = explode('_', $column);
@@ -1913,7 +1913,7 @@ abstract class DataEntry implements DataEntryInterface
 //                }
             }
 
-            $column = $definition->getField();
+            $column = $definition->getColumn();
 
             if ($definition->getVirtual()) {
                 // This is a virtual column, ignore it.
@@ -2107,7 +2107,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         $return = [];
         $source = $validator->getSource();
-        $prefix = $this->definitions->getFieldPrefix();
+        $prefix = $this->definitions->getColumnPrefix();
 
         foreach ($source as $key => $value) {
             $return[Strings::from($key, $prefix)] = $value;
@@ -2144,7 +2144,7 @@ abstract class DataEntry implements DataEntryInterface
             ->setId($this->getId())
             ->setTable(static::getTable());
 
-        $prefix = $this->definitions->getFieldPrefix();
+        $prefix = $this->definitions->getColumnPrefix();
 
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->definitions as $column => $definition) {
@@ -2156,7 +2156,7 @@ abstract class DataEntry implements DataEntryInterface
             if ($definition->getReadonly() or $definition->getDisabled()) {
                 // This column cannot be modified and should not be validated, unless its new or has a static value
                 if (!$this->isNew() and !$definition->getValue()) {
-                    $validator->removeSourceKey($definition->getField());
+                    $validator->removeSourceKey($definition->getColumn());
                     continue;
                 }
             }
@@ -2205,7 +2205,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param string $column
      * @return string
      */
-    protected function getAlternateValidationField(string $column): string
+    protected function getAlternateValidationColumn(string $column): string
     {
         if (!$this->definitions->keyExists($column)) {
             throw new OutOfBoundsException(tr('Specified column name ":column" does not exist', [
@@ -2213,7 +2213,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        $alt = $this->definitions->get($column)->getCliField();
+        $alt = $this->definitions->get($column)->getCliColumn();
         $alt = Strings::until($alt, ' ');
         $alt = trim($alt);
 
@@ -2245,7 +2245,7 @@ abstract class DataEntry implements DataEntryInterface
             return 'id';
         }
 
-        $return = static::getUniqueField();
+        $return = static::getUniqueColumn();
 
         if ($return) {
             return $return;
@@ -2290,7 +2290,7 @@ abstract class DataEntry implements DataEntryInterface
         // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier
         // meaning that it would HAVE to exist!)
         if ($this->isNew() and $column !== 'id') {
-            $this->setFieldValueWithObjectSetter($column, $identifier, false, $this->definitions->get($column));
+            $this->setColumnValueWithObjectSetter($column, $identifier, false, $this->definitions->get($column));
         }
     }
 
@@ -2388,7 +2388,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * "column" should be the database table column name
      *
-     * Field keys:
+     * Column keys:
      *
      * FIELD          DATATYPE           DEFAULT VALUE  DESCRIPTION
      * value          mixed              null           The value for this entry

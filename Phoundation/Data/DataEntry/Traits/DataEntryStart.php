@@ -27,7 +27,7 @@ trait DataEntryStart
      */
     public function getStart(): ?DateTimeInterface
     {
-        return $this->getSourceFieldValue('datetime', 'start');
+        return $this->getSourceColumnValue('datetime', 'start');
     }
 
 

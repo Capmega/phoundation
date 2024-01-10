@@ -92,7 +92,7 @@ class Phone extends DataEntry implements PhoneInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'phone';
     }
@@ -222,7 +222,7 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setSize(3)
-                ->setCliField('-t,--type')
+                ->setCliColumn('-t,--type')
                 ->setSource([
                     'personal' => tr('Personal'),
                     'business' => tr('Business'),

@@ -32,7 +32,7 @@ trait DataEntryRole
      */
     public function getRolesId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'roles_id');
+        return $this->getSourceColumnValue('int', 'roles_id');
 
     }
 

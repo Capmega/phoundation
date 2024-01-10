@@ -32,7 +32,7 @@ trait DataEntryTask
      */
     public function getTasksId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'tasks_id');
+        return $this->getSourceColumnValue('int', 'tasks_id');
 
     }
 

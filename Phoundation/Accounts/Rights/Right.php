@@ -77,7 +77,7 @@ class Right extends DataEntry implements RightInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }

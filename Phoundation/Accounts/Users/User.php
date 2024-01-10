@@ -167,7 +167,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'email';
     }
@@ -278,14 +278,14 @@ class User extends DataEntry implements UserInterface
      */
     public function getLogId(): string
     {
-        $id = $this->getSourceFieldValue('int', 'id');
+        $id = $this->getSourceColumnValue('int', 'id');
 
         if (!$id) {
             // This is a guest user
             return tr('Guest');
         }
 
-        return $id . ' / ' . $this->getSourceFieldValue('string', static::getUniqueField());
+        return $id . ' / ' . $this->getSourceColumnValue('string', static::getUniqueColumn());
     }
 
 
@@ -383,7 +383,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getNickname(): ?string
     {
-        return $this->getSourceFieldValue('string', 'nickname');
+        return $this->getSourceColumnValue('string', 'nickname');
     }
 
 
@@ -406,7 +406,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getName(): ?string
     {
-        return trim($this->getSourceFieldValue('string', 'first_names') . ' ' . $this->getSourceFieldValue('string', 'last_names'));
+        return trim($this->getSourceColumnValue('string', 'first_names') . ' ' . $this->getSourceColumnValue('string', 'last_names'));
     }
 
 
@@ -417,7 +417,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getUsername(): ?string
     {
-        return $this->getSourceFieldValue('string', 'username');
+        return $this->getSourceColumnValue('string', 'username');
     }
 
 
@@ -440,7 +440,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLastSignin(): ?string
     {
-        return $this->getSourceFieldValue('string', 'last_sign_in');
+        return $this->getSourceColumnValue('string', 'last_sign_in');
     }
 
 
@@ -463,7 +463,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getUpdatePassword(): ?DateTime
     {
-        $update_password = $this->getSourceFieldValue('string', 'update_password');
+        $update_password = $this->getSourceColumnValue('string', 'update_password');
 
         if ($update_password) {
             return new DateTime($update_password);
@@ -499,7 +499,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getAuthenticationFailures(): ?int
     {
-        return $this->getSourceFieldValue('int', 'authentication_failures');
+        return $this->getSourceColumnValue('int', 'authentication_failures');
     }
 
 
@@ -522,7 +522,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLockedUntil(): ?string
     {
-        return $this->getSourceFieldValue('string', 'locked_until');
+        return $this->getSourceColumnValue('string', 'locked_until');
     }
 
 
@@ -545,7 +545,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getSigninCount(): ?int
     {
-        return $this->getSourceFieldValue('int', 'sign_in_count');
+        return $this->getSourceColumnValue('int', 'sign_in_count');
     }
 
 
@@ -568,7 +568,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getNotificationsHash(): ?string
     {
-        return $this->getSourceFieldValue('string', 'notifications_hash');
+        return $this->getSourceColumnValue('string', 'notifications_hash');
     }
 
 
@@ -592,7 +592,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getFingerprint(): ?DateTimeInterface
     {
-        $fingerprint = $this->getSourceFieldValue('string', 'fingerprint');
+        $fingerprint = $this->getSourceColumnValue('string', 'fingerprint');
         return new DateTime($fingerprint);
     }
 
@@ -624,7 +624,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getKeywords(): ?string
     {
-        return $this->getSourceFieldValue('string', 'keywords');
+        return $this->getSourceColumnValue('string', 'keywords');
     }
 
 
@@ -647,7 +647,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getPriority(): ?int
     {
-        return $this->getSourceFieldValue('int', 'priority');
+        return $this->getSourceColumnValue('int', 'priority');
     }
 
 
@@ -670,7 +670,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getIsLeader(): bool
     {
-        return $this->getSourceFieldValue('bool', 'is_leader', false);
+        return $this->getSourceColumnValue('bool', 'is_leader', false);
     }
 
 
@@ -693,7 +693,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeadersId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'leaders_id');
+        return $this->getSourceColumnValue('int', 'leaders_id');
     }
 
 
@@ -716,7 +716,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        $leaders_id = $this->getSourceFieldValue('int', 'leaders_id');
+        $leaders_id = $this->getSourceColumnValue('int', 'leaders_id');
 
         if ($leaders_id) {
             return new static($leaders_id);
@@ -733,7 +733,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeadersName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'leaders_name');
+        return $this->getSourceColumnValue('string', 'leaders_name');
     }
 
 
@@ -756,7 +756,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLatitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'latitude');
+        return $this->getSourceColumnValue('float', 'latitude');
     }
 
 
@@ -779,7 +779,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLongitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'longitude');
+        return $this->getSourceColumnValue('float', 'longitude');
     }
 
 
@@ -802,7 +802,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getAccuracy(): ?float
     {
-        return $this->getSourceFieldValue('float', 'accuracy');
+        return $this->getSourceColumnValue('float', 'accuracy');
     }
 
 
@@ -825,7 +825,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getOffsetLatitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'offset_latitude');
+        return $this->getSourceColumnValue('float', 'offset_latitude');
     }
 
 
@@ -848,7 +848,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getOffsetLongitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'offset_longitude');
+        return $this->getSourceColumnValue('float', 'offset_longitude');
     }
 
 
@@ -871,7 +871,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getRedirect(): ?string
     {
-        return $this->getSourceFieldValue('string', 'redirect');
+        return $this->getSourceColumnValue('string', 'redirect');
     }
 
 
@@ -899,7 +899,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getGender(): ?string
     {
-        return $this->getSourceFieldValue('string', 'gender');
+        return $this->getSourceColumnValue('string', 'gender');
     }
 
 
@@ -922,7 +922,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getBirthdate(): ?DateTimeInterface
     {
-        $birthdate = $this->getSourceFieldValue('string', 'birthdate');
+        $birthdate = $this->getSourceColumnValue('string', 'birthdate');
 
         if ($birthdate ) {
             return new DateTime($birthdate);
@@ -1080,7 +1080,7 @@ class User extends DataEntry implements UserInterface
      */
     function getDisplayId(): string
     {
-        return $this->getSourceFieldValue('int', 'id') . ' / ' . $this->getDisplayName();
+        return $this->getSourceColumnValue('int', 'id') . ' / ' . $this->getDisplayName();
     }
 
 
@@ -1648,7 +1648,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setMaxlength(128)
                 ->setSize(3)
-                ->setCliField('--domain')
+                ->setCliColumn('--domain')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Restrict to domain'))
                 ->setHelpText(tr('The domain where this user will be able to sign in'))
@@ -1658,7 +1658,7 @@ class User extends DataEntry implements UserInterface
             ->addDefinition(Definition::new($this, 'username')
                 ->setOptional(true)
                 ->setSize(3)
-                ->setCliField('-u,--username')
+                ->setCliColumn('-u,--username')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Username'))
                 ->setHelpGroup(tr('Personal information'))
@@ -1669,18 +1669,18 @@ class User extends DataEntry implements UserInterface
             ->addDefinition(DefinitionFactory::getName($this, 'nickname')
                 ->setOptional(true)
                 ->setLabel(tr('Nickname'))
-                ->setCliField('--nickname NAME')
+                ->setCliColumn('--nickname NAME')
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The nickname for this user')))
             ->addDefinition(DefinitionFactory::getName($this, 'first_names')
                 ->setOptional(true)
-                ->setCliField('-f,--first-names NAMES')
+                ->setCliColumn('-f,--first-names NAMES')
                 ->setLabel(tr('First names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The firstnames for this user')))
             ->addDefinition(DefinitionFactory::getName($this, 'last_names')
                 ->setOptional(true)
-                ->setCliField('-n,--last-names')
+                ->setCliColumn('-n,--last-names')
                 ->setLabel(tr('Last names'))
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The lastnames / surnames for this user')))
@@ -1691,7 +1691,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setSize(3)
-                ->setCliField('-g,--gender')
+                ->setCliColumn('-g,--gender')
                 ->setSource([
                     ''       => tr('Select a gender'),
                     'male'   => tr('Male'),
@@ -1709,24 +1709,24 @@ class User extends DataEntry implements UserInterface
                     $validator->hasMaxCharacters(6);
                 }))
             ->addDefinition(DefinitionFactory::getUsersEmail($this, 'leaders_email')
-                ->setCliField('--leader USER-EMAIL')
+                ->setCliColumn('--leader USER-EMAIL')
                 ->clearValidationFunctions()
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->orField('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
+                    $validator->orColumn('leaders_id')->isEmail()->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
                 }))
             ->addDefinition(DefinitionFactory::getUsersId($this, 'leaders_id')
-                ->setCliField('--leaders-id USERS-DATABASE-ID')
+                ->setCliColumn('--leaders-id USERS-DATABASE-ID')
                 ->setLabel(tr('Leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
                 ->setHelpText(tr('The user that is the leader for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->orField('leaders_email')->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                    $validator->orColumn('leaders_email')->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                 }))
             ->addDefinition(Definition::new($this, 'is_leader')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
-                ->setCliField('--is-leader')
+                ->setCliColumn('--is-leader')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Is leader'))
                 ->setHelpGroup(tr('Hierarchical information'))
@@ -1741,7 +1741,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setSize(3)
-                ->setCliField('--priority')
+                ->setCliColumn('--priority')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Priority'))
                 ->setMin(1)
@@ -1752,7 +1752,7 @@ class User extends DataEntry implements UserInterface
                 }))
             ->addDefinition(DefinitionFactory::getDate($this, 'birthdate')
                 ->setLabel(tr('Birthdate'))
-                ->setCliField('-b,--birthdate')
+                ->setCliColumn('-b,--birthdate')
                 ->setHelpGroup(tr('Personal information'))
                 ->setHelpText(tr('The birthdate for this user'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1770,7 +1770,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setMaxlength(255)
                 ->setSize(6)
-                ->setCliField('-a,--address')
+                ->setCliColumn('-a,--address')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Address'))
                 ->setHelpGroup(tr('Location information'))
@@ -1783,7 +1783,7 @@ class User extends DataEntry implements UserInterface
                 ->setMinlength(4)
                 ->setMaxlength(8)
                 ->setSize(3)
-                ->setCliField('-z,--zipcode')
+                ->setCliColumn('-z,--zipcode')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Zip code'))
                 ->setHelpGroup(tr('Location information'))
@@ -1807,7 +1807,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setSize(3)
-                ->setCliField('--latitude')
+                ->setCliColumn('--latitude')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Latitude'))
                 ->setHelpGroup(tr('Location information'))
@@ -1819,7 +1819,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setSize(3)
-                ->setCliField('--longitude')
+                ->setCliColumn('--longitude')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Longitude'))
                 ->setHelpGroup(tr('Location information'))
@@ -1851,7 +1851,7 @@ class User extends DataEntry implements UserInterface
                 ->setSize(3)
                 ->setMin(0)
                 ->setMax(10)
-                ->setCliField('--accuracy')
+                ->setCliColumn('--accuracy')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Accuracy'))
                 ->setHelpGroup(tr('Location information'))
@@ -1863,7 +1863,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setMaxLength(16)
                 ->setSize(3)
-                ->setCliField('--type')
+                ->setCliColumn('--type')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Type'))
                 ->setHelpGroup(tr(''))
@@ -1883,7 +1883,7 @@ class User extends DataEntry implements UserInterface
                 ->setOptional(true)
                 ->setMaxlength(255)
                 ->setSize(6)
-                ->setCliField('-k,--keywords')
+                ->setCliColumn('-k,--keywords')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Keywords'))
                 ->setHelpGroup(tr('Account information'))
@@ -1910,7 +1910,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('The URL where this user will be redirected to upon sign in')))
             ->addDefinition(Definition::new($this, 'url')
                 ->setSize(12)
-                ->setCliField('--url')
+                ->setCliColumn('--url')
                 ->setLabel(tr('Website URL'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))

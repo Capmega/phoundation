@@ -24,7 +24,7 @@ trait DataEntryDatabase
      */
     public function getDatabase(): ?string
     {
-        return $this->getSourceFieldValue('string', 'database');
+        return $this->getSourceColumnValue('string', 'database');
     }
 
 

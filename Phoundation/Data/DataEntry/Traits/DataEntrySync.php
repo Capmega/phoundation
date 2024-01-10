@@ -24,7 +24,7 @@ trait DataEntrySync
      */
     public function getSync(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'sync');
+        return $this->getSourceColumnValue('bool', 'sync');
     }
 
 

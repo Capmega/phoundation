@@ -28,7 +28,7 @@ trait DataEntryLongLat
      */
     public function getLongitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'longitude');
+        return $this->getSourceColumnValue('float', 'longitude');
     }
 
 
@@ -42,9 +42,9 @@ trait DataEntryLongLat
     {
         return $this->setSourceValue('longitude', $longitude);
     }
-    
-    
-    
+
+
+
     /**
      * Returns the latitude for this entry
      *
@@ -52,7 +52,7 @@ trait DataEntryLongLat
      */
     public function getLatitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'latitude');
+        return $this->getSourceColumnValue('float', 'latitude');
     }
 
 

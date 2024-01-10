@@ -44,7 +44,7 @@ class EmailAttachment extends DataEntry
     /**
      * @inheritDoc
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return tr('email');
     }

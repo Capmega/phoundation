@@ -76,7 +76,7 @@ class Provider extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -89,7 +89,7 @@ class Provider extends DataEntry
      */
     public function getAddress2(): ?string
     {
-        return $this->getSourceFieldValue('string', 'address2');
+        return $this->getSourceColumnValue('string', 'address2');
     }
 
 
@@ -112,7 +112,7 @@ class Provider extends DataEntry
      */
     public function getAddress3(): ?string
     {
-        return $this->getSourceFieldValue('string', 'address3');
+        return $this->getSourceColumnValue('string', 'address3');
     }
 
 
@@ -155,7 +155,7 @@ class Provider extends DataEntry
             ->addDefinition(Definition::new($this, 'address1')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--address1 ADDRESS')
+                ->setCliColumn('--address1 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
                 ->setLabel(tr('Address 1'))
@@ -163,7 +163,7 @@ class Provider extends DataEntry
             ->addDefinition(Definition::new($this, 'address2')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--address2 ADDRESS')
+                ->setCliColumn('--address2 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
                 ->setLabel(tr('Address 2'))
@@ -171,7 +171,7 @@ class Provider extends DataEntry
             ->addDefinition(Definition::new($this, 'address3')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--address3 ADDRESS')
+                ->setCliColumn('--address3 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
                 ->setLabel(tr('Address 3'))
@@ -179,7 +179,7 @@ class Provider extends DataEntry
             ->addDefinition(Definition::new($this, 'zipcode')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--zip-code ZIPCODE (POSTAL CODE)')
+                ->setCliColumn('--zip-code ZIPCODE (POSTAL CODE)')
                 ->setMaxlength(8)
                 ->setSize(6)
                 ->setLabel(tr('Postal code / Zipcode'))

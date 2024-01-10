@@ -55,7 +55,7 @@ class Country extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -68,7 +68,7 @@ class Country extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getSourceFieldValue('int', 'timezones_id'));
+        return new Timezone($this->getSourceColumnValue('int', 'timezones_id'));
     }
 
 
@@ -79,7 +79,7 @@ class Country extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getSourceFieldValue('int', 'continents_id'));
+        return new Continent($this->getSourceColumnValue('int', 'continents_id'));
     }
 
 

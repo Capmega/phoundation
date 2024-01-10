@@ -84,7 +84,7 @@ class Mount extends DataEntry implements MountInterface
     /**
      * @inheritDoc
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }
@@ -156,7 +156,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getFilesystem(): ?string
     {
-        return $this->getSourceFieldValue('string', 'filesystem');
+        return $this->getSourceColumnValue('string', 'filesystem');
     }
 
 
@@ -179,7 +179,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAutoMount(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'auto_mount');
+        return $this->getSourceColumnValue('bool', 'auto_mount');
     }
 
 
@@ -202,7 +202,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAutoUnmount(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'auto_unmount');
+        return $this->getSourceColumnValue('bool', 'auto_unmount');
     }
 
 
@@ -225,7 +225,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getSourcePath(): ?string
     {
-        return $this->getSourceFieldValue('string', 'source_path');
+        return $this->getSourceColumnValue('string', 'source_path');
     }
 
 
@@ -259,7 +259,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getTargetPath(): ?string
     {
-        return $this->getSourceFieldValue('string', 'target_path');
+        return $this->getSourceColumnValue('string', 'target_path');
     }
 
 

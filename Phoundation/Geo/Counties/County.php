@@ -57,7 +57,7 @@ class County extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -70,7 +70,7 @@ class County extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getSourceFieldValue('int', 'timezones_id'));
+        return new Timezone($this->getSourceColumnValue('int', 'timezones_id'));
     }
 
 
@@ -81,7 +81,7 @@ class County extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getSourceFieldValue('int', 'continents_id'));
+        return new Continent($this->getSourceColumnValue('int', 'continents_id'));
     }
 
 
@@ -92,7 +92,7 @@ class County extends DataEntry
      */
     public function getCountry(): Country
     {
-        return new Country($this->getSourceFieldValue('int', 'countries_id'));
+        return new Country($this->getSourceColumnValue('int', 'countries_id'));
     }
 
 
@@ -103,7 +103,7 @@ class County extends DataEntry
      */
     public function getState(): State
     {
-        return new State($this->getSourceFieldValue('int', 'states_id'));
+        return new State($this->getSourceColumnValue('int', 'states_id'));
     }
 
 

@@ -88,7 +88,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }

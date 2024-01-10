@@ -88,7 +88,7 @@ class Incident extends DataEntry implements IncidentInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }
@@ -171,7 +171,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     public function getSeverity(): string
     {
-        return $this->getSourceFieldValue('string', 'severity', Severity::unknown->value);
+        return $this->getSourceColumnValue('string', 'severity', Severity::unknown->value);
     }
 
 

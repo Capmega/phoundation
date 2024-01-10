@@ -24,7 +24,7 @@ trait DataEntryKey
      */
     public function getKey(): ?string
     {
-        return $this->getSourceFieldValue('string', 'key');
+        return $this->getSourceColumnValue('string', 'key');
     }
 
 

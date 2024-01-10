@@ -29,7 +29,7 @@ trait DataEntryName
      */
     public function getSeoName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'seo_name');
+        return $this->getSourceColumnValue('string', 'seo_name');
     }
 
 
@@ -53,7 +53,7 @@ trait DataEntryName
      */
     public function getName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'name');
+        return $this->getSourceColumnValue('string', 'name');
     }
 
 
@@ -74,7 +74,7 @@ trait DataEntryName
                 // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
                 // the entry if it does!
                 try {
-                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceColumnValue('int', 'id'), 'seo_name');
                     $this->setSourceValue('seo_name', $seo_name, true);
                 } catch (SqlTableDoesNotExistException $e) {
                     // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and

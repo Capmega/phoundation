@@ -62,7 +62,7 @@ class StaticRoutes extends DataList
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }

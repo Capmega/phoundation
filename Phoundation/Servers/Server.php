@@ -87,7 +87,7 @@ class Server extends DataEntry implements ServerInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'hostname';
     }
@@ -114,7 +114,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getCost(): ?float
     {
-        return $this->getSourceFieldValue('float', 'cost');
+        return $this->getSourceColumnValue('float', 'cost');
     }
 
 
@@ -137,7 +137,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getSourceFieldValue('string', 'bill_due_date');
+        return $this->getSourceColumnValue('string', 'bill_due_date');
     }
 
 
@@ -161,7 +161,7 @@ class Server extends DataEntry implements ServerInterface
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getSourceFieldValue('string', 'interval');
+        return $this->getSourceColumnValue('string', 'interval');
     }
 
 
@@ -185,7 +185,7 @@ class Server extends DataEntry implements ServerInterface
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'os_name');
+        return $this->getSourceColumnValue('string', 'os_name');
     }
 
 
@@ -208,7 +208,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getOsVersion(): ?string
     {
-        return $this->getSourceFieldValue('string', 'os_version');
+        return $this->getSourceColumnValue('string', 'os_version');
     }
 
 
@@ -232,7 +232,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getWebServices(): bool
     {
-        return $this->getSourceFieldValue('bool', 'web_services', false);
+        return $this->getSourceColumnValue('bool', 'web_services', false);
     }
 
 
@@ -255,7 +255,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getMailServices(): bool
     {
-        return $this->getSourceFieldValue('bool', 'mail_services', false);
+        return $this->getSourceColumnValue('bool', 'mail_services', false);
     }
 
 
@@ -278,7 +278,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getSourceFieldValue('bool', 'database_services', false);
+        return $this->getSourceColumnValue('bool', 'database_services', false);
     }
 
 
@@ -301,7 +301,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getSourceFieldValue('bool', 'allow_sshd_modifications', false);
+        return $this->getSourceColumnValue('bool', 'allow_sshd_modifications', false);
     }
 
 
@@ -383,7 +383,7 @@ class Server extends DataEntry implements ServerInterface
             ->addDefinition(Definition::new($this, 'category')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--category CATEGORY-NAME')
+                ->setCliColumn('--category CATEGORY-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
@@ -394,7 +394,7 @@ class Server extends DataEntry implements ServerInterface
             ->addDefinition(Definition::new($this, 'provider')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--provider PROVIDER-NAME')
+                ->setCliColumn('--provider PROVIDER-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Providers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Providers::new()->getSource(); },
@@ -405,7 +405,7 @@ class Server extends DataEntry implements ServerInterface
             ->addDefinition(Definition::new($this, 'customer')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--customer CUSTOMER-NAME')
+                ->setCliColumn('--customer CUSTOMER-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Customers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Customers::new()->getSource(); },
@@ -418,7 +418,7 @@ class Server extends DataEntry implements ServerInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
-                ->setCliField('--country COUNTRY-NAME')
+                ->setCliColumn('--country COUNTRY-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Countries::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Countries::new()->getSource(); },
@@ -431,7 +431,7 @@ class Server extends DataEntry implements ServerInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
-                ->setCliField('--state STATE-NAME')
+                ->setCliColumn('--state STATE-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return States::new()->getMatchingKeys($word); },
                     'noword' => function()      { return States::new()->getSource(); },
@@ -444,7 +444,7 @@ class Server extends DataEntry implements ServerInterface
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
-                ->setCliField('--city STATE-NAME')
+                ->setCliColumn('--city STATE-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Cities::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Cities::new()->getSource(); },
@@ -467,7 +467,7 @@ class Server extends DataEntry implements ServerInterface
                 ->setMaxlength(128)
                 ->setSize(4)
                 ->setLabel(tr('Hostname'))
-                ->setCliField('-h,--hostname HOSTNAME')
+                ->setCliColumn('-h,--hostname HOSTNAME')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete(true))
@@ -476,7 +476,7 @@ class Server extends DataEntry implements ServerInterface
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::name)
                 ->setLabel(tr('Account'))
-                ->setCliField('-a,--account ACCOUNT-NAME')
+                ->setCliColumn('-a,--account ACCOUNT-NAME')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
@@ -506,7 +506,7 @@ showdie('fuck!');
                 ->setMax(65535)
                 ->setSize(2)
                 ->setLabel(tr('Port'))
-                ->setCliField('-p,--port PORT (1 - 65535)')
+                ->setCliColumn('-p,--port PORT (1 - 65535)')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The port where one can connect to the servers SSH service')))
             ->addDefinition(Definition::new($this, 'code')
@@ -515,7 +515,7 @@ showdie('fuck!');
                 ->setSize(2)
                 ->setMaxlength(16)
                 ->setLabel(tr('Code'))
-                ->setCliField('-c,--code CODE')
+                ->setCliColumn('-c,--code CODE')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('A unique identifying code for this server'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -528,7 +528,7 @@ showdie('fuck!');
                 ->setStep('any')
                 ->setSize(4)
                 ->setLabel(tr('Cost'))
-                ->setCliField('--cost CURRENCY')
+                ->setCliColumn('--cost CURRENCY')
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The cost per interval for this server')))
             ->addDefinition(Definition::new($this, 'bill_due_date')
@@ -538,7 +538,7 @@ showdie('fuck!');
                 ->setStep('any')
                 ->setSize(4)
                 ->setLabel(tr('Bill due date'))
-                ->setCliField('-b,--bill-due-date DATE')
+                ->setCliColumn('-b,--bill-due-date DATE')
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The next date when payment for this server is due')))
             ->addDefinition(Definition::new($this, 'interval')
@@ -546,7 +546,7 @@ showdie('fuck!');
                 ->setInputType(InputType::date)
                 ->setSize(4)
                 ->setLabel(tr('Payment interval'))
-                ->setCliField('-i,--interval POSITIVE-INTEGER')
+                ->setCliColumn('-i,--interval POSITIVE-INTEGER')
                 ->setSource([
                     'hourly'     => tr('Hourly'),
                     'daily'      => tr('Daily'),
@@ -561,7 +561,7 @@ showdie('fuck!');
                 ->setHelpText(tr('The interval for when this server must be paid')))
             ->addDefinition(Definition::new($this, 'categories_id')
                 ->setOptional(true)
-                ->setCliField('--categories-id CATEGORIES-ID')
+                ->setCliColumn('--categories-id CATEGORIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The category for this server'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -575,7 +575,7 @@ showdie('fuck!');
                 }))
             ->addDefinition(Definition::new($this, 'providers_id')
                 ->setOptional(true)
-                ->setCliField('--providers-id PROVIDERS-ID')
+                ->setCliColumn('--providers-id PROVIDERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The service provider where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -589,7 +589,7 @@ showdie('fuck!');
                 }))
             ->addDefinition(Definition::new($this, 'customers_id')
                 ->setOptional(true)
-                ->setCliField('--customers-id CUSTOMERS-ID')
+                ->setCliColumn('--customers-id CUSTOMERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The client using this server'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -603,7 +603,7 @@ showdie('fuck!');
                 }))
             ->addDefinition(Definition::new($this, 'countries_id')
                 ->setOptional(true)
-                ->setCliField('--countries-id COUNTRIES-ID')
+                ->setCliColumn('--countries-id COUNTRIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The country where this server is hosted'))
@@ -618,7 +618,7 @@ showdie('fuck!');
                 }))
             ->addDefinition(Definition::new($this, 'states_id')
                 ->setOptional(true)
-                ->setCliField('--states-id STATES-ID')
+                ->setCliColumn('--states-id STATES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The state where this server is hosted'))
@@ -633,7 +633,7 @@ showdie('fuck!');
                 }))
             ->addDefinition(Definition::new($this, 'cities_id')
                 ->setOptional(true)
-                ->setCliField('--cities-id CITIES-ID')
+                ->setCliColumn('--cities-id CITIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
@@ -649,7 +649,7 @@ showdie('fuck!');
                 ->setInputType(InputType::text)
                 ->setSize(9)
                 ->setLabel(tr('Operating system'))
-                ->setCliField('-o,--os-name OPERATING-SYSTEM-NAME')
+                ->setCliColumn('-o,--os-name OPERATING-SYSTEM-NAME')
                 ->setCliAutoComplete(true)
                 ->setSource([
                     'debian'    => tr('Debian'),
@@ -670,35 +670,35 @@ showdie('fuck!');
                 ->setMinlength(9)
                 ->setMaxlength(16)
                 ->setLabel(tr('Operating system version'))
-                ->setCliField('-v,--os-version VERSION')
+                ->setCliColumn('-v,--os-version VERSION')
                 ->setHelpText(tr('The current version of the installed operating system')))
             ->addDefinition(Definition::new($this, 'web_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Web services'))
-                ->setCliField('-w,--web-services')
+                ->setCliColumn('-w,--web-services')
                 ->setHelpText(tr('Sets if this server manages web services')))
             ->addDefinition(Definition::new($this, 'mail_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Email services'))
-                ->setCliField('-m,--mail-services')
+                ->setCliColumn('-m,--mail-services')
                 ->setHelpText(tr('Sets if this server manages mail services')))
             ->addDefinition(Definition::new($this, 'database_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Database services'))
-                ->setCliField('-e,--database-services')
+                ->setCliColumn('-e,--database-services')
                 ->setHelpText(tr('Sets if this server manages database services')))
             ->addDefinition(Definition::new($this, 'mail_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Allow SSHD modification'))
-                ->setCliField('-s,--allow-sshd-modification')
+                ->setCliColumn('-s,--allow-sshd-modification')
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('A description for this server')));

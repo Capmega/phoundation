@@ -74,7 +74,7 @@ class Company extends DataEntry implements CompanyInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }

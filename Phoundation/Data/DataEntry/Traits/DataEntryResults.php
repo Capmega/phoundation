@@ -24,7 +24,7 @@ trait DataEntryResults
      */
     public function getResults(): ?string
     {
-        return $this->getSourceFieldValue('string', 'results');
+        return $this->getSourceColumnValue('string', 'results');
     }
 
 

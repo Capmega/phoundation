@@ -43,7 +43,7 @@ class Mounts extends DataList implements MountsInterface
     }
 
 
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }

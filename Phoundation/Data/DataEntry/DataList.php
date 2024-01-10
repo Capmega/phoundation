@@ -85,11 +85,11 @@ abstract class DataList extends Iterator implements DataListInterface
     protected bool $is_loaded = false;
 
     /**
-     * Tracks if entries are stored by id or unique field
+     * Tracks if entries are stored by id or unique column
      *
-     * @var bool $store_with_unique_field
+     * @var bool $store_with_unique_column
      */
-    protected bool $store_with_unique_field = false;
+    protected bool $store_with_unique_column = false;
 
 
     /**
@@ -131,11 +131,11 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Returns the field that is unique for this object
+     * Returns the column that is unique for this object
      *
      * @return string|null
      */
-    abstract public static function getUniqueField(): ?string;
+    abstract public static function getUniqueColumn(): ?string;
 
 
     /**
@@ -159,21 +159,21 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return bool
      */
-    public function getStoreWithUniqueField(): bool
+    public function getStoreWithUniqueColumn(): bool
     {
-        return $this->store_with_unique_field;
+        return $this->store_with_unique_column;
     }
 
 
     /**
      * Sets if the DataEntry entries are stored with ID or key
      *
-     * @param bool $store_with_unique_field
+     * @param bool $store_with_unique_column
      * @return static
      */
-    public function setStoreWithUniqueField(bool $store_with_unique_field): static
+    public function setStoreWithUniqueColumn(bool $store_with_unique_column): static
     {
-        $this->store_with_unique_field = $store_with_unique_field;
+        $this->store_with_unique_column = $store_with_unique_column;
         return $this;
     }
 
@@ -507,7 +507,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
             return sql()->list('SELECT `id` 
                                   FROM   `' . static::getTable() . '` 
-                                  WHERE  `' . static::getUniqueField() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
+                                  WHERE  `' . static::getUniqueColumn() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
         }
 
         return [];
@@ -533,19 +533,19 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-//        if ($this->store_with_unique_field) {
-//            if ($key and ($key != $value->getUniqueFieldValue())) {
+//        if ($this->store_with_unique_column) {
+//            if ($key and ($key != $value->getUniqueColumnValue())) {
 //                // Key must either not be specified or match the id of the DataEntry
-//                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique field ":unique" or be null', [
-//                    ':value'  => $value->getUniqueFieldValue(),
-//                    ':unique' => $value::getUniqueField(),
+//                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
+//                    ':value'  => $value->getUniqueColumnValue(),
+//                    ':unique' => $value::getUniqueColumn(),
 //                    ':type'   => $value::getDataEntryName(),
 //                    ':id'     => $value->getId() ?? 'N/A',
 //                    ':key'    => $key
 //                ]));
 //            }
 //
-//            $key = $value->getUniqueFieldValue();
+//            $key = $value->getUniqueColumnValue();
 //
 //        } else {
 //            if ($key and ($key != $value->getId())) {
@@ -686,10 +686,10 @@ abstract class DataList extends Iterator implements DataListInterface
         $this->selectQuery();
 
         if ($clear or empty($this->source)) {
-            $this->source = sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_field ? static::getUniqueField() : 'id');
+            $this->source = sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_column ? static::getUniqueColumn() : 'id');
 
         } else {
-            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_field ? static::getUniqueField() : 'id'));
+            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_column ? static::getUniqueColumn() : 'id'));
         }
 
         return $this;
@@ -745,9 +745,9 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function autoCompleteFind(?string $word = null): array
     {
-        return sql()->listKeyValue('SELECT `id`, `' . static::getUniqueField() . '`
+        return sql()->listKeyValue('SELECT `id`, `' . static::getUniqueColumn() . '`
                                           FROM   `' . static::getTable() . '`'
-                             . ($word ? ' WHERE `' . static::getUniqueField() . '` LIKE :like' : null) . '
+                             . ($word ? ' WHERE `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
                                           LIMIT ' . CliAutoComplete::getLimit(),
             $word ? [':like' => $word. '%'] : null);
     }

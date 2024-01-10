@@ -28,8 +28,8 @@ class Definitions extends Iterator implements DefinitionsInterface
     use DataDataEntry;
     use DataTable;
     use DataPrefix {
-        getPrefix as getFieldPrefix;
-        setPrefix as setFieldPrefix;
+        getPrefix as getColumnPrefix;
+        setPrefix as setColumnPrefix;
     }
 
 
@@ -42,18 +42,18 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Adds the specified Definition to the fields list
+     * Adds the specified Definition to the columns list
      *
-     * @param DefinitionInterface $field
+     * @param DefinitionInterface $column
      * @return static
      */
-    public function addDefinition(DefinitionInterface $field): static
+    public function addDefinition(DefinitionInterface $column): static
     {
         if ($this->prefix) {
-            $field->setField($this->prefix . $field->getField());
+            $column->setColumn($this->prefix . $column->getColumn());
         }
 
-        $this->source[$field->getField()] = $field;
+        $this->source[$column->getColumn()] = $column;
         return $this;
     }
 
@@ -70,7 +70,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Returns the specified field
+     * Returns the specified column
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception

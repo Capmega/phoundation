@@ -77,7 +77,7 @@ class Emails extends DataList implements EmailsInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'email';
     }
@@ -128,7 +128,7 @@ class Emails extends DataList implements EmailsInterface
     public function getHtmlDataEntryForm(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $email = Email::new()->setFieldPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
+        $email = Email::new()->setColumnPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
         $definitions = $email->getDefinitions();
         $definitions->get('email')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -139,7 +139,7 @@ class Emails extends DataList implements EmailsInterface
 
         foreach ($this->ensureDataEntries() as $email) {
             $content[] = $email
-                ->setFieldPrefix($name)
+                ->setColumnPrefix($name)
                 ->getHtmlDataEntryForm()
                 ->setMetaVisible($meta_visible)
                 ->render();

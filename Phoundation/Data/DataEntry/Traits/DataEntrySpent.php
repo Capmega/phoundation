@@ -24,7 +24,7 @@ trait DataEntrySpent
      */
     public function getSpent(): ?float
     {
-        return $this->getSourceFieldValue('float', 'spent');
+        return $this->getSourceColumnValue('float', 'spent');
     }
 
 

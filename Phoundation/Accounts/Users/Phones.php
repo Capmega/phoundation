@@ -77,7 +77,7 @@ class Phones extends DataList implements PhonesInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'phone';
     }
@@ -128,7 +128,7 @@ class Phones extends DataList implements PhonesInterface
     public function getHtmlDataEntryForm(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $phone = Phone::new()->setFieldPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
+        $phone = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
         $definitions = $phone->getDefinitions();
         $definitions->get('phone')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -139,7 +139,7 @@ class Phones extends DataList implements PhonesInterface
 
         foreach ($this->ensureDataEntries() as $phone) {
             $content[] = $phone
-                ->setFieldPrefix($name)
+                ->setColumnPrefix($name)
                 ->getHtmlDataEntryForm()
                 ->setMetaVisible($meta_visible)
                 ->render();

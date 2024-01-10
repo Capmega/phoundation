@@ -20,7 +20,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
  */
 trait UsesNewField
 {
-    use DataField;
+    use DataColumn;
 
 
     /**

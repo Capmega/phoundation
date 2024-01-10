@@ -75,7 +75,7 @@ class Email extends DataEntry implements EmailInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'email';
     }
@@ -180,7 +180,7 @@ class Email extends DataEntry implements EmailInterface
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setSize(3)
-                ->setCliField('-t,--type')
+                ->setCliColumn('-t,--type')
                 ->setSource([
                     'personal' => tr('Personal'),
                     'business' => tr('Business'),

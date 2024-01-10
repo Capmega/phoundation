@@ -8,7 +8,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 /**
  * Trait DataEntryTitle
  *
- * This trait contains methods for DataEntry objects that require a title 
+ * This trait contains methods for DataEntry objects that require a title
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -24,7 +24,7 @@ trait DataEntryTitle
      */
     public function getTitle(): ?string
     {
-        return $this->getSourceFieldValue('string', 'title');
+        return $this->getSourceColumnValue('string', 'title');
     }
 
 

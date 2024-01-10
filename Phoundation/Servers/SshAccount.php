@@ -64,7 +64,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }
@@ -91,7 +91,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceFieldValue('int', 'id') . ' / ' . (static::getUniqueField() ? $this->getSourceFieldValue('string', static::getUniqueField()) : '-') . '(' . $this->getUsername() . ')';
+        return $this->getSourceColumnValue('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceColumnValue('string', static::getUniqueColumn()) : '-') . '(' . $this->getUsername() . ')';
     }
 
 
@@ -102,7 +102,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function getSshKey(): ?string
     {
-        return $this->getSourceFieldValue('string', 'ssh_key');
+        return $this->getSourceColumnValue('string', 'ssh_key');
     }
 
 
@@ -136,7 +136,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
             ->addDefinition(Definition::new($this, 'username')
                 ->setLabel(tr('Username'))
                 ->setInputType(InputTypeExtended::username)
-                ->setCliField(tr('-u,--username NAME'))
+                ->setCliColumn(tr('-u,--username NAME'))
                 ->setCliAutoComplete(true)
                 ->setSize(6)
                 ->setMaxlength(64)
@@ -145,14 +145,14 @@ class SshAccount extends DataEntry implements SshAccountInterface
                 ->setHelpText(tr('The description for this account')))
             ->addDefinition(DefinitionFactory::getFile($this)
                 ->setLabel(tr('SSH key file'))
-                ->setCliField(tr('-i,--ssh-key-file FILE'))
+                ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                 ->setHelpText(tr('The SSH key file for this account'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile('/');
                 }))
             ->addDefinition(Definition::new($this, 'ssh_key')
                 ->setLabel(tr('SSH key'))
-                ->setCliField(tr('-k,--ssh-key "KEY"'))
+                ->setCliColumn(tr('-k,--ssh-key "KEY"'))
                 ->setCliAutoComplete(true)
                 ->setSize(12)
                 ->setMaxlength(65_535)

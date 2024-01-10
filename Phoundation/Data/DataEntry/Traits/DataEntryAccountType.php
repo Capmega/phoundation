@@ -27,7 +27,7 @@ trait DataEntryAccountType
      */
     public function getAccountType(): ?string
     {
-        return $this->getSourceFieldValue('string', 'account_type');
+        return $this->getSourceColumnValue('string', 'account_type');
     }
 
 

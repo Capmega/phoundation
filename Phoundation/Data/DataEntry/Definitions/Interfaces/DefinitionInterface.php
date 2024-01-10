@@ -18,7 +18,7 @@ use Stringable;
 /**
  * Class Definition
  *
- * Contains the definitions for a single DataEntry object field
+ * Contains the definitions for a single DataEntry object column
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -43,14 +43,14 @@ interface DefinitionInterface
     public function modifyQueryBuilder(callable $callback): static;
 
     /**
-     * Returns the internal definitions for this field
+     * Returns the internal definitions for this column
      *
      * @return array
      */
     public function getRules(): array;
 
     /**
-     * Sets all the internal definitions for this field in one go
+     * Sets all the internal definitions for this column in one go
      *
      * @param array $rules
      * @return static
@@ -88,7 +88,7 @@ interface DefinitionInterface
     public function setPostfix(?string $postfix): static;
 
     /**
-     * Add specified value for the specified key for this DataEntry field
+     * Add specified value for the specified key for this DataEntry column
      *
      * @param string $key
      * @return mixed
@@ -96,7 +96,7 @@ interface DefinitionInterface
     public function getKey(string $key): mixed;
 
     /**
-     * Add specified value for the specified key for this DataEntry field
+     * Add specified value for the specified key for this DataEntry column
      *
      * @param mixed $value
      * @param string $key
@@ -105,9 +105,9 @@ interface DefinitionInterface
     public function setKey(mixed $value, string $key): static;
 
     /**
-     * Returns if this field is visible in HTML clients
+     * Returns if this column is visible in HTML clients
      *
-     * If false, the field will not be displayed and typically will be modified through a virtual field instead.
+     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
      *
      * @note Defaults to true
      * @return bool|null
@@ -116,9 +116,9 @@ interface DefinitionInterface
     public function getVisible(): ?bool;
 
     /**
-     * Sets if this field is visible in HTML clients
+     * Sets if this column is visible in HTML clients
      *
-     * If false, the field will not be displayed and typically will be modified through a virtual field instead.
+     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
      *
      * @note Defaults to true
      * @param bool|null $value
@@ -148,7 +148,7 @@ interface DefinitionInterface
     public function addClasses(array|string $value): static;
 
     /**
-     * Returns if this field will not set the DataEntry to "modified" state when changed
+     * Returns if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to true
      * @return bool|null
@@ -156,7 +156,7 @@ interface DefinitionInterface
     public function getIgnoreModify(): ?bool;
 
     /**
-     * Sets if this field will not set the DataEntry to "modified" state when changed
+     * Sets if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -165,9 +165,9 @@ interface DefinitionInterface
     public function setIgnoreModify(?bool $value): static;
 
     /**
-     * Return if this field is a meta field
+     * Return if this column is a meta column
      *
-     * If this field is a meta field, it will be readonly for user actions
+     * If this column is a meta column, it will be readonly for user actions
      *
      * @note Defaults to false
      * @return bool
@@ -176,11 +176,11 @@ interface DefinitionInterface
     public function isMeta(): bool;
 
     /**
-     * Returns if this field is virtual
+     * Returns if this column is virtual
      *
-     * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
-     * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
-     * will be invisible whilst the virtual field "country" will modify countries_id
+     * If this column is virtual, it will be visible and can be manipulated but will have no direct database entry.
+     * Instead, it will modify a different column. This is (for example) used in an entry that uses countries_id which
+     * will be invisible whilst the virtual column "country" will modify countries_id
      *
      * @note Defaults to false
      * @return bool|null
@@ -189,11 +189,11 @@ interface DefinitionInterface
     public function getVirtual(): ?bool;
 
     /**
-     * Sets if this field is virtual
+     * Sets if this column is virtual
      *
-     * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
-     * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
-     * will be invisible whilst the virtual field "country" will modify countries_id
+     * If this column is virtual, it will be visible and can be manipulated but will have no direct database entry.
+     * Instead, it will modify a different column. This is (for example) used in an entry that uses countries_id which
+     * will be invisible whilst the virtual column "country" will modify countries_id
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -203,7 +203,7 @@ interface DefinitionInterface
     public function setVirtual(?bool $value): static;
 
     /**
-     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     * Returns if this column updates directly, bypassing DataEntry::setSourceValue()
      *
      * @note Defaults to false
      * @return bool|null
@@ -212,7 +212,7 @@ interface DefinitionInterface
     public function getDirectUpdate(): ?bool;
 
     /**
-     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     * Sets if this column updates directly, bypassing DataEntry::setSourceValue()
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -222,14 +222,14 @@ interface DefinitionInterface
     public function setDirectUpdate(?bool $value): static;
 
     /**
-     * Returns the static value for this field
+     * Returns the static value for this column
      *
      * @return callable|string|float|int|bool|null
      */
     public function getValue(): callable|string|float|int|bool|null;
 
     /**
-     * Sets static value for this field
+     * Sets static value for this column
      *
      * @param callable|string|float|int|bool|null $value
      * @param bool $only_when_new = false
@@ -238,14 +238,14 @@ interface DefinitionInterface
     public function setValue(callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
 
     /**
-     * Returns the auto focus for this field
+     * Returns the auto focus for this column
      *
      * @return bool
      */
     public function getAutoFocus(): bool;
 
     /**
-     * Sets the auto focus for this field
+     * Sets the auto focus for this column
      *
      * @param bool $auto_focus
      * @return static
@@ -253,14 +253,14 @@ interface DefinitionInterface
     public function setAutoFocus(bool $auto_focus): static;
 
     /**
-     * Returns the HTML client element to be used for this field
+     * Returns the HTML client element to be used for this column
      *
      * @return string|null
      */
     public function getElement(): string|null;
 
     /**
-     * Sets the HTML client element to be used for this field
+     * Sets the HTML client element to be used for this column
      *
      * @param InputElementInterface|null $value
      * @return static
@@ -268,14 +268,14 @@ interface DefinitionInterface
     public function setElement(InputElementInterface|null $value): static;
 
     /**
-     * Returns the HTML client element to be used for this field
+     * Returns the HTML client element to be used for this column
      *
      * @return callable|string|null
      */
     public function getContent(): callable|string|null;
 
     /**
-     * Sets the HTML client element to be used for this field
+     * Sets the HTML client element to be used for this column
      *
      * @param callable|string|null $value
      * @param bool $make_safe
@@ -382,14 +382,14 @@ interface DefinitionInterface
     public function setLabel(?string $value): static;
 
     /**
-     * Returns the boilerplate col size for this field, must be integer number between 1 and 12
+     * Returns the boilerplate col size for this column, must be integer number between 1 and 12
      *
      * @return int|null
      */
     public function getSize(): ?int;
 
     /**
-     * Sets the boilerplate col size for this field, must be integer number between 1 and 12
+     * Sets the boilerplate col size for this column, must be integer number between 1 and 12
      *
      * @param int|null $value
      * @return static
@@ -397,7 +397,7 @@ interface DefinitionInterface
     public function setSize(?int $value): static;
 
     /**
-     * Returns a data source for the HTML client element contents of this field
+     * Returns a data source for the HTML client element contents of this column
      *
      * The data source may be specified as a query string or a key => value array
      *
@@ -406,7 +406,7 @@ interface DefinitionInterface
     public function getSource(): array|PDOStatement|Stringable|string|null;
 
     /**
-     * Sets a data source for the HTML client element contents of this field
+     * Sets a data source for the HTML client element contents of this column
      *
      * The data source may be specified as a query string or a key => value array
      *
@@ -462,14 +462,14 @@ interface DefinitionInterface
     public function setExecute(array|string|null $value): static;
 
     /**
-     * Returns the cli auto-completion queries for this field
+     * Returns the cli auto-completion queries for this column
      *
      * @return array|bool|null
      */
     public function getCliAutoComplete(): array|bool|null;
 
     /**
-     * Sets the cli auto-completion queries for this field
+     * Sets the cli auto-completion queries for this column
      *
      * @param array|bool|null $value
      * @return static
@@ -477,22 +477,22 @@ interface DefinitionInterface
     public function setCliAutoComplete(array|bool|null $value): static;
 
     /**
-     * Returns the alternative CLI field names for this field
+     * Returns the alternative CLI column names for this column
      *
      * @return string|null
      */
-    public function getCliField(): ?string;
+    public function getCliColumn(): ?string;
 
     /**
-     * Sets the alternative CLI field names for this field
+     * Sets the alternative CLI column names for this column
      *
      * @param string|null $value
      * @return static
      */
-    public function setCliField(?string $value): static;
+    public function setCliColumn(?string $value): static;
 
     /**
-     * Returns if this field is optional or not
+     * Returns if this column is optional or not
      *
      * @note Defaults to false
      * @return bool
@@ -500,7 +500,7 @@ interface DefinitionInterface
     public function getOptional(): bool;
 
     /**
-     * Returns if this field is required or not
+     * Returns if this column is required or not
      *
      * @note Is the exact opposite of Definition::getOptional()
      * @note Defaults to true
@@ -509,7 +509,7 @@ interface DefinitionInterface
     public function getRequired(): bool;
 
     /**
-     * Sets if this field is optional or not
+     * Sets if this column is optional or not
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -519,14 +519,14 @@ interface DefinitionInterface
     public function setOptional(?bool $value, mixed $initial_default = null): static;
 
     /**
-     * Returns the placeholder for this field
+     * Returns the placeholder for this column
      *
      * @return string|null
      */
     public function getPlaceholder(): ?string;
 
     /**
-     * Sets the placeholder for this field
+     * Sets the placeholder for this column
      *
      * @param string|null $value
      * @return static
@@ -534,14 +534,14 @@ interface DefinitionInterface
     public function setPlaceholder(?string $value): static;
 
     /**
-     * Returns the display_callback for this field
+     * Returns the display_callback for this column
      *
      * @return callable|null
      */
     public function getDisplayCallback(): ?callable;
 
     /**
-     * Sets the display_callback for this field
+     * Sets the display_callback for this column
      *
      * @param callable|null $value
      * @return static
@@ -549,14 +549,14 @@ interface DefinitionInterface
     public function setDisplayCallback(?callable $value): static;
 
     /**
-     * Returns the minlength for this textarea or text input field
+     * Returns the minlength for this textarea or text input column
      *
      * @return int|null
      */
     public function getMinlength(): ?int;
 
     /**
-     * Sets the minlength for this textarea or text input field
+     * Sets the minlength for this textarea or text input column
      *
      * @param int|null $value
      * @return static
@@ -564,14 +564,14 @@ interface DefinitionInterface
     public function setMinlength(?int $value): static;
 
     /**
-     * Returns the maxlength for this textarea or text ibput field
+     * Returns the maxlength for this textarea or text ibput column
      *
      * @return int|null
      */
     public function getMaxlength(): ?int;
 
     /**
-     * Sets the maxlength for this textarea or text input field
+     * Sets the maxlength for this textarea or text input column
      *
      * @param int|null $value
      * @return static
@@ -579,14 +579,14 @@ interface DefinitionInterface
     public function setMaxlength(?int $value): static;
 
     /**
-     * Returns the pattern for this textarea or text input field
+     * Returns the pattern for this textarea or text input column
      *
      * @return string|null
      */
     public function getPattern(): ?string;
 
     /**
-     * Sets the pattern for this textarea or text input field
+     * Sets the pattern for this textarea or text input column
      *
      * @param string|null $value
      * @return static
@@ -594,14 +594,14 @@ interface DefinitionInterface
     public function setPattern(?string $value): static;
 
     /**
-     * Returns the tooltip for this field
+     * Returns the tooltip for this column
      *
      * @return string|null
      */
     public function getTooltip(): ?string;
 
     /**
-     * Sets  the tooltip for this field
+     * Sets  the tooltip for this column
      *
      * @param string|null $value
      * @return static
@@ -669,14 +669,14 @@ interface DefinitionInterface
     public function setRows(?int $value): static;
 
     /**
-     * Returns the default value for this field
+     * Returns the default value for this column
      *
      * @return mixed
      */
     public function getDefault(): mixed;
 
     /**
-     * Sets the default value for this field
+     * Sets the default value for this column
      *
      * @param mixed $value
      * @return static
@@ -684,14 +684,14 @@ interface DefinitionInterface
     public function setDefault(mixed $value): static;
 
     /**
-     * Returns the initial default value for this field
+     * Returns the initial default value for this column
      *
      * @return mixed
      */
     public function getInitialDefault(): mixed;
 
     /**
-     * Sets the initial default value for this field
+     * Sets the initial default value for this column
      *
      * @param mixed $value
      * @return static
@@ -699,7 +699,7 @@ interface DefinitionInterface
     public function setInitialDefault(mixed $value): static;
 
     /**
-     * Returns if this field should be stored with NULL in the database if empty
+     * Returns if this column should be stored with NULL in the database if empty
      *
      * @note Defaults to false
      * @return bool
@@ -707,7 +707,7 @@ interface DefinitionInterface
     public function getNullDb(): bool;
 
     /**
-     * Sets if this field should be stored with NULL in the database if empty
+     * Sets if this column should be stored with NULL in the database if empty
      *
      * @note Defaults to false
      * @param bool $value
@@ -717,7 +717,7 @@ interface DefinitionInterface
     public function setNullDb(bool $value, string|float|int|null $default = null): static;
 
     /**
-     * Returns if this field should be disabled if the value is NULL
+     * Returns if this column should be disabled if the value is NULL
      *
      * @note Defaults to false
      * @return bool
@@ -725,7 +725,7 @@ interface DefinitionInterface
     public function getNullDisabled(): bool;
 
     /**
-     * Sets if this field should be disabled if the value is NULL
+     * Sets if this column should be disabled if the value is NULL
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -734,7 +734,7 @@ interface DefinitionInterface
     public function setNullDisabled(?bool $value): static;
 
     /**
-     * Returns if this field should be readonly if the value is NULL
+     * Returns if this column should be readonly if the value is NULL
      *
      * @note Defaults to false
      * @return bool
@@ -742,7 +742,7 @@ interface DefinitionInterface
     public function getNullReadonly(): bool;
 
     /**
-     * Sets if this field should be readonly if the value is NULL
+     * Sets if this column should be readonly if the value is NULL
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -788,14 +788,14 @@ interface DefinitionInterface
     public function addValidationFunction(callable $function): static;
 
     /**
-     * Returns the help text for this field
+     * Returns the help text for this column
      *
      * @return string|null
      */
     public function getHelpText(): ?string;
 
     /**
-     * Sets the help text for this field
+     * Sets the help text for this column
      *
      * @param string|null $value
      * @return static
@@ -803,14 +803,14 @@ interface DefinitionInterface
     public function setHelpText(?string $value): static;
 
     /**
-     * Returns the help text group for this field
+     * Returns the help text group for this column
      *
      * @return string|null
      */
     public function getHelpGroup(): ?string;
 
     /**
-     * Sets the help text group for this field
+     * Sets the help text group for this column
      *
      * @param string|null $value
      * @return static
@@ -826,7 +826,7 @@ interface DefinitionInterface
     public function inputTypeSupported(string $type): bool;
 
     /**
-     * Validate this field according to the field definitions
+     * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
      * @param string|null $prefix
@@ -835,10 +835,10 @@ interface DefinitionInterface
     public function validate(ValidatorInterface $validator, ?string $prefix): bool;
 
     /**
-     * Returns if this field is ignored
+     * Returns if this column is ignored
      *
-     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
-     *  completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     * If this column is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     *  completely ignored. It will not generate any HTML, or allow it self to be saved, and the columns will not be
      *  stored in the source
      *
      * @note Defaults to false
@@ -848,10 +848,10 @@ interface DefinitionInterface
     public function getIgnored(): ?bool;
 
     /**
-     * Sets if this field is ignored
+     * Sets if this column is ignored
      *
-     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
-     * completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     * If this column is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     * completely ignored. It will not generate any HTML, or allow it self to be saved, and the columns will not be
      * stored in the source
      *
      * @note Defaults to false

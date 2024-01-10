@@ -3361,7 +3361,7 @@ abstract class Validator implements ValidatorInterface
      * @param string|null $field_prefix
      * @return $this
      */
-    public function setFieldPrefix(?string $field_prefix): static
+    public function setColumnPrefix(?string $field_prefix): static
     {
         $this->field_prefix = $field_prefix;
         return $this;

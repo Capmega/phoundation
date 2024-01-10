@@ -24,7 +24,7 @@ trait DataEntryPath
      */
     public function getPath(): ?string
     {
-        return $this->getSourceFieldValue('string', 'path');
+        return $this->getSourceColumnValue('string', 'path');
     }
 
 

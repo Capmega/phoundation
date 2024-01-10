@@ -24,7 +24,7 @@ trait DataEntryCharacterSet
      */
     public function getCharacterSet(): ?string
     {
-        return $this->getSourceFieldValue('string', 'character_set');
+        return $this->getSourceColumnValue('string', 'character_set');
     }
 
 

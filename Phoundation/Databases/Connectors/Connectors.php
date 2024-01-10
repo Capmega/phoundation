@@ -54,7 +54,7 @@ class Connectors extends DataList implements ConnectorsInterface
     /**
      * @inheritDoc
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }

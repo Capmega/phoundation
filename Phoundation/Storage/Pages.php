@@ -42,7 +42,7 @@ class Pages extends DataList implements PagesInterface
     /**
      * @inheritDoc
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }

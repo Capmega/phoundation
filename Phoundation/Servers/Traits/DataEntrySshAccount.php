@@ -34,7 +34,7 @@ trait DataEntrySshAccount
      */
     public function getSshAccountsId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'ssh_accounts_id');
+        return $this->getSourceColumnValue('int', 'ssh_accounts_id');
     }
 
 
@@ -75,7 +75,7 @@ trait DataEntrySshAccount
      */
     public function getSshAccountsName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'ssh_accounts_name');
+        return $this->getSourceColumnValue('string', 'ssh_accounts_name');
     }
 
 

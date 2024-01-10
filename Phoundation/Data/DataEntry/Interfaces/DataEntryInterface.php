@@ -112,7 +112,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return array
      */
-    public function getCliFields(): array;
+    public function getCliColumns(): array;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet
@@ -133,7 +133,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return string|float|int|null
      */
-    public function getUniqueFieldValue(): string|float|int|null;
+    public function getUniqueColumnValue(): string|float|int|null;
 
     /**
      * Returns id for this database entry that can be used in logs
@@ -201,7 +201,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return ?string
      */
-    public function getFieldPrefix(): ?string;
+    public function getColumnPrefix(): ?string;
 
     /**
      * Sets the column prefix string
@@ -209,7 +209,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param string|null $prefix
      * @return static
      */
-    public function setFieldPrefix(?string $prefix): static;
+    public function setColumnPrefix(?string $prefix): static;
 
     /**
      * Returns the object that created this data entry
@@ -366,7 +366,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string;
+    public static function getUniqueColumn(): ?string;
 
     /**
      * Returns true if this object has the specified status

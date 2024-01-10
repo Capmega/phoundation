@@ -56,7 +56,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'code_639_1';
     }
@@ -69,7 +69,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_1(): ?string
     {
-        return $this->getSourceFieldValue('string', 'code_639_1');
+        return $this->getSourceColumnValue('string', 'code_639_1');
     }
 
 
@@ -92,7 +92,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_2_b(): ?string
     {
-        return $this->getSourceFieldValue('string', 'code_639_2_b');
+        return $this->getSourceColumnValue('string', 'code_639_2_b');
     }
 
 
@@ -115,7 +115,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_2_t(): ?string
     {
-        return $this->getSourceFieldValue('string', 'code_639_2_t');
+        return $this->getSourceColumnValue('string', 'code_639_2_t');
     }
 
 
@@ -138,7 +138,7 @@ class Language extends DataEntry implements LanguageInterface
      */
     public function getCode_639_3(): ?string
     {
-        return $this->getSourceFieldValue('string', 'code_639_3');
+        return $this->getSourceColumnValue('string', 'code_639_3');
     }
 
 
@@ -170,7 +170,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-1 code'))
-                ->setCliField(tr('--iso-691-1 CODE'))
+                ->setCliColumn(tr('--iso-691-1 CODE'))
                 ->setSize(12)
                 ->setMaxlength(2)
                 ->setHelpText(tr('The ISO 639-1 code for this language')))
@@ -178,7 +178,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/T code'))
-                ->setCliField(tr('--iso-691-2-t CODE'))
+                ->setCliColumn(tr('--iso-691-2-t CODE'))
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/T code for this language')))
@@ -186,7 +186,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/B code'))
-                ->setCliField(tr('--iso-691-2-b CODE'))
+                ->setCliColumn(tr('--iso-691-2-b CODE'))
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/B code for this language')))
@@ -194,7 +194,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-3 code'))
-                ->setCliField(tr('--iso-691-2-b CODE'))
+                ->setCliColumn(tr('--iso-691-2-b CODE'))
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))

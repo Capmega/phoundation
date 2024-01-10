@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefiinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Traits\DataField;
+use Phoundation\Data\Traits\DataColumn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
-use Phoundation\Databases\Sql\SqlQuery;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
@@ -29,7 +27,7 @@ use Throwable;
 /**
  * Class Definition
  *
- * Contains the definitions for a single DataEntry object field
+ * Contains the definitions for a single DataEntry object column
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -38,7 +36,7 @@ use Throwable;
  */
 class Definition implements DefinitionInterface
 {
-    use DataField;
+    use DataColumn;
 
 
     /**
@@ -70,9 +68,9 @@ class Definition implements DefinitionInterface
     /**
      * These keys should not ever be processed
      *
-     * @var array $meta_fields
+     * @var array $meta_columns
      */
-    protected static array $meta_fields = [
+    protected static array $meta_columns = [
         'id',
         'created_by',
         'created_on',
@@ -122,11 +120,11 @@ class Definition implements DefinitionInterface
      * visible        boolean            true           If false, this key will not be shown on web, and be readonly
      * virtual        boolean            false          If true, this key will be visible and can be modified but it
      *                                                  won't exist in database. It instead will be used to generate
-     *                                                  a different field
+     *                                                  a different column
      * element        string|null        "input"        Type of element, input, select, or text or callable function
      * type           string|null        "text"         Type of input element, if element is "input"
      * readonly       boolean            false          If true, will make the input element readonly
-     * disabled       boolean            false          If true, the field will be displayed as disabled
+     * disabled       boolean            false          If true, the column will be displayed as disabled
      * label          string|null        null           If specified, will show a description label in HTML
      * size           int [1-12]         12             The HTML boilerplate column size, 1 - 12 (12 being the whole
      *                                                  row)
@@ -138,11 +136,11 @@ class Definition implements DefinitionInterface
      *                                                  and "word". each key must contain a callable function that
      *                                                  returns an array with possible words for shell auto
      *                                                  completion. If bool, the system will generate this array
-     *                                                  automatically from the rows for this field
+     *                                                  automatically from the rows for this column
      * cli            string|null        null           If set, defines the alternative column name definitions for
      *                                                  use with CLI. For example, the column may be name, whilst
      *                                                  the cli column name may be "-n,--name"
-     * optional       boolean            false          If true, the field is optional and may be left empty
+     * optional       boolean            false          If true, the column is optional and may be left empty
      * title          string|null        null           The title attribute which may be used for tooltips
      * placeholder    string|null        null           The placeholder attribute which typically shows an example
      * maxlength      string|null        null           The maxlength attribute which typically shows an example
@@ -161,15 +159,15 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * UsesNewField class constructor
+     * UsesNewColumn class constructor
      *
      * @param DataEntryInterface|null $data_entry
-     * @param string|null $field
+     * @param string|null $column
      */
-    public function __construct(?DataEntryInterface $data_entry, ?string $field = null)
+    public function __construct(?DataEntryInterface $data_entry, ?string $column = null)
     {
         $this->data_entry = $data_entry;
-        $this->field      = $field;
+        $this->column      = $column;
     }
 
 
@@ -177,12 +175,12 @@ class Definition implements DefinitionInterface
      * Returns a new static object
      *
      * @param DataEntryInterface|null $data_entry
-     * @param string|null $field
+     * @param string|null $column
      * @return DefinitionInterface
      */
-    public static function new(?DataEntryInterface $data_entry, ?string $field = null): DefinitionInterface
+    public static function new(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
     {
-        return new static($data_entry, $field);
+        return new static($data_entry, $column);
     }
 
 
@@ -211,7 +209,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the internal definitions for this field
+     * Returns the internal definitions for this column
      *
      * @return array
      */
@@ -222,7 +220,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets all the internal definitions for this field in one go
+     * Sets all the internal definitions for this column in one go
      *
      * @param array $rules
      * @return static
@@ -283,7 +281,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Add specified value for the specified key for this DataEntry field
+     * Add specified value for the specified key for this DataEntry column
      *
      * @param string $key
      * @return mixed
@@ -295,7 +293,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Add specified value for the specified key for this DataEntry field
+     * Add specified value for the specified key for this DataEntry column
      *
      * @param mixed $value
      * @param string $key
@@ -309,9 +307,9 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field is visible in HTML clients
+     * Returns if this column is visible in HTML clients
      *
-     * If false, the field will not be displayed and typically will be modified through a virtual field instead.
+     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
      *
      * @note Defaults to true
      * @return bool|null
@@ -324,9 +322,9 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field is visible in HTML clients
+     * Sets if this column is visible in HTML clients
      *
-     * If false, the field will not be displayed and typically will be modified through a virtual field instead.
+     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
      *
      * @note Defaults to true
      * @param bool|null $value
@@ -356,8 +354,8 @@ class Definition implements DefinitionInterface
         $classes = isset_get_typed('array', $this->rules['classes'], []);
 
         if ($add_prefixless_names) {
-            // Add the field name without prefix as a class name
-            $classes[] = $this->field;
+            // Add the column name without prefix as a class name
+            $classes[] = $this->column;
         }
 
         return $classes;
@@ -383,7 +381,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field will not set the DataEntry to "modified" state when changed
+     * Returns if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to true
      * @return bool|null
@@ -395,7 +393,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field will not set the DataEntry to "modified" state when changed
+     * Sets if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -408,9 +406,9 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Return if this field is a meta field
+     * Return if this column is a meta column
      *
-     * If this field is a meta field, it will be readonly for user actions
+     * If this column is a meta column, it will be readonly for user actions
      *
      * @note Defaults to false
      * @return bool
@@ -418,16 +416,16 @@ class Definition implements DefinitionInterface
      */
     public function isMeta(): bool
     {
-        return in_array($this->field, static::$meta_fields);
+        return in_array($this->column, static::$meta_columns);
     }
 
 
     /**
-     * Returns if this field is virtual
+     * Returns if this column is virtual
      *
-     * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
-     * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
-     * will be invisible whilst the virtual field "country" will modify countries_id
+     * If this column is virtual, it will be visible and can be manipulated but will have no direct database entry.
+     * Instead, it will modify a different column. This is (for example) used in an entry that uses countries_id which
+     * will be invisible whilst the virtual column "country" will modify countries_id
      *
      * @note Defaults to false
      * @return bool|null
@@ -440,11 +438,11 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field is virtual
+     * Sets if this column is virtual
      *
-     * If this field is virtual, it will be visible and can be manipulated but will have no direct database entry.
-     * Instead, it will modify a different field. This is (for example) used in an entry that uses countries_id which
-     * will be invisible whilst the virtual field "country" will modify countries_id
+     * If this column is virtual, it will be visible and can be manipulated but will have no direct database entry.
+     * Instead, it will modify a different column. This is (for example) used in an entry that uses countries_id which
+     * will be invisible whilst the virtual column "country" will modify countries_id
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -458,10 +456,10 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field is ignored
+     * Returns if this column is ignored
      *
-     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
-     *  completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     * If this column is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     *  completely ignored. It will not generate any HTML, or allow it self to be saved, and the columns will not be
      *  stored in the source
      *
      * @note Defaults to false
@@ -475,10 +473,10 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field is ignored
+     * Sets if this column is ignored
      *
-     * If this field is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
-     * completely ignored. It will not generate any HTML, or allow it self to be saved, and the fields will not be
+     * If this column is ignored, it will be accepted (and not cause validation exceptions by existing) but will be
+     * completely ignored. It will not generate any HTML, or allow it self to be saved, and the columns will not be
      * stored in the source
      *
      * @note Defaults to false
@@ -493,7 +491,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field updates directly, bypassing DataEntry::setSourceValue()
+     * Returns if this column updates directly, bypassing DataEntry::setSourceValue()
      *
      * @note Defaults to false
      * @return bool|null
@@ -506,7 +504,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field updates directly, bypassing DataEntry::setSourceValue()
+     * Sets if this column updates directly, bypassing DataEntry::setSourceValue()
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -520,7 +518,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the static value for this field
+     * Returns the static value for this column
      *
      * @return callable|string|float|int|bool|null
      */
@@ -531,7 +529,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets static value for this field
+     * Sets static value for this column
      *
      * @param callable|string|float|int|bool|null $value
      * @param bool $only_when_new = false
@@ -549,7 +547,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the auto focus for this field
+     * Returns the auto focus for this column
      *
      * @return bool
      */
@@ -560,7 +558,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the auto focus for this field
+     * Sets the auto focus for this column
      *
      * @param bool $auto_focus
      * @return static
@@ -572,7 +570,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the HTML client element to be used for this field
+     * Returns the HTML client element to be used for this column
      *
      * @return string|null
      */
@@ -583,7 +581,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the HTML client element to be used for this field
+     * Sets the HTML client element to be used for this column
      *
      * @param InputElementInterface|null $value
      * @return static
@@ -592,9 +590,9 @@ class Definition implements DefinitionInterface
     {
         if (!empty($this->rules['type'])) {
             if ($value !== 'input') {
-                throw new OutOfBoundsException(tr('Cannot set element ":value" for field ":field" as the element type has already been set to ":type" and typed fields can only have the element "input"', [
+                throw new OutOfBoundsException(tr('Cannot set element ":value" for column ":column" as the element type has already been set to ":type" and typed columns can only have the element "input"', [
                     ':value' => $value?->value,
-                    ':field' => $this->field,
+                    ':column' => $this->column,
                     ':type'  => $this->rules['element']
                 ]));
             }
@@ -605,7 +603,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the HTML client element to be used for this field
+     * Returns the HTML client element to be used for this column
      *
      * @return callable|string|null
      */
@@ -616,7 +614,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the HTML client element to be used for this field
+     * Sets the HTML client element to be used for this column
      *
      * @param callable|string|null $value
      * @param bool $make_safe
@@ -885,7 +883,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['readonly'], false);
+        return in_array($this->column, static::$meta_columns) or isset_get_typed('bool', $this->rules['readonly'], false);
     }
 
 
@@ -960,7 +958,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->field, static::$meta_fields) or isset_get_typed('bool', $this->rules['disabled'], false);
+        return in_array($this->column, static::$meta_columns) or isset_get_typed('bool', $this->rules['disabled'], false);
     }
 
 
@@ -1001,7 +999,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the boilerplate col size for this field, must be integer number between 1 and 12
+     * Returns the boilerplate col size for this column, must be integer number between 1 and 12
      *
      * @return int|null
      */
@@ -1012,7 +1010,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the boilerplate col size for this field, must be integer number between 1 and 12
+     * Sets the boilerplate col size for this column, must be integer number between 1 and 12
      *
      * @param int|null $value
      * @return static
@@ -1021,8 +1019,8 @@ class Definition implements DefinitionInterface
     {
         if ($value) {
             if (($value < 1) or ($value > 12)) {
-                throw new OutOfBoundsException(tr('Invalid size ":value" specified for field ":field", it must be an integer number between 1 and 12', [
-                    ':field' => $this->field,
+                throw new OutOfBoundsException(tr('Invalid size ":value" specified for column ":column", it must be an integer number between 1 and 12', [
+                    ':column' => $this->column,
                     ':value' => $value
                 ]));
             }
@@ -1033,7 +1031,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns a data source for the HTML client element contents of this field
+     * Returns a data source for the HTML client element contents of this column
      *
      * The data source may be specified as a query string or a key => value array
      *
@@ -1046,7 +1044,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets a data source for the HTML client element contents of this field
+     * Sets a data source for the HTML client element contents of this column
      *
      * The data source may be specified as a query string or a key => value array
      *
@@ -1118,15 +1116,15 @@ class Definition implements DefinitionInterface
     public function setExecute(array|string|null $value): static
     {
         if (!array_key_exists('source', $this->rules)) {
-            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for field ":field", a data query string source must be specified first', [
-                ':field' => $this->field,
+            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", a data query string source must be specified first', [
+                ':column' => $this->column,
                 ':value' => $value
             ]));
         }
 
         if (is_array($this->rules['source'])) {
-            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for field ":field", the "source" must be a string query but is an array instead', [
-                ':field' => $this->field,
+            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", the "source" must be a string query but is an array instead', [
+                ':column' => $this->column,
                 ':value' => $value
             ]));
         }
@@ -1136,7 +1134,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the cli auto-completion queries for this field
+     * Returns the cli auto-completion queries for this column
      *
      * @return array|bool|null
      */
@@ -1147,7 +1145,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the cli auto-completion queries for this field
+     * Sets the cli auto-completion queries for this column
      *
      * @param array|bool|null $value
      * @return static
@@ -1155,8 +1153,8 @@ class Definition implements DefinitionInterface
     public function setCliAutoComplete(array|bool|null $value): static
     {
         if ($value === false) {
-            throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for field ":field", it must be "TRUE" or an array with only the keys "word" and "noword"', [
-                ':field' => $this->field,
+            throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
+                ':column' => $this->column,
             ]));
         }
 
@@ -1170,8 +1168,8 @@ class Definition implements DefinitionInterface
             }
 
             if (isset($fail)) {
-                throw new OutOfBoundsException(tr('Invalid value ":value" specified for field ":field", it must be "TRUE" or an array with only the keys "word" and "noword"', [
-                    ':field' => $this->field,
+                throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
+                    ':column' => $this->column,
                     ':value' => $value
                 ]));
             }
@@ -1182,24 +1180,24 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the alternative CLI field names for this field
+     * Returns the alternative CLI column names for this column
      *
      * @return string|null
      */
-    public function getCliField(): ?string
+    public function getCliColumn(): ?string
     {
         if (PLATFORM_WEB or !$this->data_entry->isApplying()) {
-            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP field
-            return $this->field;
+            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
+            return $this->column;
         }
 
         // We're on the command line and data is being applied. We're working with data from the $argv command line
-        if (empty($this->rules['cli_field'])) {
-            // This field cannot be modified on the command line, no definition available
+        if (empty($this->rules['cli_column'])) {
+            // This column cannot be modified on the command line, no definition available
             return null;
         }
 
-        $return = isset_get_typed('string', $this->rules['cli_field']);
+        $return = isset_get_typed('string', $this->rules['cli_column']);
 
         if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
             // Strip the []
@@ -1211,19 +1209,19 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the alternative CLI field names for this field
+     * Sets the alternative CLI column names for this column
      *
      * @param string|null $value
      * @return static
      */
-    public function setCliField(?string $value): static
+    public function setCliColumn(?string $value): static
     {
-        return $this->setKey($value, 'cli_field');
+        return $this->setKey($value, 'cli_column');
     }
 
 
     /**
-     * Returns if this field is optional or not
+     * Returns if this column is optional or not
      *
      * @note Defaults to false
      * @return bool
@@ -1235,7 +1233,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field is required or not
+     * Returns if this column is required or not
      *
      * @note Is the exact opposite of Definition::getOptional()
      * @note Defaults to true
@@ -1248,7 +1246,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field is optional or not
+     * Sets if this column is optional or not
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -1272,7 +1270,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the placeholder for this field
+     * Returns the placeholder for this column
      *
      * @return string|null
      */
@@ -1283,7 +1281,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the placeholder for this field
+     * Sets the placeholder for this column
      *
      * @param string|null $value
      * @return static
@@ -1296,7 +1294,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the display_callback for this field
+     * Returns the display_callback for this column
      *
      * @return callable|null
      */
@@ -1307,7 +1305,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the display_callback for this field
+     * Sets the display_callback for this column
      *
      * @param callable|null $value
      * @return static
@@ -1319,7 +1317,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the minlength for this textarea or text input field
+     * Returns the minlength for this textarea or text input column
      *
      * @return int|null
      */
@@ -1330,7 +1328,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the minlength for this textarea or text input field
+     * Sets the minlength for this textarea or text input column
      *
      * @param int|null $value
      * @return static
@@ -1343,7 +1341,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the maxlength for this textarea or text ibput field
+     * Returns the maxlength for this textarea or text ibput column
      *
      * @return int|null
      */
@@ -1354,7 +1352,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the maxlength for this textarea or text input field
+     * Sets the maxlength for this textarea or text input column
      *
      * @param int|null $value
      * @return static
@@ -1366,7 +1364,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the pattern for this textarea or text input field
+     * Returns the pattern for this textarea or text input column
      *
      * @return string|null
      */
@@ -1377,7 +1375,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the pattern for this textarea or text input field
+     * Sets the pattern for this textarea or text input column
      *
      * @param string|null $value
      * @return static
@@ -1390,7 +1388,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the tooltip for this field
+     * Returns the tooltip for this column
      *
      * @return string|null
      */
@@ -1401,7 +1399,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets  the tooltip for this field
+     * Sets  the tooltip for this column
      *
      * @param string|null $value
      * @return static
@@ -1504,8 +1502,8 @@ class Definition implements DefinitionInterface
     public function setRows(?int $value): static
     {
         if (isset_get($this->rules['element']) !== 'textarea') {
-            throw new OutOfBoundsException(tr('Cannot define rows for field ":field", the element is a ":element" but should be a "textarea', [
-                ':field'   => $this->field,
+            throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
+                ':column'   => $this->column,
                 ':element' => $value,
             ]));
         }
@@ -1515,7 +1513,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the default value for this field
+     * Returns the default value for this column
      *
      * @return mixed
      */
@@ -1526,7 +1524,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the default value for this field
+     * Sets the default value for this column
      *
      * @param mixed $value
      * @return static
@@ -1538,7 +1536,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the initial default value for this field
+     * Returns the initial default value for this column
      *
      * @return mixed
      */
@@ -1549,7 +1547,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the initial default value for this field
+     * Sets the initial default value for this column
      *
      * @param mixed $value
      * @return static
@@ -1561,7 +1559,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field should be stored with NULL in the database if empty
+     * Returns if this column should be stored with NULL in the database if empty
      *
      * @note Defaults to false
      * @return bool
@@ -1573,7 +1571,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field should be stored with NULL in the database if empty
+     * Sets if this column should be stored with NULL in the database if empty
      *
      * @note Defaults to false
      * @param bool $value
@@ -1590,7 +1588,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field should be disabled if the value is NULL
+     * Returns if this column should be disabled if the value is NULL
      *
      * @note Defaults to false
      * @return bool
@@ -1602,7 +1600,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field should be disabled if the value is NULL
+     * Sets if this column should be disabled if the value is NULL
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -1615,7 +1613,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this field should be readonly if the value is NULL
+     * Returns if this column should be readonly if the value is NULL
      *
      * @note Defaults to false
      * @return bool
@@ -1627,7 +1625,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this field should be readonly if the value is NULL
+     * Sets if this column should be readonly if the value is NULL
      *
      * @note Defaults to false
      * @param bool|null $value
@@ -1700,7 +1698,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the help text for this field
+     * Returns the help text for this column
      *
      * @return string|null
      */
@@ -1711,7 +1709,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the help text for this field
+     * Sets the help text for this column
      *
      * @param string|null $value
      * @return static
@@ -1730,7 +1728,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the help text group for this field
+     * Returns the help text group for this column
      *
      * @return string|null
      */
@@ -1741,7 +1739,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the help text group for this field
+     * Sets the help text group for this column
      *
      * @param string|null $value
      * @return static
@@ -1765,7 +1763,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Validate this field according to the field definitions
+     * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
      * @param string|null $prefix
@@ -1774,47 +1772,47 @@ class Definition implements DefinitionInterface
     public function validate(ValidatorInterface $validator, ?string $prefix): bool
     {
         if ($this->isMeta()) {
-            // This field is metadata and should not be modified or validated, plain ignore it.
+            // This column is metadata and should not be modified or validated, plain ignore it.
             return false;
         }
 
         if ($this->getReadonly() or $this->getDisabled()) {
-            // This field cannot be modified and should not be validated, unless its new or has a static value
+            // This column cannot be modified and should not be validated, unless its new or has a static value
             if (!$this->data_entry->isNew() and !$this->getValue()) {
                 return false;
             }
         }
 
-        // Checkbox inputs always are boolean and does this field have a prefix?
-        $bool  = ($this->getType() === 'checkbox');
-        $field = $this->getCliField();
+        // Checkbox inputs always are boolean and does this column have a prefix?
+        $bool   = ($this->getType() === 'checkbox');
+        $column = $this->getCliColumn();
 
-        if (!$field) {
-            // This field name is empty. Coming from static::getCliField() this means that this field should NOT be
+        if (!$column) {
+            // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT be
             // validated
             return false;
         }
 
-        // Field name prefix is an HTML form array prefix? Then close the array
+        // Column name prefix is an HTML form array prefix? Then close the array
         if (str_ends_with((string) $prefix, '[')) {
-            $field .= ']';
+            $column .= ']';
         }
 
         if ($this->getValue()) {
-            // This field has a static value, force the value
+            // This column has a static value, force the value
             $value = $this->getValue();
 
             if (is_callable($this->getValue())) {
                 $value = $this->getValue()($validator->getSource(), $prefix);
             }
 
-            $validator->set($value, $prefix . $field);
+            $validator->set($value, $prefix . $column);
         }
 
-        // Set the field prefix and select the field
+        // Set the column prefix and select the column
         $validator
-            ->setFieldPrefix($prefix)
-            ->select($field, !$bool);
+            ->setColumnPrefix($prefix)
+            ->select($column, !$bool);
 
         // Apply default validations
         if ($this->getOptional()) {
@@ -1929,8 +1927,8 @@ class Definition implements DefinitionInterface
                     $validator->isInArray(array_keys($source));
 
                 } elseif (is_string($source)) {
-                    throw new OutOfBoundsException(tr('Invalid source specified for DataEntry Definition ":field"', [
-                        ':field' => $this->field
+                    throw new OutOfBoundsException(tr('Invalid source specified for DataEntry Definition ":column"', [
+                        ':column' => $this->column
                     ]));
                 }
 
@@ -1947,7 +1945,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Ensures that the current field uses a text type input element or textarea element
+     * Ensures that the current column uses a text type input element or textarea element
      *
      * @param string $key
      * @param string|float|int|null $value
@@ -1979,17 +1977,17 @@ class Definition implements DefinitionInterface
                     break;
                 }
 
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
+                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
-                    ':field'     => $this->field,
+                    ':column'     => $this->column,
                     ':type'      => $this->rules['type'] ?? 'text',
                       ':value'     => $value
                 ]));
 
             default:
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
+                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
-                    ':field'     => $this->field,
+                    ':column'     => $this->column,
                     ':element'   => $this->rules['element'],
                     ':value'     => $value
                 ]));
@@ -1998,7 +1996,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Ensures that the current field uses a number type input element
+     * Ensures that the current column uses a number type input element
      *
      * @note This method considers number the following input types: number, range, date, datetime-local, time, week,
      *       month
@@ -2014,9 +2012,9 @@ class Definition implements DefinitionInterface
         }
 
         if (isset_get($this->rules['element'], 'input') !== 'input') {
-            throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":element" element, :attribute can only be used for "number" type input elements', [
+            throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for "number" type input elements', [
                 ':attribute' => $key,
-                ':field'     => $this->field,
+                ':column'     => $this->column,
                 ':element'   => $this->rules['element'],
                 ':value'     => $value
             ]));
@@ -2039,9 +2037,9 @@ class Definition implements DefinitionInterface
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for field ":field", it is an ":type" type input element, :attribute can only be used for "number" type input elements', [
+                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for "number" type input elements', [
                     ':attribute' => $key,
-                    ':field'     => $this->field,
+                    ':column'     => $this->column,
                     ':type'      => $this->rules['type'] ?? 'text',
                     ':value'     => $value
                 ]));
@@ -2067,19 +2065,19 @@ class Definition implements DefinitionInterface
         }
 
         if ($this->rules['element'] !== 'input') {
-            throw new OutOfBoundsException(tr('Cannot set :key ":value" for field ":field" as the element must be input (or empty, default) but is ":element"', [
+            throw new OutOfBoundsException(tr('Cannot set :key ":value" for column ":column" as the element must be input (or empty, default) but is ":element"', [
                 ':key'     => $key,
                 ':value'   => $value,
-                ':field'   => $this->field,
+                ':column'   => $this->column,
                 ':element' => $this->rules['element']
             ]));
         }
 
         if (!$this->inputTypeSupported($value)) {
-            throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for field ":field", only the types ":types" are supported', [
+            throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for column ":column", only the types ":types" are supported', [
                 ':key'   => $key,
                 ':value' => $value,
-                ':field' => $this->field,
+                ':column' => $this->column,
                 ':types' => static::$supported_input_types
             ]));
         }

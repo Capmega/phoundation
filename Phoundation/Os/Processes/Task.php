@@ -81,7 +81,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'parents_id');
+        return $this->getSourceColumnValue('int', 'parents_id');
     }
 
 
@@ -141,7 +141,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecuteAfter(): ?DateTimeInterface
     {
-        return $this->getSourceFieldValue('int', 'execute_after');
+        return $this->getSourceColumnValue('int', 'execute_after');
     }
 
 
@@ -184,7 +184,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStart(): ?DateTimeInterface
     {
-        return $this->getSourceFieldValue('datetime', 'start');
+        return $this->getSourceColumnValue('datetime', 'start');
     }
 
 
@@ -207,7 +207,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStop(): ?DateTimeInterface
     {
-        return $this->getSourceFieldValue('datetime', 'stop');
+        return $this->getSourceColumnValue('datetime', 'stop');
     }
 
 
@@ -230,7 +230,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getSendToId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'send_to_id');
+        return $this->getSourceColumnValue('int', 'send_to_id');
     }
 
 
@@ -253,7 +253,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPid(): ?int
     {
-        return $this->getSourceFieldValue('int', 'pid');
+        return $this->getSourceColumnValue('int', 'pid');
     }
 
 
@@ -276,7 +276,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExitCode(): ?int
     {
-        return $this->getSourceFieldValue('int', 'exit_code');
+        return $this->getSourceColumnValue('int', 'exit_code');
     }
 
 
@@ -299,7 +299,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getNocache(): ?int
     {
-        return $this->getSourceFieldValue('int', 'nocache');
+        return $this->getSourceColumnValue('int', 'nocache');
     }
 
 
@@ -322,7 +322,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getIonice(): ?int
     {
-        return $this->getSourceFieldValue('int', 'ionice');
+        return $this->getSourceColumnValue('int', 'ionice');
     }
 
 
@@ -345,7 +345,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getIoniceLevel(): ?int
     {
-        return $this->getSourceFieldValue('int', 'ionice_level');
+        return $this->getSourceColumnValue('int', 'ionice_level');
     }
 
 
@@ -368,7 +368,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getNice(): ?int
     {
-        return $this->getSourceFieldValue('int', 'nice');
+        return $this->getSourceColumnValue('int', 'nice');
     }
 
 
@@ -391,7 +391,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getTimeout(): ?int
     {
-        return $this->getSourceFieldValue('int', 'timeout');
+        return $this->getSourceColumnValue('int', 'timeout');
     }
 
 
@@ -414,7 +414,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getWait(): ?int
     {
-        return $this->getSourceFieldValue('int', 'wait');
+        return $this->getSourceColumnValue('int', 'wait');
     }
 
 
@@ -437,7 +437,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getBackground(): bool
     {
-        return $this->getSourceFieldValue('bool', 'background');
+        return $this->getSourceColumnValue('bool', 'background');
     }
 
 
@@ -460,7 +460,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getClearLogs(): bool
     {
-        return $this->getSourceFieldValue('bool', 'clear_logs');
+        return $this->getSourceColumnValue('bool', 'clear_logs');
     }
 
 
@@ -483,7 +483,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getEscapeQuotes(): bool
     {
-        return $this->getSourceFieldValue('bool', 'escape_quotes');
+        return $this->getSourceColumnValue('bool', 'escape_quotes');
     }
 
 
@@ -506,7 +506,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getLogFile(): ?string
     {
-        return $this->getSourceFieldValue('string', 'log_file');
+        return $this->getSourceColumnValue('string', 'log_file');
     }
 
 
@@ -529,7 +529,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPidFile(): ?string
     {
-        return $this->getSourceFieldValue('string', 'pid_file');
+        return $this->getSourceColumnValue('string', 'pid_file');
     }
 
 
@@ -552,7 +552,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getSudo(): ?string
     {
-        return $this->getSourceFieldValue('string', 'sudo');
+        return $this->getSourceColumnValue('string', 'sudo');
     }
 
 
@@ -575,7 +575,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getTerm(): ?string
     {
-        return $this->getSourceFieldValue('string', 'term');
+        return $this->getSourceColumnValue('string', 'term');
     }
 
 
@@ -598,7 +598,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPipe(): ?string
     {
-        return $this->getSourceFieldValue('string', 'pipe');
+        return $this->getSourceColumnValue('string', 'pipe');
     }
 
 
@@ -621,7 +621,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getInputRedirect(): ?string
     {
-        return $this->getSourceFieldValue('string', 'input_redirect');
+        return $this->getSourceColumnValue('string', 'input_redirect');
     }
 
 
@@ -644,7 +644,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getOutputRedirect(): ?string
     {
-        return $this->getSourceFieldValue('string', 'output_redirect');
+        return $this->getSourceColumnValue('string', 'output_redirect');
     }
 
 
@@ -667,7 +667,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getRestrictions(): ?string
     {
-        return $this->getSourceFieldValue('string', 'restrictions');
+        return $this->getSourceColumnValue('string', 'restrictions');
     }
 
 
@@ -690,7 +690,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPackages(): ?string
     {
-        return $this->getSourceFieldValue('string', 'packages');
+        return $this->getSourceColumnValue('string', 'packages');
     }
 
 
@@ -713,7 +713,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPreExec(): ?string
     {
-        return $this->getSourceFieldValue('string', 'pre_exec');
+        return $this->getSourceColumnValue('string', 'pre_exec');
     }
 
 
@@ -736,7 +736,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPostExec(): ?string
     {
-        return $this->getSourceFieldValue('string', 'post_exec');
+        return $this->getSourceColumnValue('string', 'post_exec');
     }
 
 
@@ -759,7 +759,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getComments(): ?string
     {
-        return $this->getSourceFieldValue('string', 'comments');
+        return $this->getSourceColumnValue('string', 'comments');
     }
 
 
@@ -782,7 +782,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getResults(): string
     {
-        return $this->getSourceFieldValue('string', 'results');
+        return $this->getSourceColumnValue('string', 'results');
     }
 
 
@@ -805,7 +805,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecutionDirectory(): ?string
     {
-        return $this->getSourceFieldValue('string', 'execution_directory');
+        return $this->getSourceColumnValue('string', 'execution_directory');
     }
 
 
@@ -828,7 +828,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getCommand(): ?string
     {
-        return $this->getSourceFieldValue('string', 'command');
+        return $this->getSourceColumnValue('string', 'command');
     }
 
 
@@ -851,7 +851,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecutedCommand(): string
     {
-        return $this->getSourceFieldValue('string', 'executed_command');
+        return $this->getSourceColumnValue('string', 'executed_command');
     }
 
 
@@ -874,7 +874,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getArguments(): ?array
     {
-        return $this->getSourceFieldValue('array', 'arguments');
+        return $this->getSourceColumnValue('array', 'arguments');
     }
 
 
@@ -897,7 +897,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getVariables(): ?array
     {
-        return $this->getSourceFieldValue('array', 'variables');
+        return $this->getSourceColumnValue('array', 'variables');
     }
 
 
@@ -931,7 +931,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getEnvironmentVariables(): ?array
     {
-        return $this->getSourceFieldValue('array', 'environment_variables');
+        return $this->getSourceColumnValue('array', 'environment_variables');
     }
 
 
@@ -954,7 +954,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getAcceptedExitCodes(): ?array
     {
-        return $this->getSourceFieldValue('array', 'accepted_exit_codes');
+        return $this->getSourceColumnValue('array', 'accepted_exit_codes');
     }
 
 
@@ -997,7 +997,7 @@ class Task extends DataEntry implements TaskInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'code';
     }
@@ -1010,7 +1010,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getCode(): ?string
     {
-        return $this->getSourceFieldValue('string', 'code');
+        return $this->getSourceColumnValue('string', 'code');
     }
 
 
@@ -1285,7 +1285,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::datetime_local)
                 ->setLabel('Execute after')
-                ->setCliField('[--execute-after DATETIME]')
+                ->setCliColumn('[--execute-after DATETIME]')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
@@ -1326,7 +1326,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setVirtual(true)
                 ->setMaxlength(128)
                 ->setLabel('Send to user')
-                ->setCliField('[--send-to EMAIL]')
+                ->setCliColumn('[--send-to EMAIL]')
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isEmail();
                 }))
@@ -1345,10 +1345,10 @@ class Task extends DataEntry implements TaskInterface
                 ->setVirtual(true)
                 ->setMaxlength(255)
                 ->setLabel('Execute on server')
-                ->setCliField('[-s,--server HOSTNAME]')
+                ->setCliColumn('[-s,--server HOSTNAME]')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->orField('servers_id')->isName()->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
+                    $validator->orColumn('servers_id')->isName()->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
                 }))
             ->addDefinition(Definition::new($this, 'servers_id')
                 ->setOptional(true)
@@ -1356,13 +1356,13 @@ class Task extends DataEntry implements TaskInterface
                 ->setInputType(InputType::select)
                 ->setSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
                 ->addValidationFunction(function(ValidatorInterface $validator) {
-                    $validator->orField('server')->isDbId()->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
+                    $validator->orColumn('server')->isDbId()->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
                 }))
             ->addDefinition(Definition::new($this, 'roles_id')
                 ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('Notify roles')
-                ->setCliField('[-r,--roles "ROLE,ROLE,..."]')
+                ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
                 ->setSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
                 ->setSize(4)
                 ->setMaxlength(17)
@@ -1373,7 +1373,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setLabel('Execution path')
-                ->setCliField('[-d,--execution-directory PATH]')
+                ->setCliColumn('[-d,--execution-directory PATH]')
                 ->setSize(4)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->isDirectory('/', Restrictions::writable('/'));
@@ -1381,7 +1381,7 @@ class Task extends DataEntry implements TaskInterface
             ->addDefinition(Definition::new($this, 'command')
                 ->setInputType(InputType::text)
                 ->setLabel('Command')
-                ->setCliField('[-c,--command COMMAND]')
+                ->setCliColumn('[-c,--command COMMAND]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'executed_command')
                 ->setOptional(true)
@@ -1393,19 +1393,19 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Arguments')
-                ->setCliField('[-a,--arguments ARGUMENTS]')
+                ->setCliColumn('[-a,--arguments ARGUMENTS]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'variables')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Argument variables')
-                ->setCliField('[-v,--variables VARIABLES]')
+                ->setCliColumn('[-v,--variables VARIABLES]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'environment_variables')
                 ->setOptional(true)
                 ->setInputType(InputTypeExtended::array_json)
                 ->setLabel('Environment variables')
-                ->setCliField('[-e,--environment-variables VARIABLES]')
+                ->setCliColumn('[-e,--environment-variables VARIABLES]')
                 ->setSize(4))
             ->addDefinition(Definition::new($this, 'clear_logs')
                 ->setOptional(true, false)
@@ -1437,7 +1437,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::select)
                 ->setLabel('IO nice')
-                ->setCliField('[-i,--ionice CLASSNUMBER]')
+                ->setCliColumn('[-i,--ionice CLASSNUMBER]')
                 ->setSource([
                     0 => 'none',
                     1 => 'realtime',
@@ -1449,7 +1449,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('IO nice level')
-                ->setCliField('[-l,--ionice-level LEVEL]')
+                ->setCliColumn('[-l,--ionice-level LEVEL]')
                 ->setMin(0)
                 ->setMax(7)
                 ->setSize(4))
@@ -1457,7 +1457,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Nice level')
-                ->setCliField('[-n,--nice LEVEL]')
+                ->setCliColumn('[-n,--nice LEVEL]')
                 ->setOptional(true, 0)
                 ->setMin(-20)
                 ->setMax(20)
@@ -1466,7 +1466,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true, 30)
                 ->setInputType(InputType::number)
                 ->setLabel('Time limit')
-                ->setCliField('[-t,--timeout SECONDS]')
+                ->setCliColumn('[-t,--timeout SECONDS]')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setSize(4))
@@ -1474,7 +1474,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Start wait')
-                ->setCliField('[-w,--wait SECONDS]')
+                ->setCliColumn('[-w,--wait SECONDS]')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setSize(4))
@@ -1482,7 +1482,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Minimum workers')
-                ->setCliField('[--minimum-workers AMOUNT]')
+                ->setCliColumn('[--minimum-workers AMOUNT]')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setMax(10_000)
@@ -1491,7 +1491,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(InputType::number)
                 ->setLabel('Maximum workers')
-                ->setCliField('[--maximum-workers AMOUNT]')
+                ->setCliColumn('[--maximum-workers AMOUNT]')
                 ->setOptional(true, 0)
                 ->setMin(0)
                 ->setMax(10_000)
@@ -1499,13 +1499,13 @@ class Task extends DataEntry implements TaskInterface
             ->addDefinition(Definition::new($this, 'sudo')
                 ->setOptional(true, false)
                 ->setLabel('Sudo required / command')
-                ->setCliField('[-s,--sudo "string"]')
+                ->setCliColumn('[-s,--sudo "string"]')
                 ->setSize(6)
                 ->setMaxlength(32))
             ->addDefinition(Definition::new($this, 'term')
                 ->setOptional(true)
                 ->setLabel('Terminal command')
-                ->setCliField('[-t,--term "command"]')
+                ->setCliColumn('[-t,--term "command"]')
                 ->setSize(6)
                 ->setMaxlength(32))
             ->addDefinition(Definition::new($this, 'pipe')

@@ -112,7 +112,7 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * @inheritDoc
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }
@@ -125,7 +125,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getType(): ?string
     {
-        return $this->getSourceFieldValue('string', 'type');
+        return $this->getSourceColumnValue('string', 'type');
     }
 
 
@@ -148,7 +148,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getDriver(): ?string
     {
-        return $this->getSourceFieldValue('string', 'driver');
+        return $this->getSourceColumnValue('string', 'driver');
     }
 
 
@@ -171,7 +171,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getPdoAttributes(): ?string
     {
-        return $this->getSourceFieldValue('string', 'pdo_attributes');
+        return $this->getSourceColumnValue('string', 'pdo_attributes');
     }
 
 
@@ -194,7 +194,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getMode(): ?string
     {
-        return $this->getSourceFieldValue('string', 'mode');
+        return $this->getSourceColumnValue('string', 'mode');
     }
 
 
@@ -217,7 +217,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getLimitMax(): ?int
     {
-        return $this->getSourceFieldValue('string', 'limit_max');
+        return $this->getSourceColumnValue('string', 'limit_max');
     }
 
 
@@ -240,7 +240,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getAutoIncrement(): ?int
     {
-        return $this->getSourceFieldValue('string', 'auto_increment');
+        return $this->getSourceColumnValue('string', 'auto_increment');
     }
 
 
@@ -263,7 +263,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getSshTunnelsId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'ssh_tunnels_id');
+        return $this->getSourceColumnValue('int', 'ssh_tunnels_id');
     }
 
 
@@ -286,7 +286,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getLog(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'log');
+        return $this->getSourceColumnValue('bool', 'log');
     }
 
 
@@ -309,7 +309,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getPersist(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'persist');
+        return $this->getSourceColumnValue('bool', 'persist');
     }
 
 
@@ -332,7 +332,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getInit(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'init');
+        return $this->getSourceColumnValue('bool', 'init');
     }
 
 
@@ -355,7 +355,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getBuffered(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'buffered');
+        return $this->getSourceColumnValue('bool', 'buffered');
     }
 
 
@@ -378,7 +378,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getStatistics(): ?bool
     {
-        return $this->getSourceFieldValue('bool', 'statistics');
+        return $this->getSourceColumnValue('bool', 'statistics');
     }
 
 
@@ -599,14 +599,14 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setVirtual(true)
                 ->setSize(2)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->orField('timezones_name')->isDbId()->setColumnFromQuery('timezones_name', 'SELECT `name` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                    $validator->orColumn('timezones_name')->isDbId()->setColumnFromQuery('timezones_name', 'SELECT `name` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
                 }))
             ->addDefinition(DefinitionFactory::getTimezone($this, 'timezones_name')
                 ->setLabel(tr('Timezone'))
                 ->setVisible(false)
                 ->setSize(2)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->orField('timezones_id')->isName()->isTrue(function ($value) {
+                    $validator->orColumn('timezones_id')->isName()->isTrue(function ($value) {
                         // This timezone must exist.
                         return Timezone::exists($value, 'name');
                     }, tr('The specified timezone does not exist'));

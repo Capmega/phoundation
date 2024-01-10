@@ -24,7 +24,7 @@ trait DataEntryComments
      */
     public function getComments(): ?string
     {
-        return $this->getSourceFieldValue('string', 'comments');
+        return $this->getSourceColumnValue('string', 'comments');
     }
 
 

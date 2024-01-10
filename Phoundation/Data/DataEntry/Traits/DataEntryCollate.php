@@ -24,7 +24,7 @@ trait DataEntryCollate
      */
     public function getCollate(): ?string
     {
-        return $this->getSourceFieldValue('string', 'collate');
+        return $this->getSourceColumnValue('string', 'collate');
     }
 
 

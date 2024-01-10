@@ -1050,7 +1050,7 @@ interface ValidatorInterface
      * @param string|null $field_prefix
      * @return $this
      */
-    public function setFieldPrefix(?string $field_prefix): static;
+    public function setColumnPrefix(?string $field_prefix): static;
 
     /**
      * Returns the table value

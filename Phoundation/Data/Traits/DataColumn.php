@@ -6,45 +6,45 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait DataField
+ * Trait DataColumn
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openfield.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license http://opencolumn.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataField
+trait DataColumn
 {
     /**
-     * The field to use
+     * The column to use
      *
-     * @var string|null $field
+     * @var string|null $column
      */
-    protected ?string $field;
+    protected ?string $column;
 
 
     /**
-     * Returns the field
+     * Returns the column
      *
      * @return string|null
      */
     public function getColumn(): ?string
     {
-        return $this->field;
+        return $this->column;
     }
 
 
     /**
-     * Sets the field
+     * Sets the column
      *
-     * @param string|null $field
+     * @param string|null $column
      * @return static
      */
-    public function setColumn(?string $field): static
+    public function setColumn(?string $column): static
     {
-        $this->field = $field;
+        $this->column = $column;
         return $this;
     }
 }
