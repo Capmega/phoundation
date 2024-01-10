@@ -135,9 +135,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Columns that will NOT be inserted
      *
-     * @var array $fields_filter_on_insert
+     * @var array $columns_filter_on_insert
      */
-    protected array $fields_filter_on_insert = ['id', 'password'];
+    protected array $columns_filter_on_insert = ['id', 'password'];
 
 
     /**
@@ -182,7 +182,7 @@ class User extends DataEntry implements UserInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
-        $this->protected_fields = ['password', 'key'];
+        $this->protected_columns = ['password', 'key'];
 
         parent::__construct($identifier, $column, $meta_enabled);
 
