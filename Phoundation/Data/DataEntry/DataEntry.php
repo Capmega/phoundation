@@ -632,11 +632,13 @@ abstract class DataEntry implements DataEntryInterface
 
             } catch (SqlTableDoesNotExistException $e) {
                 // The table for this object does not exist. This means that we're missing an init, perhaps, or maybe
-                // even the entire databse doesn't exist? Maybe we're in init or sync mode? Allow the system to continue
+                // even the entire databese doesn't exist? Maybe we're in init or sync mode? Allow the system to continue
                 // to check if this entry perhaps is configured, so we can continue
-                if (Core::inInitState()) {
-                    $entry = new static();
+                if (!Core::inInitState()) {
+                    throw $e;
                 }
+
+                $entry = new static();
             }
         }
 
