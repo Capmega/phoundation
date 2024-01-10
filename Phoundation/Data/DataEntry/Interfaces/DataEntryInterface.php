@@ -108,7 +108,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function setAllowModify(bool $allow_modify): static;
 
     /**
-     * Returns a translation table between CLI arguments and internal fields
+     * Returns a translation table between CLI arguments and internal columns
      *
      * @return array
      */
@@ -129,7 +129,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getId(): int|null;
 
     /**
-     * Returns the value for the unique field, which
+     * Returns the value for the unique column, which
      *
      * @return string|float|int|null
      */
@@ -197,14 +197,14 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function erase(): static;
 
     /**
-     * Returns the field prefix string
+     * Returns the column prefix string
      *
      * @return ?string
      */
     public function getFieldPrefix(): ?string;
 
     /**
-     * Sets the field prefix string
+     * Sets the column prefix string
      *
      * @param string|null $prefix
      * @return static
@@ -284,7 +284,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return array
      */
-    public function getProtectedFields(): array;
+    public function getProtectedColumns(): array;
 
     /**
      * Returns all data for this data entry at once with an array of information
@@ -307,11 +307,11 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Sets the value for the specified data key
      *
-     * @param string $field
+     * @param string $column
      * @param mixed $value
      * @return static
      */
-    public function addSourceValue(string $field, mixed $value): static;
+    public function addSourceValue(string $column, mixed $value): static;
 
     /**
      * Will save the data from this data entry to database
@@ -339,7 +339,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getHtmlDataEntryForm(): DataEntryFormInterface;
 
     /**
-     * Returns the definitions for the fields in this table
+     * Returns the definitions for the columns in this table
      *
      * @return DefinitionsInterface|null
      */
@@ -362,7 +362,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
 
 
     /**
-     * Returns the field that is unique for this object
+     * Returns the column that is unique for this object
      *
      * @return string|null
      */
