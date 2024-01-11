@@ -47,7 +47,13 @@ ARGUMENTS
 [-p / --phoundation]                    If specified should contain the path to your local Phoundation installation
 
 [-s / --signed]                         If specified will make a signed commit. This requires your git setup to be
-                                        configured correctly for this');
+                                        configured correctly for this
+
+[--skip-caching]                        If specified will skip caching all Phoundation libraries which is normally done
+                                        to avoid loading incomplete library classes against each other during and after
+                                        the update has been finished. This may want to be skipped if a current library
+                                        has a bug, or a new functionality executing during the finishing phase of the
+                                        update system actually is expected or required');
 
 
 
@@ -59,6 +65,7 @@ $argv = ArgvValidator::new()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
     ->select('-s,--signed')->isOptional(false)->isBoolean()
+    ->select('--skip-caching')->isOptional(false)->isBoolean()
     ->validate();
 
 
@@ -66,7 +73,7 @@ $argv = ArgvValidator::new()
 if ($argv['local']) {
     try {
         Log::information(tr('Pulling updates from local Phoundation installation...'));
-        Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation']);
+        Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching']);
 
     } catch (PhoundationBranchNotExistException $e) {
         throw $e->makeWarning();

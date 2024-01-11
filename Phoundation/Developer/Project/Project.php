@@ -22,6 +22,7 @@ use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Rsync;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
@@ -538,14 +539,15 @@ class Project implements ProjectInterface
      * @param string|null $message
      * @param bool $signed
      * @param string|null $phoundation_path
+     * @param bool $skip_caching
      * @return static
      */
-    public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null): static
+    public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false): static
     {
         if (!$branch) {
             $branch = $this->git->getBranch();
 
-            Log::notice(tr('Trying to pull updates from Phoudation using current project branch ":branch"', [
+            Log::notice(tr('Trying to pull updates from Phoundation using current project branch ":branch"', [
                 ':branch' => $branch
             ]));
         }
@@ -563,8 +565,9 @@ class Project implements ProjectInterface
                 $stash = true;
             }
 
-            // Copy Phoundation core files
-            $this->copyPhoundationFilesLocal($phoundation_path, $branch);
+            // Cache ALL Phoundation files to avoid code incompatibility after update, then copy Phoundation core files
+            $this->cacheLibraries($skip_caching)
+                 ->copyPhoundationFilesLocal($phoundation_path, $branch);
 
             // If there are changes, then add and commit
             if ($this->git->getStatus()->getCount()) {
@@ -673,6 +676,40 @@ class Project implements ProjectInterface
 
         // Get the environment and remove all environment specific data
         return Environment::get(static::$name, $environment)->remove();
+    }
+
+
+    /**
+     * Pre-reads ALL Phoundation library files into memory
+     *
+     * This is done to avoid certain files having newer and incompatible versions that might be included and used AFTER
+     * the update, causing crashes because of the update.
+     *
+     * @param bool $skip
+     * @return static
+     */
+    protected function cacheLibraries(bool $skip): static
+    {
+// TODO Implement
+$skip = false;
+        if ($skip) {
+            Log::action(tr('Caching all Phoundation libraries'));
+
+            Find::new()
+                ->setPath(DIRECTORY_ROOT . 'Phoundation/')
+                ->setFilenameFilter('*.php')
+                ->setExecuteOnEach(function(string $file) {
+                    Log::dot(25);
+                    @include($file);
+                })
+                ->execute();
+
+            Log::dot(true);
+        } else {
+            Log::warning(tr('Not caching Phoundation libraries'));
+        }
+
+        return $this;
     }
 
 
