@@ -1202,6 +1202,67 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns project version
+     *
+     * @return string
+     */
+    protected static function getProjectVersion(): string
+    {
+        static $version;
+
+        if (empty($version)) {
+            // Get the project name
+            try {
+                $version = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/version')));
+
+                if (!strlen($version)) {
+                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/config/project file'));
+                }
+
+                if (!is_version($version)) {
+                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project file', [
+                        ':version' => $version
+                    ]));
+                }
+
+                return $version;
+
+            } catch (Throwable $e) {
+                static::$failed = true;
+
+                if ($e instanceof OutOfBoundsException) {
+                    throw $e;
+                }
+
+                // Project file is not readable
+                if (!is_readable(DIRECTORY_ROOT . 'config/version')) {
+                    if (file_exists(DIRECTORY_ROOT . 'config/version')) {
+                        // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
+                        // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
+                        // won't be able to work our way around this.
+                        throw new CoreException(tr('Project version file "config/version" does exist but is not readable. Please check the owner, group and mode for this file'));
+                    }
+
+                    // The file doesn't exist, that is good. Go to setup mode
+                    error_log('Project version file "config/version" does not exist, entering setup mode');
+
+                    static::setPlatform();
+                    static::setRequestType();
+                    static::startupPlatform();
+                    static::$state = 'setup';
+
+                    throw new NoProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
+                        ':path' => DIRECTORY_ROOT . 'config/version'
+                    ]));
+                }
+            }
+        }
+
+        return $version;
+    }
+
+
+    /**
      * Determine the request type
      *
      * @return void
