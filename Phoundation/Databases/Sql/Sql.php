@@ -71,7 +71,7 @@ class Sql implements SqlInterface
      *
      * @var array $configurations
      */
-    protected static array $configurations;
+    protected static array $configurations = [];
 
     /**
      * Identifier of this instance
@@ -1944,13 +1944,13 @@ class Sql implements SqlInterface
     /**
      * Add the configuration for the specified instance name
      *
-     * @param string $instance
+     * @param string $connector
      * @param array $configuration
      * @return void
      */
-    public static function addConfiguration(string $instance, array $configuration): void
+    public static function addConnector(string $connector, array $configuration): void
     {
-        static::$configurations[$instance] = $configuration;
+        static::$configurations[$connector] = $configuration;
     }
 
 

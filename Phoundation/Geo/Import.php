@@ -228,7 +228,7 @@ return;
         // Get the system SQL configuration, so we can use the user and password from there
         $config = sql()->readConfiguration('system');
 
-        Sql::addConfiguration('geonames', [
+        Sql::addConnector('geonames', [
             'name'           => 'geonames',
             'user'           => $config['user'],
             'pass'           => $config['pass'],
