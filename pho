@@ -27,12 +27,12 @@ try {
 } catch (Throwable $e) {
     $message = $e->getMessage();
 
-    if (str_starts_with($message, 'Failed opening required \'') and str_contains($message, '/vendor/autoload.php\'')) {
+    if (str_starts_with($message, 'Failed opening required \'./vendor/autoload.php\'')) {
         // Whoops, no vendor libraries available. Run composer to fix
         echo 'WARNING: Autoloader or vendor libraries could not be found, attempting to fix with composer' . PHP_EOL;
 
         if (file_exists(__DIR__ . '/data/bin/composer.phar')) {
-            passthru(__DIR__ . '/data/bin/composer.phar update', $exit_code);
+            passthru('php ' . __DIR__ . '/data/bin/composer.phar update', $exit_code);
 
             if ($exit_code) {
                 throw new Exception('Composer failed to execute, see composer output for more information');
@@ -55,7 +55,6 @@ try {
                 exit(1);
             }
         }
-
 
         echo 'WARNING: Libraries successfully installed, retrying execution of PHO script' . PHP_EOL;
         include('./vendor/autoload.php');
