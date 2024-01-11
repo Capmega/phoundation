@@ -1317,7 +1317,7 @@ Class Log {
      * @note While log_console() will log towards the DIRECTORY_ROOT/data/log/ log files, cli_dot() will only log one
      *       single dot even though on the command line multiple dots may be shown
      *
-     * @param int $each
+     * @param int|true $each
      * @param string $color
      * @param string $dot
      * @param boolean $quiet
@@ -1334,7 +1334,7 @@ Class Log {
      *
      * @see Log::write()
      */
-    public static function dot(int $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
+    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
     {
         static $count = 0,
         $l_each = 0;
@@ -1348,7 +1348,7 @@ Class Log {
             return false;
         }
 
-        if (!$each) {
+        if (($each === 0) or ($each === true)) {
             if ($count) {
                 // Only show "Done" if we have shown any dot at all
                 Log::write(tr('Done'), $color, 10, false, true, false);
