@@ -1164,15 +1164,18 @@ class Core implements CoreInterface
     {
         // Get the project name
         try {
-            define('PROJECT', strtoupper(trim(file_get_contents(DIRECTORY_ROOT . 'config/project'))));
+            $project = strtoupper(trim(file_get_contents(DIRECTORY_ROOT . 'config/project')));
 
-            if (!PROJECT) {
+            if (!$project) {
                 throw new OutOfBoundsException('No project defined in DIRECTORY_ROOT/config/project file');
             }
+
+            define('PROJECT', $project);
         } catch (Throwable $e) {
             static::$failed = true;
 
-            define('PROJECT', 'UNKNOWN');
+            define('PROJECT'          , 'UNKNOWN');
+            define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
 
             if ($e instanceof OutOfBoundsException) {
                 throw $e;
