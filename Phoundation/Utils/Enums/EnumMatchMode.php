@@ -15,7 +15,7 @@ use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @package Phoundation\Core
+ * @package Phoundation\Utils
  */
 enum EnumMatchMode: string implements EnumMatchModeInterface
 {
