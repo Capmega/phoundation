@@ -729,8 +729,6 @@ $skip = false;
             throw new OutOfBoundsException(tr('Cannot copy local Phoundation files, no Phoundation branch specified'));
         }
 
-        $rsync = Rsync::new();
-
         try {
             $phoundation = Phoundation::new($directory)->switchBranch($branch);
 
@@ -755,30 +753,34 @@ $skip = false;
 
             // Copy new core library versions
             Log::action('Updating Phoundation libraries');
-            $rsync->setSource($phoundation->getDirectory() . 'Phoundation/')
-                  ->setTarget(DIRECTORY_ROOT . 'Phoundation')
-                  ->setDelete(true)
-                  ->execute();
+            Rsync::new()
+                ->setSource($phoundation->getDirectory() . 'Phoundation/')
+                ->setTarget(DIRECTORY_ROOT . 'Phoundation')
+                ->setDelete(true)->setDebug(true)
+                ->execute();
 
             // Copy Phoundation plugin
             Log::action('Updating Phoundation Plugin');
-            $rsync->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
-                 ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
-                 ->setDelete(true)
-                 ->execute();
+            Rsync::new()
+                ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
+                ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
+                ->setDelete(true)->setDebug(true)
+                ->execute();
 
             // Copy new core template versions
             Log::action('Updating Template libraries');
-            $rsync->setSource($phoundation->getDirectory() . 'Templates/')
-                  ->setTarget(DIRECTORY_ROOT . 'Templates')
-                  ->execute();
+            Rsync::new()
+                ->setSource($phoundation->getDirectory() . 'Templates/')
+                ->setTarget(DIRECTORY_ROOT . 'Templates')->setDebug(true)
+                ->execute();
 
             // Copy Phoundation PHO command
             Log::action('Updating "pho" command');
-            $rsync->setSource($phoundation->getDirectory() . 'pho')
-                  ->setTarget(DIRECTORY_ROOT . 'pho')
-                  ->setDelete(true)
-                  ->execute();
+            Rsync::new()
+                ->setSource($phoundation->getDirectory() . 'pho')
+                ->setTarget(DIRECTORY_ROOT . 'pho')->setDebug(true)
+                ->setDelete(true)
+                ->execute();
 
 //            // All is well? Get rid of the garbage
 //            $files['phoundation']->delete();
