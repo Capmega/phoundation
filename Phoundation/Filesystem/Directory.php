@@ -221,10 +221,10 @@ class Directory extends Path implements DirectoryInterface
         if (!file_exists(Strings::unslash($this->path))) {
             // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs = explode('/', Strings::startsNotWith($this->path, '/'));
+            $dirs       = explode('/', Strings::startsNotWith($this->path, '/'));
             $this->path = '';
 
-            foreach ($dirs as $dir) {
+            foreach ($dirs as $id => $dir) {
                 $this->path .= '/' . $dir;
 
                 if (file_exists($this->path)) {
@@ -243,7 +243,7 @@ class Directory extends Path implements DirectoryInterface
 
                 try {
                     // Make sure that the parent directory is writable when creating the directory
-                    Directory::new(dirname($this->path), $this->restrictions->getParent())->execute()
+                    Directory::new(dirname($this->path), $this->restrictions->getParent($id + 1))->execute()
                         ->setMode(0770)
                         ->onDirectoryOnly(function() use ($mode) {
                             mkdir($this->path, $mode);
@@ -786,57 +786,64 @@ class Directory extends Path implements DirectoryInterface
      * The temporary directory returned will always be the same within one process, if per
      *
      * @param bool $public
+     * @return DirectoryInterface
+     */
+    public static function getSessionTemporaryPath(bool $public = false): DirectoryInterface
+    {
+        if ($public) {
+            // Return public temp directory
+            if (empty(static::$temp_directory_public)) {
+                // Initialize public temp directory first
+                $path = DIRECTORY_PUBTMP . Session::getUUID();
+                static::$temp_directory_public = static::new($path, Restrictions::writable($path, 'public temporary directory'))
+                    ->delete()
+                    ->ensure();
+
+                // Put lock file to avoid delete directory auto cleanup removing this session directory
+                touch(static::$temp_directory_public->getPath() . '.lock');
+            }
+
+            return static::$temp_directory_public;
+        }
+
+        // Return private temp directory
+        if (empty(static::$temp_directory_private)) {
+            // Initialize private temp directory first
+            $path = DIRECTORY_TMP . Session::getUUID();
+            static::$temp_directory_private = static::new($path, Restrictions::writable($path, 'private temporary directory'))
+                ->delete()
+                ->ensure();
+
+            // Put lock file to avoid delete directory auto cleanup removing this session directory
+            touch(static::$temp_directory_private->getPath() . '.lock');
+        }
+
+        return static::$temp_directory_private;
+    }
+
+
+    /**
+     * Returns a temporary directory specific for this process that will be removed once the process terminates
+     *
+     * The temporary directory returned will always be the same within one process, if per
+     *
+     * @param bool $public
      * @param bool $persist If specified, the temporary directory will persist and not be removed once the process
      *                      terminates
      * @return DirectoryInterface
      */
     public static function newTemporary(bool $public = false, bool $persist = false): DirectoryInterface
     {
-        static $temp_directory_public, $temp_directory_private;
-
-        if ($public) {
-            // Return public temp directory
-            if (empty($temp_directory_public)) {
-                // Initialize public temp directory first
-                $path                  = DIRECTORY_PUBTMP . Session::getUUID();
-                $temp_directory_public = static::new($path, Restrictions::writable($path, 'public temporary directory'))
-                    ->delete()
-                    ->ensure();
-
-                // Put lock file to avoid delete cleanup removing this session directory
-                touch($temp_directory_public->getPath() . '.lock');
-                static::$temp_directory_public = $temp_directory_public;
-            }
-
-            // Public temp directory has been initialized, return it
-            if (!$persist) {
-                // Public temp directory should persist, so remove its public registration to avoid deleting it
-                static::$temp_directory_public = null;
-            }
-
-            return $temp_directory_public;
-        }
-
-        // Return private temp directory
-        if (empty($temp_directory_private)) {
-            // Initialize private temp directory first
-            $path                   = DIRECTORY_TMP . Session::getUUID();
-            $temp_directory_private = static::new($path, Restrictions::writable($path, 'private temporary directory'))
-                ->delete()
-                ->ensure();
-
-            // Put lock file to avoid delete cleanup removing this session directory
-            touch($temp_directory_private->getPath() . '.lock');
-            static::$temp_directory_private = $temp_directory_private;
-        }
-
-        // Public temp directory has been initialized, return it
         if (!$persist) {
-            // Public temp directory should persist, so remove its private registration to avoid deleting it
-            static::$temp_directory_private = null;
+            // Return a non-persistent temporary directory that will be deleted once this process terminates
+            $path = static::getSessionTemporaryPath($public) . Strings::generateUuid();
+            return static::new($path, Restrictions::writable($path, tr('persistent temporary directory')))->ensure();
         }
 
-        return $temp_directory_private;
+        $directory    = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
+        $restrictions = Restrictions::writable($directory, tr('persistent temporary directory'));
+
+        return static::new($directory . Strings::generateUuid(), $restrictions)->ensure();
     }
 
 
@@ -1373,31 +1380,15 @@ class Directory extends Path implements DirectoryInterface
 
 
     /**
-     * Returns true if the specified file exists in this directory
-     *
-     * @param PathInterface|string $path
-     * @return bool
-     */
-    public function pathExists(PathInterface|string $path): bool
-    {
-        $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
-
-        $this->restrictions->check($path, false);
-
-        return file_exists($path);
-    }
-
-
-    /**
      * Returns the specified file added to this directory
      *
-     * @param PathInterface|string $file
+     * @param PathInterface|string $path
      * @return FileInterface
      */
-    public function addFile(PathInterface|string $file): FileInterface
+    public function addPathToThis(PathInterface|string $path): PathInterface
     {
-        $file = $this->getPath() . Strings::startsNotWith((string) $file, '/');
-        return File::new($file, $this->restrictions);
+        $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
+        return Path::new($path, $this->restrictions);
     }
 
 

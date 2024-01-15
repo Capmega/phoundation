@@ -56,7 +56,7 @@ interface RestrictionsInterface
      * @param bool $write
      * @return static
      */
-    public function setDirectories(Stringable|array|string $directories, bool $write = false): static;
+    public function setSource(Stringable|array|string $directories, bool $write = false): static;
 
     /**
      * Set all directories for this restriction
@@ -81,7 +81,7 @@ interface RestrictionsInterface
      *
      * @return array
      */
-    public function getDirectories(): array;
+    public function getSource(): array;
 
     /**
      * Sets the label for this restriction

@@ -253,20 +253,12 @@ interface DirectoryInterface extends PathInterface
     public function getPath(bool $remove_terminating_slash = false): ?string;
 
     /**
-     * Returns true if the specified file exists in this directory
-     *
-     * @param PathInterface|string $file
-     * @return bool
-     */
-    public function pathExists(PathInterface|string $file): bool;
-
-    /**
      * Returns the specified file added to this directory
      *
-     * @param PathInterface|string $file
+     * @param PathInterface|string $path
      * @return FileInterface
      */
-    public function addFile(PathInterface|string $file): FileInterface;
+    public function addPathToThis(PathInterface|string $path): PathInterface;
 
     /**
      * Returns the specified directory added to this directory

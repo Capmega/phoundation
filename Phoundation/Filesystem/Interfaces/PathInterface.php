@@ -15,7 +15,7 @@ use Throwable;
 
 
 /**
- * interface FileBasicsInterface
+ * Interface PathInterface
  *
  * This library contains the variables used in the File class
  *
@@ -36,14 +36,6 @@ interface PathInterface
     public function getBufferSize(?int $requested_buffer_size = null): int;
 
     /**
-     * Sets the configured file buffer size
-     *
-     * @param int|null $buffer_size
-     * @return static
-     */
-    public function setBufferSize(?int $buffer_size): static;
-
-    /**
      * Returns the stream for this file if its opened. Will return NULL if closed
      *
      * @return mixed
@@ -58,14 +50,15 @@ interface PathInterface
     public function getPath(): ?string;
 
     /**
-     * Sets the file for this File object
+     * Sets the file for this Path object
      *
-     * @param Stringable|string|null $file
+     * @param Stringable|string|null $path
      * @param string|null $prefix
      * @param bool $must_exist
+     * @param bool $is_relative
      * @return static
      */
-    public function setPath(Stringable|string|null $file, string $prefix = null, bool $must_exist = false): static;
+    public function setPath(Stringable|string|null $path, string $prefix = null, bool $must_exist = false, bool $is_relative = false): static;
 
     /**
      * Sets the target file name in case operations create copies of this file
@@ -85,18 +78,22 @@ interface PathInterface
     /**
      * Checks if the specified file exists
      *
+     * @param bool $check_dead_symlink
+     * @param bool $auto_mount
      * @return bool
      */
-    public function exists(): bool;
+    public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
 
     /**
      * Checks if the specified file exists, throws exception if it doesn't
      *
      * @param bool $force
+     * @param bool $check_dead_symlink
+     * @param bool $auto_mount
      * @return static
      * @throws FileNotExistException
      */
-    public function checkExists(bool $force = false): static;
+    public function checkExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static;
 
     /**
      * Checks if the specified file does not exist, throws exception if it does
@@ -105,16 +102,16 @@ interface PathInterface
      * @return static
      * @throws FileExistsException
      */
-    public function checkNotExists(bool $force = false): static;
+    public function checkNotExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static;
 
     /**
      * Renames a file or directory
      *
-     * @param string $to_filename
-     * @param $context
+     * @param Stringable|string $to_filename
+     * @param null $context
      * @return $this
      */
-    public function rename(string $to_filename, $context = null): static;
+    public function rename(Stringable|string $to_filename, $context = null): static;
 
     /**
      * Truncates a file to a given length
@@ -394,13 +391,12 @@ interface PathInterface
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @note Will return a NEW FileBasics object (File or Directory, basically) for the specified target
-     * @param Stringable|string $target
-     * @param Restrictions|null $restrictions
-     * @param bool $absolute
-     * @return $this
+     * @note Will return a NEW Path object (File or Directory, basically) for the specified target
+     * @param PathInterface $target
+     * @param bool $make_relative
+     * @return PathInterface
      */
-    public function symlink(Stringable|string $target, ?Restrictions $restrictions = null, bool $absolute = false): static;
+    public function symlinkToThis(PathInterface $target, bool $make_relative = false): PathInterface;
 
     /**
      * Returns true if the file pointer is at EOF
@@ -581,10 +577,10 @@ interface PathInterface
     /**
      * Returns the relative path between the specified path and this objects path
      *
-     * @param mixed $path
-     * @return string
+     * @param PathInterface $path
+     * @return PathInterface
      */
-    public function getRelativePathTo(mixed $path): string;
+    public function getRelativePathTo(PathInterface $path): PathInterface;
 
     /**
      * Returns the number of directories counted in the specified path
@@ -593,4 +589,49 @@ interface PathInterface
      * @return int
      */
     public static function countDirectories(mixed $path): int;
+
+    /**
+     * Ensures that the path is completely mounted and executes the callback if a mount was made
+     *
+     * @return bool
+     */
+    public function attemptAutomount(): bool;
+
+    /**
+     * Returns the server restrictions
+     *
+     * @return RestrictionsInterface
+     */
+    public function getRestrictions(): RestrictionsInterface;
+
+    /**
+     * Sets the server and filesystem restrictions for this File object
+     *
+     * @param RestrictionsInterface|array|string|null $restrictions  The file restrictions to apply to this object
+     * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
+     *                                                      but as a path string, or array of path strings, then this
+     *                                                      method will convert that into a Restrictions object and this
+     *                                                      is the $write modifier for that object
+     * @param string|null $label                            If $restrictions is not specified as a Restrictions class,
+     *                                                      but as a path string, or array of path strings, then this
+     *                                                      method will convert that into a Restrictions object and this
+     *                                                      is the $label modifier for that object
+     */
+    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+
+    /**
+     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
+     *
+     * @param RestrictionsInterface|null $restrictions
+     * @return RestrictionsInterface
+     */
+    public function ensureRestrictions(?RestrictionsInterface $restrictions): RestrictionsInterface;
+
+    /**
+     * Checks restrictions
+     *
+     * @param bool $write
+     * @return $this
+     */
+    public function checkRestrictions(bool $write): static;
 }

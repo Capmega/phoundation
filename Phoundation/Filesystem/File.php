@@ -41,24 +41,24 @@ use Throwable;
 class File extends Path implements FileInterface
 {
     /**
-     * The default size of the file buffer
-     *
-     * @var int|null $buffer_size
-     */
-    protected ?int $buffer_size = null;
-
-
-    /**
      * Returns a new temporary file with the specified restrictions
      *
      * @param bool $public
      * @return static
      */
-    public static function newTemporary(bool $public = false, ?string $name = null, bool $create = true): static
+    public static function newTemporary(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
-        $directory = Directory::newTemporary($public);
+        if ($persist) {
+            $directory    = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
+            $restrictions = Restrictions::writable($directory, 'persistent temporary file');
+            $directory    = Directory::new($directory, $restrictions)->ensure();
+
+        } else {
+            $directory = Directory::getSessionTemporaryPath($public);
+        }
+
         $name = ($name ?? Strings::generateUuid());
-        $file = static::new($directory->getPath() . $name, $directory->getRestrictions());
+        $file = static::new($directory->getPath() . $name, Restrictions::writable($directory->getPath() . $name, tr('persistent temporary file')));
 
         if ($create) {
             $file->create();

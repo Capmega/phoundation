@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -27,9 +29,9 @@ class Restrictions implements RestrictionsInterface
     /**
      * Internal store of all restrictions
      *
-     * @var array $directories
+     * @var array $source
      */
-    protected array $directories = [];
+    protected array $source = [];
 
     /**
      * Restrictions name
@@ -53,7 +55,7 @@ class Restrictions implements RestrictionsInterface
         }
 
         if ($directories) {
-            $this->setDirectories($directories, $write);
+            $this->setSource($directories, $write);
         }
     }
 
@@ -65,7 +67,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function __toString(): string
     {
-        return implode(',', array_keys($this->directories));
+        return implode(',', array_keys($this->source));
     }
 
 
@@ -76,7 +78,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function __toArray(): array
     {
-        return $this->directories;
+        return $this->source;
     }
 
 
@@ -183,14 +185,34 @@ class Restrictions implements RestrictionsInterface
      * This is useful for the Directory object where one will want to be able to access or create the parent directory of the file
      * that needs to be accessed
      *
+     * @param int|null $levels
      * @return Restrictions
      */
-    public function getParent(): Restrictions
+    public function getParent(?int $levels = null): Restrictions
     {
+        if (!$levels) {
+            $levels = 1;
+        }
+
         $restrictions = Restrictions::new()->setLabel($this->label);
 
-        foreach ($this->directories as $directory => $write) {
-            $restrictions->addDirectory(dirname($directory), $write);
+        foreach ($this->source as $directory => $write) {
+            // Negative level will calculate in reverse
+            if (!$levels) {
+                throw new OutOfBoundsException(tr('Invalid level ":level" specified, must be a positive or negative integer, and cannot be 0', [
+                    ':level' => $levels
+                ]));
+            }
+
+            if ($levels > 0) {
+                $parent = Strings::until($directory, '/', $levels);
+
+            } else {
+                $count  = Path::countDirectories($directory);
+                $parent = Strings::until($directory, '/', $count + $levels);
+            }
+
+            $restrictions->addDirectory($parent, $write);
         }
 
         return $restrictions;
@@ -211,7 +233,7 @@ class Restrictions implements RestrictionsInterface
         $restrictions = Restrictions::new()->setLabel($this->label);
         $child_directories  = Arrays::force($child_directories);
 
-        foreach ($this->directories as $directory => $original_write) {
+        foreach ($this->source as $directory => $original_write) {
             foreach ($child_directories as $child) {
                 $restrictions->addDirectory(Strings::slash($directory) . Strings::startsNotWith($child, '/'), $write ?? $original_write);
             }
@@ -228,7 +250,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function clearDirectories(): static
     {
-        $this->directories = [];
+        $this->source = [];
         return $this;
     }
 
@@ -240,9 +262,9 @@ class Restrictions implements RestrictionsInterface
      * @param bool $write
      * @return static
      */
-    public function setDirectories(Stringable|array|string $directories, bool $write = false): static
+    public function setSource(Stringable|array|string $directories, bool $write = false): static
     {
-        $this->directories = [];
+        $this->source = [];
         return $this->addDirectories($directories, $write);
     }
 
@@ -286,7 +308,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function addDirectory(Stringable|string $directory, bool $write = false): static
     {
-        $this->directories[Filesystem::absolute($directory, null, false)] = $write;
+        $this->source[Filesystem::absolute($directory, null, false)] = $write;
         return $this;
     }
 
@@ -296,9 +318,9 @@ class Restrictions implements RestrictionsInterface
      *
      * @return array
      */
-    public function getDirectories(): array
+    public function getSource(): array
     {
-        return $this->directories;
+        return $this->source;
     }
 
 
@@ -349,7 +371,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function check(Stringable|array|string &$patterns, bool $write): void
     {
-        if (!$this->directories) {
+        if (!$this->source) {
             throw new RestrictionsException(tr('The ":label" restrictions have no directories specified', [
                 ':label' => $this->label
             ]));
@@ -357,7 +379,7 @@ class Restrictions implements RestrictionsInterface
 
         // Check each specified directory pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as &$pattern) {
-            foreach ($this->directories as $directory => $restrict_write) {
+            foreach ($this->source as $directory => $restrict_write) {
                 $directory    = Filesystem::absolute($directory   , null, false);
                 $pattern = Filesystem::absolute($pattern, null, false);
 
@@ -369,7 +391,7 @@ class Restrictions implements RestrictionsInterface
                         ]))->addData([
                             'label'    => $this->label,
                             'patterns' => $patterns,
-                            'directories'    => $this->directories
+                            'directories'    => $this->source
                         ]);
                     }
 
@@ -385,7 +407,7 @@ class Restrictions implements RestrictionsInterface
             ]))->addData([
                 'label'       => $this->label,
                 'patterns'    => $patterns,
-                'directories' => $this->directories
+                'directories' => $this->source
             ]);
         }
     }
@@ -417,7 +439,7 @@ class Restrictions implements RestrictionsInterface
     {
         $restrictions = new Restrictions();
 
-        foreach ($this->directories as $path => $write) {
+        foreach ($this->source as $path => $write) {
             $restrictions->addDirectory($path, true);
         }
 

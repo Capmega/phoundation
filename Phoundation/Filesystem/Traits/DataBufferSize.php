@@ -28,54 +28,27 @@ trait DataBufferSize
      *
      * @var int|null $buffer_size
      */
-    protected ?int $buffer_size;
+    protected ?int $buffer_size = null;
 
 
     /**
-     * Returns the configured file buffer size
-     *
-     * @param int|null $requested_buffer_size
-     * @return int
-     */
-    public function getBufferSize(?int $requested_buffer_size = null): int
-    {
-        $required  = $requested_buffer_size ?? Config::get('filesystem.buffer.size', $this->buffer_size ?? 4096);
-        $available = Core::getMemoryAvailable();
-
-        if ($required > $available) {
-            // The required file buffer is larger than the available memory, oops...
-            if (Config::get('filesystem.buffer.auto', false)) {
-                throw new FilesystemException(tr('Failed to set file buffer of ":required", only ":available" memory available', [
-                    ':required'  => $required,
-                    ':available' => $available
-                ]));
-            }
-
-            // Auto adjusts to half of the available memory
-            Log::warning(tr('File buffer of ":required" requested but only ":available" memory available. Created buffer of ":size" instead', [
-                ':required'  => $required,
-                ':available' => $available,
-                ':size'      => floor($available * .5)
-            ]));
-
-            $required = floor($available * .5);
-        }
-
-        $this->buffer_size = $required;
-
-        return $required;
-    }
-
-
-    /**
-     * Sets the configured file buffer size
+     * Returns the configured or detected file buffer size
      *
      * @param int|null $buffer_size
-     * @return static
+     * @return int
      */
-    public function setBufferSize(?int $buffer_size): static
+    public function getBufferSize(?int $buffer_size = null): int
     {
+        // Buffer is by default 4K
+        $buffer_size = $buffer_size ?? Config::get('filesystem.buffer.size', 4096);
+
+        if ($buffer_size < 1024) {
+            // Minimal buffer size is 1K
+            $buffer_size = 1024;
+        }
+
         $this->buffer_size = $buffer_size;
-        return $this;
+
+        return $this->buffer_size;
     }
 }

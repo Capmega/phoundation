@@ -378,6 +378,10 @@ class Mount extends DataEntry implements MountInterface
      */
     public function autoMount(): ?bool
     {
+        if (Config::getBoolean('filesystem.automounts.enabled', false)) {
+            return false;
+        }
+
         // This path is inside a mount
         if ($this->isMounted()) {
             if ($this->getCurrentSource() !== $this->getSourceValue('source_path')) {
@@ -388,7 +392,7 @@ class Mount extends DataEntry implements MountInterface
                 ]));
             }
 
-            // Path is mounted already on the correct location, all is fine
+            // The Path is mounted already on the correct location, all is fine
             return null;
         }
 
