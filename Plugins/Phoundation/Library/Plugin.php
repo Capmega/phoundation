@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Plugins\Phoundation\Library;
+
+namespace Plugins\Phoundation;
 
 use Phoundation\Web\Html\Components\Menu;
 use Phoundation\Web\Page;
-use Plugins\Phoundation\Components;
 use Plugins\Phoundation\Components\ProfileImageMenu;
-
 
 
 /**
