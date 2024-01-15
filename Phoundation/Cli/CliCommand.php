@@ -473,9 +473,6 @@ class CliCommand
                 ':path' => $file
             ]), 3);
 
-            // Commands directory does not exist! Init first!
-            Directory::new($file, Restrictions::writable(DIRECTORY_COMMANDS, tr('CliCommand::findCommand()')))->ensure();
-
             // Rebuild the command cache
             Libraries::rebuildCommandCache();
         }
