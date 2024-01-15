@@ -523,7 +523,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'ssh_tunnels_id'   => null,
             'pdo_attributes'   => '',
             'version'          => '0.0.0',
-            'timezone'         => 'UTC'
+            'timezones_name'   => 'UTC'
         ];
     }
 
