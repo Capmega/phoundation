@@ -10,6 +10,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryData;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryException;
@@ -17,6 +18,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Web\Html\Enums\InputElement;
 
 
 /**
@@ -24,7 +26,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -33,10 +35,9 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 class Incident extends DataEntry
 {
     use DataEntryDescription;
-    use DataEntryDetails;
     use DataEntryException;
-    use DataEntryTitle;
     use DataEntryType;
+    use DataEntryData;
     use DataEntryUrl;
 
 
@@ -76,7 +77,8 @@ class Incident extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @return Definitions
+     * @param DefinitionsInterface $definitions
+     * @return void
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
@@ -92,15 +94,14 @@ class Incident extends DataEntry
             ->addDefinition(DefinitionFactory::getTitle($this)
                 ->setSize(6))
             ->addDefinition(Definition::new($this, 'url')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('URL')
                 ->setSize(12)
-                ->setMaxlength(2048)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUrl();
-                }))
+                ->setMaxlength(2048))
             ->addDefinition(DefinitionFactory::getDescription($this))
             ->addDefinition(Definition::new($this, 'exception')
+                ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('Exception')
                 ->setSize(12)
@@ -109,8 +110,9 @@ class Incident extends DataEntry
                     $validator->isPrintable();
                 }))
             ->addDefinition(Definition::new($this, 'data')
+                ->setOptional(true)
                 ->setReadonly(true)
-                ->setElement('text')
+                ->setElement(InputElement::textarea)
                 ->setLabel('Data')
                 ->setSize(12)
                 ->setMaxlength(16_777_200));
