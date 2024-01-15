@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-
 namespace Plugins\Phoundation\Components;
 
 
 /**
- * TemplateMenus class
+ * Class Menu
  *
  *
  *
