@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-
-namespace Plugins\Phoundation;
+namespace Plugins\Phoundation\Library;
 
 use Phoundation\Web\Html\Components\Menu;
 use Phoundation\Web\Page;
