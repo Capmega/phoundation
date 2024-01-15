@@ -7,6 +7,7 @@ namespace Phoundation\Cache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -14,6 +15,11 @@ use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\PhpException;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Config;
 
 
@@ -30,15 +36,46 @@ use Phoundation\Utils\Config;
 class Cache
 {
     /**
-     * Clear all cache data
+     * Tracks if cache has ben cleared in this process
      *
-     * @return void
+     * @var bool $has_been_cleared
      */
-    public static function clear(): void
+    protected static bool $has_been_cleared = false;
+
+
+    /**
+     * Clears all cache data if it has not yet been done
+     *
+     * @param bool $force
+     * @return bool
+     * @todo Implement more
+     */
+    public static function clear(bool $force = false): bool
     {
-        // TODO Implement
+        Log::action(tr('Clearing cache'), 3);
+
+        if (static::$has_been_cleared and !$force) {
+            return false;
+        }
+
+        Libraries::clearCommandsCache();
+        Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->delete();
         static::driver()?->clear();
+
         Log::success(tr('Cleared cache'));
+        static::$has_been_cleared = true;
+        return true;
+    }
+
+
+    /**
+     * Returns true if in this process the cache has been cleared
+     *
+     * @return bool
+     */
+    public static function hasBeenCleared(): bool
+    {
+        return static::$has_been_cleared;
     }
 
 
