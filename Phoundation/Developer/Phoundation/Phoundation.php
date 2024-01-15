@@ -25,6 +25,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 
 
 /**
@@ -297,7 +298,7 @@ class Phoundation extends Project
                         // Fork me, the patch failed! What file? Stash the little forker and retry without, then
                         // un-stash it after for manual review / copy
                         $output = $e->getDataKey('output');
-                        $output = Arrays::match($output, 'patch failed', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+                        $output = Arrays::getMatches($output, 'patch failed', Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE);
                         $git    = Git::new(DIRECTORY_ROOT);
 
                         if ($output) {
@@ -325,7 +326,7 @@ class Phoundation extends Project
                         } else {
                             // There are no problematic files found, look for other issues.
                             $output = $e->getDataKey('output');
-                            $output = Arrays::match($output, 'already exists in working directory', Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE);
+                            $output = Arrays::getMatches($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE);
 
                             if ($output) {
                                 // Found already existing files that cannot be merged. Delete on this side
@@ -462,7 +463,7 @@ class Phoundation extends Project
     {
         $count = 0;
 
-        foreach ($this->phoundation_directories as $directory) {
+        foreach ($this->phoundation_files as $directory) {
             $directory = $this->git->getDirectory() . $directory;
 
             // Find local Phoundation changes and filter Phoundation changes only
