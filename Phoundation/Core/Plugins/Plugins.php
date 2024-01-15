@@ -322,7 +322,7 @@ class Plugins extends DataList implements PluginsInterface
             // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
             // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
             if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
+                Log::warning(tr('Not registering plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
                     ':plugin' => $plugin
                 ]));
 
@@ -330,7 +330,7 @@ class Plugins extends DataList implements PluginsInterface
             }
 
             if (!file_exists($file)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
+                Log::warning(tr('Not registering plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
                     ':plugin' => $plugin
                 ]));
 
@@ -341,7 +341,7 @@ class Plugins extends DataList implements PluginsInterface
             include_once($file);
 
             if (!is_subclass_of($class, Plugin::class)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                Log::warning(tr('Not registering plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
                     ':plugin' => $plugin,
                     ':class'  => Plugin::class
                 ]));
