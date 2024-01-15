@@ -151,7 +151,7 @@ abstract class Template
                 $class = get_class($class);
             }
 
-            $class_path = Strings::from($class, 'Html\\', 0, true);
+            $class_path = Strings::from($class, 'Html\\', needle_required: true);
 
             if (!$class_path) {
                 // This class is not an HTML class. Maybe its an object that extends an HTML class, so check the parent
