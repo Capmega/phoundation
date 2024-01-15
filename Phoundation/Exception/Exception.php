@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
+use Phoundation\Web\Page;
+use Phoundation\Web\Routing\Route;
 use RuntimeException;
 use Throwable;
 
@@ -170,13 +174,13 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * @param string|float|int|null $key
      * @return array
      */
-    public function getDataMatch(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE, string|float|int|null $key = null): array
+    public function getDataMatch(array|string $needles, int $options = Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE, string|float|int|null $key = null): array
     {
         if ($key) {
-            return Arrays::match(isset_get($this->data[$key], []), $needles, $options);
+            return Arrays::getMatches(isset_get($this->data[$key], []), $needles, $options);
         }
 
-        return Arrays::match($this->data, $needles, $options);
+        return Arrays::getMatches($this->data, $needles, $options);
     }
 
 
@@ -188,7 +192,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      * @param string|float|int|null $key
      * @return bool
      */
-    public function dataContains(array|string $needles, int $options = Arrays::MATCH_ALL | Arrays::MATCH_ANYWHERE| Arrays::MATCH_NO_CASE, string|float|int|null $key = null): bool
+    public function dataContains(array|string $needles, int $options = Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE, string|float|int|null $key = null): bool
     {
         return (bool) $this->getDataMatch($needles, $options, $key);
     }
@@ -229,6 +233,32 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the exception message matches the specified needle(s)
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @return bool
+     */
+    public function messageContains(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_ANYWHERE| Utils::MATCH_NO_CASE): bool
+    {
+        return Strings::matches($this->message, $needles, $options);
+    }
+
+
+    /**
+     * Returns true if the exception message matches the specified needle(s)
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @return bool
+     */
+    public function messagesContain(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_ANYWHERE| Utils::MATCH_NO_CASE): bool
+    {
+        return Arrays::matches($this->messages, $needles, $options);
     }
 
 
@@ -419,7 +449,11 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      */
     public function register(): static
     {
-        Incident::new()->setException($this)->save();
+        Incident::new()
+            ->setException($this)
+            ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
+            ->setType('exception')
+            ->save();
 
         return $this;
     }
