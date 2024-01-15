@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cache\Cache;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -880,19 +883,28 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 /**
  * Execute the specified script file
  *
+ * @note This function is used to execute commands and web pages to give them their own empty function scope
+ *
  * @param string $__file
  * @return void
  * @throws Throwable
  */
 function execute_script(string $__file): void
 {
-    try {
-        include($__file);
-
-    } catch (Throwable $e) {
-        // Did this fail because the specified file does not exist?
-        File::new($__file, DIRECTORY_SCRIPTS)->checkReadable('script', $e);
-    }
+    include($__file);
+//    try {
+//        include($__file);
+//
+//    } catch (Throwable $e) {
+//        // Did this fail because the specified command is not readable? First check if the command cache has already
+//        // been rebuilt. If not, rebuild it now so that we can chbeck
+//        if (PLATFORM_CLI) {
+//            // First rebuild the command cache before checking if the command perhaps does not exist
+//            CliCommand::rebuildCache();
+//        }
+//
+//        File::new($__file, DIRECTORY_COMMANDS)->checkReadable('script', $e);
+//    }
 }
 
 
@@ -1091,7 +1103,7 @@ function function_called(string $function): bool
     }
 
     // Divide into class and function
-    $class    = Strings::until($function, '::', require: true);
+    $class    = Strings::until($function, '::', needle_required: true);
     $class    = strtolower(trim($class));
     $function = Strings::from($function, '::');
     $function = strtolower(trim($function));
