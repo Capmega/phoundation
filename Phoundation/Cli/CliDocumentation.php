@@ -88,8 +88,8 @@ class CliDocumentation
     {
         try {
             if (CliAutoComplete::isActive()) {
-                CliAutoComplete::processScriptPositions(isset_get($definitions['positions']));
-                CliAutoComplete::processScriptArguments(isset_get($definitions['arguments']));
+                CliAutoComplete::processCommandPositions(isset_get($definitions['positions']));
+                CliAutoComplete::processCommandArguments(isset_get($definitions['arguments']));
                 exit();
             }
 

@@ -78,11 +78,11 @@ class CliAutoComplete
     protected static ?int $position = null;
 
     /**
-     * The script for which auto complete is running
+     * The command for which auto complete is running
      *
-     * @var string $script
+     * @var string $command
      */
-    protected static string $script;
+    protected static string $command;
 
     /**
      * List of available system arguments
@@ -165,19 +165,19 @@ class CliAutoComplete
 
 
     /**
-     * Process the auto complete for command line methods
+     * Process the auto complete for command line commands
      *
      * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
-     * @param array|null $cli_methods
+     * @param array|null $cli_commands
      * @param array $data
      * @return never
      */
-    #[NoReturn] public static function processMethods(?array $cli_methods, array $data): never
+    #[NoReturn] public static function processCommands(?array $cli_commands, array $data): never
     {
-        // $data['position'] is the number of found methods
+        // $data['position'] is the number of found commands
         // static::$position is the word # where the cursor was when <TAB> was pressed
-        if ($cli_methods === null) {
-            // No CLI methods have been specified yet, so all arguments are assumed system arguments
+        if ($cli_commands === null) {
+            // No CLI commands have been specified yet, so all arguments are assumed system arguments
             $words = ArgvValidator::getArguments();
             $word  = array_shift($words);
 
@@ -185,19 +185,23 @@ class CliAutoComplete
                 static::processArguments(static::$system_arguments);
 
             } else {
-                foreach ($data['methods'] as $method) {
-                    echo $method . PHP_EOL;
+                foreach ($data['commands'] as $command) {
+                    echo $command . PHP_EOL;
                 }
             }
 
-        } elseif (static::$position > count($cli_methods)) {
+        } elseif (static::$position > count($cli_commands)) {
             // Invalid situation, supposedly the location was beyond, after the number of arguments?
+            Log::error(tr('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
+                ':position' => static::$position,
+                ':count'    => count($cli_commands)
+            ]), echo_screen: false);
             exit('Invalid-auto-complete-arguments' . PHP_EOL);
 
         } elseif ($data['position'] > static::$position) {
-            // The findScript() method already found this particular word, so we know it exists! However, there may be
-            // other methods starting with this particular word, so we may have to display multiple options instead
-            $matches = static::getMethodsStartingWith($data['previous_methods'], $cli_methods[static::$position]);
+            // The findCommand() method already found this particular word, so we know it exists! However, there may be
+            // other commands starting with this particular word, so we may have to display multiple options instead
+            $matches = static::getCommandsStartingWith($data['previous_commands'], $cli_commands[static::$position]);
 
             switch (count($matches)) {
                 case 0:
@@ -205,7 +209,7 @@ class CliAutoComplete
                     throw new AutoCompleteException(tr('Found no match while there should be a match'));
 
                 case 1:
-                    echo $cli_methods[static::$position];
+                    echo $cli_commands[static::$position];
                     break;
 
                 default:
@@ -214,42 +218,42 @@ class CliAutoComplete
             }
 
         } else {
-            $matches        = [];
-            $argument_method = isset_get($cli_methods[static::$position], '');
+            $matches          = [];
+            $argument_command = isset_get($cli_commands[static::$position], '');
 
-            if (!$argument_method) {
-                // There are no methods, are there modifier arguments, perhaps?
+            if (!$argument_command) {
+                // There are no commands, are there modifier arguments, perhaps?
                 $arguments = ArgvValidator::getArguments();
 
                 if ($arguments) {
                     // Get the argument from the modifier arguments list
-                    $argument_method = array_shift($arguments);
+                    $argument_command = array_shift($arguments);
                 }
             }
 
-            if ($argument_method) {
-                // We have an argument method specified, likely it doesn't exist
-                if (str_starts_with($argument_method, '-')) {
+            if ($argument_command) {
+                // We have an argument command specified, likely it doesn't exist
+                if (str_starts_with($argument_command, '-')) {
                     // This is a system modifier argument, show the system modifier arguments instead.
-                    $data['methods'] = [];
+                    $data['commands'] = [];
 
                     foreach (static::$system_arguments as $arguments => $definitions) {
                         $arguments = explode(',', $arguments);
 
                         foreach ($arguments as $argument) {
-                            $data['methods'][] = $argument;
+                            $data['commands'][] = $argument;
                         }
                     }
                 }
 
-                $matches = static::getMethodsStartingWith($data['methods'], $argument_method);
+                $matches = static::getCommandsStartingWith($data['commands'], $argument_command);
 
                 switch (count($matches)) {
                     case 0:
                         break;
 
                     case 1:
-                        // We found a single method that contains the word we have, we'll use that
+                        // We found a single command that contains the word we have, we'll use that
                         echo array_shift($matches);
                         break;
 
@@ -258,8 +262,8 @@ class CliAutoComplete
                 }
 
             } else {
-                foreach ($data['methods'] as $method) {
-                    echo $method . PHP_EOL;
+                foreach ($data['commands'] as $command) {
+                    echo $command . PHP_EOL;
                 }
             }
 
@@ -279,27 +283,27 @@ class CliAutoComplete
     protected static function displayMultipleMatches(array $matches): void
     {
         // We have multiple matches. Check if any of the matches
-        foreach ($matches as $method) {
-            echo $method . PHP_EOL;
+        foreach ($matches as $command) {
+            echo $command . PHP_EOL;
         }
     }
 
 
     /**
-     * Returns the methods starting with the specified word
+     * Returns the commands starting with the specified word
      *
-     * @param array $methods
+     * @param array $commands
      * @param string $word
      * @return array
      */
-    protected static function getMethodsStartingWith(array $methods, string $word): array
+    protected static function getCommandsStartingWith(array $commands, string $word): array
     {
         $return = [];
 
-        foreach ($methods as $method) {
-            if (str_starts_with($method, $word)) {
-                // A method contains the word we try to auto complete
-                $return[] = $method;
+        foreach ($commands as $command) {
+            if (str_starts_with($command, $word)) {
+                // A command contains the word we try to auto complete
+                $return[] = $command;
             }
         }
 
@@ -308,12 +312,12 @@ class CliAutoComplete
 
 
     /**
-     * Process auto complete for this script from the definitions specified by the script
+     * Process auto complete for this command from the definitions specified by the command
      *
      * @param array|null $definitions
      * @return void
      */
-    public static function processScriptPositions(?array $definitions) {
+    public static function processCommandPositions(?array $definitions) {
         if (!$definitions) {
             return;
         }
@@ -323,22 +327,22 @@ class CliAutoComplete
         $word = strtolower(trim((string) $word));
 
         // First check position!
-        static::processScriptPosition($definitions, $word, static::$position);
+        static::processCommandPosition($definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
-        static::processScriptPosition($definitions, $word, -1);
+        static::processCommandPosition($definitions, $word, -1);
     }
 
 
     /**
-     * Process auto complete for this script from the definitions specified by the script
+     * Process auto complete for this command from the definitions specified by the command
      *
      * @param array $definitions
      * @param string $word
      * @param int $position
      * @return void
      */
-    protected static function processScriptPosition(array $definitions, string $word, int $position): void
+    protected static function processCommandPosition(array $definitions, string $word, int $position): void
     {
         if (array_key_exists($position, isset_get($definitions))) {
             // Get position specific data
@@ -370,12 +374,12 @@ class CliAutoComplete
 
 
     /**
-     * Process script arguments
+     * Process command arguments
      *
      * @param array|null $definitions
      * @return void
      */
-    public static function processScriptArguments(?array $definitions): void
+    public static function processCommandArguments(?array $definitions): void
     {
         if ($definitions) {
             static::processArguments(array_merge($definitions, static::$system_arguments));
@@ -387,23 +391,23 @@ class CliAutoComplete
 
 
     /**
-     * Returns true if the specified script has auto complete support available
+     * Returns true if the specified command has auto complete support available
      *
-     * @todo Add caching for this
-     * @param string $script
+     * @param string $command
      * @return bool
+     * @todo Add caching for this
      */
-    public static function hasSupport(string $script): bool
+    public static function hasSupport(string $command): bool
     {
-        static::$script = $script;
+        static::$command = $command;
 
-        // Update the location to the first argument (argument 0) after the script
-        $script = Strings::from(static::$script, DIRECTORY_ROOT . 'scripts/');
-        $script = explode('/', $script);
+        // Update the location to the first argument (argument 0) after the command
+        $command = Strings::from(static::$command, DIRECTORY_COMMANDS);
+        $command = explode('/', $command);
 
-        static::$position = static::$position - count($script);
+        static::$position = static::$position - count($command);
 
-        return !empty(File::new(static::$script, DIRECTORY_ROOT . 'scripts/')->grep(['Documentation::autoComplete('], 100));
+        return !empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['Documentation::autoComplete('], 100));
     }
 
 
@@ -471,7 +475,7 @@ complete -F _phoundation pho');
 
 
     /**
-     * Process auto complete for this script from the definitions specified by the script
+     * Process auto complete for this command from the definitions specified by the command
      *
      * @param array $argument_definitions
      * @return void
@@ -604,8 +608,8 @@ complete -F _phoundation pho');
             return $results;
         }
 
-        throw new AutoCompleteException(tr('Failed to process auto complete definition ":definition" for script ":script"', [
-            ':script'     => static::$script,
+        throw new AutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
+            ':command'    => static::$command,
             ':definition' => $definition
         ]));
     }

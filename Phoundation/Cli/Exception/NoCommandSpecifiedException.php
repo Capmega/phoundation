@@ -15,6 +15,6 @@ namespace Phoundation\Cli\Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class NoMethodSpecifiedException extends CliException
+class NoCommandSpecifiedException extends CliException
 {
 }

@@ -15,6 +15,8 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -57,6 +59,20 @@ class Libraries
      * @var bool
      */
     protected static bool $initializing = false;
+
+    /**
+     * Tracks if the commands cache has been rebuilt within this process
+     *
+     * @var bool $cache_has_been_rebuilt
+     */
+    protected static bool $cache_has_been_rebuilt = false;
+
+    /**
+     * Tracjs if the command cache has been cleared within this process
+     *
+     * @var bool $cache_has_been_cleared
+     */
+    protected static bool $cache_has_been_cleared = false;
 
 
     /**
@@ -135,7 +151,7 @@ class Libraries
 
         // Wipe all temporary data and set the core in INIT mode
         Tmp::clear();
-        Core::setInitState();
+        Core::enableInitState();
 
         try {
             // Wipe all cache data
@@ -146,7 +162,7 @@ class Libraries
         }
 
         // Ensure the system database exists
-        static::ensureSystemsDatabase();
+        static::ensureSystemsDatabaseAccessible();
 
         // Go over all system libraries and initialize them, then do the same for the plugins
         static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
@@ -188,7 +204,7 @@ class Libraries
 
         $return = [];
 
-        Log::action(tr('Scanning libraries'));
+        Log::action(tr('Scanning libraries'), 3);
 
         // List system libraries
         if ($system) {
@@ -348,11 +364,11 @@ class Libraries
 
 
     /**
-     * Ensure that the systems database exists
+     * Ensure that the systems database exists and is accessible
      *
      * @return void
      */
-    protected static function ensureSystemsDatabase(): void
+    protected static function ensureSystemsDatabaseAccessible(): void
     {
         if (!sql('system', false)->schema(false)->database()->exists()) {
             sql('system', false)->schema(false)->database()->create();
@@ -424,7 +440,7 @@ class Libraries
         $library_count  = count($libraries);
         $update_count   = 0;
 
-        // First ensure all libraries have the correct structure
+        // First, ensure all libraries have the correct structure
         static::verifyLibraries($libraries);
 
         Log::action(tr('Initializing libraries'));
@@ -454,8 +470,7 @@ class Libraries
 
         // Post initialize all libraries
         // Go over the list of libraries and try to update each one
-        if (false) {
-//        if (TEST) {
+        if (TEST) {
             Log::warning('Not executing post init files due to test mode');
 
         } else {
@@ -473,6 +488,9 @@ class Libraries
                 }
             }
         }
+
+        // Rebuild the commands cache
+        static::rebuildCommandCache();
 
         if (!$update_count) {
             // No libraries were updated
@@ -501,6 +519,65 @@ class Libraries
         foreach ($libraries as $library) {
             $library->verify();
         }
+    }
+
+
+    /**
+     * Deletes the PHO commands cache and returns the COMMANDS directory
+     *
+     * @return void
+     */
+    public static function clearCommandsCache(): void
+    {
+        Log::action(tr('Clearing commands cache'), 3);
+        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Libraries::clearCommandsCache()')))->delete();
+        static::$cache_has_been_cleared = true;
+    }
+
+
+    /**
+     * Rebuilds the PHO commands cache
+     *
+     * @return void
+     */
+    public static function rebuildCommandCache(): void
+    {
+        Log::action(tr('Rebuilding command cache'), 3, echo_screen: false);
+
+        $temporary = Directory::newTemporary();
+        $commands  = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS));
+
+        foreach (static::listLibraries() as $library) {
+            $library->cacheCommands($temporary);
+        }
+
+        // Move the old out of the way, push the new in
+        $commands->replaceWithPath($temporary);
+
+        static::$cache_has_been_rebuilt = true;
+        Log::success(tr('Finished rebuilding command cache'), 4, echo_screen: false);
+    }
+
+
+    /**
+     * Returns true if in this process the commands cache has been cleared
+     *
+     * @return bool
+     */
+    public static function cacheHasBeenCleared(): bool
+    {
+        return static::$cache_has_been_cleared;
+    }
+
+
+    /**
+     * Returns true if in this process the commands cache has been rebuilt
+     *
+     * @return bool
+     */
+    public static function cacheHasBeenRebuilt(): bool
+    {
+        return static::$cache_has_been_rebuilt;
     }
 
 

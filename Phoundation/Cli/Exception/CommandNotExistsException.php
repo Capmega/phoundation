@@ -15,6 +15,6 @@ namespace Phoundation\Cli\Exception;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class MethodNotExistsException extends CliException
+class CommandNotExistsException extends CliException
 {
 }

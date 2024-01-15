@@ -6,15 +6,15 @@ namespace Phoundation\Cli\Exception;
 
 
 /**
- * Class CliScriptException
+ * Class CommandNotFoundException
  *
- * This exception is thrown in case of errors in the Command Line Exception Color class, Cli\Color
+ * This exception is thrown when the specified script method does not lead to an executable script
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class CliScriptException extends CliException
+class CommandNotFoundException extends CliException
 {
 }

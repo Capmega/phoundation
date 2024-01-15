@@ -15,6 +15,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\PathInterface;
@@ -351,7 +352,7 @@ class Library implements LibraryInterface
      */
     public function getPhpStatistics(): array
     {
-        return Directory::new($this->getDirectory(), [DIRECTORY_WWW, DIRECTORY_ROOT . '/scripts/', LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
+        return Directory::new($this->getDirectory(), [DIRECTORY_WWW, LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
     }
 
 
@@ -584,7 +585,6 @@ class Library implements LibraryInterface
     {
         if ($this->structure_ok === null) {
             // Execute the structural check for this library
-            $this->symlinksCommands();
 
             // TODO IMPLEMENT MORE
 
@@ -596,28 +596,31 @@ class Library implements LibraryInterface
 
 
     /**
-     * Ensure that the Library/scripts is symlinked
+     * Ensure that the Library/commands is symlinked
      *
+     * @param DirectoryInterface $commands_directory
      * @return void
+     * @todo Add support for command sharing!
      */
-    protected function symlinksCommands(): void
+    public function cacheCommands(DirectoryInterface $commands_directory): void
     {
-        $library_path         = Strings::slash($this->directory) . 'Library/scripts/';
-        $scripts_path         = DIRECTORY_ROOT . 'scripts/';
-
-        $library_restrictions = Restrictions::readonly($library_path, tr('Library command symlink validation'));
-        $scripts_restrictions = Restrictions::writable($scripts_path, tr('Library command symlink validation'));
-
-        $library_path_o       = Directory::new($library_path, $library_restrictions);
-        $scripts_path_o       = Directory::new($scripts_path, $scripts_restrictions)->ensure();
+        $library_path          = Strings::slash($this->directory) . 'Library/commands/';
+        $library_restrictions  = Restrictions::readonly($library_path, tr('Library command symlink validation'));
+        $library_path_o        = Directory::new($library_path, $library_restrictions);
+        $commands_restrictions = $commands_directory->getRestrictions();
 
         if (!$library_path_o->exists()) {
-            // This library does not have a scripts/ directory, we're fine
+            // This library does not have a commands/ directory, we're fine
             return;
         }
 
         foreach ($library_path_o->list() as $file => $path) {
-            if ($scripts_path_o->pathExists($file)) {
+            $command_file = $commands_directory->addPathToThis($file);
+
+            if ($command_file->exists(true)) {
+                Log::warning(tr('Not adding commands symlink for ":path", the command already exists', [
+                    ':path' => $command_file
+                ]));
                 continue;
             }
 
@@ -626,10 +629,13 @@ class Library implements LibraryInterface
             // Symlink doesn't exist yet, place it now
             Log::action(tr('Adding commands symlink for ":path"', [
                 ':path' => $file
-            ]));
+            ]), 2);
 
-            Path::newExisting($path, $library_restrictions)
-                ->symlink($scripts_path . $file, $scripts_restrictions);
+            // Get the correct relative target link, don't let Path::symlink() resolve this automatically as the source
+            // path will change from a temp directory to data/cache/system/commands
+            Path::new($path, $commands_restrictions, true)
+                ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
+                ->symlinkToThis($command_file);
         }
     }
 }
