@@ -7,20 +7,19 @@ namespace Phoundation\Core;
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
+use Phoundation\Cache\Cache;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Cli\Exception\MethodNotFoundException;
-use Phoundation\Cli\Exception\NoMethodSpecifiedException;
+use Phoundation\Cli\Exception\CommandNotFoundException;
+use Phoundation\Cli\Exception\NoCommandSpecifiedException;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
-use Phoundation\Core\Exception\MaintenanceModeException;
 use Phoundation\Core\Exception\NoProjectException;
-use Phoundation\Core\Exception\ReadonlyModeException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
@@ -231,6 +230,27 @@ class Core implements CoreInterface
      */
     protected static array $shutdown_callbacks = [];
 
+    /**
+     * Tracks if Core handles error or not
+     *
+     * @var bool $error_handling
+     */
+    protected static bool $error_handling = true;
+
+    /**
+     * Tracks if Core handles shutdown or not
+     *
+     * @var bool $exception_handling
+     */
+    protected static bool $exception_handling = true;
+
+    /**
+     * Tracks if Core handles shutdown or not
+     *
+     * @var bool $shutdown_handling
+     */
+    protected static bool $shutdown_handling = true;
+
 
     /**
      * Core class constructor
@@ -251,18 +271,18 @@ class Core implements CoreInterface
         // DIRECTORY_ROOT   is the root directory of this project, and should be used as the root for all other paths
         // DIRECTORY_TMP    is a private temporary directory
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
-        define('REQUEST'          , substr(uniqid(), 7));
-        define('DIRECTORY_ROOT'   , realpath(__DIR__ . '/../..') . '/');
-        define('DIRECTORY_WWW'    , DIRECTORY_ROOT . 'www/');
-        define('DIRECTORY_DATA'   , DIRECTORY_ROOT . 'data/');
-        define('DIRECTORY_CDN'    , DIRECTORY_DATA . 'content/cdn/');
-        define('DIRECTORY_TMP'    , DIRECTORY_DATA . 'tmp/');
-        define('DIRECTORY_PUBTMP' , DIRECTORY_DATA . 'content/cdn/tmp/');
-        define('DIRECTORY_SCRIPTS', DIRECTORY_ROOT . 'scripts/');
+        define('REQUEST'           , substr(uniqid(), 7));
+        define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
+        define('DIRECTORY_WWW'     , DIRECTORY_ROOT . 'www/');
+        define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
+        define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
+        define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
+        define('DIRECTORY_PUBTMP'  , DIRECTORY_DATA . 'content/cdn/tmp/');
+        define('DIRECTORY_COMMANDS', DIRECTORY_DATA . 'cache/system/commands/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
-        static::resetErrorHandling();
-        set_exception_handler(['\Phoundation\Core\Core'     , 'uncaughtException']);
+        static::setErrorHandling(true);
+        static::setExceptionHandling(true);
         register_shutdown_function(['\Phoundation\Core\Core', 'exit']);
 
         // Catch and handle process control signals
@@ -827,6 +847,8 @@ class Core implements CoreInterface
             ->select('-U,--usage')->isOptional(false)->isBoolean()
             ->select('-V,--verbose')->isOptional(false)->isBoolean()
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+            ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
+            ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
             ->select('--system-language', true)->isOptional()->isCode()
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
@@ -1125,8 +1147,20 @@ class Core implements CoreInterface
             }
 
         }
-        // Setup language map in case domain() calls are used
-        // Route::map();
+
+        if ($argv['clear_caches']) {
+            // Clear all caches
+            static::enableInitState();
+            Cache::clear();
+            static::disableInitState();
+        }
+
+        if ($argv['clear_tmp']) {
+            // Clear all tmp data
+            static::enableInitState();
+            Tmp::clear();
+            static::disableInitState();
+        }
     }
 
 
@@ -1582,14 +1616,26 @@ class Core implements CoreInterface
 
 
     /**
+     * Sets the internal INIT state to true.
+     *
+     * @return void
+     * @see Core::inInitState()
+     */
+    public static function enableInitState(): void
+    {
+        static::$init = true;
+    }
+
+
+    /**
      * Sets the internal INIT state to true. Can NOT be disabled!
      *
      * @return void
      * @see Core::inInitState()
      */
-    public static function setInitState(): void
+    public static function disableInitState(): void
     {
-        static::$init = true;
+        static::$init = false;
     }
 
 
@@ -1837,10 +1883,10 @@ class Core implements CoreInterface
 
                 if (!defined('PLATFORM')) {
                     // The system crashed before platform detection.
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
-                        ':code'   => $e->getCode(),
-                        ':type'   => static::getRequestType()->value,
-                        ':script' => static::getExecutedPath()
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
+                        ':code'    => $e->getCode(),
+                        ':type'    => static::getRequestType()->value,
+                        ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
                     ]));
 
                     Log::error($e);
@@ -1849,7 +1895,7 @@ class Core implements CoreInterface
 
                 switch (PLATFORM) {
                     case 'cli':
-                        // Command line script crashed.
+                        // Command line command crashed.
                         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
                         if (($e instanceof ValidationFailedException) and $e->isWarning()) {
                             // This is just a simple validation warning, show warning messages in the exception data
@@ -1864,19 +1910,19 @@ class Core implements CoreInterface
 
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 9);
 
-                            if ($e instanceof NoMethodSpecifiedException) {
+                            if ($e instanceof NoCommandSpecifiedException) {
                                 if ($data = $e->getData()) {
                                     Log::information('Available methods:', 9);
 
-                                    foreach ($data['methods'] as $file) {
+                                    foreach ($data['commands'] as $file) {
                                         Log::notice($file, 10);
                                     }
                                 }
-                            } elseif ($e instanceof MethodNotFoundException) {
+                            } elseif ($e instanceof CommandNotFoundException) {
                                 if ($data = $e->getData()) {
                                     Log::information('Available sub methods:', 9, use_prefix: false);
 
-                                    foreach ($data['methods'] as $method) {
+                                    foreach ($data['commands'] as $method) {
                                         Log::notice($method, 10, use_prefix: false);
                                     }
                                 }
@@ -1918,9 +1964,7 @@ class Core implements CoreInterface
 //
 //                                case 'validation':
 //                                    if (static::executedPathIs('system/init')) {
-//                                        /*
-//                                         * In the init script, all validations are fatal!
-//                                         */
+//                                        // In the init command, all validations are fatal!
 //                                        $e->makeWarning(false);
 //                                        break;
 //                                    }
@@ -1947,11 +1991,11 @@ class Core implements CoreInterface
 //                                    exit(Script::getExitCode());
 //                            }
 
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => static::getRequestType()->value,
                             ':state'       => static::$state,
-                            ':script'      => static::getExecutedPath(),
+                            ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
 
@@ -1985,11 +2029,11 @@ class Core implements CoreInterface
                         }
 
                         // Log exception data
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM SCRIPT ":script" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => static::getRequestType()->value,
                             ':state'       => static::$state,
-                            ':script'      => static::getExecutedPath(),
+                            ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
                         ]));
 
@@ -2107,17 +2151,20 @@ class Core implements CoreInterface
                                         <table class="exception">
                                             <thead>
                                                 <td colspan="2" class="center">
-                                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', [
-                                                            ':code'   => $e->getCode(),
-                                                            ':script' => static::getExecutedPath(),
-                                                            ':type'   => Core::getRequestType()->value
+                                                    ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
+                                                            ':code'    => $e->getCode(),
+                                                            ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
+                                                            ':type'    => Core::getRequestType()->value
                                                         ]) . '
                                                 </td>
                                             </thead>
                                             <tbody>
                                                 <tr>
                                                     <td colspan="2" class="center">
-                                                        ' . tr('An uncaught exception with code ":code" occurred in script ":script". See the exception core dump below for more information on how to fix this issue', [':code' => $e->getCode(), ':script' => static::getExecutedPath()]) . '
+                                                        ' . tr('An uncaught exception with code ":code" occurred in COMMAND ":command". See the exception core dump below for more information on how to fix this issue', [
+                                                                ':code'    => $e->getCode(),
+                                                                ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
+                                                            ]) . '
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -2183,7 +2230,9 @@ class Core implements CoreInterface
 //                }
 
                 if (!defined('PLATFORM') or static::inStartupState($state)) {
-                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', [':script' => static::getExecutedPath()]));
+                    Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                        ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
+                    ]));
                     Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
                     Log::error($f->getMessage());
                     Log::error($f->getTrace());
@@ -2195,7 +2244,9 @@ class Core implements CoreInterface
 
                 switch (PLATFORM) {
                     case 'cli':
-                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', [':script' => static::getExecutedPath()]));
+                        Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                            ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
+                        ]));
                         Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                         Debug::setEnabled(true);
@@ -2214,7 +2265,9 @@ class Core implements CoreInterface
                             Route::executeSystem(500);
                         }
 
-                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', [':script' => static::getExecutedPath()]));
+                        show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                            ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
+                        ]));
                         show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
                         show($f);
@@ -2225,8 +2278,10 @@ class Core implements CoreInterface
         } catch (Throwable $g) {
             // Well, we tried. Here we just give up all together. Don't do anything anymore because every step from here
             // will fail anyway. Just die
-            exit("Fatal error. check data/syslog, application server logs, or webserver logs for more information\n");
+            echo 'Fatal error. check data/syslog, application server logs, or webserver logs for more information' . PHP_EOL;
         }
+
+        exit(1);
     }
 
 
@@ -2524,7 +2579,6 @@ class Core implements CoreInterface
      * @param bool $sig_kill            If true, the process is being terminated due to an external KILL signal
      * @param bool $direct_exit         If true, will exit the process immediately without loging, cleaning, etc.
      * @return void
-     * @todo Somehow hide this method so that nobody can call it directly
      */
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): void
     {
@@ -2536,8 +2590,13 @@ class Core implements CoreInterface
             return;
         }
 
+        if (!static::$shutdown_handling) {
+            // Shutdown handling by Core has been disabled
+            return;
+        }
+
         $exit = true;
-        static::resetErrorHandling();
+        static::setErrorHandling(true);
 
         if ($direct_exit) {
             // Exit without logging, cleaning, etc.
@@ -2657,7 +2716,7 @@ class Core implements CoreInterface
         }
 
         Log::action(tr('Executing shutdown callbacks for script ":script"', [
-            ':script' => static::getExecutedPath()
+            ':script' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
         ]), 2);
 
         // Reverse the shutdown calls to execute them last added first, first added last
@@ -2953,23 +3012,77 @@ class Core implements CoreInterface
     /**
      * Resets error handling to be managed by Phoundation
      *
+     * @param bool $enabled
      * @return void
      */
-    public static function resetErrorHandling()
+    public static function setErrorHandling(bool $enabled): void
     {
-        error_reporting(E_ALL);
-        set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
+        static::$error_handling = $enabled;
+
+        if ($enabled) {
+            error_reporting(E_ALL);
+            set_error_handler(['\Phoundation\Core\Core', 'phpErrorHandler']);
+        } else {
+            error_reporting(0);
+            set_error_handler(null);
+        }
     }
 
 
     /**
-     * Disables error handling completely
+     * Returns current state of Core error handling
      *
+     * @return bool
+     */
+    public static function getErrorHandling(): bool
+    {
+        return static::$error_handling;
+    }
+
+
+    /**
+     * Resets shutdown handling to be managed by Phoundation
+     *
+     * @param bool $enabled
      * @return void
      */
-    public static function disableErrorHandling()
+    public static function setExceptionHandling(bool $enabled): void
     {
-        error_reporting(0);
-        set_error_handler(null);
+        static::$exception_handling = $enabled;
+        set_exception_handler($enabled ? ['\Phoundation\Core\Core', 'uncaughtException'] : null);
+    }
+
+
+    /**
+     * Returns if Core manages shutdown handling
+     *
+     * @return bool
+     */
+    public static function getExceptionHandling(): bool
+    {
+        return static::$exception_handling;
+    }
+
+
+    /**
+     * Sets if Core manages shutdown handling
+     *
+     * @param bool $enabled
+     * @return void
+     */
+    public static function setShutdownHandling(bool $enabled): void
+    {
+        static::$shutdown_handling = $enabled;
+    }
+
+
+    /**
+     * Returns if Core manages shutdown handling
+     *
+     * @return bool
+     */
+    public static function getShutdownHandling(): bool
+    {
+        return static::$shutdown_handling;
     }
 }
