@@ -68,7 +68,7 @@ CliDocumentation::autoComplete([
             'noword' => function ()      { return Connectors::new()->load(true, true)->getSourceColumn('name'); },
         ],
         '-d,--driver' => [
-            'word'   => function ($word) { return Arrays::match(['mysql'], $word); },
+            'word'   => function ($word) { return Arrays::getMatches(['mysql'], $word); },
             'noword' => ['mysql']
         ],
         '-b,--database' => [
