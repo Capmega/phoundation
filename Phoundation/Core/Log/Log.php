@@ -1383,21 +1383,17 @@ Class Log {
      */
     public static function rotate(): FileInterface
     {
-        $file    = File::new(static::$file);
         $current = static::$file;
+        $file    = File::new(static::$file);
+        $target  = $file->getPath() . '~' . DateTime::new()->format('Ymd');
+        $target  = File::getAvailableVersion($target);
 
-        static::action(tr('Rotating to next log file'));
+        static::action(tr('Rotating to next syslog file'));
 
-        $file = $file
-            ->rename($file->getPath() . '~' . DateTime::new()->format('Ymd'))
-            ->gzip();
+        $file = $file->rename($target)->gzip();
 
         static::setFile($current);
-
-        Log::information(tr('Continuing log from file ":file"', [
-            ':file' => $file->getPath()
-        ]));
-
+        Log::information(tr('Continuing syslog from file ":file"', [':file' => $file->getPath()]));
         return $file;
     }
 }
