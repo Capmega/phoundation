@@ -77,7 +77,7 @@ class Sanitize
     {
         $value  = trim((string) $this->source);
         $prefix = (str_starts_with($value, '+') ? '+' : Config::getString('validation.defaults.phones.country-code', '+1'));
-        $ext    = Strings::from($value, 'ext', require: true);
+        $ext    = Strings::from($value, 'ext', needle_required: true);
         $value  = preg_replace('/[^0-9]+/', '', $value);
         $ext    = preg_replace('/[^0-9]+/', '', $ext);
 
