@@ -351,7 +351,7 @@ class Debug {
      * @param int $trace_offset
      * @param bool $quiet
      * @param bool|null $full_backtrace If true will dump full backtraces. If false, will dump limited backtraces
-     *                                  starting from the executed script. If NULL, will determine true or false from
+     *                                  starting from the executed command. If NULL, will determine true or false from
      *                                  config path "debug.backtrace.full"
      * @return mixed
      */
@@ -362,7 +362,7 @@ class Debug {
         }
 
         if ($full_backtrace === null) {
-            // Show debug backtraces starting from scripts or full?
+            // Show debug backtraces starting from commands or full?
             $full_backtrace = Config::getBoolean('debug.backtrace.full', false);
         }
 
@@ -506,7 +506,9 @@ class Debug {
 
                 // Don't log within log to avoid an endless loop
                 if (!function_called('Log::write()')) {
-                    Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+                    Log::warning(tr('Reached showdie() call at :location', [
+                        ':location' => static::currentLocation($trace_offset)
+                    ]));
                 }
 
             } catch (Throwable $e) {
@@ -797,8 +799,8 @@ class Debug {
 
         return $return;
     }
-    
-    
+
+
     /**
      * Displays the specified query in a show() output
      *
