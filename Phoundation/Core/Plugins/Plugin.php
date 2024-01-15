@@ -17,7 +17,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
@@ -289,7 +288,6 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function enable(?string $comments = null): void
     {
-        static::linkScripts();
         sql()->dataEntrySetStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
@@ -302,40 +300,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function disable(?string $comments = null): void
     {
-        static::unlinkScripts();
         sql()->dataEntrySetStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
-    }
-
-
-    /**
-     * Link the scripts for this plugin to the DIRECTORY_ROOT/scripts directory
-     *
-     * @return void
-     */
-    protected function linkScripts(): void
-    {
-        $plugin = strtolower(dirname(__DIR__));
-        $file   = __DIR__ . '/scripts';
-
-        if (file_exists($file)) {
-            link ($file, DIRECTORY_ROOT . 'scripts/' . $plugin);
-        }
-    }
-
-
-    /**
-     * Link the scripts for this plugin to the DIRECTORY_ROOT/scripts directory
-     *
-     * @return void
-     */
-    protected function unlinkScripts(): void
-    {
-        $plugin = strtolower(dirname(__DIR__));
-        $file   = DIRECTORY_ROOT . 'scripts/' . $plugin;
-
-        if (file_exists($file)) {
-            File::new(DIRECTORY_ROOT . 'scripts/' . $plugin)->delete();
-        }
     }
 
 
@@ -379,7 +344,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setCliColumn('-e,--enabled')
                 ->setLabel(tr('Enabled'))
                 ->setDefault(true)
-                ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))
+                ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or command execution'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
