@@ -50,6 +50,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     protected static array $argv = [];
 
+    /**
+     * Internal backup array of $argv
+     *
+     * @var array $backup
+     */
+    protected static array $backup = [];
+
 
     /**
      * Validator constructor.
@@ -62,7 +69,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?ValidatorInterface $parent = null) {
+    public function __construct(?ValidatorInterface $parent = null)
+    {
         // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
         // static::source!
         $this->construct($parent);
@@ -96,15 +104,28 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             if (!empty($argv)) {
-                if (str_ends_with(isset_get($argv[0]),  '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
+                if (str_ends_with(isset_get($argv[0]), '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
                     array_shift($argv);
                 }
             }
         }
 
         // Copy $argv data and reset the global $argv
-        static::$argv = $argv;
+        static::$argv   = $argv;
+        static::$backup = $argv;
+
         $argv = [];
+    }
+
+
+    /**
+     * Recovers an untouched backup of the command line arguments to the internal $argv array
+     *
+     * @return void
+     */
+    public static function recoverBackupArguments(): void
+    {
+        static::$argv = static::$backup;
     }
 
 
@@ -164,7 +185,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 continue;
             }
 
-            // This is not a modifier field but a method or value argument instead. Do not modify the field name
+            // This is not a modifier field but a command or value argument instead. Do not modify the field name
             // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
             // available argument
             $clean_field = $fields;
@@ -188,8 +209,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (!$field and str_starts_with((string) $value, '-')) {
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
-            // We're looking not for a modifier, but for a method or value. This is a modifier, so don't use it. Put the
-            // value back on the arguments list
+            // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
+            // the value back on the arguments list
             static::$argv[] = $value;
             $value = null;
         }
@@ -260,19 +281,19 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns the number of command line method arguments still available.
+     * Returns the number of command line command arguments still available.
      *
      * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
      *       separated by a -. Modifier arguments may have or not have values accompanying them.
      * @note Methods are arguments NOT starting with - or --
-     * @note As soon as non method arguments start we can no longer discern if a value like "system" is actually a
-     *       method or a value linked to an argument. Because of this, as soon as modifier arguments start, methods may
-     *       no longer be specified. An exception to this are system modifier arguments because system modifier
-     *       arguments are filtered out BEFORE methods are processed.
+     * @note As soon as non-command arguments start we can no longer discern if a value like "system" is actually a
+     *       command or a value linked to an argument. Because of this, as soon as modifier arguments start, commands
+     *       may no longer be specified. An exception to this are system modifier arguments because system modifier
+     *       arguments are filtered out BEFORE commands are processed.
      *
      * @return int
      */
-    public static function getMethodCount(): int
+    public static function getCommandCount(): int
     {
         $count = 0;
 
@@ -294,13 +315,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns an array of command line methods
+     * Returns an array of command line commands
      *
      * @return array
      */
-    public static function getMethods(): array
+    public static function getCommands(): array
     {
-        $methods = [];
+        $commands = [];
 
         // Scan all arguments until named parameters start
         foreach (static::$argv as $argument) {
@@ -313,10 +334,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 break;
             }
 
-            $methods[] = $argument;
+            $commands[] = $argument;
         }
 
-        return $methods;
+        return $commands;
     }
 
 
@@ -436,7 +457,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @param string $method
      * @return void
      */
-    public static function removeMethod(string $method): void
+    public static function removeCommand(string $method): void
     {
         $key = array_search($method, static::$argv);
 
