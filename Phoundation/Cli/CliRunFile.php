@@ -78,7 +78,7 @@ class CliRunFile implements CliRunFileInterface
     {
         static::$restrictions = Restrictions::new(static::$directory, true, 'runfile');
 
-        $this->setCommand(Strings::from($command, DIRECTORY_ROOT . 'scripts/'));
+        $this->setCommand(Strings::from($command, DIRECTORY_COMMANDS));
         $this->setPid(getmypid());
         $this->create();
     }
