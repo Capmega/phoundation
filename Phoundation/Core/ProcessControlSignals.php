@@ -166,7 +166,7 @@ class ProcessControlSignals
 
         $default_handler = function (string $signal, mixed $info, int $exit_code) {
             // Reset error handling to be managed by Core, then terminate process
-            Core::resetErrorHandling();
+            Core::setErrorHandling(true);
             static::dumpTerminate($signal, $info, $exit_code);
         };
 

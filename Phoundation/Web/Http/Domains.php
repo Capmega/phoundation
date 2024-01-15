@@ -6,11 +6,11 @@ namespace Phoundation\Web\Http;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Page;
 

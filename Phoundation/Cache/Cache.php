@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Cache;
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
@@ -14,13 +12,11 @@ use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Databases\Sql\Sql;
-use Phoundation\Exception\PhpException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 
 
 /**

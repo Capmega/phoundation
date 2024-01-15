@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Exception;
+namespace Phoundation\Utils\Exception;
 
 
 /**
- * Class ConfigFileDoesNotExistsException
+ * Class ConfigFailedException
  *
- * This exception is thrown when the specified configuration file does not exist
+ * This exception is thrown when the Config object is in failed mode
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class ConfigFileDoesNotExistsException extends ConfigException
+class ConfigFailedException extends ConfigException
 {
 }

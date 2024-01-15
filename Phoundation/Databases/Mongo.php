@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use MongoDB\Client;
-use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Databases\Exception\MongoException;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 
 
 /**

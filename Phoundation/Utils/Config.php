@@ -5,11 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Exception;
-use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigFailedException;
-use Phoundation\Core\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Core\Exception\ConfigParseFailedException;
-use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
@@ -18,6 +13,11 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Exception\ConfigFailedException;
+use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Utils\Exception\ConfigParseFailedException;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 
 

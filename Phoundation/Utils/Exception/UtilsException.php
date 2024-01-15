@@ -2,19 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Exception;
+namespace Phoundation\Utils\Exception;
+
+use Phoundation\Exception\Exception;
 
 
 /**
- * Class ConfigFailedException
+ * Class UtilsException
  *
- * This exception is thrown when the Config object is in failed mode
+ * This is the general Utils library exception
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package Phoundation\Utils
  */
-class ConfigFailedException extends ConfigException
+class UtilsException extends Exception
 {
 }
