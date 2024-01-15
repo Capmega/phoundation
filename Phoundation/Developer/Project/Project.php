@@ -70,15 +70,15 @@ class Project implements ProjectInterface
      */
     protected ?string $phoundation_branch = null;
 
-    /**
-     * The Phoundation directories
-     *
-     * @var array|string[] $phoundation_directories
-     */
-    protected array $phoundation_directories = [
-        'Phoundation/',
-        'scripts/system/'
-    ];
+//    /**
+//     * The Phoundation files
+//     *
+//     * @var array|string[] $phoundation_files
+//     */
+//    protected array $phoundation_files = [
+//        'Phoundation/',
+//        'pho'
+//    ];
 
 
     /**

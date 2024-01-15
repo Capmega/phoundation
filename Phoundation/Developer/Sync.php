@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Developer;
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Core\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
@@ -21,9 +18,10 @@ use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
-use Phoundation\Servers\SshAccount;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 
 
@@ -266,7 +264,7 @@ class Sync
             ':local'       => ENVIRONMENT
         ]));
 
-        Core::setInitState();
+        Core::enableInitState();
 
         return $this
             ->initConfiguration($environment)
