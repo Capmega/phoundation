@@ -2,12 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Accounts;
-
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\GuestUser;
-use Phoundation\Accounts\Users\User;
+namespace Phoundation\Web\Library;
 
 
 /**
