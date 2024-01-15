@@ -28,7 +28,7 @@ class Test implements MessageComponentInterface
      */
     public function __construct() {
         // Disable Core error handling as Ratchet is old and not PHP8 compatible
-        Core::disableErrorHandling();
+        Core::setErrorHandling(false);
         $this->clients = new \SplObjectStorage;
     }
 
