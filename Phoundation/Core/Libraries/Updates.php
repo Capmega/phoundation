@@ -188,17 +188,19 @@ abstract class Updates implements UpdatesInterface
 
         if (($version === null) or ($version === '0.0.0')) {
             // There is no version registered in the database at all, so the first available init is it!
-            if ($this->updates) {
-                return array_key_first($this->updates);
+            if (!$this->updates) {
+                // Err, the update file contains no updates!
+                return null;
             }
 
-            // Err, the update file contains no updates!
-            return null;
+            $next_version = array_key_first($this->updates);
+
+        } else {
+            // Get the next available update version in the updates file. NULL if there are no versions
+            $next_version = $this->getNextVersion($this->updates, $version);
         }
 
-        // Get the next available update version in the updates file. NULL if there are no versions
-        $next_version = $this->getNextVersion($this->updates, $version);
-//Log::warning('Next version for ' . $this->library . ' after ' . $version . ' is ' . $next_version);
+//Log::warning('Next version for ' . $this->library . ' after ' . ($version ?? 'N/A') . ' is ' . $next_version);
 
         if ($next_version) {
             if ($this->isFuture($next_version)) {
