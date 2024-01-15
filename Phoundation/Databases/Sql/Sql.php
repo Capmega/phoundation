@@ -1966,32 +1966,35 @@ class Sql implements SqlInterface
         $this->connector = $connector;
 
         if ($connector === 'system') {
-            try {
-                $configuration = Config::getArray('databases.connectors.' . $connector);
-
-            } catch (ConfigPathDoesNotExistsException) {
-                // Configuration not available in Config. Check if its stored in SQL database
-                $configuration = $this->readSqlConfiguration($connector);
-
-                if (!$configuration) {
-                    // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
-                    if (!array_key_exists($connector, static::$configurations)) {
-                        // Yeah, it's not found
-                        throw new SqlException(tr('The specified SQL connector ":connector" is not configured', [
-                            ':connector' => $connector
-                        ]));
-                    }
-
-                    // This is a dynamically configured instance
-                    $configuration = static::$configurations[$connector];
-                }
-            }
-
-            // Copy the configuration options over the template
+            $configuration = Config::getArray('databases.connectors.' . $connector);
             return $this->applyConfigurationTemplate($configuration);
         }
 
-        return Connector::get($connector, 'name')->getSource();
+        return Connector::get($connector)->getSource();
+
+//        try {
+//            $configuration = Config::getArray('databases.connectors.' . $connector);
+//
+//        } catch (ConfigPathDoesNotExistsException) {
+//            // Configuration not available in Config. Check if its stored in SQL database
+//            $configuration = $this->readSqlConfiguration($connector);
+//
+//            if (!$configuration) {
+//                // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
+//                if (!array_key_exists($connector, static::$configurations)) {
+//                    // Yeah, it's not found
+//                    throw new SqlException(tr('The specified SQL connector ":connector" is not configured', [
+//                        ':connector' => $connector
+//                    ]));
+//                }
+//
+//                // This is a dynamically configured instance
+//                $configuration = static::$configurations[$connector];
+//            }
+//        }
+//
+//        // Copy the configuration options over the template
+//        return $this->applyConfigurationTemplate($configuration);
     }
 
 
