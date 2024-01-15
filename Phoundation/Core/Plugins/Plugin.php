@@ -205,7 +205,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        return Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT);
+        return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
     }
 
 

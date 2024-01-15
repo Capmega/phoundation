@@ -332,7 +332,7 @@ class Plugins extends DataList implements PluginsInterface
             if (!file_exists($file)) {
                 Log::warning(tr('Not registering plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
                     ':plugin' => $plugin
-                ]));
+                ]), 4);
 
                 continue;
             }
