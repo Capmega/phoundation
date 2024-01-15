@@ -575,7 +575,7 @@ class Project implements ProjectInterface
                     $message = tr('Phoundation update');
                 }
 
-                $this->git->add([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_ROOT]);
+                $this->git->add([DIRECTORY_ROOT]);
                 $this->git->commit($message, $signed);
 
                 Log::warning(tr('Committed local Phoundation update to git'));
@@ -760,10 +760,24 @@ $skip = false;
                 ->setDelete(true)
                 ->execute();
 
+            // Copy Phoundation plugin
+            $rsync
+                ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
+                ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
+                ->setDelete(true)
+                ->execute();
+
             // Copy new core template versions
             $rsync
                 ->setSource($phoundation->getDirectory() . 'Templates/')
                 ->setTarget(DIRECTORY_ROOT . 'Templates')
+                ->execute();
+
+            // Copy Phoundation PHO command
+            $rsync
+                ->setSource($phoundation->getDirectory() . 'pho')
+                ->setTarget(DIRECTORY_ROOT . 'pho')
+                ->setDelete(true)
                 ->execute();
 
 //            // All is well? Get rid of the garbage
