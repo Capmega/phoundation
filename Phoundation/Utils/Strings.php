@@ -8,7 +8,6 @@ use Exception;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Zend_Utf8;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -27,9 +26,9 @@ use Throwable;
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Class reference
- * @package Phoundation\Core
+ * @package Phoundation\Utils
  */
-class Strings
+class Strings extends Utils
 {
     /**
      * Ensure that the specified $url will start with the specified $protocol.
@@ -1195,22 +1194,33 @@ throw new UnderConstructionException();
      *
      * @param Stringable|string|int|null $source
      * @param Stringable|string|int|null $needle
-     * @param int $more
-     * @param bool $require
+     * @param int $instance
+     * @param int|null $more
+     * @param int|null $offset
+     * @param bool $needle_required
      * @return string
      */
-    public static function from(Stringable|string|int|null $source, Stringable|string|int|null $needle, int $more = 0, bool $require = false): string
+    public static function from(Stringable|string|int|null $source, Stringable|string|int|null $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
     {
-        if (!$needle) {
-            return $source;
+        if (!$needle or !$source) {
+            return (string) $source;
         }
 
+        $pos    = $offset ?? -1;
         $needle = (string) $needle;
         $source = (string) $source;
-        $pos    = mb_strpos($source, $needle);
+
+        for ($count = 1; $count <= $instance; $count++) {
+            $pos = mb_strpos($source, $needle, $pos + 1);
+
+            if ($pos === false) {
+                // The needle wasn't found (anymore)
+                break;
+            }
+        }
 
         if ($pos === false) {
-            if ($require) {
+            if ($needle_required) {
                 return '';
             }
 
@@ -1225,31 +1235,41 @@ throw new UnderConstructionException();
      * Return the given string from 0 until the specified needle
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int|null $needle
-     * @param int $more
-     * @param int $start
-     * @param bool $require
+     * @param Stringable|string|int $needle
+     * @param int $instance
+     * @param int|null $more
+     * @param int|null $offset
+     * @param bool $needle_required
      * @return string
      */
-    public static function until(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, int $start = 0, bool $require = false): string
+    public static function until(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
     {
-        if (!$needle) {
-            return $source;
+        if (!$needle or !$source) {
+            return (string) $source;
         }
 
+        $pos    = $offset ?? -1;
         $needle = (string) $needle;
         $source = (string) $source;
-        $pos    = mb_strpos($source, $needle);
+
+        for ($count = 1; $count <= $instance; $count++) {
+            $pos = mb_strpos($source, $needle, $pos + 1);
+
+            if ($pos === false) {
+                // The needle wasn't found (anymore)
+                break;
+            }
+        }
 
         if ($pos === false) {
-            if ($require) {
+            if ($needle_required) {
                 return '';
             }
 
             return $source;
         }
 
-        return mb_substr($source, $start, $pos + $more);
+        return mb_substr($source, 0, $pos + $more);
     }
 
 
@@ -1257,21 +1277,40 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle, starting from the end
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int|null $needle
-     * @param int $more
+     * @param Stringable|string|int $needle
+     * @param int $instance
+     * @param int|null $more
+     * @param int|null $offset
+     * @param bool $needle_required
      * @return string
      */
-    public static function fromReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0): string
+    public static function fromReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
     {
-        if (!$needle) {
-            return $source;
+        if (!$needle or !$source) {
+            return (string) $source;
         }
 
+        $len    = mb_strlen($source);
+        $pos    = $offset ?? $len;
         $needle = (string) $needle;
         $source = (string) $source;
-        $pos    = mb_strrpos($source, $needle);
 
-        if ($pos === false) return $source;
+        for ($count = 1; $count <= $instance; $count++) {
+            $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+
+            if ($pos === false) {
+                // The needle wasn't found (anymore)
+                break;
+            }
+        }
+
+        if ($pos === false) {
+            if ($needle_required) {
+                return '';
+            }
+
+            return $source;
+        }
 
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
     }
@@ -1281,26 +1320,42 @@ throw new UnderConstructionException();
      * Return the given string from 0 until the specified needle, starting from the end
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int|null $needle
+     * @param Stringable|string|int $needle
+     * @param int $instance
      * @param int $more
-     * @param int $start
+     * @param int $offset
+     * @param bool $needle_required
      * @return string
      */
-    public static function untilReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $more = 0, int $start = 0): string
+    public static function untilReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
     {
-        if (!$needle) {
-            return $source;
+        if (!$needle or !$source) {
+            return (string) $source;
         }
 
+        $len    = mb_strlen($source);
+        $pos    = $offset ?? $len;
         $needle = (string) $needle;
         $source = (string) $source;
-        $pos    = mb_strrpos($source, $needle);
+
+        for ($count = 1; $count <= $instance; $count++) {
+            $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+
+            if ($pos === false) {
+                // The needle wasn't found (anymore)
+                break;
+            }
+        }
 
         if ($pos === false) {
+            if ($needle_required) {
+                return '';
+            }
+
             return $source;
         }
 
-        return mb_substr($source, $start, $pos + $more);
+        return mb_substr($source, 0, $pos + $more);
     }
 
 
@@ -1308,7 +1363,7 @@ throw new UnderConstructionException();
      * Return the given string from the specified needle having been skipped $count times
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int|null $needle
+     * @param Stringable|string|int $needle
      * @param int $count
      * @param bool $required
      * @return string
@@ -1327,7 +1382,7 @@ throw new UnderConstructionException();
         $source = (string) $source;
 
         for ($i = 0; $i < $count; $i++) {
-            $source = Strings::from($source, $needle, 0, $required);
+            $source = Strings::from($source, $needle, needle_required: $required);
         }
 
         return $source;
@@ -1339,8 +1394,9 @@ throw new UnderConstructionException();
      * string
      *
      * @param Stringable|string|int|null $source
-     * @param Stringable|string|int|null $needle
+     * @param Stringable|string|int $needle
      * @param int $count
+     * @param int $more
      * @return string
      */
     public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, int $more = 0): string
@@ -1358,8 +1414,8 @@ throw new UnderConstructionException();
         $result = [];
 
         for ($i = 0; $i <= $count; $i++) {
-            $result[] = Strings::fromReverse($source, $needle, $more);
-            $source   = Strings::untilReverse($source, $needle, $more);
+            $result[] = Strings::fromReverse($source, $needle, more: $more);
+            $source   = Strings::untilReverse($source, $needle, more: $more);
         }
 
         $result = array_reverse($result);
@@ -2177,5 +2233,68 @@ throw new UnderConstructionException();
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns true if the given haystack matches the given needles with the specified match flags
+     *
+     * @param array|string $needles
+     * @param Stringable|string $haystack
+     * @param int $options          Flags that will modify this functions behavior. Current flags are one of
+     *                              Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or Utils::MATCH_ANYWHERE
+     *                              Utils::MATCH_ANY
+     *
+     * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
+     * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
+     * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
+     * Utils::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_END, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
+     * @return bool
+     */
+    public static function matches(Stringable|string $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): bool
+    {
+        // Caseless match? Compare lowercase
+        $flags      = static::decodeMatchOptions($options, false);
+        $needles    = static::checkRequiredNeedles($needles, $flags['match_no_case']);
+        $test_value = static::getTestValue($haystack, $flags['match_no_case']);
+
+        return static::testStringMatchesNeedles($test_value, $needles, $flags);
+    }
+
+
+    /**
+     * Returns the given haystack if it matches the needles with the matching rules
+     *
+     * @param array|string $needles
+     * @param Stringable|string $haystack
+     * @param int $options          Flags that will modify this functions behavior. Current flags are one of
+     *                              Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or Utils::MATCH_ANYWHERE
+     *                              Utils::MATCH_ANY
+     *
+     * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
+     * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
+     * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
+     * Utils::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_END, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
+     * @return string|null
+     */
+    public static function getIfMatch(Stringable|string $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): ?string
+    {
+        if (static::matches($haystack, $needles, $options)) {
+            return $haystack;
+        }
+
+        return null;
     }
 }

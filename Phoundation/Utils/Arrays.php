@@ -25,39 +25,10 @@ use UnitEnum;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @package Phoundation\Core
+ * @package Phoundation\Utils
  */
-class Arrays {
-    const MATCH_ALL      = 1;
-    const MATCH_ANY      = 2;
-    const MATCH_BEGIN    = 4;
-    const MATCH_END      = 8;
-    const MATCH_ANYWHERE = 16;
-    const MATCH_NO_CASE  = 32;
-    const MATCH_RECURSE  = 64;
-
-
-    /**
-     * If set, will filter NULL values
-     */
-    const FILTER_NULL = 1;
-
-    /**
-     * If set, will filter all empty values
-     */
-    const FILTER_EMPTY = 2;
-
-    /**
-     * If set, will quote all values
-     */
-    const QUOTE_ALWAYS = 4;
-
-    /**
-     * If set, will only display key, not value
-     */
-    const HIDE_EMPTY_VALUES = 8;
-
-
+class Arrays extends Utils
+{
     /**
      * If all the specified keys are not in the source array, an exception will be thrown
      *
@@ -2771,7 +2742,7 @@ class Arrays {
         foreach ($source as $key => $value) {
             if ($prefix === null) {
                 // Auto detect class
-                $prefix = Strings::until($key, '_', require: true);
+                $prefix = Strings::until($key, '_', needle_required: true);
 
                 if (!$prefix) {
                     // No class found, continue to the next entry
@@ -2782,7 +2753,7 @@ class Arrays {
                 $prefix .= '_';
             }
 
-            $key = Strings::from($key, $prefix, require: true);
+            $key = Strings::from($key, $prefix, needle_required: true);
 
             if (!$key) {
                 // This key didn't have the specified class
@@ -2871,7 +2842,7 @@ class Arrays {
     public static function findPrefix(array $source): string|float|int|null
     {
         foreach ($source as $key => $value) {
-            $prefix = (int) Strings::until($key, '_', require: true);
+            $prefix = (int) Strings::until($key, '_', needle_required: true);
 
             if ($prefix) {
                 return $prefix;
@@ -2887,76 +2858,27 @@ class Arrays {
      *
      * @param array|string $needles
      * @param array $haystack
-     * @param int $options          Flags that will modify this functions behaviour. Current flags are one of
-     *                              Arrays::MATCH_ALL, Arrays::MATCH_BEGIN, Arrays::MATCH_END, or Arrays::MATCH_ANYWHERE
-     *                              Arrays::MATCH_ANY
+     * @param int $options          Flags that will modify this functions behavior. Current flags are one of
+     *                              Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or Utils::MATCH_ANYWHERE
+     *                              Utils::MATCH_ANY
      *
-     * Arrays::MATCH_NO_CASE:  Will match entries in case-insensitive mode
-     * Arrays::MATCH_ALL:      Will match entries that contain all the specified needles
-     * Arrays::MATCH_ANY:      Will match entries that contain any of the specified needles
-     * Arrays::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
-     *                         Arrays::MATCH_END, Arrays::MATCH_ANYWHERE
-     * Arrays::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
-     *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
-     * Arrays::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
-     *                         Arrays::MATCH_BEGIN, Arrays::MATCH_ANYWHERE
-     * Arrays::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
+     * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
+     * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
+     * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
+     * Utils::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_END, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
      * @return array
      */
-    public static function match(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): array
+    public static function getMatches(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): array
     {
-        if (!$needles) {
-            throw new OutOfBoundsException(tr('No needles specified'));
-        }
-
-        // Decode options
-        $match_no_case  = (bool) ($options & self::MATCH_NO_CASE);
-        $match_all      = (bool) ($options & self::MATCH_ALL);
-        $match_any      = (bool) ($options & self::MATCH_ANY);
-        $match_begin    = (bool) ($options & self::MATCH_BEGIN);
-        $match_end      = (bool) ($options & self::MATCH_END);
-        $match_anywhere = (bool) ($options & self::MATCH_ANYWHERE);
-        $recurse        = (bool) ($options & self::MATCH_RECURSE);
-
-        // Validate options
-        if ($match_begin) {
-            if ($match_end or $match_anywhere) {
-                throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_BEGIN with MATCH_END or MATCH_ANYWHERE, they are mutually exclusive'));
-            }
-
-        } else {
-            if ($match_end and $match_anywhere) {
-                throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_END with MATCH_ANYWHERE, they are mutually exclusive'));
-            }
-
-            if (!$match_end and !$match_anywhere) {
-                throw new OutOfBoundsException(tr('No match location flag specified. One of MATCH_BEGIN, MATCH_END, or MATCH_ANYWHERE must be specified'));
-            }
-        }
-
-        if ($match_all) {
-            if ($match_any) {
-                throw new OutOfBoundsException(tr('Cannot mix combination flags MATCH_ALL with MATCH_ANY, they are mutually exclusive'));
-            }
-
-        } else {
-            if (!$match_any) {
-                throw new OutOfBoundsException(tr('No match combination flag specified. Either one of MATCH_ALL or MATCH_ANY must be specified'));
-            }
-        }
-
-        $needles = Arrays::force($needles);
-
-        // In case of caseless compare, prepare the needles
-        if ($match_no_case) {
-            foreach ($needles as &$needle) {
-                $needle = strtolower((string) $needle);
-            }
-
-            unset($needle);
-        }
-
-        $return = [];
+        $flags   = static::decodeMatchOptions($options, true);
+        $needles = static::checkRequiredNeedles($needles, $flags['match_no_case']);
+        $return  = [];
 
         foreach ($haystack as $key => $value) {
             if (!$value) {
@@ -2965,7 +2887,7 @@ class Arrays {
             }
 
             if (!is_scalar($value)) {
-                if (!is_array($value) or !$recurse) {
+                if (!is_array($value) or !$flags['recurse']) {
                     Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
                         ':key'   => $key,
                         ':value' => $value
@@ -2974,71 +2896,34 @@ class Arrays {
                 }
 
                 // Recurse!
-                $return = array_merge($return, static::match($value, $needles, $options));
+                $return = array_merge($return, static::getMatches($value, $needles, $options));
                 continue;
             }
 
-            // Caseless match? Compare lowercase
-            if ($match_no_case) {
-                $test_value = strtolower((string) $value);
-
-            } else {
-                $test_value = $value;
-            }
-
-            $match = true;
-
-            // Compare to each needle
-            foreach ($needles as $needle) {
-                if ($match_begin) {
-                    if (str_starts_with($test_value, $needle)) {
-                        // This needle matched
-                        if ($match_any) {
-                            $match = true;
-                            break;
-                        }
-
-                        // This needle matched
-                        continue;
-                    }
-
-                } elseif ($match_end) {
-                    if (str_ends_with($test_value, $needle)) {
-                        // This needle matched
-                        if ($match_any) {
-                            $match = true;
-                            break;
-                        }
-
-                        continue;
-                    }
-
-                } else {
-                    if (str_contains($test_value, $needle)) {
-                        // This needle matched
-                        if ($match_any) {
-                            $match = true;
-                            break;
-                        }
-
-                        continue;
-                    }
-                }
-
-                $match = false;
-
-                if ($match_all) {
-                    // This needle failed, no need to check other needles
-                    break;
-                }
-            }
-
-            if ($match) {
+            if (static::testStringMatchesNeedles(static::getTestValue($value, $flags['match_no_case']), $needles, $flags)) {
                 $return[$key] = $value;
             }
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns true if any of the array values matches the specified needles using the specified match options
+     *
+     * @param array $haystack
+     * @param array|string $needles
+     * @param int $options
+     * @return bool
+     */
+    public static function matches(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): bool
+    {
+        if (static::getMatches($haystack, $needles, $options)) {
+            return true;
+        }
+
+        return false;
     }
 
 
