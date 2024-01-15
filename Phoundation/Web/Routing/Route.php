@@ -17,6 +17,7 @@ use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
+use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
@@ -311,16 +312,34 @@ class Route
     {
         try {
             if ($match_regex) {
-                if (!preg_match($match_regex, static::$uri)) {
-                    return;
+                try {
+                    if (!preg_match($match_regex, static::$uri)) {
+                        return;
+                    }
+
+                } catch (PhpException $e) {
+                    if ($e->messageContains('preg_replace():')) {
+                        throw new RegexException(tr('The Route::modify() match regular expression ":regex" failed with ":e"', [
+                            ':e'     => trim(Strings::from($e->getMessage(), 'preg_replace():')),
+                            ':regex' => $match_regex
+                        ]));
+                    }
+
+                    throw $e;
                 }
             }
 
             static::$uri = preg_replace($replace_regex, $replace_value, static::$uri);
-        } catch (PhpException $e) {
-            if ($e->messageContains()) {
 
+        } catch (PhpException $e) {
+            if ($e->messageContains('preg_replace():')) {
+                throw new RegexException(tr('The Route::modify() replace regular expression ":regex" failed with ":e"', [
+                    ':e'     => trim(Strings::from($e->getMessage(), 'preg_replace():')),
+                    ':regex' => $replace_regex
+                ]));
             }
+
+            throw $e;
         }
     }
 
@@ -902,7 +921,7 @@ class Route
 
             // Split the route into the page name and GET requests
             $page = Strings::until($route, '?');
-            $get  = Strings::from($route, '?', 0, true);
+            $get  = Strings::from($route, '?', needle_required: true);
 
             // Translate the route?
             if (isset($core->register['Route::map']) and empty($disable_language)) {
@@ -974,7 +993,7 @@ class Route
                     $get = explode('&', $get);
 
                     foreach ($get as $entry) {
-                        GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', 0, true));
+                        GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', needle_required: true));
                     }
                 }
 
