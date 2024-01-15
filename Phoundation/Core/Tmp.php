@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Core;
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+
 
 /**
  * Class Tmp
@@ -17,35 +21,25 @@ namespace Phoundation\Core;
  */
 class Tmp
 {
-    /**
-     * Returns a temp file that can be used by this process
-     *
-     * @return string
-     */
-    public static function file(): string
-    {
-
-    }
-
-
-    /**
-     * Returns a temp directory that can be used by this process
-     *
-     * @return string
-     */
-    public static function directory(): string
-    {
-
-    }
-
-
-    /**
+   /**
      * Clear all temp files and directories
      *
      * @return void
      */
     public static function clear(): void
     {
+        Log::action(tr('Clearing all temporary files'), 3);
 
+        // Delete all private temporary files
+        Directory::new(DIRECTORY_TMP   , Restrictions::writable(DIRECTORY_TMP, tr('Clear tmp directories')))
+            ->delete()
+            ->ensure();
+
+        // Delete all public temporary files
+        Directory::new(DIRECTORY_PUBTMP, Restrictions::writable(DIRECTORY_PUBTMP, tr('Clear tmp directories')))
+            ->delete()
+            ->ensure();
+
+        Log::success(tr('Cleared all temporary files'), 4);
     }
 }
