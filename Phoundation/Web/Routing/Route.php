@@ -16,6 +16,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
@@ -233,6 +234,17 @@ class Route
 
 
     /**
+     * Returns the original resource request
+     *
+     * @return string
+     */
+    public static function getRequest(): string
+    {
+        return 'IMPLEMENT ROUTE::GETREQUEST()';
+    }
+
+
+    /**
      * Returns the mapping object
      *
      * @return MappingInterface
@@ -284,6 +296,32 @@ class Route
         }
 
         return static::$parameters;
+    }
+
+
+    /**
+     * Modify the incoming request with the specified regex, (optionally) only if the secondary regex matches
+     *
+     * @param string $replace_regex
+     * @param string $replace_value
+     * @param string|null $match_regex
+     * @return void
+     */
+    public static function modify(string $replace_regex, string $replace_value, ?string $match_regex = null): void
+    {
+        try {
+            if ($match_regex) {
+                if (!preg_match($match_regex, static::$uri)) {
+                    return;
+                }
+            }
+
+            static::$uri = preg_replace($replace_regex, $replace_value, static::$uri);
+        } catch (PhpException $e) {
+            if ($e->messageContains()) {
+
+            }
+        }
     }
 
 
@@ -431,10 +469,10 @@ class Route
             }
 
             // Apply pre-matching flags. Depending on individual flags we may do different things
-            $uri = static::$uri;
-            $flags = explode(',', $flags);
-            $until = false; // By default, do not store this rule
-            $block = false; // By default, do not block this request
+            $uri    = static::$uri;
+            $flags  = explode(',', $flags);
+            $until  = false; // By default, do not store this rule
+            $block  = false; // By default, do not block this request
             $static = true;  // By default, do check for rules, if configured so
 
             foreach ($flags as $flag) {
