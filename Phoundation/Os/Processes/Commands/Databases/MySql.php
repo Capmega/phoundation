@@ -102,7 +102,7 @@ class MySql extends Command
 
         // If we're importing the system database, then switch to init mode!
         if ($this->connector->getDatabase() === sql()->getDatabase()) {
-            Core::setInitState();
+            Core::enableInitState();
         }
 
         // Check file restrictions and start the import
