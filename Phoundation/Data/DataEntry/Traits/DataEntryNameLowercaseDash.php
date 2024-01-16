@@ -83,18 +83,23 @@ trait DataEntryNameLowercaseDash
     /**
      * Converts the given string to lowercase, dash separated string by replacing spaces and underscores to dashes
      *
-     * @param DataEntryInterface|string|null $source
+     * @param DataEntryInterface|string|int|null $source
      * @return DataEntryInterface|string|null
      */
-    protected static function convertToLowerCaseDash(DataEntryInterface|string|null $source): DataEntryInterface|string|null
+    protected static function convertToLowerCaseDash(DataEntryInterface|string|int|null $source): DataEntryInterface|string|int|null
     {
         if (!$source) {
-            // NULL or "", just return it
+            // NULL or "", return it
+            return $source;
+        }
+
+        if (is_numeric($source)) {
+            // This is a database id, return it
             return $source;
         }
 
         if ($source instanceof DataEntryInterface) {
-            // This is a DataEntry object, just return it
+            // This is a DataEntry object, return it
             return $source;
         }
 
