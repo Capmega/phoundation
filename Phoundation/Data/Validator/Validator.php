@@ -115,6 +115,34 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Rename the from_key to to_key, if it exists
+     *
+     * @param string|float|int $from_key
+     * @param string|float|int $to_key
+     * @param bool $exception
+     * @return static
+     */
+    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true): static
+    {
+        if (!array_key_exists($from_key, $this->source)) {
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Cannot rename ":class" key from ":from" to ":to", the ":original" key does not exist', [
+                    ':class'    => get_class($this),
+                    ':from'     => $from_key,
+                    ':to'       => $to_key,
+                    ':original' => $from_key
+                ]));
+            }
+
+            $this->source[$from_key] = null;
+        }
+
+        $this->source[$to_key] = $this->source[$from_key];
+        return $this;
+    }
+
+
+    /**
      * Forcibly set the specified key of this validator source to the specified value
      *
      * @param mixed $value

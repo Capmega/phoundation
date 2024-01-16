@@ -1074,4 +1074,14 @@ interface ValidatorInterface
      * @return static
      */
     public function standardSelect(string|int $field): static;
+
+    /**
+     * Rename the from_key to to_key, if it exists
+     *
+     * @param string|float|int $from_key
+     * @param string|float|int $to_key
+     * @param bool $exception
+     * @return static
+     */
+    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true): static;
 }
