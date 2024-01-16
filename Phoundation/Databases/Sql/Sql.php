@@ -2272,7 +2272,9 @@ class Sql implements SqlInterface
                     // Indicate that time_zone settings failed (this will subsequently be used by the init system to
                     // automatically initialize that as well)
                     // TODO Write somewhere else than Core "system" register as that will be readonly
-                    throw new SqlNoTimezonesException(tr('MySQL has not yet loaded any timezones'));
+                    throw new SqlNoTimezonesException(tr('Failed to set timezone ":timezone", MySQL has not yet loaded any timezones', [
+                        ':timezone' => $this->configuration['timezones_name']
+                    ]), $e);
                 }
             }
 
