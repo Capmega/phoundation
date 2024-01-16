@@ -536,7 +536,7 @@ class Roles extends DataList implements RolesInterface
      */
     public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
             ->setName('roles_id')
             ->setNone(tr('Select a role'))
             ->setObjectEmpty(tr('No roles available'));

@@ -79,7 +79,7 @@ class Incidents extends DataList
      */
     public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
             ->setName('incidents_id')
             ->setNone(tr('Select an incident'))
             ->setObjectEmpty(tr('No incidents available'));
