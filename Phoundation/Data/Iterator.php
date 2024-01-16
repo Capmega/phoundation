@@ -327,6 +327,20 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Sets the value for the specified key
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int $key
+     * @param bool $exception
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function setSourceKey(mixed $value, Stringable|string|float|int $key): static
+    {
+        return $this->set($value, $key);
+    }
+
+
+    /**
      * Returns a list of items that are specified, but not available in this Iterator
      *
      * @param IteratorInterface|array|string $list
