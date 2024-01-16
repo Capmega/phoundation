@@ -101,7 +101,7 @@ class Servers extends DataList
      */
     public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
             ->setName('servers_id')
             ->setNone(tr('Select a server'))
             ->setObjectEmpty(tr('No servers available'));
