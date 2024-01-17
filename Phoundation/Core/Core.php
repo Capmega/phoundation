@@ -919,7 +919,7 @@ class Core implements CoreInterface
                 if (PROJECT !== 'UNKNOWN') {
                     // If we're in auto complete mode, then we don't need an environment
                     if (!CliAutoComplete::isActive()) {
-                        Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '". Check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=local"');
+                        Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '". Use -E PROJECTNAME or check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME"');
                     }
                 }
 
@@ -928,7 +928,7 @@ class Core implements CoreInterface
         }
 
         if (empty($env)) {
-            Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '".  Check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=local"');
+            Core::exit(2, 'startup: No required cli environment specified for project "' . PROJECT . '".  Use -E PROJECTNAME or check if your .bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME"');
         }
 
         // Set environment and protocol
