@@ -338,4 +338,12 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return int
      */
     public function getShortestValueLength(): int;
+
+    /**
+     * Returns the total amounts for all columns together
+     *
+     * @param array|string $columns
+     * @return array
+     */
+    public function getTotals(array|string $columns): array;
 }

@@ -1025,4 +1025,46 @@ class Iterator implements IteratorInterface
         $this->source = Arrays::removeValues($this->source, $needles, $column, $match_mode);
         return $this;
     }
+
+
+    /**
+     * Returns the total amounts for all columns together
+     *
+     * @param array|string $columns
+     * @return array
+     */
+    public function getTotals(array|string $columns): array
+    {
+        $columns = Arrays::force($columns);
+        $return  = [tr('Totals')];
+
+        foreach ($this->source as &$entry) {
+            if (!is_array($entry)) {
+                throw new OutOfBoundsException(tr('Cannot generate source totals, source contains non-array entry ":entry"', [
+                    ':entry' => $entry
+                ]));
+            }
+
+            foreach ($columns as $column => $total) {
+                if (!array_key_exists($column, $entry)) {
+                    continue;
+                }
+
+                // Get data from array
+                if ($total) {
+                    if (array_key_exists($column, $return)) {
+                        $return[$column] += $entry[$column];
+
+                    } else {
+                        $return[$column]  = $entry[$column];
+                    }
+
+                } else {
+                    $return[$column]  = null;
+                }
+            }
+        }
+
+        return $return;
+    }
 }

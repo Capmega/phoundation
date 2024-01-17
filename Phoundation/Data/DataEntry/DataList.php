@@ -710,19 +710,19 @@ abstract class DataList extends Iterator implements DataListInterface
     }
 
 
-    /**
-     * Returns the total amounts for all columns together
-     *
-     * @note This specific method will just return a row with empty values. Its up to the classes implementing DataList
-     *       to override this method and return meaningful totals.
-     *
-     * @param array|string $columns
-     * @return array
-     */
-    public function getTotals(array|string $columns): array
-    {
-        return array_combine($columns, array_fill(0, count($columns), null));
-    }
+//    /**
+//     * Returns the total amounts for all columns together
+//     *
+//     * @note This specific method will just return a row with empty values. Its up to the classes implementing DataList
+//     *       to override this method and return meaningful totals.
+//     *
+//     * @param array|string $columns
+//     * @return array
+//     */
+//    public function getTotals(array|string $columns): array
+//    {
+//        return array_combine($columns, array_fill(0, count($columns), null));
+//    }
 
 
     /**
