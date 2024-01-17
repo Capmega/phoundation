@@ -864,7 +864,6 @@ class Sync
     }
 
 
-
     /**
      * Initializes the configuration
      *
@@ -936,7 +935,7 @@ class Sync
 
         // Setup remote server, MUST be from configuration!
         try {
-            $server       = Config::get('servers.' . $this->configuration['server']);
+            $server       = Config::get('servers.' . Config::escape($this->configuration['server']));
             $this->server = Server::fromSource($server);
 
         } catch (ConfigPathDoesNotExistsException) {
