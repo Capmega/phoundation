@@ -461,9 +461,11 @@ class Path implements Stringable, PathInterface
             }
 
         } catch (SqlException $e) {
-            Log::warning(tr('Failed to search for filesystem mounts in database because ":e", ignoring these possible mount requirements', [
-                ':e' => $e->getMessage()
-            ]), 3);
+            if (!Core::inInitState()) {
+                Log::warning(tr('Failed to search for filesystem mounts in database because ":e", ignoring these possible mount requirements', [
+                    ':e' => $e->getMessage()
+                ]), 3);
+            }
         }
 
         return false;
