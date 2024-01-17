@@ -90,11 +90,18 @@ class Sync
     protected ?ServerInterface $server = null;
 
     /**
-     * The temp path
+     * The source temp path
      *
-     * @var string|null $remote_temp_path
+     * @var string|null $source_temp_path
      */
-    protected ?string $remote_temp_path = null;
+    protected ?string $source_temp_path = null;
+
+    /**
+     * The target temp path
+     *
+     * @var string|null $target_temp_path
+     */
+    protected ?string $target_temp_path = null;
 
     /**
      * Tracks the dump files to sync
@@ -144,9 +151,9 @@ class Sync
      *
      * @return string|null
      */
-    public function getRemoteTempPath(): ?string
+    public function getSourceTempPath(): ?string
     {
-        return $this->remote_temp_path;
+        return $this->source_temp_path;
     }
 
 
@@ -245,7 +252,23 @@ class Sync
             ->addArguments(['system', 'temporary', 'get', '-Q'])
             ->executeReturnArray();
 
-        $this->remote_temp_path = Strings::slash(Arrays::firstValue($path));
+        $this->source_temp_path = Strings::slash(Arrays::firstValue($path));
+
+        return $this;
+    }
+
+
+    /**
+     * Clears the temporary path for the specified server
+     *
+     * @param ServerInterface|null $server
+     * @return $this
+     */
+    protected function clearTemporaryPath(?ServerInterface $server): static
+    {
+        $this->getPhoCommand($server)
+            ->addArguments(['system', 'temporary', 'clear', $this->source_temp_path])
+            ->executeNoReturn();
 
         return $this;
     }
@@ -586,7 +609,7 @@ class Sync
                      'databases', 'export',
                      '--connector', $connector->getName(),
                      '--database', $connector->getDatabase(),
-                     '--file', $this->remote_temp_path . $file,
+                     '--file', $this->source_temp_path . $file,
                      '--gzip'
                  ])
                  ->executeReturnString();
@@ -621,9 +644,9 @@ class Sync
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
-        $this->executeHook('pre-clean-temporary');
-
-        return $this->executeHook('post-clean-temporary');
+        return $this->executeHook('pre-clean-temporary')
+                    ->clearTemporaryPath($server)
+                    ->executeHook('post-clean-temporary');
     }
 
 
@@ -643,19 +666,21 @@ class Sync
 
         $this->executeHook('pre-copy-connectors');
 
-        $local_path = Directory::newTemporary();
+        if (empty($this->target_temp_path)) {
+            $this->target_temp_path = Directory::newTemporary()->getPath();
+        }
 
         foreach ($this->dump_files as $file) {
             // Build source / target strings
             if ($from) {
                 // We're syncing FROM a server TO LOCAL
-                $source = $from->getHostname() . ':' . $this->remote_temp_path . $file;
-                $target = $local_path . $file;
+                $source = $from->getHostname() . ':' . $this->source_temp_path . $file;
+                $target = $this->target_temp_path . $file;
 
             } else {
                 // We're syncing FROM LOCAL TO a server
-                $source = $local_path . $file;
-                $target = $from->getHostname() . ':' . $this->remote_temp_path . $file;
+                $source = $this->target_temp_path . $file;
+                $target = $from->getHostname() . ':' . $this->source_temp_path . $file;
             }
 
             // Execute rsync
@@ -666,7 +691,7 @@ class Sync
                 ->setVerbose(true)
                 ->setSourceServer($from)
                 ->setTargetServer($to)
-                ->setRemoteSudo($this->configuration['sudo'])
+                ->setRemoteSudo((bool) $this->configuration['sudo'])
                 ->execute();
         }
 
@@ -758,14 +783,14 @@ class Sync
 
         // Execute the dump on the specified server
         $this->executeHook('pre-import-connector')
-            ->getPhoCommand($server)->setDebug(true)
-            ->addArguments([
-                'databases', 'import',
-                '--connector', $connector->getName(),
-                '--database', $connector->getDatabase(),
-                '--file', $this->remote_temp_path . $file
-            ])
-            ->executePassthru();
+             ->getPhoCommand($server)
+             ->addArguments([
+                 'databases'  , 'import',
+                 '--connector', $connector->getName(),
+                 '--database' , $connector->getDatabase(),
+                 '--file'     , $this->target_temp_path . $file
+             ])
+             ->executePassthru();
 
         return $this->executeHook('post-import-connector');
     }
@@ -999,11 +1024,17 @@ class Sync
      */
     protected function getPhoCommand(?ServerInterface $server): ProcessInterface
     {
+        if ($server) {
+            return Process::new()
+                ->setCommand($this->configuration['path'] . 'pho', false)
+                ->setServer($server)
+                ->setSudo($this->configuration['sudo'])
+                ->addArguments(['-E', $this->getEnvironmentForServer($server)]);
+        }
+
         return Process::new()
-            ->setCommand($this->configuration['path'] . 'pho', false)
-            ->setServer($server)
-            ->setSudo($this->configuration['sudo'])
-            ->addArguments(['-E', $this->getEnvironmentForServer($server)]);
+            ->setCommand(DIRECTORY_ROOT . 'pho', false)
+            ->addArguments(['-E', ENVIRONMENT]);
     }
 
 
