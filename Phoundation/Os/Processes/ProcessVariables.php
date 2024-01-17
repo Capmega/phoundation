@@ -1180,13 +1180,14 @@ trait ProcessVariables
      *
      * @note This will reset the currently existing list of arguments.
      * @param array|null $arguments
-     * @param bool $escape
+     * @param bool $escape_arguments
+     * @param bool $escape_quotes
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(?array $arguments, bool $escape = true): static
+    public function setArguments(?array $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
         $this->arguments = [];
-        return $this->addArguments($arguments, $escape);
+        return $this->addArguments($arguments, $escape_arguments, $escape_quotes);
     }
 
 
@@ -1194,10 +1195,11 @@ trait ProcessVariables
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
      * @param array|string|null $arguments
-     * @param bool $escape
+     * @param bool $escape_arguments
+     * @param bool $escape_quotes
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string|null $arguments, bool $escape = true): static
+    public function addArguments(array|string|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
         $this->cached_command_line = null;
 
@@ -1210,7 +1212,7 @@ trait ProcessVariables
                     }
                 }
 
-                $this->addArgument($argument, $escape);
+                $this->addArgument($argument, $escape_arguments, $escape_quotes);
             }
         }
 
@@ -1222,18 +1224,23 @@ trait ProcessVariables
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @param Stringable|array|string|float|int|null $argument
-     * @param bool $escape
+     * @param bool $escape_argument
+     * @param bool $escape_quotes
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape = true): static
+    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
     {
         if ($argument !== null) {
             if (is_array($argument)) {
-                return $this->addArguments($argument);
+                return $this->addArguments($argument, $escape_argument, $escape_quotes);
             }
 
             $this->cached_command_line = null;
-            $this->arguments[]         = (string) $argument;
+            $this->arguments[]         = [
+                'escape_argument' => $escape_argument,
+                'escape_quotes'   => $escape_quotes,
+                'argument'        => (string) $argument,
+            ];
         }
 
         return $this;

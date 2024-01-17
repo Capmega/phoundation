@@ -305,20 +305,20 @@ interface ProcessVariablesInterface
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
      * @param array|null $arguments
-     * @param bool $escape
+     * @param bool $escape_arguments
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|null $arguments, bool $escape = true): static;
+    public function addArguments(array|null $arguments, bool $escape_arguments = true): static;
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
      * @param Stringable|array|string|float|int|null $argument
-     * @param bool $escape
+     * @param bool $escape_argument
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape = true): static;
+    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true): static;
 
     /**
      * Sets a single argument for the command that will be executed
