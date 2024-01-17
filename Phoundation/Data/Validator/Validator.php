@@ -120,9 +120,10 @@ abstract class Validator implements ValidatorInterface
      * @param string|float|int $from_key
      * @param string|float|int $to_key
      * @param bool $exception
+     * @param bool $overwrite
      * @return static
      */
-    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true): static
+    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true, bool $overwrite = true): static
     {
         if (!array_key_exists($from_key, $this->source)) {
             if ($exception) {
@@ -135,6 +136,13 @@ abstract class Validator implements ValidatorInterface
             }
 
             $this->source[$from_key] = null;
+        }
+
+        if (array_key_exists($to_key, $this->source)) {
+            // Target already exists, should we overwrite?
+            if (!$overwrite) {
+                return $this;
+            }
         }
 
         $this->source[$to_key] = $this->source[$from_key];

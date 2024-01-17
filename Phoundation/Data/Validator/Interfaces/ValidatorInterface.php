@@ -1081,7 +1081,8 @@ interface ValidatorInterface
      * @param string|float|int $from_key
      * @param string|float|int $to_key
      * @param bool $exception
+     * @param bool $only_if_target_not_exists
      * @return static
      */
-    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true): static;
+    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true, bool $only_if_target_not_exists = false): static;
 }
