@@ -12,7 +12,7 @@ use Phoundation\Filesystem\Restrictions;
 
 
 /**
- * Script system/clean
+ * Script system/temporary/get
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -22,8 +22,9 @@ use Phoundation\Filesystem\Restrictions;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::usage('./pho system get directory [OPTIONS]
-');
+CliDocumentation::usage('./pho system temporary get PATH [OPTIONS]
+./pho system temporary get PATH --public
+./pho system temporary get PATH ');
 
 CliDocumentation::help('This script will create and a private temporary path
 
