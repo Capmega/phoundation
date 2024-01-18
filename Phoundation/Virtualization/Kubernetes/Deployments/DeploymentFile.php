@@ -14,7 +14,7 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  *
  * @example
@@ -23,7 +23,7 @@ use Phoundation\Virtualization\Kubernetes\ObjectFile;
     metadata:
       annotations:
         deployment.kubernetes.io/revision: "1"
-      creationTimestamp: "2023-03-23T02:29:02Z"
+      creationTimestamp: "2024-03-23T02:29:02Z"
       generation: 1
       labels:
         app: phoundation
