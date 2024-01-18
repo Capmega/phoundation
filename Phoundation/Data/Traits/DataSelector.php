@@ -17,6 +17,9 @@ namespace Phoundation\Data\Traits;
  */
 trait DataSelector
 {
+    /**
+     * @var string $selector
+     */
     protected string $selector;
 
 

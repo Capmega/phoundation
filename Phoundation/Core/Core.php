@@ -909,7 +909,7 @@ class Core implements CoreInterface
 
         // Check what environment we're in
         if ($argv['environment']) {
-            // Environment was manually specified on command line
+            // The Environment was manually specified on the command line
             $env = $argv['environment'];
         } else {
             // Get environment variable from the shell environment
