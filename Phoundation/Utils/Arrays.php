@@ -2590,9 +2590,10 @@ class Arrays extends Utils
      *
      * @param array $source
      * @param string|null $key
+     * @param bool $exception
      * @return int
      */
-    public static function getShortestValueLength(array $source, ?string $key = null): int
+    public static function getShortestValueLength(array $source, ?string $key = null, bool $exception = false): int
     {
         $shortest = PHP_INT_MAX;
 
@@ -2613,6 +2614,12 @@ class Arrays extends Utils
 
             if (!is_scalar($value)) {
                 // $string must be a scalar value! Ignore this entry
+                if ($exception) {
+                    throw new OutOfBoundsException(tr('Specified source data contains non scalar value ":value"', [
+                        ':value' => $value
+                    ]));
+                }
+
                 continue;
             }
 
@@ -2637,7 +2644,7 @@ class Arrays extends Utils
      * @param string|null $key
      * @return int
      */
-    public static function getLongestValueLength(array $source, ?string $key = null): int
+    public static function getLongestValueLength(array $source, ?string $key = null, bool $exception = false): int
     {
         $largest = 0;
 
@@ -2658,6 +2665,10 @@ class Arrays extends Utils
 
             if (!is_scalar($value)) {
                 // $string must be a scalar value! Ignore this entry
+                throw new OutOfBoundsException(tr('Specified source data contains non scalar value ":value"', [
+                    ':value' => $value
+                ]));
+
                 continue;
             }
 
