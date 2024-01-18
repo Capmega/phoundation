@@ -328,16 +328,20 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Returns the length of the longest value
      *
+     * @param string|null $key
+     * @param bool $exception
      * @return int
      */
-    public function getLongestValueLength(): int;
+    public function getLongestValueLength(?string $key = null, bool $exception = false): int;
 
     /**
      * Returns the length of the shortest value
      *
+     * @param string|null $key
+     * @param bool $exception
      * @return int
      */
-    public function getShortestValueLength(): int;
+    public function getShortestValueLength(?string $key = null, bool $exception = false): int;
 
     /**
      * Returns the total amounts for all columns together

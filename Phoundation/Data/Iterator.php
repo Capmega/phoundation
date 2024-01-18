@@ -950,22 +950,26 @@ class Iterator implements IteratorInterface
     /**
      * Returns the length of the longest value
      *
+     * @param string|null $key
+     * @param bool $exception
      * @return int
      */
-    public function getLongestValueLength(): int
+    public function getLongestValueLength(?string $key = null, bool $exception = false): int
     {
-        return Arrays::getLongestValueLength($this->source);
+        return Arrays::getLongestValueLength($this->source, $key, $exception);
     }
 
 
     /**
      * Returns the length of the shortest value
      *
+     * @param string|null $key
+     * @param bool $exception
      * @return int
      */
-    public function getShortestValueLength(): int
+    public function getShortestValueLength(?string $key = null, bool $exception = false): int
     {
-        return Arrays::getShortestValueLength($this->source);
+        return Arrays::getShortestValueLength($this->source, $key, $exception);
     }
 
 
