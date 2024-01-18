@@ -1113,6 +1113,16 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
+            if ($characters <= 0) {
+                if (!$characters) {
+                    throw new ValidatorException(tr('Cannot check max characters, the amount of maximum characters specified is 0'));
+                }
+
+                throw new ValidatorException(tr('Cannot check max characters, the specified amount of maximum characters ":characters" is negative', [
+                    ':characters' => $characters
+                ]));
+            }
+
             // Validate the maximum number of characters
             $characters = $this->getMaxStringSize($characters);
 
