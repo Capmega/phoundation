@@ -436,6 +436,7 @@ class DataEntryForm extends Renderer
                                     ->setMinLength(isset_get_typed('integer', $definition_array['minlength']))
                                     ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                                     ->setAutoComplete($definition->getAutoComplete())
+                                    ->setAutoSubmit($definition->getAutoSubmit())
                                     ->setName($field_name)
                                     ->setValue($source[$field])
                                     ->setAutoFocus($definition->getAutoFocus())
@@ -464,6 +465,7 @@ class DataEntryForm extends Renderer
                             ->setMaxLength(isset_get_typed('integer', $definition_array['maxlength']))
                             ->setRows(isset_get_typed('integer', $definition_array['rows'], 5))
                             ->setAutoComplete($definition->getAutoComplete())
+                            ->setAutoSubmit($definition->getAutoSubmit())
                             ->setName($field_name)
                             ->setContent(isset_get($source[$field]))
                             ->setAutoFocus($definition->getAutoFocus())
@@ -507,6 +509,7 @@ class DataEntryForm extends Renderer
                             ->setHidden($definition->getHidden())
                             ->setName($field_name)
                             ->setAutoComplete($definition->getAutoComplete())
+                            ->setAutoSubmit($definition->getAutoSubmit())
                             ->setSelected(isset_get($source[$field]))
                             ->setAutoFocus($definition->getAutoFocus())
                             ->render();

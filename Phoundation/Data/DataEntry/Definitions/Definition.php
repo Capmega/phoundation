@@ -1031,6 +1031,29 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if changes to the field result into an auto-submit
+     *
+     * @return bool
+     */
+    public function getAutoSubmit(): bool
+    {
+        return (bool) isset_get_typed('bool', $this->rules['auto_submit']);
+    }
+
+
+    /**
+     * Returns if changes to the field result into an auto-submit
+     *
+     * @param bool|null $value
+     * @return static
+     */
+    public function setAutoSubmit(?bool $value): static
+    {
+        return $this->setKey((bool) $value, 'auto_submit');
+    }
+
+
+    /**
      * Returns a data source for the HTML client element contents of this column
      *
      * The data source may be specified as a query string or a key => value array

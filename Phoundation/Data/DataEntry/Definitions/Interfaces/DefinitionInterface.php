@@ -860,4 +860,19 @@ interface DefinitionInterface
      * @see Definition::setVisible()
      */
     public function setIgnored(?bool $value): static;
+
+    /**
+     * Returns if changes to the field result into an auto-submit
+     *
+     * @return bool
+     */
+    public function getAutoSubmit(): bool;
+
+    /**
+     * Returns if changes to the field result into an auto-submit
+     *
+     * @param bool|null $value
+     * @return static
+     */
+    public function setAutoSubmit(?bool $value): static;
 }
