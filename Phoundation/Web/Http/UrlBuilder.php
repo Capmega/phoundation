@@ -6,12 +6,14 @@ namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
@@ -909,6 +911,34 @@ throw new UnderConstructionException();
         throw new UrlBuilderConfiguredUrlNotFoundException(tr('Specified configured URL ":url" not found', [
             ':url' => $url
         ]));
+    }
+
+
+    /**
+     * Returns an array containing all the queries found in the specified URL
+     *
+     * @param Stringable|string $url
+     * @param IteratorInterface|array|string|null $remove_keys
+     * @return array
+     */
+    public static function getQueries(Stringable|string $url, IteratorInterface|array|string|null $remove_keys = null): array
+    {
+        $return  = [];
+        $queries = Strings::from($url, '?', needle_required: true);
+        $queries = Arrays::force($queries, '&');
+        $remove_keys = Arrays::force($remove_keys);
+
+        foreach ($queries as $query) {
+            list($key, $value) = explode('=', $query);
+
+            if ($remove_keys and array_key_exists($key, $remove_keys)) {
+                continue;
+            }
+
+            $return[$key] = $value;
+        }
+
+        return $return;
     }
 
 
