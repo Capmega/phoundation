@@ -1024,6 +1024,44 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for column ip_address
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $column
+     * @return DefinitionInterface
+     */
+    public static function getIpAddress(DataEntryInterface $data_entry, ?string $column = 'ip_address'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setReadonly(true)
+            ->setInputType(InputType::text)
+            ->setSize(6)
+            ->setMaxlength(48)
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('IP Address'));
+    }
+
+
+    /**
+     * Returns a Definition object for column domain
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $column
+     * @return DefinitionInterface
+     */
+    public static function getDomain(DataEntryInterface $data_entry, ?string $column = 'domain'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setReadonly(true)
+            ->setInputType(InputType::text)
+            ->setSize(6)
+            ->setMaxlength(255)
+            ->setCliAutoComplete(true)
+            ->setLabel(tr('Domain name'));
+    }
+
+
+    /**
      * Returns a Definition object for column phone
      *
      * @param DataEntryInterface $data_entry
@@ -1122,6 +1160,24 @@ class DefinitionFactory
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isBoolean();
             });
+    }
+
+
+    /**
+     * Returns a Definition object for generic data column
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string $column
+     * @return DefinitionInterface
+     */
+    public static function getData(DataEntryInterface $data_entry, string $column): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->setInputType(InputTypeExtended::array_json)
+            ->setSize(12)
+            ->setMaxlength(16_777_200)
+            ->setCliAutoComplete(true);
     }
 
 
