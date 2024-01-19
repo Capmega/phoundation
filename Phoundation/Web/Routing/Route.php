@@ -10,6 +10,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Validator\CookieValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -221,9 +222,9 @@ class Route
             static::$instance = new static();
         }
 
-        // We should execute the initialisation only once
+        // We should execute the initialization only once
         if (!static::$init) {
-            // Only initialise when parameters list has been set, since init may cause this list to be needed
+            // Only initialize when a parameter list has been set, since init may cause this list to be needed
             if (isset(static::$parameters)) {
                 static::$init = true;
                 static::init();
@@ -241,7 +242,51 @@ class Route
      */
     public static function getRequest(): string
     {
-        return 'IMPLEMENT ROUTE::GETREQUEST()';
+        return (string) UrlBuilder::getWww();
+    }
+
+
+    /**
+     * Returns the original request method
+     *
+     * @return string
+     */
+    public static function getMethod(): string
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
+
+
+    /**
+     * Returns the request headers
+     *
+     * @return array
+     */
+    public static function getHeaders(): array
+    {
+        return getallheaders();
+    }
+
+
+    /**
+     * Returns the cookies from the request
+     *
+     * @return array
+     */
+    public static function getCookies(): array
+    {
+        return CookieValidator::new()->getSource();
+    }
+
+
+    /**
+     * Returns the POST data from the request
+     *
+     * @return array
+     */
+    public static function getPostData(): array
+    {
+        return PostValidator::new()->getSource();
     }
 
 
