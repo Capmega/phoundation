@@ -46,7 +46,7 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Sets if this incident will be logged in the text log
+     * Sets if this incident is logged in the text log
      *
      * @var bool
      */
@@ -54,7 +54,7 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Sets if this incident will cause a notification to the specified groups
+     * Sets if this incident causes a notification to the specified groups
      *
      * @var IteratorInterface $notify_roles
      */

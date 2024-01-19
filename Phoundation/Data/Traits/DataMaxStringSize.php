@@ -52,7 +52,7 @@ trait DataMaxStringSize
             return $this->max_string_size;
         }
 
-        // Yeah this is okay
+        // Yeah, this is okay
         return $characters;
     }
 

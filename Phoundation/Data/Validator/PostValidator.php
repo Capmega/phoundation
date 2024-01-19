@@ -48,7 +48,7 @@ class PostValidator extends Validator
 
 
     /**
-     * Validator constructor.
+     * PostValidator constructor.
      *
      * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
      *       should never be used
@@ -67,16 +67,16 @@ class PostValidator extends Validator
      * Returns a new $_POST data Validator object
      *
      * @param ValidatorInterface|null $parent
-     * @return PostValidator
+     * @return static
      */
-    public static function new(?ValidatorInterface $parent = null): PostValidator
+    public static function new(?ValidatorInterface $parent = null): static
     {
         return new static($parent);
     }
 
 
     /**
-     * Link $_GET and $_POST and $argv data to internal arrays to ensure developers cannot access them until validation
+     * Link $_POST data to internal arrays to ensure developers cannot access them until validation
      * has been completed
      *
      * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
