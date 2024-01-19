@@ -60,6 +60,7 @@ use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Interfaces\PageInterface;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
@@ -1407,21 +1408,26 @@ class Page implements PageInterface
     /**
      * Executes the specified system page after a page had an exception
      *
-     * @param int $page
+     * @param int $http_code
      * @param Throwable $e
      * @param string $message
      * @return void
      */
-    #[NoReturn] protected static function executeSystemAfterPageException(Throwable $e, int $page, string $message): void
+    #[NoReturn] protected static function executeSystemAfterPageException(Throwable $e, int $http_code, string $message): void
     {
+        if (Config::getBoolean('security.web.monitor.non-200-urls', true)) {
+            Non200Url::new()->generate($http_code)->save();
+        }
+
         Log::warning($message);
+        Log::warning('Registered request as non HTTP-200 URL');
         Log::warning($e);
 
         // Clear flash messages
         Session::getFlashMessages()->clear();
 
         Core::writeRegister($e, 'e');
-        Route::executeSystem($page);
+        Route::executeSystem($http_code);
     }
 
 
