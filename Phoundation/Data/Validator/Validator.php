@@ -115,7 +115,7 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
-     * Rename the from_key to to_key, if it exists
+     * Rename the from_key to to_key if it exists
      *
      * @param string|float|int $from_key
      * @param string|float|int $to_key
@@ -1113,6 +1113,9 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
+            // Validate the maximum number of characters
+            $characters = $this->getMaxStringSize($characters);
+
             if ($characters <= 0) {
                 if (!$characters) {
                     throw new ValidatorException(tr('Cannot check max characters, the amount of maximum characters specified is 0'));
@@ -1122,9 +1125,6 @@ abstract class Validator implements ValidatorInterface
                     ':characters' => $characters
                 ]));
             }
-
-            // Validate the maximum number of characters
-            $characters = $this->getMaxStringSize($characters);
 
             if (strlen($value) > $characters) {
                 $this->addFailure(tr('must have ":count" characters or less', [':count' => $characters]));
