@@ -74,6 +74,11 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                         'url'    => '/security/incidents.html',
                         'icon'   => 'fa-key'
                     ],
+                    tr('Non HTTP-200 URL\'s') => [
+                        'rights' => 'logs',
+                        'url'    => '/security/non-200-urls.html',
+                        'icon'   => 'fa-tasks'
+                    ],
                     tr('Activity log') => [
                         'rights' => 'logs',
                         'url'    => '/security/activity',
