@@ -9,6 +9,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -349,6 +350,12 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public function setWarning(bool $warning): static
     {
         if (defined('NOWARNINGS') and NOWARNINGS) {
+            // No warnings allowed from the environment
+            $warning = false;
+        }
+
+        if (!Config::getBoolean('debug.exceptions.warnings', true)) {
+            // No warnings allowed from the configuration
             $warning = false;
         }
 
