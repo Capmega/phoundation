@@ -919,9 +919,10 @@ throw new UnderConstructionException();
      *
      * @param Stringable|string $url
      * @param IteratorInterface|array|string|null $remove_keys
+     * @param bool $unescape
      * @return array
      */
-    public static function getQueries(Stringable|string $url, IteratorInterface|array|string|null $remove_keys = null): array
+    public static function getQueries(Stringable|string $url, IteratorInterface|array|string|null $remove_keys = null, bool $unescape = true): array
     {
         $return  = [];
         $queries = Strings::from($url, '?', needle_required: true);
@@ -935,7 +936,12 @@ throw new UnderConstructionException();
                 continue;
             }
 
-            $return[$key] = $value;
+            if ($unescape) {
+                $return[$key] = urldecode($value);
+
+            } else {
+                $return[$key] = $value;
+            }
         }
 
         return $return;
