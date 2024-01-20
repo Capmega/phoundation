@@ -1883,7 +1883,7 @@ class Core implements CoreInterface
 
                 if (!defined('PLATFORM')) {
                     // The system crashed before platform detection.
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
+                    Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":command" ***', [
                         ':code'    => $e->getCode(),
                         ':type'    => static::getRequestType()->value,
                         ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
@@ -2029,7 +2029,7 @@ class Core implements CoreInterface
                         }
 
                         // Log exception data
-                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+                        Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
                             ':type'        => static::getRequestType()->value,
                             ':state'       => static::$state,
