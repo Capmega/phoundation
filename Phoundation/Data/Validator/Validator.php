@@ -135,17 +135,22 @@ abstract class Validator implements ValidatorInterface
                 ]));
             }
 
+            // from_key doesn't exist, initialize the from_key as a null value
             $this->source[$from_key] = null;
         }
 
         if (array_key_exists($to_key, $this->source)) {
             // Target already exists, should we overwrite?
             if (!$overwrite) {
+                // Don't overwrite, don't change anything
                 return $this;
             }
         }
 
+        // Move the from_key to the to_key
         $this->source[$to_key] = $this->source[$from_key];
+
+        unset($this->source[$from_key]);
         return $this;
     }
 
