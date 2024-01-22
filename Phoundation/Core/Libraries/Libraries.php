@@ -634,4 +634,15 @@ class Libraries
         sql()->schema()->database()->create();
         sql()->use();
     }
+
+
+    /**
+     * Returns the highest registered version number
+     *
+     * @return int
+     */
+    public static function getMaximumVersion(): int
+    {
+        return sql()->getColumn('SELECT MAX(`version`) AS `max` FROM `core_versions`');
+    }
 }
