@@ -22,6 +22,7 @@ use Phoundation\Geo\States\State;
 use Phoundation\Geo\States\States;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Timezones;
+use Phoundation\Servers\Servers;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
 
@@ -109,6 +110,65 @@ class DefinitionFactory
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 // Ensure category exists and that its a category id or category name
                 $validator->orColumn('categories_id')->isName()->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':id' => '$categories_name']);
+            });
+    }
+
+
+    /**
+     * Returns a Definition object for column servers_id
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $column
+     * @param array|null $filters
+     * @return DefinitionInterface
+     */
+    public static function getServersId(DataEntryInterface $data_entry, ?string $column = 'servers_id', array $filters = null): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                return Servers::new()->getHtmlSelect()
+                    ->setName($key)
+                    ->setReadonly($definition->getReadonly())
+                    ->setDisabled($definition->getDisabled())
+                    ->setSelected(isset_get($source[$key]))
+                    ->render();
+            })
+            ->setSize(6)
+            ->setLabel(tr('Server'))
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                // Ensure servers id exists and that its or server
+                $validator->orColumn('servers_name')->isDbId()->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
+            });
+    }
+
+
+    /**
+     * Returns a Definition object for column servers_name
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $column
+     * @return DefinitionInterface
+     */
+    public static function getServer(DataEntryInterface $data_entry, ?string $column = 'servers_name'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->setVisible(false)
+            ->setVirtual(true)
+            ->setCliColumn('-c,--server CATEGORY-NAME')
+            ->setLabel(tr('Server'))
+            ->setCliAutoComplete([
+                'word' => function ($word) {
+                    return Servers::new()->getMatchingKeys($word);
+                },
+                'noword' => function () {
+                    return Servers::new()->getSource();
+                },
+            ])
+            ->addValidationFunction(function (ValidatorInterface $validator) {
+                // Ensure server exists and that its a server id or server name
+                $validator->orColumn('servers_id')->isName()->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `name` = :name AND `status` IS NULL', [':id' => '$servers_name']);
             });
     }
 
