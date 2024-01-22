@@ -21,7 +21,9 @@ use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Exception\Interfaces\CoreStartupFailedExceptionInterface;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Interfaces\CoreInterface;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
@@ -978,8 +980,14 @@ class Core implements CoreInterface
 
         // Process command line system arguments if we have no exception so far
         if ($argv['version']) {
-            Log::information(tr('Phoundation framework version ":fv"', [
-                ':fv' => static::FRAMEWORKCODEVERSION
+            Log::cli(tr('Phoundation framework version ":version"', [
+                ':version' => static::FRAMEWORKCODEVERSION
+            ]), 10);
+            Log::cli(tr('Phoundation database version ":version"', [
+                ':version' => Version::getString(Libraries::getMaximumVersion())
+            ]), 10);
+            Log::cli(tr('Phoundation minimum PHP version ":version"', [
+                ':version' => static::PHP_MINIMUM_VERSION
             ]), 10);
 
             $exit = 0;
@@ -1801,13 +1809,16 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtException(Throwable $e): never
     {
-        try {
-            Audio::new('data/audio/critical.mp3')->playLocal(true);
+        // When on commandline, ring an alarm
+        if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
+            try {
+                Audio::new('data/audio/critical.mp3')->playLocal(true);
 
-        } catch (Throwable $f) {
-            Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
-                ':e' => $f->getMessage()
-            ]));
+            } catch (Throwable $f) {
+                Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
+                    ':e' => $f->getMessage()
+                ]));
+            }
         }
 
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
@@ -2607,9 +2618,8 @@ class Core implements CoreInterface
             Log::warning(tr('Not cleaning up due to kill signal!'));
 
         } elseif (static::inStartupState()) {
-            // Exit during startup == baaaaaaad. We should have an error code but apparently don't have one? Manually
-            // executed exit() somewhere?
-            if (!$exit_code) {
+            // Exit with exitcode during startup == baaaaaaad.
+            if ($exit_code) {
                 Log::setFailed();
                 Log::error('Shutdown procedure started before Core was in script execution state');
             }
