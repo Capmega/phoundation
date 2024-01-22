@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Core\Sessions;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Utils\Config;
 
 
 /**
@@ -73,5 +76,29 @@ throw new UnderConstructionException();
     public function dropAll(): void
     {
         throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Clean up old sessions
+     *
+     * @param int|null $age_in_minutes
+     * @return void
+     */
+    public static function clean(?int $age_in_minutes): void
+    {
+        if (!$age_in_minutes) {
+            $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
+        }
+
+        Log::action(tr('Cleaning session files older than ":age" minutes', [
+            ':age' => $age_in_minutes
+        ]));
+
+        Find::new()
+            ->setPath(DIRECTORY_DATA . 'tmp/')
+            ->setOlderThan($age_in_minutes)
+            ->setExecute('rf {} -rf')
+            ->executeNoReturn();
     }
 }

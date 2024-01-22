@@ -7,6 +7,8 @@ namespace Phoundation\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Utils\Config;
 
 
 /**
@@ -41,5 +43,29 @@ class Tmp
             ->ensure();
 
         Log::success(tr('Cleared all temporary files'), 4);
+    }
+
+
+    /**
+     * Clean up old temp files
+     *
+     * @param int|null $age_in_minutes
+     * @return void
+     */
+    public static function clean(?int $age_in_minutes): void
+    {
+        if (!$age_in_minutes) {
+            $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
+        }
+
+        Log::action(tr('Cleaning temporary files older than ":age" minutes', [
+            ':age' => $age_in_minutes
+        ]));
+
+        Find::new()
+            ->setPath(DIRECTORY_DATA . 'tmp/')
+            ->setOlderThan($age_in_minutes)
+            ->setExecute('rf {} -rf')
+            ->executeNoReturn();
     }
 }

@@ -21,6 +21,7 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -1395,5 +1396,29 @@ Class Log {
         static::setFile($current);
         Log::information(tr('Continuing syslog from file ":file"', [':file' => $file->getPath()]));
         return $file;
+    }
+
+
+    /**
+     * Clean up old log files
+     *
+     * @param int|null $age_in_days
+     * @return void
+     */
+    public static function clean(?int $age_in_days): void
+    {
+        if (!$age_in_days) {
+            $age_in_days = Config::getInteger('log.clean.age', 30);
+        }
+
+        Log::action(tr('Cleaning log files older than ":age" days', [
+            ':age' => $age_in_days
+        ]));
+
+        Find::new()
+            ->setPath(DIRECTORY_DATA . 'log/')
+            ->setOlderThan($age_in_days)
+            ->setExecute('rf {} -rf')
+            ->executeNoReturn();
     }
 }
