@@ -64,7 +64,7 @@ class Find extends Command implements FindInterface
     public function setPath(Stringable|string $path): static
     {
         $this->path = (string) $path;
-        return $this;
+        return $this->setExecutionDirectory($path);
     }
 
 
