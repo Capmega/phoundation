@@ -10,6 +10,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Plugins;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
@@ -604,7 +605,78 @@ class Project implements ProjectInterface
 
 
     /**
-     * Updates your Phoundation installation from Phoundation g
+     * Updates your Phoundation Plugins
+     *
+     * @param string|null $branch
+     * @param string|null $message
+     * @param bool $signed
+     * @param string|null $phoundation_path
+     * @param bool $skip_caching
+     * @return static
+     */
+    public function updateLocalProjectPlugins(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false): static
+    {
+        if (!$branch) {
+            $branch = $this->git->getBranch();
+
+            Log::notice(tr('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
+                ':branch' => $branch
+            ]));
+        }
+
+        Log::information('Updating your project plugins from a local Phoundation repository');
+
+        // Ensure that the local Phoundation has no changes
+        Plugins::new()->ensureNoChanges();
+
+        try {
+            // Add all files to index to ensure everything will be stashed
+            if ($this->git->getStatus()->getCount()) {
+                $this->git->add(DIRECTORY_ROOT);
+                $this->git->getStash()->stash();
+                $stash = true;
+            }
+
+            // Cache ALL Phoundation files to avoid code incompatibility after update, then copy Phoundation core files
+            $this->cacheLibraries($skip_caching)
+                ->copyPluginsFilesLocal($phoundation_path, $branch);
+
+            // If there are changes, then add and commit
+            if ($this->git->getStatus()->getCount()) {
+                if (!$message) {
+                    $message = tr('Phoundation plugins update');
+                }
+
+                $this->git->add([DIRECTORY_ROOT]);
+                $this->git->commit($message, $signed);
+
+                Log::warning(tr('Committed local Phoundation update to git'));
+            } else {
+                Log::warning(tr('No updates found in local Phoundation update'));
+            }
+
+            // Stash pop the previous changes and reset HEAD to ensure the index is empty
+            if (isset($stash)) {
+                $this->git->getStash()->pop();
+                $this->git->reset('HEAD');
+            }
+
+            return $this;
+
+        } catch (Throwable $e) {
+            if (isset($stash)) {
+                Log::warning(tr('Moving stashed files back'));
+                $this->git->getStash()->pop();
+                $this->git->reset('HEAD');
+            }
+
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Updates your Phoundation installation from Phoundation
      */
     public static function update(): void
     {
@@ -772,6 +844,76 @@ $skip = false;
 
             // Switch phoundation back to its previous branch
             $phoundation->switchBranch();
+
+        } catch (Throwable $e) {
+//            //  Move Phoundation files back again
+//            if (isset($files['phoundation'])) {
+//                Log::warning(tr('Moving Phoundation core libraries back from garbage'));
+//                $files['phoundation']->move(DIRECTORY_ROOT . 'Phoundation/');
+//            }
+//
+//            if (isset($files['templates'])) {
+//                Log::warning(tr('Moving Template core scripts back from garbage'));
+//                $files['templates']->move(DIRECTORY_ROOT . 'Templates/');
+//            }
+
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Copy all files from the local phoundation installation.
+     *
+     * @note This method will actually delete Phoundation system files! Because of this, it will manually include some
+     *       required library files to avoid crashes when these files are needed during this time of deletion
+     * @param string|null $directory
+     * @param string $branch
+     * @return void
+     * @throws PhoundationBranchNotExistException|OutOfBoundsException|Throwable
+     */
+    protected function copyPluginsFilesLocal(?string $directory, string $branch): void
+    {
+        if (!$branch) {
+            throw new OutOfBoundsException(tr('Cannot copy local plugin files, no Phoundation branch specified'));
+        }
+
+        try {
+            $plugins = Plugins::new($directory)->switchBranch($branch);
+
+        } catch (ProcessFailedException $e) {
+            // TODO Check if it actually does not exist or if there is another problem!
+            throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation branch ":branch", it does not exist', [
+                ':branch' => $branch
+            ]), $e);
+        }
+
+        // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
+        // finding files they require, include them here so that we have them available in memory
+        include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
+        include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
+
+        // Move /Phoundation and /scripts out of the way
+        try {
+            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
+
+//            $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
+//            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
+
+            // Copy new core library versions
+            Log::action('Updating Phoundation libraries');
+            Rsync::new()
+                ->setSource($plugins->getDirectory() . 'Phoundation/')
+                ->setTarget(DIRECTORY_ROOT . 'Phoundation')
+                ->setDelete(true)
+                ->execute();
+
+//            // All is well? Get rid of the garbage
+//            $files['phoundation']->delete();
+//            $files['templates']->delete();
+
+            // Switch phoundation back to its previous branch
+            $plugins->switchBranch();
 
         } catch (Throwable $e) {
 //            //  Move Phoundation files back again
