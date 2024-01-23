@@ -327,9 +327,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @param string|null $key_header
      * @param string|null $value_header
-     * @return void
+     * @return static
      */
-    public function getCliForm(?string $key_header = null, ?string $value_header = null): void;
+    public function displayCliForm(?string $key_header = null, ?string $value_header = null): static;
 
     /**
      * Creates and returns an HTML for the data in this entry
@@ -387,7 +387,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param bool $meta_enabled
      * @return static|null
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static;
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static;
 
     /**
      * Returns the name for this object that can be displayed

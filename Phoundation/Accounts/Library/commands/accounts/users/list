@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\Validator\ArgvValidator;use Phoundation\Databases\Sql\Sql;
-
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Sql;
 
 
 /**
@@ -83,4 +83,4 @@ if ($argv['status']) {
     $query->addWhere('`accounts_users`.`status` IS NULL');
 }
 
-$user->CliDisplayTable();
+$user->displayCliTable();

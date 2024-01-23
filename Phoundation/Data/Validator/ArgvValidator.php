@@ -420,7 +420,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::xorField()
+     * @see Validator::xorColumn()
      */
     public function or(string $field): static
     {

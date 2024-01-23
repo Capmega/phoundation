@@ -50,13 +50,13 @@ $argv = ArgvValidator::new()
 $user = User::get($argv['user']);
 
 // Display user data
-$user->getCliForm();
+$user->displayCliForm();
 
 Log::information('Alternative email accounts for this user:');
-$user->getEmails()->CliDisplayTable();
+$user->getEmails()->displayCliTable();
 
 Log::information('Roles assigned to this user:');
-$user->getRoles()->CliDisplayTable();
+$user->getRoles()->displayCliTable();
 
 Log::information('Roles assigned to this user through its roles:');
-$user->getRights()->CliDisplayTable();
+$user->getRights()->displayCliTable();

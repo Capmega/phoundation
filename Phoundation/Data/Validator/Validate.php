@@ -252,7 +252,9 @@ class Validate
         $this->isString();
 
         if (strlen($this->source) != $characters) {
-            throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [':count' => $characters]));
+            throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [
+                ':count' => $characters
+            ]));
         }
 
         return $this;
@@ -270,7 +272,9 @@ class Validate
         $this->isString();
 
         if (strlen($this->source) < $characters) {
-            throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [':count' => $characters]));
+            throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [
+                ':count' => $characters
+            ]));
         }
 
         return $this;
@@ -291,7 +295,9 @@ class Validate
         $characters = $this->getMaxStringSize($characters);
 
         if (strlen($this->source) > $characters) {
-            throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [':count' => $characters]));
+            throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [
+                ':count' => $characters
+            ]));
         }
 
         return $this;
@@ -326,11 +332,15 @@ class Validate
 
         if ($regex) {
             if (!preg_match($string, $this->source)) {
-                throw new ValidationFailedException(tr('The specified value must match regex ":value"', [':value' => $string]));
+                throw new ValidationFailedException(tr('The specified value must match regex ":value"', [
+                    ':value' => $string
+                ]));
             }
         } else {
             if (!str_contains($this->source, $string)) {
-                throw new ValidationFailedException(tr('The specified value must contain ":value"', [':value' => $string]));
+                throw new ValidationFailedException(tr('The specified value must contain ":value"', [
+                    ':value' => $string
+                ]));
             }
         }
 

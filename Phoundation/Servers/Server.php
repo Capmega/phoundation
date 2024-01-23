@@ -389,7 +389,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('categories_id')->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$category']);
+                    $validator->xorColumn('categories_id')->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$category']);
                 }))
             ->addDefinition(Definition::new($this, 'provider')
                 ->setOptional(true)
@@ -400,7 +400,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return Providers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('providers_id')->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider']);
+                    $validator->xorColumn('providers_id')->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider']);
                 }))
             ->addDefinition(Definition::new($this, 'customer')
                 ->setOptional(true)
@@ -411,7 +411,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return Customers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('customers_id')->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer']);
+                    $validator->xorColumn('customers_id')->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer']);
                 }))
             ->addDefinition(Definition::new($this, 'country')
                 ->setOptional(true)
@@ -424,7 +424,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return Countries::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('countries_id')->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
+                    $validator->xorColumn('countries_id')->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
                 }))
             ->addDefinition(Definition::new($this, 'state')
                 ->setOptional(true)
@@ -437,7 +437,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return States::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('states_id')->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$state']);
+                    $validator->xorColumn('states_id')->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$state']);
                 }))
             ->addDefinition(Definition::new($this, 'city')
                 ->setOptional(true)
@@ -450,7 +450,7 @@ class Server extends DataEntry implements ServerInterface
                     'noword' => function()      { return Cities::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('cities_id')->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
+                    $validator->xorColumn('cities_id')->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
                 }))
             ->addDefinition(DefinitionFactory::getName($this)
                 ->setOptional(false)
@@ -485,7 +485,7 @@ class Server extends DataEntry implements ServerInterface
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
 showdie('fuck!');
-                    $validator->xorField('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
+                    $validator->xorColumn('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
             ->addDefinition(Definition::new($this, 'ssh_accounts_id')
                 ->setInputType(InputTypeExtended::dbid)
@@ -571,7 +571,7 @@ showdie('fuck!');
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('category')->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
+                    $validator->xorColumn('category')->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
                 }))
             ->addDefinition(Definition::new($this, 'providers_id')
                 ->setOptional(true)
@@ -585,7 +585,7 @@ showdie('fuck!');
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('provider')->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
+                    $validator->xorColumn('provider')->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
                 }))
             ->addDefinition(Definition::new($this, 'customers_id')
                 ->setOptional(true)
@@ -599,7 +599,7 @@ showdie('fuck!');
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('customer')->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
+                    $validator->xorColumn('customer')->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
                 }))
             ->addDefinition(Definition::new($this, 'countries_id')
                 ->setOptional(true)
@@ -614,7 +614,7 @@ showdie('fuck!');
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('country')->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
+                    $validator->xorColumn('country')->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
                 }))
             ->addDefinition(Definition::new($this, 'states_id')
                 ->setOptional(true)
@@ -629,7 +629,7 @@ showdie('fuck!');
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('state')->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
+                    $validator->xorColumn('state')->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
                 }))
             ->addDefinition(Definition::new($this, 'cities_id')
                 ->setOptional(true)
@@ -642,7 +642,7 @@ showdie('fuck!');
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xorField('city')->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
+                    $validator->xorColumn('city')->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
                 }))
             ->addDefinition(Definition::new($this, 'os_name')
                 ->setOptional(true)

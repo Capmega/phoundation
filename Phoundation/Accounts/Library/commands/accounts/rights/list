@@ -64,4 +64,4 @@ if ($argv['status']) {
     $query->addWhere('`accounts_rights`.`status` IS NULL');
 }
 
-$user->CliDisplayTable();
+$user->displayCliTable();

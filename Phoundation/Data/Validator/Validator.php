@@ -927,7 +927,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             if ($compare_value != $validate_value) {
-                $this->addFailure(tr('does not exist'));
+                $this->addFailure(tr(' has a non existing identifier value'));
             }
         });
     }

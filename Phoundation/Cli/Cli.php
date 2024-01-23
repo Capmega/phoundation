@@ -121,10 +121,10 @@ class Cli
             ]));
         }
 
-        // Determine the size of the keys to display them
-        $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
-
         if ($source) {
+            // Determine the size of the keys to display them
+            $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
+
             // Get headers from columns
             if ($headers === null) {
                 $value   = str_replace(['_', '-'], ' ', (string) $id_column);
@@ -163,13 +163,8 @@ class Cli
                 }
 
                 // Display all row cells
-                foreach ($row as $column => $value) {
-                    if ($column === 0) {
-                        // Due to the nature of array_unshift (we can't specify key name, so it always has key 0), rename!
-                        if ($id_column) {
-                            $column = $id_column;
-                        }
-                    }
+                foreach ($headers as $column => $label) {
+                    $value = $row[$column];
 
                     if (is_numeric($column) or array_key_exists($column, $headers)) {
                         Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
