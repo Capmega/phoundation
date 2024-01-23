@@ -18,6 +18,7 @@ use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\FileNotExistException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
@@ -384,10 +385,7 @@ class Plugins extends Project
      */
     public function isPhoundationPlugins(string $directory): bool
     {
-        Directory::new($directory . 'Backups', $this->restrictions)->checkReadable();
-        Directory::new($directory . 'disabled', $this->restrictions)->checkReadable();
-
-        return true;
+        return Directory::new($directory . 'Backups', $this->restrictions)->isReadable();
     }
 
 
