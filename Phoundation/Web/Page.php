@@ -24,6 +24,8 @@ use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionI
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
 use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
@@ -1161,7 +1163,7 @@ class Page implements PageInterface
 
             Incident::new()
                 ->setType('401 - Unauthorized')->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to "system/:redirect"', [
+                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
                     ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
                     ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $guest_redirect,
@@ -1209,7 +1211,7 @@ class Page implements PageInterface
             // One or more of the rights do not exist
             Incident::new()
                 ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to "system/:redirect"', [
+                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
                     ':real_target' => Strings::from($target, DIRECTORY_ROOT),
@@ -1425,6 +1427,11 @@ class Page implements PageInterface
 
         // Clear flash messages
         Session::getFlashMessages()->clear();
+
+        // Modify POST requests to GET requests and remove all GET and POST data
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        GetValidator::new()->clear();
+        PostValidator::new()->clear();
 
         Core::writeRegister($e, 'e');
         Route::executeSystem($http_code);
