@@ -16,6 +16,7 @@ use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
@@ -383,11 +384,10 @@ class Plugins extends Project
      */
     public function isPhoundationPlugins(string $directory): bool
     {
-        $file    = File::new($directory . 'config/project', $this->restrictions)->checkReadable()->getPath();
-        $project = file_get_contents($file);
+        Directory::new($directory . 'Backups', $this->restrictions)->checkReadable();
+        Directory::new($directory . 'disabled', $this->restrictions)->checkReadable();
 
-// TODO Update to use git remote show origin!
-        return strtolower($project) === 'phoundation';
+        return true;
     }
 
 
