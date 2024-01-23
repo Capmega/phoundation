@@ -626,10 +626,10 @@ class UrlBuilder implements UrlBuilderInterface
                 ]));
             }
 
-            $key = Strings::until($query, '=');
+            $key   = Strings::until($query, '=');
             $value = Strings::from($query, '=');
 
-            $key = urlencode($key);
+            $key   = urlencode($key);
             $value = urlencode($value);
 
             if (!str_contains($this->url, '?')) {
