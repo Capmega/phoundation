@@ -123,9 +123,9 @@ interface DataListInterface extends IteratorInterface
      * @param array|null $columns
      * @param array $filters
      * @param string|null $id_column
-     * @return void
+     * @return static
      */
-    public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void;
+    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static;
 
     /**
      * Set the specified status for the specified entries
@@ -215,4 +215,11 @@ interface DataListInterface extends IteratorInterface
      * @return ListOperationsInterface
      */
     public static function directOperations(): ListOperationsInterface;
+
+    /**
+     * Will truncate the table associated with this list
+     *
+     * @return $this
+     */
+    public function truncate(): static;
 }

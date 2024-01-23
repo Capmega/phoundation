@@ -408,6 +408,17 @@ class CliCommand
 
 
     /**
+     * Returns the list of commands that came to the command that executed in space separated string format
+     *
+     * @return string
+     */
+    public static function getCommandsString(): string
+    {
+        return implode(' ', static::$commands);
+    }
+
+
+    /**
      * Returns the process exit code
      *
      * @return int
@@ -780,7 +791,7 @@ class CliCommand
 
                 Log::warning($e->getMessage());
                 Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':command'  => static::getExecutedPath(),
+                    ':command' => static::getCommandsString(),
                     ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
@@ -790,7 +801,7 @@ class CliCommand
 
                 Log::error($e->getMessage());
                 Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':command'  => static::getExecutedPath(),
+                    ':command' => static::getCommandsString(),
                     ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
@@ -805,7 +816,7 @@ class CliCommand
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                        ':command'  => static::getExecutedPath(),
+                        ':command' => static::getCommandsString(),
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
@@ -820,7 +831,7 @@ class CliCommand
                 } else {
                     // Script ended with error
                     Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                        ':command'  => static::getExecutedPath(),
+                        ':command' => static::getCommandsString(),
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
@@ -835,8 +846,8 @@ class CliCommand
 
             // Script ended successfully
             Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
+                ':command' => static::getCommandsString(),
                 ':pid'     => getmypid(),
-                ':command' => static::getExecutedPath(),
                 ':time'    => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'   => Numbers::getHumanReadableBytes(memory_get_peak_usage())
             ]), 8);

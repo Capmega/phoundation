@@ -398,17 +398,18 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param array|null $columns
      * @param array $filters
      * @param string|null $id_column
-     * @return void
+     * @return static
      */
-    public function CliDisplayTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): void
+    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
-        // If this list is empty then load data from query, else show list contents
+        // If this list is empty, then load data from a query, else show list contents
         if (empty($this->source)) {
             $this->selectQuery();
             $this->source = sql()->list($this->query, $this->execute);
         }
 
         Cli::displayTable($this->source, $columns, $id_column);
+        return $this;
     }
 
 
@@ -752,5 +753,17 @@ abstract class DataList extends Iterator implements DataListInterface
                              . ($word ? ' WHERE `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
                                           LIMIT ' . CliAutoComplete::getLimit(),
             $word ? [':like' => $word. '%'] : null);
+    }
+
+
+    /**
+     * Will truncate the table associated with this list
+     *
+     * @return $this
+     */
+    public function truncate(): static
+    {
+        sql()->query('DELETE FROM `' . static::getTable() . '`');
+        return $this;
     }
 }

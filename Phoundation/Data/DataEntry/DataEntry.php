@@ -605,13 +605,19 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @return static|null
+     * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         if (!$identifier) {
             // No identifier specified, return an empty object
-            return new static(null, null, $meta_enabled);
+            throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
+                ':class'      => static::getClassName(),
+                ':column'     => $column,
+                ':identifier' => $identifier
+            ]));
+
+//            return new static(null, null, $meta_enabled);
         }
 
         if (is_object($identifier)) {
@@ -664,8 +670,9 @@ abstract class DataEntry implements DataEntryInterface
                 throw $e;
             }
 
-            throw DataEntryNotExistsException::new(tr('The ":class" entry ":identifier" does not exist', [
+            throw DataEntryNotExistsException::new(tr('The ":class" ":column" identifier ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
+                ':column'     => $column,
                 ':identifier' => $identifier
             ]));
         }
@@ -673,11 +680,75 @@ abstract class DataEntry implements DataEntryInterface
         if ($entry->isDeleted() and !$force) {
             // This entry has been deleted and can only be viewed by user with the "deleted" right
             if (!Session::getUser()->hasAllRights('deleted')) {
-                throw DataEntryDeletedException::new(tr('The ":class" entry ":identifier" is deleted', [
+                throw DataEntryDeletedException::new(tr('The ":class" ":column" identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
+                    ':column'     => $column,
                     ':identifier' => $identifier
                 ]));
 
+            }
+        }
+
+        return $entry;
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @param array $identifiers
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @return static|null
+     */
+    public static function find(array $identifiers, bool $meta_enabled = false, bool $force = false): ?static
+    {
+        if (!$identifiers) {
+            // No identifiers specified, return an empty object
+            throw DataEntryNotExistsException::new(tr('Cannot find ":class" objects, no identifiers specified', [
+                ':class'      => static::getClassName(),
+            ]));
+        }
+
+        // Build the find query, and execute it
+        $builder = QueryBuilder::new()
+            ->setMetaEnabled($meta_enabled)
+//            ->setDatabaseConnectorName()
+            ->addFrom(static::getTable())
+            ->addSelect('`' . static::getTable() . '`.*');
+
+        foreach ($identifiers as $column => $identifier) {
+            $builder->addWhere('`' . $column . '` = :' . $column, [':' . $column => $identifier]);
+        }
+
+        $entry = $builder->get();
+
+        if (!$entry) {
+            return null;
+        }
+
+        $entry = static::fromSource($entry);
+
+        if ($entry->isDeleted() and !$force) {
+            // This entry has been deleted and can only be viewed by user with the "deleted" right
+            if (!Session::getUser()->hasAllRights('deleted')) {
+                throw DataEntryDeletedException::new(tr('The ":class" with identifiers ":identifiers" is deleted', [
+                    ':class'       => static::getClassName(),
+                    ':identifiers' => $identifiers
+                ]));
             }
         }
 
@@ -1634,7 +1705,7 @@ abstract class DataEntry implements DataEntryInterface
             $this->setMetaData($source)->copyValuesToSource($source, false);
         }
 
-        $this->is_modified = false;
+        $this->is_modified = true;
         $this->is_loading  = false;
         $this->is_saved    = false;
         return $this;
@@ -2073,11 +2144,12 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @param string|null $key_header
      * @param string|null $value_header
-     * @return void
+     * @return static
      */
-    public function getCliForm(?string $key_header = null, ?string $value_header = null): void
+    public function displayCliForm(?string $key_header = null, ?string $value_header = null): static
     {
         Cli::displayForm($this->source, $key_header, $value_header);
+        return $this;
     }
 
 
