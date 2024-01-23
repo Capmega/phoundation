@@ -266,12 +266,12 @@ class Plugins extends Project
         Project::new()->updateLocalProject($branch, $message, $sign);
 
         // Detect Phoundation plugins installation and ensure its clean and on the right branch
-        $this->selectPhoundationBranch($branch)->ensureNoChanges();
+        $this->selectPluginsBranch($branch)->ensureNoChanges();
 
         try {
             // Execute the patching
             $stash    = new Iterator();
-            $sections = ['Phoundation', 'Plugins/Phoundation'];
+            $sections = ['Plugins'];
 
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
