@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
@@ -337,5 +338,37 @@ class PostValidator extends Validator
         }
 
         return $value;
+    }
+
+
+    /**
+     * Clears the internal POST array
+     *
+     * @return void
+     */
+    public function clear(): void
+    {
+        static::$post = [];
+        parent::clear();
+    }
+
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * Will throw a PostValidationFailedException if validation fails
+     *
+     * @param bool $clean_source
+     * @return array
+     * @throws PostValidationFailedException
+     */
+    public function validate(bool $clean_source = true): array
+    {
+        try {
+            return parent::validate($clean_source);
+
+        } catch (ValidationFailedException $e) {
+            throw new PostValidationFailedException($e);
+        }
     }
 }
