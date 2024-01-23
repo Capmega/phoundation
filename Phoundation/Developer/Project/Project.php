@@ -824,7 +824,7 @@ $skip = false;
 //            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
 
             // Copy new core library versions
-            Log::action('Updating Phoundation libraries');
+            Log::action('Updating Phoundation core libraries');
             Rsync::new()
                 ->setSource($phoundation->getDirectory() . 'Phoundation/')
                 ->setTarget(DIRECTORY_ROOT . 'Phoundation')
@@ -914,7 +914,7 @@ $skip = false;
             Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
 
             // Copy new plugin versions
-            Log::action('Updating Phoundation libraries');
+            Log::action('Updating Phoundation plugins');
             Rsync::new()
                 ->setSource($plugins->getDirectory())
                 ->setExclude(['Phoundation', '.git', '.gitignore'])
