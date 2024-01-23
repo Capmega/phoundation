@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Plugins;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 
@@ -50,4 +50,4 @@ $argv = ArgvValidator::new()
 
 
 // Copy the file
-Phoundation::new()->copy($argv['file'], $argv['branch'], !$argv['allow_changes']);
+Plugins::new()->copy($argv['file'], $argv['branch'], !$argv['allow_changes']);

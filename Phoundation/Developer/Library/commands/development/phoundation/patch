@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Plugins;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Utils\Arrays;
 
@@ -39,7 +40,7 @@ ARGUMENTS
 
 
 
--b / --branch                           The branch from which to update
+[-b / --branch]                         The branch from which to update
 
 [-c / --no-checkout]                    If specified will not automatically checkout (and thus remove) the local changes
 
@@ -48,7 +49,9 @@ ARGUMENTS
 [-s / --signed]                         If specified will make a signed commit. This requires your git setup to be
                                         configured correctly for this
 
-[-p / --phoundation]                    If specified should contain the path to your local Phoundation installation');
+[-p / --phoundation PATH]               If specified should contain the path to your local Phoundation installation
+
+[-n / --no-plugins]                     If specified will not patch the plugins');
 
 
 
@@ -59,6 +62,7 @@ $argv = ArgvValidator::new()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
     ->select('-s,--signed')->isOptional()->isBoolean()
+    ->select('-n,--no-plugins')->isOptional()->isBoolean()
     ->validate();
 
 
@@ -67,7 +71,15 @@ Log::information(tr('Copying local changes in ":project" project back to your Ph
 ]));
 
 try {
+    Log::action('Patching Phoundation core libraries');
     Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+
+    if (!$argv['no_plugins']) {
+        Log::warning('Not patching plugins');
+    } else {
+        Log::action('Patching plugins');
+        Plugins::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+    }
 
 }catch (GitPatchException|PatchPartiallySuccessfulException $e) {
     $files = $e->getData();
