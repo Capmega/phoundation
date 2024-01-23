@@ -919,7 +919,6 @@ $skip = false;
                 ->setSource($plugins->getDirectory())
                 ->setExclude(['Phoundation', '.git', '.gitignore'])
                 ->setTarget(DIRECTORY_ROOT . 'Plugins')
-                ->setDelete(true)
                 ->execute();
 
             // Switch phoundation back to its previous branch
