@@ -212,16 +212,29 @@ class Rsync extends Command implements RsyncInterface
     /**
      * Adds the specified paths to the list that will be excluded
      *
-     * @param array|string $directories
+     * @param array|string $paths
      * @return static
      */
-    public function addExclude(array|string $directories): static
+    public function addExclude(array|string $paths): static
     {
-        foreach (Arrays::force($directories) as $directory) {
-            $this->exclude[] = $directory;
+        foreach (Arrays::force($paths) as $path) {
+            $this->exclude[] = $path;
         }
 
         return $this;
+    }
+
+
+    /**
+     * Sets the specified paths to the list that will be excluded
+     *
+     * @param array|string $paths
+     * @return static
+     */
+    public function setExclude(array|string $paths): static
+    {
+        $this->exclude = [];
+        return $this->addExclude($paths);
     }
 
 

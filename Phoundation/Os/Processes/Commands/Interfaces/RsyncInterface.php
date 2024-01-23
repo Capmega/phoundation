@@ -65,10 +65,18 @@ interface RsyncInterface
     /**
      * Adds the specified paths to the list that will be excluded
      *
-     * @param array|string $directories
+     * @param array|string $paths
      * @return static
      */
-    public function addExclude(array|string $directories): static;
+    public function addExclude(array|string $paths): static;
+
+    /**
+     * Sets the specified paths to the list that will be excluded
+     *
+     * @param array|string $paths
+     * @return static
+     */
+    public function setExclude(array|string $paths): static;
 
     /**
      * Returns if archive mode should be used
