@@ -917,7 +917,7 @@ $skip = false;
             Log::action('Updating Phoundation libraries');
             Rsync::new()
                 ->setSource($plugins->getDirectory())
-                ->setExclude($plugins->getDirectory() . 'Phoundation')
+                ->setExclude([$plugins->getDirectory() . 'Phoundation', $plugins->getDirectory() . '.git'])
                 ->setTarget(DIRECTORY_ROOT . 'Plugins')
                 ->setDelete(true)
                 ->execute();
