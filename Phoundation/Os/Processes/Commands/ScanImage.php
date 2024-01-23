@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Plugins\Hardware\Devices\Interfaces\DeviceInterface;
+use Plugins\Hardware\Devices\Interfaces\ProfileInterface;
+use Plugins\Scanners\Exception\ScannersException;
 
 
 /**
@@ -23,6 +28,14 @@ use Phoundation\Utils\Strings;
  */
 class ScanImage extends Command
 {
+    /**
+     * The profile with which to scan
+     *
+     * @var ProfileInterface $profile
+     */
+    protected ProfileInterface $profile;
+
+
     /**
      * Returns a list of all available hardware devices
      *
@@ -231,18 +244,18 @@ $output = Arrays::force($output, PHP_EOL);
                 $section = trim($section);
 
                 if (preg_match_all('/^([a-z ]+\|?)+/i', $section, $matches)) {
-                    $entry['values'] = trim($matches[0][0]);
+                    $entry['values'] = str_replace('|', ',', trim($matches[0][0]));
 
                     $section = Strings::from($section, $matches[0][0]);
 
                 } elseif (preg_match_all('/^([0-9-.]+\.\.[0-9-.]+)([a-z%]+)?\s+/', $section, $matches)) {
-                    $entry['range'] = $matches[1][0];
+                    $entry['range'] = str_replace('..', '...', $matches[1][0]);
                     $entry['units'] = $matches[2][0];
 
                     $section = Strings::from($section, $matches[0][0]);
 
                 } elseif (preg_match_all('/^\[=\((.+?)\)]/', $section, $matches)) {
-                    $entry['values'] = trim($matches[1][0]);
+                    $entry['values'] = str_replace('|', ',', trim($matches[1][0]));
 
                     $section = Strings::from($section, $matches[0][0]);
 
@@ -280,13 +293,47 @@ $output = Arrays::force($output, PHP_EOL);
 
 
     /**
+     * Returns the profile used to scan images
+     *
+     * @param ProfileInterface $profile
+     * @return ProfileInterface|null
+     */
+    public function getProfile(ProfileInterface $profile): ?ProfileInterface
+    {
+        return $this->profile;
+    }
+
+
+    /**
+     * Applies the specified scanner profile to this ScanImage object so that the scan() call knows what to do
+     *
+     * @param ProfileInterface $profile
+     * @return $this
+     */
+    public function setProfile(ProfileInterface $profile): static
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
+
+    /**
      * Execute the configured scan
      *
      * @param EnumExecuteMethodInterface $method
-     * @return string|int|bool|array|null
+     * @return static
      */
-    public function scan(EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): string|int|bool|array|null
+    public function scan(EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): static
     {
+        if (empty($this->profile)) {
+            throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
+        }
 
+        $this->setCommand('scanimage')
+             ->addArguments(['-d', $this->profile->getDevice()->getUrl()])
+             ->setTimeout(120)
+             ->executeReturnArray();
+
+        return $this;
     }
 }
