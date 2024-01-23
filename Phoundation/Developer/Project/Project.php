@@ -899,7 +899,7 @@ $skip = false;
 
         } catch (ProcessFailedException $e) {
             // TODO Check if it actually does not exist or if there is another problem!
-            throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation branch ":branch", it does not exist', [
+            throw new PhoundationBranchNotExistException(tr('Cannot switch to Phoundation plugins branch ":branch", it does not exist', [
                 ':branch' => $branch
             ]), $e);
         }
@@ -919,7 +919,8 @@ $skip = false;
             // Copy new core library versions
             Log::action('Updating Phoundation libraries');
             Rsync::new()
-                ->setSource($plugins->getDirectory() . 'Phoundation/')
+                ->setSource($plugins->getDirectory())
+                ->setExclude($plugins->getDirectory() . 'Phoundation')
                 ->setTarget(DIRECTORY_ROOT . 'Phoundation')
                 ->setDelete(true)
                 ->execute();
