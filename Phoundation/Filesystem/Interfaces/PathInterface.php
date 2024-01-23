@@ -634,4 +634,18 @@ interface PathInterface
      * @return $this
      */
     public function checkRestrictions(bool $write): static;
+
+    /**
+     * Returns true if this path can be read
+     *
+     * @return bool
+     */
+    public function isReadable(): bool;
+
+    /**
+     * Returns true if this path can be written
+     *
+     * @return bool
+     */
+    public function isWritable(): bool;
 }

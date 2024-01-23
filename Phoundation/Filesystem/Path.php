@@ -593,6 +593,32 @@ class Path implements Stringable, PathInterface
 
 
     /**
+     * Returns true if this path can be read
+     *
+     * @return bool
+     */
+    public function isReadable(): bool
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions(false);
+        return is_readable($this->path);
+    }
+
+
+    /**
+     * Returns true if this path can be written
+     *
+     * @return bool
+     */
+    public function isWritable(): bool
+    {
+        // Check filesystem restrictions
+        $this->checkRestrictions(false);
+        return is_writable($this->path);
+    }
+
+
+    /**
      * Check if the object file exists and is writable. If not both, an exception will be thrown
      *
      * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
