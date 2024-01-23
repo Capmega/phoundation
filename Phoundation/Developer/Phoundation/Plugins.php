@@ -256,14 +256,14 @@ class Plugins extends Project
 
         $branch = $this->defaultBranch($branch);
 
-        Log::action(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
+        Log::action(tr('Patching branch ":branch" on your local Phoundation plugins repository from this project', [
             ':branch' => $branch
         ]));
 
 
         // Reset local project to HEAD and update
         Project::new()->resetHead();
-        Project::new()->updateLocalProject($branch, $message, $sign);
+        Project::new()->updateLocalProjectPlugins($branch, $message, $sign);
 
         // Detect Phoundation plugins installation and ensure its clean and on the right branch
         $this->selectPluginsBranch($branch)->ensureNoChanges();
