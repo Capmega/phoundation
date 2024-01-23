@@ -639,7 +639,7 @@ class Project implements ProjectInterface
 
             // Cache ALL Phoundation files to avoid code incompatibility after update, then copy Phoundation core files
             $this->cacheLibraries($skip_caching)
-                ->copyPluginsFilesLocal($phoundation_path, $branch);
+                 ->copyPluginsFilesLocal($phoundation_path, $branch);
 
             // If there are changes, then add and commit
             if ($this->git->getStatus()->getCount()) {
@@ -913,37 +913,19 @@ $skip = false;
         try {
             Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
 
-//            $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
-//            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
-
-            // Copy new core library versions
+            // Copy new plugin versions
             Log::action('Updating Phoundation libraries');
             Rsync::new()
                 ->setSource($plugins->getDirectory())
                 ->setExclude($plugins->getDirectory() . 'Phoundation')
-                ->setTarget(DIRECTORY_ROOT . 'Phoundation')
+                ->setTarget(DIRECTORY_ROOT . 'Plugins')
                 ->setDelete(true)
                 ->execute();
-
-//            // All is well? Get rid of the garbage
-//            $files['phoundation']->delete();
-//            $files['templates']->delete();
 
             // Switch phoundation back to its previous branch
             $plugins->switchBranch();
 
         } catch (Throwable $e) {
-//            //  Move Phoundation files back again
-//            if (isset($files['phoundation'])) {
-//                Log::warning(tr('Moving Phoundation core libraries back from garbage'));
-//                $files['phoundation']->move(DIRECTORY_ROOT . 'Phoundation/');
-//            }
-//
-//            if (isset($files['templates'])) {
-//                Log::warning(tr('Moving Template core scripts back from garbage'));
-//                $files['templates']->move(DIRECTORY_ROOT . 'Templates/');
-//            }
-
             throw $e;
         }
     }

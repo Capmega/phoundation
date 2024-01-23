@@ -223,7 +223,7 @@ class Plugins extends Project
      */
     public function copy(string $file, ?string $branch, bool $require_no_changes = true): void
     {
-        $this->selectPhoundationBranch($this->defaultBranch($branch));
+        $this->selectPluginsBranch($this->defaultBranch($branch));
         $this->ensureNoChanges(!$require_no_changes);
 
         $source = Filesystem::absolute($file, DIRECTORY_ROOT);
