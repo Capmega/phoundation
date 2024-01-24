@@ -2078,7 +2078,27 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            $this->matchesRegex('/^[a-z_]+$/i');
+            $this->matchesRegex('/^[a-z][a-z0-9_.]*$/i');
+        });
+    }
+
+
+    /**
+     * Validates if the selected field is a valid variable name or label
+     *
+     * @return static
+     */
+    public function isVariableName(): static
+    {
+        return $this->validateValues(function(&$value) {
+            $this->hasMinCharacters(2)->hasMaxCharacters(32);
+
+            if ($this->process_value_failed) {
+                // Validation already failed, don't test anything more
+                return;
+            }
+
+            $this->matchesRegex('/^[a-z0-9][a-z0-9_.]*$/i');
         });
     }
 
