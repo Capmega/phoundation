@@ -87,9 +87,9 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Tracks if entries are stored by id or unique column
      *
-     * @var bool $store_with_unique_column
+     * @var bool $id_is_unique_column
      */
-    protected bool $store_with_unique_column = false;
+    protected bool $id_is_unique_column = false;
 
 
     /**
@@ -159,21 +159,21 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return bool
      */
-    public function getStoreWithUniqueColumn(): bool
+    public function getUniqueColumnIsidIsuniquecolumn(): bool
     {
-        return $this->store_with_unique_column;
+        return $this->id_is_unique_column;
     }
 
 
     /**
      * Sets if the DataEntry entries are stored with ID or key
      *
-     * @param bool $store_with_unique_column
+     * @param bool $id_is_unique_column
      * @return static
      */
-    public function setStoreWithUniqueColumn(bool $store_with_unique_column): static
+    public function setUniqueColumnIsidIsuniquecolumn(bool $id_is_unique_column): static
     {
-        $this->store_with_unique_column = $store_with_unique_column;
+        $this->id_is_unique_column = $id_is_unique_column;
         return $this;
     }
 
@@ -673,8 +673,33 @@ abstract class DataList extends Iterator implements DataListInterface
 
         } elseif (!isset($this->query)) {
             // Default query
-            $this->query = 'SELECT * FROM `' . static::getTable() . '` WHERE `status` IS NULL';
+            $this->query = 'SELECT  ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+                            FROM   `' . static::getTable() . '`
+                            WHERE  `' . static::getTable() . '`.`status` IS NULL';
         }
+    }
+
+
+    /**
+     * Returns the column that (by default) is used for keys
+     *
+     * @return string
+     */
+    protected function getKeyColumn(): string
+    {
+        if ($this->id_is_unique_column) {
+            $column = static::getUniqueColumn();
+
+            if (!$column) {
+                throw new OutOfBoundsException(tr('The DataList type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
+                    ':class' => get_class($this)
+                ]));
+            }
+
+            return '`' . static::getTable() . '`.`' . $column . '`';
+        }
+
+        return '`' . static::getTable() . '`.`id`';
     }
 
 
@@ -689,10 +714,10 @@ abstract class DataList extends Iterator implements DataListInterface
         $this->selectQuery();
 
         if ($clear or empty($this->source)) {
-            $this->source = sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_column ? static::getUniqueColumn() : 'id');
+            $this->source = sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id');
 
         } else {
-            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->store_with_unique_column ? static::getUniqueColumn() : 'id'));
+            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id'));
         }
 
         return $this;

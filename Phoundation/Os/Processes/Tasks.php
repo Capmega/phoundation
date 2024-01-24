@@ -54,7 +54,7 @@ class Tasks extends DataList implements TasksInterface
             static::$max_task_workers = Config::getInteger('tasks.workers.maximum', 25);
         }
 
-        $this->store_with_unique_column = true;
+        $this->id_is_unique_column = true;
 
         parent::__construct($source);
     }
