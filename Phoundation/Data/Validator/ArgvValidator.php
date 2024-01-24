@@ -110,11 +110,42 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
         }
 
+        // Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
+        $argv = static::expandSingleDashMultipleLetters($argv);
+
         // Copy $argv data and reset the global $argv
         static::$argv   = $argv;
         static::$backup = $argv;
 
         $argv = [];
+    }
+
+
+    /**
+     * Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
+     *
+     * @param array $argv
+     * @return array
+     */
+    protected static function expandSingleDashMultipleLetters(array $argv): array
+    {
+        $return = [];
+
+        foreach ($argv as $value) {
+            if (preg_match('/^-[a-z]+$/', $value)) {
+                // Expand
+                $length = strlen($value);
+
+                for($i = 1; $i < $length; $i++) {
+                    $return[] = '-' . $value[$i];
+                }
+
+            } else {
+                $return[] = $value;
+            }
+        }
+
+        return $return;
     }
 
 
