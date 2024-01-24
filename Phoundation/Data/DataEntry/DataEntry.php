@@ -218,6 +218,17 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Return the object contents in JSON string format
      *
+     * @return void
+     */
+    public function __clone(): void
+    {
+        unset($this->source['id']);
+    }
+
+
+    /**
+     * Return the object contents in JSON string format
+     *
      * @return string
      */
     public function __toString(): string
@@ -712,9 +723,10 @@ abstract class DataEntry implements DataEntryInterface
      * @param array $identifiers
      * @param bool $meta_enabled
      * @param bool $force
+     * @param bool $exception
      * @return static|null
      */
-    public static function find(array $identifiers, bool $meta_enabled = false, bool $force = false): ?static
+    public static function find(array $identifiers, bool $meta_enabled = false, bool $force = false, bool $exception = true): ?static
     {
         if (!$identifiers) {
             // No identifiers specified, return an empty object
@@ -737,11 +749,21 @@ abstract class DataEntry implements DataEntryInterface
         $entry = $builder->get();
 
         if (!$entry) {
+            // This entry does not exist. Exception or return NULL?
+            if ($exception) {
+                throw DataEntryNotExistsException::new(tr('The ":class" with identifiers ":identifiers" does not exist', [
+                    ':class'       => static::getClassName(),
+                    ':identifiers' => $identifiers
+                ]));
+            }
+
             return null;
         }
 
+        // The requested entry DOES exist! Create a new DataEntry object!
         $entry = static::fromSource($entry);
 
+        // Is it deleted tho?
         if ($entry->isDeleted() and !$force) {
             // This entry has been deleted and can only be viewed by user with the "deleted" right
             if (!Session::getUser()->hasAllRights('deleted')) {
@@ -2323,7 +2345,7 @@ abstract class DataEntry implements DataEntryInterface
             return $return;
         }
 
-        throw new OutOfBoundsException(tr('Failed to access DataEntry type ":type", an identifier ":identifier" was specified without column, the identifier is not numeric and the DataEntry object has no unique column specified', [
+        throw new OutOfBoundsException(tr('Failed to access ":type" type DataEntry because identifier ":identifier" was specified without column, the identifier is not numeric and the DataEntry object has no unique column specified', [
             ':type'       => static::getDataEntryName(),
             ':identifier' => $identifier
         ]));

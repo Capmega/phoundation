@@ -426,4 +426,28 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return static
      */
     public function setSource(Iterator|array $source): static;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @param array $identifiers
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @param bool $exception
+     * @return static|null
+     */
+    public static function find(array $identifiers, bool $meta_enabled = false, bool $force = false, bool $exception = true): ?static;
 }
