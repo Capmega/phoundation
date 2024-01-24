@@ -363,6 +363,8 @@ class CliAutoComplete
 
             // Process results only if we have any
             if (isset($results)) {
+                sort($results);
+
                 foreach ($results as $result) {
                     echo (string) $result . PHP_EOL;
                 }
