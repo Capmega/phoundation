@@ -42,11 +42,10 @@ FILE                                    The file to copy
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('file')->isFile(Directory::default(DIRECTORY_ROOT), Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source file')))
-    ->select('-b,--branch', true)->isOptional()->isVariable()
+    ->select('-b,--branch', true)->isOptional()->isVariableName()
     ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
+    ->selectAll('files')->each()->isFile(Directory::default(DIRECTORY_ROOT), Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source file')))
     ->validate();
 
-
 // Copy the file
-Phoundation::new()->copy($argv['file'], $argv['branch'], !$argv['allow_changes']);
+Phoundation::new()->copy($argv['files'], $argv['branch'], !$argv['allow_changes']);

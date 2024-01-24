@@ -226,26 +226,36 @@ class Phoundation extends Project
     /**
      * Copies only the specified file back to Phoundation
      *
-     * @param string $file
+     * @param array|string $files
      * @param string|null $branch
      * @param bool $require_no_changes
      * @return void
      */
-    public function copy(string $file, ?string $branch, bool $require_no_changes = true): void
+    public function copy(array|string $files, ?string $branch, bool $require_no_changes = true): void
     {
         $this->selectPhoundationBranch($this->defaultBranch($branch));
         $this->ensureNoChanges(!$require_no_changes);
 
-        $source = Filesystem::absolute($file, DIRECTORY_ROOT);
-        $file = Strings::from($source, DIRECTORY_ROOT);
+        $files = Arrays::force($files);
 
-        if (!file_exists($source)) {
-            throw new FileNotExistException(tr('The specified file ":file" does not exist', [
-                ':file' => $file
-            ]));
+        // Ensure specified source files exist and make files absolute
+        foreach ($files as $id => $file) {
+            $source = Filesystem::absolute($file, DIRECTORY_ROOT);
+
+            if (!file_exists($source)) {
+                throw new FileNotExistException(tr('The specified file ":file" does not exist', [
+                    ':file' => $file
+                ]));
+            }
+
+            $files[$id] = $source;
         }
 
-        Cp::new()->archive($source, Restrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $file, Restrictions::new($this->getDirectory(), true));
+        // Copy files
+        foreach (Arrays::force($files) as $file) {
+            $target = Strings::from($file, DIRECTORY_ROOT);
+            Cp::new()->archive($file, Restrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $target, Restrictions::new($this->getDirectory(), true));
+        }
     }
 
 
