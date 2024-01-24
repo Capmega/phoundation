@@ -385,7 +385,7 @@ class Plugins extends Project
      */
     public function isPhoundationPlugins(string $directory): bool
     {
-        return Directory::new($directory . 'Backups', $this->restrictions)->isReadable();
+        return Directory::new($directory . 'Plugins', $this->restrictions)->isReadable();
     }
 
 
