@@ -414,7 +414,11 @@ class CliCommand
      */
     public static function getCommandsString(): string
     {
-        return implode(' ', static::$commands);
+        if (static::$commands) {
+            return implode(' ', static::$commands);
+        }
+
+        return 'N/A';
     }
 
 
