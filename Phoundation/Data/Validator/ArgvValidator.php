@@ -132,7 +132,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $return = [];
 
         foreach ($argv as $value) {
-            if (preg_match('/^-[a-z]+$/', $value)) {
+            if (preg_match('/^-[a-z]+$/i', $value)) {
                 // Expand
                 $length = strlen($value);
 
@@ -161,13 +161,30 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Selects the specified key within the array that we are validating
+     * Check if selecting is allowed
      *
-     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
-     * @param string|bool $next
-     * @return static
+     * @return void
      */
-    public function select(string|int $fields, string|bool $next = false): static
+    protected function checkSelectAllowed(bool $selecting_all): void
+    {
+        static $select_allowed = true;
+
+        if (!$select_allowed) {
+            throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll()'));
+        }
+
+        // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
+        $select_allowed = !$selecting_all;
+    }
+
+
+    /**
+     * Initializes a select() request
+     *
+     * @param string|int $fields
+     * @return string
+     */
+    protected function initSelect(string|int $fields, string|bool $next = false): string
     {
         if ($this->source === null) {
             throw new OutOfBoundsException(tr('Cannot select fields ":fields", no source array specified', [
@@ -193,8 +210,97 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->cli_fields           = $fields;
         $this->next                 = $next;
 
+        return $fields;
+    }
+
+
+    /**
+     * Selects all arguments
+     *
+     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     * @return static
+     */
+    public function selectAll(string|int $fields): static
+    {
+        // Check if we can select
+        static::checkSelectAllowed(true);
+
+        // Initialize select
+        $fields      = static::initSelect($fields);
         $clean_field = null;
-        $field       = null;
+
+        // Determine the correct clean field name for the specified argument field
+        foreach (Arrays::force($fields, ',') as $field) {
+            // Clean the field by stripping parameter information
+            $field       = trim($field);
+            $clean_field = Strings::until($field, ' ');
+
+            if (str_starts_with($clean_field, '--')) {
+                // This is the long form argument
+                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                break;
+            }
+
+            if (str_starts_with($clean_field, '-')) {
+                // This is the short form argument, won't be a variable name unless there is no alternative
+                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                continue;
+            }
+
+            // This is not a modifier field but a command or value argument instead. Do not modify the field name
+            // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
+            // available argument
+            $clean_field = $fields;
+            $fields      = null;
+        }
+
+        if (!$clean_field) {
+            throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
+                ':field' => $field
+            ]));
+        }
+
+        // Get the value from the argument list
+        $value = static::$argv;
+        static::$argv = [];
+
+        // Add the cleaned field to the source array
+        $this->source[$clean_field] = $value;
+
+        if (in_array($clean_field, $this->selected_fields)) {
+            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
+                ':key' => $clean_field
+            ]));
+        }
+
+        // Select the field.
+        $this->selected_field    = $clean_field;
+        $this->selected_fields[] = $clean_field;
+        $this->selected_value    = &$this->source[$clean_field];
+        $this->process_values    = [null => &$this->selected_value];
+        $this->selected_optional = null;
+
+        return $this;
+    }
+
+
+    /**
+     * Selects the specified key within the command line arguments that we are validating
+     *
+     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|bool $next
+     * @return static
+     */
+    public function select(string|int $fields, string|bool $next = false): static
+    {
+        // Check if selecting is allowed
+        static::checkSelectAllowed(false);
+
+        // Initialize select
+        $fields      = $this->initSelect($fields, $next);
+        $clean_field = null;
 
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
@@ -238,18 +344,18 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $value = null;
         }
 
-        if (!$field and str_starts_with((string) $value, '-')) {
-            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
-            // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
-            // the value back on the arguments list
-            static::$argv[] = $value;
-            $value = null;
-        }
-
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
                 ':key' => $clean_field
             ]));
+        }
+
+        if (!$field and str_starts_with((string) $value, '-')) {
+            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can't
+            // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
+            // the value back on the arguments list
+            static::$argv[] = $value;
+            $value = null;
         }
 
         // Add the cleaned field to the source array
