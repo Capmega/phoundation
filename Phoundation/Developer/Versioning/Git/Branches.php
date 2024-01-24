@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Os\Processes\Process;
 
 
@@ -22,33 +26,37 @@ use Phoundation\Os\Processes\Process;
  */
 class Branches extends Iterator
 {
-    use GitProcess;
+    use GitProcess {
+        setDirectory as protected setGitDirectory;
+    }
 
 
     /**
-     * Returns a list of all available branches for this GIT path
+     * Returns the directory for this ChangedFiles object
      *
-     * @return array
+     * @param string $directory
+     * @return static
      */
-    public function getSource(): array
+    public function setDirectory(string $directory): static
     {
-        if (!$this->source) {
-            $results = Process::new('git')->setExecutionDirectory($this->directory)
-                ->addArgument('branch')
-                ->addArgument('--quiet')
-                ->addArgument('--no-color')
-                ->executeReturnArray();
+        $this->setGitDirectory($directory);
 
-            foreach ($results as $line) {
-                if (str_starts_with($line, '*')) {
-                    $this->source[substr($line, 2)] = true;
-                } else {
-                    $this->source[substr($line, 2)] = false;
-                }
+        $results = Process::new('git')->setExecutionDirectory($this->directory)
+            ->addArgument('branch')
+            ->addArgument('--quiet')
+            ->addArgument('--no-color')
+            ->executeReturnArray();
+
+        foreach ($results as $line) {
+            if (str_starts_with($line, '*')) {
+                $this->source[substr($line, 2)] = true;
+
+            } else {
+                $this->source[substr($line, 2)] = false;
             }
         }
 
-        return $this->source;
+        return $this;
     }
 
 
