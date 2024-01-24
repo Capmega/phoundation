@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Phoundation;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Phoundation\Exception\IsPhoundationException;
 use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
@@ -461,6 +462,18 @@ class Phoundation extends Project
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns an Iterator object containing all the available Phoundation branches
+     *
+     * @return IteratorInterface
+     */
+    public function getPhoundationBranches(): IteratorInterface
+    {
+        // Ensure phoundation is on the right branch
+        return $this->git->getBranches();
     }
 
 
