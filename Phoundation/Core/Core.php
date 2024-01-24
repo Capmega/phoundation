@@ -897,11 +897,11 @@ class Core implements CoreInterface
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
-            $argv['log_level'] = 10;
-            $argv['no_color'] = true;
+            $argv['log_level']     = 10;
+            $argv['no_color']      = true;
             $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
 
-            $location = (int)array_shift($argv['auto_complete']);
+            $location = (int) array_shift($argv['auto_complete']);
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);
