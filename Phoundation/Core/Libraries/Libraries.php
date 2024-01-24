@@ -541,7 +541,7 @@ class Libraries
      */
     public static function rebuildCommandCache(): void
     {
-        Log::action(tr('Rebuilding command cache'), 3, echo_screen: false);
+        Log::action(tr('Rebuilding command cache'), 4, echo_screen: false);
 
         $temporary = Directory::newTemporary();
         $commands  = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS));
@@ -554,7 +554,7 @@ class Libraries
         $commands->replaceWithPath($temporary);
 
         static::$cache_has_been_rebuilt = true;
-        Log::success(tr('Finished rebuilding command cache'), 4, echo_screen: false);
+        Log::success(tr('Finished rebuilding command cache'), 5, echo_screen: false);
     }
 
 
