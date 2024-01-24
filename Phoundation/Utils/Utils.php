@@ -169,6 +169,8 @@ class Utils {
      */
     protected static function testStringMatchesNeedles(Stringable|string $haystack, array $needles, array $flags): bool
     {
+        $result = true;
+
         // Compare to each needle
         foreach ($needles as $needle) {
             if ($flags['match_begin']) {
@@ -178,7 +180,8 @@ class Utils {
                         return true;
                     }
 
-                    continue;
+                } else {
+                    $result = false;
                 }
 
             } elseif ($flags['match_end']) {
@@ -188,7 +191,8 @@ class Utils {
                         return true;
                     }
 
-                    continue;
+                } else {
+                    $result = false;
                 }
 
             } else {
@@ -198,16 +202,12 @@ class Utils {
                         return true;
                     }
 
-                    continue;
+                } else {
+                    $result = false;
                 }
-            }
-
-            // This needle failed to match
-            if ($flags['match_all']) {
-                return false;
             }
         }
 
-        return true;
+        return $result;
     }
 }

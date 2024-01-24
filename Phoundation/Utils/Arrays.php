@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use GeoIp2\Util;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -131,7 +132,7 @@ class Arrays extends Utils
 
         if (isset($next)) {
             // The current value was found, but it was at the end of the array
-            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [
+            throw new OutOfBoundsException(tr('Option ":value" does not have a required value specified, see --help or --usage', [
                 ':value' => $current_value
             ]));
         }
@@ -2885,7 +2886,7 @@ class Arrays extends Utils
      * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
      * @return array
      */
-    public static function getMatches(array $haystack, array|string $needles, int $options = self::MATCH_NO_CASE | self::MATCH_ALL | self::MATCH_ANYWHERE | self::MATCH_RECURSE): array
+    public static function getMatches(array $haystack, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_RECURSE): array
     {
         $flags   = static::decodeMatchOptions($options, true);
         $needles = static::checkRequiredNeedles($needles, $flags['match_no_case']);
