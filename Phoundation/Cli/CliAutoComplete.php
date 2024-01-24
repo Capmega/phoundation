@@ -8,6 +8,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\AutoCompleteException;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
@@ -363,10 +364,10 @@ class CliAutoComplete
             // Process results only if we have any
             if (isset($results)) {
                 foreach ($results as $result) {
-                    echo $result . PHP_EOL;
+                    echo (string) $result . PHP_EOL;
                 }
 
-                // Die here as we have echoed results!
+                // Die here as we have echoed the results!
                 exit();
             }
         }
@@ -555,20 +556,20 @@ complete -F _phoundation pho');
     /**
      * Process the specified definition
      *
-     * @param string|null $word
      * @param mixed $definition
-     * @return array|string|null
+     * @param string|null $word
+     * @return IteratorInterface|array|string|null
      */
-    protected static function processDefinition(mixed $definition, ?string $word): array|string|null
+    protected static function processDefinition(mixed $definition, ?string $word): IteratorInterface|array|string|null
     {
-        // If no definitions were given we're done
+        // If no definitions were given, we're done
         if (is_null($definition)) {
             return null;
         }
 
-        // If the given definition was a function we can just return the result
+        // If the given definition was a function, we can just return the result
         if (is_callable($definition)) {
-            $results = $definition($word);
+            $results = $definition($word, ArgvValidator::getArguments());
 
             if (is_array($results)) {
                 // Limit the number of results
