@@ -16,6 +16,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Utils;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -406,30 +407,13 @@ class Iterator implements IteratorInterface
     /**
      * Returns a list with all the keys that match the specified key
      *
-     * @param array|string $keys
-     * @return array
+     * @param array|string $needles
+     * @param int $options
+     * @return IteratorInterface
      */
-    public function getMatchingKeys(array|string $keys): array
+    public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface
     {
-        $return = [];
-
-        foreach (Arrays::force($keys) as $key) {
-            if (empty($key)) {
-                throw new OutOfBoundsException(tr('Empty key specified while getting matching keys for ":this"', [
-                    ':this' => get_class($this)
-                ]));
-            }
-
-            $key = strtolower((string) $key);
-
-            foreach ($this->getSource() as $value) {
-                if (str_contains(strtolower(trim($value)), $key)) {
-                    $return[] = $value;
-                }
-            }
-        }
-
-        return $return;
+        return new Iterator(Arrays::getMatches($this->getKeys(), $needles, $options));
     }
 
 
@@ -439,9 +423,9 @@ class Iterator implements IteratorInterface
      * @param Stringable|string|float|int $key
      * @param array|string $columns
      * @param bool $exception
-     * @return mixed
+     * @return IteratorInterface
      */
-    #[ReturnTypeWillChange] public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface
     {
         if (!$columns) {
             throw new OutOfBoundsException(tr('Cannot return source key columns for ":this", no columns specified', [
@@ -452,7 +436,7 @@ class Iterator implements IteratorInterface
         $value = $this->get($key, $exception);
         $value = $this->validateValue($value, $columns);
 
-        return Arrays::keepKeys($value, $columns);
+        return new Iterator(Arrays::keepKeys($value, $columns));
     }
 
 
@@ -474,7 +458,7 @@ class Iterator implements IteratorInterface
 
         $value = $this->get($key, $exception);
         $value = $this->validateValue($value, $column);
-        $value = Arrays::keepKeys($value, $column, true);
+        $value = Arrays::keepKeys($value, $column);
 
         return $value[$column];
     }
@@ -489,13 +473,13 @@ class Iterator implements IteratorInterface
      * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
      *
      * @param array|string|null $columns
-     * @return array
+     * @return IteratorInterface
      */
-    public function getSourceColumns(array|string|null $columns): array
+    public function getSourceColumns(array|string|null $columns): IteratorInterface
     {
         if (!$columns) {
             // Return all columns
-            return $this->source;
+            return new Iterator($this->source);
         }
 
         // Already ensure columns is an array here to avoid Arrays::keep() having to convert all the time, just in case.
@@ -503,11 +487,11 @@ class Iterator implements IteratorInterface
         $columns = Arrays::force($columns);
 
         foreach ($this->source as $key => $value) {
-            $value = $this->validateValue($value, $columns);
+            $value        = $this->validateValue($value, $columns);
             $return[$key] = Arrays::keepKeys($value, $columns);
         }
 
-        return $return;
+        return new Iterator($return);
     }
 
 
@@ -518,9 +502,9 @@ class Iterator implements IteratorInterface
      *       OutOfBoundsException
      *
      * @param string $column
-     * @return array
+     * @return IteratorInterface
      */
-    public function getSourceColumn(string $column): array
+    public function getSourceColumn(string $column): IteratorInterface
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
@@ -531,11 +515,11 @@ class Iterator implements IteratorInterface
         $return = [];
 
         foreach ($this->source as $key => $value) {
-            $value = $this->validateValue($value, $column);
+            $value        = $this->validateValue($value, $column);
             $return[$key] = $value[$column];
         }
 
-        return $return;
+        return new Iterator($return);
     }
 
 

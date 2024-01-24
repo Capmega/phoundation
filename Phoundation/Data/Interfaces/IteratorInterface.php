@@ -7,6 +7,7 @@ namespace Phoundation\Data\Interfaces;
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Utils\Utils;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -145,10 +146,11 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Returns a list with all the keys that match the specified key
      *
-     * @param array|string $keys
-     * @return array
+     * @param array|string $needles
+     * @param int $options
+     * @return IteratorInterface
      */
-    public function getMatchingKeys(array|string $keys): array;
+    public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
     /**
      * Returns value for the specified key
@@ -156,9 +158,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|float|int $key
      * @param array|string $columns
      * @param bool $exception
-     * @return mixed
+     * @return IteratorInterface
      */
-    public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): mixed;
+    public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
     /**
      * Returns value for the specified key
@@ -296,9 +298,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
      *
      * @param array|string|null $columns
-     * @return array
+     * @return IteratorInterface
      */
-    public function getSourceColumns(array|string|null $columns): array;
+    public function getSourceColumns(array|string|null $columns): IteratorInterface;
 
     /**
      * Returns an array with each value containing a scalar with only the specified column value
@@ -307,9 +309,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *       OutOfBoundsException
      *
      * @param string $column
-     * @return array
+     * @return IteratorInterface
      */
-    public function getSourceColumn(string $column): array;
+    public function getSourceColumn(string $column): IteratorInterface;
 
     /**
      * Returns the length of the longest value
