@@ -1126,6 +1126,25 @@ function function_called(string $function): bool
 
 
 /**
+ * Returns true if the specified value is in between the specified range
+ *
+ * @param float|int $value
+ * @param float|int $begin
+ * @param float|int $end
+ * @param bool $allow_same
+ * @return bool
+ */
+function in_range(float|int $value, float|int $begin, float|int $end, bool $allow_same = true): bool
+{
+    if ($allow_same) {
+        return ($value >= $begin) and ($value <= $end);
+    }
+
+    return ($value > $begin) and ($value < $end);
+}
+
+
+/**
  * Returns a DateTime object for NOW
  *
  * @param DateTimeZoneInterface|string|null $timezone
