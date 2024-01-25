@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Data\Traits\DataBatch;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Plugins\Hardware\Devices\Interfaces\DeviceInterface;
 use Plugins\Hardware\Devices\Interfaces\ProfileInterface;
 use Plugins\Scanners\Exception\ScannersException;
 
@@ -28,12 +26,29 @@ use Plugins\Scanners\Exception\ScannersException;
  */
 class ScanImage extends Command
 {
+    use DataBatch;
+
+
+    /**
+     * The command line options used to scan
+     *
+     * @var array|null $options
+     */
+    protected ?array $options = null;
+
     /**
      * The profile with which to scan
      *
      * @var ProfileInterface $profile
      */
     protected ProfileInterface $profile;
+
+    /**
+     * Tracks if the scan should be a batch job
+     *
+     * @var bool $batch
+     */
+    protected bool $batch = false;
 
 
     /**
@@ -288,19 +303,80 @@ class ScanImage extends Command
 
 
     /**
+     * Returns the command line options
+     *
+     * @return array|null
+     */
+    public function getCommandLineOptions(): ?array
+    {
+        return $this->options;
+    }
+
+
+    /**
+     * Sets  the command line options directly instead of through a profile
+     *
+     *
+     * @param array|null $options
+     * @return ScanImage
+     */
+    public function setCommandLineOptions(?array $options): static
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+
+    /**
+     * Applies the specified profile
+     *
+     * @param ProfileInterface $profile
+     * @return $this
+     */
+    public function applyProfile(ProfileInterface $profile): static
+    {
+        $this->options = [];
+
+        foreach ($profile->getOptions() as $option) {
+            if (!$option->getValue()) {
+                // Only apply options that have a value
+                continue;
+            }
+
+            $this->options[] = $option->getKey();
+            $this->options[] = $option->getValue() . $option->getUnits();
+        }
+
+        $this->profile = $profile;
+        return $this;
+    }
+
+
+    /**
      * Execute the configured scan
      *
+     * @param string $path
      * @param EnumExecuteMethodInterface $method
      * @return static
      */
-    public function scan(EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): static
+    public function scan(string $path, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): static
     {
         if (empty($this->profile)) {
             throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
         }
 
+        showdie($this->setCommand('scanimage')
+            ->addArguments(['-d', $this->profile->getDevice()->getUrl()])
+            ->addArguments(['-o', $path])
+            ->addArguments($this->options)
+            ->addArgument($this->batch ? '--batch' : null)
+            ->setTimeout(120)->getFullCommandLine());
+
         $this->setCommand('scanimage')
              ->addArguments(['-d', $this->profile->getDevice()->getUrl()])
+             ->addArguments(['-o', $path])
+             ->addArguments($this->options)
+             ->addArgument($this->batch ? '--batch' : null)
              ->setTimeout(120)
              ->executeReturnArray();
 
