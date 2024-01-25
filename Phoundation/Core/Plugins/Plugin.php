@@ -7,11 +7,13 @@ namespace Phoundation\Core\Plugins;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Exception\PluginsException;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
@@ -205,7 +207,21 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
+        $path = $this->getSourceColumnValue('string', 'path', false);
+
+        if (!$path) {
+            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
+            if ($this->isNew()) {
+                // New object, detect the path automatically
+                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
+            }
+
+            throw new PluginsException(tr('Plugin ":plugin" does not have a class path set', [
+                ':plugin' => get_class($this)
+            ]));
+        }
+
+        return $path;
     }
 
 
@@ -216,7 +232,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getName(): string
     {
-        return basename(dirname(Library::getClassFile($this)));
+        return basename(dirname(dirname(Library::getClassFile($this))));
     }
 
 
@@ -236,34 +252,35 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return void
      */
-    public static function register(): void
+    public function register(): void
     {
-        $plugin = static::new();
-        $name   = $plugin->getName();
+        if (!$this->isNew()) {
+            Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
+                ':plugin' => $this->getName()
+            ]), 3);
+        }
 
-        if (static::exists($name, 'name')) {
+        if (static::exists($this->getName(), 'name')) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
-                ':plugin' => $name
+                ':plugin' => $this->getName()
             ]), 3);
 
             return;
         }
 
         // Only the Phoundation plugin is ALWAYS enabled
-        $enabled = ($name === 'Phoundation');
+        $enabled = ($this->getName() === 'Phoundation');
 
-        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $name]));
+        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $this->getName()]));
 
         // Register the plugin
-        $plugin
-            ->setName($name)
-            ->setPath($plugin->getPath())
-            ->setClass($plugin->getClass())
-            ->setEnabled($enabled)
-            ->setPriority($plugin->getPriority())
-            ->setDescription($plugin->getDescription())
-            ->save();
+        $this->setPath($this->getPath())
+             ->setClass($this->getClass())
+             ->setEnabled($enabled)
+             ->setPriority($this->getPriority())
+             ->setDescription($this->getDescription())
+             ->save();
     }
 
 
@@ -301,6 +318,43 @@ class Plugin extends DataEntry implements PluginInterface
     public function disable(?string $comments = null): void
     {
         sql()->dataEntrySetStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @note IMPORTANT DETAIL: This Plugins::get() method overrides the DataEntry::get() method. It works the same, but
+     *       will return the correct class for the plugin. If, for example, the Phoundation plugin was requested, the
+     *       returned class will be Plugins\Phoundation\Library\Plugin, instead of Phoundation\Core\Plugins\Plugin
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @return static
+     */
+    public static function get(int|string|DataEntryInterface|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    {
+        $plugin = parent::get($identifier, $column, $meta_enabled, $force);
+        $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
+        $class  = Library::getClassPath($file);
+        $class  = Library::loadClassFile($class);
+
+        return $class::fromSource($plugin->getSource());
     }
 
 

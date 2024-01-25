@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins\Interfaces;
 
-
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
+
 /**
- * Class Plugin
+ * Interface PluginsInterface
  *
  *
  *
@@ -17,15 +18,8 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-interface PluginsInterface
+interface PluginsInterface extends DataListInterface
 {
-    /**
-     * Truncates all plugins from the database table
-     *
-     * @return static
-     */
-    public function truncate(): static;
-
     /**
      * Purges all plugins from the DIRECTORY_ROOT/Plugins path
      *
