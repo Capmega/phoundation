@@ -2419,7 +2419,7 @@ class Arrays extends Utils
             if (is_string($value)) {
                 $value = Strings::truncate($value, $max_size, $fill, $method, $on_word);
             } elseif (!is_scalar($value)) {
-                // No support (yet) for non scalars, just drop it completely
+                // There is no support (yet) for non-scalar values, drop the value completely
                 unset($source[$key]);
             }
         }
