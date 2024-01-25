@@ -416,10 +416,10 @@ class Plugins extends Project
 
         if ($non_phoundation_plugins) {
             Log::warning(tr('Stashing non phoundation plugins ":plugins"', [
-                ':plugins' => array_keys($non_phoundation_plugins)
+                ':plugins' => implode(', ', array_keys($non_phoundation_plugins))
             ]));
 
-            $this->git->getStash()->stash($non_phoundation_plugins);
+            Git::new(DIRECTORY_ROOT)->getStash()->stash($non_phoundation_plugins);
         }
 
         return $non_phoundation_plugins;
