@@ -481,12 +481,14 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
      *
-     * @return int
+     * @return static
      */
-    public function eraseAll(): int
+    public function eraseAll(): static
     {
         $ids  = [];
         $meta = [];
+
+        $this->loadAll();
 
         // Delete the meta data entries
         foreach ($this->source as $id => $entry) {
@@ -500,11 +502,15 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-        Meta::eraseEntries($meta);
+        if ($ids) {
+            // Delete the meta data
+            Meta::eraseEntries($meta);
 
-        // Delete the entries themselves
-        $ids = Sql::in($ids);
-        return sql()->delete(static::getTable(), ' `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+            // Delete the entries themselves
+            sql()->erase(static::getTable(), ['id' => $ids]);
+        }
+
+        return $this;
     }
 
 
@@ -769,6 +775,19 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
+     * This method will load ALL database entries into this object
+     *
+     * @return $this
+     */
+    public function loadAll(): static
+    {
+        $this->source = sql()->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+                                                    FROM   `' . static::getTable() . '`');
+        return $this;
+    }
+
+
+    /**
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source
@@ -822,17 +841,5 @@ abstract class DataList extends Iterator implements DataListInterface
                              . ($word ? ' WHERE `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
                                           LIMIT ' . CliAutoComplete::getLimit(),
             $word ? [':like' => $word. '%'] : null);
-    }
-
-
-    /**
-     * Will truncate the table associated with this list
-     *
-     * @return $this
-     */
-    public function truncate(): static
-    {
-        sql()->query('DELETE FROM `' . static::getTable() . '`');
-        return $this;
     }
 }

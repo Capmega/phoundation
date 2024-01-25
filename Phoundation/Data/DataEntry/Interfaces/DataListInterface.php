@@ -215,11 +215,4 @@ interface DataListInterface extends IteratorInterface
      * @return ListOperationsInterface
      */
     public static function directOperations(): ListOperationsInterface;
-
-    /**
-     * Will truncate the table associated with this list
-     *
-     * @return $this
-     */
-    public function truncate(): static;
 }
