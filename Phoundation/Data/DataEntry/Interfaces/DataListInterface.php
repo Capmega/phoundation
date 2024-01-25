@@ -71,7 +71,7 @@ interface DataListInterface extends IteratorInterface
      * @param bool $exception
      * @return DataEntry|null
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface;
+    public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface;
 
     /**
      * Sets the value for the specified key

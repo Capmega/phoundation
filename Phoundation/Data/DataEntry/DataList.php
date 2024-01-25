@@ -6,6 +6,7 @@ namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
@@ -17,6 +18,8 @@ use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -236,13 +239,14 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param bool $exception
      * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface
     {
         // Does this entry exist?
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {
-                throw new OutOfBoundsException(tr('Key ":key" does not exist in this DataList', [
-                    ':key' => $key
+                throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataList', [
+                    ':key'   => $key,
+                    ':class' => get_class($this)
                 ]));
             }
 
@@ -389,6 +393,26 @@ abstract class DataList extends Iterator implements DataListInterface
         }
 
         return $select;
+    }
+
+
+    /**
+     * Displays a message on the command line
+     *
+     * @param string|null $message
+     * @param bool $header
+     * @return $this
+     */
+    public function displayCliMessage(?string $message = null, bool $header = false): static
+    {
+        if ($header) {
+            Log::information($message, use_prefix: false);
+
+        } else {
+            Log::cli($message);
+        }
+
+        return $this;
     }
 
 
