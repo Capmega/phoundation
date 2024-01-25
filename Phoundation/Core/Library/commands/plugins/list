@@ -40,8 +40,8 @@ $argv = ArgvValidator::new()
 
 // Display the plugins
 if (ALL) {
-    Cli::displayTable(Plugins::new()->getAvailable());
+    Cli::displayTable(Plugins::getAvailable());
 
 } else {
-    Cli::displayTable(Plugins::new()->getEnabled());
+    Cli::displayTable(Plugins::getEnabled());
 }
