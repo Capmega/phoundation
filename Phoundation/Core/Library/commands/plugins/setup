@@ -3,7 +3,6 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -27,13 +26,10 @@ CliDocumentation::help('This script allows you to scan the plugins directory DIR
 update the core_plugins database table accordingly
 
 
-
 ARGUMENTS
 
 
-
 [-A / --all]                            List all plugins, not only the active ones');
-
 
 
 // Get command line arguments
@@ -41,6 +37,5 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
-// Display the results of the plugins scan
-Cli::displayTable(Plugins::scan());
+// Display the results of the plugin scan
+Plugins::scan()->displayCliTable();

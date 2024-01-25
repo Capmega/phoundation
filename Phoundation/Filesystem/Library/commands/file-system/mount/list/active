@@ -3,14 +3,13 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Cli;
 use Phoundation\Filesystem\Mounts\Mounts;
 
 
 /**
- * Script file-system/mount/all
+ * Script file-system/mount/list/active
  *
- * This command mounts all mountss
+ * This command lists all active mounts
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,4 +19,4 @@ use Phoundation\Filesystem\Mounts\Mounts;
 
 
 // Display the current mounts
-Cli::displayTable(Mounts::listMountTargets(), 'source,target,filesystem');
+Mounts::listMountTargets()->displayCliTable('source,target,filesystem');

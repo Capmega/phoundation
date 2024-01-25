@@ -55,6 +55,7 @@ if ($argv['clear']) {
 
 
 // Display the results of the plugin scan
-Cli::displayTable(Plugins::new()
+Plugins::new()
     ->scan()
-    ->getAvailable());
+    ->getAvailable()
+        ->displayCliTable();
