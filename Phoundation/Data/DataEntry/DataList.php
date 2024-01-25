@@ -536,32 +536,43 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-//        if ($this->store_with_unique_column) {
-//            if ($key and ($key != $value->getUniqueColumnValue())) {
-//                // Key must either not be specified or match the id of the DataEntry
-//                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
-//                    ':value'  => $value->getUniqueColumnValue(),
-//                    ':unique' => $value::getUniqueColumn(),
-//                    ':type'   => $value::getDataEntryName(),
-//                    ':id'     => $value->getId() ?? 'N/A',
-//                    ':key'    => $key
-//                ]));
-//            }
-//
-//            $key = $value->getUniqueColumnValue();
-//
-//        } else {
-//            if ($key and ($key != $value->getId())) {
-//                // Key must either not be specified or match the id of the DataEntry
-//                throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
-//                    ':type' => $value::getDataEntryName(),
-//                    ':id'   => $value->getId(),
-//                    ':key'  => $key
-//                ]));
-//            }
-//
-//            $key = $value->getId();
-//        }
+        if ($this->id_is_unique_column) {
+            if ($key) {
+                if ($key != $value->getUniqueColumnValue()) {
+                    // Key must either not be specified or match the id of the DataEntry
+                    throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
+                        ':value'  => $value->getUniqueColumnValue(),
+                        ':unique' => $value::getUniqueColumn(),
+                        ':type'   => $value::getDataEntryName(),
+                        ':id'     => $value->getId() ?? 'N/A',
+                        ':key'    => $key
+                    ]));
+                }
+            } else {
+                $key = $value->getUniqueColumnValue();
+            }
+
+            if (!$key) {
+                throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataList object should uses unique columns as keys, but has no unique column configured', [
+                    ':value' => $value,
+                    ':class' => get_class($this)
+                ]));
+            }
+
+        } else {
+            if ($key) {
+                if ($key != $value->getId()) {
+                    // Key must either not be specified or match the id of the DataEntry
+                    throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
+                        ':type' => $value::getDataEntryName(),
+                        ':id'   => $value->getId(),
+                        ':key'  => $key
+                    ]));
+                }
+            } else {
+                $key = $value->getId();
+            }
+        }
 
         return parent::add($value, $key, $skip_null);
     }
@@ -672,10 +683,19 @@ abstract class DataList extends Iterator implements DataListInterface
             $this->execute = $this->query_builder->getExecute();
 
         } elseif (!isset($this->query)) {
-            // Default query
-            $this->query = 'SELECT  ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
-                            FROM   `' . static::getTable() . '`
-                            WHERE  `' . static::getTable() . '`.`status` IS NULL';
+            // Create query with optional filtering for parents_id
+            if ($this->parent) {
+                $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
+                $this->execute['parents_id'] = $this->parent->getId();
+
+            } else {
+                $parent_filter = null;
+            }
+
+            // Set default query
+            $this->query = 'SELECT                        ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+                            FROM                         `' . static::getTable() . '`
+                            WHERE  ' . $parent_filter . '`' . static::getTable() . '`.`status` IS NULL';
         }
     }
 
