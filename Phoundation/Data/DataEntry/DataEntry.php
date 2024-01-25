@@ -257,7 +257,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
-        $column = static::ensureColumn($identifier, $column);
+        $column = static::getColumn($identifier, $column);
 
         // Set up the columns for this object
         $this->setMetaDefinitions();
@@ -624,7 +624,7 @@ abstract class DataEntry implements DataEntryInterface
             // No identifier specified, return an empty object
             throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
                 ':class'      => static::getClassName(),
-                ':column'     => $column,
+                ':column'     => static::getColumn($identifier, $column),
                 ':identifier' => $identifier
             ]));
 
@@ -671,8 +671,8 @@ abstract class DataEntry implements DataEntryInterface
                     $entry['id']   = -1;
                     $entry['name'] = $identifier;
 
-                    return static::fromSource($entry)
-                        ->setReadonly(true);
+                    // Create a DataTypeInterface object but since we can't write configuration, make it readonly!
+                    return static::fromSource($entry)->setReadonly(true);
                 }
             }
 
@@ -683,7 +683,7 @@ abstract class DataEntry implements DataEntryInterface
 
             throw DataEntryNotExistsException::new(tr('The ":class" ":column" identifier ":identifier" does not exist', [
                 ':class'      => static::getClassName(),
-                ':column'     => $column,
+                ':column'     => static::getColumn($identifier, $column),
                 ':identifier' => $identifier
             ]));
         }
@@ -693,7 +693,7 @@ abstract class DataEntry implements DataEntryInterface
             if (!Session::getUser()->hasAllRights('deleted')) {
                 throw DataEntryDeletedException::new(tr('The ":class" ":column" identifier ":identifier" is deleted', [
                     ':class'      => static::getClassName(),
-                    ':column'     => $column,
+                    ':column'     => static::getColumn($identifier, $column),
                     ':identifier' => $identifier
                 ]));
 
@@ -857,7 +857,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        $column  = static::ensureColumn($identifier, $column);
+        $column  = static::getColumn($identifier, $column);
         $execute = [':identifier' => $identifier];
 
         if ($not_id) {
@@ -921,7 +921,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        $column  = static::ensureColumn($identifier, $column);
+        $column  = static::getColumn($identifier, $column);
         $execute = [':identifier' => $identifier];
 
         if ($id) {
@@ -2322,7 +2322,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $column
      * @return string|null
      */
-    protected static function ensureColumn(DataEntryInterface|string|int|null $identifier, ?string $column): ?string
+    protected static function getColumn(DataEntryInterface|string|int|null $identifier, ?string $column): ?string
     {
         if ($column) {
             // Column was specified. Identifier MAY be empty but that is fine as a value actually might be NULL
