@@ -131,12 +131,22 @@ class Cli
                 $value   = Strings::capitalize($value) . ':';
                 $headers = ($id_column ? [$id_column => $value] : []);
                 $row     = current($source);
+                $exists  = false;
 
                 foreach (Arrays::force($row, null) as $header => $value) {
                     $value = str_replace(['_', '-'], ' ', (string) $header);
                     $value = Strings::capitalize($value) . ':';
 
                     $headers[$header] = $value;
+
+                    if ($header === $id_column) {
+                        $exists = true;
+                    }
+                }
+
+                if (!$exists) {
+                    // The specified ID column doesn't exists in the rows, remove it
+                    unset($headers[$id_column]);
                 }
 
             } else {
