@@ -1085,12 +1085,12 @@ class Iterator implements IteratorInterface
     /**
      * Creates and returns a CLI table for the data in this list
      *
-     * @param array|null $columns
+     * @param array|string|null $columns
      * @param array $filters
      * @param string|null $id_column
      * @return static
      */
-    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
         Cli::displayTable($this->source, $columns, $id_column);
         return $this;

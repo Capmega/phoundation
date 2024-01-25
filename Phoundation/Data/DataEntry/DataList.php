@@ -399,12 +399,12 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Creates and returns a CLI table for the data in this list
      *
-     * @param array|null $columns
+     * @param array|string|null $columns
      * @param array $filters
      * @param string|null $id_column
      * @return static
      */
-    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
         // If this list is empty, then load data from a query, else show list contents
         if (empty($this->source)) {

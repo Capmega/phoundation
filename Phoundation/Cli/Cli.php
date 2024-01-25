@@ -6,6 +6,7 @@ namespace Phoundation\Cli;
 
 use Phoundation\Cli\Exception\NoTtyException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -102,13 +103,13 @@ class Cli
      * @note The required format for the source is as follows:
      *       $source[$id] = [$column1 => $value1, $column2 => $value2, ...];
      *
-     * @param Iterator|array $source
+     * @param IteratorInterface|array $source
      * @param array|string|null $headers
      * @param string|null $id_column
      * @param int $column_spacing
      * @return void
      */
-    public static function displayTable(Iterator|array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
+    public static function displayTable(IteratorInterface|array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
     {
         if (is_object($source)) {
             // This is an Iterator object, get the array source
