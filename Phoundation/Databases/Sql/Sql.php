@@ -190,7 +190,7 @@ class Sql implements SqlInterface
             $this->configuration['statistics'] = Config::getBoolean('databases.sql.statistics', false);
         }
 
-        $this->log        = $this->configuration['log'];
+        $this->log        = $this->configuration['log'] or Config::getBoolean('databases.sql.log', false);
         $this->statistics = $this->configuration['statistics'];
 
         $this->connect($use_database);
