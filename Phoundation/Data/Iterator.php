@@ -622,7 +622,10 @@ class Iterator implements IteratorInterface
     {
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {
-                throw new NotExistsException(tr('The key ":key" does not exist in this object', [':key' => $key]));
+                throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
+                    ':key'   => $key,
+                    ':class' => get_class($this)
+                ]));
             }
 
             return null;
