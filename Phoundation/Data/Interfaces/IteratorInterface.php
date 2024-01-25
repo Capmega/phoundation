@@ -7,6 +7,7 @@ namespace Phoundation\Data\Interfaces;
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Utils;
 use ReturnTypeWillChange;
 use Stringable;
@@ -352,4 +353,23 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return array
      */
     public function getTotals(array|string $columns): array;
+
+    /**
+     * Displays a message on the command line
+     *
+     * @param string|null $message
+     * @param bool $header
+     * @return $this
+     */
+    public function displayCliMessage(?string $message = null, bool $header = false): static;
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param array|null $columns
+     * @param array $filters
+     * @param string|null $id_column
+     * @return static
+     */
+    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static;
 }

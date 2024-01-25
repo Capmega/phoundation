@@ -397,26 +397,6 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Displays a message on the command line
-     *
-     * @param string|null $message
-     * @param bool $header
-     * @return $this
-     */
-    public function displayCliMessage(?string $message = null, bool $header = false): static
-    {
-        if ($header) {
-            Log::information($message, use_prefix: false);
-
-        } else {
-            Log::cli($message);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|null $columns
@@ -432,8 +412,7 @@ abstract class DataList extends Iterator implements DataListInterface
             $this->source = sql()->list($this->query, $this->execute);
         }
 
-        Cli::displayTable($this->source, $columns, $id_column);
-        return $this;
+        return parent::displayCliTable($columns, $filters, $id_column);
     }
 
 

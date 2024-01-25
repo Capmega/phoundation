@@ -118,16 +118,6 @@ interface DataListInterface extends IteratorInterface
     public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
 
     /**
-     * Creates and returns a CLI table for the data in this list
-     *
-     * @param array|null $columns
-     * @param array $filters
-     * @param string|null $id_column
-     * @return static
-     */
-    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static;
-
-    /**
      * Set the specified status for the specified entries
      *
      * @param string|null $status

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data;
 
 use PDOStatement;
+use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -1057,5 +1059,40 @@ class Iterator implements IteratorInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Displays a message on the command line
+     *
+     * @param string|null $message
+     * @param bool $header
+     * @return $this
+     */
+    public function displayCliMessage(?string $message = null, bool $header = false): static
+    {
+        if ($header) {
+            Log::information($message, use_prefix: false);
+
+        } else {
+            Log::cli($message);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param array|null $columns
+     * @param array $filters
+     * @param string|null $id_column
+     * @return static
+     */
+    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static
+    {
+        Cli::displayTable($this->source, $columns, $id_column);
+        return $this;
     }
 }
