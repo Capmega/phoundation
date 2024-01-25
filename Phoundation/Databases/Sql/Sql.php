@@ -593,7 +593,7 @@ class Sql implements SqlInterface
         Core::checkReadonly('sql insert');
 
         $columns = $this->columns($data);
-        $values  = $this->values($data);
+        $values  = $this->getBoundVariables($data);
 
         if ($update) {
             // Build bound variables for the query
@@ -636,7 +636,7 @@ class Sql implements SqlInterface
         Core::checkReadonly('sql update');
 
         // Build bound variables for the query
-        $values = $this->values(array_merge($set, Arrays::force($where)));
+        $values = $this->getBoundVariables(array_merge($set, Arrays::force($where)));
         $update = $this->updateColumns($set);
         $where  = $this->whereColumns($where);
 
@@ -678,7 +678,7 @@ class Sql implements SqlInterface
 
         // Build bound variables for the query
         $columns = $this->columns($row);
-        $values  = $this->values($row, null, true);
+        $values  = $this->getBoundVariables($row, null, true);
         $keys    = $this->keys($row);
 
         $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
@@ -729,7 +729,7 @@ class Sql implements SqlInterface
 
         // Build bound variables for the query
         $update = $this->updateColumns($row);
-        $values = $this->values($row);
+        $values = $this->getBoundVariables($row);
 
         $this->query('UPDATE `' . $table . '` 
                             SET     ' . $update  . '
@@ -778,8 +778,8 @@ class Sql implements SqlInterface
      */
     public function delete(string $table, string $where, array $execute): int
     {
-        // This table is not a DataEntry table, just delete the entry
-        return $this->erase($table, $where, $execute);
+        // This table is not a DataEntry table, delete the entry
+        return $this->erase($table, $execute);
     }
 
 
@@ -851,12 +851,12 @@ class Sql implements SqlInterface
     {
         Core::checkReadonly('sql erase');
 
-        // Build bound variables for query
-        $values = $this->values($where);
-        $update = $this->filterColumns($where, ' ' . $separator . ' ');
+        // Build bound variables for the query
+        $variables = $this->getBoundVariables($where);
+        $update    = $this->filterColumns($where, ' ' . $separator . ' ');
 
          return $this->query('DELETE FROM `' . $table . '`
-                                    WHERE        ' . $update, $values)->rowCount();
+                                    WHERE        ' . $update, $variables)->rowCount();
     }
 
 
@@ -1497,7 +1497,18 @@ class Sql implements SqlInterface
         $return = [];
 
         foreach ($source as $key => $value) {
-            $return[] = '`' . $key . '` = :' . $key;
+            if (is_array($value)) {
+                $list = [];
+
+                foreach ($value as $subkey => $subvalue) {
+                    $list[] = ':' . $key . $subkey;
+                }
+
+                $return[] = '`' . $key . '` IN (' . implode(',', $list) . ') ';
+
+            } else {
+                $return[] = '`' . $key . '` = :' . $key;
+            }
         }
 
         return implode($separator, $return);
@@ -1548,12 +1559,12 @@ class Sql implements SqlInterface
     /**
      * Converts the specified row data into a PDO bound variables compatible key > values array
      *
-     * @param array|string $source
+     * @param array $source
      * @param string|null $prefix
      * @param bool $insert
      * @return array
      */
-    protected function values(array|string $source, ?string $prefix = null, bool $insert = false): array
+    protected function getBoundVariables(array $source, ?string $prefix = null, bool $insert = false): array
     {
         $return  = [];
 
@@ -1563,7 +1574,14 @@ class Sql implements SqlInterface
                 continue;
             }
 
-            $return[':' . $prefix . $key] = $value;
+            if (is_array($value)) {
+                foreach ($value as $subkey => $subvalue) {
+                    $return[':' . $prefix . $key . $subkey] = $subvalue;
+                }
+
+            } else {
+                $return[':' . $prefix . $key] = $value;
+            }
         }
 
         return $return;
