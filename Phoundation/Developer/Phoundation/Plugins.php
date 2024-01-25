@@ -261,7 +261,6 @@ class Plugins extends Project
             ':branch' => $branch
         ]));
 
-
         // Reset local project to HEAD and update
         Project::new()->resetHead();
         Project::new()->updateLocalProjectPlugins($branch, $message, $sign);
@@ -420,7 +419,7 @@ class Plugins extends Project
                 ':plugins' => array_keys($non_phoundation_plugins)
             ]));
 
-            $this->git->getStash()->stash(implode(' ', $non_phoundation_plugins));
+            $this->git->getStash()->stash($non_phoundation_plugins);
         }
 
         return $non_phoundation_plugins;
