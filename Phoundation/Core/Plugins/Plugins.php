@@ -91,7 +91,7 @@ class Plugins extends DataList implements PluginsInterface
     public static function setup(): void
     {
         static::new()
-            ->truncate()
+            ->eraseAll()
             ->scan();
     }
 
@@ -106,15 +106,12 @@ class Plugins extends DataList implements PluginsInterface
      */
     public function scan(): PluginsInterface
     {
-        $count = 0;
-
         foreach (static::scanPlugins() as $name => $class) {
             try {
                 $plugin = $class::new($name, 'name');
 
-                if (!$plugin->getId()) {
+                if ($plugin->isNew()) {
                     $plugin->register();
-                    $count++;
                 }
 
             } catch (Throwable $e) {
@@ -190,7 +187,7 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return array
      */
-    public static function getAvailable(): array
+    public function getAvailable(): array
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
@@ -220,7 +217,7 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return array
      */
-    public static function getEnabled(): array
+    public function getEnabled(): array
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
@@ -262,19 +259,6 @@ class Plugins extends DataList implements PluginsInterface
             'class'    => 'Plugins\Phoundation\Library\Plugin',
             'path'     => 'Plugins/Phoundation/',
         ];
-    }
-
-
-    /**
-     * Truncates all plugins from the database table
-     *
-     * @return static
-     */
-    public function truncate(): static
-    {
-        // Delete all plugins from registry
-        sql()->query('DELETE FROM `core_plugins`');
-        return $this;
     }
 
 
