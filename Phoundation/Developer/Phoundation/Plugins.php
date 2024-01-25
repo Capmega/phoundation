@@ -49,6 +49,7 @@ class Plugins extends Project
      */
     protected ?string $branch = null;
 
+
     /**
      * Plugins constructor
      *
@@ -269,9 +270,10 @@ class Plugins extends Project
         $this->selectPluginsBranch($branch)->ensureNoChanges();
 
         try {
-            // Execute the patching
-            $stash    = new Iterator();
-            $sections = ['Plugins'];
+            // Execute the patching, first stash all libraries that are not in the official Phoundation Plugins list
+            $stash                 = new Iterator();
+            $sections              = ['Plugins'];
+            $non_phoundation_stash = $this->stashNonPhoundationPlugins();
 
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
@@ -363,6 +365,15 @@ class Plugins extends Project
                     ->addData(['files' => $bad_files]);
             }
 
+            if ($non_phoundation_stash) {
+                // We have non Phoundation plugins in stash, pop those too
+                Log::warning(tr('Unstashing non phoundation plugins ":plugins"', [
+                    ':plugins' => array_keys($non_phoundation_plugins)
+                ]));
+
+                Git::new(DIRECTORY_ROOT)->getStash()->pop();
+            }
+
         } catch (GitHasChangesException $e) {
             // Since the operation failed, ensure that Phoundation is back on its original branch
             if (isset($this->phoundation_git)) {
@@ -373,6 +384,92 @@ class Plugins extends Project
 
             throw $e;
         }
+    }
+
+
+    /**
+     * Returns an array with plugin > path
+     *
+     * @param array $plugins
+     * @return array
+     */
+    protected function addPluginPaths(array $plugins): array
+    {
+        $return = [];
+
+        foreach ($plugins as $plugin) {
+            $return[$plugin] = Directory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->getPath();
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Stashes those libraries that are not in the official Phoundation repository so that they don't get copied
+     *
+     * @return array|null
+     */
+    protected function stashNonPhoundationPlugins(): ?array
+    {
+        $non_phoundation_plugins = $this->getNonPhoundationPlugins();
+        $non_phoundation_plugins = $this->addPluginPaths($non_phoundation_plugins);
+
+        if ($non_phoundation_plugins) {
+            Log::warning(tr('Stashing non phoundation plugins ":plugins"', [
+                ':plugins' => array_keys($non_phoundation_plugins)
+            ]));
+
+            $this->git->getStash()->stash(implode(' ', $non_phoundation_plugins));
+        }
+
+        return $non_phoundation_plugins;
+    }
+
+
+    /**
+     * Returns a list of Plugins that are not part of the Phoundation repository
+     *
+     * @return array
+     */
+    protected function getNonPhoundationPlugins(): array
+    {
+        $plugins = array_diff($this->getLocalPlugins(), $this->getPhoundationPlugins());
+
+        foreach ($plugins as $id => &$plugin) {
+            $plugin = Strings::endsNotWith($plugin, '/');
+        }
+
+        unset($plugin);
+
+        // The "Phoundation" plugin should NEVER be copied to the official repository!
+        if (!in_array('Phoundation', $plugins)) {
+            $plugins[] = 'Phoundation';
+        }
+
+        return $plugins;
+    }
+
+
+    /**
+     * Returns a list of all local Plugins
+     *
+     * @return array
+     */
+    protected function getLocalPlugins(): array
+    {
+        return Directory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')->scan();
+    }
+
+
+    /**
+     * Returns a list of all plugins that are part of the Phoundation repository
+     *
+     * @return array
+     */
+    protected function getPhoundationPlugins(): array
+    {
+        return Directory::new($this->directory . 'Plugins/', $this->directory)->scan();
     }
 
 
@@ -414,7 +511,7 @@ class Plugins extends Project
      * Ensure that Phoundation is on the specified branch
      *
      * @param string|null $branch
-     * @return void
+     * @return static
      */
     protected function selectPluginsBranch(?string $branch): static
     {
