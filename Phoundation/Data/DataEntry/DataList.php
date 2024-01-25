@@ -159,7 +159,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return bool
      */
-    public function getUniqueColumnIsidIsuniquecolumn(): bool
+    public function getIdIsUniqueColumn(): bool
     {
         return $this->id_is_unique_column;
     }
@@ -171,7 +171,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param bool $id_is_unique_column
      * @return static
      */
-    public function setUniqueColumnIsidIsuniquecolumn(bool $id_is_unique_column): static
+    public function setIdIsUniqueColumn(bool $id_is_unique_column): static
     {
         $this->id_is_unique_column = $id_is_unique_column;
         return $this;
