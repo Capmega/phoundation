@@ -368,7 +368,7 @@ class Plugins extends Project
             if ($non_phoundation_stash) {
                 // We have non Phoundation plugins in stash, pop those too
                 Log::warning(tr('Unstashing non phoundation plugins ":plugins"', [
-                    ':plugins' => array_keys($non_phoundation_plugins)
+                    ':plugins' => array_keys($non_phoundation_stash)
                 ]));
 
                 Git::new(DIRECTORY_ROOT)->getStash()->pop();
