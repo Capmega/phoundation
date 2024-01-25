@@ -8,6 +8,8 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -104,7 +106,7 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return PluginsInterface
      */
-    public function scan(): PluginsInterface
+    public static function scan(): PluginsInterface
     {
         foreach (static::scanPlugins() as $name => $class) {
             try {
@@ -185,9 +187,9 @@ class Plugins extends DataList implements PluginsInterface
     /**
      * Loads all plugins from the database and returns them in an array
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getAvailable(): array
+    public static function getAvailable(): IteratorInterface
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
@@ -202,22 +204,22 @@ class Plugins extends DataList implements PluginsInterface
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return [static::getPhoundationPluginEntry()];
+            return new Iterator([static::getPhoundationPluginEntry()]);
         }
 
         // Push Phoundation plugin to the front of the list
         array_unshift($return, static::getPhoundationPluginEntry());
 
-        return $return;
+        return new Iterator($return);
     }
 
 
     /**
      * Returns an array with all enabled plugins from the database
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getEnabled(): array
+    public static function getEnabled(): IteratorInterface
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
@@ -234,13 +236,13 @@ class Plugins extends DataList implements PluginsInterface
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return [static::getPhoundationPluginEntry()];
+            return new Iterator([static::getPhoundationPluginEntry()]);
         }
 
         // Push Phoundation plugin to the front of the list
         array_unshift($return, static::getPhoundationPluginEntry());
 
-        return $return;
+        return new Iterator($return);
     }
 
 
