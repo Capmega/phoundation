@@ -145,11 +145,11 @@ class Utils {
      *
      * Caseless compares always compare lowercase
      *
-     * @param string|null $haystack
+     * @param string|float|int|null $haystack
      * @param bool $match_no_case
      * @return string
      */
-    protected static function getTestValue(?string $haystack, bool $match_no_case): string
+    protected static function getTestValue(string|float|int|null $haystack, bool $match_no_case): string
     {
         if ($match_no_case) {
             return strtolower((string) $haystack);
@@ -162,12 +162,12 @@ class Utils {
     /**
      * Returns true if the given haystack matches the given needles with the specified match flags
      *
-     * @param Stringable|string $haystack
+     * @param Stringable|string|float|int $haystack
      * @param array $needles
      * @param array $flags
      * @return bool
      */
-    protected static function testStringMatchesNeedles(Stringable|string $haystack, array $needles, array $flags): bool
+    protected static function testStringMatchesNeedles(Stringable|string|float|int $haystack, array $needles, array $flags): bool
     {
         $result = true;
 
