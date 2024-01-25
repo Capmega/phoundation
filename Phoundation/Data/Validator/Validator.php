@@ -626,9 +626,9 @@ abstract class Validator implements ValidatorInterface
      * @param int|float $maximum
      * @return static
      */
-    public function isBetween(int|float $minimum, int|float $maximum): static
+    public function isBetween(int|float $minimum, int|float $maximum, bool $equal = true): static
     {
-        return $this->validateValues(function(&$value) use ($minimum, $maximum) {
+        return $this->validateValues(function(&$value) use ($minimum, $maximum, $equal) {
             $this->isNumeric();
 
             if ($this->process_value_failed) {
@@ -636,11 +636,21 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (($value < $minimum) or ($value > $maximum)) {
-                $this->addFailure(tr('must be between ":minimum" and ":maximum"', [
-                    ':minimum' => $minimum,
-                    ':maximum' => $maximum
-                ]));
+            if ($equal) {
+                if (($value < $minimum) or ($value > $maximum)) {
+                    $this->addFailure(tr('must be between ":minimum" and ":maximum"', [
+                        ':minimum' => $minimum,
+                        ':maximum' => $maximum
+                    ]));
+                }
+
+            } else {
+                if (($value <= $minimum) or ($value >= $maximum)) {
+                    $this->addFailure(tr('must be between ":minimum" and ":maximum"', [
+                        ':minimum' => $minimum,
+                        ':maximum' => $maximum
+                    ]));
+                }
             }
         });
     }
