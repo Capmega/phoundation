@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 /**
- * Script system/plugins/scan script
+ * Script system/plugins/scan
  *
  * This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the core_plugins
  * database table accordingly
@@ -21,29 +21,40 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category Function reference
  * @package Phoundation\Core
  */
+CliDocumentation::autoComplete([
+    'arguments' => [
+        '-c,--clear' => false
+    ]
+]);
+
 CliDocumentation::usage('./pho system plugins scan');
 
-CliDocumentation::help('This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and
-update the core_plugins database table accordingly
-
+CliDocumentation::help('This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new
+plugins and update the core_plugins database table accordingly
 
 
 ARGUMENTS
 
 
+[-c, --clear]                           Clears the current plugins list from the database and scans all plugins from
+                                        scratch
 
-[-A / --all]                            List all plugins, not only the active ones');
-
+[-A, --all]                             List all plugins, not only the active ones');
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
+    ->select('-c,--clear')->isOptional()->isBoolean()
     ->validate();
 
 
-// Display the results of the plugins scan
-Plugins::new()
-    ->truncate()
-    ->scan();
+// Clear the plugin registration?
+if ($argv['clear']) {
+    Plugins::new()->eraseAll();
+}
 
-Cli::displayTable(Plugins::getAvailable());
+
+// Display the results of the plugin scan
+Cli::displayTable(Plugins::new()
+    ->scan()
+    ->getAvailable());

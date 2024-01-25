@@ -9,6 +9,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
 use Phoundation\Utils\Config;
 
 
@@ -25,12 +26,12 @@ use Phoundation\Utils\Config;
 CliDocumentation::autoComplete([
     'positions' => [
         0 => [
-            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50),
-            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
         ],
         -1 => [
-            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50),
-            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
         ]
     ],
 ]);
@@ -39,8 +40,6 @@ CliDocumentation::usage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,..
 ./pho system accounts users add-roles -n test -d "This is a test role!"');
 
 CliDocumentation::help('This script allows you to add roles to the specified user
-
-
 
 ARGUMENTS
 

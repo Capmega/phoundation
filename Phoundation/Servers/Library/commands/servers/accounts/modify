@@ -7,6 +7,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
 use Phoundation\Filesystem\File;
 use Phoundation\Servers\SshAccount;
 use Phoundation\Utils\Config;
@@ -25,8 +26,8 @@ use Phoundation\Utils\Config;
 CliDocumentation::autoComplete(SshAccount::getAutoComplete([
     'positions' => [
         0 => [
-            'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
-            'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+            'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
         ]
     ]
 ]));
@@ -35,8 +36,6 @@ CliDocumentation::usage('./pho servers accounts modify IDENTIFIER [OPTIONS]
 ./pho system servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
 
 CliDocumentation::help(SshAccount::getHelpText('This script allows you to modify existing SSH accounts.
-
-
 
 ARGUMENTS
 

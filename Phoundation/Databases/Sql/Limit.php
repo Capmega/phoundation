@@ -20,12 +20,12 @@ use Phoundation\Utils\Config;
 class Limit
 {
     /**
-     * Returns the default limit for shell auto completion
+     * Returns the default limit for shell auto-completion
      *
      * @param int $limit
      * @return int
      */
-    static function shellAutoCompletion(int $limit = 50): int
+    static function shellAutoCompletion(int $limit = 1000): int
     {
         return Config::getInteger('shell.autocomplete.limit', $limit);
     }

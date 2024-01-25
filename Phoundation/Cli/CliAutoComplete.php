@@ -10,6 +10,7 @@ use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
@@ -35,7 +36,7 @@ use Phoundation\Utils\Strings;
  *     'positions' => [
  *         0 => [
  *             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
- *             'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+ *             'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
  *         ]
  *     ],
  *     'arguments' => [
@@ -473,7 +474,7 @@ complete -F _phoundation pho');
      */
     public static function getLimit(): int
     {
-        return Config::getInteger('shell.autocomplete.limit', 50);
+        return Limit::shellAutoCompletion();
     }
 
 

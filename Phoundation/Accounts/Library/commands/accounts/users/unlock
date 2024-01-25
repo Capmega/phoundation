@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Sql\Limit;
 
 
 /**
@@ -22,8 +23,8 @@ use Phoundation\Data\Validator\ArgvValidator;
 CliDocumentation::autoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
-            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
-            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Config::getInteger('shell.autocomplete.limit', 50)
+            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
         ]
     ]
 ]));
@@ -32,7 +33,6 @@ CliDocumentation::usage('./pho accounts users unlock USER_EMAIL');
 
 CliDocumentation::help('This script will unlock the specified user. Note that unlocked users will have the status
  updated to NULL
-
 
 ARGUMENTS
 
