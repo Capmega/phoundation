@@ -117,7 +117,7 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                         'menu' => [
                             tr('Mounts') => [
                                 'rights' => 'mounts',
-                                'url'    => '/system-administration/file-system/mounts.html',
+                                'url'    => '/phoundation/file-system/mounts.html',
                                 'icon'   => 'fa-key'
                             ],
                         ],
@@ -128,7 +128,7 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                         'menu' => [
                             tr('Connectors') => [
                                 'rights' => 'mounts',
-                                'url'    => '/system-administration/databases/connectors/connectors.html',
+                                'url'    => '/phoundation/databases/connectors/connectors.html',
                                 'icon'   => 'fa-key'
                             ],
                         ],
@@ -253,7 +253,7 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                     ],
                     tr('Plugins') => [
                         'rights' => 'plugins',
-                        'url'    => '/phoundation/plugins.html',
+                        'url'    => '/phoundation/plugins/plugins.html',
                         'icon'   => ''
                     ],
                     tr('Templates') => [

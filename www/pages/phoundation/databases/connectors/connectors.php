@@ -24,7 +24,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 
@@ -98,7 +98,7 @@ switch ($filters->getSourceKey('entry_status')) {
 
 // Build SQL connectors table
 $buttons = Buttons::new()
-    ->addButton(tr('Create'), DisplayMode::primary, '/system-administration/databases/connectors/connector.html')
+    ->addButton(tr('Create'), DisplayMode::primary, '/phoundation/databases/connectors/connector.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
@@ -110,7 +110,7 @@ $connectors_card = Card::new()
     ->setContent($connectors
         ->load()
         ->getHtmlDataTable()
-            ->setRowUrl('/system-administration/databases/connectors/connector+:ROW.html')
+            ->setRowUrl('/phoundation/databases/connectors/connector+:ROW.html')
             ->setColumns('id,name,hostname,username,database,status,created_on')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
@@ -125,8 +125,8 @@ $connectors_card->getForm()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/system-administration/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
+                         <a href="' . UrlBuilder::getWww('/phoundation/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation
@@ -149,6 +149,6 @@ Page::setHeaderTitle(tr('Database connectors'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                     => tr('Home'),
     '/system-administration.html'           => tr('System administration'),
-    '/system-administration/databases.html' => tr('Databases'),
+    '/phoundation/databases.html' => tr('Databases'),
     ''                                      => tr('Connectors')
 ]));

@@ -27,7 +27,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
 
@@ -58,7 +58,7 @@ if (Page::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/system-administration/file-system/mount+' . $mount->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/phoundation/file-system/mount+' . $mount->getId() . '.html'));
 
             case tr('Delete'):
                 $mount->delete();
@@ -162,7 +162,7 @@ $mount_card = Card::new()
     ->setContent($mount->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/system-administration/file-system/mounts.html'), true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/mounts.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($lock))
@@ -183,7 +183,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
+->setContent('<a href="' . UrlBuilder::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation
@@ -214,7 +214,7 @@ Page::setHeaderSubTitle($mount->getDisplayName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                               => tr('Home'),
     '/system-administration.html'                     => tr('System administration'),
-    '/system-administration/file-systems.html'        => tr('Filesystems'),
-    '/system-administration/file-systems/mounts.html' => tr('Mounts'),
+    '/phoundation/file-systems.html'        => tr('Filesystems'),
+    '/phoundation/file-systems/mounts.html' => tr('Mounts'),
     ''                                                => $mount->getDisplayName()
 ]));

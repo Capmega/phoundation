@@ -24,7 +24,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
 
@@ -98,7 +98,7 @@ switch ($filters->getSourceKey('entry_status')) {
 
 // Build SQL mounts table
 $buttons = Buttons::new()
-    ->addButton(tr('Create'), DisplayMode::primary, '/system-administration/file-system/mount.html')
+    ->addButton(tr('Create'), DisplayMode::primary, '/phoundation/file-system/mount.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
@@ -110,7 +110,7 @@ $mounts_card = Card::new()
     ->setContent($mounts
         ->load()
         ->getHtmlDataTable()
-            ->setRowUrl('/system-administration/file-system/mount+:ROW.html')
+            ->setRowUrl('/phoundation/file-system/mount+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);
@@ -124,7 +124,7 @@ $mounts_card->getForm()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/file-system/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/file-system/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
 
 
 // Build documentation

@@ -28,7 +28,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 
@@ -74,7 +74,7 @@ if (Page::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/system-administration/databases/connectors/connector+' . $connector->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/phoundation/databases/connectors/connector+' . $connector->getId() . '.html'));
 
             case tr('Delete'):
                 $connector->delete();
@@ -186,7 +186,7 @@ $connector_card = Card::new()
     ->setContent($connector->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/system-administration/databases/connectors/connectors.html'), true)
+        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
         ->addButton(isset_get($test))
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
@@ -198,7 +198,7 @@ $connector_card = Card::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/system-administration/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
+    ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
 
 
 // Build documentation
@@ -229,7 +229,7 @@ Page::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                                           => tr('Home'),
     '/system-administration.html'                                 => tr('System administration'),
-    '/system-administration/databases.html'                       => tr('Databases'),
-    '/system-administration/databases/connectors/connectors.html' => tr('Connectors'),
+    '/phoundation/databases.html'                       => tr('Databases'),
+    '/phoundation/databases/connectors/connectors.html' => tr('Connectors'),
     ''                                                            => $connector->getDisplayName()
 ]));
