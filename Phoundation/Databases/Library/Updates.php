@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.24';
+        return '0.0.25';
     }
 
 
@@ -104,6 +104,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.24', function () {
             sql()->schema()->table('databases_connectors')->alter()
                 ->addColumn('`sync` tinyint DEFAULT 0 NOT NULL', 'AFTER `statistics`');
+
+        })->addUpdate('0.0.25', function () {
+            sql()->schema()->table('databases_connectors')->alter()
+                ->addColumn('`environment` varchar(32) NULL DEFAULT NULL', 'AFTER `seo_name`')
+                ->addIndex('KEY `environment` (`environment`)');
         });
     }
 }

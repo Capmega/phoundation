@@ -540,6 +540,16 @@ class Connector extends DataEntry implements ConnectorInterface
                     $validator->isUnique();
                 }))
             ->addDefinition(DefinitionFactory::getSeoName($this))
+            ->addDefinition(Definition::new($this, 'environment')
+                ->setSize(4)
+                ->setLabel('Environment')
+                ->setInputType(null)
+                ->setElement(InputElement::select)
+                ->setSource([
+                    'production' => tr('Production'),
+                    'trial'      => tr('Trial'),
+                    'local'      => tr('Local'),
+                ]))
             ->addDefinition(DefinitionFactory::getVariable($this, 'type')
                 ->setSize(4)
                 ->setLabel('Connector type')
