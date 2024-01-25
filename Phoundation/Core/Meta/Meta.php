@@ -224,16 +224,18 @@ class Meta implements MetaInterface
 
 
     /**
-     * Erases all meta history for the specified meta ids
+     * Erases all meta-history for the specified meta ids
      *
      * @param array|string|int $ids
      * @return void
      */
     public static function eraseEntries(array|string|int $ids): void
     {
-        // Erase the meta entry, the history will cascade
-        $ids = Sql::in(Arrays::force($ids));
-        sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+        // Erase the specified meta-entries, the history will cascade
+        if ($ids) {
+            $ids = Sql::in(Arrays::force($ids));
+            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+        }
     }
 
 
