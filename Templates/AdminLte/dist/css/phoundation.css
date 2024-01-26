@@ -41,6 +41,10 @@ div.row {
     overflow-x: auto;
 }
 
+div.card-body div.row {
+    overflow-x: visible;
+}
+
 div.circle,
 span.circle {
     border-radius: 100%;
