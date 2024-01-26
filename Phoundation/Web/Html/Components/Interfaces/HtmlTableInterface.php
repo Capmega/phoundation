@@ -160,7 +160,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      *
      * @return TableIdColumnInterface
      */
-    public function getTableIdColumn(): TableIdColumnInterface;
+    public function getCheckboxSelectors(): TableIdColumnInterface;
 
     /**
      * Sets if the first column will automatically be converted to checkboxes
@@ -168,7 +168,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * @param TableIdColumnInterface $checkbox_selectors
      * @return static
      */
-    public function setTableIdColumn(TableIdColumnInterface $checkbox_selectors): static;
+    public function setCheckboxSelectors(TableIdColumnInterface $checkbox_selectors): static;
 
     /**
      * Returns the URL that applies to each row

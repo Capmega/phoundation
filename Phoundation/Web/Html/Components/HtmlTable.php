@@ -466,23 +466,23 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Returns if the first column will automatically be converted to checkboxes
+     * Returns if the first column automatically is converted to checkboxes
      *
      * @return TableIdColumnInterface
      */
-    public function getTableIdColumn(): TableIdColumnInterface
+    public function getCheckboxSelectors(): TableIdColumnInterface
     {
         return $this->checkbox_selectors;
     }
 
 
     /**
-     * Sets if the first column will automatically be converted to checkboxes
+     * Sets if the first column automatically is converted to checkboxes
      *
      * @param TableIdColumnInterface $checkbox_selectors
      * @return static
      */
-    public function setTableIdColumn(TableIdColumnInterface $checkbox_selectors): static
+    public function setCheckboxSelectors(TableIdColumnInterface $checkbox_selectors): static
     {
         $this->checkbox_selectors = $checkbox_selectors;
         return $this;

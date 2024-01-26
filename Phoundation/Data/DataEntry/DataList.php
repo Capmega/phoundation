@@ -309,7 +309,7 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setId(static::getTable())
                 ->setSource($this->getSourceColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setTableIdColumn(TableIdColumn::checkbox);
+                ->setCheckboxSelectors(TableIdColumn::checkbox);
         }
 
         $this->selectQuery();
@@ -319,7 +319,7 @@ abstract class DataList extends Iterator implements DataListInterface
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setTableIdColumn(TableIdColumn::checkbox);
+            ->setCheckboxSelectors(TableIdColumn::checkbox);
     }
 
 
@@ -338,7 +338,7 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setId(static::getTable())
                 ->setSource($this->getSourceColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setTableIdColumn(TableIdColumn::checkbox);
+                ->setCheckboxSelectors(TableIdColumn::checkbox);
         }
 
         $this->selectQuery();
@@ -348,7 +348,7 @@ abstract class DataList extends Iterator implements DataListInterface
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setTableIdColumn(TableIdColumn::checkbox);
+            ->setCheckboxSelectors(TableIdColumn::checkbox);
     }
 
 

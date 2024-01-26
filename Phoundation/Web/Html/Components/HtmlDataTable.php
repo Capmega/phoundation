@@ -509,7 +509,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPhpDateFormat(?string $php_date_format): static
     {
         $this->php_date_format = $php_date_format;
-        $this->js_date_format  = DateTime::convertJsToPhpFormat($php_date_format);
+        $this->js_date_format  = DateTime::convertPhpToJsFormat($php_date_format);
         return $this;
     }
 

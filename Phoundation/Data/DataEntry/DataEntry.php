@@ -616,19 +616,24 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
+     * @param bool $exception
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $exception = true): static
     {
         if (!$identifier) {
-            // No identifier specified, return an empty object
-            throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
-                ':class'      => static::getClassName(),
-                ':column'     => static::getColumn($identifier, $column),
-                ':identifier' => $identifier
-            ]));
+            // No identifier specified
+            if ($exception) {
+                // Identifier is required here
+                throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
+                    ':class'      => static::getClassName(),
+                    ':column'     => static::getColumn($identifier, $column),
+                    ':identifier' => $identifier
+                ]));
+            }
 
-//            return new static(null, null, $meta_enabled);
+            // Return an empty DataEntryInterface object
+            return new static(null, null, $meta_enabled);
         }
 
         if (is_object($identifier)) {

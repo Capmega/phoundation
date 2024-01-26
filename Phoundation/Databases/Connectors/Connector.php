@@ -24,6 +24,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -414,9 +415,11 @@ class Connector extends DataEntry implements ConnectorInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @return static|null
+     * @param bool $exception
+     * @return Connector
+     * @throws SqlExceptionInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $exception = true): static
     {
         if (($column === 'id') or (($column === null) and is_numeric($identifier))) {
             if ($identifier < 0) {

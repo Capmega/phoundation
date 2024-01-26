@@ -230,9 +230,10 @@ class User extends DataEntry implements UserInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @return User|null
+     * @param bool $exception
+     * @return User
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $exception = true): static
     {
         try {
             return parent::get($identifier, $column, $meta_enabled);

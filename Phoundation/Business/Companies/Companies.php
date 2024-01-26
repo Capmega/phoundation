@@ -79,7 +79,7 @@ class Companies extends DataList
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         $table = parent::getHtmlTable();
-        $table->setTableIdColumn(TableIdColumn::checkbox);
+        $table->setCheckboxSelectors(TableIdColumn::checkbox);
 
         return $table;
     }

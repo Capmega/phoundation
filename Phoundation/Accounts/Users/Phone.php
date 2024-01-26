@@ -150,9 +150,10 @@ class Phone extends DataEntry implements PhoneInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @return static|null
+     * @param bool $exception
+     * @return Phone
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $exception = true): static
     {
         try {
             return parent::get($identifier, $column, $meta_enabled, $force);
