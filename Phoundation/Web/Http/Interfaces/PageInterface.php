@@ -39,7 +39,8 @@ interface PageInterface
      * Returns the class for the given section, if available
      *
      * @param string $section
+     * @param string|null $default
      * @return string|null
      */
-    public static function getClass(string $section): ?string;
+    public static function getClass(string $section, ?string $default = null): ?string;
 }
