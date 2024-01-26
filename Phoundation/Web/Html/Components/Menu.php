@@ -88,7 +88,7 @@ class Menu extends ElementsBlock implements MenuInterface
             $menu = $menu->__toArray();
         }
 
-        $this->source = array_merge($menu, $this->source);
+        $this->source = array_merge($this->source, $menu);
         return $this;
     }
 
@@ -105,7 +105,7 @@ class Menu extends ElementsBlock implements MenuInterface
             $menu = $menu->__toArray();
         }
 
-        $this->source = array_merge($this->source, $menu);
+        $this->source = array_merge($menu, $this->source);
         return $this;
     }
 }
