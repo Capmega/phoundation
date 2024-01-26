@@ -223,7 +223,7 @@ if ($user->getId()) {
                                 ->setOrder([0 => 'asc'])
                                 ->setColumnsOrderable([0 => true, 1 => false])
                                 ->setInfoEnabled(false)
-                                ->setTableIdColumn(TableIdColumn::hidden)
+                                ->setCheckboxSelectors(TableIdColumn::hidden)
                                 ->render());
 
     $emails_card = Card::new()

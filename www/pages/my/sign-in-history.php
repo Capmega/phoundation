@@ -15,7 +15,7 @@ use Phoundation\Web\Page;
 
 
 $signins = SignIns::new();
-$table   = $signins->getHtmlDataTable()->setTableIdColumn(TableIdColumn::hidden);
+$table   = $signins->getHtmlDataTable()->setCheckboxSelectors(TableIdColumn::hidden);
 $signins = Card::new()
     ->setTitle('Your signin history')
     ->setSwitches('reload')
