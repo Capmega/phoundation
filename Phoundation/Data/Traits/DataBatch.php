@@ -17,16 +17,18 @@ namespace Phoundation\Data\Traits;
  */
 trait DataBatch
 {
+    /**
+     * @var bool $batch
+     */
     protected bool $batch = false;
 
 
     /**
      * Returns if the scan job is a batch
      *
-     * @param bool $batch
      * @return bool
      */
-    public function getBatch(bool $batch): bool
+    public function getBatch(): bool
     {
         return $this->batch;
     }
