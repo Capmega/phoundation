@@ -82,6 +82,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
         $this->stop      = microtime(true);
         $this->exit_code = $exit_code;
+        $this->output    = $output;
 
         if (empty($this->accepted_exit_codes)) {
             // By default, always accept exit code 0

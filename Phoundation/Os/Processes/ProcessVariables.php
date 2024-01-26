@@ -314,6 +314,13 @@ trait ProcessVariables
      */
     protected ?EnumExecuteMethodInterface $method = null;
 
+    /**
+     * The output of the process
+     *
+     * @var array|string|null $output
+     */
+    protected array|string|null $output = null;
+
 
     /**
      * Process class constructor
@@ -501,6 +508,19 @@ trait ProcessVariables
         }
 
         return microtime(true);
+    }
+
+
+    /**
+     * Returns the output of the process
+     *
+     * If requested before process execution, will return NULL
+     *
+     * @return array|string|null
+     */
+    public function getOutput(): array|string|null
+    {
+        return $this->output;
     }
 
 
