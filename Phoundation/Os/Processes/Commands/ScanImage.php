@@ -43,13 +43,6 @@ class ScanImage extends Command
      */
     protected ProfileInterface $profile;
 
-    /**
-     * Tracks if the scan should be a batch job
-     *
-     * @var bool $batch
-     */
-    protected bool $batch = false;
-
 
     /**
      * Returns a list of all available hardware devices
@@ -365,20 +358,12 @@ class ScanImage extends Command
             throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
         }
 
-        showdie($this->setCommand('scanimage')
-            ->addArguments(['-d', $this->profile->getDevice()->getUrl()])
-            ->addArguments(['-o', $path])
-            ->addArguments($this->options)
-            ->addArgument($this->batch ? '--batch' : null)
-            ->setTimeout(120)->getFullCommandLine());
-
         $this->setCommand('scanimage')
              ->addArguments(['-d', $this->profile->getDevice()->getUrl()])
-             ->addArguments(['-o', $path])
              ->addArguments($this->options)
-             ->addArgument($this->batch ? '--batch' : null)
+             ->addArguments($this->batch ? ['--batch=' . $path] : ['-o', $path])
              ->setTimeout(120)
-             ->executeReturnArray();
+             ->execute($method);
 
         return $this;
     }
