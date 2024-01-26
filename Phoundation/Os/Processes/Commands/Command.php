@@ -33,6 +33,7 @@ abstract class Command extends ProcessCore implements CommandInterface
      * Command constructor.
      *
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string|null $operating_system
      * @param string|null $packages
      */
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
