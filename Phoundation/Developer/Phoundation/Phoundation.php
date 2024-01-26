@@ -292,7 +292,10 @@ class Phoundation extends Project
         try {
             // Execute the patching
             $stash    = new Iterator();
-            $sections = ['Phoundation', 'Plugins/Phoundation'];
+            $sections = [
+                'Phoundation',
+                'Plugins/Phoundation',
+            ];
 
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally

@@ -270,9 +270,12 @@ class Plugins extends Project
 
         try {
             // Execute the patching, first stash all libraries that are not in the official Phoundation Plugins list
-            $stash                 = new Iterator();
-            $sections              = ['Plugins'];
             $non_phoundation_stash = $this->stashNonPhoundationPlugins();
+            $stash                 = new Iterator();
+            $sections              = [
+                'Plugins',
+                'Templates'
+            ];
 
             foreach ($sections as $section) {
                 // Patch phoundation target section and remove the changes locally
