@@ -9,8 +9,10 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\HtmlDataTable;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Enums\TableIdColumn;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -65,12 +67,13 @@ class MetaList
         // Create and return the table
         $in     = Sql::in($this->meta_list);
         $source = sql()->list('SELECT    `meta_history`.`id`,
-                                               DATE_FORMAT(`meta_history`.`created_on`, "%d-%m-%Y %h:%m:%s") AS `date_time`,
+                                               `meta_history`.`created_by`,
+                                               DATE_FORMAT(`meta_history`.`created_on`, "%Y-%m-%d %h:%m:%s") AS `date_time`,
                                                COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`,
                                                `meta_history`.`action`,  
                                                `meta_history`.`source`,  
-                                               `meta_history`.`comments`,
-                                               `meta_history`.`data`
+                                               `meta_history`.`data`,
+                                               `meta_history`.`comments`
                                      FROM      `meta_history`          
                                      LEFT JOIN `accounts_users`
                                      ON        `accounts_users`.`id` = `meta_history`.`created_by`
@@ -78,7 +81,13 @@ class MetaList
                                      ORDER BY  `meta_history`.`created_on` DESC', $in);
 
         foreach ($source as &$row) {
+            if ($row['created_by']) {
+                $row['user'] = '<a href="' . UrlBuilder::getWww('profiles/profile+' . $row['created_by'] . '.html') . '">' . $row['user'] . '</a>';
+            }
+
             $row['data'] = Json::decode($row['data']);
+
+            unset($row['created_by']);
 
             if (Url::isValid($row['source'])) {
                 $row['source'] = '<a href = "' . $row['source'] . '">' . $row['source'] . '</a>';
@@ -128,6 +137,9 @@ class MetaList
 
          $table = HtmlDataTable::new()
             ->setId('meta')
+            ->setCheckboxSelectors(TableIdColumn::visible)
+            ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
+            ->setOrder([0 => 'desc'])
             ->setProcessEntities(false)
             ->setSource($source);
 
@@ -136,8 +148,8 @@ class MetaList
              tr('User'),
              tr('Action'),
              tr('Source'),
+             tr('Changes'),
              tr('Comments'),
-             tr('Data'),
          ]);
 
         return $table;
