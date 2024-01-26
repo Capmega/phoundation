@@ -610,12 +610,117 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     /**
      * Returns the date time format from PHP to JS
      *
-     * @param string $php_date_format
+     * @param string $php_format
      * @return string
      */
-    public static function convertPhpToJsFormat(string $php_date_format): string
+    public static function convertPhpToJsFormat(string $php_format): string
     {
         throw new UnderConstructionException();
+        $js_format = $php_format;
+        $lookup    = [
+            'M'         => ['js' => 'n'],
+            'Mo'        => ['js' => 'n',
+                'callback' => function (&$value) {
+                    $value = $value . Strings::ordinalIndicator($value);
+                }],
+            'MM'        => ['js' => 'm'],
+            'MMM'       => ['js' => 'M'],
+            'MMMM'      => ['js' => 'F'],
+            'Q'         => null,
+            'Qo'        => null,
+            'D'         => ['js' => 'j'],
+            'Do'        => ['js' => 'jS'],
+            'DD'        => ['js' => 'd'],
+            'DDD'       => null,
+            'DDDo'      => null,
+            'DDDD'      => null,
+            'd'         => null,
+            'do'        => null,
+            'dd'        => null,
+            'ddd'       => null,
+            'dddd'      => ['js' => 'l'],
+            'e'         => null,
+            'E'         => null,
+            'w'         => null,
+            'wo'        => null,
+            'ww'        => null,
+            'W'         => null,
+            'Wo'        => null,
+            'WW'        => null,
+            'YY'        => null,
+            'YYYY'      => ['js' => 'Y'],
+            'YYYYYY'    => null,
+            'Y'         => null,
+            'y'         => null,
+            'N'         => null,
+            'NN'        => null,
+            'NNN'       => null,
+            'NNNN'      => null,
+            'NNNNN'     => null,
+            'gg'        => null,
+            'gggg'      => null,
+            'GG'        => null,
+            'GGGG'      => null,
+            'A'         => null,
+            'a'         => null,
+            'H'         => ['js' => 'G'],
+            'HH'        => ['js' => 'H'],
+            'h'         => ['js' => 'g'],
+            'hh'        => ['js' => 'h'],
+            'k'         => null,
+            'kk'        => null,
+            'm'         => null,
+            'mm'        => ['js' => 'i'],
+            's'         => null,
+            'ss'        => ['js' => 's'],
+            'S'         => null,
+            'SS'        => null,
+            'SSS'       => null,
+            'SSSS'      => null,
+            'SSSSS'     => null,
+            'SSSSSS'    => null,
+            'SSSSSSS'   => null,
+            'SSSSSSSS'  => null,
+            'SSSSSSSSS' => null,
+            'z'         => null,
+            'zz'        => null,
+            'Z'         => null,
+            'ZZ'        => null,
+            'X'         => null,
+            'x'         => null,
+        ];
+
+        // Get all javascript matches
+        preg_match_all('/([a-z])+/i', $js_format, $matches);
+
+        if (empty($matches)) {
+            throw new OutOfBoundsException(tr('Failed to convert Javascript date time format string ":format" to PHP', [
+                ':format' => $js_format
+            ]));
+        }
+
+        $matches = $matches[0];
+        $matches = Arrays::sortByValueLength($matches);
+
+        foreach ($matches as $match) {
+            if (!array_key_exists($match, $lookup)) {
+                throw new OutOfBoundsException(tr('Unknown Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format"', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            if ($lookup[$match] === null) {
+                throw new UnsupportedException(tr('Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format" is currently not supported', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            $php_format = str_replace($match, $lookup[$match]['php'], $php_format);
+        }
+
+        return $php_format;
     }
 
 
