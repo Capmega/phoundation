@@ -20,6 +20,7 @@ use Phoundation\Os\Processes\Commands\Gzip;
 use Phoundation\Os\Processes\Commands\Sha256;
 use Phoundation\Os\Processes\Commands\Tar;
 use Phoundation\Os\Processes\Commands\Zip;
+use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -1277,5 +1278,23 @@ class File extends Path implements FileInterface
     public function ensureLineEndings(string $line_endings = PHP_EOL): static
     {
         return $this->replace(['\n' => $line_endings, '\l' => $line_endings, '\r' => $line_endings]);
+    }
+
+
+    /**
+     * Returns the last # amount of lines from this file
+     *
+     * @param int|null $lines
+     * @return array
+     */
+    public function tail(?int $lines = null): array
+    {
+        $this->checkRestrictions(false)
+             ->checkExists();
+
+        return Process::new('tail')
+            ->addArguments($lines ? ['-n', $lines] : null)
+            ->addArgument($this->path)
+            ->executeReturnArray();
     }
 }
