@@ -24,7 +24,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
 
@@ -78,7 +78,7 @@ $mounts   = Mounts::new();
 $builder = $mounts->getQueryBuilder()->setDebug(true)
     ->addSelect('`filesystem_mounts`.`id`, 
                  `filesystem_mounts`.`name`, 
-                 `filesystem_mounts`.`type`, 
+                 `filesystem_mounts`.`filesystem`, 
                  `filesystem_mounts`.`source_path`, 
                  `filesystem_mounts`.`target_path`, 
                  `filesystem_mounts`.`status`, 
