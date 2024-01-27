@@ -872,9 +872,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
                 $params['no_url'] = $made_checkbox;
 
-                if ($value !== null) {
-                    $return .= $this->renderCell($row_id, $column, $value, $params);
-                }
+                $return .= $this->renderCell($row_id, $column, $value, $params);
 
             } else {
                 $params['no_url'] = $made_checkbox;
