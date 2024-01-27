@@ -547,7 +547,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         if ($this->id_is_unique_column) {
             if ($key) {
-                if ($key != $value->getUniqueColumnValue()) {
+                if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
                     // Key must either not be specified or match the id of the DataEntry
                     throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
                         ':value'  => $value->getUniqueColumnValue(),
@@ -557,6 +557,10 @@ abstract class DataList extends Iterator implements DataListInterface
                         ':key'    => $key
                     ]));
                 }
+
+                // Either the specified DataEntry object has no value for its unique column, or the unique column
+                // matches the specified key. Either way, we're good to go
+
             } else {
                 $key = $value->getUniqueColumnValue();
             }
@@ -570,7 +574,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         } else {
             if ($key) {
-                if ($key != $value->getId()) {
+                if (!$value->isNew() and ($key != $value->getId())) {
                     // Key must either not be specified or match the id of the DataEntry
                     throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
                         ':type' => $value::getDataEntryName(),
@@ -578,6 +582,9 @@ abstract class DataList extends Iterator implements DataListInterface
                         ':key'  => $key
                     ]));
                 }
+
+                // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
+
             } else {
                 $key = $value->getId();
             }
