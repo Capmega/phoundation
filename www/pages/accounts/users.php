@@ -24,7 +24,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 
@@ -99,15 +99,21 @@ switch ($filters->getSourceKey('entry_status')) {
         break;
 
     default:
-        $builder->addWhere('`accounts_users`.`status` = :status', [':status' => $filters->getSourceKey('entry_status')]);
+        $builder->addWhere('`accounts_users`.`status` = :status', [
+            ':status' => $filters->getSourceKey('entry_status')
+        ]);
 }
 
 if ($filters->getSourceKey('roles_id')) {
-    $builder->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [':roles_id' => $filters->getSourceKey('roles_id')]);
+    $builder->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [
+        ':roles_id' => $filters->getSourceKey('roles_id')
+    ]);
 }
 
 if ($filters->getSourceKey('rights_id')) {
-    $builder->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`rights_id` :rights_id AND `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [':rights_id' => $filters->getSourceKey('rights_id')]);
+    $builder->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`rights_id` :rights_id AND `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
+        ':rights_id' => $filters->getSourceKey('rights_id')
+    ]);
 }
 
 
