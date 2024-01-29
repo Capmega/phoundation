@@ -90,10 +90,9 @@ class MySql extends Command
      *
      * @param string $file
      * @param RestrictionsInterface $restrictions
-     * @param int $timeout
      * @throws Throwable
      */
-    public function import(string $file, RestrictionsInterface $restrictions, int $timeout = 3600): void
+    public function import(string $file, RestrictionsInterface $restrictions): void
     {
         // Get file and database information
         $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
@@ -113,7 +112,7 @@ class MySql extends Command
         switch ($file->getMimetype()) {
             case 'text/plain':
                 $this->setCommand('mysql')
-                    ->setTimeout($timeout)
+                    ->setTimeout($this->timeout)
                     ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()])
                     ->setInputRedirect($file)
                     ->executeNoReturn();
@@ -121,11 +120,11 @@ class MySql extends Command
 
             case 'application/gzip':
                 $this->setCommand('mysql')
-                    ->setTimeout($timeout)
+                    ->setTimeout($this->timeout)
                     ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()]);
 
                 Zcat::new()
-                    ->setTimeout($timeout)
+                    ->setTimeout($this->timeout)
                     ->setFile($file)
                     ->setPipe($this)
                     ->execute();

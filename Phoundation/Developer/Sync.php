@@ -7,6 +7,7 @@ namespace Phoundation\Developer;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataTimeout;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
@@ -38,6 +39,9 @@ use Phoundation\Utils\Strings;
  */
 class Sync
 {
+    use DataTimeout;
+
+
     /**
      * Sets if the system initializes after syncing
      *
@@ -109,6 +113,15 @@ class Sync
      * @var array $dump_files
      */
     protected array $dump_files = [];
+
+
+    /**
+     * Sync class constructor
+     */
+    public function __construct()
+    {
+        $this->timeout = 3600;
+    }
 
 
     /**
@@ -1026,6 +1039,7 @@ class Sync
     {
         if ($server) {
             return Process::new()
+                ->setTimeout($this->timeout)
                 ->setCommand($this->configuration['path'] . 'pho', false)
                 ->setServer($server)
                 ->setSudo($this->configuration['sudo'])
@@ -1033,6 +1047,7 @@ class Sync
         }
 
         return Process::new()
+            ->setTimeout($this->timeout)
             ->setCommand(DIRECTORY_ROOT . 'pho', false)
             ->addArguments(['-E', ENVIRONMENT]);
     }

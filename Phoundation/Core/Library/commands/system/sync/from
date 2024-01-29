@@ -21,6 +21,14 @@ use Phoundation\Developer\Sync;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+CliDocumentation::autoComplete([
+    'arguments' => [
+        '-l,--lock'    => false,
+        '-i,--no-init' => false,
+        '-t,--timeout' => true,
+    ]
+]);
+
 CliDocumentation::usage('./pho system sync ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');
 
@@ -37,7 +45,10 @@ ENVIRONMENT                             The single source environment to which t
                                         process has finished
 
 [-l / --lock]                           If specified, will readonly lock the target environment until sync has
-                                        finished');
+                                        finished
+
+[-t / --timeout TIMEOUT]                Timeout in integer seconds before the process will be terminated due to timeout
+                                        (defaults to 3600)');
 
 
 // Validate arguments
@@ -45,11 +56,13 @@ $argv = ArgvValidator::new()
     ->select('environment', true)->isVariable()
     ->select('-l,--lock')->isOptional(false)->isBoolean()
     ->select('-i,--no-init')->isOptional(false)->isBoolean()
+    ->select('-t,--timeout', true)->isOptional(3600)->isNatural(true)
     ->validate();
 
 
 // Sync environments
 Sync::new()
+    ->setTimeout($argv['timeout'])
     ->setLock($argv['lock'])
     ->setInit(!$argv['no_init'])
     ->from($argv['environment']);
