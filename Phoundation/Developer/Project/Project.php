@@ -917,16 +917,8 @@ $skip = false;
             Log::action('Updating Phoundation plugins');
             Rsync::new()
                 ->setSource($plugins->getDirectory())
-                ->setExclude(['Phoundation', '.git', '.gitignore'])
-                ->setTarget(DIRECTORY_ROOT . 'Plugins')
-                ->execute();
-
-            // Copy new template libraries
-            Log::action('Updating Phoundation templates');
-            Rsync::new()
-                ->setSource($templates->getDirectory())
-                ->setExclude(['Phoundation', '.git', '.gitignore'])
-                ->setTarget(DIRECTORY_ROOT . 'Templates')
+                ->setExclude(['Plugins/Phoundation', '.git', '.gitignore'])
+                ->setTarget(DIRECTORY_ROOT)
                 ->execute();
 
             // Switch phoundation back to its previous branch
