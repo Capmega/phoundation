@@ -206,6 +206,7 @@ class Import
                 ]));
 
                 MySql::new()
+                    ->setTimeout($this->timeout)
                     ->setConnector($this->connector)
                     ->drop($this->drop ? $this->database : null)
                     ->create($this->drop ? $this->database : null)
