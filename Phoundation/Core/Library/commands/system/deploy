@@ -7,6 +7,8 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
 
 
 /**
@@ -19,8 +21,44 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho system deploy
-./pho system deploy TARGET --
+$restrictions = Restrictions::readonly([DIRECTORY_ROOT . 'config/deploy/'],  tr('Deploy'));
+
+CliDocumentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
+            'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
+        ]
+    ],
+    'arguments' => [
+        '-c / --categories'   => false,
+        '-t / --targets'      => false,
+        '--do-ignore-changes' => false,
+        '--no-ignore-changes' => false,
+        '--do-content-check'  => false,
+        '--no-content-check'  => false,
+        '--do-execute-hooks'  => false,
+        '--no-execute-hooks'  => false,
+        '--do-init'           => false,
+        '--no-init'           => false,
+        '--no-notify'         => false,
+        '--no-compress'       => false,
+        '--no-push'           => false,
+        '--no-parrallel'      => false,
+        '--no-sitemap'        => false,
+        '--no-translate'      => false,
+        '--no-bom-check'      => false,
+        '--no-backup'         => false,
+        '--do-backup'         => false,
+        '--update-sitemap'    => false,
+        '-F / --force'        => false,
+        '--test-syntax'       => false,
+        '--test-unit'         => false
+    ]
+]);
+
+CliDocumentation::usage('./pho system deploy TARGET
+./pho system deploy TARGET --no-init
 ');
 
 CliDocumentation::help('This script will deploy your project from this machine to the target environment
@@ -43,40 +81,41 @@ ARGUMENTS
 
 TARGET                                  - The target name to which to deploy
 
--c / --categories                       - List all available deployment categories
+[-c / --categories]                     - List all available deployment categories
 
--t / --targets                          - List all available deployment targets
+[-t / --targets]                        - List all available deployment targets
 
 
---do-ignore-changes                     - Do not ignore git status, check for uncommitted changes
---no-ignore-changes                     - Ignore git status, don\'t check for uncommitted changes
+[--do-ignore-changes]                   - Do not ignore git status, check for uncommitted changes
 
---do-content-check                      - Do check content files
+[--no-ignore-changes]                   - Ignore git status, don\'t check for uncommitted changes
 
---no-content-check                      - Do not check content files
+[--do-content-check]                    - Do check content files
 
---do-execute-hooks                      - Do execute hooks
+[--no-content-check]                    - Do not check content files
 
---no-execute-hooks                      - Do not execute hooks
+[--do-execute-hooks]                    - Do execute hooks
 
---do-init                               - Do execute an init on the target server
+[--no-execute-hooks]                    - Do not execute hooks
 
---no-init                               - Do not execute an init on the target server
+[--do-init]                             - Do execute an init on the target server
 
---no-notify                             - Do not send notifications
+[--no-init]                             - Do not execute an init on the target server
 
---no-compress                           - Do not compress the javascript / CSS files.
+[--no-notify]                           - Do not send notifications
 
---no-push                               - Do not automatically git push all changes and tags
+[--no-compress]                         - Do not compress the javascript / CSS files.
 
---no-parrallel                          - Do not use parallel rsync deploy, even if the website is configured to do so
+[--no-push]                             - Do not automatically git push all changes and tags
+
+[--no-parrallel]                        - Do not use parallel rsync deploy, even if the website is configured to do so
                                           anyway
 
---no-sitemap                            - Do not automatically reupdate the sitemap files
+[--no-sitemap]                          - Do not automatically reupdate the sitemap files
 
---no-translate                          - Do not execute file translation
+[--no-translate]                        - Do not execute file translation
 
---no-bom-check                          - Do not test for BOM character in all PHP files. The ByteOrderMark character is
+[--no-bom-check]                        - Do not test for BOM character in all PHP files. The ByteOrderMark character is
                                           a UTF8 character (added mostly by apple machines) that indicates how to read
                                           the UTF8 text, but is interpreted by the PHP as a character before the <?php
                                           tag, which can cause problems with headers(). The clearbom script will strip
@@ -84,58 +123,60 @@ TARGET                                  - The target name to which to deploy
                                           no BOM characters end up in production code. This option disables the BOM
                                           check.
 
---no-backup                             - Do NOT execute a site / database backup, even though per configuration, a
+[--no-backup]                           - Do NOT execute a site / database backup, even though per configuration, a
                                           backup should be done
 
---do-backup                             - Execute a site / database backup, even if per configuration, a backup should
+[--do-backup]                           - Execute a site / database backup, even if per configuration, a backup should
                                           not be done
 
---update-sitemap                        - rsync the www/LANG/sitemap file as well (Normally always skipped)
+[--update-sitemap]                      - rsync the www/LANG/sitemap file as well (Normally always skipped)
 
--F / --force                            - Force a deploy, even when it should be stopped due to (for example) git changes
+[-F / --force]                          - Force a deploy, even when it should be stopped due to (for example) git changes
 
---test-syntax                           - Do PHP syntax tests
+[--test-syntax]                         - Do PHP syntax tests
 
---test-unit                             - Do PHP unit tests ');
+[--test-unit]                           - Do PHP unit tests ');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('--targets', true)->isOptional()->sanitizeForceArray(',')->each()->isVariable()
-    ->select('-c,--categories', true)->isOptional()->isVariable()
-    ->select('--do-ignore-changes')->isOptional()->isBoolean()
-    ->select('--no-ignore-changes')->isOptional()->isBoolean()
-    ->select('--do-content-check')->isOptional()->isBoolean()
-    ->select('--no-content-check')->isOptional()->isBoolean()
-    ->select('--do-execute-hooks')->isOptional()->isBoolean()
-    ->select('--no-execute-hooks')->isOptional()->isBoolean()
-    ->select('--do-init')->isOptional()->isBoolean()
-    ->select('--no-init')->isOptional()->isBoolean()
-    ->select('--do-notify')->isOptional()->isBoolean()
-    ->select('--no-notify')->isOptional()->isBoolean()
-    ->select('--do-compress')->isOptional()->isBoolean()
-    ->select('--no-compress')->isOptional()->isBoolean()
-    ->select('--do-push')->isOptional()->isBoolean()
-    ->select('--no-push')->isOptional()->isBoolean()
-    ->select('--do-parallel')->isOptional()->isBoolean()
-    ->select('--no-parallel')->isOptional()->isBoolean()
-    ->select('--do-translate')->isOptional()->isBoolean()
-    ->select('--no-translate')->isOptional()->isBoolean()
-    ->select('--do-bom-check')->isOptional()->isBoolean()
-    ->select('--no-bom-check')->isOptional()->isBoolean()
-    ->select('--do-backup')->isOptional()->isBoolean()
-    ->select('--no-backup')->isOptional()->isBoolean()
-    ->select('--do-stash')->isOptional()->isBoolean()
-    ->select('--no-stash')->isOptional()->isBoolean()
-    ->select('--do-update-sitemap')->isOptional()->isBoolean()
-    ->select('--no-update-sitemap')->isOptional()->isBoolean()
-    ->select('--do-test-syntax')->isOptional()->isBoolean()
-    ->select('--no-test-syntax')->isOptional()->isBoolean()
-    ->select('--do-test-unit')->isOptional()->isBoolean()
-    ->select('--no-test-unit')->isOptional()->isBoolean()
+    ->select('target')->isOptional()->sanitizeForceArray(',')->each()->isVariable()
+    ->select('--targets')->isOptional()->isBoolean()
+    ->select('-c,--categories')->isOptional()->isBoolean()
+    ->select('--do-ignore-changes')->isDefault()->orColumn('--no-ignore-changes')->isBoolean()
+    ->select('--no-ignore-changes')->isDefault()->orColumn('--do-ignore-changes')->isBoolean()
+    ->select('--do-content-check')->isDefault()->orColumn('--no-content-check')->isBoolean()
+    ->select('--no-content-check')->isDefault()->orColumn('--do-content-check')->isBoolean()
+    ->select('--do-execute-hooks')->isDefault()->orColumn('no-execute-hooks')->isBoolean()
+    ->select('--no-execute-hooks')->isDefault()->orColumn('--do-execute-hooks')->isBoolean()
+    ->select('--do-init')->isDefault()->orColumn('--no-init')->isBoolean()
+    ->select('--no-init')->isDefault()->orColumn('--do-init')->isBoolean()
+    ->select('--do-notify')->isDefault()->orColumn('--no-notify')->isBoolean()
+    ->select('--no-notify')->isDefault()->orColumn('--do-notify')->isBoolean()
+    ->select('--do-compress')->isDefault()->orColumn('--no-compress')->isBoolean()
+    ->select('--no-compress')->isDefault()->orColumn('do-compress')->isBoolean()
+    ->select('--do-push')->isDefault()->orColumn('--no-push')->isBoolean()
+    ->select('--no-push')->isDefault()->orColumn('--do-push')->isBoolean()
+    ->select('--do-parallel')->isDefault()->orColumn('--no-parallel')->isBoolean()
+    ->select('--no-parallel')->isDefault()->orColumn('--do-parallel')->isBoolean()
+    ->select('--do-translate')->isDefault()->orColumn('--no-translate')->isBoolean()
+    ->select('--no-translate')->isDefault()->orColumn('--do-translate')->isBoolean()
+    ->select('--do-bom-check')->isDefault()->orColumn('--no-bom-check')->isBoolean()
+    ->select('--no-bom-check')->isDefault()->orColumn('--do-bom-check')->isBoolean()
+    ->select('--do-backup')->isDefault()->orColumn('--no-backup')->isBoolean()
+    ->select('--no-backup')->isDefault()->orColumn('--do-backup')->isBoolean()
+    ->select('--do-stash')->isDefault()->orColumn('--no-stash')->isBoolean()
+    ->select('--no-stash')->isDefault()->orColumn('--do-stash')->isBoolean()
+    ->select('--do-update-sitemap')->isDefault()->orColumn('--no-update-sitemap')->isBoolean()
+    ->select('--no-update-sitemap')->isDefault()->orColumn('--do-update-sitemap')->isBoolean()
+    ->select('--do-test-syntax')->isDefault()->orColumn('--no-test-syntax')->isBoolean()
+    ->select('--no-test-syntax')->isDefault()->orColumn('--do-test-syntax')->isBoolean()
+    ->select('--do-test-unit')->isDefault()->orColumn('--no-test-unit')->isBoolean()
+    ->select('--no-test-unit')->isDefault()->orColumn('--do-test-unit')->isBoolean()
     ->validate();
 
 
+// Start deploying
 Log::information('Starting deployment process');
 
 Project::new()->getDeploy($argv['targets'])

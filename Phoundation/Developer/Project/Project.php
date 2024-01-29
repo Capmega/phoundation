@@ -913,12 +913,20 @@ $skip = false;
         try {
             Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
 
-            // Copy new plugin versions
+            // Copy new plugin libraries
             Log::action('Updating Phoundation plugins');
             Rsync::new()
                 ->setSource($plugins->getDirectory())
                 ->setExclude(['Phoundation', '.git', '.gitignore'])
-                ->setTarget(DIRECTORY_ROOT)
+                ->setTarget(DIRECTORY_ROOT . 'Plugins')
+                ->execute();
+
+            // Copy new template libraries
+            Log::action('Updating Phoundation templates');
+            Rsync::new()
+                ->setSource($templates->getDirectory())
+                ->setExclude(['Phoundation', '.git', '.gitignore'])
+                ->setTarget(DIRECTORY_ROOT . 'Templates')
                 ->execute();
 
             // Switch phoundation back to its previous branch
