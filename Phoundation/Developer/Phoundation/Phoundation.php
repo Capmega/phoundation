@@ -282,7 +282,7 @@ class Phoundation extends Project
         ]));
 
 
-        // Reset local project to HEAD and update
+        // Reset the local project to HEAD and update
         Project::new()->resetHead();
         Project::new()->updateLocalProject($branch, $message, $sign);
 

@@ -51,7 +51,9 @@ ARGUMENTS
 
 [-p / --phoundation PATH]               If specified should contain the path to your local Phoundation installation
 
-[-n / --no-plugins]                     If specified will not patch the plugins');
+[-n / --no-plugins]                     If specified will not patch the plugins
+
+[--no-phoundation]                      If specified will not patch the Phoundation core libraries');
 
 
 
@@ -63,6 +65,7 @@ $argv = ArgvValidator::new()
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
     ->select('-s,--signed')->isOptional()->isBoolean()
     ->select('-n,--no-plugins')->isOptional()->isBoolean()
+    ->select('--no-phoundation')->isOptional()->isBoolean()
     ->validate();
 
 
@@ -71,8 +74,13 @@ Log::information(tr('Copying local changes in ":project" project back to your Ph
 ]));
 
 try {
-    Log::action('Patching Phoundation core libraries');
-    Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+    if ($argv['no_phoundation']) {
+        Log::warning('Not patching Phoundation core libraries');
+
+    } else {
+        Log::action('Patching Phoundation core libraries');
+        Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+    }
 
     if ($argv['no_plugins']) {
         Log::warning('Not patching plugins');
