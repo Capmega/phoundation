@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Developer\Versioning\Versioning;
 
@@ -69,9 +71,9 @@ class Stash extends Versioning
     /**
      * Lists the available stashes in the git repository
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getList(): array
+    public function getList(): IteratorInterface
     {
         $return  = [];
         $results = $this->git_process
@@ -82,10 +84,10 @@ class Stash extends Versioning
 
         foreach ($results as $result) {
             preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
-            $return[$matches[0][0]] = $matches[0][1];
+            $return[$matches[0][0]] = $matches[2][0];
         }
         
-        return $return;
+        return new Iterator($return);
     }
 
 
