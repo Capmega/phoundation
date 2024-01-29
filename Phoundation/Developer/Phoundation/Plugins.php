@@ -356,7 +356,7 @@ class Plugins extends Project
             if ($stash->getCount()) {
                 $bad_files = clone $stash;
 
-                // Whoopsie, we have shirts in stash, meaning some file was naughty.
+                // Whoopsie, we have shirts in the stash, meaning some file was naughty.
                 foreach ($stash as $key => $file) {
                     Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
                     Git::new(DIRECTORY_ROOT)->getStash()->pop();
@@ -369,10 +369,7 @@ class Plugins extends Project
 
             if ($non_phoundation_stash) {
                 // We have non Phoundation plugins in stash, pop those too
-                Log::warning(tr('Unstashing non phoundation plugins ":plugins"', [
-                    ':plugins' => array_keys($non_phoundation_stash)
-                ]));
-
+                Log::warning(tr('Unstashing non phoundation plugins'));
                 Git::new(DIRECTORY_ROOT)->getStash()->pop();
             }
 
@@ -410,10 +407,13 @@ class Plugins extends Project
     /**
      * Stashes those libraries that are not in the official Phoundation repository so that they don't get copied
      *
-     * @return array|null
+     * @return bool
      */
-    protected function stashNonPhoundationPlugins(): ?array
+    protected function stashNonPhoundationPlugins(): bool
     {
+        $pre_stash_count  = 0;
+        $post_stash_count = 0;
+
         $non_phoundation_plugins = $this->getNonPhoundationPlugins();
         $non_phoundation_plugins = $this->addPluginPaths($non_phoundation_plugins);
 
@@ -422,10 +422,11 @@ class Plugins extends Project
                 ':plugins' => implode(', ', array_keys($non_phoundation_plugins))
             ]));
 
-            Git::new(DIRECTORY_ROOT)->getStash()->stash($non_phoundation_plugins);
+            $pre_stash_count  = Git::new(DIRECTORY_ROOT)->getStash()->getList()->getCount();
+            $post_stash_count = Git::new(DIRECTORY_ROOT)->getStash()->stash($non_phoundation_plugins)->getList()->getCount();
         }
 
-        return $non_phoundation_plugins;
+        return (bool) ($post_stash_count - $pre_stash_count);
     }
 
 
