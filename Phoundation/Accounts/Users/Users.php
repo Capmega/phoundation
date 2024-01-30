@@ -328,7 +328,7 @@ class Users extends DataList implements UsersInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
 
         if ($this->parent) {

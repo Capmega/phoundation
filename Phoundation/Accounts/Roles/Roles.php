@@ -351,7 +351,7 @@ class Roles extends DataList implements RolesInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
 
         if ($this->parent) {

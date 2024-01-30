@@ -66,10 +66,10 @@ class Connectors extends DataList implements ConnectorsInterface
      * @param bool $clear
      * @return $this
      */
-    public function load(bool $clear = true, bool $ignore_sql_exceptions = false): static
+    public function load(bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
-            parent::load($clear);
+            parent::load($clear, $only_if_empty);
 
         } catch (SqlExceptionInterface $e) {
             if (!$ignore_sql_exceptions) {

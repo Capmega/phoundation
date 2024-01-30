@@ -142,7 +142,7 @@ class Menus extends Iterator implements IteratorInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         throw new UnderConstructionException();
 //        if (Core::stateIs('setup')) {

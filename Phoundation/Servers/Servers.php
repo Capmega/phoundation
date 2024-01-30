@@ -111,7 +111,7 @@ class Servers extends DataList
     /**
      * @inheritDoc
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         throw new UnderConstructionException();
         $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 

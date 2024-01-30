@@ -109,7 +109,7 @@ class Emails extends DataList implements EmailsInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         $this->parent  = User::get($this->parent,  'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];

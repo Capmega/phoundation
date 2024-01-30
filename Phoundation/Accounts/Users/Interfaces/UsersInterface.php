@@ -61,7 +61,7 @@ interface UsersInterface extends DataListInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static;
+    public function load(bool $clear = true, bool $only_if_empty = false): static;
 
     /**
      * Save the data for this users list in the database

@@ -92,7 +92,7 @@ class Languages extends DataList implements LanguagesInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
                                    FROM     `core_languages`
