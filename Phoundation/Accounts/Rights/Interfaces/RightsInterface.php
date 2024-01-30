@@ -62,7 +62,7 @@ interface RightsInterface extends DataListInterface
      * @param bool $clear
      * @return static
      */
-    public function load(bool $clear = true): static;
+    public function load(bool $clear = true, bool $only_if_empty = false): static;
 
     /**
      * Save the data for this rights list in the database

@@ -743,18 +743,24 @@ abstract class DataList extends Iterator implements DataListInterface
      * Load the id list from the database
      *
      * @param bool $clear
+     * @param bool $only_if_empty
      * @return static
      */
-    public function load(bool $clear = true): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         $this->selectQuery();
 
-        if ($clear or empty($this->source)) {
-            $this->source = sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id');
+        if ($this->source) {
+            if (!$only_if_empty) {
+                if (!$clear) {
+                    $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id'));
+                }
+            }
 
-        } else {
-            $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id'));
+            return $this;
         }
+
+        $this->source = sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id');
 
         return $this;
     }

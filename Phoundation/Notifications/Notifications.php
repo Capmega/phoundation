@@ -125,7 +125,7 @@ class Notifications extends DataList implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(bool $clear = true): static
+//    public function load(bool $clear = true, bool $only_if_empty = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
