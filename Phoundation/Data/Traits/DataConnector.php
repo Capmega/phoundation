@@ -7,7 +7,6 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
