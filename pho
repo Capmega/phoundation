@@ -21,7 +21,10 @@ use Phoundation\Cli\CliCommand;
 
 try {
     // Load the PHP autoloader and execute the static Script::execute() method that will execute the requested command
-    @require(__DIR__ . '/vendor/autoload.php');
+    if (!include(__DIR__ . '/vendor/autoload.php')) {
+        throw new Exception('Failed opening required \'./vendor/autoload.php\'');
+    }
+
     CliCommand::execute();
 
 } catch (Throwable $e) {
