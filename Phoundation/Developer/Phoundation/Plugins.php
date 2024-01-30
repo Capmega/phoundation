@@ -450,6 +450,15 @@ class Plugins extends Project
             $plugins[] = 'Phoundation';
         }
 
+        // All the plugins must contain files, or git stash will fail
+showdie($plugins);
+        foreach ($plugins as $id => $plugin) {
+            if (!Directory::new($plugin)->containFiles()) {
+                Log::warning(tr('Ignoring plugin ":plugin" because it contains no files'));
+                unset($plugins[$id]);
+            }
+        }
+
         return $plugins;
     }
 
