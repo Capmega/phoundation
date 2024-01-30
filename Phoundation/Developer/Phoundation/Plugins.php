@@ -443,6 +443,7 @@ class Plugins extends Project
             $plugin = Strings::endsNotWith($plugin, '/');
         }
 
+        $return = [];
         unset($plugin);
 
         // The "Phoundation" plugin should NEVER be copied to the official repository!
@@ -451,15 +452,15 @@ class Plugins extends Project
         }
 
         // All the plugins must contain files, or git stash will fail
-showdie($plugins);
         foreach ($plugins as $id => $plugin) {
-            if (!Directory::new($plugin)->containFiles()) {
+            if (Directory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
+                $return[] = $plugin;
+            } else {
                 Log::warning(tr('Ignoring plugin ":plugin" because it contains no files'));
-                unset($plugins[$id]);
             }
         }
 
-        return $plugins;
+        return $return;
     }
 
 
