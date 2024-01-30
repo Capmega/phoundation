@@ -267,11 +267,18 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function valueExists(mixed $value): bool;
 
     /**
-     * Returns if the list is empty or not
+     * Returns if the list is empty
      *
      * @return bool
      */
     public function isEmpty(): bool;
+
+    /**
+     * Returns if the list is not empty
+     *
+     * @return bool
+     */
+    public function isNotEmpty(): bool;
 
     /**
      * Merge the specified Iterator or array into this Iterator

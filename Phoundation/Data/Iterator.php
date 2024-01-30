@@ -818,13 +818,24 @@ class Iterator implements IteratorInterface
 
 
     /**
-     * Returns if the list is empty or not
+     * Returns if the list is empty
      *
      * @return bool
      */
     public function isEmpty(): bool
     {
         return !count($this->source);
+    }
+
+
+    /**
+     * Returns if the list is not empty
+     *
+     * @return bool
+     */
+    public function isNotEmpty(): bool
+    {
+        return (bool) count($this->source);
     }
 
 
