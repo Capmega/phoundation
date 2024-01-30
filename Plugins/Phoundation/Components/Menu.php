@@ -237,9 +237,14 @@ class Menu extends \Phoundation\Web\Html\Components\Menu
                         'rights' => 'file-system',
                         'icon' => 'fa-lock',
                         'menu' => [
-                            tr('Mounts') => [
+                            tr('Auto mounts') => [
                                 'rights' => 'mounts',
-                                'url'    => '/phoundation/file-system/mounts.html',
+                                'url'    => '/phoundation/file-system/auto-mounts/mounts.html',
+                                'icon'   => 'fa-key'
+                            ],
+                            tr('Requirements') => [
+                                'rights' => 'requirements',
+                                'url'    => '/phoundation/file-system/requirements/requirements.html',
                                 'icon'   => 'fa-key'
                             ],
                         ],

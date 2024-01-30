@@ -133,10 +133,10 @@ class Email extends DataEntry implements EmailInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $exception
+     * @param bool $no_identifier_exception
      * @return Email
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $exception = true): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
             return parent::get($identifier, $column, $meta_enabled, $force);

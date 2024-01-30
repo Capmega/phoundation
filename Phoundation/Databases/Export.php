@@ -9,6 +9,7 @@ use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataDriver;
 use Phoundation\Data\Traits\DataFile;
+use Phoundation\Data\Traits\DataGzip;
 use Phoundation\Data\Traits\DataHost;
 use Phoundation\Data\Traits\DataPort;
 use Phoundation\Data\Traits\DataTimeout;
@@ -42,6 +43,7 @@ use Phoundation\Utils\Strings;
  */
 class Export
 {
+    use DataGzip;
     use DataTimeout;
     use DataDriver;
     use DataPort;
@@ -127,13 +129,6 @@ class Export
      * @var bool $comments
      */
     protected bool $comments = true;
-
-    /**
-     * If enabled, will gzip the dump file
-     *
-     * @var bool $gzip
-     */
-    protected bool $gzip = true;
 
 
     /**
@@ -438,30 +433,6 @@ class Export
     public function setDumpDate(bool $dump_date): static
     {
         $this->dump_date = $dump_date;
-        return $this;
-    }
-
-
-    /**
-     * Returns if dump file will be gzipped
-     *
-     * @return bool
-     */
-    public function getGzip(): bool
-    {
-        return $this->gzip;
-    }
-
-
-    /**
-     * Sets if dump file will be gzipped
-     *
-     * @param bool $gzip
-     * @return static
-     */
-    public function setGzip(bool $gzip): static
-    {
-        $this->gzip = $gzip;
         return $this;
     }
 

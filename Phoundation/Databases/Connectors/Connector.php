@@ -57,6 +57,14 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Tracks if this database should be backed up
+     *
+     * @var bool $backup
+     */
+    protected bool $backup = true;
+
+
+    /**
      * DataEntry class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
@@ -72,6 +80,30 @@ class Connector extends DataEntry implements ConnectorInterface
             // No identifier specified? This is a new object, apply defaults
             $this->source = $this->applyDefaults($this->source);
         }
+    }
+
+
+    /**
+     * Returns if the database for this connector should be backed up
+     *
+     * @return bool
+     */
+    public function getBackup(): bool
+    {
+        return $this->backup;
+    }
+
+
+    /**
+     * Sets if the database for this connector should be backed up
+     *
+     * @param bool $backup
+     * @return static
+     */
+    public function setBackup(bool $backup): static
+    {
+        $this->backup = $backup;
+        return $this;
     }
 
 
@@ -415,11 +447,11 @@ class Connector extends DataEntry implements ConnectorInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $exception
+     * @param bool $no_identifier_exception
      * @return Connector
      * @throws SqlExceptionInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $exception = true): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         if (($column === 'id') or (($column === null) and is_numeric($identifier))) {
             if ($identifier < 0) {
