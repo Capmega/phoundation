@@ -79,7 +79,7 @@ class Find extends Command implements FindInterface
      *
      * @var callable|null $callback
      */
-    protected ?callable $callback = null;
+    protected mixed $callback = null;
 
     /**
      * The action to execute
@@ -289,7 +289,7 @@ class Find extends Command implements FindInterface
         }
 
         $this->action         = $action;
-        $this->action_command = $action_command
+        $this->action_command = $action_command;
 
         return $this;
     }
@@ -341,37 +341,40 @@ class Find extends Command implements FindInterface
     /**
      * Returns a Files-object containing the found files
      *
-     * @return FilesInterface|null
+     * @return FilesInterface
      */
-    public function find(): ?FilesInterface
+    public function getFoundFiles(): FilesInterface
+    {
+        if ($this->callback) {
+            $callback = $this->callback;
+            $callback($this->output);
+        }
+
+        return Files::new()->setSource($this->output);
+    }
+
+
+    /**
+     * Returns a Files-object containing the found files
+     *
+     * @return array
+     */
+    public function executeReturnArray(): array
     {
         if (!isset($this->path)) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
 
         $this->setCommand('find')
-             ->setTimeout($this->timeout)
-             ->addArgument($this->path)
-             ->addArguments($this->type      ? ['-type'    , $this->type]      : null)
-             ->addArguments($this->size      ? ['-size'    , $this->size]      : null)
-             ->addArguments($this->depth     ? ['-depth'   , $this->depth]     : null)
-             ->addArguments($this->max_depth ? ['-maxdepth', $this->max_depth] : null)
-             ->addArguments($this->min_depth ? ['-mindepth', $this->min_depth] : null)
-             ->addArguments($this->size      ? ['-size'    , $this->size]      : null);
+            ->setTimeout($this->timeout)
+            ->addArgument($this->path)
+            ->addArguments($this->type      ? ['-type'    , $this->type]      : null)
+            ->addArguments($this->size      ? ['-size'    , $this->size]      : null)
+            ->addArguments($this->depth     ? ['-depth'   , $this->depth]     : null)
+            ->addArguments($this->max_depth ? ['-maxdepth', $this->max_depth] : null)
+            ->addArguments($this->min_depth ? ['-mindepth', $this->min_depth] : null)
+            ->addArguments($this->size      ? ['-size'    , $this->size]      : null);
 
-        if ($this->action) {
-            $this->addArguments(['-' . $this->action, $this->action_command])
-                 ->executeNoReturn();
-
-            return null;
-        }
-
-        $output = $this->executeReturnArray();
-
-        if ($this->callback) {
-            $this->callback($output);
-        }
-
-        return Files::new()->setSource($output);
+        return parent::executeReturnArray();
     }
 }
