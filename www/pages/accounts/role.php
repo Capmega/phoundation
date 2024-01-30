@@ -26,7 +26,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 
@@ -38,7 +38,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$role = Role::get($get['id']);
+$role = Role::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit

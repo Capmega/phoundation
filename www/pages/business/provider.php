@@ -23,7 +23,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$provider = Provider::get($get['id']);
+$provider = Provider::get($get['id'], no_identifier_exception: false);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
@@ -31,7 +31,7 @@ if (Page::isPostRequestMethod()) {
 //        Provider::validate(PostValidator::new());
 //
 //        // Update provider
-//        $provider = Provider::get($get['id']);
+//        $provider = Provider::get($get['id'], exception: false);
 //        $provider->apply()->save();
 //
 //        // Go back to where we came from

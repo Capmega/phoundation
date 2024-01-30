@@ -23,7 +23,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$customer = Customer::get($get['id']);
+$customer = Customer::get($get['id'], no_identifier_exception: false);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
@@ -31,7 +31,7 @@ if (Page::isPostRequestMethod()) {
 //        Customer::validate(PostValidator::new());
 //
 //        // Update customer
-//        $customer = Customer::get($get['id']);
+//        $customer = Customer::get($get['id'], exception: false);
 //        $customer->apply()->save();
 //
 //        // Go back to where we came from
