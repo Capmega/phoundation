@@ -451,6 +451,11 @@ class Plugins extends Project
             $plugins[] = 'Phoundation';
         }
 
+        // The "disabled" directory should NEVER be copied to the official repository!
+        if (!in_array('disabled', $plugins)) {
+            $plugins[] = 'disabled';
+        }
+
         // All the plugins must contain files, or git stash will fail
         foreach ($plugins as $id => $plugin) {
             if (Directory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
