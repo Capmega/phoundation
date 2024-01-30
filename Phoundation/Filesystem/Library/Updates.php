@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.20';
+        return '0.0.21';
     }
 
 
@@ -81,6 +81,37 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->setForeignKeys('
                     CONSTRAINT `fk_filesystem_mounts_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_filesystem_mounts_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                ')->create();
+
+        })->addUpdate('0.0.21', function () {
+            // Drop the tables to be sure we have a clean slate
+            sql()->schema()->table('filesystem_requirements')->drop();
+
+            // Create the filesystem_mounts table.
+            sql()->schema()->table('filesystem_requirements')->define()
+                ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `meta_id` bigint NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
+                    `path` varchar(255) DEFAULT NULL,
+                    `filesystem` varchar(16) NOT NULL,
+                    `file_type` varchar(16) NOT NULL,
+                    `description` mediumtext DEFAULT NULL
+                ')->setIndices('
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `name` (`name`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    KEY `filesystem` (`filesystem`),
+                    KEY `file_type` (`file_type`),
+                    KEY `path` (`path`),
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_filesystem_requirements_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_filesystem_requirements_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
         });
     }

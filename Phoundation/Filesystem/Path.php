@@ -21,6 +21,7 @@ use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
+use Phoundation\Filesystem\Exception\FileNotSymlinkException;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\Exception\FileOpenException;
 use Phoundation\Filesystem\Exception\FileReadException;
@@ -36,6 +37,8 @@ use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Mount;
 use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
+use Phoundation\Filesystem\Requirements\Requirements;
 use Phoundation\Filesystem\Traits\DataBufferSize;
 use Phoundation\Filesystem\Traits\DataIsRelative;
 use Phoundation\Filesystem\Traits\DataRestrictions;
@@ -120,13 +123,19 @@ class Path implements Stringable, PathInterface
      */
     protected ?EnumFileOpenModeInterface $open_mode = null;
 
+    /**
+     * The path requirements system
+     *
+     * @var RequirementsInterface $requirements
+     */
+    protected RequirementsInterface $requirements;
+
 
     /**
      * File class constructor
      *
      * @param mixed $file
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool|null $is_relative
      * @param bool $is_relative
      */
     public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $is_relative = null)
@@ -1065,6 +1074,45 @@ class Path implements Stringable, PathInterface
 
 
     /**
+     * Returns the name of the file type
+     *
+     * @return string
+     */
+    public function getTypeName(): string
+    {
+        if (is_dir($this->path)) {
+            return 'directory';
+        }
+
+        if (!$this->type) {
+            $this->getType();
+        }
+
+        if ($this->type == 0010000) {
+            return 'fifo device';
+        }
+
+        if ($this->type == 0020000) {
+            return 'character device';
+        }
+
+        if ($this->type == 0060000) {
+            return 'block device';
+        }
+
+        if ($this->type == 0010000) {
+            return 'reg file';
+        }
+
+        if ($this->type == 0140000) {
+            return 'socket file';
+        }
+
+        return 'unknown';
+    }
+
+
+    /**
      * Returns the stat data for the object file
      *
      * @return array
@@ -1437,6 +1485,15 @@ class Path implements Stringable, PathInterface
         }
 
         return new static($path, $this->restrictions);
+    }
+
+
+    /**
+     * @return PathInterface
+     */
+    public function getLinkTarget(): PathInterface
+    {
+        return $this->readlink();
     }
 
 
@@ -2514,5 +2571,46 @@ class Path implements Stringable, PathInterface
         }
 
         return $path;
+    }
+
+
+    /**
+     * Ensures that this path is a symlink
+     *
+     * @return $this
+     */
+    public function checkSymlink(Stringable|string $target): static
+    {
+        if (!$this->isLink()) {
+            throw new FileNotSymlinkException(tr('The path ":path" must be a symlink but instead is a ":type" file', [
+                ':path' => $this->path,
+                ':type' => $this->getTypeName()
+            ]));
+        }
+
+        if ($this->getLinkTarget() != $target) {
+            throw new FileNotSymlinkException(tr('The path ":path" must be symlinked to ":target" but is symlinked to ":instead" instead', [
+                ':path'    => $this->path,
+                ':target'  => $target,
+                ':instead' => $this->getLinkTarget()
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Checks if the current path obeys the requirements
+     *
+     * @return void
+     */
+    protected function checkRequirements(): void
+    {
+        if (empty($this->requirements)) {
+            $this->requirements = Requirements::new()->load();
+        }
+
+        $this->requirements->check($this->path);
     }
 }

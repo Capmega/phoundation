@@ -1,0 +1,22 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Filesystem\Mounts\Mounts;
+
+
+/**
+ * Script file-system/mount/all
+ *
+ * This command lists all mounts
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Scripts
+ */
+
+
+// Display the available mounts
+Mounts::new()->load()->displayCliTable('name,source_path,target_path,filesystem');
