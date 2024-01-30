@@ -1403,4 +1403,19 @@ class Directory extends Path implements DirectoryInterface
         $directory = $this->getPath() . Strings::startsNotWith((string) $directory, '/');
         return Directory::new($directory, $this->restrictions);
     }
+
+
+    /**
+     * Returns true if this path contains any files
+     *
+     * @return bool
+     */
+    public function containFiles(): bool
+    {
+        return Find::new()
+            ->setPath($this->path)
+            ->setType('f')
+            ->executeReturnIterator()
+            ->isNotEmpty();
+    }
 }
