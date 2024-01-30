@@ -267,9 +267,10 @@ class Phoundation extends Project
      * @param string|null $message
      * @param bool|null $sign
      * @param bool $checkout
+     * @param bool $update
      * @return void
      */
-    public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
+    public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true, bool $update = true): void
     {
         if ($sign === null) {
             $sign = Config::getBoolean('developer.phoundation.patch.sign', true);
@@ -284,7 +285,10 @@ class Phoundation extends Project
 
         // Reset the local project to HEAD and update
         Project::new()->resetHead();
-        Project::new()->updateLocalProject($branch, $message, $sign);
+
+        if ($update) {
+            Project::new()->updateLocalProject($branch, $message, $sign);
+        }
 
         // Detect Phoundation installation and ensure its clean and on the right branch
         $this->selectPhoundationBranch($branch)->ensureNoChanges();

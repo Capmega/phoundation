@@ -53,7 +53,10 @@ ARGUMENTS
 
 [-n / --no-plugins]                     If specified will not patch the plugins
 
-[--no-phoundation]                      If specified will not patch the Phoundation core libraries');
+[--no-phoundation]                      If specified will not patch the Phoundation core libraries
+
+[-u / --no-update]                      If specified will not perform a system update before executing the patching
+                                        process');
 
 
 
@@ -66,6 +69,7 @@ $argv = ArgvValidator::new()
     ->select('-s,--signed')->isOptional()->isBoolean()
     ->select('-n,--no-plugins')->isOptional()->isBoolean()
     ->select('--no-phoundation')->isOptional()->isBoolean()
+    ->select('-u,--no-update')->isOptional()->isBoolean()
     ->validate();
 
 
@@ -79,7 +83,12 @@ try {
 
     } else {
         Log::action('Patching Phoundation core libraries');
-        Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+
+        if ($argv['no_update']) {
+            Log::warning('Not executing phoundation update');
+        }
+
+        Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
     }
 
     if ($argv['no_plugins']) {
@@ -87,7 +96,12 @@ try {
 
     } else {
         Log::action('Patching plugins');
-        Plugins::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout']);
+
+        if ($argv['no_update']) {
+            Log::warning('Not executing plugins update');
+        }
+
+        Plugins::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
     }
 
 }catch (GitPatchException|PatchPartiallySuccessfulException $e) {

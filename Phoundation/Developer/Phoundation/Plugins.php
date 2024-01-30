@@ -247,9 +247,10 @@ class Plugins extends Project
      * @param string|null $message
      * @param bool|null $sign
      * @param bool $checkout
+     * @param bool $update
      * @return void
      */
-    public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true): void
+    public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true, bool $update = true): void
     {
         if ($sign === null) {
             $sign = Config::getBoolean('developer.phoundation.patch.sign', true);
@@ -263,7 +264,10 @@ class Plugins extends Project
 
         // Reset local project to HEAD and update
         Project::new()->resetHead();
-        Project::new()->updateLocalProjectPlugins($branch, $message, $sign);
+
+        if ($update) {
+            Project::new()->updateLocalProjectPlugins($branch, $message, $sign);
+        }
 
         // Detect Phoundation plugins installation and ensure its clean and on the right branch
         $this->selectPluginsBranch($branch)->ensureNoChanges();
@@ -457,11 +461,14 @@ class Plugins extends Project
         }
 
         // All the plugins must contain files, or git stash will fail
-        foreach ($plugins as $id => $plugin) {
+        foreach ($plugins as $plugin) {
             if (Directory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
                 $return[] = $plugin;
+
             } else {
-                Log::warning(tr('Ignoring plugin ":plugin" because it contains no files'));
+                Log::warning(tr('Ignoring plugin ":plugin" because it contains no files', [
+                    ':plugin' => $plugin
+                ]));
             }
         }
 
