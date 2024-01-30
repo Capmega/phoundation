@@ -598,7 +598,7 @@ class Sync
 
 
     /**
-     * Dumps the Redis connectors for this project
+     * Dumps the specified connector
      *
      * @param ServerInterface|null $server
      * @param ConnectorInterface $connector
