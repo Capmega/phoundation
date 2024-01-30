@@ -7,14 +7,9 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Databases;
 use Phoundation\Databases\Export;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Enums\EnumCompareMode;
 use Phoundation\Utils\Enums\EnumMatchMode;
 
 
@@ -42,10 +37,7 @@ ARGUMENTS
                                         system database as a database connector. If not specified, the system connector 
                                         will be assumed
 
-[-b / --database] DATABASE              The database to export.
-
--d / --driver DRIVER                    The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
-                                        The name is not case sensitive (NOTE: For the moment only MySQL is supported)
+[-b / --database DATABASE]              The database to export.
 
 -f / --file FILE                        The file which to export to
 
@@ -66,10 +58,6 @@ CliDocumentation::autoComplete([
             'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getSourceColumn('name'); },
             'noword' => function ()      { return Connectors::new()->load(true, true)->getSourceColumn('name'); },
         ],
-        '-d,--driver' => [
-            'word'   => function ($word) { return Arrays::keepValues(Databases::getDrivers(), $word, match_mode: EnumMatchMode::starts_with); },
-            'noword' => Databases::getDrivers()
-        ],
         '-b,--database' => [
             'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
             'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
@@ -83,26 +71,24 @@ $argv = ArgvValidator::new()
     ->select('-g,--gzip')->isOptional(false)->isBoolean()
     ->select('-t,--timeout'  , true)->isOptional(3600)->isInteger()->isMoreThan(0)
     ->select('-f,--file'     , true)->isOptional()->isFile([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], $restrictions, false)
-    ->select('-d,--driver'   , true)->isOptional()->sanitizeLowercase()->isInArray(Databases::getDrivers())
     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
     ->select('-b,--database' , true)->isVariable()
     ->validate();
 
 
 // Export data for the requested driver
-$export = Export::new()
+Export::new()
     ->setConnector($argv['connector'])
     ->setDatabase($argv['database'])
     ->setDriver($argv['driver'])
     ->setTimeout($argv['timeout'])
-    ->setGzip($argv['gzip']);
-
-$file = $export->dump($argv['file']);
+    ->setGzip($argv['gzip'])
+    ->dump($argv['file']);
 
 
 // Done!
 Log::success(tr('Finished exporting ":type" type database ":database" to file ":file"', [
-    ':type'     => $export->getConnector()->getType(),
-    ':file'     => $file,
+    ':type'     => $argv['connector'],
+    ':file'     => $argv['file'],
     ':database' => $argv['database'],
 ]));
