@@ -52,8 +52,12 @@ class Requirements extends DataList implements RequirementsInterface
      * @param Stringable|string $path
      * @return void
      */
-    public static function check(Stringable|string $path): void
+    public function check(Stringable|string $path): void
     {
+        $this->load(only_if_empty: true);
 
+        foreach ($this->source as $restriction) {
+            $restriction->check($path);
+        }
     }
 }
