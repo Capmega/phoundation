@@ -420,6 +420,19 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @return IteratorInterface
+     */
+    public function getMatchingValues(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface
+    {
+        return new Iterator(Arrays::getMatches($this->source, $needles, $options));
+    }
+
+
+    /**
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
@@ -1104,6 +1117,80 @@ class Iterator implements IteratorInterface
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
         Cli::displayTable($this->source, $columns, $id_column);
+        return $this;
+    }
+
+
+    /**
+     * Sorts the Iterator source in ascending order
+     *
+     * @return $this
+     */
+    public function sort(): static
+    {
+        asort($this->source);
+        return $this;
+    }
+
+
+    /**
+     * Sorts the Iterator source in descending order
+     *
+     * @return $this
+     */
+    public function rsort(): static
+    {
+        arsort($this->source);
+        return $this;
+    }
+
+
+
+    /**
+     * Sorts the Iterator source keys in ascending order
+     *
+     * @return $this
+     */
+    public function ksort(): static
+    {
+        ksort($this->source);
+        return $this;
+    }
+
+
+    /**
+     * Sorts the Iterator source keys in descending order
+     *
+     * @return $this
+     */
+    public function krsort(): static
+    {
+        krsort($this->source);
+        return $this;
+    }
+
+
+
+    /**
+     * Sorts the Iterator source using the specified callback
+     *
+     * @return $this
+     */
+    public function uasort(callable $callback): static
+    {
+        uasort($this->source, $callback);
+        return $this;
+    }
+
+
+    /**
+     * Sorts the Iterator source keys using the specified callback
+     *
+     * @return $this
+     */
+    public function uksort(callable $callback): static
+    {
+        uksort($this->source, $callback);
         return $this;
     }
 }

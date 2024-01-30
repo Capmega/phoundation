@@ -154,6 +154,15 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
     /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @return IteratorInterface
+     */
+    public function getMatchingValues(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
+
+    /**
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
@@ -379,4 +388,46 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static;
+
+    /**
+     * Sorts the Iterator source in ascending order
+     *
+     * @return $this
+     */
+    public function sort(): static;
+
+    /**
+     * Sorts the Iterator source in descending order
+     *
+     * @return $this
+     */
+    public function rsort(): static;
+
+    /**
+     * Sorts the Iterator source keys in ascending order
+     *
+     * @return $this
+     */
+    public function ksort(): static;
+
+    /**
+     * Sorts the Iterator source keys in descending order
+     *
+     * @return $this
+     */
+    public function krsort(): static;
+
+    /**
+     * Sorts the Iterator source using the specified callback
+     *
+     * @return $this
+     */
+    public function uasort(callable $callback): static;
+
+    /**
+     * Sorts the Iterator source keys using the specified callback
+     *
+     * @return $this
+     */
+    public function uksort(callable $callback): static;
 }
