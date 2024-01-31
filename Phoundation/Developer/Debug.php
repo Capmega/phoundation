@@ -504,8 +504,8 @@ class Debug {
             try {
                 static::show($value, $trace_offset, $quiet);
 
-                // Don't log within log to avoid an endless loop
-                if (!function_called('Log::write()')) {
+                // Don't log within Log::write() or tr() to avoid endless loops
+                if (!function_called('Log::write()') and !function_called('tr()')) {
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset)
                     ]));
