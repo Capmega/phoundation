@@ -44,9 +44,6 @@ ARGUMENTS
 [--comments COMMENTS]                   The optional comments to add in the versions table if the init is executed right
                                         after import
 
--d / --driver DRIVER                    The database driver to use. One of MySQL, Redis, MongoDB, or elastic(search).
-                                        The name is not case sensitive (NOTE: For the moment only MySQL is supported)
-
 -f / --file FILE                        The file which to import
 
 [--no-drop]                             If specified, Phoundation will not drop the database before starting the import
@@ -67,10 +64,6 @@ CliDocumentation::autoComplete([
             'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getSourceColumn('name'); },
             'noword' => function ()      { return Connectors::new()->load(true, true)->getSourceColumn('name'); },
         ],
-        '-d,--driver' => [
-            'word'   => function ($word) { return Arrays::getMatches(['mysql'], $word); },
-            'noword' => ['mysql']
-        ],
         '-b,--database' => [
             'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
             'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
@@ -85,7 +78,6 @@ CliDocumentation::autoComplete([
 // Validate arguments
 $argv = ArgvValidator::new()
     ->select('-f,--file'     , true)->isFile([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], $restrictions)
-    ->select('-d,--driver'   , true)->isOptional()->sanitizeLowercase()->isInArray(['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'])
     ->select('-b,--database' , true)->isVariable()
     ->select('-c,--comments' , true)->isOptional()->isPrintable()
     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getSourceColumn('name'))
@@ -99,7 +91,6 @@ $argv = ArgvValidator::new()
 Import::new()
     ->setConnector($argv['connector'], true)
     ->setDatabase($argv['database'])
-    ->setDriver($argv['driver'])
     ->setDrop(!$argv['no_drop'])
     ->setFile($argv['file'])
     ->setTimeout($argv['timeout'])
