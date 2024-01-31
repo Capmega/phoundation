@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html;
 
 use PDOStatement;
 use Phoundation\Content\Images\Image;
+use Phoundation\Core\Core;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\File;
 use Phoundation\Utils\Arrays;
@@ -13,47 +14,8 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;
-use Phoundation\Web\Html\Core;
-use Phoundation\Web\Html\DOMDocument;
 use Stringable;
 use Throwable;
-use function Phoundation\Web\Html\accepts;
-use function Phoundation\Web\Html\array_ensure;
-use function Phoundation\Web\Html\array_implode_with_keys;
-use function Phoundation\Web\Html\array_params;
-use function Phoundation\Web\Html\cdn_domain;
-use function Phoundation\Web\Html\cli_unzip;
-use function Phoundation\Web\Html\debug_bar;
-use function Phoundation\Web\Html\domain;
-use function Phoundation\Web\Html\file_delete;
-use function Phoundation\Web\Html\file_move_to_target;
-use function Phoundation\Web\Html\gettype;
-use function Phoundation\Web\Html\html_favicon;
-use function Phoundation\Web\Html\html_generate_css;
-use function Phoundation\Web\Html\html_generate_js;
-use function Phoundation\Web\Html\html_img;
-use function Phoundation\Web\Html\html_img_src;
-use function Phoundation\Web\Html\html_load_js;
-use function Phoundation\Web\Html\html_meta;
-use function Phoundation\Web\Html\html_og;
-use function Phoundation\Web\Html\html_safe;
-use function Phoundation\Web\Html\html_script;
-use function Phoundation\Web\Html\html_select;
-use function Phoundation\Web\Html\html_select_body;
-use function Phoundation\Web\Html\html_tabindex;
-use function Phoundation\Web\Html\image_convert;
-use function Phoundation\Web\Html\load_config;
-use function Phoundation\Web\Html\load_libs;
-use function Phoundation\Web\Html\log_console;
-use function Phoundation\Web\Html\log_file;
-use function Phoundation\Web\Html\Notification;
-use function Phoundation\Web\Html\set_csrf;
-use function Phoundation\Web\Html\sql_fetch;
-use function Phoundation\Web\Html\sql_get;
-use function Phoundation\Web\Html\str_random;
-use function Phoundation\Web\Html\str_truncate;
-use function Phoundation\Web\Html\uglify_js;
-use function Phoundation\Web\Html\under_construction;
 
 
 /**
@@ -444,7 +406,7 @@ Class Html
         /*
          * Add meta tag no-index for non production environments and admin pages
          */
-        if (!empty($meta['noindex']) or !Debug::production() or $_CONFIG['noindex'] or Core::getCallType('admin')) {
+        if (!empty($meta['noindex']) or !Core::isProductionEnvironment() or $_CONFIG['noindex'] or Core::getCallType('admin')) {
             $meta['robots'] = 'noindex, nofollow, nosnippet, noarchive, noydir';
             unset($meta['noindex']);
         }
@@ -861,7 +823,7 @@ Class Html
 //             * Backward compatibility as well
 //             */
 //            if (empty($params['html']) and empty($params['text']) and empty($params['title'])) {
-//                if (Debug::production()) {
+//                if (Core::isProductionEnvironment()) {
 //                    Notification(array('code'    => 'invalid',
 //                        'groups'  => 'developers',
 //                        'title'   => tr('Invalid flash structure specified'),
@@ -1939,7 +1901,7 @@ Class Html
             /*
              * No image at all?
              */
-            if (Debug::production()) {
+            if (Core::isProductionEnvironment()) {
                 /*
                  * On production, just Notification and ignore
                  */
@@ -1953,7 +1915,7 @@ Class Html
             throw new HtmlException(tr('html_img(): No src for image with alt text ":alt"', [':alt' => $params['alt']]));
         }
 
-        if (!Debug::production()) {
+        if (!Core::isProductionEnvironment()) {
             if (!$params['src']) {
                 throw new HtmlException(tr('No image src specified'));
             }
@@ -2431,7 +2393,7 @@ Class Html
         Arrays::ensure($params, 'src,width,height,more,type');
         Arrays::default($params, 'controls', true);
 
-        if (!Debug::production()) {
+        if (!Core::isProductionEnvironment()) {
             if (!$params['src']) {
                 throw new HtmlException(tr('No video src specified'));
             }
@@ -2486,7 +2448,7 @@ Class Html
                 $params['src']  = DIRECTORY_ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
-            } elseif (!Debug::production()) {
+            } elseif (!Core::isProductionEnvironment()) {
                 /*
                  * This is a remote video
                  * Remote videos MUST have height and width specified!

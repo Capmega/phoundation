@@ -1988,7 +1988,7 @@ class Page implements PageInterface
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
         if (static::$page_title) {
-            $return .= '<title>' . (Core::isProduction() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
+            $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
 
         foreach (static::$headers['meta'] as $key => $value) {
@@ -2140,7 +2140,7 @@ class Page implements PageInterface
 
         // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Debug::production() or !Core::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
+        if (!Core::isProductionEnvironment() or !Core::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 

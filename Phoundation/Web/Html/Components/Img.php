@@ -332,7 +332,7 @@ class Img extends Element
 //            /*
 //             * No image at all?
 //             */
-//            if (Debug::production()) {
+//            if (Core::isProductionEnvironment()) {
 //                /*
 //                 * On production, just notify and ignore
 //                 */
@@ -346,7 +346,7 @@ class Img extends Element
 //            throw new CoreException(tr('No src for image with alt text ":alt"', [':alt' => $params['alt']]));
 //        }
 //
-//        if (!Debug::production()) {
+//        if (!Core::isProductionEnvironment()) {
 //            if (!$params['src']) {
 //                throw new CoreException(tr('No image src specified'));
 //            }

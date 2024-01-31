@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Captcha;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug;
@@ -65,7 +66,7 @@ class Turnstile extends Captcha
         // Get captcha secret key
         if (!$secret) {
             // Use configured secret key
-            if (Debug::production()) {
+            if (Core::isProductionEnvironment()) {
                 $secret = Config::getString('security.web.captcha.turnstile.secret');
 
             } else {
@@ -130,7 +131,7 @@ class Turnstile extends Captcha
     {
         // Get captcha public key
         // TODO: Change this to some testing mode, taken from Core
-        if (Debug::production()) {
+        if (Core::isProductionEnvironment()) {
             $key = Config::getString('security.web.captcha.turnstile.key');
         } else {
             // This is a test key, should only be used in non production environments

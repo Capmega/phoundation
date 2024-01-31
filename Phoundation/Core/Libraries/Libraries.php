@@ -169,7 +169,7 @@ class Libraries
         // Initialization done!
         static::$initializing = false;
 
-        if (Debug::production()) {
+        if (Core::isProductionEnvironment()) {
             // Notification developers
             Notification::new()
                 ->setUrl('/system/information.html')
@@ -626,7 +626,7 @@ class Libraries
      */
     protected static function force(): void
     {
-        if (Debug::production()) {
+        if (Core::isProductionEnvironment()) {
             throw new AccessDeniedException(tr('For safety reasons, init or setup force is NOT allowed on production environment!'));
         }
 

@@ -156,50 +156,6 @@ class Debug {
 
 
     /**
-     * Sets or returns if the system is running in production mode or not
-     *
-     * @param bool|null $production
-     * @return bool
-     */
-    public static function production(?bool $production = null): bool
-    {
-        static $loop = false;
-
-        if ($loop) {
-            // We're in a loop!
-            return false;
-        }
-
-        $loop = true;
-
-        try {
-            if ($production === null) {
-                if (!defined('ENVIRONMENT')) {
-                    // Oops, we're so early in startup that we don't have an environment available yet!
-                    // Assume production!
-                    $loop = false;
-                    return true;
-                }
-
-                // Return the setting
-                $return = Config::getBoolean('debug.production', false);
-                $loop   = false;
-                return $return;
-            }
-
-            // Set the value
-            Config::set('debug.production', $production);
-            $loop = false;
-            return $production;
-        } catch (ConfigException) {
-            // Failed to get (or write) config. Assume production
-            $loop = false;
-            return true;
-        }
-    }
-
-
-    /**
      * Returns a backtrace
      *
      * @param string|int $start
@@ -369,7 +325,7 @@ class Debug {
         try {
             Core::removeShutdownCallback('route[postprocess]');
 
-            if (Debug::production()) {
+            if (Core::isProductionEnvironment()) {
                 // This is not usually something you want to happen!
                 Notification::new()
                     ->setUrl('developer/incidents.html')

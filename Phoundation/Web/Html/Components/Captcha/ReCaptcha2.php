@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Captcha;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\CaptchaFailedException;
 use Phoundation\Developer\Debug;
@@ -98,7 +99,7 @@ class ReCaptcha2 extends Captcha
         // Get captcha secret key
         if (!$secret) {
             // Use configured secret key
-            if (Debug::production()) {
+            if (Core::isProductionEnvironment()) {
                 $secret = Config::getString('security.web.captcha.recaptcha.secret');
             } else {
                 $secret = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
@@ -161,7 +162,7 @@ class ReCaptcha2 extends Captcha
     {
         // Get captcha public key
         // TODO: Change this to some testing mode, taken from Core
-        if (Debug::production()) {
+        if (Core::isProductionEnvironment()) {
             $key = Config::getString('security.web.captcha.recaptcha.key');
         } else {
             $key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';

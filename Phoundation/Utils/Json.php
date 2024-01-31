@@ -6,6 +6,7 @@ namespace Phoundation\Utils;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
@@ -129,7 +130,7 @@ class Json
             }
 
             if (empty($message['e'])) {
-                if (Debug::production()) {
+                if (Core::isProductionEnvironment()) {
                     $message = $default;
                     Log::warning('No exception object specified for following error');
                     Log::warning($message);
@@ -141,7 +142,7 @@ class Json
                 }
 
             } else {
-                if (Debug::production()) {
+                if (Core::isProductionEnvironment()) {
                     Log::notice($message['e']);
 
                     $code = $message['e']->getCode();

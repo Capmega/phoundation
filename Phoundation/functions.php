@@ -112,7 +112,7 @@ function nl(): void
 function tr(string $text, ?array $replace = null, bool $clean = true): string
 {
     // Only on non-production machines, crash when not all entries were replaced as an extra check.
-    if (!Debug::production()) {
+    if (!Core::isProductionEnvironment()) {
         preg_match_all('/:\w+/', $text, $matches);
 
         if (!empty($matches[0])) {
