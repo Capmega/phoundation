@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\DisplayTier;
+use Phoundation\Web\Bootstrap;
+use Phoundation\Web\Html\Enums\ContainerTier;
 use Phoundation\Web\Html\Enums\Interfaces\DisplaySizeInterface;
 use Phoundation\Web\Html\Traits\UsesSize;
 use Phoundation\Web\Html\Traits\UsesTier;
@@ -33,7 +34,7 @@ class GridColumn extends Layout
      */
     public function __construct()
     {
-        $this->tier = DisplayTier::md;
+        $this->tier = Bootstrap::getGridContainerTier(ContainerTier::md);
         parent::__construct();
     }
 

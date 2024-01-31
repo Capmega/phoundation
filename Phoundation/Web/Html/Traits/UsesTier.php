@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Web\Html\Enums\DisplayTier;
+use Phoundation\Web\Html\Enums\ContainerTier;
 
 
 /**
@@ -22,18 +22,18 @@ trait UsesTier
     /**
      * Container value for this container
      *
-     * @var DisplayTier $tier
+     * @var ContainerTier $tier
      */
-    protected DisplayTier $tier = DisplayTier::xxl;
+    protected ContainerTier $tier = ContainerTier::md;
 
-    
+
     /**
      * Sets the type for this container
      *
-     * @param DisplayTier $tier
+     * @param ContainerTier $tier
      * @return static
      */
-    public function setTier(DisplayTier $tier): static
+    public function setTier(ContainerTier $tier): static
     {
         $this->tier = $tier;
         return $this;
@@ -43,9 +43,9 @@ trait UsesTier
     /**
      * Returns the type for this container
      *
-     * @return DisplayTier
+     * @return ContainerTier
      */
-    public function getTier(): DisplayTier
+    public function getTier(): ContainerTier
     {
         return $this->tier;
     }

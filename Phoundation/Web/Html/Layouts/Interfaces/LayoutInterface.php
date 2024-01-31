@@ -1,12 +1,12 @@
 <?php
 
-declare(strict_types=1);
+namespace Phoundation\Web\Html\Layouts\Interfaces;
 
-namespace Phoundation\Web\Html\Enums\Interfaces;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 
 /**
- * Interface DisplayTierInterface
+ * Interface LayoutInterface
  *
  *
  *
@@ -15,6 +15,6 @@ namespace Phoundation\Web\Html\Enums\Interfaces;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface DisplayTierInterface
+interface LayoutInterface extends ElementsBlockInterface
 {
 }

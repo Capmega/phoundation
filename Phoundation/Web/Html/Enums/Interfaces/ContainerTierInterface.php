@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Layouts;
-
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
+namespace Phoundation\Web\Html\Enums\Interfaces;
 
 
 /**
- * Layout class
+ * Interface ContainerTierInterface
  *
  *
  *
@@ -18,6 +15,6 @@ use Phoundation\Web\Html\Layouts\Interfaces\LayoutInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Layout extends ElementsBlock implements LayoutInterface
+interface ContainerTierInterface
 {
 }
