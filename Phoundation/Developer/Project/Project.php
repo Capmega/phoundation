@@ -245,7 +245,6 @@ class Project implements ProjectInterface
             'data',
             'Phoundation',
             'Plugins',
-            'Templates',
             'tests',
             'www',
             'pho',
@@ -839,13 +838,6 @@ $skip = false;
                 ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
                 ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
                 ->setDelete(true)
-                ->execute();
-
-            // Copy new core template versions
-            Log::action('Updating Template libraries');
-            Rsync::new()
-                ->setSource($phoundation->getDirectory() . 'Templates/')
-                ->setTarget(DIRECTORY_ROOT . 'Templates')
                 ->execute();
 
             // Copy Phoundation PHO command
