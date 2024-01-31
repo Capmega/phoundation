@@ -9,6 +9,7 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -110,45 +111,63 @@ function nl(): void
  */
 function tr(string $text, ?array $replace = null, bool $clean = true): string
 {
-    try {
-        if ($replace) {
-            if ($clean) {
-                foreach ($replace as &$value) {
-                    $value = Strings::log($value);
-                }
+    // Only on non-production machines, crash when not all entries were replaced as an extra check.
+    if (!Debug::production()) {
+        preg_match_all('/:\w+/', $text, $matches);
+
+        if (!empty($matches[0])) {
+            if (empty($replace)) {
+                throw new OutOfBoundsException(tr('The tr() text ":text" contains key(s) ":keys" but no replace values were specified', [
+                    ':keys' => Strings::force($matches[0], ', '),
+                    ':text' => $text,
+                ]));
             }
 
-            unset($value);
-
-            $text = str_replace(array_keys($replace), array_values($replace), $text, $count);
-
-            // Only on non-production machines, crash when not all entries were replaced as an extra check.
-            if (!Debug::production()) {
-                if ($count < count($replace)) {
-                    foreach ($replace as $value) {
-                        if (str_contains($value, ':')) {
-                            // One of the $replace values contains :blah. This will cause the detector to fire off
-                            // incorrectly. Ignore this.
-                            return $text;
-                        }
-                    }
-
-                    throw new CoreException('tr(): Not all specified keywords were found in text');
+            // Verify that all specified text keys are available in the replace array
+            foreach ($matches[0] as $match) {
+                if (!array_key_exists($match, $replace)) {
+                    throw new OutOfBoundsException(tr('The tr() text key ":key" does not exist in the specified replace values for the text ":text"', [
+                        ':key'  => $match,
+                        ':text' => $text,
+                    ]));
                 }
-
-                // Do NOT check for :value here since the given text itself may contain :value (ie, in prepared
-                // statements!)
             }
-
-            return $text;
         }
 
-        return $text;
+        if ($replace) {
+            if (empty($matches[0])) {
+                throw new OutOfBoundsException(tr('The tr() replace array contains key(s) ":keys" but the text ":text" contains no keys', [
+                    ':keys' => Strings::force(array_keys($replace), ', '),
+                    ':text' => $text,
+                ]));
+            }
 
-    } catch (Exception $e) {
-        // Do NOT use tr() here for obvious endless loop reasons!
-        throw new CoreException('tr(): Failed with text "' . Strings::log($text) . '". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
+            // Verify that all specified replacement keys are available in the text
+            $matches = array_flip($matches[0]);
+
+            foreach ($replace as $key => $value) {
+                if (!array_key_exists($key, $matches)) {
+                    throw new \OutOfBoundsException(tr('The tr() replace key ":key" does not exist in the specified text ":text"', [
+                        ':key' => $key,
+                        ':text' => $text,
+                    ]));
+                }
+            }
+        }
     }
+
+    if ($replace) {
+        if ($clean) {
+            foreach ($replace as &$value) {
+                $value = Strings::log($value);
+            }
+        }
+
+        unset($value);
+        return str_replace(array_keys($replace), array_values($replace), $text);
+    }
+
+    return $text;
 }
 
 
