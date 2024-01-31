@@ -80,7 +80,6 @@ $argv = ArgvValidator::new()
 Export::new()
     ->setConnector($argv['connector'])
     ->setDatabase($argv['database'])
-    ->setDriver($argv['driver'])
     ->setTimeout($argv['timeout'])
     ->setGzip($argv['gzip'])
     ->dump($argv['file']);
