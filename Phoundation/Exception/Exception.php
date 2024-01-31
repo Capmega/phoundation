@@ -7,6 +7,7 @@ namespace Phoundation\Exception;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Incidents\Incident;
+use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -87,13 +88,20 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
 
-            if ($messages instanceof Exception) {
+            if ($messages instanceof ExceptionInterface) {
                 // This is a Phoundation exception, get more information
+                $this->setMessage($messages->getMessage());
+                $this->setMessages($messages->getMessages());
+                $this->setWarning($messages->getWarning());
+                $this->setData($messages->getData());
+
                 $messages = $messages->getMessages();
+
             } else {
                 // This is a standard PHP exception
                 $messages = [$messages->getMessage()];
             }
+
         } elseif (!is_array($messages)) {
             if (!$messages) {
                 $messages = tr('No message specified');
@@ -112,6 +120,8 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         $message = reset($messages);
         $message = Strings::force($message);
         $message = trim($message);
+
+        Log::warning('Exception: ' . $message);
 
         $this->addMessages($messages);
         parent::__construct($message, 0, $previous);
