@@ -750,7 +750,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         $this->selectQuery();
 
-        if ($this->source) {
+        if (!empty($this->source)) {
             if (!$only_if_empty) {
                 if (!$clear) {
                     $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id'));
