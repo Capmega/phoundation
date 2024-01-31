@@ -529,7 +529,7 @@ class Libraries
     public static function clearCommandsCache(): void
     {
         Log::action(tr('Clearing commands cache'), 3);
-        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Libraries::clearCommandsCache()')))->delete();
+        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->delete();
         static::$cache_has_been_cleared = true;
     }
 
