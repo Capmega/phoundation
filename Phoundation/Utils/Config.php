@@ -875,7 +875,7 @@ class Config implements ConfigInterface
             ],
             'notifications' => [
                 'groups' => [
-                    'developers' => [
+                    'developer' => [
                         $configuration->getEmail()
                     ]
                 ]

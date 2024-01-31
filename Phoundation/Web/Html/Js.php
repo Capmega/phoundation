@@ -210,7 +210,7 @@ class Js
                      * We should never have empty files
                      */
                     notify(array('code'    => 'empty',
-                        'groups'  => 'developers',
+                        'groups'  => 'developer',
                         'title'   => tr('Empty file specified'),
                         'message' => tr('html_generate_js(): Found empty string file specified in html_load_js()')));
                     continue;

@@ -891,7 +891,7 @@ Log::warning('RESTART SESSION');
                         ->setUrl('security/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('configuration')
-                        ->setRoles('developers')
+                        ->setRoles('developer')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
                             ':domain'         => Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'),

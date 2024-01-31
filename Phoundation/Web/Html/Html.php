@@ -628,7 +628,7 @@ Class Html
 //            $_SESSION['flash'] = array();
 //
 //            Notification(array('code'    => 'invalid',
-//                'groups'  => 'developers',
+//                'groups'  => 'developer',
 //                'title'   => tr('Invalid flash structure specified'),
 //                'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
 //        }
@@ -825,7 +825,7 @@ Class Html
 //            if (empty($params['html']) and empty($params['text']) and empty($params['title'])) {
 //                if (Core::isProductionEnvironment()) {
 //                    Notification(array('code'    => 'invalid',
-//                        'groups'  => 'developers',
+//                        'groups'  => 'developer',
 //                        'title'   => tr('Invalid flash structure specified'),
 //                        'message' => tr('html_flash_set(): Invalid html flash structure specified'),
 //                        'data'    => $params));
@@ -1906,7 +1906,7 @@ Class Html
                  * On production, just Notification and ignore
                  */
                 Notification(array('code'    => 'not-specified',
-                    'groups'  => 'developers',
+                    'groups'  => 'developer',
                     'title'   => tr('No image src specified'),
                     'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt']))));
                 return '';
@@ -1927,13 +1927,13 @@ Class Html
         } else {
             if (!$params['src']) {
                 Notification(array('code'   => 'not-specified',
-                    'groups' => 'developers',
+                    'groups' => 'developer',
                     'title'  => tr('html_img(): No image src specified')));
             }
 
             if (!$params['alt']) {
                 Notification(array('code'    => 'not-specified',
-                    'groups'  => 'developers',
+                    'groups'  => 'developer',
                     'title'   => tr('No image alt specified'),
                     'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src']))));
             }
@@ -2019,7 +2019,7 @@ Class Html
                          * Image doesnt exist
                          */
                         Notification(array('code'    => 'not-exists',
-                            'groups'  => 'developers',
+                            'groups'  => 'developer',
                             'title'   => tr('Image does not exist'),
                             'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
 
@@ -2056,7 +2056,7 @@ Class Html
 
                             // Image doesnt exist
                             Notification(array('code'    => 'not-exists',
-                                'groups'  => 'developers',
+                                'groups'  => 'developer',
                                 'title'   => tr('Image does not exist'),
                                 'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
 

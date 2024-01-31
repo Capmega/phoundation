@@ -192,7 +192,7 @@ class Img extends Element
 //            if (Url::getDomainType($src) === 'www') {
 //                // Here, mistakenly, the main domain was used for CDN data
 //                Notification::new()
-//                    ->setRoles('developers')
+//                    ->setRoles('developer')
 //                    ->setTitle(tr('Minor issue with CDN data'))
 //                    ->setMessage(tr('The main domain ":domain" was specified for CDN data, please correct this issue', [
 //                        ':domain' => $domain
@@ -337,7 +337,7 @@ class Img extends Element
 //                 * On production, just notify and ignore
 //                 */
 //                notify(array('code'    => 'not-specified',
-//                    'groups'  => 'developers',
+//                    'groups'  => 'developer',
 //                    'title'   => tr('No image src specified'),
 //                    'message' => tr('No src for image with alt text ":alt"', [':alt' => $params['alt']])));
 //                return '';
@@ -358,13 +358,13 @@ class Img extends Element
 //        } else {
 //            if (!$params['src']) {
 //                notify(array('code'   => 'not-specified',
-//                    'groups' => 'developers',
+//                    'groups' => 'developer',
 //                    'title'  => tr('html_img(): No image src specified')));
 //            }
 //
 //            if (!$params['alt']) {
 //                notify(array('code'    => 'not-specified',
-//                    'groups'  => 'developers',
+//                    'groups'  => 'developer',
 //                    'title'   => tr('No image alt specified'),
 //                    'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src']))));
 //            }
@@ -450,7 +450,7 @@ class Img extends Element
 //                         * Image doesnt exist
 //                         */
 //                        notify(array('code'    => 'not-exists',
-//                            'groups'  => 'developers',
+//                            'groups'  => 'developer',
 //                            'title'   => tr('Image does not exist'),
 //                            'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
 //
@@ -489,7 +489,7 @@ class Img extends Element
 //                             * Image doesnt exist
 //                             */
 //                            notify(array('code'    => 'not-exists',
-//                                'groups'  => 'developers',
+//                                'groups'  => 'developer',
 //                                'title'   => tr('Image does not exist'),
 //                                'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
 //

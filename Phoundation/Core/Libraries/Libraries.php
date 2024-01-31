@@ -174,7 +174,7 @@ class Libraries
             Notification::new()
                 ->setUrl('/system/information.html')
                 ->setMode(DisplayMode::info)
-                ->setRoles('developers')->setTitle(tr('System initialization'))
+                ->setRoles('developer')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
                 ->setDetails([
                     'system'    => $system,

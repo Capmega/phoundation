@@ -105,7 +105,7 @@ class Cdn
                          * Switch to working without CDN servers
                          */
                         Notification(array('code' => 'invalid',
-                            'groups' => 'developers',
+                            'groups' => 'developer',
                             'title' => tr('Invalid configuration'),
                             'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured')));
 
@@ -175,7 +175,7 @@ class Cdn
             //         * Err we have no CDN servers, though CDN is configured.. Just
             //         * continue locally?
             //         */
-            //        Notification('no-cdn-servers', tr('CDN system is enabled, but no availabe CDN servers were found'), 'developers');
+            //        Notification('no-cdn-servers', tr('CDN system is enabled, but no availabe CDN servers were found'), 'developer');
             //        $_SESSION['cdn'] = false;
             //        return domain($url, $query, $prefix);
             //    }

@@ -2614,7 +2614,7 @@ class Page implements PageInterface
                     ->setUrl('developer/incidents.html')
                     ->setMode(DisplayMode::warning)
                     ->setCode('unsupported-languages-requested')
-                    ->setRoles('developers')
+                    ->setRoles('developer')
                     ->setTitle(tr('Unsupported language requested by client'))
                     ->setMessage(tr('None of the requested languages ":languages" is supported', [
                         ':languages' => $requested

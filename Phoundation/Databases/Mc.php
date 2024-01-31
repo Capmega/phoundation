@@ -494,7 +494,7 @@ class Mc implements DatabaseInterface
                         ->setUrl('developer/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('not-available')
-                        ->add('developers')
+                        ->add('developer')
                         ->setTitle(tr('Memcached server not available'))
                         ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
                         ->send();
