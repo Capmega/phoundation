@@ -7,6 +7,8 @@ namespace Phoundation\Developer\Project;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistException;
 use Phoundation\Developer\Phoundation\Phoundation;
@@ -205,9 +207,9 @@ class Project implements ProjectInterface
     /**
      * Returns all available environments
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public static function getEnvironments(): array
+    public static function getEnvironments(): IteratorInterface
     {
         $return = [];
         $files  = glob(DIRECTORY_ROOT . 'config/*.yaml');
@@ -222,7 +224,7 @@ class Project implements ProjectInterface
             $return[] = Strings::untilReverse(basename($file), '.');
         }
 
-        return $return;
+        return new Iterator($return);
     }
 
 
