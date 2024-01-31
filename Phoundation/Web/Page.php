@@ -2651,6 +2651,7 @@ class Page implements PageInterface
     /**
      * Executes the target with the correct page driver (API or normal web page for now)
      *
+     * @todo Move AccessDeniedException handling to Page::execute()
      * @param string $target
      * @return string
      */
