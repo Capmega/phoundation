@@ -11,6 +11,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
@@ -364,9 +365,29 @@ class CliAutoComplete
 
             // Process results only if we have any
             if (isset($results)) {
-                sort($results);
+                // Sort the results, either array or Iterator
+                if (is_array($results)) {
+                    asort($results);
+
+                } elseif ($results instanceof IteratorInterface) {
+                    $results->sort();
+
+                } else {
+                    // The given result is neither array nor Iterator
+                    throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
+                        ':word' => $word ? 'word' : 'noword',
+                    ]));
+                }
 
                 foreach ($results as $result) {
+                    if (!is_scalar($result)) {
+                        throw new OutOfBoundsException(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
+                            ':word'    => $word ? 'word' : 'noword',
+                            ':result'  => $result,
+                            ':results' => $results,
+                        ]));
+                    }
+
                     echo (string) $result . PHP_EOL;
                 }
 
