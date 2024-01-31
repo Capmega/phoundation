@@ -852,7 +852,7 @@ class Core implements CoreInterface
             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
             ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
             ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
-            ->select('--system-language', true)->isOptional()->isCode()
+            ->select('--language', true)->isOptional()->isCode()
             ->select('--deleted')->isOptional(false)->isBoolean()
             ->select('--version')->isOptional(false)->isBoolean()
             ->select('--limit', true)->isOptional(0)->isNatural()
@@ -882,7 +882,7 @@ class Core implements CoreInterface
 //            'usage'                  => false,
 //            'verbose'                => false,
 //            'no_warnings'            => false,
-//            'system_language'        => false,
+//            'language'        => false,
 //            'deleted'                => false,
 //            'version'                => false,
 //            'limit'                  => false,
@@ -894,7 +894,7 @@ class Core implements CoreInterface
 //    ];
 
         // Set requested language
-        Core::writeRegister($argv['system_language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
+        Core::writeRegister($argv['language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color
@@ -1790,6 +1790,7 @@ class Core implements CoreInterface
         if (static::inStartupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
+die($errfile. $errline);
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
                 ->setCode($errno)
                 ->setFile($errfile)
