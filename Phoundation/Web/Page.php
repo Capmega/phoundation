@@ -2476,7 +2476,9 @@ class Page implements PageInterface
 
         if (static::$http_headers_sent) {
             // Since
-            Log::warning(tr('HTTP Headers already sent by static::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
+            Log::warning(tr('HTTP Headers already sent by :method. This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.', [
+                ':method' => 'static::sendHeaders()'
+            ]), 2);
             return true;
         }
 

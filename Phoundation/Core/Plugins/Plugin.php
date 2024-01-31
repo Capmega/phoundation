@@ -145,7 +145,7 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
-     * Returns the plugin path for this plugin
+     * Returns the class path for this plugin
      *
      * @return string|null
      */
