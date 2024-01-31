@@ -425,7 +425,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRootUrl(string $root_url): static
     {
         // Make it a correct local URL
-        $this->root_url = (string) UrlBuilder::getWww($root_url);
+        $this->root_url = (string) UrlBuilder::getWww($root_url, true);
         return $this;
     }
 
