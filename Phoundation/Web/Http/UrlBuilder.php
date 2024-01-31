@@ -875,7 +875,7 @@ throw new UnderConstructionException();
         }
 
         try {
-            return (String) static::getConfigured($url);
+            return (string) static::getConfigured($url);
 
         } catch (UrlBuilderConfiguredUrlNotFoundException) {
             // This was not a configured URL
@@ -908,9 +908,7 @@ throw new UnderConstructionException();
             return new static($configured);
         }
 
-        throw new UrlBuilderConfiguredUrlNotFoundException(tr('Specified configured URL ":url" not found', [
-            ':url' => $url
-        ]));
+        return new static($url);
     }
 
 
