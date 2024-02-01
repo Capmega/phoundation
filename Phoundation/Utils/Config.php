@@ -426,35 +426,14 @@ class Config implements ConfigInterface
      */
     public static function exists(string|array $path): bool
     {
-        try {
-            static::get($path);
-            return true;
+        $uuid = Strings::generateUuid();
 
-        } catch (ConfigPathDoesNotExistsException) {
-            // Ignore, just return null
+        if (static::get($path, $uuid) === $uuid) {
+            // We got the default value, the requested path does not exist
             return false;
         }
-    }
 
-
-    /**
-     * Returns the value for the specified configuration path, if it exists.
-     *
-     * No error will be thrown if the specified configuration path does not exist
-     *
-     * @param string|array $path The key path to search for. This should be specified either as an array with key names
-     *                           or a . separated string
-     * @return mixed
-     */
-    public static function test(string|array $path): mixed
-    {
-        try {
-            return static::get($path);
-
-        } catch (ConfigPathDoesNotExistsException) {
-            // Ignore, just return null
-            return null;
-        }
+        return true;
     }
 
 
