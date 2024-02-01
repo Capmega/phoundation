@@ -304,6 +304,7 @@ class Debug {
      * in web page mode, the value will be nicely displayed in a recursive table
      *
      * @param mixed $value
+     * @param bool $sort
      * @param int $trace_offset
      * @param bool $quiet
      * @param bool|null $full_backtrace If true will dump full backtraces. If false, will dump limited backtraces
@@ -311,7 +312,7 @@ class Debug {
      *                                  config path "debug.backtrace.full"
      * @return mixed
      */
-    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
+    public static function show(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
     {
         if (!static::getEnabled()) {
             return null;
@@ -363,7 +364,7 @@ class Debug {
 
                         default:
                             // Force HTML content type, and show HTML data
-                            $output = static::showHtml($value, tr('Unknown'), $trace_offset, $full_backtrace);
+                            $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
 
                     // Show output on web
@@ -408,8 +409,10 @@ class Debug {
 
                 } else {
                     // Sort if is array for easier reading
-                    if (is_array($value)) {
-                        ksort($value);
+                    if ($sort) {
+                        if (is_array($value)) {
+                            ksort($value);
+                        }
                     }
 
                     if (!$quiet) {
@@ -450,15 +453,16 @@ class Debug {
      *
      * @note Does NOT return data type "never" because in production mode this call will be completely ignored!
      * @param mixed $value
+     * @param bool $sort
      * @param int $trace_offset
      * @param bool $quiet
      * @return void
      */
-    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
+    #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): void
     {
         if (static::getEnabled()) {
             try {
-                static::show($value, $trace_offset, $quiet);
+                static::show($value, $sort, $trace_offset, $quiet);
 
                 // Don't log within Log::write() or tr() to avoid endless loops
                 if (!function_called('Log::write()') and !function_called('tr()')) {
@@ -500,11 +504,12 @@ class Debug {
      *
      * @param mixed $value
      * @param string|null $key
+     * @param bool $sort
      * @param int $trace_offset
      * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0, bool $full_backtrace = false): string
+    protected static function showHtml(mixed $value, string|null $key = null, bool $sort = true, int $trace_offset = 0, bool $full_backtrace = false): string
     {
         static $style;
 
@@ -547,7 +552,7 @@ class Debug {
         return $return . '  <table class="debug">
                               <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
                               <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>
-                              '.static::showHtmlRow($value, $key, $full_backtrace) . '
+                              '.static::showHtmlRow($value, $key, $sort, $full_backtrace) . '
                             </table>';
     }
 
@@ -557,10 +562,11 @@ class Debug {
      *
      * @param mixed $value
      * @param string|null $key
+     * @param bool $sort
      * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtmlRow(mixed $value, ?string $key = null, bool $full_backtrace = false): string
+    protected static function showHtmlRow(mixed $value, ?string $key = null, bool $sort = true, bool $full_backtrace = false): string
     {
         if ($key === null) {
             $key = tr('Unknown');
@@ -639,10 +645,12 @@ class Debug {
             case 'array':
                 $return = '';
 
-                ksort($value);
+                if ($sort) {
+                    ksort($value);
+                }
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $full_backtrace);
+                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $sort, $full_backtrace);
                 }
 
                 return '<tr>
@@ -711,6 +719,7 @@ class Debug {
      *
      * @param Throwable $e
      * @param bool $full_backtrace
+     * @param int $indent
      * @return string
      */
     protected static function displayException(Throwable $e, bool $full_backtrace, int $indent): string

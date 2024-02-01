@@ -639,15 +639,16 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
+ * @param bool $sort
  * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         if (Core::scriptStarted()) {
-            return Debug::show($source, $trace_offset, $quiet);
+            return Debug::show($source, $sort, $trace_offset, $quiet);
         }
 
         return show_system($source, false);
@@ -661,15 +662,16 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  * Shortcut to the Debug::show() call, but displaying the data in hex
  *
  * @param mixed $source
+ * @param bool $sort
  * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         $source = bin2hex($source);
-        return show($source, $trace_offset);
+        return show($source, $sort, $trace_offset);
     }
 
     return null;
@@ -694,7 +696,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = fals
             $backtrace = Arrays::limit($backtrace, $count);
         }
 
-        return show($backtrace, $trace_offset, $quiet);
+        return show($backtrace, true, $trace_offset, $quiet);
     }
 
     return null;
@@ -705,15 +707,16 @@ function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = fals
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
+ * @param bool $sort
  * @param int $trace_offset
  * @param bool $quiet
  * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false): void
 {
     if (Debug::getEnabled()) {
         if (Core::scriptStarted()) {
-            Debug::showdie($source, $trace_offset, $quiet);
+            Debug::showdie($source, $sort, $trace_offset, $quiet);
         }
 
         show_system($source);
