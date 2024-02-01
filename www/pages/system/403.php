@@ -44,9 +44,7 @@ Page::getFlashMessages()->addMessage($e);
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '403',
     ':h3'     => tr('Forbidden'),
-    ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error', [
-        ':url' => Page::getReferer(true)
-    ]),
+    ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')

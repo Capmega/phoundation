@@ -44,9 +44,7 @@ Page::getFlashMessages()->addMessage($e);
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '404',
     ':h3'     => tr('Page not found'),
-    ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!', [
-            ':url' => Page::getReferer(true)
-    ]),
+    ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')

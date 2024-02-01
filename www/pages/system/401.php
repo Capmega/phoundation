@@ -45,9 +45,7 @@ Page::getFlashMessages()->addMessage($e);
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '401',
     ':h3'     => tr('Unauthorized'),
-    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error', [
-        ':url' => Page::getReferer(true)
-    ]),
+    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')

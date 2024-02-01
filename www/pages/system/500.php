@@ -43,9 +43,7 @@ Page::getFlashMessages()->addMessage($e);
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '500',
     ':h3'     => tr('500 Internal Server Error'),
-    ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator', [
-        ':url' => Page::getReferer(true)
-    ]),
+    ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')

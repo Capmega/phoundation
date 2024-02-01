@@ -43,9 +43,7 @@ Page::getFlashMessages()->addMessage($e);
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '503',
     ':h3'     => tr('503 Service Unavailable'),
-    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information', [
-        ':url' => Page::getReferer(true)
-    ]),
+    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')
