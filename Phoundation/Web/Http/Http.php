@@ -505,7 +505,7 @@ class Http
 //                    $requested = array('language' => Strings::until($requested, '-'),
 //                        'locale' => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
 //
-//                    if (empty(Config::get('languages.supported', [])[$requested['language']])) {
+//                    if (empty(Config::get('language.supported', [])[$requested['language']])) {
 //                        continue;
 //                    }
 //

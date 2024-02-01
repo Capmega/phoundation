@@ -76,7 +76,7 @@ class Web
 //
 //        // Do language mapping, but only if routemap has been set
 //// :TODO: This will fail when using multiple CDN servers (WHY?)
-//        if (!empty(Config::get('languages.supported', [])) and ($domain !== Config::get('cdn.domain', '') . '/')) {
+//        if (!empty(Config::get('language.supported', [])) and ($domain !== Config::get('cdn.domain', '') . '/')) {
 //            if ($from_language !== 'en') {
 //                /*
 //                 * Translate the current non-English URL to English first

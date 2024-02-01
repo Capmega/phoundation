@@ -1731,7 +1731,7 @@ class Page implements PageInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null)
                 ];
 
-                if (empty(Config::get('languages.supported', [])[$requested['language']])) {
+                if (empty(Config::get('language.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -2584,7 +2584,7 @@ class Page implements PageInterface
      */
     protected static function detectRequestedLanguage(): string
     {
-        $languages = Config::getArray('languages.supported', []);
+        $languages = Config::getArray('language.supported', []);
 
         switch (count($languages)) {
             case 0:

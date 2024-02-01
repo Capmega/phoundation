@@ -335,7 +335,7 @@ class Session implements SessionInterface
     protected static function setLanguage(): string
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
-        $supported_languages = Arrays::force(Config::get('languages.supported', []));
+        $supported_languages = Arrays::force(Config::get('language.supported', []));
         $requested_languages = Page::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
