@@ -153,7 +153,7 @@ Page::setBuildBody(false);
                 }
         ?>
         <div class="login-footer text-center">
-            <?= 'Copyright © ' . Config::getString('project.copyright', '2024') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
+            <?= 'Copyright © ' . Config::getString('project.copyright', '2023') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
             All rights reserved        </div>
         </div>
         <!-- /.card-body -->

@@ -268,6 +268,3 @@ Script::new()
   </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
-
-
-

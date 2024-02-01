@@ -78,7 +78,7 @@ if (Page::isPostRequestMethod()) {
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
-            if (Core::isProduction()) {
+            if (Core::isProductionEnvironment()) {
                 $mail->addBCC('sven@medinet.ca', 'Sven Olaf Oostenbrink');
             } else {
                 $mail->addAddress($user->getEmail(), $user->getDisplayName());

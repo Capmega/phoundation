@@ -91,4 +91,3 @@ foreach ($users as $user) {
 echo $card = Card::new()
     ->setContent('<div class="row">' . $content . '</div>')
     ->render();
-
