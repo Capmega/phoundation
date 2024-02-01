@@ -121,10 +121,11 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         $message = Strings::force($message);
         $message = trim($message);
 
-        Log::warning('Exception: ' . $message);
+        Log::warning('Exception: ' . $message, 2);
 
         $this->addMessages($messages);
         parent::__construct($message, 0, $previous);
+// print_r($this); die();
     }
 
 
