@@ -2365,7 +2365,7 @@ die($errfile. $errline);
     protected static function setLanguage(): void
     {
         try {
-            $supported = Config::get('languages.supported', ['en', 'es']);
+            $supported = Config::get('language.supported', ['en', 'es']);
 
             if ($supported) {
                 // Language is defined by the www/LANGUAGE dir that is used.
@@ -2376,7 +2376,7 @@ die($errfile. $errline);
                 if (!in_array($language, $supported)) {
                     $language = Config::get('languages.default', 'en');
 
-                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "languages.supported"', [
+                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
                             ':language' => $language]
                     ));
                 }

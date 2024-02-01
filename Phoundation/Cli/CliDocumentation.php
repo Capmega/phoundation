@@ -46,8 +46,8 @@ class CliDocumentation
         global $argv;
 
         if (isset_get($argv['help'])) {
-            Log::information(tr('Command help:'), 9, use_prefix: false);
-            Log::notice(trim($help), 10, false, use_prefix: false);
+            Log::information(tr('Command help:'), 9);
+            Log::notice(trim($help), 10, false);
 
             if ($exit) {
                 exit();
