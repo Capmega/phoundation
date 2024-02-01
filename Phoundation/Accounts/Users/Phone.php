@@ -156,7 +156,7 @@ class Phone extends DataEntry implements PhoneInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new PhoneNotExistsException($e);

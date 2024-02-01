@@ -460,7 +460,7 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
 
-        return parent::get($identifier, $column, $meta_enabled, $force);
+        return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
     }
 
 

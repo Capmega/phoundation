@@ -236,7 +236,7 @@ class User extends DataEntry implements UserInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled);
+            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsException $e) {
             if ($column === 'email') {

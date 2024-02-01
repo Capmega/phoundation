@@ -119,7 +119,7 @@ class Mount extends DataEntry implements MountInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force);
+            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsException $e) {
             // Mount was not found in the database. Get it from configuration instead but that DOES require the name
