@@ -827,7 +827,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Returns a table cell
+     * Returns a table row
      *
      * @param array $row_values
      * @param string|float|int|null $key
@@ -870,9 +870,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
                 $first = false;
 
-                $params['no_url'] = $made_checkbox;
+                $params['no_url'] = ($made_checkbox or !$value);
 
-                $return .= $this->renderCell($row_id, $column, $value, $params);
+                // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
+                if ($value !== null) {
+                    $return .= $this->renderCell($row_id, $column, $value, $params);
+                }
 
             } else {
                 $params['no_url'] = $made_checkbox;
@@ -958,16 +961,16 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @param string $column
      * @param string|float|int|null $value
      * @param bool $made_checkbox
-     * @return string|int|null
+     * @return string|null
      */
-    protected function renderCheckboxColumn(string $column, string|float|int|null $value, bool &$made_checkbox): string|int|null
+    protected function renderCheckboxColumn(string $column, string|float|int|null $value, bool &$made_checkbox): string|null
     {
         switch ($this->checkbox_selectors) {
             case TableIdColumn::hidden:
                 return null;
 
             case TableIdColumn::visible:
-                return $value;
+                return (string) $value;
 
             case TableIdColumn::checkbox:
                 // no break
