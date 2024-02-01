@@ -2276,7 +2276,7 @@ class Arrays extends Utils
      *                   and should not be added nor deleted (but perhaps updated, for example)
      * @return array
      */
-    public static function valueDiff(array $source1, array $source2, bool $keep = false): array
+    public static function valueDiff(IteratorInterface|array $source1, IteratorInterface|array $source2, bool $keep = false): array
     {
         $return = [
             'add'    => [],
