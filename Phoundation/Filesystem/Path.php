@@ -1099,7 +1099,7 @@ class Path implements Stringable, PathInterface
         }
 
         if ($this->type == 0010000) {
-            return 'reg file';
+            return 'regular file';
         }
 
         if ($this->type == 0140000) {
@@ -2448,7 +2448,7 @@ class Path implements Stringable, PathInterface
     public function find(): FindInterface
     {
         return Find::new($this->restrictions)
-            ->setPath($this->path);
+            ->setFindPath($this->path);
     }
 
 

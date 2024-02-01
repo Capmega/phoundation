@@ -1375,7 +1375,7 @@ class Directory extends Path implements DirectoryInterface
      */
     public function find(): FindInterface
     {
-        return Find::new($this->restrictions)->setPath($this);
+        return Find::new($this->restrictions)->setFindPath($this);
     }
 
 
@@ -1413,7 +1413,7 @@ class Directory extends Path implements DirectoryInterface
     public function containFiles(): bool
     {
         return Find::new()
-            ->setPath($this->path)
+            ->setFindPath($this->path)
             ->setType('f')
             ->executeReturnIterator()
             ->isNotEmpty();

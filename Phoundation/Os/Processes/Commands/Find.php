@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Data\Traits\DataName;
+use Phoundation\Data\Traits\DataPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Files;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
-use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 
@@ -21,14 +24,82 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-class Find extends Command implements FindInterface
+class Find extends Command
 {
+    use DataName;
+    use DataPath;
+
+
     /**
      * The path in which to find
      *
-     * @var string $path
+     * @var string $find_path
      */
-    protected string $path;
+    protected string $find_path;
+
+    /**
+     * Tracks to follow symlinks or not
+     *
+     * @var bool $follow_symlinks
+     */
+    protected bool $follow_symlinks = false;
+
+    /**
+     * The callback to execute on each found file
+     *
+     * @var mixed $callback
+     */
+    protected mixed $callback = null;
+
+    /**
+     * The shell command to execute on each file
+     *
+     * @var string|null $exec
+     */
+    protected ?string $exec = null;
+
+    /**
+     * Find empty files
+     *
+     * @var bool $empty
+     */
+    protected bool $empty = false;
+
+    /**
+     * Tracks if find should descend into other filesystems
+     *
+     * @note This is true by default for security to avoid searching on remote filesystems by accident
+     * @var bool $mount
+     */
+    protected bool $mount = true;
+
+    /**
+     * The file last modified time in minutes
+     *
+     * @var string|null $mtime
+     */
+    protected ?string $mtime = null;
+
+    /**
+     * The file last access time in minutes
+     *
+     * @var string|null $atime
+     */
+    protected ?string $atime = null;
+
+    /**
+     * The file last status change time in minutes
+     *
+     * @var string|null $ctime
+     */
+    protected ?string $ctime = null;
+
+    /**
+     * The iname to filter on
+     *
+     * @var string|null $iname
+     */
+    protected ?string $iname = null;
 
     /**
      * The type of file to filter on
@@ -36,6 +107,13 @@ class Find extends Command implements FindInterface
      * @var string|null $type
      */
     protected ?string $type = null;
+
+    /**
+     * The regex  to filter on
+     *
+     * @var string|null $regex
+     */
+    protected ?string $regex = null;
 
     /**
      * The file size to filter on
@@ -75,13 +153,6 @@ class Find extends Command implements FindInterface
     protected ?int $max_depth = null;
 
     /**
-     * The callback to execute on each file
-     *
-     * @var callable|null $callback
-     */
-    protected mixed $callback = null;
-
-    /**
      * The action to execute
      *
      * @var string|null $action
@@ -101,31 +172,130 @@ class Find extends Command implements FindInterface
      *
      * @return string
      */
-    public function getPath(): string
+    public function getFindPath(): string
     {
-        if (!isset($this->path)) {
+        if (!isset($this->find_path)) {
             throw new OutOfBoundsException(tr('Cannot return path, no path has been specified yet'));
         }
 
-        return $this->path;
+        return $this->find_path;
     }
 
 
     /**
      * Sets the path in which to find
      *
-     * @param Stringable|string $path
+     * @param Stringable|string $find_path
      * @return $this
      */
-    public function setPath(Stringable|string $path): static
+    public function setFindPath(Stringable|string $find_path): static
     {
-        $this->path = (string) $path;
-        return $this->setExecutionDirectory($path);
+        $this->find_path = (string) $find_path;
+        return $this->setExecutionDirectory($find_path);
     }
 
 
     /**
-     * Returns the size in which to find
+     * Sets if find should descend into other filesystems
+     *
+     * @note This is true by default for security to avoid searching on remote filesystems by accident
+     * @param bool $mount
+     * @return static
+     */
+    public function setMount(bool $mount): static
+    {
+        $this->mount = $mount;
+        return $this;
+    }
+
+
+    /**
+     * Returns if find should find empty files
+     *
+     * @return bool
+     */
+    public function getMount(): bool
+    {
+        return $this->mount;
+    }
+
+
+    /**
+     * Returns if find should descend into other filesystems
+     *
+     * @note This is true by default for security to avoid searching on remote filesystems by accident
+     * @return bool
+     */
+    public function getFollowSymlinks(): bool
+    {
+        return $this->follow_symlinks;
+    }
+
+
+    /**
+     * Sets if find should find follow_symlinks files
+     *
+     * @param bool $follow_symlinks
+     * @return static
+     */
+    public function setFollowSymlinks(bool $follow_symlinks): static
+    {
+        $this->follow_symlinks = $follow_symlinks;
+        return $this;
+    }
+
+
+    /**
+     * Returns if find should descend into other filesystems
+     *
+     * @note This is true by default for security to avoid searching on remote filesystems by accident
+     * @return bool
+     */
+    public function getEmpty(): bool
+    {
+        return $this->empty;
+    }
+
+
+    /**
+     * Sets if find should find empty files
+     *
+     * @param bool $empty
+     * @return static
+     */
+    public function setEmpty(bool $empty): static
+    {
+        $this->empty = $empty;
+        return $this;
+    }
+
+
+    /**
+     * Returns the iname
+     *
+     * @return string|null
+     */
+    public function getIname(): ?string
+    {
+        return $this->iname;
+    }
+
+
+    /**
+     * Sets the iname
+     *
+     * @param string|null $iname
+     * @return static
+     */
+    public function setIname(?string $iname): static
+    {
+        $this->iname = $iname;
+        return $this;
+    }
+
+
+    /**
+     * Returns the size for which to look
      *
      * @return string
      */
@@ -152,6 +322,173 @@ class Find extends Command implements FindInterface
         }
 
         $this->size = str_replace('_', '', $size);
+        return $this;
+    }
+
+
+    /**
+     * Returns the last modified time in minutes for which to look
+     *
+     * @return string
+     */
+    public function getMtime(): string
+    {
+        return $this->mtime;
+    }
+
+
+    /**
+     * Sets the last modified time in minutes for which to find
+     *
+     * @param Stringable|string $mtime
+     * @return $this
+     */
+    public function setMtime(Stringable|string $mtime): static
+    {
+        $mtime = (string) $mtime;
+
+        if (!preg_match('/^[-+]?[0-9_]+$/', $mtime)) {
+            throw new OutOfBoundsException(tr('Invalid mtime ":mtime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
+                ':mtime' => $mtime
+            ]));
+        }
+
+        $this->mtime = str_replace('_', '', $mtime);
+        return $this;
+    }
+
+
+    /**
+     * Returns the access time in minutes for which to look
+     *
+     * @return string
+     */
+    public function getAtime(): string
+    {
+        return $this->atime;
+    }
+
+
+    /**
+     * Sets the access time in minutes for which to find
+     *
+     * @param Stringable|string $atime
+     * @return $this
+     */
+    public function setAtime(Stringable|string $atime): static
+    {
+        $atime = (string) $atime;
+
+        if (!preg_match('/^[-+]?[0-9_]+$/', $atime)) {
+            throw new OutOfBoundsException(tr('Invalid atime ":atime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
+                ':atime' => $atime
+            ]));
+        }
+
+        $this->atime = str_replace('_', '', $atime);
+        return $this;
+    }
+
+
+    /**
+     * Returns the file status change time in minutes for which to look
+     *
+     * @return string
+     */
+    public function getCtime(): string
+    {
+        return $this->ctime;
+    }
+
+
+    /**
+     * Sets the file status change time in minutes for which to find
+     *
+     * @param Stringable|string $ctime
+     * @return $this
+     */
+    public function setCtime(Stringable|string $ctime): static
+    {
+        $ctime = (string) $ctime;
+
+        if (!preg_match('/^[-+]?[0-9_]+$/', $ctime)) {
+            throw new OutOfBoundsException(tr('Invalid ctime ":ctime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
+                ':ctime' => $ctime
+            ]));
+        }
+
+        $this->ctime = str_replace('_', '', $ctime);
+        return $this;
+    }
+
+
+    /**
+     * Returns the file types for which to look
+     *
+     * @return string
+     */
+    public function getTypes(): string
+    {
+        return $this->types;
+    }
+
+
+    /**
+     * Sets the file types in which to find
+     *
+     * @param Stringable|array|string $types
+     * @return $this
+     */
+    public function setTypes(Stringable|array|string $types): static
+    {
+        $types = Arrays::force($types);
+
+        foreach ($types as &$type) {
+            $type = match($type) {
+                'directory'        => 'd',
+                'fifo device'      => 'p',
+                'character device' => 'c',
+                'block device'     => 'b',
+                'regular file'     => 'f',
+                'socket file'      => 's',
+                'symbolic link'    => 'l',
+                'd'                => 'd',
+                'p'                => 'p',
+                'c'                => 'c',
+                'b'                => 'b',
+                'f'                => 'f',
+                's'                => 's',
+                'l'                => 'l',
+            };
+        }
+
+        unset($type);
+
+        $this->types = Strings::force($types, ',');
+        return $this;
+    }
+
+
+    /**
+     * Returns the regex in which to find
+     *
+     * @return bool
+     */
+    public function getRegex(): bool
+    {
+        return $this->regex;
+    }
+
+
+    /**
+     * Sets the regex in which to find
+     *
+     * @param bool $regex
+     * @return $this
+     */
+    public function setRegex(bool $regex): static
+    {
+        $this->regex = $regex;
         return $this;
     }
 
@@ -247,8 +584,8 @@ class Find extends Command implements FindInterface
      */
     public function setCallback(?callable $callback): static
     {
-        if ($this->action) {
-            throw new OutOfBoundsException(tr('Cannot specify callback for find, action has already been defined'));
+        if ($this->exec) {
+            throw new OutOfBoundsException(tr('Cannot specify callback for find, exec has already been defined'));
         }
 
         $this->callback = $callback;
@@ -257,40 +594,29 @@ class Find extends Command implements FindInterface
 
 
     /**
-     * Returns the action in which to find
+     * Returns what shell command to execute on each file
      *
-     * @return callable|null
+     * @return string|null
      */
-    public function getAction(): ?callable
+    public function getExec(): ?string
     {
-        return $this->action;
+        return $this->exec;
     }
 
 
     /**
-     * Sets the action in which to find
+     * Sets what shell command to execute on each file
      *
-     * @param callable|null $action
-     * @param string|null $action_command
+     * @param string|null $exec
      * @return $this
      */
-    public function setAction(?callable $action, ?string $action_command = null): static
+    public function setExec(?string $exec = null): static
     {
         if ($this->callback) {
-            throw new OutOfBoundsException(tr('Cannot specify action for find, callback has already been defined'));
+            throw new OutOfBoundsException(tr('Cannot specify exec for find, a callback has already been defined'));
         }
 
-        $actions = ['b', 'c', 'd', 'p', 'f', 'l', 's'];
-
-        if (!in_array($action, $actions)) {
-            throw new OutOfBoundsException(tr('Invalid action ":action" specified, must be one of "delete, exec"', [
-                ':action' => $action
-            ]));
-        }
-
-        $this->action         = $action;
-        $this->action_command = $action_command;
-
+        $this->exec = $exec;
         return $this;
     }
 
@@ -345,12 +671,14 @@ class Find extends Command implements FindInterface
      */
     public function getFoundFiles(): FilesInterface
     {
+        $files = Files::new()->setSource($this->output);
+
         if ($this->callback) {
             $callback = $this->callback;
-            $callback($this->output);
+            $callback($files);
         }
 
-        return Files::new()->setSource($this->output);
+        return $files;
     }
 
 
@@ -361,19 +689,30 @@ class Find extends Command implements FindInterface
      */
     public function executeReturnArray(): array
     {
-        if (!isset($this->path)) {
+        if (!isset($this->find_path)) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
 
         $this->setCommand('find')
             ->setTimeout($this->timeout)
-            ->addArgument($this->path)
-            ->addArguments($this->type      ? ['-type'    , $this->type]      : null)
-            ->addArguments($this->size      ? ['-size'    , $this->size]      : null)
-            ->addArguments($this->depth     ? ['-depth'   , $this->depth]     : null)
-            ->addArguments($this->max_depth ? ['-maxdepth', $this->max_depth] : null)
-            ->addArguments($this->min_depth ? ['-mindepth', $this->min_depth] : null)
-            ->addArguments($this->size      ? ['-size'    , $this->size]      : null);
+            ->addArgument($this->find_path)
+            ->addArguments($this->name            ? ['-name'    , $this->name]      : null)
+            ->addArguments($this->iname           ? ['-iname'   , $this->iname]     : null)
+            ->addArguments($this->path            ? ['-path'    , $this->path]      : null)
+            ->addArguments($this->atime           ? ['-amin'    , $this->atime]     : null)
+            ->addArguments($this->ctime           ? ['-cmin'    , $this->ctime]     : null)
+            ->addArguments($this->mtime           ? ['-mmin'    , $this->mtime]     : null)
+            ->addArguments($this->type            ? ['-type'    , $this->type]      : null)
+            ->addArguments($this->regex           ? ['-regex'   , $this->regex]     : null)
+            ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
+            ->addArguments($this->depth           ? ['-depth'   , $this->depth]     : null)
+            ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth] : null)
+            ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth] : null)
+            ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
+            ->addArguments($this->mount           ? '-mount'                        : null)
+            ->addArguments($this->empty           ? '-empty'                        : null)
+            ->addArguments($this->follow_symlinks ? '-L'                            : '-P')
+            ->addArguments($this->exec            ? ['-exec'    , $this->exec]      : null);
 
         return parent::executeReturnArray();
     }

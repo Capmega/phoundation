@@ -63,7 +63,7 @@ class Tmp
         ]));
 
         Find::new()
-            ->setPath(DIRECTORY_DATA . 'tmp/')
+            ->setFindPath(DIRECTORY_DATA . 'tmp/')
             ->setOlderThan($age_in_minutes)
             ->setExecute('rf {} -rf')
             ->executeNoReturn();

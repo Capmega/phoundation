@@ -1416,9 +1416,9 @@ Class Log {
         ]));
 
         Find::new()
-            ->setPath(DIRECTORY_DATA . 'log/')
-            ->setOlderThan($age_in_days)
-            ->setExecute('rf {} -rf')
+            ->setFindPath(DIRECTORY_DATA . 'log/')
+            ->setMtime('+' . ($age_in_days * 1440))
+            ->setExec('rf {} -rf')
             ->executeNoReturn();
     }
 }

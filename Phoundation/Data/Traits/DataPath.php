@@ -6,45 +6,45 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait DataName
+ * Trait DataPath
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openname.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-trait DataName
+trait DataPath
 {
     /**
-     * The name to use
+     * The path to use
      *
-     * @var string|null $name
+     * @var string|null $path
      */
-    protected ?string $name = null;
+    protected ?string $path = null;
 
 
     /**
-     * Returns the name
+     * Returns the path
      *
      * @return string|null
      */
-    public function getName(): ?string
+    public function getPath(): ?string
     {
-        return $this->name;
+        return $this->path;
     }
 
 
     /**
-     * Sets the name
+     * Sets the path
      *
-     * @param string|null $name
+     * @param string|null $path
      * @return static
      */
-    public function setName(?string $name): static
+    public function setPath(?string $path): static
     {
-        $this->name = $name;
+        $this->path = $path;
         return $this;
     }
 }
