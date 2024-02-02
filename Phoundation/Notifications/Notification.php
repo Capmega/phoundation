@@ -6,6 +6,7 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
@@ -28,9 +29,11 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -38,6 +41,7 @@ use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\InputElement;
 use Phoundation\Web\Html\Enums\InputType;
 use Phoundation\Web\Html\Enums\InputTypeExtended;
+use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
 
 
@@ -174,15 +178,15 @@ class Notification extends DataEntry implements NotificationInterface
             ->setLine($e->getLine())
             ->setTrace($e->getTraceAsString())
             ->setCode('E-' . $e->getCode())
-            ->setTitle(tr('Phoundation encountered an exception'))
+            ->setTitle(tr('Phoundation project ":project" encountered an exception', [':project' => PROJECT]))
             ->setMessage($e->getMessage())
-            ->add('developer')
+            ->addRole('developer')
             ->setDetails([
-            'trace' => $e->getTrace(),
-            'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
-        ]);
+                'trace' => $e->getTrace(),
+                'data'  => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
+            ])
+            ->e = $e;
 
-        $this->e = $e;
         return $this;
     }
 
@@ -253,7 +257,7 @@ class Notification extends DataEntry implements NotificationInterface
         }
 
         foreach (Arrays::force($roles) as $role) {
-            $this->add($role);
+            $this->addRole($role);
         }
 
         return $this;
@@ -266,7 +270,7 @@ class Notification extends DataEntry implements NotificationInterface
      * @param string|null $role
      * @return static
      */
-    public function add(?string $role): static
+    public function addRole(?string $role): static
     {
         $role = trim((string) $role);
 
@@ -356,7 +360,7 @@ class Notification extends DataEntry implements NotificationInterface
             Log::write(tr('Code    : ":code"'   , [':code' => $this->getCode()])      , 'debug', 10, false);
             Log::write(tr('Title   : ":title"'  , [':title' => $this->getTitle()])    , 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
-            Log::write(tr('Details :')                                                , 'debug', 10, false);
+            Log::write(tr('Data :')                                                   , 'debug', 10, false);
 
             try {
                 Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
@@ -500,6 +504,37 @@ class Notification extends DataEntry implements NotificationInterface
 
         if (is_object($user)) {
             $user = $user->getLogId();
+        }
+
+        // TODO Use the Email library for this once its ready
+        $mail = new PHPMailer();
+        $mail->isSMTP();
+        $mail->Host = "10.10.0.9";
+        $mail->Port = "25";
+        $mail->addAddress($user->getEmail(), $user->getDisplayName());
+        $mail->Subject = $this->getTitle();
+        $mail->Body    = tr('
+        ', [
+            ':url'     => $this->getUrl(),
+            ':file'    => $this->getFile(),
+            ':line'    => $this->getLine(),
+            ':code'    => $this->getCode(),
+            ':trace'   => $this->getTrace(),
+            ':message' => $this->getMessage(),
+            ':details' => print_r($this->getDetails(), true),
+            ':e'       => $this->e,
+        ]);
+
+        try {
+            $mail->setFrom(Config::getString('email.from.email'), Config::getString('email.from.name', 'Your Phoundation project'));
+
+        } catch (ConfigPathDoesNotExistsException $e) {
+            // Phoundation isn't properly configured
+            throw new NotificationsException(tr('Cannot notify ":user" because the email.from.email and or email.from.name are not correctly configured'), $e);
+        }
+
+        if (!$mail->send()) {
+            throw new NotificationsException(tr('Cannot notify ":user" because ":e"', [':e' => $mail->ErrorInfo]));
         }
 
         Log::warning(tr('Not sending notification ":title" to user ":user", sending notifications has not yet been implemented', [

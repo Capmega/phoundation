@@ -74,7 +74,7 @@ interface NotificationInterface extends DataEntryInterface
      * @param string|null $role
      * @return static
      */
-    public function add(?string $role): static;
+    public function addRole(?string $role): static;
 
     /**
      * Send the notification
