@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Hooks\Hook;
 use Phoundation\Data\Traits\DataForce;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
@@ -78,9 +79,10 @@ class UnMount extends Command
      * Unmount the specified target
      *
      * @param Stringable|string $target
+     * @param int|null $timeout
      * @return void
      */
-    public function unmount(Stringable|string $target): void
+    public function unmount(Stringable|string $target, ?int $timeout = null): void
     {
         if (Mount::isSource($target, false)) {
             // This is a mount source. Unmount all its targets
@@ -97,11 +99,20 @@ class UnMount extends Command
                 ]));
             }
 
+            Hook::new('phoundation')->execute('file-system/unmount', [
+                'source'      => $source,
+                'target'      => $target,
+                'file-system' => $target,
+                'options'     => $target,
+                'timeout'     => $timeout
+            ]);
+
             // Build the process parameters, then execute
             try {
                 $this->clearArguments()
-                    ->setSudo(true)
                     ->setCommand('umount')
+                    ->setSudo(true)
+                    ->setTimeout($timeout)
                     ->addArgument($this->force ? '-f' : null)
                     ->addArgument($this->lazy  ? '-l' : null)
                     ->addArgument($target)

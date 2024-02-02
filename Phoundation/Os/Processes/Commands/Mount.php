@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Hooks\Hook;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Interfaces\FileInterface;
@@ -51,17 +52,28 @@ class Mount extends Command
      * @param Stringable|string $target
      * @param string|null $filesystem
      * @param Stringable|array|string|null $options
+     * @param int|null $timeout
      * @return void
      */
-    public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null): void
+    public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null, ?int $timeout = null): void
     {
         Directory::new($target, $this->restrictions)->ensure();
+
+        Hook::new('phoundation')->execute('file-system/mount', [
+            'source'      => $source,
+            'target'      => $target,
+            'file-system' => $target,
+            'options'     => $target,
+            'timeout'     => $timeout
+        ]);
 
         try {
             // Build the process parameters, then execute
             $this->clearArguments()
-                ->setSudo(true)
                 ->setCommand('mount')
+                ->setTimeout($timeout)
+                ->setSignal(9)
+                ->setSudo(true)
                 ->addArguments([(string)$source, (string)$target])
                 ->addArguments($options ? ['-o', Strings::force($options, ',')] : null)
                 ->addArguments($filesystem ? ['-t', $filesystem] : null)
