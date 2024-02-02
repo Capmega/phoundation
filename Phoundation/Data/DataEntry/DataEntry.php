@@ -808,7 +808,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return string
      */
-    function getDisplayName(): string
+    public function getDisplayName(): string
     {
         $postfix = null;
 
@@ -817,6 +817,21 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return $this->getSourceColumnValue('string', static::getUniqueColumn() ?? 'id') . $postfix;
+    }
+
+
+    /**
+     * Get a result used for auto completion
+     *
+     * @return string
+     */
+    public function getAutoCompleteValue(): string
+    {
+        if (static::getUniqueColumn()) {
+            return isset_get($this->source[static::getUniqueColumn()]);
+        }
+
+        return (string) $this->getId();
     }
 
 
@@ -1893,21 +1908,26 @@ abstract class DataEntry implements DataEntryInterface
 //            $value = $default;
 //        }
 
-        // Detect if setting this value constitutes a modification or not
-        if ((isset_get($this->source[$column]) === null) and ($value === $definition->getDefault())) {
-            // If the previous value was empty and the current value is the same as the default value then there was no
-            // modification, we simply applied a default value
+//        // Detect if setting this value constitutes a modification or not
+//        if ((isset_get($this->source[$column]) === null) and ($value === $definition->getDefault())) {
+//            // If the previous value was empty and the current value is the same as the default value then there was no
+//            // modification, we simply applied a default value
+//
+//        } else {
+//            // The DataEntry::is_modified can only be modified if it is not TRUE already. The DataEntry is considered
+//            // modified if the user is modifying and the entry changed
+//            if (!$this->is_modified and !$definition->getIgnoreModify()) {
+//                $this->is_modified = (isset_get($this->source[$column]) !== $value);
+//            }
+//        }
 
-        } else {
-            // The DataEntry::is_modified can only be modified if it is not TRUE already. The DataEntry is considered
-            // modified if the user is modifying and the entry changed
-            if (!$this->is_modified and !$definition->getIgnoreModify()) {
-                $this->is_modified = (isset_get($this->source[$column]) !== $value);
+
+        if (!$this->is_modified and !$definition->getIgnoreModify()) {
+            $this->is_modified = (isset_get($this->source[$column]) !== $value);
+
+            if ($this->debug) {
+                Log::debug('MODIFIED FIELD "' . $column . '" FROM "' . $this->source[$column] . '" [' . gettype(isset_get($this->source[$column])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
             }
-        }
-
-        if ($this->debug) {
-            Log::debug('MODIFIED FIELD "' . $column . '" FROM "' . $this->source[$column] . '" [' . gettype(isset_get($this->source[$column])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
         }
 
         // Update the column value
