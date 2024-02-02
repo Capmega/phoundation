@@ -22,7 +22,7 @@ use Phoundation\Utils\Config;
  */
 CliDocumentation::usage('./pho config create-default');
 
-CliDocumentation::help('This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values
+CliDocumentation::help('This command will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values
 
 
 ARGUMENTS

@@ -27,7 +27,7 @@ CliDocumentation::autoComplete([
 
 CliDocumentation::usage('./pho security logs non200urls process');
 
-CliDocumentation::help('This script will process Non HTTP-200 URL\'s and check for any illicit activities'));
+CliDocumentation::help('This command will process Non HTTP-200 URL\'s and check for any illicit activities'));
 
 
 // Validate arguments

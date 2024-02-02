@@ -22,7 +22,7 @@ use Phoundation\Databases\Sql\Sql;
 CliDocumentation::usage('./pho accounts users list [OPTIONS]
 ./pho system accounts users list -d -r god');
 
-CliDocumentation::help('This script will list the available users on this system
+CliDocumentation::help('This command will list the available users on this system
 
 
 

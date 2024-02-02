@@ -22,7 +22,7 @@ use Phoundation\Geo\GeoIp\Import;
  */
 CliDocumentation::usage('./pho geo ip import');
 
-CliDocumentation::help('This script will download and import the MaxMind geoip data files
+CliDocumentation::help('This command will download and import the MaxMind geoip data files
 
 
 

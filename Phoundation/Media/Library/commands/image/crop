@@ -22,7 +22,7 @@ use Phoundation\Filesystem\Restrictions;
  */
 CliDocumentation::usage('./pho image convert IMAGE');
 
-CliDocumentation::help('This script can apply various conversions to the specified image');
+CliDocumentation::help('This command can apply various conversions to the specified image');
 
 
 

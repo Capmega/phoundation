@@ -23,7 +23,7 @@ use Phoundation\Servers\SshAccount;
  */
 CliDocumentation::usage('./pho servers accounts delete NAME');
 
-CliDocumentation::help('This script will delete the specified SSH account. Note that deleted accounts will not be
+CliDocumentation::help('This command will delete the specified SSH account. Note that deleted accounts will not be
 removed from the database, the status for the account will be updated to "deleted". The SSH key, however, will be
 cleared
 

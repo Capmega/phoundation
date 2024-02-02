@@ -22,7 +22,7 @@ use Phoundation\Developer\Project\Project;
  */
 CliDocumentation::usage('./pho system modes reset');
 
-CliDocumentation::help('This script will disable both readonly and maintenance mode
+CliDocumentation::help('This command will disable both readonly and maintenance mode
 
 When maintenance mode is enabled, all web requests will immediately be blocked until readonly mode has been disabled.
 Most CLI commands will too be blocked. The only commands available will be commands under ./pho system

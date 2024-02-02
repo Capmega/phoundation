@@ -19,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes delete service');
-CliDocumentation::help('This script deletes the specified Kubernetes service');
+CliDocumentation::help('This command deletes the specified Kubernetes service');
 
 
 // Validate arguments

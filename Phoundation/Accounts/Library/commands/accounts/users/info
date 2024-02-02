@@ -30,7 +30,7 @@ CliDocumentation::autoComplete(User::getAutoComplete([
 
 CliDocumentation::usage('./pho accounts users info USER');
 
-CliDocumentation::help('This script displays information about the specified user  
+CliDocumentation::help('This command displays information about the specified user  
 
 ARGUMENTS
 

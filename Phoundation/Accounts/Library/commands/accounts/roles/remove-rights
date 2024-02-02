@@ -24,7 +24,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 CliDocumentation::usage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./pho system accounts roles add-right -n test -d "This is a test role!"');
 
-CliDocumentation::help('This script allows you to add rights to the specified role
+CliDocumentation::help('This command allows you to add rights to the specified role
 
 
 

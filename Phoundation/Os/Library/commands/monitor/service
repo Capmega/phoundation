@@ -29,7 +29,7 @@ use Phoundation\Web\Html\Enums\DisplayMode;
  */
 CliDocumentation::usage('./pho monitor service PROCESS_NAME');
 
-CliDocumentation::help('This script will monitor the specified service (by name) and alert and restart it when it stops');
+CliDocumentation::help('This command will monitor the specified service (by name) and alert and restart it when it stops');
 
 
 // Get the arguments

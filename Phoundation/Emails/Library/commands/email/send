@@ -19,7 +19,7 @@ use Phoundation\Emails\Email;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho email send');
-CliDocumentation::help('This script can send out emails
+CliDocumentation::help('This command can send out emails
 
 
 ARGUMENTS

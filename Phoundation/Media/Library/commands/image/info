@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  */
 CliDocumentation::usage('./pho image info IMAGE_FILE_NAME');
 
-CliDocumentation::help('This script will display basic information about the specified image');
+CliDocumentation::help('This command will display basic information about the specified image');
 
 
 

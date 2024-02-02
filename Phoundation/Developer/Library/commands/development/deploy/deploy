@@ -26,7 +26,7 @@ CliDocumentation::usage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
 ./pho system development deploy TARGET_ENVIRONMENT
 ');
 
-CliDocumentation::help('This script will update your Phoundation libraries and list
+CliDocumentation::help('This command will update your Phoundation libraries and list
 
 
 

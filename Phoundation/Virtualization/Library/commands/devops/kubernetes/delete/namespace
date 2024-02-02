@@ -19,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes delete namespace');
-CliDocumentation::help('This script deletes the specified Kubernetes namespaces');
+CliDocumentation::help('This command deletes the specified Kubernetes namespaces');
 
 
 // Validate arguments

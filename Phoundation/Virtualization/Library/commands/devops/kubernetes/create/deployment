@@ -19,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes create deployments');
-CliDocumentation::help('This script creates a Kubernetes deployment using a deployment file');
+CliDocumentation::help('This command creates a Kubernetes deployment using a deployment file');
 
 
 // Validate arguments

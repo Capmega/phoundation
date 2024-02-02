@@ -15,12 +15,6 @@ declare(strict_types=1);
  * @package Phoundation\Scripts
  */
 
-use Phoundation\Os\Devices\Storage\Device;
-use Phoundation\Os\Processes\Commands\Lsblk;
+use Phoundation\Filesystem\File;
 
-//show(Lsblk::new()->getStorageDevices()->getSource());
-//show(Lsblk::new()->isStorageDevice('/dev/sdb'));
-
-show(Device::new('/dev/sdb')->isMounted());
-show(Device::new('/dev/nvme0n1')->isMounted());
-show(Device::new('/dev/ttyS4'));
+show(File::new('data/mounts/l/pins.log')->exists());

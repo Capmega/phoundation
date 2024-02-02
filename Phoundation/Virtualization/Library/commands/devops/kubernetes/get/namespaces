@@ -21,7 +21,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes namespaces get');
-CliDocumentation::help('This script returns the available kubernetes namespaces');
+CliDocumentation::help('This command returns the available kubernetes namespaces');
 
 
 // Validate arguments

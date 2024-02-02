@@ -22,7 +22,7 @@ use Phoundation\Developer\Project\Project;
  */
 CliDocumentation::usage('./pho system modes readonly disable');
 
-CliDocumentation::help('This script will disable readonly mode
+CliDocumentation::help('This command will disable readonly mode
 
 When readonly mode is enabled, all POST requests will ignore all POST data until readonly mode has been disabled.
 Database requests will refuse to write, as will Filesystem commands.

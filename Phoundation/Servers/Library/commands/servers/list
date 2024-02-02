@@ -21,7 +21,7 @@ use Phoundation\Servers\Servers;
 CliDocumentation::usage('./pho servers list [OPTIONS]
 ./pho system servers list -D');
 
-CliDocumentation::help('This script will list the configured servers on this system
+CliDocumentation::help('This command will list the configured servers on this system
 
 
 

@@ -21,7 +21,7 @@ use Phoundation\Virtualization\Kubernetes\Pods\Pods;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes get pods');
-CliDocumentation::help('This script returns the available kubernetes pods');
+CliDocumentation::help('This command returns the available kubernetes pods');
 
 
 // Validate arguments

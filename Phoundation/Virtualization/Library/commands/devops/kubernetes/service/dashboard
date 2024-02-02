@@ -20,7 +20,7 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes service stop');
-CliDocumentation::help('This script will stop the kubernetes cluster service');
+CliDocumentation::help('This command will stop the kubernetes cluster service');
 
 
 // Validate arguments

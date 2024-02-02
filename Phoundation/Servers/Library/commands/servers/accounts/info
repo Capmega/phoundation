@@ -20,7 +20,7 @@ use Phoundation\Servers\SshAccount;
  */
 CliDocumentation::usage('./pho servers accounts info IDENTIFIER');
 
-CliDocumentation::help('This script displays information about the specified SSH account.
+CliDocumentation::help('This command displays information about the specified SSH account.
 
 
 

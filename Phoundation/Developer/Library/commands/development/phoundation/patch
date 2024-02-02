@@ -32,7 +32,7 @@ CliDocumentation::usage('./pho project update [OPTIONS]
 ./pho system development phoundation patch -l --branch BRANCH -p /home/USER/projects/phoundation
 ');
 
-CliDocumentation::help('This script will update your Phoundation libraries and list
+CliDocumentation::help('This command will update your Phoundation libraries and list
 
 
 

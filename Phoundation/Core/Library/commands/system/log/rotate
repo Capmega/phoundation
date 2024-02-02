@@ -27,7 +27,7 @@ use Phoundation\Filesystem\Restrictions;
 CliDocumentation::usage('./pho system log rotate
 ');
 
-CliDocumentation::help('This script will rotate the current log file to a zipped backup file
+CliDocumentation::help('This command will rotate the current log file to a zipped backup file
 
 
 ARGUMENTS

@@ -22,7 +22,7 @@ use Phoundation\Databases\Sql\Sql;
 CliDocumentation::usage('./pho accounts rights list [OPTIONS]
 ./pho system accounts rights list -d -r god');
 
-CliDocumentation::help('This script will list the available rights on this system
+CliDocumentation::help('This command will list the available rights on this system
 
 
 

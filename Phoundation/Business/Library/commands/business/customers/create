@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 CliDocumentation::usage('./pho business customers create NAME [OPTIONS]
 ./pho system business customers create test -d "This is a test customer!"');
 
-CliDocumentation::help('This script allows you to create customers
+CliDocumentation::help('This command allows you to create customers
 
 
 ARGUMENTS

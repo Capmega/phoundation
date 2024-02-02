@@ -19,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes create ingress');
-CliDocumentation::help('This script creates a Kubernetes ingress using a ingress file');
+CliDocumentation::help('This command creates a Kubernetes ingress using a ingress file');
 
 
 // Validate arguments

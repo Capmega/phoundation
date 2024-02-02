@@ -24,7 +24,7 @@ use Phoundation\Filesystem\Restrictions;
 
 CliDocumentation::usage('./pho project copy FILE');
 
-CliDocumentation::help('This script will copy the specified library file directly to your Phoundation installation
+CliDocumentation::help('This command will copy the specified library file directly to your Phoundation installation
 
 If, for example, you specify Phoundation/Web/Page.php as the file, it will copy this file back to your Phoundation
 installation in the exact same location

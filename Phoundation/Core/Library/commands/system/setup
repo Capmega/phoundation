@@ -30,7 +30,7 @@ CliDocumentation::usage('./pho system setup [OPTIONS]
 ./pho system setup --no-password-validation
 ./pho system setup --force');
 
-CliDocumentation::help('This script allows you to setup a new project
+CliDocumentation::help('This command allows you to setup a new project
 
 
 

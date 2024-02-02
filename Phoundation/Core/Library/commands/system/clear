@@ -26,7 +26,7 @@ use Phoundation\Filesystem\Restrictions;
 CliDocumentation::usage('./pho system clear [OPTIONS]
 ');
 
-CliDocumentation::help('This script will clear the caches and temporary files
+CliDocumentation::help('This command will clear the caches and temporary files
 
 This should normally not be necessary as the system cleans up its temporary files and caches automatically whenever need
 be but in case of crashes, some files may be left lying around
