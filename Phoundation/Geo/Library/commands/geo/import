@@ -22,7 +22,7 @@ use Phoundation\Geo\Import;
  */
 CliDocumentation::usage('./pho geo import');
 
-CliDocumentation::help('This script will download and import the geonames data files
+CliDocumentation::help('This command will download and import the geonames data files
 
 The entire import consists of the following steps (which may be skipped using the specified arguments)
 

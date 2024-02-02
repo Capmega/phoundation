@@ -19,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\KubernetesNamespaces\KubernetesNamespa
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes create namespaces');
-CliDocumentation::help('This script creates a Kubernetes namespace using a namespace file');
+CliDocumentation::help('This command creates a Kubernetes namespace using a namespace file');
 
 
 // Validate arguments

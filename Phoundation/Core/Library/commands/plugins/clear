@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  */
 CliDocumentation::usage('./pho system plugins clear');
 
-CliDocumentation::help('This script clears all plugin registrations by deleting all entries in the core_plugins
+CliDocumentation::help('This command clears all plugin registrations by deleting all entries in the core_plugins
 table
 
 

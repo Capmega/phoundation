@@ -20,7 +20,7 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes service start');
-CliDocumentation::help('This script will start the kubernetes cluster service');
+CliDocumentation::help('This command will start the kubernetes cluster service');
 
 
 // Validate arguments

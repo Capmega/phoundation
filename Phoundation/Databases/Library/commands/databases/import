@@ -29,7 +29,7 @@ $restrictions = Restrictions::readonly([DIRECTORY_DATA . 'sources/', DIRECTORY_T
 
 CliDocumentation::usage('./pho system databases import -d mysql -b system -f system.sql');
 
-CliDocumentation::help('This script will import the specified database file into the specified database
+CliDocumentation::help('This command will import the specified database file into the specified database
 
 
 ARGUMENTS

@@ -27,7 +27,7 @@ $restrictions = Restrictions::writable([DIRECTORY_DATA . 'sources/', DIRECTORY_T
 
 CliDocumentation::usage('./pho system databases export -d mysql -b system -f system.sql');
 
-CliDocumentation::help('This script will export the specified database to the specified database dump file
+CliDocumentation::help('This command will export the specified database to the specified database dump file
 
 
 ARGUMENTS

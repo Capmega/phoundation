@@ -39,7 +39,7 @@ CliDocumentation::autoComplete([
 CliDocumentation::usage('./pho accounts roles add-email NAME "EMAIL[,EMAIL,EMAIL,...]"
 ./pho system accounts roles add-email -n test -d "This is a test role!"');
 
-CliDocumentation::help('This script allows you to add emails to the specified role
+CliDocumentation::help('This command allows you to add emails to the specified role
 
 ARGUMENTS
 

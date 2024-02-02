@@ -21,7 +21,7 @@ use Phoundation\Os\Processes\Exception\MonitorException;
  */
 CliDocumentation::usage('./pho monitor process PROCESS_NAME');
 
-CliDocumentation::help('This script will monitor the specified process (by name) and alert and restart it when it stops');
+CliDocumentation::help('This command will monitor the specified process (by name) and alert and restart it when it stops');
 
 
 // Get the arguments

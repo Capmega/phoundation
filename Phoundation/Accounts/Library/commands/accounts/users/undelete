@@ -31,7 +31,7 @@ CliDocumentation::autoComplete(User::getAutoComplete([
 
 CliDocumentation::usage('./pho accounts users undelete USER_EMAIL');
 
-CliDocumentation::help('This script will undelete the specified user. Note that undeleted users will have the
+CliDocumentation::help('This command will undelete the specified user. Note that undeleted users will have the
 status updated to NULL
 
 ARGUMENTS

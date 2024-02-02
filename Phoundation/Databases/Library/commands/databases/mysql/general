@@ -14,7 +14,7 @@ CliDocumentation::usage('./pho databases mysql method [OPTIONS]
 ./pho databases mysql change default-charset [OPTIONS]
 ./pho databases mysql scan SERVER');
 
-CliDocumentation::help('This script contains various methods to assist with various mysql operations
+CliDocumentation::help('This command contains various methods to assist with various mysql operations
 
 
 

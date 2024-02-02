@@ -25,7 +25,7 @@ CliDocumentation::autoComplete(SshAccount::getAutoComplete());
 CliDocumentation::usage('./pho servers accounts create [OPTIONS]
 ./pho system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
-CliDocumentation::help('This script allows you to create SSH accounts.
+CliDocumentation::help('This command allows you to create SSH accounts.
 ' . SshAccount::getHelpText());
 
 

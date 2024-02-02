@@ -61,7 +61,7 @@ CliDocumentation::usage('./pho system deploy TARGET
 ./pho system deploy TARGET --no-init
 ');
 
-CliDocumentation::help('This script will deploy your project from this machine to the target environment
+CliDocumentation::help('This command will deploy your project from this machine to the target environment
 
 Most options are configured in a per-target basis and can be specified on the command line to override this
 configuration in a do or do not way. For example, the "production" environment can have "execute-hooks" enabled with

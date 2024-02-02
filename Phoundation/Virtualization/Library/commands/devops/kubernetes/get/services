@@ -21,7 +21,7 @@ use Phoundation\Virtualization\Kubernetes\Services\Services;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes get services');
-CliDocumentation::help('This script returns the available kubernetes services');
+CliDocumentation::help('This command returns the available kubernetes services');
 
 
 // Validate arguments

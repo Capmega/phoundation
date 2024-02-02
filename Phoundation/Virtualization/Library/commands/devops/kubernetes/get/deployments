@@ -21,7 +21,7 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes deployments get');
-CliDocumentation::help('This script returns the available kubernetes deployments');
+CliDocumentation::help('This command returns the available kubernetes deployments');
 
 
 // Validate arguments

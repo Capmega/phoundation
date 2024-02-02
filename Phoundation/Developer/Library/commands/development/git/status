@@ -22,7 +22,7 @@ use Phoundation\Developer\Versioning\Git\Git;
  */
 CliDocumentation::usage('./pho development git status [PATH]
 ./pho system dev git status [PATH]');
-CliDocumentation::help('This script is an interface to the git command through Phoundation. Its not really needed -nor
+CliDocumentation::help('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');
 
 

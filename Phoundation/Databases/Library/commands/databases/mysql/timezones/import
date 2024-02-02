@@ -24,7 +24,7 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
  */
 CliDocumentation::usage('./pho databases mysql timezones import');
 
-CliDocumentation::help('This script will import the mysql timezones
+CliDocumentation::help('This command will import the mysql timezones
 
 
 ARGUMENTS

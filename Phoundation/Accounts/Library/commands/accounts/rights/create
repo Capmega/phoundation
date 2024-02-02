@@ -23,7 +23,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 CliDocumentation::usage('./pho accounts right create NAME [OPTIONS]
 ./pho system accounts right create test -d "This is a test right!"');
 
-CliDocumentation::help('This script allows you to create user rights
+CliDocumentation::help('This command allows you to create user rights
 
 
 ARGUMENTS

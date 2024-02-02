@@ -22,7 +22,7 @@ use Phoundation\Developer\Project\Project;
  */
 CliDocumentation::usage('./pho project fix');
 
-CliDocumentation::help('This script will fix project issues. For the moment it can only fix filesystem mode and
+CliDocumentation::help('This command will fix project issues. For the moment it can only fix filesystem mode and
 ownership issues.
 
 NOTE: This script requires root access to the "chown" command

@@ -566,7 +566,7 @@ class Library implements LibraryInterface
             Exception::new($e)
                 ->log()
                 ->register()
-                ->notification()
+                ->getNotificationObject()
                     ->send();
 
             $this->updates = null;
@@ -613,7 +613,7 @@ class Library implements LibraryInterface
         }
 
         foreach ($library_path_o->list() as $file => $path) {
-            $command_file = $commands_directory->addPathToThis($file);
+            $command_file = $commands_directory->appendPath($file);
 
             if ($command_file->exists(true)) {
                 Log::warning(tr('Not adding commands symlink for ":path", the command already exists', [

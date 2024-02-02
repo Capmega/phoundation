@@ -39,7 +39,7 @@ CliDocumentation::autoComplete([
 CliDocumentation::usage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
 ./pho system accounts users add-roles -n test -d "This is a test role!"');
 
-CliDocumentation::help('This script allows you to add roles to the specified user
+CliDocumentation::help('This command allows you to add roles to the specified user
 
 ARGUMENTS
 

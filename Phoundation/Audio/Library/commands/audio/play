@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 CliDocumentation::usage('./pho audio play FILENAME
 ./pho system audio play PATH/FILE');
 
-CliDocumentation::help('This script can apply various conversions to the specified image
+CliDocumentation::help('This command can apply various conversions to the specified image
 
 
 

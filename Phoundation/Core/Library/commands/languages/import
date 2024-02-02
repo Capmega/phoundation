@@ -20,7 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
  */
 CliDocumentation::usage('./pho languages import');
 
-CliDocumentation::help('This script allows you to create users
+CliDocumentation::help('This command allows you to create users
 
 
 

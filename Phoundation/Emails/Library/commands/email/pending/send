@@ -31,7 +31,7 @@ CliDocumentation::autoComplete([
 
 CliDocumentation::usage('./pho email send');
 
-CliDocumentation::help('This script will send out emails that are pending sending
+CliDocumentation::help('This command will send out emails that are pending sending
 
 
 ARGUMENTS

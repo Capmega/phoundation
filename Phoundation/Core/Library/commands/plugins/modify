@@ -37,7 +37,7 @@ CliDocumentation::autoComplete([
 
 CliDocumentation::usage('./pho system plugins modify PLUGIN [OPTIONS]');
 
-CliDocumentation::help('This script allows you to modify your registered plugins
+CliDocumentation::help('This command allows you to modify your registered plugins
 
 
 ARGUMENTS

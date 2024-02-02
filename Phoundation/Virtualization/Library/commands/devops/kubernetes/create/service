@@ -21,7 +21,7 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes create service');
-CliDocumentation::help('This script creates a Kubernetes service using a service file');
+CliDocumentation::help('This command creates a Kubernetes service using a service file');
 
 
 // Validate arguments

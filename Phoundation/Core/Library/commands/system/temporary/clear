@@ -25,7 +25,7 @@ CliDocumentation::usage('./pho system temporary clear PATH [OPTIONS]
 ./pho system temporary clear PATH --public
 ./pho system temporary clear PATH ');
 
-CliDocumentation::help('This script will clear the specified temporary directory
+CliDocumentation::help('This command will clear the specified temporary directory
 
 
 ARGUMENTS

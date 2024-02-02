@@ -31,7 +31,7 @@ CliDocumentation::autoComplete(User::getAutoComplete([
 
 CliDocumentation::usage('./pho accounts users lock USER_EMAIL');
 
-CliDocumentation::help('This script will lock the specified user. Note that locked users will not be removed from
+CliDocumentation::help('This command will lock the specified user. Note that locked users will not be removed from
 the database, the status for the user will be updated to "locked"
 
 ARGUMENTS

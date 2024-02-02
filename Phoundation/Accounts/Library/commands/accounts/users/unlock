@@ -31,7 +31,7 @@ CliDocumentation::autoComplete(User::getAutoComplete([
 
 CliDocumentation::usage('./pho accounts users unlock USER_EMAIL');
 
-CliDocumentation::help('This script will unlock the specified user. Note that unlocked users will have the status
+CliDocumentation::help('This command will unlock the specified user. Note that unlocked users will have the status
  updated to NULL
 
 ARGUMENTS

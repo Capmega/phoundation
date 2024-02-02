@@ -24,7 +24,7 @@ CliDocumentation::usage('./pho project check
 ./pho system project check --repair
 ');
 
-CliDocumentation::help('This script will check - and report - (and optionally fix) the project and its systems
+CliDocumentation::help('This command will check - and report - (and optionally fix) the project and its systems
 
 
 

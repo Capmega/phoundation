@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os;
 
-
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;

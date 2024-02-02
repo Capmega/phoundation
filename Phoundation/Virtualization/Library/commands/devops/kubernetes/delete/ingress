@@ -19,7 +19,7 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingress;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes delete ingress');
-CliDocumentation::help('This script deletes the specified Kubernetes ingress');
+CliDocumentation::help('This command deletes the specified Kubernetes ingress');
 
 
 // Validate arguments

@@ -20,7 +20,7 @@ use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
  * @package Phoundation\Scripts
  */
 CliDocumentation::usage('./pho devops kubernetes save deployment');
-CliDocumentation::help('This script saves a Kubernetes deployment file');
+CliDocumentation::help('This command saves a Kubernetes deployment file');
 
 
 // Validate arguments

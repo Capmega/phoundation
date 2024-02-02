@@ -28,7 +28,7 @@ CliDocumentation::usage('./pho system init [OPTIONS]
 ./pho system init --import
 ./pho system init --version "core/0.0.5,"');
 
-CliDocumentation::help('This script allows you to setup a new project
+CliDocumentation::help('This command allows you to setup a new project
 
 
 
