@@ -100,7 +100,7 @@ class Signals
             return true;
         }
 
-        return in_array($signal, static::$signals);
+        return array_key_exists($signal, static::$signals);
     }
 
 
