@@ -24,7 +24,7 @@ trait DataEntryTimeout
      */
     public function getTimeout(): ?int
     {
-        return $this->getSourceColumnValue('string', 'timeout');
+        return $this->getSourceColumnValue('int', 'timeout');
     }
 
 

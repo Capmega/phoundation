@@ -430,4 +430,11 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function uksort(callable $callback): static;
+
+    /**
+     * Will limit the amount of entries in the source of this Iterator to the auto complete limit
+     *
+     * @return $this
+     */
+    public function limitAutoComplete(): static;
 }
