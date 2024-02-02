@@ -12,6 +12,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
+use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -1191,6 +1192,18 @@ class Iterator implements IteratorInterface
     public function uksort(callable $callback): static
     {
         uksort($this->source, $callback);
+        return $this;
+    }
+
+
+    /**
+     * Will limit the amount of entries in the source of this DataList to the
+     *
+     * @return $this
+     */
+    public function limitAutoComplete(): static
+    {
+        $this->source = Arrays::limit($this->source, Limit::shellAutoCompletion());
         return $this;
     }
 }
