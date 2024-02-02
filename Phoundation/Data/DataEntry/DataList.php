@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
@@ -18,7 +16,6 @@ use Phoundation\Data\Traits\DataReadonly;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
-use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
