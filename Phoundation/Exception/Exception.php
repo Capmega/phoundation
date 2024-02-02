@@ -8,6 +8,7 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\Interfaces\ExceptionInterface;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -452,9 +453,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     /**
      * Returns a notification object for this exception
      *
-     * @return Notification
+     * @return NotificationInterface
      */
-    public function notification(): Notification
+    public function getNotificationObject(): NotificationInterface
     {
         return Notification::new()->setException($this);
     }
@@ -593,5 +594,28 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     {
         $this->line = $line;
         return $this;
+    }
+
+
+    /**
+     * @param Throwable $e
+     * @param string $exception_class
+     * @return static
+     */
+    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): ExceptionInterface
+    {
+        if ($e instanceof ExceptionInterface) {
+            return $e;
+        }
+
+        $e = new $exception_class($e);
+
+        if ($e instanceof ExceptionInterface) {
+            return $e;
+        }
+
+        throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the ExceptionInterface', [
+            ':class' => $exception_class
+        ]), $e);
     }
 }

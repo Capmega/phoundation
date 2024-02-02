@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Exception\Interfaces;
 
 use Phoundation\Exception\Exception;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Throwable;
 
@@ -126,9 +127,9 @@ interface ExceptionInterface extends Throwable
     /**
      * Returns a notification object for this exception
      *
-     * @return Notification
+     * @return NotificationInterface
      */
-    public function notification(): Notification;
+    public function getNotificationObject(): NotificationInterface;
 
     /**
      * Register this exception in the developer incidents log
