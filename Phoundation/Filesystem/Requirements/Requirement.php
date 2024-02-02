@@ -117,7 +117,7 @@ class Requirement extends DataEntry
                     'hfs'          => tr('HFS'),
                     'vfat'         => tr('vfat'),
                     'ntfs'         => tr('NTFS'),
-                    'iso9660:1999' => tr('ISO 9660:1999')
+                    'iso9660:1999' => 'ISO 9660:1999'
                 ])
                 ->setSize(3)
                 ->setMaxlength(16)

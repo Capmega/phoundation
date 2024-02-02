@@ -3,11 +3,13 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Mounts;
 
 
 /**
- * Script file-system/mount/all
+ * Script file-system/mount/list
  *
  * This command lists all mounts
  *
@@ -16,6 +18,15 @@ use Phoundation\Filesystem\Mounts\Mounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+
+CliDocumentation::usage('./pho filesystem mounts list');
+
+CliDocumentation::help('This command will list all configured mount points');
+
+
+// Get the arguments
+$argv = ArgvValidator::new()->validate();
 
 
 // Display the available mounts

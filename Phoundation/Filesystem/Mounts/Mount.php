@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Mounts;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
@@ -14,6 +15,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryOptions;
+use Phoundation\Data\DataEntry\Traits\DataEntryTimeout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\Path;
@@ -42,6 +44,7 @@ class Mount extends DataEntry implements MountInterface
     use DataEntryNameDescription;
     use DataRestrictions;
     use DataEntryOptions;
+    use DataEntryTimeout;
 
 
     /**
@@ -290,7 +293,7 @@ class Mount extends DataEntry implements MountInterface
     public function mount(): static
     {
         \Phoundation\Os\Processes\Commands\Mount::new($this->restrictions)
-            ->mount($this->getSourcePath(), $this->getAbsoluteTargetPath(), $this->getFilesystem());
+            ->mount($this->getSourcePath(), $this->getAbsoluteTargetPath(), $this->getFilesystem(), $this->getOptions(), $this->getTimeout());
 
         return $this;
     }
@@ -415,6 +418,14 @@ class Mount extends DataEntry implements MountInterface
             ':target' => $this->getTargetPath(),
         ]));
 
+        Hook::new('phoundation')->execute('file-system/auto-mount', [
+            'source'      => $this->getSourcePath(),
+            'target'      => $this->getTargetPath(),
+            'file-system' => $this->getFilesystem(),
+            'options'     => $this->getOptions(),
+            'timeout'     => $this->getTimeout()
+        ]);
+
         $this->mount();
 
         return true;
@@ -480,13 +491,13 @@ class Mount extends DataEntry implements MountInterface
                     'hfs'          => tr('HFS'),
                     'vfat'         => tr('vfat'),
                     'ntfs'         => tr('NTFS'),
-                    'iso9660:1999' => tr('ISO 9660:1999')
+                    'iso9660:1999' => 'ISO 9660:1999'
                 ])
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem with which to mount this source')))
             ->addDefinition(Definition::new($this, 'options')
                 ->setOptional(true)
-                ->setSize(8)
+                ->setSize(6)
                 ->setDefault('defaults')
                 ->setMaxlength(508)
                 ->setLabel(tr('Options'))
@@ -502,6 +513,11 @@ class Mount extends DataEntry implements MountInterface
                 ->setSize(2)
                 ->setHelpText(tr('If checked, this mount will automatically be unmounted after use when the process using a path in this mount terminates'))
                 ->setLabel(tr('Auto unmount')))
+            ->addDefinition(DefinitionFactory::getNumber($this, 'timeout')
+                ->setOptional(true, 3)
+                ->setSize(2)
+                ->setHelpText(tr('If specified, the mount attempt for this filesystem will be aborted after this number of seconds'))
+                ->setLabel(tr('Timeout')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this mount')));
     }

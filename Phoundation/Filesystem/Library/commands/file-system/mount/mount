@@ -3,8 +3,10 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Mount;
+use Phoundation\Filesystem\Mounts\Mounts;
 
 
 /**
@@ -17,6 +19,20 @@ use Phoundation\Filesystem\Mounts\Mount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+
+CliDocumentation::autoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) { return Mounts::new()->load()->getMatchingValues($word)->limitAutoComplete(); },
+            'noword' => function ()      { return Mounts::new()->load()->limitAutoComplete(); }
+        ]
+    ]
+]);
+
+CliDocumentation::usage('./pho filesystem mount MOUNTNAME');
+
+CliDocumentation::help('This command will attempt to mount the specified configured mount point');
 
 
 // Get the arguments

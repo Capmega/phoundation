@@ -25,7 +25,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.21';
+        return '0.0.24';
     }
 
 
@@ -113,6 +113,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_filesystem_requirements_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_filesystem_requirements_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
+
+        })->addUpdate('0.0.24', function () {
+            sql()->schema()->table('filesystem_mounts')->alter()
+                ->addColumn('`timeout` int NULL DEFAULT NULL', 'AFTER `auto_unmount`');
         });
     }
 }

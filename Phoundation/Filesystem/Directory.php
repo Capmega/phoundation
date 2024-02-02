@@ -1380,19 +1380,6 @@ class Directory extends Path implements DirectoryInterface
 
 
     /**
-     * Returns the specified file added to this directory
-     *
-     * @param PathInterface|string $path
-     * @return FileInterface
-     */
-    public function addPathToThis(PathInterface|string $path): PathInterface
-    {
-        $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
-        return Path::new($path, $this->restrictions);
-    }
-
-
-    /**
      * Returns the specified directory added to this directory
      *
      * @param PathInterface|string $directory

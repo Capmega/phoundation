@@ -3,19 +3,15 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
-use Phoundation\Databases\Sql\Exception\SqlConnectException;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
-use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Mounts;
 
 
 /**
  * Script file-system/mount/all
  *
- * This command mounts all mountss
+ * This command mounts all configured filesystem mounts
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -24,6 +20,16 @@ use Phoundation\Filesystem\Mounts\Mounts;
  */
 
 
+CliDocumentation::usage('./pho filesystem mount all');
+
+CliDocumentation::help('This command will try to mount all configured filesystem mounts');
+
+
+// Get no arguments
+$argv = ArgvValidator::new()->validate();
+
+
+// Mount all filesystems
 foreach (Mounts::new()->load() as $mount) {
     $mount->mount();
 }

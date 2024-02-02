@@ -595,7 +595,7 @@ interface PathInterface
      *
      * @return bool
      */
-    public function attemptAutomount(): bool;
+    public function attemptAutoMount(): bool;
 
     /**
      * Returns the server restrictions
@@ -648,4 +648,20 @@ interface PathInterface
      * @return bool
      */
     public function isWritable(): bool;
+
+    /**
+     * Returns the specified file added to this directory
+     *
+     * @param PathInterface|string $path
+     * @return FileInterface
+     */
+    public function appendPath(PathInterface|string $path): PathInterface;
+
+    /**
+     * Returns a PathInterface object with the specified path prepended to this path
+     *
+     * @param PathInterface|string $path
+     * @return FileInterface
+     */
+    public function prependPath(PathInterface|string $path): PathInterface;
 }

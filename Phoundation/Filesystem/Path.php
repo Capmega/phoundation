@@ -365,7 +365,7 @@ class Path implements Stringable, PathInterface
 
         // Maybe a section of the path isn't mounted?
         if ($auto_mount) {
-            if ($this->attemptAutomount()) {
+            if ($this->attemptAutoMount()) {
                 // The path was auto mounted, so try again!
                 return $this->exists($check_dead_symlink, false);
             }
@@ -387,7 +387,7 @@ class Path implements Stringable, PathInterface
 
         if (!$exists and $auto_mount) {
             // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
-            $this->attemptAutomount();
+            $this->attemptAutoMount();
         }
 
         return $this;
@@ -451,7 +451,7 @@ class Path implements Stringable, PathInterface
      * @todo Add support for recursive auto mounting
      * @return bool
      */
-    public function attemptAutomount(): bool
+    public function attemptAutoMount(): bool
     {
         if (Config::getBoolean('filesystem.automounts.enabled', false)) {
             return false;
@@ -2544,13 +2544,17 @@ class Path implements Stringable, PathInterface
      * Returns a version of the specified path that does not yet exist
      *
      * @param PathInterface|string $path
+     * @param string|null $extension
      * @return PathInterface
      */
-    public static function getAvailableVersion(PathInterface|string $path): PathInterface
+    public static function getAvailableVersion(PathInterface|string $path, ?string $extension = null): PathInterface
     {
-        $path    = Path::new($path)->getParentDirectory()->ensure();
-        $prefix  = '';
-        $version = 97;
+        $prefix    = '';
+        $version   = 97;
+        $extension = Strings::startsWith($extension, '.');
+
+        $path = Path::new($path)->appendPath($extension);
+        $path->getParentDirectory()->ensure();
 
         while ($path->exists()) {
             if (++$version >= 123) {
@@ -2565,7 +2569,7 @@ class Path implements Stringable, PathInterface
                 }
             }
 
-            $path->setPath($path->getPath() . $prefix . chr($version));
+            $path->setPath(Strings::untilReverse($path->getPath(), $extension) . $prefix . chr($version));
         }
 
         return $path;
@@ -2610,5 +2614,31 @@ class Path implements Stringable, PathInterface
         }
 
         $this->requirements->check($this->path);
+    }
+
+
+    /**
+     * Returns a PathInterface object with the specified path appended to this path
+     *
+     * @param PathInterface|string $path
+     * @return FileInterface
+     */
+    public function appendPath(PathInterface|string $path): PathInterface
+    {
+        $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
+        return Path::new($path, $this->restrictions);
+    }
+
+
+    /**
+     * Returns a PathInterface object with the specified path prepended to this path
+     *
+     * @param PathInterface|string $path
+     * @return FileInterface
+     */
+    public function prependPath(PathInterface|string $path): PathInterface
+    {
+        $path = Strings::EndsWith((string) $path, '/') . $this->getPath();
+        return Path::new($path, $this->restrictions);
     }
 }
