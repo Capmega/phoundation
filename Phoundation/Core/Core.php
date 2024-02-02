@@ -36,6 +36,7 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
 use Phoundation\Date\DateTimeZone;
 use Phoundation\Developer\Debug;
+use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1252,12 +1253,12 @@ class Core implements CoreInterface
      *
      * @return string
      */
-    protected static function getProjectVersion(): string
+    public static function getProjectVersion(): string
     {
         static $version;
 
         if (empty($version)) {
-            // Get the project name
+            // Get the project version
             try {
                 $version = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/version')));
 
@@ -1853,6 +1854,28 @@ die($errfile. $errline);
                 Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
                     ':e' => $f->getMessage()
                 ]));
+            }
+        }
+
+        // Ensure the exception is a Phoundation exception and register it
+        $e = Exception::ensurePhoundationException($e);
+
+        if (Debug::getEnabled()) {
+            // In debug mode we can assume the developer is looking at the system
+            try {
+                $e->register();
+
+            } catch (Throwable $e) {
+                Log::error(tr('Failed to register uncaught exception because of the following exception'));
+                Log::error($e);
+            }
+
+            try {
+                $e->getNotificationObject()->send();
+
+            } catch (Throwable $e) {
+                Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
+                Log::error($e);
             }
         }
 
@@ -2846,19 +2869,6 @@ die($errfile. $errline);
                 throw $e;
             }
         }
-    }
-
-
-    /**
-     * Returns the framework database version
-     *
-     * @param string $type
-     * @return string
-     */
-    public static function getVersion(string $type): string
-    {
-// TODO implement
-        return 'unknown';
     }
 
 
