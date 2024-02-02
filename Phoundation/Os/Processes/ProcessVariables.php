@@ -128,6 +128,13 @@ trait ProcessVariables
     protected int $timeout = 30;
 
     /**
+     * The signal that the timeout will give to the process
+     *
+     * @var int $signal
+     */
+    protected int $signal = 15;
+
+    /**
      * The time the process should wait before starting
      *
      * @var int $wait
@@ -1623,6 +1630,42 @@ trait ProcessVariables
 
         $this->cached_command_line = null;
         $this->wait                = $wait;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the time in milliseconds that a process will signal before executing
+     *
+     * Defaults to 0, the process will NOT signal and start immediately
+     *
+     * @return int
+     */
+    public function getSignal(): int
+    {
+        return $this->signal;
+    }
+
+
+    /**
+     * Sets the time in milliseconds that a process will signal before executing
+     *
+     * Defaults to 0, the process will NOT signal and start immediately
+     *
+     * @param int $signal
+     * @return static
+     */
+    public function setSignal(int $signal): static
+    {
+        if (!is_natural($signal,  1)) {
+            throw new OutOfBoundsException(tr('The specified signal time ":signal" is invalid, it must be a natural number 0 or higher', [
+                ':signal' => $signal
+            ]));
+        }
+
+        $this->cached_command_line = null;
+        $this->signal              = Signals::check($signal);
 
         return $this;
     }

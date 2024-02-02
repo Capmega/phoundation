@@ -394,7 +394,7 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
 
         // Add timeout
         if ($this->timeout) {
-            $this->cached_command_line = 'timeout --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = 'timeout --signal ' . $this->signal . ' --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
         }
 
         // Add wait
