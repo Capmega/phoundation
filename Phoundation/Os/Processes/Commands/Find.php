@@ -690,6 +690,9 @@ class Find extends Command implements FindInterface
         $this->setCommand('find')
             ->setTimeout($this->timeout)
             ->addArgument($this->find_path)
+            ->addArguments($this->mount           ? '-mount'                        : null)
+            ->addArguments($this->empty           ? '-empty'                        : null)
+            ->addArguments($this->follow_symlinks ? '-L'                            : null)
             ->addArguments($this->name            ? ['-name'    , $this->name]      : null)
             ->addArguments($this->iname           ? ['-iname'   , $this->iname]     : null)
             ->addArguments($this->path            ? ['-path'    , $this->path]      : null)
@@ -703,9 +706,6 @@ class Find extends Command implements FindInterface
             ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth] : null)
             ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth] : null)
             ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
-            ->addArguments($this->mount           ? '-mount'                        : null)
-            ->addArguments($this->empty           ? '-empty'                        : null)
-            ->addArguments($this->follow_symlinks ? '-L'                            : '-P')
             ->addArguments($this->exec            ? ['-exec'    , $this->exec]      : null);
 
         return parent::executeReturnArray();
