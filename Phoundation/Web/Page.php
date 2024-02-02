@@ -1163,7 +1163,8 @@ class Page implements PageInterface
                 ->addQueries($current ? 'redirect=' . $current : null);
 
             Incident::new()
-                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                ->setType('401 - Unauthorized')
+                ->setSeverity(Severity::low)
                 ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
                     ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
                     ':real_target' => Strings::from($target, DIRECTORY_ROOT),
@@ -1271,7 +1272,8 @@ class Page implements PageInterface
         // User signed in with "sign-in" key that may have additional restrictions
         if (!Core::isRequestType(EnumRequestTypes::html)) {
             Incident::new()
-                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                ->setType('401 - Unauthorized')
+                ->setSeverity(Severity::low)
                 ->setTitle(tr('Session keys cannot be used on ":type" requests', [
                     ':type' => Core::getRequestType(),
                 ]))
@@ -1290,7 +1292,8 @@ class Page implements PageInterface
 
         if (!$key->signKeyAllowsUrl(UrlBuilder::getCurrent(), $target)) {
             Incident::new()
-                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
+                ->setType('401 - Unauthorized')
+                ->setSeverity(Severity::low)
                 ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
                     ':url'   => UrlBuilder::getCurrent(),
                     ':allow' => $key->getRedirect(),
