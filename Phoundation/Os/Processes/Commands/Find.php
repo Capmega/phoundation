@@ -9,6 +9,7 @@ use Phoundation\Data\Traits\DataPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Files;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -24,7 +25,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-class Find extends Command
+class Find extends Command implements FindInterface
 {
     use DataName;
     use DataPath;
@@ -121,13 +122,6 @@ class Find extends Command
      * @var string|null $size
      */
     protected ?string $size = null;
-
-    /**
-     * Tracks if each directory's contents before the directory itself.  The -delete action also implies
-     *
-     * @var bool|null $follow_symlinks
-     */
-    protected ?bool $follow_symlinks = false;
 
     /**
      * Process each directory’s contents before the directory itself.  The -delete action also implies -depth.
@@ -472,9 +466,9 @@ class Find extends Command
     /**
      * Returns the regex in which to find
      *
-     * @return bool
+     * @return string|null
      */
-    public function getRegex(): bool
+    public function getRegex(): ?string
     {
         return $this->regex;
     }
@@ -483,10 +477,10 @@ class Find extends Command
     /**
      * Sets the regex in which to find
      *
-     * @param bool $regex
+     * @param string|null $regex
      * @return $this
      */
-    public function setRegex(bool $regex): static
+    public function setRegex(?string $regex): static
     {
         $this->regex = $regex;
         return $this;
