@@ -27,7 +27,6 @@ use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -555,7 +554,12 @@ class CliCommand
             if (!$next or !file_exists($file . $next)) {
                 if (file_exists($file . $command)) {
                     if (!is_dir($file . $command)) {
-                        // This is the file!
+                        // This is the file! Adjust the CliAutoComplete position if its active because we'll be one
+                        // position ahead of what is expected
+                        if (CliAutoComplete::isActive()) {
+                            CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
+                        }
+
                         return $file . $command;
                     }
                 }

@@ -8,6 +8,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Exception\AutoCompleteException;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
@@ -381,14 +382,18 @@ class CliAutoComplete
 
                 foreach ($results as $result) {
                     if (!is_scalar($result)) {
-                        throw new OutOfBoundsException(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
-                            ':word'    => $word ? 'word' : 'noword',
-                            ':result'  => $result,
-                            ':results' => $results,
-                        ]));
+                        if (!$result instanceof DataEntryInterface) {
+                            throw new OutOfBoundsException(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
+                                ':word'    => $word ? 'word' : 'noword',
+                                ':result'  => $result,
+                                ':results' => $results,
+                            ]));
+                        }
+
+                        $result = $result->getAutoCompleteValue();
                     }
 
-                    echo (string) $result . PHP_EOL;
+                    echo ((string) $result) . PHP_EOL;
                 }
 
                 // Die here as we have echoed the results!
