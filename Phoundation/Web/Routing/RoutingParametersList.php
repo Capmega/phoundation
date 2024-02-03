@@ -134,7 +134,7 @@ class RoutingParametersList
                 ->setUri($uri);
 
             // Use this template
-            Log::action(tr('Selected parameters pattern ":pattern" with template ":template" and directory ":directory" for ":system" page from URI ":uri"', [
+            Log::success(tr('Selected parameters pattern ":pattern" with template ":template" and directory ":directory" for ":system" page from URI ":uri"', [
                 ':system'    => ($system ? ' system' : ''),
                 ':uri'       => $uri,
                 ':directory' => $parameters->getRootDirectory(),
