@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Interfaces;
 
-
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+
 
 /**
  * Notifications class
@@ -18,7 +19,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundations\Notifications
  */
-interface NotificationsInterface
+interface NotificationsInterface extends DataListInterface
 {
     /**
      * Returns the most important notification mode
