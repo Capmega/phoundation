@@ -284,7 +284,7 @@ trait ProcessVariables
      *
      * @var int $escape_quotes
      */
-    protected int $escape_quotes = 0;
+    protected int $escape_quotes = 1;
 
     /**
      * The time the process started execution
