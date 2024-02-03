@@ -154,9 +154,20 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @return void
      */
-    public static function recoverBackupArguments(): void
+    public static function recoverBackupSource(): void
     {
         static::$argv = static::$backup;
+    }
+
+
+    /**
+     * Returns an untouched backup of the command line arguments to the internal $argv array
+     *
+     * @return array
+     */
+    public static function getBackupSource(): array
+    {
+        return static::$backup;
     }
 
 
