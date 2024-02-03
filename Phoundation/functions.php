@@ -107,12 +107,13 @@ function nl(): void
  * @param string $text
  * @param array|null $replace
  * @param bool $clean
+ * @param bool $check
  * @return string
  */
-function tr(string $text, ?array $replace = null, bool $clean = true): string
+function tr(string $text, ?array $replace = null, bool $clean = true, bool $check = true): string
 {
     // Only on non-production machines, crash when not all entries were replaced as an extra check.
-    if (!Core::isProductionEnvironment()) {
+    if (!Core::isProductionEnvironment() and $check) {
         preg_match_all('/:\w+/', $text, $matches);
 
         if (!empty($matches[0])) {
