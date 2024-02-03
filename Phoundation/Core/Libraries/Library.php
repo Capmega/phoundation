@@ -565,7 +565,7 @@ class Library implements LibraryInterface
 
             Exception::new($e)
                 ->log()
-                ->register()
+                ->registerDeveloperIncident()
                 ->getNotificationObject()
                     ->send();
 
