@@ -1863,7 +1863,7 @@ die($errfile. $errline);
         if (Debug::getEnabled()) {
             // In debug mode we can assume the developer is looking at the system
             try {
-                $e->register();
+                $e->registerDeveloperIncident();
 
             } catch (Throwable $e) {
                 Log::error(tr('Failed to register uncaught exception because of the following exception'));
