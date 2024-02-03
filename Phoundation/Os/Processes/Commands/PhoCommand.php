@@ -27,17 +27,18 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
      * PhoCommand class constructor.
      *
      * @param array|string|null $commands
+     * @param bool $which_command
      */
-    public function __construct(array|string|null $commands)
+    public function __construct(array|string|null $commands, bool $which_command = true)
     {
         // Ensure that the run files directory is available
-        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run', true))->ensure();
+        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run'))->ensure();
 
         parent::__construct(Restrictions::new(DIRECTORY_ROOT . 'pho'));
 
-        $this->setCommand(DIRECTORY_ROOT . 'pho')
+        $this->setCommand(DIRECTORY_ROOT . 'pho', $which_command)
             ->addArguments(['-E', ENVIRONMENT])
-            ->addArguments($commands ? Arrays::force($commands) : null);
+            ->addArguments($commands ? Arrays::force($commands, ' ') : null);
     }
 
 
@@ -45,10 +46,11 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
      * Create a new process factory for a specific Phoundation command
      *
      * @param array|string|null $commands
+     * @param bool $which_command
      * @return static
      */
-    public static function new(array|string|null $commands): static
+    public static function new(array|string|null $commands, bool $which_command = true): static
     {
-        return new static($commands);
+        return new static($commands, $which_command);
     }
 }
