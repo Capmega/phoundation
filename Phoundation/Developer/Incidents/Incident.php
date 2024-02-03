@@ -81,50 +81,6 @@ class Incident extends DataEntry
 
 
     /**
-     * @inheritDoc
-     */
-    public function save(bool $force = false, ?string $comments = null): static
-    {
-        try {
-            $this->setData([
-                'project'               => PROJECT,
-                'project_version'       => Core::getProjectVersion(),
-                'database_version'      => Libraries::getMaximumVersion(),
-                'environment'           => ENVIRONMENT,
-                'platform'              => PLATFORM,
-                'session'               => Session::getUUID(),
-                'user'                  => Session::getUser(),
-                'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
-                'url'                   => PLATFORM_WEB ? Route::getRequest()             : null,
-                'method'                => PLATFORM_WEB ? Route::getMethod()              : null,
-                'environment_variables' => $_ENV,
-                'argv'                  => ArgvValidator::new()->getSource(),
-                'get'                   => GetValidator::new()->getSource(),
-                'post'                  => PostValidator::new()->getSource(),
-            ]);
-        } catch (Throwable $e) {
-            $e = Exception::ensurePhoundationException($e);
-
-            $this->setData([
-                'oops'               => 'Failed to gather developer incident data',
-                'project'            => PROJECT,
-                'project_version'    => Core::getProjectVersion(),
-                'environment'        => ENVIRONMENT,
-                'platform'            => PLATFORM,
-                'gathering_exception' => [
-                    'message'  => $e->getMessage(),
-                    'messages' => $e->getMessages(),
-                    'trace'    => $e->getTrace(),
-                    'data'     => $e->getData(),
-                ]
-            ]);
-        }
-
-        return parent::save($force, $comments);
-    }
-
-
-    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
