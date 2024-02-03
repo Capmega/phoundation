@@ -5,7 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Exception;
 
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Core;
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Developer\Debug;
 use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
@@ -124,6 +132,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
         Log::warning('Exception: ' . $message, 2);
 
+        // Remove the first message from $messages as this is stored in static::getMessage()
+        array_shift($messages);
+
         $this->addMessages($messages);
         parent::__construct($message, 0, $previous);
 // print_r($this); die();
@@ -153,6 +164,29 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     public static function new(Throwable|array|string|null $messages, ?Throwable $previous = null): static
     {
         return new static($messages, $previous);
+    }
+
+
+    /**
+     * @param Throwable $e
+     * @param string $exception_class
+     * @return static
+     */
+    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): ExceptionInterface
+    {
+        if ($e instanceof ExceptionInterface) {
+            return $e;
+        }
+
+        $e = new $exception_class($e);
+
+        if ($e instanceof ExceptionInterface) {
+            return $e;
+        }
+
+        throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the ExceptionInterface', [
+            ':class' => $exception_class
+        ]), $e);
     }
 
 
@@ -466,12 +500,13 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      *
      * @return static
      */
-    public function register(): static
+    public function registerDeveloperIncident(): static
     {
         Incident::new()
             ->setException($this)
             ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
             ->setType('exception')
+            ->setData($this->generateDetails())
             ->save();
 
         return $this;
@@ -598,24 +633,78 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
-     * @param Throwable $e
-     * @param string $exception_class
-     * @return static
+     * Returns the backtrace as a JSON string
+     *
+     * @return string
      */
-    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): ExceptionInterface
+    public function getTraceAsJson(): string
     {
-        if ($e instanceof ExceptionInterface) {
-            return $e;
+        return Json::encode($this->getTrace());
+    }
+
+
+    /**
+     * Returns the backtrace as an array with nicely formatted lines
+     *
+     * @return array
+     */
+    public function getTraceAsFormattedArray(): array
+    {
+        return Debug::formatBackTrace($this->getTrace());
+    }
+
+
+    /**
+     * Returns the backtrace as a string with nicely formatted lines
+     *
+     * @return string
+     */
+    public function getTraceAsFormattedString(): string
+    {
+        return implode(PHP_EOL, static::getTraceAsFormattedArray());
+    }
+
+
+    /**
+     * Generates and returns a full exception data array
+     *
+     * @return array
+     */
+    public function generateDetails(): array
+    {
+        try {
+            return [
+                'project'               => PROJECT,
+                'project_version'       => Core::getProjectVersion(),
+                'database_version'      => Version::getString(Libraries::getMaximumVersion()),
+                'environment'           => ENVIRONMENT,
+                'platform'              => PLATFORM,
+                'session'               => Session::getUUID(),
+                'user'                  => Session::getUser()->getLogId(),
+                'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
+                'url'                   => PLATFORM_WEB ? Route::getRequest()             : null,
+                'method'                => PLATFORM_WEB ? Route::getMethod()              : null,
+                'environment_variables' => $_ENV,
+                'argv'                  => ArgvValidator::getBackupSource(),
+                'get'                   => GetValidator::new()->getSource(),
+                'post'                  => PostValidator::new()->getSource(),
+            ];
+        } catch (Throwable $e) {
+            $e = static::ensurePhoundationException($e);
+
+            return [
+                'oops'               => 'Failed to generate exception details, see section "generate_exception"',
+                'project'            => PROJECT,
+                'project_version'    => Core::getProjectVersion(),
+                'environment'        => ENVIRONMENT,
+                'platform'           => PLATFORM,
+                'generate_exception' => [
+                    'message'  => $e->getMessage(),
+                    'messages' => $e->getMessages(),
+                    'trace'    => $e->getTrace(),
+                    'data'     => $e->getData(),
+                ]
+            ];
         }
-
-        $e = new $exception_class($e);
-
-        if ($e instanceof ExceptionInterface) {
-            return $e;
-        }
-
-        throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the ExceptionInterface', [
-            ':class' => $exception_class
-        ]), $e);
     }
 }
