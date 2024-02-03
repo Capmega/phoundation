@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Date;
 
 use Phoundation\Data\Iterator;
 use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
 
 
 /**
@@ -14,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
 class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInterface
@@ -22,7 +25,7 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
     /**
      * @inheritDoc
      */
-    public function add(mixed $value, float|string|int|null $key = null): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!is_string($value)) {
             throw new OutOfBoundsException(tr('Specified value ":value" must be string', [
@@ -37,7 +40,7 @@ class DateRangePickerRanges extends Iterator implements DateRangePickerRangesInt
             ]));
         }
 
-        return parent::add($value, $key);
+        return parent::add($value, $key, $skip_null);
     }
 
 

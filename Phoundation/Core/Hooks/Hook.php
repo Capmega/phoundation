@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Hooks;
 
-use Phoundation\Core\Arrays;
+use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Throwable;
 
 
@@ -17,16 +18,16 @@ use Throwable;
  * This class can manage and (attempt to) execute specified hook scripts.
  *
  * Hook scripts are optional scripts that will be executed if they exist. Hook scripts are located in
- * PATH_ROOT/scripts/hooks/HOOK and PATH_ROOT/scripts/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook scripts
- * that all have to do with the same system, to group them together. HOOK is the script to be executed
+ * DIRECTORY_DATA/system/hooks/HOOK and DIRECTORY_DATA/system/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook
+ * scripts that all have to do with the same system, to group them together. HOOK is the script to be executed
  *
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-class Hook
+class Hook implements HookInterface
 {
     /**
      * The class of hooks that will be executed
@@ -38,9 +39,9 @@ class Hook
     /**
      * The place where all hook scripts live
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path = PATH_ROOT . 'scripts/hooks';
+    protected string $directory = DIRECTORY_DATA . 'system/hooks/';
 
 
     /**
@@ -53,7 +54,7 @@ class Hook
         $this->class = Strings::endsNotWith(trim($class), '/') . '/';
 
         if ($this->class) {
-            $this->path .= $this->class;
+            $this->directory .= $this->class;
         }
     }
 
@@ -76,10 +77,10 @@ class Hook
      * @param array|string $hooks
      * @return $this
      */
-    public function execute(array|string $hooks): static
+    public function execute(array|string $hooks, ?array $params = null): static
     {
         foreach (Arrays::force($hooks) as $hook) {
-            $file = $this->path . $hook;
+            $file = $this->directory . $hook;
 
             if (!file_exists($file)) {
                 // Only execute existing files
@@ -87,7 +88,7 @@ class Hook
             }
 
             // Ensure its readable, not a path, within the filesystem restrictions, etc...
-            File::new($file, $this->path)->checkReadable();
+            File::new($file, $this->directory)->checkReadable();
 
             // Try executing it!
             try {

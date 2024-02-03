@@ -1,9 +1,7 @@
 <?php
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Session;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
+use Phoundation\Web\Html\Components\NotificationsDropDown;
 
 
 /**
@@ -13,12 +11,12 @@ use Phoundation\Web\Http\Html\Components\NotificationsDropDown;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 
 
-// Gets the notifications dropdown
+// Gets the notification dropdown
 $dropdown = NotificationsDropDown::new()
     ->setStatus('UNREAD')
     ->setNotificationsUrl('/notifications/notification-:ID.html')

@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 trait GitRepository
@@ -61,12 +61,12 @@ trait GitRepository
     public function setRepository(string $repository): static
     {
         $this->repository = Filesystem::absolute($repository);
-        $this->git  = Process::new('git')->setExecutionPath($this->repository);
+        $this->git  = Process::new('git')->setExecutionDirectory($this->repository);
 
         if (!$this->repository) {
             if (!file_exists($repository)) {
-                throw new OutOfBoundsException(tr('The specified path ":path" does not exist', [
-                    ':path' => $repository
+                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
+                    ':directory' => $repository
                 ]));
             }
         }

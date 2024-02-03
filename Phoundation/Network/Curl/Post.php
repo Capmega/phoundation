@@ -18,7 +18,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Post extends Get
@@ -259,7 +259,7 @@ class Post extends Get
         curl_setopt($this->curl, CURLOPT_POST, true);
 
         // Log cURL request?
-        if ($this->log_path) {
+        if ($this->log_directory) {
             Log::action(tr('Sending following post data'));
             Log::printr($this->post_data);
         }

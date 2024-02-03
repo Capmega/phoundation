@@ -22,7 +22,7 @@ class FileValidatorTest extends TestCase
 
         // Specified file should be a file, not a directory
         $this->expectException(ValidationFailedException::class);
-        Validator::file(PATH_ROOT)
+        Validator::file(DIRECTORY_ROOT)
             ->isFile()
             ->validate();
     }

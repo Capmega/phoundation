@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataUrl;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Network\Browsers\UserAgents;
-use Phoundation\Network\Curl\Exception\Curl404Exception;
-use Phoundation\Network\Curl\Exception\CurlNon200Exception;
 use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Web\Exception\WebException;
 use Stringable;
-use Throwable;
 
 
 /**
@@ -28,7 +23,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 abstract class Curl implements CurlInterface
@@ -88,9 +83,9 @@ abstract class Curl implements CurlInterface
     /**
      * The path where the cURL requests will be logged
      *
-     * @var string|null $log_path
+     * @var string|null $log_directory
      */
-    protected ?string $log_path = null;
+    protected ?string $log_directory = null;
 
     /**
      * File access restrictions for logging
@@ -100,14 +95,14 @@ abstract class Curl implements CurlInterface
     protected ?Restrictions $log_restrictions = null;
 
     /**
-     * The maximum amount of retries executed for this request
+     * The maximum number of retries executed for this request
      *
      * @var int $retries
      */
     protected int $retries = 5;
 
     /**
-     * The amount of retries executed for this request
+     * The number of retries executed for this request
      *
      * @var int $retry
      */
@@ -121,14 +116,14 @@ abstract class Curl implements CurlInterface
     protected int $cache_timeout = 0;
 
     /**
-     * The amount of time in seconds before a connection times out
+     * The number of time in seconds before a connection times out
      *
      * @var int $connect_timeout
      */
     protected int $connect_timeout = 2;
 
     /**
-     * The amount of time this object will wait before retrying a failed connection
+     * The number of time this object will wait before retrying a failed connection
      *
      * @var int $sleep
      */
@@ -142,7 +137,7 @@ abstract class Curl implements CurlInterface
     protected bool $get_cookies = true;
 
     /**
-     * If true, cURL will return more meta information
+     * If true, cURL will return more meta-information
      *
      * @var bool $verbose
      */
@@ -273,7 +268,7 @@ abstract class Curl implements CurlInterface
         $this->url   = (string) $url;
         $this->retry = 0;
 
-        $this->setLogPath(PATH_DATA . 'log/curl/');
+        $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
 
         // Setup new cURL request
         $this->curl = curl_init();
@@ -445,17 +440,6 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the path to where cURL will log. "" if logging was disabled
-     *
-     * @return string
-     */
-    public function getLogPath(): string
-    {
-        return $this->log_path;
-    }
-
-
-    /**
      * Returns the restrictions for curl output logging
      *
      * @return Restrictions|null
@@ -467,26 +451,37 @@ abstract class Curl implements CurlInterface
 
 
     /**
+     * Returns the path to where cURL will log. "" if logging was disabled
+     *
+     * @return string
+     */
+    public function getLogDirectory(): string
+    {
+        return $this->log_directory;
+    }
+
+
+    /**
      * Sets the path to where cURL will log. NULL or "" if logging has to be disabled
      *
-     * @param string $log_path
+     * @param string $log_directory
      * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path, string $restrictions = PATH_DATA . 'log/'): static
+    public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static
     {
-        if ($log_path) {
+        if ($log_directory) {
             $this->log_restrictions = Restrictions::new($restrictions, true);
-            Directory::new($log_path, $this->log_restrictions)->ensure();
+            Directory::new($log_directory, $this->log_restrictions)->ensure();
         }
 
-        $this->log_path = $log_path;
+        $this->log_directory = $log_directory;
         return $this;
     }
 
 
     /**
-     * Returns the amount of retries executed for this request
+     * Returns the number of retries executed for this request
      *
      * @return int
      */
@@ -497,7 +492,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the maximum amount of retries executed for this request
+     * Sets the maximum number of retries executed for this request
      *
      * @return int
      */
@@ -508,7 +503,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the maximum amount of retries executed for this request
+     * Returns the maximum number of retries executed for this request
      *
      * @param int $retries
      * @return static
@@ -521,7 +516,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the amount of time this object will wait before retrying a failed connection
+     * Sets the number of time this object will wait before retrying a failed connection
      *
      * @return int
      */
@@ -532,7 +527,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of time this object will wait before retrying a failed connection
+     * Returns the number of time this object will wait before retrying a failed connection
      *
      * @param int $sleep
      * @return static
@@ -545,7 +540,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the amount of time in seconds before a complete request times out
+     * Sets the number of time in seconds before a complete request times out
      *
      * @return int
      */
@@ -556,7 +551,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of time in seconds before a complete request times out
+     * Returns the number of time in seconds before a complete request times out
      *
      * @param int $timeout
      * @return static
@@ -569,7 +564,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Sets the amount of time in seconds before a connection times out
+     * Sets the number of time in seconds before a connection times out
      *
      * @return int
      */
@@ -580,7 +575,7 @@ abstract class Curl implements CurlInterface
 
 
     /**
-     * Returns the amount of time in seconds before a connection times out
+     * Returns the number of time in seconds before a connection times out
      *
      * @param int $connect_timeout
      * @return static

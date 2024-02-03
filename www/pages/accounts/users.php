@@ -6,13 +6,13 @@ use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\ButtonType;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\ButtonType;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -24,7 +24,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 
@@ -73,7 +73,7 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-// Get users list and apply filters
+// Get the users list and apply filters
 $users   = Users::new();
 $builder = $users->getQueryBuilder()
     ->addSelect('`accounts_users`.`id`, 
@@ -81,6 +81,7 @@ $builder = $users->getQueryBuilder()
                  `accounts_users`.`email`, 
                  `accounts_users`.`status`, 
                  GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`, 
+                 `accounts_users`.`sign_in_count`,
                  `accounts_users`.`created_on`')
     ->addJoin('LEFT JOIN `accounts_users_roles`
                ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
@@ -98,19 +99,26 @@ switch ($filters->getSourceKey('entry_status')) {
         break;
 
     default:
-        $builder->addWhere('`accounts_users`.`status` = :status', [':status' => $filters->getSourceKey('entry_status')]);
+        $builder->addWhere('`accounts_users`.`status` = :status', [
+            ':status' => $filters->getSourceKey('entry_status')
+        ]);
 }
 
 if ($filters->getSourceKey('roles_id')) {
-    $builder->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [':roles_id' => $filters->getSourceKey('roles_id')]);
+    $builder->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [
+        ':roles_id' => $filters->getSourceKey('roles_id')
+    ]);
 }
 
 if ($filters->getSourceKey('rights_id')) {
-    $builder->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`rights_id` :rights_id AND `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [':rights_id' => $filters->getSourceKey('rights_id')]);
+    $builder->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`rights_id` :rights_id AND `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
+        ':rights_id' => $filters->getSourceKey('rights_id')
+    ]);
 }
 
 
 // Build users table
+
 $buttons = Buttons::new()
     ->addButton(tr('Create'), DisplayMode::primary, '/accounts/user.html')
     ->addButton(tr('Delete'), DisplayMode::warning, ButtonType::submit, true, true);
@@ -124,8 +132,8 @@ $users_card = Card::new()
     ->setContent($users
         ->load()
         ->getHtmlDataTable()
-            ->setDateFormat('YYYY-MM-DD HH:mm:ss')
-            ->setRowUrl('/accounts/user-:ROW.html'))
+            ->setRowUrl('/accounts/user+:ROW.html')
+            ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtons($buttons);
 

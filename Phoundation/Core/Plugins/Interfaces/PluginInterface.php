@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core\Plugins\Interfaces;
 
 
@@ -11,7 +13,7 @@ namespace Phoundation\Core\Plugins\Interfaces;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 interface PluginInterface
@@ -72,9 +74,9 @@ interface PluginInterface
     /**
      * Returns the plugin path for this plugin
      *
-     * @return string
+     * @return string|null
      */
-    public function getPath(): string;
+    public function getPath(): ?string;
 
     /**
      * Returns the plugin name

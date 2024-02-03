@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -15,7 +17,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 interface PhonesInterface extends DataListInterface
@@ -31,8 +33,9 @@ interface PhonesInterface extends DataListInterface
     /**
      * Returns Phones list object with phones for the specified user.
      *
+     * @param bool $clear
      * @return static
-     * @throws SqlMultipleResultsException, NotExistsException
+     * @throws SqlMultipleResultsException , NotExistsException
      */
-    public function load(): static;
+    public function load(bool $clear = true, bool $only_if_empty = false): static;
 }

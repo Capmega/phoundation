@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer;
 
 
@@ -10,12 +12,12 @@ use Stringable;
 /**
  * Class Mtime
  *
- * This class can check if specified files have an mtime equal to PATH_DATA/system/mtime and indicate if they have
+ * This class can check if specified files have an mtime equal to DIRECTORY_DATA/system/mtime and indicate if they have
  * changed since or not. This can be used for caching purposes to speed up certain processes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Mtime
@@ -28,11 +30,11 @@ class Mtime
     protected static Mtime $instance;
 
     /**
-     * The root path for this class
+     * The root directory for this class
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected static string $path = PATH_DATA . 'system/mtime/';
+    protected static string $directory = DIRECTORY_DATA . 'system/mtime/';
 
 
     /**
@@ -40,7 +42,7 @@ class Mtime
      */
     protected function __construct()
     {
-        Directory::new(static::$path)->ensure();
+        Directory::new(static::$directory)->ensure();
     }
 
 
@@ -103,7 +105,7 @@ class Mtime
             }
         }
 
-        touch(static::$path . $class, $datetime);
+        touch(static::$directory . $class, $datetime);
     }
 
 
@@ -117,8 +119,8 @@ class Mtime
     {
         static::getInstance();
 
-        if(file_exists(static::$path . $class)){
-            return filemtime(static::$path . $class);
+        if(file_exists(static::$directory . $class)){
+            return filemtime(static::$directory . $class);
         }
 
         return null;

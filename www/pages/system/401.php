@@ -18,7 +18,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 
@@ -45,9 +45,7 @@ Page::getFlashMessages()->addMessage($e);
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '401',
     ':h3'     => tr('Unauthorized'),
-    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error', [
-        ':url' => Page::getReferer(true)
-    ]),
+    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
 
@@ -13,7 +15,7 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 interface MysqlDumpInterface
@@ -170,8 +172,9 @@ interface MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
+     * @param string|null $file
      * @param EnumExecuteMethodInterface $method
-     * @return static
+     * @return string
      */
-    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static;
+    public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string;
 }

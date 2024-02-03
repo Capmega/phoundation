@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Pgrep extends Command
@@ -32,7 +32,7 @@ class Pgrep extends Command
     {
         try {
             $output = $this
-                ->setInternalCommand('pgrep')
+                ->setCommand('pgrep')
                 ->addArgument($process)
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -66,7 +66,7 @@ class Pgrep extends Command
             }
 
             $output = $this
-                ->setInternalCommand('pgrep')
+                ->setCommand('pgrep')
                 ->addArguments(['-P', $pid])
                 ->setTimeout(1)
                 ->executeReturnArray();

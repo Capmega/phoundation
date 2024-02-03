@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Http\Exception\UrlBuilderConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Page;
 use Stringable;
@@ -27,7 +30,7 @@ use Stringable;
  * @todo Add language mapping, see the protected method language_map() at the bottom of this class for more info
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Http
  */
 class UrlBuilder implements UrlBuilderInterface
@@ -81,7 +84,7 @@ class UrlBuilder implements UrlBuilderInterface
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
                 $this->cloak();
             }
-        } catch (ConfigurationDoesNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             // This domain is not configured, ignore it
         }
 
@@ -133,10 +136,6 @@ class UrlBuilder implements UrlBuilderInterface
     {
         if (!$url) {
             $url = UrlBuilder::getCurrent();
-
-        } else {
-            $url = static::applyPredefined($url);
-            $url = static::applyVariables($url);
         }
 
         return static::buildUrl($url, null, $use_configured_root);
@@ -181,7 +180,7 @@ class UrlBuilder implements UrlBuilderInterface
             }
         }
 
-        // No URL found in any of the options, or option was current page. use the specified URL
+        // No URL found in any of the options, or option was current page. Use the specified URL
         return static::getWww($url, $use_configured_root);
     }
 
@@ -448,7 +447,7 @@ class UrlBuilder implements UrlBuilderInterface
             return new static($url);
         }
 
-//        if ($path) {
+//        if ($directory) {
 //            throw new UnderConstructionException();
 //            // Return the local filesystem path instead of a public URL
 //            if (Url::isValid($url)) {
@@ -456,13 +455,13 @@ class UrlBuilder implements UrlBuilderInterface
 //                return new static($url);
 //            }
 //
-//            $path = Strings::startsNotWith($this->url, '/');
+//            $directory = Strings::startsNotWith($this->url, '/');
 //
-//            if (!str_starts_with($path, 'img/')) {
-//                $path = 'img/' . $path;
+//            if (!str_starts_with($directory, 'img/')) {
+//                $directory = 'img/' . $directory;
 //            }
 //
-//            return $path;
+//            return $directory;
 //        }
 
         return static::buildCdn($url);
@@ -499,7 +498,7 @@ class UrlBuilder implements UrlBuilderInterface
         ]);
 
         if ($cloak) {
-            // Found cloaking URL, update the created_on time so that it won't exipre too soon
+            // Found cloaking URL, update the created_on time so that it won't expire too soon
             sql()->query('UPDATE `url_cloaks` 
                                 SET    `created_on` = NOW() 
                                 WHERE  `url`        = :url', [
@@ -550,7 +549,7 @@ class UrlBuilder implements UrlBuilderInterface
      * Since the URL cloaking table might fill up over time with new entries, this function will be periodically executed by url_decloak() to cleanup the table
      *
      * @see Url::decloak()
-     * @return int The amount of expired entries removed from the `url_cloaks` table
+     * @return int The number of expired entries removed from the `url_cloaks` table
      */
     public static function cleanupCloak(): int
     {
@@ -580,15 +579,15 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
-     * Add specified query to the specified URL and return
+     * Add the specified query / queries to the specified URL and return
      *
-     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @param array|string|bool|null ...$queries All the queries to add to this URL
      * @return static
      */
-    public function addQueries(array|string|bool ...$queries): static
+    public function addQueries(array|string|bool|null ...$queries): static
     {
         if (!$queries) {
-            throw new OutOfBoundsException(tr('No queries specified to add to the specified URL'));
+            return $this;
         }
 
         foreach ($queries as $query) {
@@ -627,10 +626,10 @@ class UrlBuilder implements UrlBuilderInterface
                 ]));
             }
 
-            $key = Strings::until($query, '=');
+            $key   = Strings::until($query, '=');
             $value = Strings::from($query, '=');
 
-            $key = urlencode($key);
+            $key   = urlencode($key);
             $value = urlencode($value);
 
             if (!str_contains($this->url, '?')) {
@@ -794,7 +793,8 @@ throw new UnderConstructionException();
      */
     protected static function buildUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
     {
-        $url = (string) $url;
+        $url = static::applyPredefined($url);
+        $url = static::applyVariables($url);
 
         if (Url::isValid($url)) {
             return new static($url);
@@ -804,7 +804,7 @@ throw new UnderConstructionException();
         if ($use_configured_root) {
             $base = Domains::getRootUrl();
 
-        } elseif (PLATFORM_HTTP) {
+        } elseif (PLATFORM_WEB) {
             $base = Page::getRoutingParameters()->getRootUrl();
 
         } else {
@@ -832,7 +832,8 @@ throw new UnderConstructionException();
      */
     protected static function buildCdn(Stringable|string $url, ?string $extension = null): static
     {
-        $url = (string) $url;
+        $url = static::applyPredefined($url);
+        $url = static::applyVariables($url);
 
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
@@ -857,19 +858,91 @@ throw new UnderConstructionException();
      * Apply predefined URL names
      *
      * @param Stringable|string $url
-     * @return UrlBuilder
+     * @return string
      */
-    protected static function applyPredefined(Stringable|string $url): UrlBuilder
+    protected static function applyPredefined(Stringable|string $url): string
     {
-        $url = (string) $url;
-
-        return match ($url) {
+        $url    = (string) $url;
+        $return = match ($url) {
             'self', 'this' , 'here'       => static::getCurrent(),
             'root'                        => static::getCurrentDomainRootUrl(),
             'prev', 'previous', 'referer' => static::getPrevious(),
-            default                       => new static($url),
+            default                       => null,
         };
 
+        if ($return) {
+            return (string) $return;
+        }
+
+        try {
+            return (string) static::getConfigured($url);
+
+        } catch (UrlBuilderConfiguredUrlNotFoundException) {
+            // This was not a configured URL
+            return $url;
+        }
+    }
+
+
+    /**
+     * Apply predefined URL names
+     *
+     * @param Stringable|string $url
+     * @return UrlBuilderInterface
+     */
+    public static function getConfigured(Stringable|string $url): UrlBuilderInterface
+    {
+        $url = (string) $url;
+
+        // Configured page?
+        $configured = match (Strings::until($url, '.html')) {
+            'index'    => Config::getString('web.pages.index'   , '/index.html'),
+            'sign-in'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
+            'sign-up'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
+            'sign-out' => Config::getString('web.pages.sign-out', '/sign-out.html'),
+            'sign-key' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+            default    => Config::getString('web.pages.' . $url , '')
+        };
+
+        if ($configured) {
+            return new static($configured);
+        }
+
+        return new static($url);
+    }
+
+
+    /**
+     * Returns an array containing all the queries found in the specified URL
+     *
+     * @param Stringable|string $url
+     * @param IteratorInterface|array|string|null $remove_keys
+     * @param bool $unescape
+     * @return array
+     */
+    public static function getQueries(Stringable|string $url, IteratorInterface|array|string|null $remove_keys = null, bool $unescape = true): array
+    {
+        $return  = [];
+        $queries = Strings::from($url, '?', needle_required: true);
+        $queries = Arrays::force($queries, '&');
+        $remove_keys = Arrays::force($remove_keys);
+
+        foreach ($queries as $query) {
+            list($key, $value) = explode('=', $query);
+
+            if ($remove_keys and array_key_exists($key, $remove_keys)) {
+                continue;
+            }
+
+            if ($unescape) {
+                $return[$key] = urldecode($value);
+
+            } else {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
     }
 
 
@@ -881,7 +954,8 @@ throw new UnderConstructionException();
      */
     protected static function applyVariables(Stringable|string $url): string
     {
-        $url = str_replace(':PROTOCOL', Protocols::getCurrent() , (string) $url);
+        $url = (string) $url;
+        $url = str_replace(':PROTOCOL', Protocols::getCurrent() , $url);
         $url = str_replace(':DOMAIN'  , Domains::getCurrent()   , $url);
         $url = str_replace(':PORT'    , (string) Page::getPort(), $url);
         $url = str_replace(':LANGUAGE', Page::getLanguageCode() , $url);
@@ -902,7 +976,7 @@ throw new UnderConstructionException();
          * Do language mapping, but only if routemap has been set
          */
         // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(Config::get('languages.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
+        if (!empty(Config::get('language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')) {
             if ($this->url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first

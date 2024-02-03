@@ -15,7 +15,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Zip extends Command
@@ -34,8 +34,8 @@ class Zip extends Command
                 $target_path = dirname($file);
             }
 
-            $this->setExecutionPath($target_path)
-                 ->setInternalCommand('unzip')
+            $this->setExecutionDirectory($target_path)
+                 ->setCommand('unzip')
                  ->addArguments($file)
                  ->setTimeout(120)
                  ->executeNoReturn();

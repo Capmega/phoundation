@@ -3,10 +3,10 @@
 declare(strict_types=1);
 namespace Phoundation\Databases;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -16,7 +16,7 @@ use Phoundation\Databases\Sql\Sql;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 exit('Killed by Databases\Sql\Simple');

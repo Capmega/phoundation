@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Developer;
 
 
-use Exception;
-use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 
 
 /**
@@ -17,7 +16,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Dependencies
  */
 class Dependencies
@@ -41,9 +40,9 @@ class Dependencies
          * Test available files
          */
         if (isset($params['checks'])) {
-            foreach (Arrays::force($params['checks']) as $path) {
-                if (!file_exists($path)) {
-                    $fail = 'path ' . $path;
+            foreach (Arrays::force($params['checks']) as $directory) {
+                if (!file_exists($directory)) {
+                    $fail = 'path ' . $directory;
                     break;
                 }
             }

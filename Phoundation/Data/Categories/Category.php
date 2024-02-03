@@ -24,7 +24,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 class Category extends DataEntry implements CategoryInterface
@@ -59,7 +59,7 @@ class Category extends DataEntry implements CategoryInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -72,7 +72,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'parents_id');
+        return $this->getSourceColumnValue('int', 'parents_id');
     }
 
 
@@ -95,7 +95,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParent(): ?Category
     {
-        $parents_id = $this->getSourceFieldValue('int', 'parents_id');
+        $parents_id = $this->getSourceColumnValue('int', 'parents_id');
 
         if ($parents_id) {
             return new static($parents_id);
@@ -112,7 +112,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     public function getParentsName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'parents_name');
+        return $this->getSourceColumnValue('string', 'parents_name');
     }
 
 
@@ -149,19 +149,19 @@ class Category extends DataEntry implements CategoryInterface
                 ->setLabel(tr('Parent category'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parents_id exists and that its or parent
-                    $validator->or('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                    $validator->orColumn('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
             ->addDefinition(Definition::new($this, 'parent')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--parent PARENT CATEGORY NAME')
+                ->setCliColumn('--parent PARENT CATEGORY NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure parent exists and that its or parents_id
-                    $validator->or('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
+                    $validator->orColumn('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                 }))
             ->addDefinition(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {

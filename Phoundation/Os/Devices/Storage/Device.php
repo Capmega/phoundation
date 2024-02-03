@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Devices\Storage;
 
-use Phoundation\Core\Strings;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Devices\Storage\Exception\StorageException;
@@ -15,6 +14,7 @@ use Phoundation\Os\Processes\Commands\Lsblk;
 use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -24,7 +24,7 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Device extends File implements DeviceInterface
@@ -54,11 +54,11 @@ class Device extends File implements DeviceInterface
      */
     protected function checkDeviceFile(): void
     {
-        $this->file = Strings::startsWith($this->file, '/dev/');
+        $this->path = Strings::startsWith($this->path, '/dev/');
 
-        if (!Lsblk::new()->isStorageDevice($this->file)) {
+        if (!Lsblk::new()->isStorageDevice($this->path)) {
             throw new StorageException(tr('Specified device ":device" is not a storage device', [
-                ':device' => $this->file
+                ':device' => $this->path
             ]));
         }
     }
@@ -71,7 +71,7 @@ class Device extends File implements DeviceInterface
      */
     public function isMounted(): bool
     {
-        return Mount::new()->deviceIsMounted($this->file);
+        return Mount::new()->deviceIsMounted($this->path);
     }
 
 
@@ -82,7 +82,7 @@ class Device extends File implements DeviceInterface
      */
     public function checkMounted(): static
     {
-        if (!$this->isMounted($this->file)) {
+        if (!$this->isMounted($this->path)) {
             throw StorageException::new(tr('The device is not mounted'));
         }
 
@@ -97,7 +97,7 @@ class Device extends File implements DeviceInterface
      */
     public function checkUnmounted(): static
     {
-        if ($this->isMounted($this->file)) {
+        if ($this->isMounted($this->path)) {
             throw StorageException::new(tr('The device is mounted'));
         }
 
@@ -118,7 +118,7 @@ class Device extends File implements DeviceInterface
             ->setSudo(true)
             ->setAcceptedExitCodes([0, 1]) // Accept 1 if the DD process stopped due to disk full, which is expected
             ->setTimeout(0)
-            ->addArguments(['if=/dev/urandom', 'of=' . $this->file, 'bs=4096', 'status=progress'])
+            ->addArguments(['if=/dev/urandom', 'of=' . $this->path, 'bs=4096', 'status=progress'])
             ->execute(EnumExecuteMethod::passthru);
 
         return $this;

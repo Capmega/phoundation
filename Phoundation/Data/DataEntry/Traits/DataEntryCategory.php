@@ -15,7 +15,7 @@ use Phoundation\Data\Categories\Interfaces\CategoryInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCategory
@@ -27,7 +27,7 @@ trait DataEntryCategory
      */
     public function getCategoriesId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'categories_id');
+        return $this->getSourceColumnValue('int', 'categories_id');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryCategory
      */
     public function getCategory(): ?CategoryInterface
     {
-        $categories_id = $this->getSourceFieldValue('int', 'categories_id');
+        $categories_id = $this->getSourceColumnValue('int', 'categories_id');
 
         if ($categories_id) {
             return new Category($categories_id);
@@ -67,7 +67,7 @@ trait DataEntryCategory
      */
     public function getCategoriesName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'categories_name');
+        return $this->getSourceColumnValue('string', 'categories_name');
     }
 
 

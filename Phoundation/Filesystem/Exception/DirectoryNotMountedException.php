@@ -6,13 +6,13 @@ namespace Phoundation\Filesystem\Exception;
 
 
 /**
- * Class PathNotMountedException
+ * Class DirectoryNotMountedException
  *
- * This exception is thrown when a specified path is not mounted
+ * This exception is thrown when a specified directory is not mounted
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
 class DirectoryNotMountedException extends FilesystemException

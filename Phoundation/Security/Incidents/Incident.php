@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
 use Phoundation\Data\DataEntry\Traits\DataEntryType;
@@ -19,11 +16,14 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Exception\Interfaces\SeverityInterface;
+use Phoundation\Security\Incidents\Interfaces\IncidentInterface;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Throwable;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\InputElement;
 
 
 /**
@@ -31,14 +31,14 @@ use Throwable;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Security
  * @todo Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for example, should be thrown from here so that it is no longer required for the developer to both register the incident AND throw the exception
  */
-class Incident extends DataEntry
+class Incident extends DataEntry implements IncidentInterface
 {
     use DataEntryType;
     use DataEntryTitle;
@@ -46,7 +46,7 @@ class Incident extends DataEntry
 
 
     /**
-     * Sets if this incident will be logged in the text log
+     * Sets if this incident is logged in the text log
      *
      * @var bool
      */
@@ -54,7 +54,7 @@ class Incident extends DataEntry
 
 
     /**
-     * Sets if this incident will cause a notification to the specified groups
+     * Sets if this incident causes a notification to the specified groups
      *
      * @var IteratorInterface $notify_roles
      */
@@ -88,7 +88,7 @@ class Incident extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }
@@ -131,7 +131,7 @@ class Incident extends DataEntry
             $roles = Arrays::force($roles);
         }
 
-        $this->getNotifyRoles()->addSource($roles);
+        $this->getNotifyRoles()->addSources($roles);
         return $this;
     }
 
@@ -171,17 +171,17 @@ class Incident extends DataEntry
      */
     public function getSeverity(): string
     {
-        return $this->getSourceFieldValue('string', 'severity', Severity::unknown->value);
+        return $this->getSourceColumnValue('string', 'severity', Severity::unknown->value);
     }
 
 
     /**
      * Sets the severity for this object
      *
-     * @param Severity|string $severity
+     * @param SeverityInterface|string $severity
      * @return static
      */
-    public function setSeverity(Severity|string $severity): static
+    public function setSeverity(SeverityInterface|string $severity): static
     {
         if (is_string($severity)) {
             $severity = Severity::from($severity);
@@ -192,7 +192,7 @@ class Incident extends DataEntry
 
 
     /**
-     * Saves the incident to database
+     * Saves the incident to a database
      *
      * @param bool $force
      * @param string|null $comments
@@ -254,7 +254,7 @@ class Incident extends DataEntry
             }
 
             $notification
-                ->setUrl('security/incident-' . $this->getId() . '.html')
+                ->setUrl('security/incident+' . $this->getId() . '.html')
                 ->setRoles($this->notify_roles)
                 ->setTitle($this->getType())
                 ->setMessage($this->getTitle())
@@ -269,10 +269,15 @@ class Incident extends DataEntry
     /**
      * Throw an incidents exception
      *
+     * @param string|null $exception
      * @return never
      */
-    #[NoReturn] public function throw(): never
+    #[NoReturn] public function throw(?string $exception = null): never
     {
+        if ($exception) {
+            throw $exception::new($this->getTitle())->addData(['details' => $this->getDetails()]);
+        }
+
         throw IncidentsException::new($this->getTitle())->addData(['details' => $this->getDetails()]);
     }
 
@@ -326,7 +331,7 @@ class Incident extends DataEntry
                     try {
                         $return  = '';
                         $details = Json::decode($value);
-                        $largest = Arrays::getLongestKeySize($details);
+                        $largest = Arrays::getLongestKeyLength($details);
 
                         foreach ($details as $key => $value) {
                             $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;

@@ -10,13 +10,13 @@ use Phoundation\Exception\UnderConstructionException;
 
 
 /**
- * Schema class
+ * class Database
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Database extends SchemaAbstract
@@ -84,12 +84,15 @@ class Database extends SchemaAbstract
     /**
      * Create this database
      *
+     * @param bool $use
      * @return static
      */
-    public function create(): static
+    public function create(bool $use = true): static
     {
         if ($this->exists()) {
-            throw new SqlException(tr('Cannot create database ":name", it already exists', [':name' => $this->sql->getDatabase()]));
+            throw new SqlException(tr('Cannot create database ":name", it already exists', [
+                ':name' => $this->sql->getDatabase()
+            ]));
         }
 
         Log::action(tr('Creating database ":database"', [':database' => $this->sql->getDatabase()]));
@@ -100,7 +103,10 @@ class Database extends SchemaAbstract
             ':collate' => $this->configuration['collate']
         ]);
 
-        $this->sql->use($this->sql->getDatabase());
+        if ($use) {
+            $this->sql->use($this->sql->getDatabase());
+        }
+
         return $this;
     }
 
@@ -114,9 +120,9 @@ class Database extends SchemaAbstract
     {
         // This query cannot use bound variables!
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
-            ':instance' => $this->sql->getInstance(),
+            ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase()
-        ]), 3);
+        ]), 5);
 
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
         return $this;
@@ -154,13 +160,29 @@ class Database extends SchemaAbstract
 
 
     /**
-     * Load the table parameters from database
+     * Load the table parameters from the database
      *
-     * @return void
+     * @param bool $clear
+     * @return static
      */
-    public function load(): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
         // Load columns & indices data
         // TODO Implement
+        return $this;
+    }
+
+
+    /**
+     * Renames this database
+     *
+     * @see https://www.atlassian.com/data/admin/how-to-rename-a-database-in-mysql
+     * @return $this
+     */
+    public function rename(): static
+    {
+        $tables = $this->tables();
+        //$ mysql -u dbUsername -p"dbPassword" oldDatabase -sNe 'show tables' | while read table; do mysql -u dbUsername -p"dbPassword" -sNe "RENAME TABLE oldDatabase.$table TO newDatabase.$table"; done
+        return $this;
     }
 }

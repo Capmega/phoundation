@@ -1,7 +1,9 @@
 <?php
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Page;
 
 

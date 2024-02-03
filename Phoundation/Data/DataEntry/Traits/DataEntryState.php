@@ -17,7 +17,7 @@ use Phoundation\Geo\States\State;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryState
@@ -29,7 +29,7 @@ trait DataEntryState
      */
     public function getStatesId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'states_id');
+        return $this->getSourceColumnValue('int', 'states_id');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryState
      */
     public function getState(): ?State
     {
-        $states_id = $this->getSourceFieldValue('int', 'states_id');
+        $states_id = $this->getSourceColumnValue('int', 'states_id');
 
         if ($states_id) {
             return new State($states_id);
@@ -69,7 +69,7 @@ trait DataEntryState
      */
     public function getStatesName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'states_name');
+        return $this->getSourceColumnValue('string', 'states_name');
     }
 
 

@@ -4,26 +4,32 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Os\Packages\Interfaces\PackagesInterface;
+use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Which;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
+use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Interfaces\ProcessCoreInterface;
-use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
-use Phoundation\Os\Processes\Enum\Interfaces\EnumIoNiceClassInterface;
-use Phoundation\Servers\Server;
+use Phoundation\Servers\Traits\DataServer;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 
@@ -34,11 +40,12 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 trait ProcessVariables
 {
+    use DataServer;
     use DataRestrictions;
 
 
@@ -64,6 +71,13 @@ trait ProcessVariables
     protected array $arguments = [];
 
     /**
+     * Sets environment variables before the command execution
+     *
+     * @var array $environment_variables
+     */
+    protected array $environment_variables = [];
+
+    /**
      * The log file where command output will be written to
      *
      * @var string|null
@@ -73,9 +87,9 @@ trait ProcessVariables
     /**
      * The run path where command output will be written to
      *
-     * @var string|null $run_path
+     * @var string|null $run_directory
      */
-    protected static ?string $run_path = null;
+    protected static ?string $run_directory = null;
 
     /**
      * Sets if run files should be used or not
@@ -106,12 +120,19 @@ trait ProcessVariables
     protected ?int $exit_code = null;
 
     /**
-     * The maximum amount of time in seconds that a command is allowed to run before it will timeout. Zero to disable,
+     * The maximum amount of time in seconds that a command is allowed to run before it will time out. Zero to disable,
      * defaults to 30
      *
      * @var int $timeout
      */
     protected int $timeout = 30;
+
+    /**
+     * The signal that the timeout will give to the process
+     *
+     * @var int $signal
+     */
+    protected int $signal = 15;
 
     /**
      * The time the process should wait before starting
@@ -141,7 +162,7 @@ trait ProcessVariables
      *
      * @note This may require nocache to be installed first!
      *
-     * @var int|bool $sudo
+     * @var int|bool $nocache = false
      */
     protected int|bool $nocache = false;
 
@@ -209,13 +230,6 @@ trait ProcessVariables
     protected RestrictionsInterface $restrictions;
 
     /**
-     * If specified, the process will be executed on this server
-     *
-     * @var Server $server
-     */
-    protected Server $server;
-
-    /**
      * Registers where the exit code for this process will be stored
      *
      * @var bool $register_run_file
@@ -225,9 +239,9 @@ trait ProcessVariables
     /**
      * Variable data that can modify the process command that will be executed
      *
-     * @var array|null $variables
+     * @var array $variables
      */
-    protected ?array $variables = [];
+    protected array $variables = [];
 
     /**
      * If set true, the log output files will be deleted as soon as this object is destroyed.
@@ -240,9 +254,9 @@ trait ProcessVariables
      * If specified, these packages will be automatically installed if the specified command for this process does not
      * exist
      *
-     * @var array|string|null
+     * @var PackagesInterface $packages
      */
-    protected array|string|null $packages = null;
+    protected PackagesInterface $packages;
 
     /**
      * State variable, tracks if the current process has failed or not
@@ -254,9 +268,9 @@ trait ProcessVariables
     /**
      * If set, the process will first CD to this directory before continuing
      *
-     * @var string|null $execution_path
+     * @var string|null $execution_directory
      */
-    protected ?string $execution_path = null;
+    protected ?string $execution_directory = null;
 
     /**
      * If true, commands will be printed and logged
@@ -270,7 +284,7 @@ trait ProcessVariables
      *
      * @var int $escape_quotes
      */
-    protected int $escape_quotes = 0;
+    protected int $escape_quotes = 1;
 
     /**
      * The time the process started execution
@@ -300,6 +314,20 @@ trait ProcessVariables
      */
     protected ?Process $post_exec = null;
 
+    /**
+     * The method used to execute this process
+     *
+     * @var EnumExecuteMethodInterface|null $method
+     */
+    protected ?EnumExecuteMethodInterface $method = null;
+
+    /**
+     * The output of the process
+     *
+     * @var array|string|null $output
+     */
+    protected array|string|null $output = null;
+
 
     /**
      * Process class constructor
@@ -309,13 +337,14 @@ trait ProcessVariables
     public function __construct(RestrictionsInterface|array|string|null $restrictions)
     {
         // Ensure that the run files directory is available
-        static::$run_path = PATH_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
+        static::$run_directory = DIRECTORY_DATA . 'run/pids/' . getmypid() . '/' . Core::getLocalId() . '/';
 
-        Directory::new(static::$run_path, Restrictions::new(PATH_DATA . 'run', true, 'processes runfile'))
+        Directory::new(static::$run_directory, Restrictions::new(DIRECTORY_DATA . 'run', true, 'processes runfile'))
             ->ensure();
 
         // Set server filesystem restrictions
         $this->setRestrictions($restrictions);
+        $this->packages = new Packages();
     }
 
 
@@ -328,6 +357,45 @@ trait ProcessVariables
         if ($this->clear_logs) {
             unlink($this->log_file);
         }
+    }
+
+
+    /**
+     * Returns the execution method for this process
+     *
+     * @return EnumExecuteMethodInterface|null
+     */
+    public function getExecutionMethod(): ?EnumExecuteMethodInterface
+    {
+        return $this->method;
+    }
+
+
+    /**
+     * Sets the execution method for this process
+     *
+     * @note Will set the execution method only once. When already set, it will ignore the next specified method
+     * @param EnumExecuteMethodInterface|null $method
+     * @return static
+     */
+    protected function setExecutionMethod(?EnumExecuteMethodInterface $method): static
+    {
+        if ($this->method === null) {
+            $this->method = $method;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the exit code from the executed process, NULL if the process has not yet been executed
+     *
+     * @return ?int
+     */
+    public function getExitCode(): ?int
+    {
+        return $this->exit_code;
     }
 
 
@@ -409,27 +477,62 @@ trait ProcessVariables
      */
     public function getExecutionTime(bool $require_stop = true): ?float
     {
-        if (!$this->start) {
-            throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
-        }
-
-        if (!$this->stop) {
-            if ($require_stop) {
-                throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
-            }
-
-            $stop = microtime(true);
-
-        } else {
-            $stop = $this->stop;
-        }
-
-        return $stop - $this->start;
+        return $this->getStopTime($require_stop) - $this->start;
     }
 
 
     /**
-     * Increases the amount of times quotes should be escaped
+     * Returns the time spent on executing this process in a human readable form
+     *
+     * @param bool $require_stop
+     * @param int $decimals
+     * @return string
+     */
+    public function getExecutionTimeHumanReadable(bool $require_stop = true, int $decimals = 5): string
+    {
+        return Time::difference($this->start, $this->getStopTime($require_stop), 'auto', $decimals);
+    }
+
+
+    /**
+     * Returns the stop time for this process
+     *
+     * @param bool $require_stop
+     * @return float
+     */
+    protected function getStopTime(bool $require_stop = true): float
+    {
+        if (!$this->start) {
+            throw new OutOfBoundsException(tr('Cannot measure execution time, the process has not yet started'));
+        }
+
+        if ($this->stop) {
+            return $this->stop;
+        }
+
+        if ($require_stop) {
+            throw new OutOfBoundsException(tr('Cannot measure execution time, the process is still running'));
+        }
+
+        return microtime(true);
+    }
+
+
+    /**
+     * Returns the output of the process
+     *
+     * If requested before process execution, will return NULL
+     *
+     * @return array|string|null
+     */
+    public function getOutput(): array|string|null
+    {
+        return $this->output;
+    }
+
+
+    /**
+     * Increases the number of times quotes should be escaped
      *
      * @return ProcessVariables
      */
@@ -478,11 +581,18 @@ trait ProcessVariables
     /**
      * Sets the ionice class for this process
      *
-     * @param EnumIoNiceClassInterface $ionice_class
+     * @param EnumIoNiceClassInterface|int|null $ionice_class
      * @return static This process so that multiple methods can be chained
      */
-    public function setIoNiceClass(EnumIoNiceClassInterface $ionice_class): static
+    public function setIoNiceClass(EnumIoNiceClassInterface|int|null $ionice_class): static
     {
+        if (is_null($ionice_class)) {
+            $ionice_class = EnumIoNiceClass::none;
+
+        } elseif (is_int($ionice_class)) {
+            $ionice_class = EnumIoNiceClass::from($ionice_class);
+        }
+
         $this->ionice_class = $ionice_class;
         return $this;
     }
@@ -502,25 +612,28 @@ trait ProcessVariables
     /**
      * Sets the ionice level for this process
      *
-     * @param int $ionice_level
+     * @param int|null $ionice_level
      * @return static This process so that multiple methods can be chained
      */
-    public function setIoNiceLevel(int $ionice_level): static
+    public function setIoNiceLevel(?int $ionice_level): static
     {
-        switch ($this->ionice_class) {
-            case EnumIoNiceClass::realtime:
-                // no break
+        if ($ionice_level) {
+            switch ($this->ionice_class) {
+                case EnumIoNiceClass::realtime:
+                    // no break
 
-            case EnumIoNiceClass::best_effort:
-                break;
+                case EnumIoNiceClass::best_effort:
+                    break;
 
-            default:
-                throw new OutOfBoundsException(tr('Cannot set IO nice level, the IO nice class ":class" is not one of "EnumIoNiceClass::realtime, EnumIoNiceClass::best_effort"', [
-                    ':class' => $this->ionice_class->value
-                ]));
+                default:
+                    throw new OutOfBoundsException(tr('Cannot set IO nice level ":level", the IO nice class ":class" is not one of "EnumIoNiceClass::realtime, EnumIoNiceClass::best_effort"', [
+                        ':level' => $ionice_level,
+                        ':class' => $this->ionice_class->value
+                    ]));
+            }
         }
 
-        $this->ionice_level = $ionice_level;
+        $this->ionice_level = (int) $ionice_level;
         return $this;
     }
 
@@ -539,12 +652,12 @@ trait ProcessVariables
     /**
      * Sets the nice level for this process
      *
-     * @param int $nice
+     * @param int|null $nice
      * @return static This process so that multiple methods can be chained
      */
-    public function setNice(int $nice): static
+    public function setNice(?int $nice): static
     {
-        $this->nice = $nice;
+        $this->nice = (int) $nice;
         return $this;
     }
 
@@ -563,12 +676,12 @@ trait ProcessVariables
     /**
      * Sets the nocache option for this process
      *
-     * @param int|bool $nocache
+     * @param int|bool|null $nocache
      * @return static This process so that multiple methods can be chained
      */
-    public function setNoCache(int|bool $nocache): static
+    public function setNoCache(int|bool|null $nocache): static
     {
-        $this->nocache = $nocache;
+        $this->nocache = $nocache ?? false;
         return $this;
     }
 
@@ -602,23 +715,23 @@ trait ProcessVariables
      *
      * @return Directory
      */
-    public function getExecutionPath(): Directory
+    public function getExecutionDirectory(): Directory
     {
-        return Directory::new($this->execution_path);
+        return Directory::new($this->execution_directory);
     }
 
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null $execution_path
+     * @param Directory|Stringable|string|null $execution_directory
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static
     {
         $this->cached_command_line = null;
-        $this->execution_path      = (string) $execution_path;
+        $this->execution_directory      = (string) $execution_directory;
 
         if ($restrictions) {
             $this->restrictions = $restrictions;
@@ -634,12 +747,12 @@ trait ProcessVariables
      * @param bool $public
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPathToTemp(bool $public = false): static
+    public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        $path               = Directory::getTemporaryBase($public);
-        $this->restrictions = $path->getRestrictions();
+        $directory               = Directory::newTemporary($public);
+        $this->restrictions = $directory->getRestrictions();
 
-        $this->setExecutionPath($path, $path->getRestrictions());
+        $this->setExecutionDirectory($directory, $directory->getRestrictions());
         return $this;
     }
 
@@ -659,22 +772,22 @@ trait ProcessVariables
 //    /**
 //     * Returns the log file where the process output will be redirected to
 //     *
-//     * @param string $path
+//     * @param string $directory
 //     * @return static This process so that multiple methods can be chained
 //     */
-//    public function setLogFile(string $path): static
+//    public function setLogFile(string $directory): static
 //    {
 //        $this->cached_command_line = null;
 //
-//        if (!$path) {
+//        if (!$directory) {
 //            // Set the default log path
-//            $path = PATH_DATA . 'log/';
+//            $directory = DIRECTORY_DATA . 'log/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
-//        $path = Strings::slash($path);
-//        $path = File::new($path)->ensureWritable();
-//        $this->log_file = $path;
+//        $directory = Strings::slash($directory);
+//        $directory = File::new($directory)->ensureWritable();
+//        $this->log_file = $directory;
 //
 //        return $this;
 //    }
@@ -685,9 +798,9 @@ trait ProcessVariables
      *
      * @return string
      */
-    public function getRunPath(): string
+    public function getRunDirectory(): string
     {
-        return static::$run_path;
+        return static::$run_directory;
     }
 
 
@@ -755,8 +868,8 @@ trait ProcessVariables
 
         $this->cached_command_line = null;
 
-        $this->log_file = PATH_DATA . 'log/' . $identifier;
-        $this->run_file = static::$run_path . $identifier;
+        $this->log_file = DIRECTORY_DATA . 'log/' . $identifier;
+        $this->run_file = static::$run_directory . $identifier;
 
         Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
@@ -772,7 +885,7 @@ trait ProcessVariables
     protected function setRunFile(): static
     {
         $this->cached_command_line = null;
-        $this->run_file            = static::$run_path . $this->getIdentifier();
+        $this->run_file            = static::$run_directory . $this->getIdentifier();
 
         return $this;
     }
@@ -782,22 +895,22 @@ trait ProcessVariables
 //    /**
 //     * Sets the run path where the process run file will be written
 //     *
-//     * @param string $path
+//     * @param string $directory
 //     * @return static This process so that multiple methods can be chained
 //     */
-//    public function setRunFile(string $path): static
+//    public function setRunFile(string $directory): static
 //    {
 //        $this->cached_command_line = null;
 //
-//        if (!$path) {
+//        if (!$directory) {
 //            // Set the default log path
-//            $path = PATH_DATA . 'run/';
+//            $directory = DIRECTORY_DATA . 'run/';
 //        }
 //
 //        // Ensure the path ends with a slash and that it is writable
-//        $path = Strings::slash($path);
-//        $path = File::new($path)->ensureWritable();
-//        $this->run_file = $path;
+//        $directory = Strings::slash($directory);
+//        $directory = File::new($directory)->ensureWritable();
+//        $this->run_file = $directory;
 //
 //        return $this;
 //    }
@@ -807,9 +920,10 @@ trait ProcessVariables
      * Sets the terminal to execute this command
      *
      * @param string|null $term
+     * @param bool $only_if_empty
      * @return static This process so that multiple methods can be chained
      */
-    public function setTerm(string $term = null, bool $only_if_empty = false): static
+    public function setTerm(?string $term = null, bool $only_if_empty = false): static
     {
         if (!$this->term or !$only_if_empty) {
             $this->cached_command_line = null;
@@ -851,10 +965,11 @@ trait ProcessVariables
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @param string|bool $sudo
+     * @param string|bool|null $sudo
+     * @param string|null $user
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(string|bool $sudo, ?string $user = null): static
+    public function setSudo(string|bool|null $sudo, ?string $user = null): static
     {
         $this->cached_command_line = null;
 
@@ -906,10 +1021,10 @@ trait ProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array|int $exit_codes
+     * @param array|int|null $exit_codes
      * @return static This process so that multiple methods can be chained
      */
-    public function setAcceptedExitCodes(array|int $exit_codes): static
+    public function setAcceptedExitCodes(array|int|null $exit_codes): static
     {
         $this->cached_command_line = null;
         $this->accepted_exit_codes = [];
@@ -921,13 +1036,15 @@ trait ProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
-     * @param array|int $exit_codes
+     * @param array|int|null $exit_codes
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCodes(array|int $exit_codes): static
+    public function addAcceptedExitCodes(array|int|null $exit_codes): static
     {
-        foreach (Arrays::force($exit_codes) as $exit_code) {
-            $this->addAcceptedExitCode($exit_code);
+        if ($exit_codes) {
+            foreach (Arrays::force($exit_codes) as $exit_code) {
+                $this->addAcceptedExitCode($exit_code);
+            }
         }
 
         return $this;
@@ -976,7 +1093,7 @@ trait ProcessVariables
      * @param bool $which_command
      * @return static This process so that multiple methods can be chained
      */
-    protected function setInternalCommand(?string $command, bool $which_command = true): static
+    public function setCommand(?string $command, bool $which_command = true): static
     {
         if ($command) {
             // Make sure we have a clean command
@@ -1009,7 +1126,7 @@ trait ProcessVariables
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
                         if (!$this->failed) {
-                            if ($this->packages and !in_array($command, $this->packages)) {
+                            if ($this->packages?->keyExists($command) and !in_array($command, $this->packages)) {
                                 throw new ProcessesException(tr('Specified process command ":command" does not exist, and auto install is denied by the package filter list', [
                                     ':command' => $command
                                 ]));
@@ -1045,8 +1162,7 @@ trait ProcessVariables
         $this->command      = escapeshellcmd($command);
         $this->real_command = escapeshellcmd($real_command);
 
-        $this->setIdentifier();
-        return $this;
+        return $this->setIdentifier()->clearArguments();
     }
 
 
@@ -1090,25 +1206,27 @@ trait ProcessVariables
      * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
-     * @param array $arguments
-     * @param bool $escape
+     * @param array|null $arguments
+     * @param bool $escape_arguments
+     * @param bool $escape_quotes
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(array $arguments, bool $escape = true): static
+    public function setArguments(?array $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
         $this->arguments = [];
-        return $this->addArguments($arguments, $escape);
+        return $this->addArguments($arguments, $escape_arguments, $escape_quotes);
     }
 
 
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array|string $arguments
-     * @param bool $escape
+     * @param array|string|null $arguments
+     * @param bool $escape_arguments
+     * @param bool $escape_quotes
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string $arguments, bool $escape = true): static
+    public function addArguments(array|string|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
         $this->cached_command_line = null;
 
@@ -1121,7 +1239,7 @@ trait ProcessVariables
                     }
                 }
 
-                $this->addArgument($argument, $escape);
+                $this->addArgument($argument, $escape_arguments, $escape_quotes);
             }
         }
 
@@ -1132,25 +1250,24 @@ trait ProcessVariables
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
-     * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param array|string|null $argument
-     * @param bool $escape
+     * @param Stringable|array|string|float|int|null $argument
+     * @param bool $escape_argument
+     * @param bool $escape_quotes
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(array|string|null $argument, bool $escape = true): static
+    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
     {
         if ($argument !== null) {
             if (is_array($argument)) {
-                return $this->addArguments($argument);
-            }
-
-            // Do not escape variables!
-            if (!preg_match('/^\$.+?\$$/', $argument) and $escape) {
-                $argument = escapeshellarg($argument);
+                return $this->addArguments($argument, $escape_argument, $escape_quotes);
             }
 
             $this->cached_command_line = null;
-            $this->arguments[]         = $argument;
+            $this->arguments[]         = [
+                'escape_argument' => $escape_argument,
+                'escape_quotes'   => $escape_quotes,
+                'argument'        => (string) $argument,
+            ];
         }
 
         return $this;
@@ -1170,6 +1287,115 @@ trait ProcessVariables
     }
 
 
+
+    /**
+     * Returns the environment_variables for the command that will be executed
+     *
+     * @return array
+     */
+    public function getEnvironmentVariables(): array
+    {
+        return $this->environment_variables;
+    }
+
+
+    /**
+     * Clears all cache and environment_variables
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function clearEnvironmentVariables(): static
+    {
+        $this->cached_command_line   = null;
+        $this->environment_variables = [];
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the environment_variables for the command that will be executed
+     *
+     * @note This will reset the currently existing list of environment_variables.
+     * @param array|string|null $environment_variables
+     * @param bool $escape
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setEnvironmentVariables(array|string|null $environment_variables, bool $escape = true): static
+    {
+        $this->environment_variables = [];
+        return $this->addEnvironmentVariables($environment_variables, $escape);
+    }
+
+
+    /**
+     * Adds multiple environment_variables to the existing list of environment_variables for the command that will be executed
+     *
+     * @param array|string|null $environment_variables
+     * @param bool $escape
+     * @return static This process so that multiple methods can be chained
+     */
+    public function addEnvironmentVariables(array|string|null $environment_variables, bool $escape = true): static
+    {
+        $this->cached_command_line = null;
+
+        if ($environment_variables) {
+            foreach (Arrays::force($environment_variables, null) as $key => $value) {
+                $this->addEnvironmentVariable($value, $key, $escape);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds an environment_variable to the existing list of environment_variables for the command that will be executed
+     *
+     * @note All environment_variables will be automatically escaped, but variable environment_variables
+     *       ($variablename$) will NOT be escaped!
+     *
+     * @param Stringable|string|null $value
+     * @param Stringable|string|null $key
+     * @param bool $escape
+     * @return static This process so that multiple methods can be chained
+     */
+    public function addEnvironmentVariable(Stringable|string|null $value, Stringable|string|null $key, bool $escape = true): static
+    {
+        $key   = (string) $key;
+        $value = (string) $value;
+
+        // Do not escape variables!
+        if (!preg_match('/^\$.+?\$$/', $key) and $escape) {
+            $key = escapeshellarg($key);
+        }
+
+        // Do not escape variables!
+        if (!preg_match('/^\$.+?\$$/', $value) and $escape) {
+            $value = escapeshellarg($value);
+        }
+
+        $this->cached_command_line         = null;
+        $this->environment_variables[$key] = $value;
+
+        return $this;
+    }
+
+
+    /**
+     * Sets a single argument for the command that will be executed
+     *
+     * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
+     * @param Stringable|string|null $value
+     * @param Stringable|string|null $key
+     * @return static This process so that multiple methods can be chained
+     */
+    public function setEnvironmentVariable(Stringable|string|null $value, Stringable|string|null $key): static
+    {
+        return $this->setEnvironmentVariables([$key => $value]);
+    }
+
+
     /**
      * Returns the Variables for the command that will be executed
      *
@@ -1185,15 +1411,17 @@ trait ProcessVariables
      * Sets the variables for the command that will be executed
      *
      * @note This will reset the currently existing list of variables.
-     * @param array $variables
+     * @param array|null $variables
      * @return static This process so that multiple methods can be chained
      */
-    public function setVariables(array $variables): static
+    public function setVariables(?array $variables): static
     {
         $this->variables = [];
 
-        foreach ($variables as $key => $value) {
-            return $this->setVariable($key, $value);
+        if ($variables) {
+            foreach ($variables as $key => $value) {
+                return $this->setVariable($key, $value);
+            }
         }
 
         return $this;
@@ -1204,10 +1432,10 @@ trait ProcessVariables
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
      * @param string $key
-     * @param string $value
-     * @return ProcessVariables This process so that multiple methods can be chained
+     * @param string|float|int $value
+     * @return static
      */
-    public function setVariable(string $key, string $value): static
+    public function setVariable(string $key, string|float|int $value): static
     {
         $this->cached_command_line = null;
         $this->variables[$key]     = $value;
@@ -1279,7 +1507,7 @@ trait ProcessVariables
 
         if ($redirect) {
             if ($redirect[0] === '&') {
-                // Redirect output to other channel
+                // Redirect output to another channel
                 if (strlen($redirect) !== 2) {
                     throw new OutOfBoundsException(tr('Specified redirect ":redirect" is invalid. When redirecting to another channel, always specify &N where N is 0-9', [
                         ':redirect' => $redirect
@@ -1293,7 +1521,7 @@ trait ProcessVariables
             }
 
         } else {
-            $this->output_redirect[$channel] = null;
+            unset($this->output_redirect[$channel]);
         }
 
         $this->cached_command_line = null;
@@ -1333,10 +1561,13 @@ trait ProcessVariables
      */
     public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static
     {
-        File::new($redirect, $this->restrictions)->checkReadable();
+        $redirect                  = get_null($redirect);
+        $this->cached_command_line = null;
 
-        $this->cached_command_line      = null;
-        $this->input_redirect[$channel] = get_null($redirect);
+        if ($redirect) {
+            File::new($redirect, $this->restrictions)->checkReadable();
+            $this->input_redirect[$channel] = $redirect;
+        }
 
         return $this;
     }
@@ -1382,15 +1613,19 @@ trait ProcessVariables
      *
      * Defaults to 0, the process will NOT wait and start immediately
      *
-     * @param int $wait
+     * @param int|null $wait
      * @return static
      */
-    public function setWait(int $wait): static
+    public function setWait(?int $wait): static
     {
         if (!is_natural($wait,  0)) {
-            throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
-                ':wait' => $wait
-            ]));
+            if ($wait) {
+                throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
+                    ':wait' => $wait
+                ]));
+            }
+
+            $wait = 0;
         }
 
         $this->cached_command_line = null;
@@ -1401,11 +1636,47 @@ trait ProcessVariables
 
 
     /**
-     * Sets the packages that should be installed automatically if the command for this process cannot be found
+     * Returns the time in milliseconds that a process will signal before executing
      *
-     * @return string|array
+     * Defaults to 0, the process will NOT signal and start immediately
+     *
+     * @return int
      */
-    public function getPackages(): string|array
+    public function getSignal(): int
+    {
+        return $this->signal;
+    }
+
+
+    /**
+     * Sets the time in milliseconds that a process will signal before executing
+     *
+     * Defaults to 0, the process will NOT signal and start immediately
+     *
+     * @param int $signal
+     * @return static
+     */
+    public function setSignal(int $signal): static
+    {
+        if (!is_natural($signal,  1)) {
+            throw new OutOfBoundsException(tr('The specified signal time ":signal" is invalid, it must be a natural number 0 or higher', [
+                ':signal' => $signal
+            ]));
+        }
+
+        $this->cached_command_line = null;
+        $this->signal              = Signals::check($signal);
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the packages that should be installed automatically if the command for this process cannot be found
+     *
+     * @return PackagesInterface
+     */
+    public function getPackages(): PackagesInterface
     {
         return $this->packages;
     }
@@ -1414,13 +1685,14 @@ trait ProcessVariables
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @param string|array $packages
+     * @param Stringable|string $operating_system
+     * @param IteratorInterface|array|string $packages
      * @return static
      */
-    public function setPackages(string|array $packages): static
+    public function setPackages(Stringable|string $operating_system, IteratorInterface|array|string $packages): static
     {
         $this->cached_command_line = null;
-        $this->packages            = $packages;
+        $this->packages->addForOperatingSystem($operating_system, $packages);
 
         return $this;
     }
@@ -1446,15 +1718,19 @@ trait ProcessVariables
      * If the process requires more time than the specified timeout value, it will be terminated automatically. Set to
      * 0 seconds  to disable, defaults to 30 seconds
      *
-     * @param int $timeout
+     * @param int|null $timeout
      * @return static
      */
-    public function setTimeout(int $timeout): static
+    public function setTimeout(?int $timeout): static
     {
         if (!is_natural($timeout,  0)) {
-            throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
-                ':timeout' => $timeout
-            ]));
+            if ($timeout) {
+                throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
+                    ':timeout' => $timeout
+                ]));
+            }
+
+            $timeout = 0;
         }
 
         $this->cached_command_line = null;
@@ -1487,7 +1763,7 @@ trait ProcessVariables
         $pid  = trim($pid);
 
         // Delete the run file, don't clean up as that is not needed. When the process terminates, cleanup will happen
-        File::new($this->run_file, Restrictions::new(PATH_DATA . 'run/pids/', true))->delete(false);
+        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))->delete(false);
         $this->run_file = null;
 
         if (!$pid) {

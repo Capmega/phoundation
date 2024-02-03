@@ -1,31 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Core\Plugins\Interfaces;
 
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 
 /**
- * Class Plugin
+ * Interface PluginsInterface
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
-interface PluginsInterface
+interface PluginsInterface extends DataListInterface
 {
     /**
-     * Truncates all plugins from the database table
-     *
-     * @return static
-     */
-    public function truncate(): static;
-
-    /**
-     * Purges all plugins from the PATH_ROOT/Plugins path
+     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
      *
      * @return static
      */
@@ -37,7 +33,8 @@ interface PluginsInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
+     * @param array|null $joins
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
 }

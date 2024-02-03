@@ -12,10 +12,10 @@ namespace Phoundation\Developer\Incidents;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
 {
     /**
      * FilterForm class constructor

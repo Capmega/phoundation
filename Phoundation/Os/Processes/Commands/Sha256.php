@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Sha256 extends Command
@@ -31,7 +31,7 @@ class Sha256 extends Command
     {
         try {
             $output = $this
-                ->setInternalCommand('sha256sum')
+                ->setCommand('sha256sum')
                 ->addArguments($file)
                 ->setTimeout(120)
                 ->executeReturnString();

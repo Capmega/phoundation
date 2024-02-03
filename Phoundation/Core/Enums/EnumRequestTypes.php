@@ -13,7 +13,7 @@ use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
  * This enum contains all the possible types of requests that can be made to the phoundation platform
  *
  * Sometimes it can be useful or required to know what kind of request we're processing. Is the request made by command
- * line or HTTP? We can use PLATFORM_CLI or PLATFORM_HTTP for that too, but if we need more detail (Are we processing
+ * line or HTTP? We can use PLATFORM_CLI or PLATFORM_WEB for that too, but if we need more detail (Are we processing
  * an AJAX request or an API request?) we use Core::getRequestType() which will return the request type using this
  * EnumRequestTypes enum
  *
@@ -39,7 +39,7 @@ use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 enum EnumRequestTypes : string implements EnumRequestTypesInterface

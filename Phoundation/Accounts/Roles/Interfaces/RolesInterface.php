@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Accounts\Roles\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 
@@ -15,7 +17,7 @@ use Stringable;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 interface RolesInterface extends DataListInterface
@@ -31,18 +33,20 @@ interface RolesInterface extends DataListInterface
     /**
      * Add the specified role to the data list
      *
-     * @param RoleInterface|array|string|int|null $role
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addRole(RoleInterface|array|string|int|null $role): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Remove the specified role from the roles list
      *
-     * @param RoleInterface|Stringable|array|string|float|int $role
+     * @param RoleInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function deleteEntries(RoleInterface|Stringable|array|string|float|int $role): static;
+    public function delete(RoleInterface|Stringable|array|string|float|int $keys): static;
 
     /**
      * Remove all rights for this right
@@ -52,11 +56,12 @@ interface RolesInterface extends DataListInterface
     public function clear(): static;
 
     /**
-     * Load the data for this rights list into the object
+     * Load the data for this roles list into the object
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static;
+    public function load(bool $clear = true, bool $only_if_empty = false): static;
 
     /**
      * Save the data for this roles list in the database
@@ -71,8 +76,9 @@ interface RolesInterface extends DataListInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
+     * @param array|null $joins
      * @return InputSelectInterface
      */
 
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
 }

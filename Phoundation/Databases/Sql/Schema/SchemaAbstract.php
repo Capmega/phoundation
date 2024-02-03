@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Sql;
-use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -17,7 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 abstract class SchemaAbstract

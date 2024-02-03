@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Devices\Storage\Device;
-use Phoundation\Os\Processes\Commands\Exception\CommandsException;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 
 
@@ -21,7 +17,7 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Cryptsetup extends Command
@@ -36,7 +32,7 @@ class Cryptsetup extends Command
      */
     public function luksFormat(Device|string $device, string $key = null, string $key_file = null): void
     {
-        $device = Device::new($device)->getFile();
+        $device = Device::new($device)->getPath();
 
         if ($key) {
             if ($key_file) {
@@ -52,7 +48,7 @@ class Cryptsetup extends Command
             Process::new('echo')
                 ->addArgument($key)
                 ->setPipe($this
-                    ->setInternalCommand('cryptsetup')
+                    ->setCommand('cryptsetup')
                     ->setSudo(true)
                     ->addArguments(['-q', '-v', 'luksFormat', $device])
                     ->setTimeout(30))
@@ -65,7 +61,7 @@ class Cryptsetup extends Command
             }
 
             $this
-                ->setInternalCommand('cryptsetup')
+                ->setCommand('cryptsetup')
                 ->setSudo(true)
                 ->addArguments(['-q', '-v', 'luksFormat', $device, '--key-file', $key_file])
                 ->setTimeout(10)

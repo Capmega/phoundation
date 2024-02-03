@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 
 class Status
 {

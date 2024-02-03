@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Developer\Versioning\Versioning;
 
@@ -16,29 +18,29 @@ use Phoundation\Developer\Versioning\Versioning;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Stash extends Versioning
 {
     use GitProcess {
-        setPath as protected setTraitPath;
+        setDirectory as protected setTraitDirectory;
     }
 
 
     /**
      * Unstashes the git changes
      *
-     * @param string|null $path
+     * @param array|string|null $path
      * @return static
      */
-    public function stash(?string $path = null): static
+    public function stash(array|string|null $path = null): static
     {
         $output = $this->git_process
             ->clearArguments()
             ->addArgument('stash')
             ->addArgument('--')
-            ->addArgument($path)
+            ->addArguments($path)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
@@ -69,9 +71,9 @@ class Stash extends Versioning
     /**
      * Lists the available stashes in the git repository
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getList(): array
+    public function getList(): IteratorInterface
     {
         $return  = [];
         $results = $this->git_process
@@ -82,10 +84,10 @@ class Stash extends Versioning
 
         foreach ($results as $result) {
             preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
-            $return[$matches[0][0]] = $matches[0][1];
+            $return[$matches[0][0]] = $matches[2][0];
         }
         
-        return $return;
+        return new Iterator($return);
     }
 
 

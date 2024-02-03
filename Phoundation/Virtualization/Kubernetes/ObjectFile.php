@@ -17,7 +17,7 @@ use Phoundation\Filesystem\File;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 abstract class ObjectFile
@@ -39,7 +39,7 @@ abstract class ObjectFile
     public function __construct(KubernetesObject $object)
     {
         $this->object = $object;
-        $this->file   = PATH_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
+        $this->file   = DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
     }
 
 
@@ -60,7 +60,7 @@ abstract class ObjectFile
         $data = yaml_emit($data);
 
         File::new($this->file)
-            ->setRestrictions(PATH_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
+            ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
             ->create($data);
 
         return $this;

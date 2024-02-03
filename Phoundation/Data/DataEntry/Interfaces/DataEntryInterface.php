@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
-use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
 use Stringable;
 
 
@@ -22,20 +23,20 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
-     * Returns if this DataEntry will validate data before saving
+     * Returns if this DataEntry validates data before saving
      *
      * @return bool
      */
     public function getValidate(): bool;
 
     /**
-     * Sets if this DataEntry will validate data before saving
+     * Sets if this DataEntry validates data before saving
      *
      * @return $this
      */
@@ -70,6 +71,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function isSaved(): bool;
 
     /**
+     * Returns true if the data in this DataEntry is currently in a state of being applied through DataEntry::apply()
+     *
+     * @return bool
+     */
+    public function isApplying(): bool;
+
+    /**
      * Returns id for this database entry that can be used in logs
      *
      * @return bool
@@ -100,11 +108,11 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function setAllowModify(bool $allow_modify): static;
 
     /**
-     * Returns a translation table between CLI arguments and internal fields
+     * Returns a translation table between CLI arguments and internal columns
      *
      * @return array
      */
-    public function getCliFields(): array;
+    public function getCliColumns(): array;
 
     /**
      * Returns true if this is a new entry that hasn't been written to the database yet
@@ -119,6 +127,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return int|null
      */
     public function getId(): int|null;
+
+    /**
+     * Returns the value for the unique column, which
+     *
+     * @return string|float|int|null
+     */
+    public function getUniqueColumnValue(): string|float|int|null;
 
     /**
      * Returns id for this database entry that can be used in logs
@@ -152,7 +167,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function setStatus(?string $status, ?string $comments = null): static;
 
     /**
-     * Returns the meta state for this database entry
+     * Returns the meta-state for this database entry
      *
      * @return ?string
      */
@@ -182,19 +197,19 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function erase(): static;
 
     /**
-     * Returns the field prefix string
+     * Returns the column prefix string
      *
      * @return ?string
      */
-    public function getFieldPrefix(): ?string;
+    public function getColumnPrefix(): ?string;
 
     /**
-     * Sets the field prefix string
+     * Sets the column prefix string
      *
      * @param string|null $prefix
      * @return static
      */
-    public function setFieldPrefix(?string $prefix): static;
+    public function setColumnPrefix(?string $prefix): static;
 
     /**
      * Returns the object that created this data entry
@@ -213,9 +228,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getCreatedOn(): ?DateTime;
 
     /**
-     * Returns the meta information for this entry
+     * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
      *       yet
      *
      * @param bool $load
@@ -269,7 +284,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return array
      */
-    public function getProtectedFields(): array;
+    public function getProtectedColumns(): array;
 
     /**
      * Returns all data for this data entry at once with an array of information
@@ -292,11 +307,11 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Sets the value for the specified data key
      *
-     * @param string $field
+     * @param string $column
      * @param mixed $value
      * @return static
      */
-    public function addSourceValue(string $field, mixed $value): static;
+    public function addSourceValue(string $column, mixed $value): static;
 
     /**
      * Will save the data from this data entry to database
@@ -312,9 +327,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @param string|null $key_header
      * @param string|null $value_header
-     * @return void
+     * @return static
      */
-    public function getCliForm(?string $key_header = null, ?string $value_header = null): void;
+    public function displayCliForm(?string $key_header = null, ?string $value_header = null): static;
 
     /**
      * Creates and returns an HTML for the data in this entry
@@ -324,18 +339,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getHtmlDataEntryForm(): DataEntryFormInterface;
 
     /**
-     * Load all data directly from the specified array.
-     *
-     * @note ONLY use this to load data that came from a trusted and validated source! This method will NOT validate
-     *       your data, use DataEntry::apply() instead for untrusted data.
-     * @param array $source
-     * @param bool $init
-     * @return $this
-     */
-    public function setSource(array $source, bool $init = false): static;
-
-    /**
-     * Returns the definitions for the fields in this table
+     * Returns the definitions for the columns in this table
      *
      * @return DefinitionsInterface|null
      */
@@ -358,9 +362,70 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
 
 
     /**
-     * Returns the field that is unique for this object
+     * Returns the column that is unique for this object
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string;
+    public static function getUniqueColumn(): ?string;
+
+    /**
+     * Returns true if this object has the specified status
+     *
+     * @param string $status
+     * @return bool
+     */
+    public function hasStatus(string $status): bool;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier
+     *
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @param bool $no_identifier_exception
+     * @return DataEntryInterface
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static;
+
+    /**
+     * Returns the name for this object that can be displayed
+     *
+     * @return string
+     */
+    function getDisplayName(): string;
+
+    /**
+     * Lock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function lock(?string $comments = null): static;
+
+    /**
+     * Unlock this user account
+     *
+     * @param string|null $comments
+     * @return static
+     */
+    public function unlock(?string $comments = null): static;
+
+    /**
+     * Returns true if this user account is locked
+     *
+     * @return bool
+     */
+    public function isLocked(): bool;
+
+    /**
+     * Loads the specified data into this DataEntry object
+     *
+     * @param Iterator|array $source
+     * @return static
+     */
+    public function setSource(Iterator|array $source): static;
 }

@@ -15,7 +15,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCustomer
@@ -27,7 +27,7 @@ trait DataEntryCustomer
      */
     public function getCustomersId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'customers_id');
+        return $this->getSourceColumnValue('int', 'customers_id');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryCustomer
      */
     public function getCustomer(): ?Customer
     {
-        $customers_id = $this->getSourceFieldValue('int', 'customers_id');
+        $customers_id = $this->getSourceColumnValue('int', 'customers_id');
 
         if ($customers_id) {
             return new Customer($customers_id);
@@ -67,7 +67,7 @@ trait DataEntryCustomer
      */
     public function getCustomersName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'customers_name');
+        return $this->getSourceColumnValue('string', 'customers_name');
     }
 
 

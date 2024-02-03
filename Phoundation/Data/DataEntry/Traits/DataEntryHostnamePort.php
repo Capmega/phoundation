@@ -15,7 +15,7 @@ use Phoundation\Seo\Seo;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryHostnamePort
@@ -27,7 +27,7 @@ trait DataEntryHostnamePort
      */
     public function getSeoHostname(): ?string
     {
-        return $this->getSourceFieldValue('string', 'seo_hostname');
+        return $this->getSourceColumnValue('string', 'seo_hostname');
     }
 
 
@@ -38,7 +38,7 @@ trait DataEntryHostnamePort
      */
     public function getHostname(): ?string
     {
-        return $this->getSourceFieldValue('string', 'hostname');
+        return $this->getSourceColumnValue('string', 'hostname');
     }
 
 
@@ -50,11 +50,13 @@ trait DataEntryHostnamePort
      */
     public function setHostname(?string $hostname): static
     {
-        if ($hostname === null) {
-            $this->setSourceValue('seo_hostname', null);
-        } else {
-            $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getSourceFieldValue('int', 'id'), static::getUniqueField());
-            $this->setSourceValue('seo_hostname', $seo_hostname);
+        if ($this->definitions->exists('seo_hostname')) {
+            if ($hostname === null) {
+                $this->setSourceValue('seo_hostname', null);
+            } else {
+                $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getSourceColumnValue('int', 'id'), static::getUniqueColumn());
+                $this->setSourceValue('seo_hostname', $seo_hostname);
+            }
         }
 
         return $this->setSourceValue('hostname', $hostname);
@@ -68,7 +70,7 @@ trait DataEntryHostnamePort
      */
     public function getPort(): ?int
     {
-        return $this->getSourceFieldValue('int', 'port');
+        return $this->getSourceColumnValue('int', 'port');
     }
 
 

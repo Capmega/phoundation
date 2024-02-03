@@ -8,9 +8,11 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Filesystem\File;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Directory;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Filesystem\File;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Throwable;
 
 
@@ -21,7 +23,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Plugins extends DataList implements PluginsInterface
@@ -79,7 +81,7 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }
@@ -91,7 +93,7 @@ class Plugins extends DataList implements PluginsInterface
     public static function setup(): void
     {
         static::new()
-            ->truncate()
+            ->eraseAll()
             ->scan();
     }
 
@@ -104,17 +106,14 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return PluginsInterface
      */
-    public function scan(): PluginsInterface
+    public static function scan(): PluginsInterface
     {
-        $count = 0;
-
         foreach (static::scanPlugins() as $name => $class) {
             try {
                 $plugin = $class::new($name, 'name');
 
-                if (!$plugin->getId()) {
+                if ($plugin->isNew()) {
                     $plugin->register();
-                    $count++;
                 }
 
             } catch (Throwable $e) {
@@ -141,7 +140,7 @@ class Plugins extends DataList implements PluginsInterface
             try {
                 if ($plugin['enabled']) {
                     Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
-                    include_once(PATH_ROOT . $plugin['path'] . 'Plugin.php');
+                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
 
@@ -188,9 +187,9 @@ class Plugins extends DataList implements PluginsInterface
     /**
      * Loads all plugins from the database and returns them in an array
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public static function getAvailable(): array
+    public static function getAvailable(): IteratorInterface
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
@@ -205,22 +204,22 @@ class Plugins extends DataList implements PluginsInterface
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return [static::getPhoundationPluginEntry()];
+            return new Iterator([static::getPhoundationPluginEntry()]);
         }
 
         // Push Phoundation plugin to the front of the list
         array_unshift($return, static::getPhoundationPluginEntry());
 
-        return $return;
+        return new Iterator($return);
     }
 
 
     /**
      * Returns an array with all enabled plugins from the database
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public static function getEnabled(): array
+    public static function getEnabled(): IteratorInterface
     {
         $return = sql()->list('SELECT   `id`, 
                                               `name`, 
@@ -237,13 +236,13 @@ class Plugins extends DataList implements PluginsInterface
 
         if (!$return) {
             // Phoundation plugin is ALWAYS enabled
-            return [static::getPhoundationPluginEntry()];
+            return new Iterator([static::getPhoundationPluginEntry()]);
         }
 
         // Push Phoundation plugin to the front of the list
         array_unshift($return, static::getPhoundationPluginEntry());
 
-        return $return;
+        return new Iterator($return);
     }
 
 
@@ -259,37 +258,24 @@ class Plugins extends DataList implements PluginsInterface
             'status'   => tr('Ok'),
             'enabled'  => tr('Enabled'),
             'priority' => 0,
-            'class'    => 'Plugins\Phoundation\Plugin',
+            'class'    => 'Plugins\Phoundation\Library\Plugin',
             'path'     => 'Plugins/Phoundation/',
         ];
     }
 
 
     /**
-     * Truncates all plugins from the database table
-     *
-     * @return static
-     */
-    public function truncate(): static
-    {
-        // Delete all plugins from registry
-        sql()->query('DELETE FROM `core_plugins`');
-        return $this;
-    }
-
-
-    /**
-     * Purges all plugins from the PATH_ROOT/Plugins path
+     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
      *
      * @return static
      */
     public function purge(): static
     {
         // Delete all plugins from disk
-        $path = PATH_ROOT . 'Plugins/';
+        $directory = DIRECTORY_ROOT . 'Plugins/';
 
-        File::new($path)->delete();
-        Directory::new($path)->ensure();
+        File::new($directory)->delete();
+        Directory::new($directory)->ensure();
 
         return $this;
     }
@@ -302,9 +288,9 @@ class Plugins extends DataList implements PluginsInterface
      */
     protected static function scanPlugins(): array
     {
-        $path    = PATH_ROOT . 'Plugins/';
+        $directory    = DIRECTORY_ROOT . 'Plugins/';
         $return  = [];
-        $plugins = scandir($path);
+        $plugins = scandir($directory);
 
         foreach ($plugins as $id => $plugin) {
             // Filter . .. and hidden files
@@ -312,7 +298,7 @@ class Plugins extends DataList implements PluginsInterface
                 continue;
             }
 
-            $file = $path . $plugin . '/Plugin.php';
+            $file = $directory . $plugin . '/Library/Plugin.php';
 
             if ($plugin === 'disabled') {
                 // The "disabled" directory is for disabled plugins, ignore it completely
@@ -322,7 +308,7 @@ class Plugins extends DataList implements PluginsInterface
             // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
             // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
             if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
+                Log::warning(tr('Not registering plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
                     ':plugin' => $plugin
                 ]));
 
@@ -330,9 +316,9 @@ class Plugins extends DataList implements PluginsInterface
             }
 
             if (!file_exists($file)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", it has no required Plugin.php file', [
+                Log::warning(tr('Not registering plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
                     ':plugin' => $plugin
-                ]));
+                ]), 4);
 
                 continue;
             }
@@ -341,7 +327,7 @@ class Plugins extends DataList implements PluginsInterface
             include_once($file);
 
             if (!is_subclass_of($class, Plugin::class)) {
-                Log::warning(tr('Ignoring possible plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                Log::warning(tr('Not registering plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
                     ':plugin' => $plugin,
                     ':class'  => Plugin::class
                 ]));
@@ -362,11 +348,12 @@ class Plugins extends DataList implements PluginsInterface
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
+     * @param array|null $joins
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
             ->setName('plugins_id')
             ->setNone(tr('Select a plugin'))
             ->setObjectEmpty(tr('No plugins available'));

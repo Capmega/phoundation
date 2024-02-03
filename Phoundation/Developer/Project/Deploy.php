@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer\Project;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Developer\Deploy\Exception\DeployException;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
@@ -16,6 +15,9 @@ use Phoundation\Os\Processes\Commands\Rsync;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Server;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Throwable;
 
 
@@ -26,7 +28,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Deploy implements DeployInterface
@@ -137,7 +139,7 @@ class Deploy implements DeployInterface
 
             if ($env_config['bom_check']) {
                 Log::action(tr('Executing BOM check'));
-//                BomPath::new(PATH_ROOT, PATH_ROOT)->clearBom();
+//                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
             }
 
             static::executeHook('post-bom-check,pre-test-syntax');
@@ -229,7 +231,7 @@ class Deploy implements DeployInterface
 //            foreach (Translations::getLanguages() as $language)
 
             // Add the project directory to the rsync_target
-            $project = Strings::fromReverse(Strings::endsNotWith(PATH_ROOT, '/'), '/');
+            $project = Strings::fromReverse(Strings::endsNotWith(DIRECTORY_ROOT, '/'), '/');
 
             // Execute rsync
             Log::action(tr('Executing rsync to target ":target"', [
@@ -252,7 +254,7 @@ class Deploy implements DeployInterface
                 ->setCompress(true)
                 ->setRemoteSudo($env_config['server']['sudo'])
                 ->setPort($env_config['server']['port'])
-                ->setSource(PATH_ROOT)
+                ->setSource(DIRECTORY_ROOT)
                 ->setTarget(Strings::endsWith($rsync_target, '/') . $project)
                 ->addExclude('.git')
                 ->addExclude('.gitignore')
@@ -372,7 +374,7 @@ class Deploy implements DeployInterface
 
         try {
             if (!Config::environmentExists('deploy/' . $environment)) {
-                throw new DeployException(tr('The specified environment ":environment" has no configuration file available in PATH_ROOT/config/deploy/', [
+                throw new DeployException(tr('The specified environment ":environment" has no configuration file available in DIRECTORY_ROOT/config/deploy/', [
                     ':environment' => $environment
                 ]));
             }

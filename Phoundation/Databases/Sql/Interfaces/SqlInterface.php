@@ -1,17 +1,20 @@
 <?php
 
-namespace Phoundation\Databases\Sql\Interfaces;
+declare(strict_types=1);
 
+namespace Phoundation\Databases\Sql\Interfaces;
 
 use Exception;
 use PDO;
 use PDOStatement;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Throwable;
+
 
 /**
  * Sql class
@@ -20,10 +23,10 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-interface SqlInterface
+interface SqlInterface extends DatabaseInterface
 {
     /**
      * Returns the configuration for this SQL object
@@ -44,7 +47,7 @@ interface SqlInterface
      *
      * @return string|null
      */
-    public function getInstance(): ?string;
+    public function getConnector(): ?string;
 
     /**
      * Returns an SQL schema object for this instance
@@ -67,19 +70,19 @@ interface SqlInterface
      *
      * @param string|null $database The database to use. If none was specified, the configured system database will be
      *                              used
-     * @return void
+     * @return static
      * @throws Throwable
      */
-    public function use(?string $database = null): void;
+    public function use(?string $database = null): static;
 
     /**
      * Executes specified query and returns a PDOStatement object
      *
-     * @param string|PDOStatement $query
+     * @param PDOStatement|SqlQueryInterface|string $query
      * @param array|null $execute
      * @return PDOStatement
      */
-    public function query(string|PDOStatement $query, ?array $execute = null): PDOStatement;
+    public function query(PDOStatement|SqlQueryInterface|string $query, ?array $execute = null): PDOStatement;
 
     /**
      * Write the specified data row in the specified table
@@ -422,10 +425,10 @@ interface SqlInterface
     /**
      * Reads, validates structure and returns the configuration for the specified instance
      *
-     * @param string $instance
+     * @param string $connector
      * @return array
      */
-    public function readConfiguration(string $instance): array;
+    public function readConfiguration(string $connector): array;
 
     /**
      * Apply configuration template over the specified configuration array

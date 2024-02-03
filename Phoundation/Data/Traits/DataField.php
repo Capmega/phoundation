@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-
 
 /**
  * Trait DataField
@@ -14,7 +12,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://openfield.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataField
@@ -32,7 +30,7 @@ trait DataField
      *
      * @return string|null
      */
-    public function getField(): ?string
+    public function getColumn(): ?string
     {
         return $this->field;
     }
@@ -42,9 +40,9 @@ trait DataField
      * Sets the field
      *
      * @param string|null $field
-     * @return DefinitionInterface
+     * @return static
      */
-    public function setField(?string $field): DefinitionInterface
+    public function setColumn(?string $field): static
     {
         $this->field = $field;
         return $this;

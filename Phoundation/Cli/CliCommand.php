@@ -7,29 +7,33 @@ namespace Phoundation\Cli;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
 use Phoundation\Cli\Exception\CliException;
-use Phoundation\Cli\Exception\MethodNotExistsException;
-use Phoundation\Cli\Exception\MethodNotFoundException;
-use Phoundation\Cli\Exception\NoMethodSpecifiedException;
+use Phoundation\Cli\Exception\CommandNotExistsException;
+use Phoundation\Cli\Exception\CommandNotFoundException;
+use Phoundation\Cli\Exception\NoCommandSpecifiedException;
 use Phoundation\Cli\Exception\StdInException;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumMatchMode;
 use Phoundation\Core\Exception\NoProjectException;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\Time;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\File;
+use Phoundation\Os\Processes\Commands\Databases\MySql;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 use Throwable;
 
 
@@ -40,25 +44,28 @@ use Throwable;
  *
  * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words separated
  *       by a -. Modifier arguments may have or not have values accompanying them.
- * @note Methods are arguments NOT starting with - or --
- * @note As soon as non method arguments start we can no longer discern if a value like "system" is actually a method or
- *       a value linked to an argument. Because of this, as soon as modifier arguments start, methods may no longer be
- *       specified. An exception to this are system modifier arguments because system modifier arguments are filtered
- *       out BEFORE methods are processed.
+ * @note Commands are arguments NOT starting with - or --
+ * @note As soon as non-command arguments start, we can no longer discern if a value like "system" is actually a command
+ *       or a value linked to an argument. Because of this, as soon as modifier arguments start, commands may no longer
+ *       be specified. An exception to this is system modifier arguments because system modifier arguments are filtered
+ *       out BEFORE commands are processed.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class CliCommand
 {
+    use DataStaticExecuted;
+
+
     /**
      * Management object for the runfile for this command
      *
-     * @var RunFile $run_file
+     * @var CliRunFile $run_file
      */
-    protected static RunFile $run_file;
+    protected static CliRunFile $run_file;
 
     /**
      * The exit code for this process
@@ -68,29 +75,28 @@ class CliCommand
     protected static int $exit_code = 0;
 
     /**
-     * The script that is being executed
+     * The command that is being executed
      *
-     * @var string|null $script
+     * @var string|null $command
      */
-    protected static ?string $script = null;
+    protected static ?string $command = null;
 
     /**
-     * The original set of methods
+     * The original set of commands
      *
-     * @todo Change "methods" to "commands"
-     * @var array|null $methods
+     * @var array|null $commands
      */
-    protected static ?array $methods = null;
+    protected static ?array $commands = null;
 
     /**
-     * The methods that were found in the ROOT/scripts path
+     * The commands that were found in the commands cache path
      *
-     * @var array $found_methods
+     * @var array $found_commands
      */
-    protected static array $found_methods = [];
+    protected static array $found_commands = [];
 
     /**
-     * Contains the data that was sent to this script over stdin
+     * Contains the data that was sent to this command over stdin
      *
      * @var string $stdin
      */
@@ -110,35 +116,107 @@ class CliCommand
      */
     protected static bool $stdin_has_been_read = false;
 
+    /**
+     * Tracks if the UID of the process and the pho file match
+     *
+     * @var bool $pho_uid_match
+     */
+    protected static bool $pho_uid_match = true;
 
     /**
-     * Execute a command by the "cli" script
+     * Tracks if the ./pho file UID
+     *
+     * @var int $pho_uid
+     */
+    protected static int $pho_uid;
+
+
+    /**
+     * Instructs the Libraries class to clear the commands cache
+     *
+     * @return void
+     */
+    public static function clearCache(): void
+    {
+        Libraries::clearCommandsCache();
+    }
+
+
+    /**
+     * Instructs the Libraries class to have each library rebuild its command cache
+     *
+     * @return void
+     */
+    public static function rebuildCache(): void
+    {
+        Libraries::rebuildCommandCache();
+    }
+
+
+    /**
+     * Returns true if the libraries command cache has been rebuilt
+     *
+     * @return bool
+     */
+    public static function cacheHasBeenRebuilt(): bool
+    {
+        return Libraries::cacheHasBeenRebuilt();
+    }
+
+
+    /**
+     * Returns true if the libraries command cache has been cleared
+     *
+     * @return bool
+     */
+    public static function cacheHasBeenCleared(): bool
+    {
+        return Libraries::cacheHasBeenCleared();
+    }
+
+
+    /**
+     * Returns the command line executed on the CLI
+     *
+     * @return string
+     */
+    public static function getRequest(): string
+    {
+        return 'IMPLEMENT CLICOMMAND::GETREQUEST()';
+        //        return $_SERVER[''];
+    }
+
+
+    /**
+     * Execute a command by the "pho" command
      *
      * @return void
      * @throws Throwable
      */
     #[NoReturn] public static function execute(): void
     {
-        static::ensureProcessUidMatchesPhoundationOwner();
+        static::detectProcessUidMatchesPhoundationOwner();
 
-        // All scripts will execute the cli_done() call, register basic script information
+        // Startup the system core
         try {
             Core::startup();
 
-        } catch (SqlException $e) {
-            $limit = 'system/project/init';
+        } catch (SqlDatabaseDoesNotExistException $e) {
+            $limit  = 'system/project/init';
             $reason = tr('Core database not found, please execute "./cli system project setup"');
 
         } catch (NoProjectException $e) {
-            $limit = 'system/project/setup';
+            $limit  = 'system/project/setup';
             $reason = tr('Project file not found, please execute "./cli system project setup"');
         }
+
+        static::ensureProcessUidMatchesPhoundationOwner();
 
         $maintenance = Core::getMaintenanceMode();
 
         if ($maintenance) {
-            // We're running in maintenance mode, limit script execution to system/
-            $limit = ['system/', 'info'];
+            // We're running in maintenance mode, limit command execution to system/
+            $limit  = ['system/', 'info'];
             $reason = tr('system has been placed in maintenance mode by user ":user" and only ./pho system ... commands are available right now. If maintenance mode is stuck then please run "./pho system maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => $maintenance
             ]);
@@ -147,44 +225,61 @@ class CliCommand
         // Define the readline completion function
         readline_completion_function(['\Phoundation\Cli\CliCommand', 'completeReadline']);
 
-        // Only allow this to be run by the cli script
+        // Only allow this to be run by the command line interface
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
         static::onlyCommandLine();
 
-        if (AutoComplete::isActive()) {
+        if (CliAutoComplete::isActive()) {
             $command = static::autoComplete();
 
         } else {
             try {
-                // Get the script file to execute
-                $command = static::findScript();
+                // Get the command file to execute
+                $command = static::findCommand();
 
-            } catch (NoMethodSpecifiedException) {
+            } catch (NoCommandSpecifiedException) {
                 global $argv;
 
                 $argv['help'] = true;
 
                 static::documentation();
-                AutoComplete::ensureAvailable();
+                CliAutoComplete::ensureAvailable();
                 exit();
             }
         }
 
-        // See if the script execution should be stopped for some reason. If not, setup a run file
-        static::$script = static::limitScript($command, isset_get($limit), isset_get($reason));
-        static::$run_file = new RunFile($command);
+        // See if the command execution should be stopped for some reason. If not, setup a run file
+        static::$command  = static::limitCommand($command, isset_get($limit), isset_get($reason));
+        static::$run_file = new CliRunFile($command);
 
-        Log::action(tr('Executing script ":script"', [
-            ':script' => static::getCurrent()
+        static::addExecutedPath(static::$command);
+
+        Log::action(tr('Executing command ":command"', [
+            ':command' => static::getExecutedPath()
         ]), 1);
 
-        // Execute the script and finish execution
+        // Execute the command and finish execution
         try {
-            execute_script(static::$script);
+            execute_script(static::$command);
+
+        } catch (SqlNoTimezonesException) {
+            Log::warning('MySQL does not yet have the required timezones loaded. Attempting to load them now');
+
+            Log::cli(CliColor::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
+            Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
+            Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
+
+            $password = Cli::readPassword('Please specify the MySQL root password');
+
+            if (!$password) {
+                throw OutOfBoundsException::new(tr('No MySQL root password specified'))->makeWarning();
+            }
+
+            Mysql::new()->importTimezones($password);
 
         } catch (Throwable $e) {
-            // In auto complete mode, do not dump the exception on screen, it will fubar everything
-            if (AutoComplete::isActive()) {
+            // In auto complete mode, do not dump the exception on screen; it will fubar everything
+            if (CliAutoComplete::isActive()) {
                 Log::error($e, echo_screen: false);
                 exit('autocomplete-failed-see-system-log');
             }
@@ -193,13 +288,41 @@ class CliCommand
             throw $e;
         }
 
-        AutoComplete::ensureAvailable();
+        CliAutoComplete::ensureAvailable();
 
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
             Log::warning(tr('Warning: STDIN stream was specified but not used'));
         }
 
         exit();
+    }
+
+
+    /**
+     * Detects if the process owner and file owner are the same. If not, will disable file logging and set
+     * CliCommand::getUidMatch() to false
+     *
+     * @return void
+     */
+    protected static function detectProcessUidMatchesPhoundationOwner(): void
+    {
+        static::$pho_uid = fileowner(__DIR__ . '/../../pho');
+
+        Core::getInstance();
+
+        if (Core::getProcessUid() === static::$pho_uid) {
+            // Correct user, yay!
+            return;
+        }
+
+        if (!Config::getBoolean('cli.require-same-uid', true)) {
+            // According to configuration, we don't need to have the same UID.
+            return;
+        }
+
+        // UID mismatch, stop logging to file as that likely won't be possible at all
+        Log::disableFile();
+        static::$pho_uid_match = false;
     }
 
 
@@ -212,35 +335,23 @@ class CliCommand
      */
     protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = false): void
     {
-        $uid = fileowner(__DIR__ . '/../../pho');
-
-        if (Core::getProcessUid() === $uid) {
+        if (static::$pho_uid_match) {
             // Correct user, yay!
             return;
         }
 
-        if (!Config::getBoolean('cli.require-same-uid', true)) {
-            // According to configuration we don't need to have the same UID.
-            return;
-        }
-
-        if (AutoComplete::isActive()) {
+        if (CliAutoComplete::isActive()) {
             // Auto complete does not require same UID
             return;
         }
 
-        if (Core::isPhpUnitTest()) {
-            // Don't restart PHPUnit processes
-            return;
-        }
-
         if (!Core::getProcessUid() and $permit_root) {
-            // This script is ran as root and root is authorized!
+            // This command is run as root and the user root is authorized!
             return;
         }
 
         if (!$auto_switch) {
-            throw new CliException(tr('The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
+            throw new CliException(tr('The user ":puser" is not allowed to execute these commands, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
                 ':puser' => CliCommand::getProcessUser(),
                 ':fuser' => get_current_user()
             ]));
@@ -252,37 +363,62 @@ class CliCommand
         foreach ($argv as &$argument) {
             if (in_array($argument, ['-Q', '--quiet'])) {
                 $quiet = true;
+
             } elseif (in_array($argument, ['-V', '--verbose'])) {
                 $verbose = true;
             }
 
-            $argument = escapeshellarg($argument);
+            if ($argument === '--auto-complete') {
+                // Auto complete active, be quiet!
+                $quiet   = true;
+                $verbose = false;
+            }
+
+            $argument = escapeshellarg((string) $argument);
         }
 
-        $user = posix_getpwuid($uid);
+        $user    = posix_getpwuid(static::$pho_uid);
         $command = 'sudo -Eu ' . escapeshellarg($user['name']) . ' ' . implode(' ', $argv);
 
         if (empty($quiet)) {
             if (isset($verbose)) {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '" with command "' . $command . '"' . PHP_EOL;
+
             } else {
                 echo 'Re-executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
             }
         }
 
         passthru($command, $result_code);
-        die($result_code);
+
+        // We likely won't be able to log here (nor should we), so disable logging
+        Core::exit($result_code, direct_exit: true);
     }
 
 
     /**
-     * Returns the list of commands that came to the script that executed
+     * Returns the list of commands that came to the command that executed
      *
      * @return array
      */
-    public static function getMethods(): array
+    public static function getCommandsArray(): array
     {
-        return static::$methods;
+        return static::$commands;
+    }
+
+
+    /**
+     * Returns the list of commands that came to the command that executed in space separated string format
+     *
+     * @return string
+     */
+    public static function getCommandsString(): string
+    {
+        if (static::$commands) {
+            return implode(' ', static::$commands);
+        }
+
+        return 'N/A';
     }
 
 
@@ -334,153 +470,166 @@ class CliCommand
 
 
     /**
-     * Find the script to execute from the given arguments
+     * Find the command to execute from the given arguments
      *
      * @return string
      */
-    protected static function findScript(): string
+    protected static function findCommand(): string
     {
-        if (!ArgvValidator::getMethodCount()) {
-            throw NoMethodSpecifiedException::new('No method specified!')
+        $position = 0;
+        $file     = DIRECTORY_COMMANDS;
+        $commands = ArgvValidator::getCommands();
+
+        static::$commands = $commands;
+
+        // Ensure commands cache directory exists
+        if (!file_exists($file)) {
+            Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
+                ':path' => $file
+            ]), 3);
+
+            // Rebuild the command cache
+            Libraries::rebuildCommandCache();
+        }
+
+        // Is any command specified at all?
+        if (!ArgvValidator::getCommandCount()) {
+            throw NoCommandSpecifiedException::new('No command specified!')
                 ->makeWarning()
                 ->addData([
                     'position' => 0,
-                    'methods' => Arrays::filterValues(scandir(PATH_ROOT . 'scripts/'), '/^\./', EnumMatchMode::regex)
+                    'commands' => Arrays::removeValues(scandir(DIRECTORY_COMMANDS), '/^\./', match_mode: EnumMatchMode::regex),
                 ]);
         }
 
-        $position = 0;
-        $file = PATH_ROOT . 'scripts/';
-        $methods = ArgvValidator::getMethods();
-        static::$methods = $methods;
-
-        foreach ($methods as $position => $method) {
-            if (!static::validateMethod($method)) {
+        // Process commands
+        foreach ($commands as $position => $command) {
+            if (!static::validateCommand($command)) {
                 continue;
             }
 
-            // Start processing arguments as methods here
-            $file .= $method;
-            ArgvValidator::removeMethod($method);
+            // Start processing arguments as commands here
+            $file .= $command;
+
+            ArgvValidator::removeCommand($command);
 
             if (!file_exists($file)) {
-                // The specified path doesn't exist
-                throw MethodNotExistsException::new(tr('The specified command file ":file" does not exist', [
+                if (!static::cacheHasBeenRebuilt()) {
+                    // Command was not found, try rebuilding the cache and try at least once more.
+                    static::rebuildCache();
+                    ArgvValidator::recoverBackupSource();
+                    return static::findCommand();
+                }
+
+                // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
+                try {
+                    $files = Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex);
+                    $files = Arrays::getMatches($files, basename($file), Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN);
+
+                } catch (Throwable $e) {
+                    $files = [];
+                }
+
+                throw CommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file
                 ]))->makeWarning()
                     ->addData([
-                        'position' => $position,
-                        'methods' => Arrays::filterValues(scandir(dirname($file)), '/^\./', EnumMatchMode::regex)
+                        'position'          => $position,
+                        'commands'          => $files,
+                        'previous_commands' => Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex)
                     ]);
             }
 
             if (!is_dir($file)) {
-                // This is a file, should be PHP, found it! Update the arguments to remove all methods from them.
+                // This is a file, should be PHP, found it! Update the arguments to remove all commands from them.
                 return $file;
             }
 
             // This is a directory.
             $file .= '/';
 
-            // Does a file with the directory name exists inside? Only check if the NEXT method does not exist as a file
-            $next = isset_get($methods[$position + 1]);
+            // Does a file with the directory name exists inside? Only check if the NEXT command does not exist as a file
+            $next = isset_get($commands[$position + 1]);
 
             if (!$next or !file_exists($file . $next)) {
-                if (file_exists($file . $method)) {
-                    if (!is_dir($file . $method)) {
-                        // This is the file!
-                        return $file . $method;
+                if (file_exists($file . $command)) {
+                    if (!is_dir($file . $command)) {
+                        // This is the file! Adjust the CliAutoComplete position if its active because we'll be one
+                        // position ahead of what is expected
+                        if (CliAutoComplete::isActive()) {
+                            CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
+                        }
+
+                        return $file . $command;
                     }
                 }
             }
 
             // Continue scanning
-            static::$found_methods[] = $method;
+            static::$found_commands[] = $command;
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
-        // itself then that is the one that will be executed. For example, PATH_ROOT/cli system init will execute
-        // PATH_ROOT/scripts/system/init/init
-        if (file_exists($file . $method)) {
-            if (!is_dir($file . $method)) {
+        //  itself, then that is the one that will be executed. For example, ./pho system init will execute
+        // DIRECTORY_COMMANDS/system/init/init
+        if (file_exists($file . $command)) {
+            if (!is_dir($file . $command)) {
                 // Yup, this is it guys!
-                return $file . $method;
+                return $file . $command;
             }
         }
 
-        // We're stuck in a directory still, no script to execute.
+        if (!static::cacheHasBeenRebuilt()) {
+            // Command was not found, try rebuilding the cache and try at least once more.
+            static::rebuildCache();
+            ArgvValidator::recoverBackupSource();
+            return static::findCommand();
+        }
+
+        // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
-        throw MethodNotFoundException::new(tr('The specified command file ":file" was not found', [
+        throw CommandNotFoundException::new(tr('The specified command file ":file" was not found', [
             ':file' => $file
-        ]))
-            ->makeWarning()
-            ->addData([
-                'position' => $position + 1,
-                'methods' => Arrays::filterValues(scandir($file), '/^\./', EnumMatchMode::regex)
-            ]);
+        ]))->makeWarning()
+           ->addData([
+                'position'          => $position + 1,
+                'commands'          => Arrays::removeValues(scandir($file), '/^\./'         , match_mode: EnumMatchMode::regex),
+                'previous_commands' => Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex)
+           ]);
     }
 
 
     /**
-     * Limit execution of scripts to the specified limit
+     * Limit execution of commands to the specified limit
      *
-     * @param string $script
+     * @param string $command
      * @param array|string|null $limits
      * @param string|null $reason
      * @return string
      */
-    protected static function limitScript(string $script, array|string|null $limits, ?string $reason): string
+    protected static function limitCommand(string $command, array|string|null $limits, ?string $reason): string
     {
         if ($limits) {
-            $test = Strings::from($script, 'scripts/');
+            $test = Strings::from($command, 'commands/');
 
             foreach (Arrays::force($limits) as $limit) {
                 if (str_starts_with($test, $limit)) {
-                    return $script;
+                    return $command;
                 }
             }
 
-            throw ScriptException::new(tr('Cannot execute script ":script" because :reason', [
-                ':script' => $test,
-                ':reason' => $reason
+            throw ScriptException::new(tr('Cannot execute command ":command" because :reason', [
+                ':command' => $test,
+                ':reason'  => $reason
             ]))->makeWarning();
         }
 
-        return $script;
+        return $command;
     }
 
 
     /**
-     * Returns the name of the script that is running
-     *
-     * @param bool $full
-     * @return string
-     */
-    public static function getCurrent(bool $full = false): string
-    {
-        if ($full) {
-            return Strings::fromReverse(static::$script, PATH_ROOT . 'scripts/');
-        }
-
-        return Strings::fromReverse(static::$script, '/');
-    }
-
-
-    /**
-     * Returns the name of the script that is running
-     *
-     * @param string $script
-     * @param bool $full
-     * @return bool
-     */
-    public static function isScript(string $script, bool $full = false): bool
-    {
-        return $script === static::getCurrent($full);
-    }
-
-
-    /**
-     * Only allow execution on shell scripts
+     * Only allow execution on shell commands
      *
      * @param bool $exclusive
      * @throws ScriptException
@@ -498,26 +647,27 @@ class CliCommand
 
 
     /**
-     * Ensure that the current script file cannot be run twice
+     * Ensure that the current command file cannot be run twice
      *
-     * This function will ensure that the current script file cannot be run twice. In order to do this, it will create a
-     * run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the script file already exists,
-     * it will check if the specified process id is available, and if its process name matches the current script name.
-     * If so, then the system can be sure that this script is already running, and the function will throw an exception
+     * This function will ensure that the current command file cannot be run twice. In order to do this, it will create
+     * a run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the command file already
+     * exists, it will check if the specified process id is available, and if its process name matches the current
+     * command name. If so, then the system can be sure that this command is already running, and the function will
+     * throw an exception
      *
-     * @param bool $close If set true, the function will stop ensuring that the script won't be run again
+     * @param bool $close If set true, the function will stop ensuring that the command won't be run again
      * @return void
-     * @example Have a script run itself recursively, which will be stopped by cli_run_once_local()
+     * @example Have a command run itself recursively, which will be stopped by cli_run_once_local()
      * code
      * log_console('Started test');
      * cli_run_once_local();
-     * safe_exec(Core::readRegister('system', 'script'));
+     * safe_exec(Core::getExecutedPath());
      * cli_run_once_local(true);
      * /code
      *
      * This would return
      * Started test
-     * cli_run_once_local(): The script ":script" for this project is already running
+     * cli_run_once_local(): The command ":command" for this project is already running
      * /code
      *
      * @category Function reference
@@ -530,42 +680,42 @@ class CliCommand
         throw new UnderConstructionException();
 
         try {
-            $run_dir = PATH_ROOT . 'data/run/';
-            $script = $core->register['script'];
+            $run_dir = DIRECTORY_ROOT . 'data/run/';
+            $command = $core->register['command'];
 
-            Directory::ensure(dirname($run_dir . $script));
+            Directory::ensure(dirname($run_dir . $command));
 
             if ($close) {
                 if (!$executed) {
-                    // Hey, this script is being closed but was never opened?
+                    // Hey, this command is being closed but was never opened?
                     Log::warning(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'));
                 }
 
-                file_delete(array('patterns' => $run_dir . $script,
-                    'restrictions' => PATH_ROOT . 'data/run/',
+                file_delete(array('patterns' => $run_dir . $command,
+                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
                     'clean_path' => false));
                 $executed = false;
                 return;
             }
 
             if ($executed) {
-                // Hey, script has already been run before, and its run again without the close option, this should
+                // Hey, command has already been run before, and its run again without the close option, this should
                 // never happen!
-                throw new CliException(tr('The function has been called twice by script ":script" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', [
-                    ':script' => $script
+                throw new CliException(tr('The function has been called twice by command ":command" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', [
+                    ':command' => $command
                 ]));
             }
 
             $executed = true;
 
-            if (file_exists($run_dir . $script)) {
+            if (file_exists($run_dir . $command)) {
                 // Run file exists, so either a process is running, or a process was running but crashed before it could
                 // delete the run file. Check if the registered PID exists, and if the process name matches this one
-                $pid = file_get_contents($run_dir . $script);
+                $pid = file_get_contents($run_dir . $command);
                 $pid = trim($pid);
 
                 if (!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
-                    Log::warning(tr('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $script]));
+                    Log::warning(tr('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $command]));
 
                 } else {
                     $name = safe_exec(array('commands' => array('ps', array('-p', $pid, 'connector' => '|'),
@@ -573,11 +723,11 @@ class CliCommand
                     $name = array_pop($name);
 
                     if ($name) {
-                        preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+(' . str_replace('/', '\/', $script) . ')/', $name, $matches);
+                        preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+(' . str_replace('/', '\/', $command) . ')/', $name, $matches);
 
                         if (!empty($matches[1][0])) {
-                            throw new CliException(tr('The script ":script" for this project is already running', [
-                                ':script' => $script
+                            throw new CliException(tr('The command ":command" for this project is already running', [
+                                ':command' => $command
                             ]));
                         }
                     }
@@ -585,14 +735,14 @@ class CliCommand
 
                 // File exists, or contains invalid data, but PID either doesn't exist, or is used by a different
                 // process. Remove the PID file
-                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $script]));
-                file_delete(array('patterns' => $run_dir . $script,
-                    'restrictions' => PATH_ROOT . 'data/run/',
+                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
+                file_delete(array('patterns' => $run_dir . $command,
+                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
                     'clean_path' => false));
             }
 
             // No run file exists yet, create one now
-            file_put_contents($run_dir . $script, getmypid());
+            file_put_contents($run_dir . $command, getmypid());
             Core::readRegister('shutdown_cli_run_once_local', array(true));
 
         } catch (Exception $e) {
@@ -609,72 +759,6 @@ class CliCommand
 
 
     /**
-     * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
-     *
-     * @note While log_console() will log towards the PATH_ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
-     * @param int $each
-     * @param string $color
-     * @param string $dot
-     * @param boolean $quiet
-     * @return boolean True if a dot was printed, false if not
-     * @example
-     * code
-     * for($i=0; $i < 100; $i++) {
-     *     cli_dot();
-     * }
-     * /code
-     *
-     * This will return something like
-     *
-     * code
-     * ..........
-     * /code
-     *
-     * @see log_console()
-     */
-    public static function dot(int $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
-    {
-        static $count = 0,
-        $l_each = 0;
-
-        if (!PLATFORM_CLI) {
-            return false;
-        }
-
-        if ($quiet and QUIET) {
-            // Don't show this in QUIET mode
-            return false;
-        }
-
-        if (!$each) {
-            if ($count) {
-                // Only show "Done" if we have shown any dot at all
-                Log::write(tr('Done'), $color, 10, false, false, false);
-            }
-
-            $l_each = 0;
-            $count = 0;
-            return true;
-        }
-
-        $count++;
-
-        if ($l_each != $each) {
-            $l_each = $each;
-            $count = 0;
-        }
-
-        if ($count >= $l_each) {
-            $count = 0;
-            Log::write($dot, $color, 10, false, false, false);
-            return true;
-        }
-
-        return false;
-    }
-
-
-    /**
      * Echos the specified string to the command line
      *
      * @param string|float|int $string
@@ -687,7 +771,7 @@ class CliCommand
 
 
     /**
-     * Kill this script process
+     * Kill this command process
      *
      * @param Throwable|int $exit_code
      * @param string|null $exit_message
@@ -723,20 +807,20 @@ class CliCommand
                 $exit_code = $exit_code ?? 1;
 
                 Log::warning($e->getMessage());
-                Log::warning(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                    ':command' => static::getCommandsString(),
+                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
                 ]), 10);
             } else {
                 $exit_code = $exit_code ?? 255;
 
                 Log::error($e->getMessage());
-                Log::error(tr('Script ":script" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                    ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                    ':command' => static::getCommandsString(),
+                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code
                 ]), 10);
             }
@@ -748,10 +832,10 @@ class CliCommand
 
                 } else {
                     // Script ended with warning
-                    Log::warning(tr('Script ":script" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                        ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                        ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+                        ':command' => static::getCommandsString(),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -763,10 +847,10 @@ class CliCommand
                     Log::error($exit_message, 8);
                 } else {
                     // Script ended with error
-                    Log::error(tr('Script ":script" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                        ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                        ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                        ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                        ':command' => static::getCommandsString(),
+                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code
                     ]), 8);
                 }
@@ -778,14 +862,18 @@ class CliCommand
             }
 
             // Script ended successfully
-            Log::success(tr('Finished ":script" command with PID ":pid" in ":time" with ":usage" peak memory usage', [
-                ':pid' => getmypid(),
-                ':script' => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
-                ':time' => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage' => Numbers::getHumanReadableBytes(memory_get_peak_usage())
+            Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
+                ':command' => static::getCommandsString(),
+                ':pid'     => getmypid(),
+                ':time'    => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                ':usage'   => Numbers::getHumanReadableBytes(memory_get_peak_usage())
             ]), 8);
         }
 
+        if (!CliAutoComplete::isActive()) {
+            echo CliColor::getColorReset();
+            system('stty echo');
+        }
         exit($exit_code);
     }
 
@@ -803,7 +891,7 @@ class CliCommand
 
 
     /**
-     * Limit the amount of processes to the specified amount
+     * Limit the number of processes to the specified amount
      *
      * @param int $count
      * @param bool $global
@@ -843,39 +931,39 @@ class CliCommand
 
 
     /**
-     * Validates the specified method and returns true if the method is valid
+     * Validates the specified command and returns true if the command is valid
      *
      * @note Throws exceptions in case of issues
-     * @param string $method
+     * @param string $command
      * @return bool
      * @throws ValidationFailedException, OutOfBoundsException
      */
-    protected static function validateMethod(string $method): bool
+    protected static function validateCommand(string $command): bool
     {
-        // Validate the method
-        if (strlen($method) > 32) {
-            throw new ValidationFailedException(tr('Specified method ":method" is too long, it should be less than 32 characters', [
-                ':method' => $method
+        // Validate the command
+        if (strlen($command) > 32) {
+            throw new ValidationFailedException(tr('Specified command ":command" is too long, it should be less than 32 characters', [
+                ':command' => $command
             ]));
         }
 
-        if (str_ends_with($method, '/pho')) {
+        if (str_ends_with($command, '/pho')) {
             // This is the cli command, ignore it
-            ArgvValidator::removeMethod($method);
+            ArgvValidator::removeCommand($command);
             return false;
         }
 
-        if (!preg_match('/[a-z0-9-]/i', $method)) {
-            // Methods can only have alphanumeric characters
-            throw OutOfBoundsException::new(tr('The specified method ":method" contains invalid characters. only a-z, 0-9 and - are allowed', [
-                ':method' => $method
+        if (!preg_match('/[a-z0-9-]/i', $command)) {
+            // Commands can only have alphanumeric characters
+            throw OutOfBoundsException::new(tr('The specified command ":command" contains invalid characters. only a-z, 0-9 and - are allowed', [
+                ':command' => $command
             ]))->makeWarning();
         }
 
-        if (str_starts_with($method, '-')) {
-            // Methods can only have alphanumeric characters
-            throw OutOfBoundsException::new(tr('The specified method ":method" starts with a - character which is not allowed', [
-                ':method' => $method
+        if (str_starts_with($command, '-')) {
+            // Commands can only have alphanumeric characters
+            throw OutOfBoundsException::new(tr('The specified command ":command" starts with a - character which is not allowed', [
+                ':command' => $command
             ]))->makeWarning();
         }
 
@@ -890,40 +978,39 @@ class CliCommand
      */
     #[NoReturn] protected static function autoComplete(): ?string
     {
-        // We're doing auto complete mode!
         try {
-            // Get the script file to execute and execute auto complete for within this script, if available
-            $script = static::findScript();
+            // Get the command file to execute and execute auto complete for within this command, if available
+            $command = static::findCommand();
 
-            // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last method.
-            // If this is the case we actually have to expand the method, NOT yet the script parameters!
-            if ((AutoComplete::getPosition() - count(static::$found_methods)) === 0) {
-                throw MethodNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
-                    ':file' => $script
+            // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
+            // If this is the case we actually have to expand the command, NOT yet the command parameters!
+            if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
+                throw CommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
+                    ':file' => $command
                 ]))->makeWarning()
                     ->addData([
-                        'position' => AutoComplete::getPosition(),
-                        'methods' => [basename($script)]
+                        'position' => CliAutoComplete::getPosition(),
+                        'commands' => [basename($command)]
                     ]);
             }
 
-            // Check if this script has support for auto complete. If not
-            if (!AutoComplete::hasSupport($script)) {
-                // This script has no auto complete support, so if we execute the script it won't go for auto
-                // complete but execute normally which is not what we want. we're done here.
+            // Check if this command has support for auto complete. If not
+            if (!CliAutoComplete::hasSupport($command)) {
+                // This command has no auto complete support, so if we execute the command it won't go for auto
+                // complete but execute normally, which is not what we want. we're done here.
                 exit();
             }
 
-            return $script;
+            return $command;
 
         } catch (ValidationFailedException $e) {
             // Whoops, somebody typed something weird or naughty. Either way, just ignore it
             Log::warning($e);
             exit(1);
 
-        } catch (NoMethodSpecifiedException|MethodNotFoundException|MethodNotExistsException $e) {
-            // Auto complete the method
-            AutoComplete::processMethods(static::$methods, $e->getData());
+        } catch (NoCommandSpecifiedException|CommandNotFoundException|CommandNotExistsException $e) {
+            // Auto complete the command
+            CliAutoComplete::processCommands(static::$commands, $e->getData());
         }
     }
 
@@ -935,126 +1022,17 @@ class CliCommand
      */
     protected static function documentation(): void
     {
-        Documentation::usage('./pho METHODS [ARGUMENTS]
+        CliDocumentation::usage('./pho METHODS [ARGUMENTS]
+./pho intro
 ./pho info
 ./pho accounts users create --help
-./pho system update
+./pho system update -H
+./pho system update -H
 ./pho system maintenance disable
 ./pho system <TAB>', false);
 
-        Documentation::help(tr('This is the Phoundation CLI interface command "pho"
-
-With this Command Line Interface script you can manage your Phoundation installation and perform various tasks. Almost 
-all web interface functionalities are also available on the command line and certain maintenance and development options 
-are ONLY available on the CLI
-
-The pho script command line has bash command line auto complete support so with the <TAB> key you can very easily see 
-what commands are available to you. Auto complete support is also already enabled for some commands so (for example) 
-user modification with "./pho accounts user modify" can show all available options when pressing the <TAB> key.
-
-The system arguments are ALWAYS available no matter what command is being executed. Some arguments always apply, others 
-only apply for the commands that implement and or use them. If a system modifier argument was specified with a command 
-that does not support it, it will simply be ignored. See the --help output for each command for more information.                         
-
-
-A few useful commands to execute are:
-
-
-./pho system maintenance disable        Disables maintenance mode manually. This may be needed if some command that  
-                                        placed the system in maintenance mode crashed, leaving the system unusable
-
-./pho info                              Gives general information about your Phoundation installation
-
-./pho system init                       Will run the database initialization function. This will typically be run 
-                                        automatically whenever you install a new plugin or when you update your 
-                                        Phoundation code, but can be run manually when required
-                                        
-./pho system setup                      The first command you will want to run (or the first page that will show up 
-                                        after you installed Phoundation) which allows you to setup an initial 
-                                        configuration and initializes your database                                        
-                
-                
-GLOBAL ARGUMENTS
-
-
-The following arguments are available to ALL scripts 
-
-
--A,--all                                If set, the system will run in ALL mode, which typically will display normally 
-                                        hidden information like deleted entries. Only used by specific commands, check 
-                                        --help on commands to see if and how this flag is used. 
-
--C,--no-color                           If set, your log and console output will no longer have color
-
--D,--debug                              If set will run your system in debug mode. Debug commands will now generate and 
-                                        display output
-
--E,--environment ENVIRONMENT            Sets or overrides the environment with which your pho command will be running. 
-                                        If no environment was set in the shell environment using the  
-                                        ":environment" variable, your pho command will refuse to   
-                                        run unless you specify the environment manually using these flags. The   
-                                        environment has to exist as a ROOT/config/ENVIRONMENT.yaml file
-
--F,--force                              If specified will run the CLI command in FORCE mode, which will override certain 
-                                        restrictions. See --help for information on how specific commands deal with this 
-                                        flag 
-
--H,--help                               If specified will display the help page for the typed command
-
--L,--log-level LEVEL                    If specified will set the minimum threshold level for log messages to appear. 
-                                        Any message with a threshold level below the indicated amount will not appear in 
-                                        the logs. Defaults to 5.
-
--O,--order-by "COLUMN ASC|DESC"         If specified and used by the script (only scripts that display tables) will  
-                                        order the table contents on the specified column in the specified direction. 
-                                        Defaults to nothing
-
--P,--page PAGE                          If specified and used by the script (only scripts that display tables) will show 
-                                        the table on the specified page. Defaults to 1
-
--Q,--quiet                              Will have the system run in quiet mode, suppressing log startup and shutdown 
-                                        messages. NOTE: This will override DEBUG output; QUIET will suppress all debug 
-                                        messages!  
-
--G,--no-prefix                          Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix 
-                                        that normally begins each log line output    
-
--S,--status STATUS                      If specified will only display DataEntry entries with the specified status                                        
-
--T,--test                               Will run the system in test mode. Different scripts may change their behaviour 
-                                        depending on this flag, see their --help output for more information. 
-                                        
-                                        NOTE: In this mode, temporary directories will NOT be removed upon shutdown so  
-                                        that their contents can be used for debugging and testing.
-
--U,--usage                              Prints various command usage examples for the typed command
-
--V,--verbose                            Will print more output during log startup and shutdown
-
--W,--no-warnings                        Will only use "error" type exceptions with backtrace and extra information, 
-                                        instead of displaying only the main exception message for warnings
-
---system-language                       Sets the system language for all output
-
---deleted                               Will show deleted DataEntry records 
-
---version                               Will display the current version for your Phoundation installation
-
---limit NUMBER                          Will limit table output to the amount of specified fields
-
---timezone STRING                       Sets the specified timezone for the command you are executing
-
---show-passwords                        Will display passwords visibly on the command line. Both typed passwords and 
-                                        data output will show passwords in the clear!
-
---no-validation                         Will not validate any of the data input. 
-
-                                        WARNING: This may result in invalid data in your database!
-
---no-password-validation                Will not validate passwords.
-
-                                        WARNING: This may result in weak and or compromised passwords in your database
-                ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']), false);
+        CliDocumentation::help(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
+'), false);
     }
 
 
@@ -1132,5 +1110,27 @@ The following arguments are available to ALL scripts
                 ]));
             }
         }
+    }
+
+
+    /**
+     * Returns true if the UID of the process and pho match
+     *
+     * @return bool
+     */
+    public static function getPhoUidMatch(): bool
+    {
+        return static::$pho_uid_match;
+    }
+
+
+    /**
+     * Returns the UID for the ./pho file
+     *
+     * @return int
+     */
+    public static function getPhoUid(): int
+    {
+        return static::$pho_uid;
     }
 }

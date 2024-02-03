@@ -6,8 +6,9 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandInterface;
-use Phoundation\Os\Processes\ProcessCore;
+use Phoundation\Os\Processes\Commands\Interfaces\PhoCommandCoreInterface;
+use Phoundation\Os\Processes\WorkersCore;
+use Phoundation\Utils\Arrays;
 
 
 /**
@@ -17,36 +18,39 @@ use Phoundation\Os\Processes\ProcessCore;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-class PhoCommand extends ProcessCore implements PhoCommandInterface
+class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
 {
     /**
      * PhoCommand class constructor.
      *
-     * @param string $command
+     * @param array|string|null $commands
+     * @param bool $which_command
      */
-    public function __construct(string $command)
+    public function __construct(array|string|null $commands, bool $which_command = true)
     {
         // Ensure that the run files directory is available
-        Directory::new(PATH_ROOT . 'data/run/', Restrictions::new(PATH_DATA . 'run', true))->ensure();
+        Directory::new(DIRECTORY_ROOT . 'data/run/', Restrictions::new(DIRECTORY_DATA . 'run'))->ensure();
 
-        parent::__construct(Restrictions::new(PATH_ROOT . 'pho'));
+        parent::__construct(Restrictions::new(DIRECTORY_ROOT . 'pho'));
 
-        $this->setInternalCommand(PATH_ROOT . 'pho')
-             ->addArguments([$command, '-E', ENVIRONMENT]);
+        $this->setCommand(DIRECTORY_ROOT . 'pho', $which_command)
+            ->addArguments(['-E', ENVIRONMENT])
+            ->addArguments($commands ? Arrays::force($commands, ' ') : null);
     }
 
 
     /**
      * Create a new process factory for a specific Phoundation command
      *
-     * @param string $command
+     * @param array|string|null $commands
+     * @param bool $which_command
      * @return static
      */
-    public static function new(string $command): static
+    public static function new(array|string|null $commands, bool $which_command = true): static
     {
-        return new static($command);
+        return new static($commands, $which_command);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Http\Interfaces;
 
 use \Stringable;
@@ -12,7 +14,7 @@ use \Stringable;
  * @todo Add language mapping, see the protected method language_map() at the bottom of this class for more info
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Http
  */
 interface UrlBuilderInterface extends Stringable
@@ -51,10 +53,18 @@ interface UrlBuilderInterface extends Stringable
     public function removeQueries(): static;
 
     /**
-     * Add specified query to the specified URL and return
+     * Add a specified query to the specified URL and return
      *
-     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @param array|string|bool|null ...$queries All the queries to add to this URL
      * @return static
      */
-    public function addQueries(array|string|bool ...$queries): static;
+    public function addQueries(array|string|bool|null ...$queries): static;
+
+    /**
+     * Apply predefined URL names
+     *
+     * @param Stringable|string $url
+     * @return UrlBuilderInterface
+     */
+    public static function getConfigured(Stringable|string $url): UrlBuilderInterface;
 }

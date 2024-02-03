@@ -15,7 +15,7 @@ use Exception;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
 abstract class Import
@@ -28,7 +28,7 @@ abstract class Import
     protected bool $demo;
 
     /**
-     * The amount of entries to import in case of demo
+     * The number of entries to import in case of demo
      *
      * @var int $count
      */
@@ -120,7 +120,7 @@ abstract class Import
 //    protected function findImports(): array
 //    {
 //        $return = [];
-//        $files  = Command::find(PATH_ROOT, 'Import.php');
+//        $files  = Command::find(DIRECTORY_ROOT, 'Import.php');
 //
 //        foreach ($files as $file) {
 //            // Include the file

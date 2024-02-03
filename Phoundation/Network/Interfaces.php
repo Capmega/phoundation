@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Network;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Network\Exception\NetworkException;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Interfaces

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Traits\DataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
@@ -17,7 +16,7 @@ use Phoundation\Filesystem\File;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 abstract class KubernetesFile
@@ -36,7 +35,7 @@ abstract class KubernetesFile
      */
     public function __construct()
     {
-        $this->file = PATH_ROOT . 'config/kubernetes/' . $this->kind . '/';
+        $this->file = DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/';
     }
 
 
@@ -53,7 +52,7 @@ abstract class KubernetesFile
 //        $data = Strings::untilReverse($data, PHP_EOL);
 
         File::new($this->file)
-            ->setRestrictions(PATH_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
+            ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
             ->create($data);
 
         return $this;

@@ -6,15 +6,13 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Button;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Img;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Html\Layouts\GridColumn;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Button;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -26,7 +24,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 
@@ -61,7 +59,7 @@ if (Page::isPostRequestMethod()) {
 // Do we have a URL?
 if ($notification->getUrl()) {
     $go = Button::new()
-        ->setRight(true)
+        ->setFloatRight(true)
         ->setValue(tr('Go'))
         ->setAnchorUrl($notification->getUrl());
 }

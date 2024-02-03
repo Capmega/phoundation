@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
+use Stringable;
 
 
 /**
@@ -23,17 +25,17 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Git extends Versioning implements GitInterface
 {
     /**
-     * The path that will be checked
+     * The directory that will be checked
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path;
+    protected string $directory;
 
     /**
      * The git process
@@ -46,52 +48,54 @@ class Git extends Versioning implements GitInterface
     /**
      * Git class constructor
      *
-     * @param string $path
+     * @param DirectoryInterface|string $directory
      */
-    public function __construct(string $path)
+    public function __construct(DirectoryInterface|string $directory)
     {
-        $this->setPath($path);
+        $this->setDirectory($directory);
     }
 
 
     /**
      * Generates and returns a new Git object
      *
-     * @param string $path
+     * @param DirectoryInterface|string $directory
      * @return static
      */
-    public static function new(string $path): static
+    public static function new(DirectoryInterface|string $directory): static
     {
-        return new static($path);
+        return new static($directory);
     }
 
 
     /**
-     * Returns the path for this ChangedFiles object
+     * Returns the directory for this ChangedFiles object
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
-        return $this->path;
+        return $this->directory;
     }
 
 
     /**
-     * Returns the path for this ChangedFiles object
+     * Returns the directory for this ChangedFiles object
      *
-     * @param string $path
+     * @param DirectoryInterface|string $directory
      * @return static
      */
-    public function setPath(string $path): static
+    public function setDirectory(DirectoryInterface|string $directory): static
     {
-        $this->path = Filesystem::absolute($path);
-        $this->git  = Process::new('git')->setExecutionPath($this->path);
+        $this->directory = Filesystem::absolute($directory);
+        $this->git       = Process::new('git')
+            ->setExecutionDirectory($this->directory)
+            ->setTimeout(300);
 
-        if (!$this->path) {
-            if (!file_exists($path)) {
-                throw new OutOfBoundsException(tr('The specified path ":path" does not exist', [
-                    ':path' => $path
+        if (!$this->directory) {
+            if (!file_exists($directory)) {
+                throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
+                    ':directory' => $directory
                 ]));
             }
         }
@@ -101,7 +105,7 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Clone the specified URL to this path
+     * Clone the specified URL to this directory
      *
      * @return $this
      */
@@ -110,7 +114,6 @@ class Git extends Versioning implements GitInterface
         $output = $this->git
             ->clearArguments()
             ->addArgument('clone')
-            ->addArgument($this->url)
             ->addArgument($url)
             ->executeReturnArray();
 
@@ -120,7 +123,7 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Returns the current git branch for this path
+     * Returns the current git branch for this directory
      *
      * @return string
      */
@@ -137,14 +140,14 @@ class Git extends Versioning implements GitInterface
             }
         }
 
-        throw new GitException(tr('No brach selected for path ":path"', [
-            ':path' => $this->path
+        throw new GitException(tr('No brach selected for directory ":directory"', [
+            ':directory' => $this->directory
         ]));
     }
 
 
     /**
-     * Returns the current git branch for this path
+     * Returns the current git branch for this directory
      *
      * @param string $branch
      * @return static
@@ -169,7 +172,7 @@ class Git extends Versioning implements GitInterface
      */
     public function getRepositories(): RemoteRepositories
     {
-        return RemoteRepositories::new()->setPath($this->path);
+        return RemoteRepositories::new()->setDirectory($this->directory);
     }
 
 
@@ -180,7 +183,7 @@ class Git extends Versioning implements GitInterface
      */
     public function getBranches(): Branches
     {
-        return Branches::new()->setPath($this->path);
+        return Branches::new()->setDirectory($this->directory);
     }
 
 
@@ -191,22 +194,22 @@ class Git extends Versioning implements GitInterface
      */
     public function getStash(): Stash
     {
-        return Stash::new()->setPath($this->path);
+        return Stash::new()->setDirectory($this->directory);
     }
 
 
     /**
-     * Checks out the specified branches or paths for this git path
+     * Checks out the specified branches or directories for this git directory
      *
-     * @param array|string $branches_or_paths
+     * @param array|string $branches_or_directories
      * @return static
      */
-    public function checkout(array|string $branches_or_paths): static
+    public function checkout(array|string $branches_or_directories): static
     {
         $output = $this->git
             ->clearArguments()
             ->addArgument('checkout')
-            ->addArguments($branches_or_paths)
+            ->addArguments($branches_or_directories)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
@@ -215,21 +218,21 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Checks out the specified branches or paths for this git path
+     * Checks out the specified branches or directories for this git directory
      *
-     * @param array|string $branches_or_paths
+     * @param array|string $branches_or_directories
      * @param bool $files
      * @param bool $directories
      * @return static
      */
-    public function clean(array|string $branches_or_paths, bool $files, bool $directories): static
+    public function clean(array|string $branches_or_directories, bool $files, bool $directories): static
     {
         $output = $this->git
             ->clearArguments()
             ->addArgument('clean')
             ->addArgument($files       ? '-f' : null)
             ->addArgument($directories ? '-d' : null)
-            ->addArguments($branches_or_paths)
+            ->addArguments($branches_or_directories)
             ->executeReturnArray();
 
         Log::notice($output, 4, false);
@@ -241,10 +244,10 @@ class Git extends Versioning implements GitInterface
      * Resets the current branch to the specified revision
      *
      * @param string $revision
-     * @param array|string|null $files
+     * @param Stringable|array|string|null $files
      * @return static
      */
-    public function reset(string $revision, array|string|null $files = null): static
+    public function reset(string $revision, Stringable|array|string|null $files = null): static
     {
         $output = $this->git
             ->clearArguments()
@@ -312,13 +315,13 @@ class Git extends Versioning implements GitInterface
     public function getStatus(?string $path = null): StatusFiles
     {
         return StatusFiles::new()
-            ->setPath($path ?? $this->path)
+            ->setDirectory($path ?? $this->directory)
             ->scanChanges();
     }
 
 
     /**
-     * Returns if this git path has any changes
+     * Returns if this git directory has any changes
      *
      * @return bool
      */
@@ -365,7 +368,7 @@ class Git extends Versioning implements GitInterface
         if ($diff) {
             return File::newTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
                 ->putContents($diff . PHP_EOL)
-                ->getFile();
+                ->getPath();
 
         }
 
@@ -416,6 +419,63 @@ class Git extends Versioning implements GitInterface
             ->addArgument('push')
             ->addArgument($repository)
             ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string $repository
+     * @param string $branch
+     * @return static
+     */
+    public function pull(string $repository, string $branch): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('pull')
+            ->addArgument($repository)
+            ->addArgument($branch)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string $repository
+     * @return static
+     */
+    public function fetch(string $repository): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArgument('fetch')
+            ->addArgument($repository)
+            ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @return static
+     */
+    public function fetchAll(): static
+    {
+        $output = $this->git
+            ->clearArguments()
+            ->addArguments(['fetch', '--all'])
             ->executeReturnArray();
 
         Log::notice($output, 4, false);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -15,20 +15,20 @@ use Phoundation\Core\Strings;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Free extends Command
 {
     /**
-     * Returns the available amount of memory
+     * Returns the available number of memory
      *
      * @return array
      */
     public function free(): array
     {
         $output = $this
-            ->setInternalCommand('free')
+            ->setCommand('free')
             ->setTimeout(1)
             ->executeReturnArray();
 

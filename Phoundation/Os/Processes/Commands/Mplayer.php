@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Mplayer extends Command
@@ -34,8 +34,8 @@ class Mplayer extends Command
     {
         // Build the process parameters, then execute
         $this->clearArguments()
-             ->setRestrictions(Restrictions::default($this->restrictions, Restrictions::new(PATH_DATA . 'mplayer', true, 'audio')))
-             ->setInternalCommand('mplayer')
+             ->setRestrictions(Restrictions::default($this->restrictions, Restrictions::new(DIRECTORY_DATA . 'mplayer', true, 'audio')))
+             ->setCommand('mplayer')
              ->addArgument($this->file)
              ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);
     }

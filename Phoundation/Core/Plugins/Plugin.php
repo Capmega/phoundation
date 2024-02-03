@@ -7,20 +7,21 @@ namespace Phoundation\Core\Plugins;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Exception\PluginsException;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -28,10 +29,10 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Plugin extends DataEntry implements PluginInterface
@@ -70,7 +71,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'name';
     }
@@ -98,7 +99,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getSourceFieldValue('bool', 'enabled', false);
+        return $this->getSourceColumnValue('bool', 'enabled', false);
     }
 
 
@@ -144,16 +145,16 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
-     * Returns the plugin path for this plugin
+     * Returns the class path for this plugin
      *
      * @return string|null
      */
     public function getClass(): ?string
     {
-        $path = $this->getPath();
+        $directory = $this->getPath();
 
-        if ($path) {
-            return Library::getClassPath(PATH_ROOT . $path . 'Plugin.php');
+        if ($directory) {
+            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
         }
 
         return null;
@@ -206,7 +207,21 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        return Strings::from(dirname(Library::getClassFile($this)) . '/', PATH_ROOT);
+        $path = $this->getSourceColumnValue('string', 'path');
+
+        if (!$path) {
+            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
+            if ($this->isNew()) {
+                // New object, detect the path automatically
+                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
+            }
+
+            throw new PluginsException(tr('Plugin ":plugin" does not have a class path set', [
+                ':plugin' => get_class($this)
+            ]));
+        }
+
+        return $path;
     }
 
 
@@ -217,7 +232,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getName(): string
     {
-        return basename(dirname(Library::getClassFile($this)));
+        return basename(dirname(dirname(Library::getClassFile($this))));
     }
 
 
@@ -237,34 +252,35 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return void
      */
-    public static function register(): void
+    public function register(): void
     {
-        $plugin = static::new();
-        $name   = $plugin->getName();
+        if (!$this->isNew()) {
+            Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
+                ':plugin' => $this->getName()
+            ]), 3);
+        }
 
-        if (static::exists($name, 'name')) {
+        if (static::exists($this->getName(), 'name')) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
-                ':plugin' => $name
+                ':plugin' => $this->getName()
             ]), 3);
 
             return;
         }
 
         // Only the Phoundation plugin is ALWAYS enabled
-        $enabled = ($name === 'Phoundation');
+        $enabled = ($this->getName() === 'Phoundation');
 
-        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $name]));
+        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $this->getName()]));
 
         // Register the plugin
-        $plugin
-            ->setName($name)
-            ->setPath($plugin->getPath())
-            ->setClass($plugin->getClass())
-            ->setEnabled($enabled)
-            ->setPriority($plugin->getPriority())
-            ->setDescription($plugin->getDescription())
-            ->save();
+        $this->setPath($this->getPath())
+             ->setClass($this->getClass())
+             ->setEnabled($enabled)
+             ->setPriority($this->getPriority())
+             ->setDescription($this->getDescription())
+             ->save();
     }
 
 
@@ -289,7 +305,6 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function enable(?string $comments = null): void
     {
-        static::linkScripts();
         sql()->dataEntrySetStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
@@ -302,40 +317,45 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function disable(?string $comments = null): void
     {
-        static::unlinkScripts();
         sql()->dataEntrySetStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
     }
 
 
     /**
-     * Link the scripts for this plugin to the PATH_ROOT/scripts directory
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
-     * @return void
-     */
-    protected function linkScripts(): void
-    {
-        $plugin = strtolower(dirname(__DIR__));
-        $file   = __DIR__ . '/scripts';
-
-        if (file_exists($file)) {
-            link ($file, PATH_ROOT . 'scripts/' . $plugin);
-        }
-    }
-
-
-    /**
-     * Link the scripts for this plugin to the PATH_ROOT/scripts directory
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
      *
-     * @return void
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @note IMPORTANT DETAIL: This Plugins::get() method overrides the DataEntry::get() method. It works the same, but
+     *       will return the correct class for the plugin. If, for example, the Phoundation plugin was requested, the
+     *       returned class will be Plugins\Phoundation\Library\Plugin, instead of Phoundation\Core\Plugins\Plugin
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @param bool $no_identifier_exception
+     * @return static
      */
-    protected function unlinkScripts(): void
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
-        $plugin = strtolower(dirname(__DIR__));
-        $file   = PATH_ROOT . 'scripts/' . $plugin;
+        $plugin = parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
+        $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
+        $class  = Library::getClassPath($file);
+        $class  = Library::loadClassFile($class);
 
-        if (file_exists($file)) {
-            File::new(PATH_ROOT . 'scripts/' . $plugin)->delete();
-        }
+        return $class::fromSource($plugin->getSource());
     }
 
 
@@ -352,7 +372,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
-                ->setCliField('-d,--disable'))
+                ->setCliColumn('-d,--disable'))
             ->addDefinition(DefinitionFactory::getName($this, 'seo_name')
                 ->setVisible(false))
             ->addDefinition(DefinitionFactory::getName($this)
@@ -363,7 +383,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setInputType(InputType::number)
                 ->setNullDb(false, 5)
                 ->setSize(3)
-                ->setCliField('--priority')
+                ->setCliColumn('--priority')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Priority'))
                 ->setMin(0)
@@ -376,10 +396,10 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
-                ->setCliField('-e,--enabled')
+                ->setCliColumn('-e,--enabled')
                 ->setLabel(tr('Enabled'))
                 ->setDefault(true)
-                ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or script execution'))
+                ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or command execution'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
@@ -393,7 +413,7 @@ class Plugin extends DataEntry implements PluginInterface
                     $validator->hasMaxCharacters(1024)->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                 }))
             ->addDefinition(Definition::new($this, 'path')
-                ->setLabel(tr('Path'))
+                ->setLabel(tr('Directory'))
                 ->setInputType(InputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)

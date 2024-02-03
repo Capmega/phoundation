@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Project\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Config;
 use Throwable;
 
 
@@ -21,7 +21,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
 class Environment
@@ -166,7 +166,7 @@ class Environment
      */
     public static function getConfigurationFile(string $environment): string
     {
-        return PATH_ROOT  . 'config/' . strtolower($environment) . '.yaml';
+        return DIRECTORY_ROOT  . 'config/' . strtolower($environment) . '.yaml';
     }
 
 
@@ -210,7 +210,7 @@ class Environment
         }
 
         // delete the environment configuration file
-        File::new(static::getConfigurationFile($this->name), Restrictions::new(PATH_ROOT . 'config/', true))->delete();
+        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))->delete();
 
         return true;
     }

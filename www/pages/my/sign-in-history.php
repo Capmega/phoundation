@@ -3,24 +3,19 @@
 declare(strict_types=1);
 
 
-use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\SignIns;
-use Phoundation\Accounts\Users\Users;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Enums\TableIdColumn;
-use Phoundation\Web\Http\Html\Layouts\Grid;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
 $signins = SignIns::new();
-$table   = $signins->getHtmlDataTable()->setTableIdColumn(TableIdColumn::hidden);
+$table   = $signins->getHtmlDataTable()->setCheckboxSelectors(TableIdColumn::hidden);
 $signins = Card::new()
     ->setTitle('Your signin history')
     ->setSwitches('reload')

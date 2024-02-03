@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Which extends Command
@@ -36,7 +36,7 @@ class Which extends Command
             return $cache[$command];
         }
 
-        $this->setInternalCommand('which', false)
+        $this->setCommand('which', false)
              ->addArgument($command)
              ->setRegisterRunfile(false)
              ->setTimeout(1);

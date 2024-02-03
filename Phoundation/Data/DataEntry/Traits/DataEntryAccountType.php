@@ -15,7 +15,7 @@ use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryAccountType
@@ -27,7 +27,7 @@ trait DataEntryAccountType
      */
     public function getAccountType(): ?string
     {
-        return $this->getSourceFieldValue('string', 'account_type');
+        return $this->getSourceColumnValue('string', 'account_type');
     }
 
 

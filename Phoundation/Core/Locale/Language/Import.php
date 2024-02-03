@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Filesystem\File;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Core
  */
 class Import extends \Phoundation\Developer\Project\Import
@@ -49,7 +49,7 @@ class Import extends \Phoundation\Developer\Project\Import
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
 
-        $file  = File::new(PATH_DATA . 'sources/languages/languages')->open(EnumFileOpenMode::readOnly);
+        $file  = File::new(DIRECTORY_DATA . 'sources/languages/languages')->open(EnumFileOpenMode::readOnly);
         $table = sql()->schema()->table('core_languages');
         $count = $table->getCount();
 

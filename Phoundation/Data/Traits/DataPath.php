@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Strings;
-use Phoundation\Filesystem\Filesystem;
-
 
 /**
  * Trait DataPath
@@ -14,14 +11,14 @@ use Phoundation\Filesystem\Filesystem;
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataPath
 {
     /**
-     * The path for this object
+     * The path to use
      *
      * @var string|null $path
      */
@@ -43,18 +40,11 @@ trait DataPath
      * Sets the path
      *
      * @param string|null $path
-     * @param string|null $prefix
-     * @param bool $must_exist
      * @return static
      */
-    public function setPath(?string $path, string $prefix = null, bool $must_exist = true): static
+    public function setPath(?string $path): static
     {
-        if ($path) {
-            $this->path = Strings::slash(Filesystem::absolute($path, $prefix, $must_exist));
-        } else {
-            $this->path = null;
-        }
-
+        $this->path = $path;
         return $this;
     }
 }

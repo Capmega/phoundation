@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Lsblk extends Command
@@ -32,7 +32,7 @@ class Lsblk extends Command
     {
         // Build the process parameters, then execute
         $devices = $this->clearArguments()
-            ->setInternalCommand('lsblk')
+            ->setCommand('lsblk')
             ->addArgument('-J')
             ->executeReturnString();
 
@@ -52,7 +52,7 @@ class Lsblk extends Command
     {
         // Build the process parameters, then execute
         $devices = $this->clearArguments()
-            ->setInternalCommand('lsblk')
+            ->setCommand('lsblk')
             ->addArgument('-J')
             ->executeReturnString();
 
@@ -71,7 +71,7 @@ class Lsblk extends Command
      */
     public function isStorageDevice(FileInterface|string $device): bool
     {
-        return $this->getStorageDevices()->exists(Strings::startsNotWith($device, '/dev/'));
+        return $this->getStorageDevices()->keyExists(Strings::startsNotWith($device, '/dev/'));
     }
 
 

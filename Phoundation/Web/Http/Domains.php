@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Page;
 
 
@@ -22,7 +22,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Domains {
@@ -123,7 +123,7 @@ class Domains {
      */
     public static function getCurrent(): string
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             return $_SERVER['HTTP_HOST'];
         }
 
@@ -223,7 +223,7 @@ class Domains {
     {
         if (!static::isPrimary($domain)) {
             if (!static::isWhitelist($domain)) {
-                throw ConfigurationDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
+                throw ConfigPathDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
                     ':domain' => $domain
                 ]));
             }
@@ -235,10 +235,10 @@ class Domains {
 
         // Validate configuration
         try {
-            Arrays::requiredKeys($domain_config, 'www,cdn', ConfigurationDoesNotExistsException::class);
+            Arrays::requiredKeys($domain_config, 'www,cdn', ConfigPathDoesNotExistsException::class);
             Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
-        } catch (ConfigurationDoesNotExistsException $e) {
+        } catch (ConfigPathDoesNotExistsException $e) {
             if (!Core::isState('setup')) {
                 // In setup mode we won't have any configuration but we will be able to continue
                 throw $e;
@@ -271,7 +271,7 @@ class Domains {
      * @param string $type
      * @param string|null $language
      * @return string
-     * @throws ConfigurationDoesNotExistsException If the specified domain does not exist
+     * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
 
     public static function getRootUri(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
@@ -292,7 +292,7 @@ class Domains {
      * @param string $type
      * @param string|null $language
      * @return string
-     * @throws ConfigurationDoesNotExistsException If the specified domain does not exist
+     * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
 
     public static function getRootUrl(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
@@ -308,7 +308,7 @@ class Domains {
 
             return str_replace(':LANGUAGE', $language, $url);
 
-        } catch (ConfigurationDoesNotExistsException) {
+        } catch (ConfigPathDoesNotExistsException) {
             if (isset($empty)) {
                 // Okay, this is a bit of a problem. The CURRENT domain apparently is not configured anywhere.
                 // This MIGHT be caused by "http://phoundation.org./foobar" instead of "http://phoundation.org/foobar"
@@ -321,7 +321,7 @@ class Domains {
             }
 
             // The specified domain isn't configured
-            throw new ConfigurationDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
+            throw new ConfigPathDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain
             ]));
         }
@@ -388,7 +388,7 @@ class Domains {
                 if (!Core::isState('setup')) {
                     // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
                     // so fine
-                    throw new ConfigurationDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
+                    throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
 
                 // Core has already failed, yet we are here, likely this is the setup page

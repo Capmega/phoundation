@@ -19,8 +19,8 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -31,7 +31,7 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class SignIn extends DataEntry
@@ -47,10 +47,11 @@ class SignIn extends DataEntry
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool|null $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
-        parent::__construct($identifier, $column);
+        parent::__construct($identifier, $column, $meta_enabled);
     }
 
 
@@ -81,7 +82,7 @@ class SignIn extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }

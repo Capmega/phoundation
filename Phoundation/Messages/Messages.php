@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Messages;
 
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundations\Messages
  */
 class Messages extends DataList
@@ -62,7 +62,7 @@ class Messages extends DataList
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }
@@ -74,9 +74,10 @@ class Messages extends DataList
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
+     * @param array|null $joins
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'title', string $key_column = 'id', ?string $order = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'title', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 

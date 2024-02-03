@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Date\Exception\DateTimeException;
+use Phoundation\Date\Exception\DateTimeZoneException;
+use Phoundation\Date\Interfaces\DateTimeZoneInterface;
+use Phoundation\Utils\Config;
+use Throwable;
 
 
 /**
@@ -16,10 +20,10 @@ use Phoundation\Core\Sessions\Session;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
-class DateTimeZone extends \DateTimeZone
+class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
 {
     /**
      * Ensures we have a valid DateTimeZone object, even when "system" or "user" or a timezone name string was specified
@@ -30,32 +34,46 @@ class DateTimeZone extends \DateTimeZone
     {
         if (!is_object($timezone)) {
             switch ($timezone) {
+                case '':
+                    // Default to system timezone
                 case 'system':
-                    $timezone = Config::get('locale::timezone', 'UTC');
+                    $detected = Config::get('locale.timezone', 'UTC');
+                    break;
+
+                case 'server':
+                    // The timezone which the server is using
+                    $detected = static::getServerTimezone();
                     break;
 
                 case 'user':
                     // no break
                 case 'display':
-                    $timezone = Session::getUser()->getTimezone();
-$timezone = 'PDT';
+                    // The timezone requested by the user
+                    $detected = Session::getUser()->getTimezone();
+$detected = 'PST';
                     break;
+
+                default:
+                    $detected = $timezone;
             }
 
-            if (!$timezone) {
-                $timezone = Config::get('locale::timezone', 'UTC');
+            if (!$detected) {
+                throw new DateTimeZoneException(tr('Failed to convert requested timezone ":timezone"', [
+                    ':timezone' => $timezone
+                ]));
             }
 
             // Ensure the specified timezone is valid
-            if (!in_array($timezone, DateTimeZone::listIdentifiers())) {
-                if (!array_key_exists(strtolower($timezone), DateTimeZone::listAbbreviations())) {
-                    Log::warning(tr('Specified timezone ":timezone" is not compatible with PHP, falling back to UTC', [
-                        ':timezone' => $timezone
+            if (!in_array($detected, DateTimeZone::listIdentifiers())) {
+                if (!array_key_exists(strtolower($detected), DateTimeZone::listAbbreviations())) {
+                    throw new DateTimeException(tr('Detected timezone ":timezone" (from specified ":timezone") is not supported', [
+                        ':timezone' => $timezone,
+                        ':detected' => $detected
                     ]));
-
-                    $timezone = 'UTC';
                 }
             }
+
+            $timezone = $detected;
 
         } elseif (!($timezone instanceof DateTimeZone)) {
             $timezone = $timezone->getName();
@@ -85,5 +103,27 @@ $timezone = 'PDT';
     public function getPhpDateTimeZone(): \DateTimeZone
     {
         return new \DateTimeZone($this->getName());
+    }
+
+
+    /**
+     * Returns the timezone for this server
+     *
+     * @return string
+     */
+    protected static function getServerTimezone(): string
+    {
+        static $timezone;
+
+        if (empty($timezone)) {
+            try {
+                $timezone = Config::get('server.timezone', exec('date +%Z'));
+
+            } catch (Throwable $e) {
+                throw new DateTimeZoneException(tr('Failed to get server timezone'), $e);
+            }
+        }
+
+        return $timezone;
     }
 }

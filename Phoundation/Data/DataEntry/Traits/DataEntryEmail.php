@@ -12,7 +12,7 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryEmail
@@ -24,7 +24,7 @@ trait DataEntryEmail
      */
     public function getEmail(): ?string
     {
-        return $this->getSourceFieldValue('string', 'email');
+        return $this->getSourceColumnValue('string', 'email');
     }
 
 

@@ -18,7 +18,7 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class RemoteRepositories extends Iterator
@@ -31,11 +31,11 @@ class RemoteRepositories extends Iterator
     /**
      * RemoteRepositories class constructor
      */
-    public function __construct(string $path)
+    public function __construct(string $directory)
     {
-        $this->construct($path);
+        $this->construct($directory);
         $this->source = Process::new('git')
-            ->setExecutionPath($this->path)
+            ->setExecutionDirectory($this->directory)
             ->addArgument('remote')
             ->addArgument('show')
             ->executeReturnArray();
@@ -76,6 +76,6 @@ class RemoteRepositories extends Iterator
             }
         }
 
-        return RemoteRepository::new($this->path, $key);
+        return RemoteRepository::new($this->directory, $key);
     }
 }

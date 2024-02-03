@@ -19,7 +19,7 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Axel extends Command
@@ -40,7 +40,7 @@ class Axel extends Command
         // Build the process parameters, then execute
         $this
             ->clearArguments()
-            ->setInternalCommand('axel')
+            ->setCommand('axel')
             ->addArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
             ->addArguments($this->target ? ['-O ', $this->target] : null)
             ->addArgument($this->source);

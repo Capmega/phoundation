@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Phoundation\Geo;
 
 use PDO;
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Wget;
+use Phoundation\Utils\Config;
 use Stringable;
 use Throwable;
 
@@ -26,7 +26,7 @@ use Throwable;
  * @note See http://download.geonames.org/export/dump/readme.txt
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class Import extends \Phoundation\Developer\Project\Import
@@ -60,41 +60,41 @@ class Import extends \Phoundation\Developer\Project\Import
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return Directory
      */
-    public static function download(string $path = null, RestrictionsInterface|array|string|null $restrictions = null): Directory
+    public static function download(string $directory = null, RestrictionsInterface|array|string|null $restrictions = null): Directory
     {
         // Default restrictions are default path writable
-        $path         = $path ?? PATH_DATA . 'sources/geo';
-        $restrictions = $restrictions ?? new Restrictions(PATH_DATA . 'sources/geo', true);
+        $directory         = $directory ?? DIRECTORY_DATA . 'sources/geo';
+        $restrictions = $restrictions ?? new Restrictions(DIRECTORY_DATA . 'sources/geo', true);
 
         // Ensure target path can be written and is non-existent
-        $path = Directory::new($path, $restrictions)
+        $directory = Directory::new($directory, $restrictions)
             ->ensureWritable()
             ->delete();
 
         $wget     = Wget::new();
-        $tmp_path = $wget->setExecutionPathToTemp()->getExecutionPath();
+        $tmp_path = $wget->setExecutionDirectoryToTemp()->getExecutionDirectory();
 
-        Log::action(tr('Downloading Geo files to temporary path ":path"', [':path' => $tmp_path]));
+        Log::action(tr('Downloading Geo files to temporary directory ":directory"', [':directory' => $tmp_path]));
 
         foreach (static::getGeoNamesFiles() as $file => $data) {
             Log::action(tr('Downloading GeoNames URL ":url"', [':url' => $data['url']]));
 
             // Set timeout to two hours for this download as the file is hundreds of megabytes. Depending on internet
             // connection, this can take anywhere from seconds to minutes to an hour
-            $wget->getProcess()->setTimeout(7200);
-            $wget->setSource($data['url'])
+            $wget->setTimeout(7200)
+                 ->setSource($data['url'])
                  ->setTarget($file)
                  ->execute();
         }
 
-        Log::action(tr('Moving Geo files to target path ":path"', [':path' => $path]));
-        $tmp_path->move($path);
+        Log::action(tr('Moving Geo files to target directory ":directory"', [':directory' => $directory]));
+        $tmp_path->move($directory);
 
-        return $path;
+        return $directory;
     }
 
 
@@ -108,17 +108,17 @@ class Import extends \Phoundation\Developer\Project\Import
     public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
     {
         // Determine what target path to use
-        $restrictions = $restrictions ?? Restrictions::new(PATH_DATA, true);
-        $target_path  = Config::getString('geo.geonames.path', PATH_DATA . 'sources/geo/geonames/', $target_path);
-        $target_path  = Filesystem::absolute($target_path, PATH_ROOT, false);
+        $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
+        $target_path  = Config::getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
+        $target_path  = Filesystem::absolute($target_path, DIRECTORY_ROOT, false);
 
         Directory::new($target_path, $restrictions)->ensure();
-        Log::action(tr('Processing GeoNames Geo files and moving to path ":path"', [':path' => $target_path]));
+        Log::action(tr('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(PATH_DATA . 'garbage/geonames', $restrictions->addPath(PATH_DATA . 'garbage/', true))->delete();
-            $previous = Directory::new($target_path, $restrictions)->move(PATH_DATA . 'garbage/');
+            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))->delete();
+            $previous = Directory::new($target_path, $restrictions)->move(DIRECTORY_DATA . 'garbage/');
 
             // Prepare and import each file
             foreach (static::getGeoNamesFiles() as $file => $data) {
@@ -209,11 +209,11 @@ class Import extends \Phoundation\Developer\Project\Import
     /**
      * Import the GeoNames data
      *
-     * @param string $path
+     * @param string $directory
      * @param string|null $database
      * @return void
      */
-    public static function load(string $path, ?string $database = null): void
+    public static function load(string $directory, ?string $database = null): void
     {
 return;
         if (!$database) {
@@ -221,14 +221,14 @@ return;
             $database = 'geonames';
         }
 
-        Log::action(tr('Starting data import from path ":path"', [
-            ':path' => $path
+        Log::action(tr('Starting data import from directory ":directory"', [
+            ':directory' => $directory
         ]));
 
         // Get the system SQL configuration, so we can use the user and password from there
         $config = sql()->readConfiguration('system');
 
-        Sql::addConfiguration('geonames', [
+        Sql::addConnector('geonames', [
             'name'           => 'geonames',
             'user'           => $config['user'],
             'pass'           => $config['pass'],
@@ -361,7 +361,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/allCountries.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/allCountries.txt"
             INTO TABLE geoname
             CHARACTER SET "UTF8"
                 (geonameid, name, asciiname, alternatenames, latitude, longitude, fclass, fcode, country, cc2, admin1, admin2, admin3, admin4, population, elevation, gtopo30, timezone, moddate);');
@@ -371,7 +371,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/alternateNames.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/alternateNames.txt"
             INTO TABLE alternatename
             CHARACTER SET "UTF8"
                 (alternatenameid, geonameid, isoLanguage, alternateName, isPreferredName, isShortName, isColloquial, isHistoric);');
@@ -381,7 +381,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/iso-languagecodes.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/iso-languagecodes.txt"
             INTO TABLE iso_languagecodes
             CHARACTER SET "UTF8"
             IGNORE 1 LINES
@@ -392,7 +392,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/admin1CodesASCII.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/admin1CodesASCII.txt"
             INTO TABLE admin1CodesAscii
             CHARACTER SET "UTF8"
                 (code, name, nameAscii, geonameid);');
@@ -402,7 +402,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/admin2Codes.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/admin2Codes.txt"
             INTO TABLE admin2Codes
             CHARACTER SET "UTF8"
                 (code, name, nameAscii, geonameid);');
@@ -412,7 +412,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/hierarchy.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/hierarchy.txt"
             INTO TABLE hierarchy
             CHARACTER SET "UTF8"
                 (parentId, childId, type);');
@@ -422,7 +422,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/featureCodes_en.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/featureCodes_en.txt"
             INTO TABLE featureCodes
             CHARACTER SET "UTF8"
                 (code, name, description);');
@@ -432,7 +432,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/timeZones.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/timeZones.txt"
             INTO TABLE timeZones
             CHARACTER SET "UTF8"
             IGNORE 1 LINES
@@ -443,7 +443,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/countryInfo.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/countryInfo.txt"
             INTO TABLE countryinfo
             CHARACTER SET "UTF8"
             IGNORE 51 LINES
@@ -454,7 +454,7 @@ return;
         sql('geonames')->query('SET GLOBAL local_infile=true;
             SET SESSION wait_timeout=600;
             
-            LOAD DATA LOCAL INFILE "' . PATH_DATA . 'sources/geo/geonames/continentCodes.txt"
+            LOAD DATA LOCAL INFILE "' . DIRECTORY_DATA . 'sources/geo/geonames/continentCodes.txt"
             INTO TABLE continentCodes
             CHARACTER SET "UTF8"
             FIELDS TERMINATED BY ","

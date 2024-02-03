@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataDataEntryClass;
 use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -16,6 +14,8 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use ReflectionProperty;
 
 
@@ -26,13 +26,14 @@ use ReflectionProperty;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 trait ValidatorBasics
 {
     use DataIntId;
     use DataMaxStringSize;
+    use DataDataEntryClass;
 
 
     /**
@@ -153,7 +154,7 @@ trait ValidatorBasics
     protected ?string $parent_field = null;
 
     /**
-     * Child Validator object for sub array elements. When validating the final result, the results from all the child
+     * Child Validator object for subarray elements. When validating the final result, the results from all the child
      * validators will be added to the result as well
      *
      * @var array $children
@@ -316,8 +317,8 @@ trait ValidatorBasics
      * @param mixed $default
      * @return static
      *
-     * @see Validator::xor()
-     * @see Validator::or()
+     * @see Validator::xorColumn()
+     * @see Validator::orColumn()
      */
     public function isOptional(mixed $default = null): static
     {
@@ -364,9 +365,9 @@ trait ValidatorBasics
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::or()
+     * @see Validator::orColumn()
      */
-    public function xor(string $field, bool $rename = false): static
+    public function xorColumn(string $field, bool $rename = false): static
     {
         if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
@@ -380,7 +381,7 @@ trait ValidatorBasics
             // The currently selected field exists, the specified field cannot exist
             if (isset_get($this->source[$field])) {
                 $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
-                    ':field' => $field,
+                    ':field'          => $field,
                     ':selected_field' => $this->selected_field
                 ]));
             }
@@ -413,18 +414,22 @@ trait ValidatorBasics
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::xor()
+     * @see Validator::xorColumn()
      */
-    public function or(string $field): static
+    public function orColumn(string $field): static
     {
+        // Ensure that the specified field has the field prefix added if required so
         if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;
         }
 
         if ($this->selected_field === $field) {
-            throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
+            throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [
+                ':field' => $field
+            ]));
         }
 
+        // If the specified OR field does not exist, this field will be required
         if (!isset_get($this->source[$this->selected_field])) {
             if (!$this->selected_is_optional) {
                 // The currently selected field is required but does not exist, so the other must exist
@@ -476,7 +481,7 @@ trait ValidatorBasics
 
 
     /**
-     * Recurse into a sub array and return another validator object for that sub array
+     * Recurse into a subarray and return another validator object for that subarray
      *
      * @return static
      */
@@ -544,6 +549,7 @@ trait ValidatorBasics
         if ($this->failures) {
             throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                 ->addData($this->failures)
+                ->setDataEntryClass($this->data_entry_class)
                 ->makeWarning();
         }
 
@@ -762,7 +768,7 @@ trait ValidatorBasics
         // Determine data source for this modification
         if (!$source) {
             // Use default data depending on platform
-            if (PLATFORM_HTTP) {
+            if (PLATFORM_WEB) {
                 return PostValidator::new();
             }
 

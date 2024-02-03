@@ -7,9 +7,9 @@ namespace Phoundation\Content\Images;
 use Phoundation\Content\Content;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Exception\ImagesException;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
-use Phoundation\Web\Http\Html\Components\Img;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Img;
 
 
 /**
@@ -19,7 +19,7 @@ use Phoundation\Web\Http\Html\Components\Img;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
 class Image extends Content implements ImageInterface
@@ -29,7 +29,7 @@ class Image extends Content implements ImageInterface
      *
      * @var string|null
      */
-    protected ?string $file = null;
+    protected ?string $path = null;
 
     /**
      * Description for this image. Will be used as ALT text when converting this to an image HTML element
@@ -85,21 +85,21 @@ class Image extends Content implements ImageInterface
     public function getInformation(): array
     {
         $return = [
-            'file' => $this->file,
-            'exists' => file_exists($this->file)
+            'file' => $this->path,
+            'exists' => file_exists($this->path)
         ];
 
         if ($return['exists']) {
-            $return['size'] = filesize($this->file);
+            $return['size'] = filesize($this->path);
         }
 
         if ($return['size']) {
-            $return['mimetype'] = File::new($this->file, $this->restrictions)->getMimetype();
+            $return['mimetype'] = File::new($this->path, $this->restrictions)->getMimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {
             $return['is_image'] = true;
-            $dimensions = getimagesize($this->file);
+            $dimensions = getimagesize($this->path);
 
             $return['bits']       = $dimensions['bits'];
             $return['dimensions'] = [
@@ -125,7 +125,7 @@ class Image extends Content implements ImageInterface
     public function getHtmlElement(): Img
     {
         return Img::new()
-            ->setSrc($this->file)
+            ->setSrc($this->path)
             ->setAlt($this->description);
     }
 
@@ -137,11 +137,11 @@ class Image extends Content implements ImageInterface
      */
     protected function getExifInformation(): array
     {
-        $exif = exif_read_data($this->file);
+        $exif = exif_read_data($this->path);
 
         if (!$exif) {
             throw new ImagesException(tr('Failed to read EXIF information from image file ":file"', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
         }
 

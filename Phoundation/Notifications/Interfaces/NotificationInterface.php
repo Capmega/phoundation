@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Notifications\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -15,7 +17,7 @@ use Throwable;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
 interface NotificationInterface extends DataEntryInterface
@@ -53,18 +55,18 @@ interface NotificationInterface extends DataEntryInterface
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered roles
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function setRoles(IteratorInterface|array|string $roles): static;
+    public function setRoles(IteratorInterface|array|string|int $roles): static;
 
     /**
      * Sets the message for this notification
      *
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function addRoles(IteratorInterface|array|string $roles): static;
+    public function addRoles(IteratorInterface|array|string|int $roles): static;
 
     /**
      * Sets the message for this notification

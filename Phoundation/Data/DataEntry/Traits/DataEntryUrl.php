@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-
 use Stringable;
+
 
 /**
  * Trait DataEntryUrl
@@ -14,7 +14,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryUrl
@@ -26,7 +26,7 @@ trait DataEntryUrl
      */
     public function getUrl(): ?string
     {
-        return $this->getSourceFieldValue('string', 'url');
+        return $this->getSourceColumnValue('string', 'url');
     }
 
 

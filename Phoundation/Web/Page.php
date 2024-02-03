@@ -12,20 +12,20 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Api\ApiInterface;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
+use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
+use Phoundation\Data\Traits\DataStaticExecuted;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
 use Phoundation\Developer\Debug;
@@ -41,23 +41,29 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\PageException;
-use Phoundation\Web\Exception\WebException;
+use Phoundation\Web\Exception\RedirectException;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Menus\Menus;
+use Phoundation\Web\Html\Template\Template;
+use Phoundation\Web\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Flash;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Menus\Menus;
-use Phoundation\Web\Http\Html\Template\Template;
-use Phoundation\Web\Http\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Interfaces\PageInterface;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Non200Urls\Non200Url;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Stringable;
@@ -71,11 +77,14 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Page implements PageInterface
 {
+    use DataStaticExecuted;
+
+
     /**
      * Classes to apply on default sections of the page
      *
@@ -196,34 +205,14 @@ class Page implements PageInterface
      *
      * @var array $headers
      */
-    protected static array $headers = [
-        'link'       => [],
-        'meta'       => [],
-        'javascript' => []
-    ];
+    protected static array $headers;
 
     /**
      * Information that goes into the HTML footer
      *
      * @var array $footers
      */
-    protected static array $footers = [
-        'javascript' => []
-    ];
-
-    /**
-     * The files that should be added in the header
-     *
-     * @var array
-     */
-    protected static array $header_files = [];
-
-    /**
-     * The files that should be added in the footer
-     *
-     * @var array
-     */
-    protected static array $footer_files = [];
+    protected static array $footers;
 
     /**
      * The unique hash for this page
@@ -291,9 +280,9 @@ class Page implements PageInterface
     /**
      * Contains the routing parameters like root url, template, etc
      *
-     * @var RoutingParameters $parameters
+     * @var RoutingParametersInterface $parameters
      */
-    protected static RoutingParameters $parameters;
+    protected static RoutingParametersInterface $parameters;
 
     /**
      * The menus for this page
@@ -314,14 +303,24 @@ class Page implements PageInterface
 
 
     /**
-     * Page class constructor
+     * Resets all headers / footers
      *
-     * @throws Exception
+     * @return void
      */
-    protected function __construct()
+    protected static function resetHeadersFooters()
     {
-        static::$headers['meta']['charset']  = Config::get('languages.encoding.charset', 'UTF-8');
-        static::$headers['meta']['viewport'] = Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no');
+        static::$headers = [
+            'link'       => [],
+            'meta'       => [
+                'charset'  => Config::get('languages.encoding.charset', 'UTF-8'),
+                'viewport' => Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no'),
+            ],
+            'javascript' => []
+        ];
+
+        static::$footers = [
+            'javascript' => []
+        ];
     }
 
 
@@ -402,6 +401,10 @@ class Page implements PageInterface
             throw new PageException(tr('Cannot return routing parameters, this requires the HTTP platform'));
         }
 
+        if (empty(static::$parameters)) {
+            throw new PageException(tr('Cannot return routing parameters, parameters have not yet been set'));
+        }
+
         return static::$parameters;
     }
 
@@ -409,11 +412,12 @@ class Page implements PageInterface
     /**
      * Sets page parameters specified by the router
      *
-     * @param RoutingParameters $parameters
+     * @param RoutingParametersInterface $parameters
      * @return void
      */
-    public static function setRoutingParameters(RoutingParameters $parameters): void
+    public static function setRoutingParameters(RoutingParametersInterface $parameters): void
     {
+        static::resetHeadersFooters();
         static::$parameters = $parameters;
 
         // Set the server filesystem restrictions and template for this page
@@ -431,6 +435,18 @@ class Page implements PageInterface
             static::$template      = $parameters->getTemplateObject();
             static::$template_page = static::$template->getPage();
         }
+    }
+
+
+    /**
+     * Sets the template to the specified template name
+     *
+     * @param string $template
+     * @return void
+     */
+    public static function setTemplate(string $template): void
+    {
+        static::setRoutingParameters(static::getRoutingParameters()->setTemplate($template));
     }
 
 
@@ -457,7 +473,7 @@ class Page implements PageInterface
     public static function getLanguageCode(): string
     {
         if (empty(static::$language)) {
-            if (PLATFORM_HTTP) {
+            if (PLATFORM_WEB) {
                 // Get requested language from client
                 static::$language_code = static::detectRequestedLanguage();
 
@@ -478,7 +494,7 @@ class Page implements PageInterface
      */
     public static function getPort(): int
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             return (int) $_SERVER['SERVER_PORT'];
         }
 
@@ -519,17 +535,6 @@ class Page implements PageInterface
     public static function getTarget(): ?string
     {
         return static::$target;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectName():string
-    {
-        return str_replace('_', '-', strtolower(PROJECT));
     }
 
 
@@ -588,11 +593,12 @@ class Page implements PageInterface
      * Returns the class for the given section, if available
      *
      * @param string $section
+     * @param string|null $default
      * @return string|null
      */
-    public static function getClass(string $section): ?string
+    public static function getClass(string $section, ?string $default = null): ?string
     {
-        return isset_get(static::$page_classes[$section]);
+        return isset_get(static::$page_classes[$section], $default);
     }
 
 
@@ -680,7 +686,7 @@ class Page implements PageInterface
      */
     public static function getProtocol(): string
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             return $_SERVER['REQUEST_SCHEME'];
         }
 
@@ -1121,12 +1127,18 @@ class Page implements PageInterface
     public static function hasRightsOrRedirects(array|string $rights, string $target, ?int $rights_redirect = null, ?string $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
-            // Well then, all fine and dandy!
+            if (Session::getSignInKey() === null) {
+                // Well, then, all fine and dandy!
+                return;
+            }
+
+            // Check sign-key restrictions and if those are okay, we are good to go
+            static::hasSignKeyRestrictions($rights, $target);
             return;
         }
 
         if (!$target) {
-            // If target wasn't specified we can safely assume it's the same as the page target.
+            // If target wasn't specified, we can safely assume it's the same as the page target.
             $target = static::$target;
         }
 
@@ -1135,7 +1147,7 @@ class Page implements PageInterface
         $system = basename($system);
 
         if ($system === 'system') {
-            // Hurrah, its a bo.. system page! System pages require no rights, everyone can see a 404, 500, etc...
+            // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see a 404, 500, etc...
             return;
         }
 
@@ -1146,22 +1158,24 @@ class Page implements PageInterface
                 $guest_redirect = '/sign-in.html';
             }
 
-            $guest_redirect = (string) UrlBuilder::getWww($guest_redirect)
-                ->addQueries('redirect=' . urlencode((string) UrlBuilder::getCurrent()));
+            $current        = static::getRedirect(UrlBuilder::getCurrent());
+            $guest_redirect = UrlBuilder::getWww($guest_redirect)
+                ->addQueries($current ? 'redirect=' . $current : null);
 
             Incident::new()
-                ->setType('401 - Unauthorized')->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to "system/:redirect"', [
-                    ':target'      => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
+                ->setType('401 - Unauthorized')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
+                    ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $guest_redirect,
                     ':rights'      => $rights
                 ]))
                 ->setDetails([
                     'user'        => 0,
-                    'uri'         => Page::getUri(),
-                    'target'      => Strings::from(static::$target, PATH_ROOT),
-                    'real_target' => Strings::from($target, PATH_ROOT),
+                    'uri'         => static::getUri(),
+                    'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target' => Strings::from($target, DIRECTORY_ROOT),
                     'rights'      => $rights
                 ])
                 ->save();
@@ -1199,17 +1213,17 @@ class Page implements PageInterface
             // One or more of the rights do not exist
             Incident::new()
                 ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to "system/:redirect"', [
+                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
-                    ':target'      => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'           => Session::getUser()->getLogId(),
-                    'uri'            => Page::getUri(),
-                    'target'         => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target'   => Strings::from($target, PATH_ROOT),
+                    'uri'            => static::getUri(),
+                    'target'         => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target'    => Strings::from($target, DIRECTORY_ROOT),
                     'rights'         => $rights,
                     'missing_rights' => Rights::getNotExist($rights)
                 ])
@@ -1224,16 +1238,16 @@ class Page implements PageInterface
                 ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                     ':user'        => Session::getUser()->getLogId(),
                     ':rights'      => Session::getUser()->getMissingRights($rights),
-                    ':target'      => Strings::from(static::$target, PATH_ROOT),
-                    ':real_target' => Strings::from($target, PATH_ROOT),
+                    ':target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    ':real_target' => Strings::from($target, DIRECTORY_ROOT),
                     ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'        => Session::getUser()->getLogId(),
-                    'uri'         => Page::getUri(),
-                    'target'      => Strings::from(static::$target, PATH_ROOT),
-                    'real_target' => Strings::from($target, PATH_ROOT),
-                    ':rights'      => Session::getUser()->getMissingRights($rights),
+                    'uri'         => static::getUri(),
+                    'target'      => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target' => Strings::from($target, DIRECTORY_ROOT),
+                    'rights'      => Session::getUser()->getMissingRights($rights),
                 ])
                 ->notifyRoles('accounts')
                 ->save();
@@ -1241,6 +1255,61 @@ class Page implements PageInterface
 
         // This method will exit
         Route::executeSystem($rights_redirect);
+    }
+
+
+    /**
+     * Returns true if the current URL has sign-key restrictions
+     *
+     * @param array|string $rights
+     * @param string $target
+     * @return void
+     */
+    protected static function hasSignKeyRestrictions(array|string $rights, string $target): void
+    {
+        $key = Session::getSignInKey();
+
+        // User signed in with "sign-in" key that may have additional restrictions
+        if (!Core::isRequestType(EnumRequestTypes::html)) {
+            Incident::new()
+                ->setType('401 - Unauthorized')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('Session keys cannot be used on ":type" requests', [
+                    ':type' => Core::getRequestType(),
+                ]))
+                ->setDetails([
+                    'user'         => $key->getUser()->getLogId(),
+                    'uri'          => static::getUri(),
+                    'target'       => Strings::from(static::$target, DIRECTORY_ROOT),
+                    'real_target'  => Strings::from($target, DIRECTORY_ROOT),
+                    'rights'       => $rights,
+                    ':sign_in_key' => $key->getUuid()
+                ])
+                ->save();
+
+            Route::executeSystem(401);
+        }
+
+        if (!$key->signKeyAllowsUrl(UrlBuilder::getCurrent(), $target)) {
+            Incident::new()
+                ->setType('401 - Unauthorized')
+                ->setSeverity(Severity::low)
+                ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
+                    ':url'   => UrlBuilder::getCurrent(),
+                    ':allow' => $key->getRedirect(),
+                    ':uuid'  => $key->getUuid()
+                ]))
+                ->setDetails([
+                    ':url'      => UrlBuilder::getCurrent(),
+                    ':users_id' => $key->getUsersId(),
+                    ':allow'    => $key->getRedirect(),
+                    ':uuid'     => $key->getUuid()
+                ])
+                ->save();
+
+            // This method will exit
+            Route::executeSystem(401);
+        }
     }
 
 
@@ -1257,22 +1326,32 @@ class Page implements PageInterface
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
+     * @param bool $system        If true, this is a system page being executed
      * @return never
      *
      * @see Route::execute()
      * @see Template::execute()
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false): never
+    #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
     {
+        // Ensure we have received routing parameters, can't execute without!
+        if (empty(static::$parameters)) {
+            throw new PageException(tr('Cannot execute target ":target", no routing parameters specified', [
+                ':target' => $target
+            ]));
+        }
+
         try {
-            // Startup the page
-            // See if we have to redirect
-            // See if we can use cache.
+            // Start the page up
             static::startup($target);
-            static::checkForceRedirect();
+
+            if (!$system) {
+                // System pages never have a redirect
+                static::checkForceRedirect();
+            }
+
             static::tryCache($target, $attachment);
 
-            Core::writeRegister($target, 'system', 'script_file');
             ob_start();
 
             // Execute the specified target file
@@ -1293,7 +1372,7 @@ class Page implements PageInterface
                 Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
 
-            // All done, send output to client
+            // All done, send output to the client
             $output = static::filterOutput($output);
             static::sendOutputToClient($output, $target, $attachment);
 
@@ -1306,28 +1385,14 @@ class Page implements PageInterface
         } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
             Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
 
-        } catch (DataEntryNotExistsExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" warning. Executing "system/404" instead'));
+        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
             Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception $e) {
             Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-
-        } catch (Exception $e) {
-            // This will cause a 500 page on non debug environments, core dump on debug environments
-            // TODO Test if this assumption is correct!
-            Notification::new()
-                ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getRequestType()->value,
-                    ':page'     => $target,
-                    ':language' => LANGUAGE
-                ]))
-                ->setException($e)
-                ->send();
-
-            throw $e;
         }
     }
 
@@ -1335,26 +1400,36 @@ class Page implements PageInterface
     /**
      * Executes the specified system page after a page had an exception
      *
-     * @param int $page
+     * @param int $http_code
      * @param Throwable $e
      * @param string $message
      * @return void
      */
-    #[NoReturn] protected static function executeSystemAfterPageException(Throwable $e, int $page, string $message): void
+    #[NoReturn] protected static function executeSystemAfterPageException(Throwable $e, int $http_code, string $message): void
     {
+        if (Config::getBoolean('security.web.monitor.non-200-urls', true)) {
+            Non200Url::new()->generate($http_code)->save();
+        }
+
         Log::warning($message);
+        Log::warning('Registered request as non HTTP-200 URL');
         Log::warning($e);
 
         // Clear flash messages
         Session::getFlashMessages()->clear();
 
+        // Modify POST requests to GET requests and remove all GET and POST data
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        GetValidator::new()->clear();
+        PostValidator::new()->clear();
+
         Core::writeRegister($e, 'e');
-        Route::executeSystem($page);
+        Route::executeSystem($http_code);
     }
 
 
     /**
-     * Check if this user should be forcibly be redirected to a different page
+     * Check if this user should be forcibly being redirected to a different page
      *
      * @return void
      */
@@ -1362,28 +1437,83 @@ class Page implements PageInterface
     {
         // Does this user have a forced redirect?
         if (!Session::getUser()->isGuest()) {
-            if (Session::getUser()->getRedirect()) {
+            $redirect = Session::getUser()->getRedirect();
+
+            if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
-                $redirect = Session::getUser()->getRedirect();
-                $current  = (string) UrlBuilder::getCurrent();
+                $current = (string) UrlBuilder::getCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
-                    // We're at a different page, is it sign out? Because that one is allowed
-
-                    $signout = (string) UrlBuilder::getWww(Config::getString('web.pages.sign-out', '/sign-out.html'));
-
-                    if ($current !== $signout) {
-                        // No it's not, redirect!
-                        Log::warning(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+                    // We're at a different page. Should we redirect to the specified page?
+                    if (!static::skipRedirect()) {
+                        // No, it's not, redirect!
+                        Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUser()->getLogId(),
                             ':url'  => $redirect
                         ]));
 
-                        Page::redirect(UrlBuilder::getWww($redirect)->addQueries('redirect=' . urlencode($current)));
+                        // Get URL builder object, ensure that sign-in page gets a redirect=$current_url
+                        $redirect = UrlBuilder::getWww($redirect);
+
+                        if ((string) $redirect === (string) UrlBuilder::getWww('sign-in')) {
+                            $redirect->addQueries('redirect=' . $current);
+                        }
+
+                        Page::redirect($redirect);
                     }
+
+                    Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
+                        ':user' => Session::getUser()->getLogId(),
+                        ':url'  => $redirect
+                    ]));
                 }
             }
         }
+    }
+
+
+    /**
+     * Returns true if redirecting for the specified URL should be skipped
+     *
+     * Currently, sign-out or index pages should not be redirected to
+     *
+     * @param Stringable|string|null $url
+     * @return bool
+     */
+    protected static function skipRedirect(Stringable|string|null $url = null): bool
+    {
+        if (!$url) {
+            // Default to current URL
+            $url = UrlBuilder::getCurrent();
+        }
+
+        // Compare URLs without queries
+        $url  = Strings::until((string) $url, '?');
+        $skip = [
+            (string) UrlBuilder::getWww('sign-out'),
+        ];
+
+        return in_array($url, $skip);
+    }
+
+
+    /**
+     * Returns the redirect URL if it should not be skipped
+     *
+     * @param Stringable|string $redirect
+     * @return string|null
+     */
+    protected static function getRedirect(Stringable|string $redirect): ?string
+    {
+        if (static::skipRedirect($redirect)) {
+            Log::warning(tr('Skipping redirect to ":redirect" as it is now allowed', [
+                ':redirect' => $redirect
+            ]));
+
+            return null;
+        }
+
+        return (string) $redirect;
     }
 
 
@@ -1394,23 +1524,32 @@ class Page implements PageInterface
      * @param UrlBuilder|string|bool|null $url
      * @param int $http_code
      * @param int|null $time_delay
+     * @param string|null $reason_warning
      * @return never
      * @see UrlBuilder
      * @see UrlBuilder::addQueries()
-     *
      */
-    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null): never
+    #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
-        if (!PLATFORM_HTTP) {
-            throw new WebException(tr('Page::redirect() can only be called on web sessions'));
+        if (!PLATFORM_WEB) {
+            throw new RedirectException(tr('Page::redirect() can only be called on web sessions'));
         }
+
+//        if (Session::getSignInKey()?->getAllowNavigation()) {
+//            // This session was opened using a sign-in key that does not allow navigation, we cannot redirect away!
+//            throw new RedirectException(tr('Cannot redirect sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
+//                ':uuid' => Session::getSignInKey()->getUuid(),
+//                ':user' => Session::getUser()->getLogId(),
+//                ':url'  => $url
+//            ]));
+//        }
 
         // Build URL
         $redirect = UrlBuilder::getWww($url);
 
         // Protect against endless redirecting.
         if (UrlBuilder::isCurrent($redirect)) {
-            // POST requests may redirect to the same page as the redirect will change POST to GET
+            // POST-requests may redirect to the same page as the redirect will change POST to GET
             if (!Page::isPostRequestMethod()) {
                 // If the specified redirect URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
@@ -1425,8 +1564,8 @@ class Page implements PageInterface
         }
 
         if (isset_get($_GET['redirect'])) {
-            // Add redirect back query
-            $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => urlencode($_GET['redirect'])]);
+            // Add a redirect back query
+            $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => $_GET['redirect']]);
         }
 
         /*
@@ -1438,12 +1577,8 @@ class Page implements PageInterface
          * 307 Temporary Redirect
          */
         switch ($http_code) {
-            case 0:
-                // no-break
             case 301:
-                $http_code = 301;
-                break;
-
+                // no-break
             case 302:
                 // no-break
             case 303:
@@ -1458,17 +1593,26 @@ class Page implements PageInterface
                 ]));
         }
 
+        if ($reason_warning) {
+            Log::warning(tr('Redirecting because: :reason', [':reason' => $reason_warning]));
+        }
+
         // Redirect with time delay
         if ($time_delay) {
-            Log::information(tr('Redirecting with ":time" seconds delay to url ":url"', [
+            Log::action(tr('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
+                ':http' => $http_code,
                 ':time' => $time_delay,
-                ':url' => $redirect
+                ':url'  => $redirect
             ]));
 
-            header('Refresh: '.$time_delay.';'.$redirect, true, $http_code);
+            header('Refresh: '.$time_delay . ';' . $redirect, true, $http_code);
         } else {
             // Redirect immediately
-            Log::information(tr('Redirecting to url ":url"', [':url' => $redirect]));
+            Log::action(tr('Redirecting with HTTP ":http" to url ":url"', [
+                ':http' => $http_code,
+                ':url'  => $redirect
+            ]));
+
             header('Location:' . $redirect, true, $http_code);
         }
 
@@ -1576,7 +1720,7 @@ class Page implements PageInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null)
                 ];
 
-                if (empty(Config::get('languages.supported', [])[$requested['language']])) {
+                if (empty(Config::get('language.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -1694,7 +1838,7 @@ class Page implements PageInterface
 
 
     /**
-     * Add meta information
+     * Add meta-information
      *
      * @param string $key
      * @param string $value
@@ -1716,9 +1860,9 @@ class Page implements PageInterface
     {
         try {
             if (!$url) {
-                $url  = 'img/favicons/' . Page::getProjectName() . '/project.png';
+                $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
-                $file = Filesystem::absolute(LANGUAGE . '/' . $url, PATH_CDN);
+                $file = Filesystem::absolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
@@ -1833,7 +1977,7 @@ class Page implements PageInterface
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
 
         if (static::$page_title) {
-            $return .= '<title>' . (Core::isProduction() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
+            $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
 
         foreach (static::$headers['meta'] as $key => $value) {
@@ -1985,7 +2129,7 @@ class Page implements PageInterface
 
         // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Debug::production() or !Core::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
+        if (!Core::isProductionEnvironment() or !Core::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -2040,9 +2184,9 @@ class Page implements PageInterface
     /**
      * Send all the specified HTTP headers
      *
-     * @note The amount of sent bytes does NOT include the bytes sent for the HTTP response code header
+     * @note The number of sent bytes does NOT include the bytes sent for the HTTP response code header
      * @param array|null $headers
-     * @return int The amount of bytes sent. -1 if static::sendHeaders() was called for the second time.
+     * @return int The number of bytes sent. -1 if static::sendHeaders() was called for the second time.
      */
     public static function sendHttpHeaders(?array $headers): int
     {
@@ -2100,7 +2244,7 @@ class Page implements PageInterface
             exit($exit_message);
         }
 
-        // POST requests should always show a flash message for feedback!
+        // POST-requests should always show a flash message for feedback!
         if (Page::isPostRequestMethod()) {
             if (!Page::getFlashMessages()->getCount()) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
@@ -2109,7 +2253,7 @@ class Page implements PageInterface
 
         if (static::$http_code === 200) {
             Log::success(tr('Script ":script" ended successfully with HTTP code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':script'   => static::getExecutedPath(),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':httpcode' => static::$http_code
@@ -2117,7 +2261,7 @@ class Page implements PageInterface
 
         } else {
             Log::warning(tr('Script ":script" ended with HTTP warning code ":httpcode" in ":time" with ":usage" peak memory usage', [
-                ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+                ':script'   => static::getExecutedPath(),
                 ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                 ':httpcode' => static::$http_code
@@ -2315,13 +2459,15 @@ class Page implements PageInterface
                 ':file' => $file,
                 ':line' => $line
             ]));
-            Log::backtrace();
+
             return true;
         }
 
         if (static::$http_headers_sent) {
             // Since
-            Log::warning(tr('HTTP Headers already sent by static::sendHeaders(). This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.'), 2);
+            Log::warning(tr('HTTP Headers already sent by :method. This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.', [
+                ':method' => 'static::sendHeaders()'
+            ]), 2);
             return true;
         }
 
@@ -2334,7 +2480,10 @@ class Page implements PageInterface
 
 
     /**
-     * Starts up this page object
+     * Starts this page object up
+     *
+     * This method will start up the session, perform a sleep() call  if we're on a system page, convert the target to
+     * an absolute filename, and will check target restrictions.
      *
      * @param string $target
      * @return void
@@ -2377,6 +2526,7 @@ class Page implements PageInterface
         static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
+        // Check only when in state "script". State "maintentance" for example, requires no rights checking
         if (Core::isState('script')) {
             Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }
@@ -2423,7 +2573,7 @@ class Page implements PageInterface
      */
     protected static function detectRequestedLanguage(): string
     {
-        $languages = Config::getArray('languages.supported', []);
+        $languages = Config::getArray('language.supported', []);
 
         switch (count($languages)) {
             case 0:
@@ -2453,7 +2603,7 @@ class Page implements PageInterface
                     ->setUrl('developer/incidents.html')
                     ->setMode(DisplayMode::warning)
                     ->setCode('unsupported-languages-requested')
-                    ->setRoles('developers')
+                    ->setRoles('developer')
                     ->setTitle(tr('Unsupported language requested by client'))
                     ->setMessage(tr('None of the requested languages ":languages" is supported', [
                         ':languages' => $requested
@@ -2490,6 +2640,7 @@ class Page implements PageInterface
     /**
      * Executes the target with the correct page driver (API or normal web page for now)
      *
+     * @todo Move AccessDeniedException handling to Page::execute()
      * @param string $target
      * @return string
      */
@@ -2498,10 +2649,12 @@ class Page implements PageInterface
         try {
             // Execute the file and send the output HTML as a web page
             Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                ':target'   => Strings::from($target, PATH_ROOT),
+                ':target'   => Strings::from($target, DIRECTORY_ROOT),
                 ':template' => static::$template->getName(),
                 ':language' => LANGUAGE
             ]));
+
+            static::addExecutedPath($target);
 
             switch (Core::getRequestType()) {
                 case EnumRequestTypes::api:
@@ -2514,14 +2667,17 @@ class Page implements PageInterface
                 default:
                     $output = static::$template_page->execute($target);
             }
+
         } catch (AccessDeniedException $e) {
             $new_target = $e->getNewTarget();
 
-            Log::warning(tr('Access denied to target ":target" for user ":user", redirecting to new target ":new"', [
+            Log::warning(tr('Access denied to target ":target" for user ":user", executing target ":new" instead', [
                 ':target' => $target,
                 ':user'   => Session::getUser()->getDisplayId(),
                 ':new'    => $new_target
             ]));
+
+            static::addExecutedPath($new_target);
 
             $output = match (Core::getRequestType()) {
                 EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),
@@ -2567,7 +2723,7 @@ class Page implements PageInterface
      */
     protected static function getAbsoluteTarget(string $target): string
     {
-        return Filesystem::absolute($target, PATH_WWW . 'pages/');
+        return Filesystem::absolute($target, DIRECTORY_WWW . 'pages/');
     }
 
 
@@ -2595,7 +2751,7 @@ class Page implements PageInterface
         if (Config::getBoolean('cache.version-files', true)) {
             // Determine the absolute file path
             // then get timestamp and inject it into the given file
-            $file = PATH_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
+            $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
             $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
         }
 

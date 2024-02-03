@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
@@ -11,11 +14,11 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 /**
  * Validate class
  *
- * This class can apply a large amount of validation tests on a single value
+ * This class can apply a large number of validation tests on a single value
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class Validate
@@ -217,12 +220,18 @@ class Validate
     /**
      * Validates if the specified value is a valid port
      *
-     * @param array $compare
+     * @param IteratorInterface|array $compare
      * @return static
      */
-    public function isInArray(array $compare): static
+    public function isInArray(IteratorInterface|array $compare): static
     {
-        if (!in_array($this->source, $compare)) {
+        if ($compare instanceof IteratorInterface) {
+            $failed = !$compare->keyExists($this->source);
+        } else {
+            $failed = !in_array($this->source, $compare);
+        }
+
+        if ($failed) {
             throw new ValidationFailedException(tr('The specified value must be one of ":list"', [
                 ':list' => $compare
             ]));
@@ -233,7 +242,7 @@ class Validate
 
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -243,7 +252,9 @@ class Validate
         $this->isString();
 
         if (strlen($this->source) != $characters) {
-            throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [':count' => $characters]));
+            throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [
+                ':count' => $characters
+            ]));
         }
 
         return $this;
@@ -251,7 +262,7 @@ class Validate
 
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -261,7 +272,9 @@ class Validate
         $this->isString();
 
         if (strlen($this->source) < $characters) {
-            throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [':count' => $characters]));
+            throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [
+                ':count' => $characters
+            ]));
         }
 
         return $this;
@@ -269,7 +282,7 @@ class Validate
 
 
     /**
-     * Validates that the selected field is equal or shorter than the specified amount of characters
+     * Validates that the selected field is equal or shorter than the specified number of characters
      *
      * @param int|null $characters
      * @return static
@@ -278,11 +291,13 @@ class Validate
     {
         $this->isString();
 
-        // Validate the maximum amount of characters
+        // Validate the maximum number of characters
         $characters = $this->getMaxStringSize($characters);
 
         if (strlen($this->source) > $characters) {
-            throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [':count' => $characters]));
+            throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [
+                ':count' => $characters
+            ]));
         }
 
         return $this;
@@ -317,11 +332,15 @@ class Validate
 
         if ($regex) {
             if (!preg_match($string, $this->source)) {
-                throw new ValidationFailedException(tr('The specified value must match regex ":value"', [':value' => $string]));
+                throw new ValidationFailedException(tr('The specified value must match regex ":value"', [
+                    ':value' => $string
+                ]));
             }
         } else {
             if (!str_contains($this->source, $string)) {
-                throw new ValidationFailedException(tr('The specified value must contain ":value"', [':value' => $string]));
+                throw new ValidationFailedException(tr('The specified value must contain ":value"', [
+                    ':value' => $string
+                ]));
             }
         }
 

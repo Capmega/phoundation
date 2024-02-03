@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -17,7 +17,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 

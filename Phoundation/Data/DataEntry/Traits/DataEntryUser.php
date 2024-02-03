@@ -15,7 +15,7 @@ use Phoundation\Accounts\Users\User;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryUser
@@ -27,7 +27,7 @@ trait DataEntryUser
      */
     public function getUsersId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'users_id');
+        return $this->getSourceColumnValue('int', 'users_id');
     }
 
 
@@ -50,10 +50,10 @@ trait DataEntryUser
      */
     public function getUser(): ?UserInterface
     {
-        $users_id = $this->getSourceFieldValue('int', 'users_id');
+        $users_id = $this->getSourceColumnValue('int', 'users_id');
 
         if ($users_id) {
-            return User::get($users_id);
+            return User::get($users_id,  'id');
         }
 
         return null;
@@ -67,7 +67,7 @@ trait DataEntryUser
      */
     public function getUsersEmail(): ?string
     {
-        return $this->getSourceFieldValue('string', 'users_email');
+        return $this->getSourceColumnValue('string', 'users_email');
     }
 
 

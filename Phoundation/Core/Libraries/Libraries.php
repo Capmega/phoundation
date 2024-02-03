@@ -5,22 +5,24 @@ declare(strict_types=1);
 namespace Phoundation\Core\Libraries;
 
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Core\Tmp;
+use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Http\Html\Components\HtmlTable;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\HtmlTable;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\DisplayMode;
 
 
 /**
@@ -30,7 +32,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Libraries
@@ -38,17 +40,17 @@ class Libraries
     /**
      * The constant indicating the path for Phoundation libraries
      */
-    const CLASS_PATH_SYSTEM  = PATH_ROOT . 'Phoundation/';
+    const CLASS_DIRECTORY_SYSTEM  = DIRECTORY_ROOT . 'Phoundation/';
 
     /**
      * The constant indicating the path for Plugin libraries
      */
-    const CLASS_PATH_PLUGINS = PATH_ROOT . 'Plugins/';
+    const CLASS_DIRECTORY_PLUGINS = DIRECTORY_ROOT . 'Plugins/';
 
     /**
      * The constant indicating the path for Template libraries
      */
-    const CLASS_PATH_TEMPLATES = PATH_ROOT . 'Templates/';
+    const CLASS_DIRECTORY_TEMPLATES = DIRECTORY_ROOT . 'Templates/';
 
     /**
      * If true, this system is in initialization mode
@@ -56,6 +58,20 @@ class Libraries
      * @var bool
      */
     protected static bool $initializing = false;
+
+    /**
+     * Tracks if the commands cache has been rebuilt within this process
+     *
+     * @var bool $cache_has_been_rebuilt
+     */
+    protected static bool $cache_has_been_rebuilt = false;
+
+    /**
+     * Tracjs if the command cache has been cleared within this process
+     *
+     * @var bool $cache_has_been_cleared
+     */
+    protected static bool $cache_has_been_cleared = false;
 
 
     /**
@@ -66,24 +82,24 @@ class Libraries
     public static function reset(): void
     {
         Log::warning('Executing system reset, dropping all databases!');
-        $databases = Config::get('databases');
+        $connectors = Config::getArray('databases.connectors');
 
-        foreach ($databases as $driver => $data) {
-            switch ($driver) {
+        foreach ($connectors as $connector => $configuration) {
+            switch (isset_get($configuration['driver'])) {
                 case 'sql':
-                    foreach ($data['instances'] as $instance => $configuration) {
-                        if (($instance === 'system') or isset_get($configuration['init'])) {
-                            sql($instance, false)->schema(false)->database()->drop();
-                        }
+                    // no break
+                case 'mysql':
+                    if (($connector === 'system') or isset_get($configuration['init'])) {
+                        sql($connector, false)->schema(false)->database()->drop();
                     }
 
                     break;
 
                 case 'memcached':
                     try {
-                        mc()->flush();
+                        mc($connector)->flush();
 
-                    } catch (ConfigurationDoesNotExistsException $e) {
+                    } catch (ConfigPathDoesNotExistsException $e) {
                         Log::warning(tr('Cannot flush memcached because the current driver is not properly configured, see exception information'));
                         Log::warning($e);
                     }
@@ -93,11 +109,22 @@ class Libraries
                 case 'mongo':
                 case 'redis':
                 case 'elasticsearch':
-                    Log::error(tr('Support for resetting driver ":driver" is under construction', [':driver' => $driver]));
+                    Log::error(tr('Ignoring connector ":driver", support for required driver ":driver" is under construction', [
+                        ':driver'    => $configuration['driver'],
+                        ':connector' => $connector
+                    ]));
                     break;
 
+                case '':
+                    throw new DatabasesConnectorException(tr('No driver specified for connector ":connector"', [
+                        ':connector' => $connector
+                    ]));
+
                 default:
-                    // Ignore, only process drivers
+                    throw new DatabasesConnectorException(tr('Unknown driver ":driver" specified for connector ":connector"', [
+                        ':driver'    => $configuration['driver'],
+                        ':connector' => $connector
+                    ]));
             }
         }
     }
@@ -123,17 +150,18 @@ class Libraries
 
         // Wipe all temporary data and set the core in INIT mode
         Tmp::clear();
-        Core::setInitState();
+        Core::enableInitState();
 
         try {
             // Wipe all cache data
             Cache::clear();
-        } catch (ConfigurationDoesNotExistsException $e) {
+
+        } catch (ConfigPathDoesNotExistsException $e) {
             Log::warning($e->getMessage());
         }
 
         // Ensure the system database exists
-        static::ensureSystemsDatabase();
+        static::ensureSystemsDatabaseAccessible();
 
         // Go over all system libraries and initialize them, then do the same for the plugins
         static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
@@ -141,18 +169,17 @@ class Libraries
         // Initialization done!
         static::$initializing = false;
 
-        if (Debug::production()) {
+        if (Core::isProductionEnvironment()) {
             // Notification developers
             Notification::new()
                 ->setUrl('/system/information.html')
                 ->setMode(DisplayMode::info)
-                ->setRoles('developers')->setTitle(tr('System initialization'))
+                ->setRoles('developer')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
                 ->setDetails([
                     'system'    => $system,
                     'plugins'   => $plugins,
                     'templates' => $templates,
-                    'library'   => $library,
                     'comment'   => $comments
                 ])
                 ->send();
@@ -176,30 +203,32 @@ class Libraries
 
         $return = [];
 
+        Log::action(tr('Scanning libraries'), 3);
+
         // List system libraries
         if ($system) {
-            $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_SYSTEM));
+            $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_SYSTEM));
         }
 
         // List plugin libraries
         if ($plugins) {
             try {
-                $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_PLUGINS));
+                $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_PLUGINS));
 
             } catch (NotExistsException $e) {
                 // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_PATH_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_DIRECTORY_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
         // List templates libraries
         if ($templates) {
             try {
-                $return = array_merge($return, static::listLibraryPaths(static::CLASS_PATH_TEMPLATES));
+                $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_TEMPLATES));
 
             } catch (NotExistsException $e) {
                 // The templates path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_PATH_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_DIRECTORY_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
             }
         }
 
@@ -232,40 +261,40 @@ class Libraries
     public static function findLibrary(string $library, bool $system = true, bool $plugin = true, bool $template = true): Library
     {
         $return = null;
-        $paths  = [];
+        $directories  = [];
 
         if ($system) {
-            $paths[] = static::CLASS_PATH_SYSTEM;
+            $directories[] = static::CLASS_DIRECTORY_SYSTEM;
         }
 
         if ($plugin) {
-            $paths[] = static::CLASS_PATH_PLUGINS;
+            $directories[] = static::CLASS_DIRECTORY_PLUGINS;
         }
 
         if ($template) {
-            $paths[] = static::CLASS_PATH_TEMPLATES;
+            $directories[] = static::CLASS_DIRECTORY_TEMPLATES;
         }
 
-        if (empty($paths)) {
+        if (empty($directories)) {
             throw new OutOfBoundsException(tr('Neither system not plugin nor template paths specified to search'));
         }
 
-        $directory = Strings::capitalize($library);
+        $library = Strings::capitalize($library);
 
         // Library must exist in either SYSTEM or PLUGINS paths
-        foreach($paths as $path) {
-            $path = Strings::slash($path);
+        foreach($directories as $directory) {
+            $directory = Strings::slash($directory);
 
             // Library must exist and be a directory
-            if (file_exists($path . $directory)) {
-                if (is_dir($path . $directory)) {
+            if (file_exists($directory . $library)) {
+                if (is_dir($directory . $library)) {
                     if ($return) {
                         throw new OutOfBoundsException(tr('The specified library ":library" is both a system library and a plugin', [
                             ':library' => $library
                         ]));
                     }
 
-                    $return = new Library($path . $directory);
+                    $return = new Library($directory . $library);
                 }
             }
         }
@@ -294,19 +323,19 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = Directory::new(LIBRARIES::CLASS_PATH_SYSTEM, [LIBRARIES::CLASS_PATH_SYSTEM])->getPhpStatistics(true);
+            $return['system'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, [LIBRARIES::CLASS_DIRECTORY_SYSTEM])->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = Directory::new(LIBRARIES::CLASS_PATH_PLUGINS, [LIBRARIES::CLASS_PATH_PLUGINS])->getPhpStatistics(true);
+            $return['plugins'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, [LIBRARIES::CLASS_DIRECTORY_PLUGINS])->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = Directory::new(LIBRARIES::CLASS_PATH_TEMPLATES, [LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+            $return['templates'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, [LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 
@@ -334,11 +363,11 @@ class Libraries
 
 
     /**
-     * Ensure that the systems database exists
+     * Ensure that the systems database exists and is accessible
      *
      * @return void
      */
-    protected static function ensureSystemsDatabase(): void
+    protected static function ensureSystemsDatabaseAccessible(): void
     {
         if (!sql('system', false)->schema(false)->database()->exists()) {
             sql('system', false)->schema(false)->database()->create();
@@ -353,21 +382,21 @@ class Libraries
     /**
      * Returns a list with all libraries for the specified path
      *
-     * @param string $path
+     * @param string $directory
      * @return array
      */
-    protected static function listLibraryPaths(string $path): array
+    protected static function listLibraryDirectories(string $directory): array
     {
         $return  = [];
-        $path    = Strings::endsWith($path, '/');
+        $directory    = Strings::endsWith($directory, '/');
 
-        if (!file_exists($path)) {
-            throw new NotExistsException(tr('The specified library base path ":path" does not exist', [
-                ':path' => $path
+        if (!file_exists($directory)) {
+            throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
+                ':directory' => $directory
             ]));
         }
 
-        $libraries = scandir($path);
+        $libraries = scandir($directory);
 
         foreach ($libraries as $library) {
             // Skip hidden files, current and parent directory
@@ -380,7 +409,7 @@ class Libraries
                 continue;
             }
 
-            $file = $path . $library . '/';
+            $file = $directory . $library . '/';
 
             // Library paths MUST be directories
             if (is_dir($file)) {
@@ -399,6 +428,7 @@ class Libraries
      * @param bool $plugins
      * @param bool $templates
      * @param string|null $comments
+     * @param array|null $filter_libraries
      * @return int
      */
     protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
@@ -409,16 +439,21 @@ class Libraries
         $library_count  = count($libraries);
         $update_count   = 0;
 
+        // First, ensure all libraries have the correct structure
+        static::verifyLibraries($libraries);
+
+        Log::action(tr('Initializing libraries'));
+
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
             // Order to have the nearest next init version first
-            static::orderLibraries($libraries, $filter_libraries);
+            static::orderAndFilterLibraries($libraries, $filter_libraries);
 
-            // Go over the libraries list and try to update each one
-            foreach ($libraries as $path => $library) {
+            // Go over the list of libraries and try to update each one
+            foreach ($libraries as $directory => $library) {
                 // Execute the update inits for this library and update the library information and start over
                 if ($library->init($comments)) {
-                    // Library has been initialized. Break so that we can check which library should be updated next.
+                    // The library has been initialized. Break so that we can check which library should be updated next.
                     $update_count++;
                     break;
                 }
@@ -428,14 +463,13 @@ class Libraries
                     ':library' => $library->getName()
                 ]));
 
-                unset($libraries[$path]);
+                unset($libraries[$directory]);
             }
         }
 
         // Post initialize all libraries
-        // Go over the libraries list and try to update each one
-        if (false) {
-//        if (TEST) {
+        // Go over the list of libraries and try to update each one
+        if (TEST) {
             Log::warning('Not executing post init files due to test mode');
 
         } else {
@@ -454,6 +488,9 @@ class Libraries
             }
         }
 
+        // Rebuild the commands cache
+        static::rebuildCommandCache();
+
         if (!$update_count) {
             // No libraries were updated
             Log::success(tr('Finished initialization, no libraries were updated'));
@@ -469,32 +506,107 @@ class Libraries
 
 
     /**
+     * Ensure that all libraries have the
+     *
+     * @param array $libraries
+     * @return void
+     */
+    protected static function verifyLibraries(array $libraries): void
+    {
+        Log::action(tr('Verifying libraries'));
+
+        foreach ($libraries as $library) {
+            $library->verify();
+        }
+    }
+
+
+    /**
+     * Deletes the PHO commands cache and returns the COMMANDS directory
+     *
+     * @return void
+     */
+    public static function clearCommandsCache(): void
+    {
+        Log::action(tr('Clearing commands cache'), 3);
+        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->delete();
+        static::$cache_has_been_cleared = true;
+    }
+
+
+    /**
+     * Rebuilds the PHO commands cache
+     *
+     * @return void
+     */
+    public static function rebuildCommandCache(): void
+    {
+        Log::action(tr('Rebuilding command cache'), 4, echo_screen: false);
+
+        $temporary = Directory::newTemporary();
+        $commands  = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS));
+
+        foreach (static::listLibraries() as $library) {
+            $library->cacheCommands($temporary);
+        }
+
+        // Move the old out of the way, push the new in
+        $commands->replaceWithPath($temporary);
+
+        static::$cache_has_been_rebuilt = true;
+        Log::success(tr('Finished rebuilding command cache'), 5, echo_screen: false);
+    }
+
+
+    /**
+     * Returns true if in this process the commands cache has been cleared
+     *
+     * @return bool
+     */
+    public static function cacheHasBeenCleared(): bool
+    {
+        return static::$cache_has_been_cleared;
+    }
+
+
+    /**
+     * Returns true if in this process the commands cache has been rebuilt
+     *
+     * @return bool
+     */
+    public static function cacheHasBeenRebuilt(): bool
+    {
+        return static::$cache_has_been_rebuilt;
+    }
+
+
+    /**
      * Order the libraries by next_init_version first
      *
      * @param array $libraries
      * @param array|null $filter_libraries
      * @return void
      */
-    protected static function orderLibraries(array &$libraries, array $filter_libraries = null): void
+    protected static function orderAndFilterLibraries(array &$libraries, array $filter_libraries = null): void
     {
         // Prepare libraries filter if specified
         if ($filter_libraries) {
-            $filter_libraries = Arrays::lowerCase($filter_libraries);
+            $filter_libraries = Arrays::lowercaseValues($filter_libraries);
             $filter_libraries = array_flip($filter_libraries);
         }
 
         // Remove libraries that have nothing to execute anymore
-        foreach ($libraries as $path => $library) {
+        foreach ($libraries as $directory => $library) {
             if ($filter_libraries) {
                 if (!array_key_exists(strtolower($library->getName()), $filter_libraries)) {
                     // This library should not be initialized
-                    unset($libraries[$path]);
+                    unset($libraries[$directory]);
                     continue;
                 }
             }
 
             if ($library->getNextInitVersion() === null) {
-                unset($libraries[$path]);
+                unset($libraries[$directory]);
             }
         }
 
@@ -514,12 +626,23 @@ class Libraries
      */
     protected static function force(): void
     {
-        if (Debug::production()) {
+        if (Core::isProductionEnvironment()) {
             throw new AccessDeniedException(tr('For safety reasons, init or setup force is NOT allowed on production environment!'));
         }
 
         sql()->schema()->database()->drop();
         sql()->schema()->database()->create();
         sql()->use();
+    }
+
+
+    /**
+     * Returns the highest registered version number
+     *
+     * @return int
+     */
+    public static function getMaximumVersion(): int
+    {
+        return sql()->getColumn('SELECT MAX(`version`) AS `max` FROM `core_versions`');
     }
 }

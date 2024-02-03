@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 
 
@@ -21,7 +22,7 @@ use Throwable;
  * @note See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class GeoIp
@@ -84,8 +85,8 @@ class GeoIp
                     ]));
             }
 
-        } catch (ConfigurationDoesNotExistsException $e) {
-            if (Debug::production()) {
+        } catch (ConfigPathDoesNotExistsException $e) {
+            if (Core::isProductionEnvironment()) {
                 throw $e;
             }
 

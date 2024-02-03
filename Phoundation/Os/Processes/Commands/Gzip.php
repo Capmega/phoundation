@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\AlredyCompressedException;
+use Phoundation\Filesystem\Exception\FileExistsException;
+use Phoundation\Filesystem\Exception\InvalidFileType;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -17,7 +21,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Gzip extends Command
@@ -25,22 +29,30 @@ class Gzip extends Command
     /**
      * Gzips the specified file
      *
-     * @param string $file The file to be gzipped.
+     * @param FileInterface|string $file The file to be gzipped.
      * @return string
+     * @throws \Throwable
      */
-    public function gzip(string $file): string
+    public function gzip(FileInterface|string $file): string
     {
         try {
-            if (!str_ends_with($this->file, '.gz')) {
-                if (!str_ends_with($this->file, '.tgz')) {
-                    throw new OutOfBoundsException(tr('Cannot gunzip file ":file", the filename must end with ".gz"', [
-                        ':file' => $this->file
-                    ]));
-                }
+            $file = File::new($file);
+
+            if ($file->isCompressed()) {
+                throw new AlredyCompressedException(tr('Cannot gzip file ":file", it is already compressed', [
+                    ':file' => $file->getPath()
+                ]));
             }
 
-            $this->setInternalCommand('gzip')
-                 ->addArguments($file)
+            if (file_exists($file . '.gz')) {
+                throw new FileExistsException(tr('Cannot gzip file ":file", the gzipped version ":gzip" already exists', [
+                    ':file' => $file->getPath(),
+                    ':gzip' => $file->getPath() . '.gz'
+                ]));
+            }
+
+            $this->setCommand('gzip')
+                 ->addArgument($file)
                  ->setTimeout(120)
                  ->executeNoReturn();
 
@@ -58,18 +70,35 @@ class Gzip extends Command
     /**
      * Gunzips the specified file
      *
-     * @param string $file The file to be gunzipped.
-     * @return string
+     * @param FileInterface|string $file The file to be gunzipped.
+     * @return FileInterface
      */
-    public function gunzip(string $file): string
+    public function gunzip(FileInterface|string $file): FileInterface
     {
         try {
-            $this->setInternalCommand('gunzip')
+            $file   = File::new($file);
+            $target = Strings::until(Strings::until((string) $file, '.tgz'), '.gz');
+            $target = File::new($target);
+
+            if ($file->getMimetype() !== 'application/gzip') {
+                throw new InvalidFileType(tr('Cannot gunzip file ":file", it is not a gzip file', [
+                    ':file' => $file->getPath()
+                ]));
+            }
+
+            if ($target->exists()) {
+                throw new FileExistsException(tr('Cannot gunzip file ":file", the target version ":gzip" already exists', [
+                    ':file' => $file->getPath(),
+                    ':gzip' => $target
+                ]));
+            }
+
+            $this->setCommand('gunzip')
                  ->addArguments($file)
                  ->setTimeout(120)
                  ->executeNoReturn();
 
-            return Strings::until(Strings::until($file, '.tgz'), '.gz');
+            return $target;
 
         } catch (ProcessFailedException $e) {
             // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access

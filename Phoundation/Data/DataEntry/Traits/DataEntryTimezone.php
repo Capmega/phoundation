@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Date\DateTimeZone;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
@@ -18,7 +15,7 @@ use Phoundation\Geo\Timezones\Timezone;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryTimezone
@@ -30,7 +27,7 @@ trait DataEntryTimezone
      */
     public function getTimezonesId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'timezones_id');
+        return $this->getSourceColumnValue('int', 'timezones_id');
     }
 
 
@@ -53,7 +50,7 @@ trait DataEntryTimezone
      */
     public function getTimezone(): ?TimezoneInterface
     {
-        $timezones_id = $this->getSourceFieldValue('int', 'timezones_id');
+        $timezones_id = $this->getSourceColumnValue('int', 'timezones_id');
 
         if ($timezones_id) {
             return new Timezone($timezones_id);
@@ -70,7 +67,7 @@ trait DataEntryTimezone
      */
     public function getTimezonesName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'timezones_name');
+        return $this->getSourceColumnValue('string', 'timezones_name');
     }
 
 
@@ -82,6 +79,7 @@ trait DataEntryTimezone
      */
     public function setTimezonesName(?string $timezones_name): static
     {
+
         return $this->setSourceValue('timezones_name', $timezones_name);
     }
 }

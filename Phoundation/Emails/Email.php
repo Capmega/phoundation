@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Emails;
 
 use Phoundation\Data\DataEntry\DataEntry;
@@ -10,8 +12,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Templates\Template;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
@@ -22,7 +24,7 @@ use PHPMailer\PHPMailer\PHPMailer;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Emails
  */
 class Email extends DataEntry
@@ -64,7 +66,7 @@ class Email extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }

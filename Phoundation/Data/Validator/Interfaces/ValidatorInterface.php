@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\Validator\Interfaces;
 
 
 use DateTime;
 use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
@@ -17,7 +20,7 @@ use UnitEnum;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 interface ValidatorInterface
@@ -25,11 +28,11 @@ interface ValidatorInterface
     /**
      * Forcibly set the specified key of this validator source to the specified value
      *
-     * @param string|float|int $key
      * @param mixed $value
+     * @param string|float|int $key
      * @return static
      */
-    public function setSourceKey(string|float|int $key, mixed $value): static;
+    public function set(mixed $value, string|float|int $key): static;
 
     /**
      * Forcibly remove the specified source key
@@ -232,10 +235,10 @@ interface ValidatorInterface
      *
      * This method ensures that the specified array key is a scalar value
      *
-     * @param array $array
+     * @param IteratorInterface|array $array
      * @return static
      */
-    public function isInArray(array $array): static;
+    public function isInArray(IteratorInterface|array $array): static;
 
     /**
      * Validates the datatype for the selected field
@@ -327,7 +330,7 @@ interface ValidatorInterface
     public function isString(): static;
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -335,7 +338,7 @@ interface ValidatorInterface
     public function hasCharacters(int $characters): static;
 
     /**
-     * Validates that the selected field is equal or larger than the specified amount of characters
+     * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
      * @return static
@@ -343,7 +346,7 @@ interface ValidatorInterface
     public function hasMinCharacters(int $characters): static;
 
     /**
-     * Validates that the selected field is equal or shorter than the specified amount of characters
+     * Validates that the selected field is equal or shorter than the specified number of characters
      *
      * @param int|null $characters
      * @return static
@@ -549,7 +552,7 @@ interface ValidatorInterface
     public function isArray(): static;
 
     /**
-     * Validates that the selected field array has a minimal amount of elements
+     * Validates that the selected field array has a minimal number of elements
      *
      * @param int $count
      * @return static
@@ -557,7 +560,7 @@ interface ValidatorInterface
     public function hasElements(int $count): static;
 
     /**
-     * Validates that the selected field array has a minimal amount of elements
+     * Validates that the selected field array has a minimal number of elements
      *
      * @param int $count
      * @return static
@@ -565,7 +568,7 @@ interface ValidatorInterface
     public function hasMinimumElements(int $count): static;
 
     /**
-     * Validates that the selected field array has a maximum amount of elements
+     * Validates that the selected field array has a maximum number of elements
      *
      * @param int $count
      * @return static
@@ -632,34 +635,34 @@ interface ValidatorInterface
     public function isVariable(): static;
 
     /**
-     * Validates if the selected field is a valid directory
+     * Validates if the selected field is a valid path
      *
-     * @param Stringable|string|null $check_in_path
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param array|Stringable|string|null $exists_in_directories
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isPath(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param Stringable|string|null $check_in_path
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param array|Stringable|string|null $exists_in_directories
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isDirectory(Stringable|string|null $check_in_path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid file
      *
-     * @param Stringable|string|null $check_in_directory
-     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param array|Stringable|string|null $exists_in_directories
+     * @param RestrictionsInterface|null $restrictions
      * @param bool $exists
      * @return static
      */
-    public function isFile(Stringable|string|null $check_in_directory = null, RestrictionsInterface|array|string|null $restrictions = null, bool $exists = true): static;
+    public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
 
     /**
      * Validates if the selected field is a valid description
@@ -1047,7 +1050,7 @@ interface ValidatorInterface
      * @param string|null $field_prefix
      * @return $this
      */
-    public function setFieldPrefix(?string $field_prefix): static;
+    public function setColumnPrefix(?string $field_prefix): static;
 
     /**
      * Returns the table value
@@ -1071,4 +1074,15 @@ interface ValidatorInterface
      * @return static
      */
     public function standardSelect(string|int $field): static;
+
+    /**
+     * Rename the from_key to to_key if it exists
+     *
+     * @param string|float|int $from_key
+     * @param string|float|int $to_key
+     * @param bool $exception
+     * @param bool $overwrite
+     * @return static
+     */
+    public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true, bool $overwrite = false): static;
 }

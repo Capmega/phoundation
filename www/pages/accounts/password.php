@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Html\Layouts\GridColumn;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -23,7 +26,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$user     = User::get($get['id']);
+$user     = User::get($get['id'], 'id');
 $password = $user->getPassword();
 
 
@@ -42,17 +45,22 @@ if (Page::isPostRequestMethod()) {
                 ->validate();
 
             // Update user password
-            $user->setPassword($post['password'] ,$post['passwordv']);
+            $user->changePassword($post['password'] ,$post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
-            Page::redirect(UrlBuilder::getPrevious('accounts/user-' . $user->getId() . '.html'));
+            Page::redirect(UrlBuilder::getPrevious('accounts/user+' . $user->getId() . '.html'));
+
+        } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+                ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+            ]));
 
         } catch (ValidationFailedException $e) {
-            // Oops! Show validation errors and remain on page
+            // Oops! Show validation errors and remain on this page
             Page::getFlashMessages()->addMessage($e);
 
         }catch (PasswordNotChangedException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update your account to have a new and secure password'));
+            Page::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update the password for this account to have a new and secure password'));
         }
     }
 }
@@ -83,7 +91,7 @@ $column = GridColumn::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
+    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
@@ -110,6 +118,6 @@ Page::setHeaderSubTitle($user->getName());
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                          => tr('Home'),
     '/accounts/users.html'                       => tr('Users'),
-    '/accounts/user-' . $user->getId() . '.html' => $user->getDisplayName(),
+    '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),
     ''                                           => tr('Modify password')
 ]));

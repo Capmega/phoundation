@@ -7,16 +7,16 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Button;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Img;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Enums\TableIdColumn;
-use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Html\Layouts\GridColumn;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Button;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -28,7 +28,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 
@@ -38,7 +38,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$user = User::get($get['id']);
+$user = User::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
@@ -65,7 +65,7 @@ if (Page::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/accounts/user-' . $user->getId() . '.html'));
+                Page::redirect(UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html'));
 
             case tr('Impersonate'):
                 $user->impersonate();
@@ -85,7 +85,15 @@ if (Page::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $user->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been lock', [
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                    ':user' => $user->getDisplayName()
+                ]));
+
+                Page::redirect();
+
+            case tr('Unlock'):
+                $user->unlock();
+                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -120,7 +128,7 @@ if (!$user->getReadonly()) {
 // god users
 if ($user->canBeImpersonated()) {
     $impersonate = Button::new()
-        ->setRight(true)
+        ->setFloatRight(true)
         ->setMode(DisplayMode::danger)
         ->setValue(tr('Impersonate'))
         ->setContent(tr('Impersonate'));
@@ -129,28 +137,47 @@ if ($user->canBeImpersonated()) {
 
 // Delete button. We cannot delete god users
 if ($user->canBeStatusChanged()) {
-    $delete = Button::new()
-        ->setRight(true)
-        ->setMode(DisplayMode::warning)
-        ->setOutlined(true)
-        ->setValue(tr('Delete'))
-        ->setContent(tr('Delete'));
+    if ($user->isDeleted()) {
+        $delete = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::warning)
+            ->setOutlined(true)
+            ->setValue(tr('Undelete'))
+            ->setContent(tr('Undelete'));
 
-    $lock = Button::new()
-        ->setRight(true)
-        ->setMode(DisplayMode::warning)
-        ->setValue(tr('Lock'))
-        ->setContent(tr('Lock'));
+    } else {
+        $delete = Button::new()
+            ->setFloatRight(true)
+            ->setMode(DisplayMode::warning)
+            ->setOutlined(true)
+            ->setValue(tr('Delete'))
+            ->setContent(tr('Delete'));
+
+        if ($user->isLocked()) {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Unlock'))
+                ->setContent(tr('Unlock'));
+
+        } else {
+            $lock = Button::new()
+                ->setFloatRight(true)
+                ->setMode(DisplayMode::warning)
+                ->setValue(tr('Lock'))
+                ->setContent(tr('Lock'));
+        }
+    }
 }
 
 
-// Audit button. We cannot delete god users
+// Audit button.
 if (!$user->isNew()) {
     $audit = Button::new()
-        ->setRight(true)
+        ->setFloatRight(true)
         ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $user->getMeta() . '.html')
-        ->setRight(true)
+        ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
+        ->setFloatRight(true)
         ->setValue(tr('Audit'))
         ->setContent(tr('Audit'));
 }
@@ -186,7 +213,7 @@ if ($user->getId()) {
         ->setCollapseSwitch(true)
         ->setCollapsed(true)
         ->setTitle(tr('Rights for this user [:count]', [':count' => $user->getRights()->getCount()]))
-        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain amount of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
+        ->setDescription(tr('This is a list of rights that this user has available because of its assigned roles. Each role gives the user a certain number of rights and with adding or removing roles, you add or remove these rights. These rights are used to determine the access to pages or specific information that a user has. To determine what rights are required to access a specific page, click the "lock" symbol at the top menu.'))
         ->setContent($user->getRights(true, true)
                             ->getHtmlDataTable('id,name,description')
                                 ->setLengthChangeEnabled(false)
@@ -196,7 +223,7 @@ if ($user->getId()) {
                                 ->setOrder([0 => 'asc'])
                                 ->setColumnsOrderable([0 => true, 1 => false])
                                 ->setInfoEnabled(false)
-                                ->setTableIdColumn(TableIdColumn::hidden)
+                                ->setCheckboxSelectors(TableIdColumn::hidden)
                                 ->render());
 
     $emails_card = Card::new()
@@ -233,9 +260,9 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(DisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/password-' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                         <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+    ->setContent(($user->isNew() ? '' : '<a href="' . UrlBuilder::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
+                        <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
+                        <a href="' . UrlBuilder::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

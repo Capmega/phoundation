@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Seo\Seo;
 
 
@@ -15,7 +16,7 @@ use Phoundation\Seo\Seo;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryNameLowercaseDash
@@ -27,7 +28,7 @@ trait DataEntryNameLowercaseDash
      */
     public function getSeoName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'seo_name');
+        return $this->getSourceColumnValue('string', 'seo_name');
     }
 
 
@@ -51,7 +52,7 @@ trait DataEntryNameLowercaseDash
      */
     public function getName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'name');
+        return $this->getSourceColumnValue('string', 'name');
     }
 
 
@@ -69,12 +70,42 @@ trait DataEntryNameLowercaseDash
         } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
-            $name     = strtolower($name);
-            $name     = str_replace([' ', '_'], '-', $name);
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceFieldValue('int', 'id'), 'seo_name');
+            $name     = static::convertToLowerCaseDash($name);
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceColumnValue('int', 'id'), 'seo_name');
+
             $this->setSourceValue('seo_name', $seo_name, true);
         }
 
         return $this->setSourceValue('name', $name);
+    }
+
+
+    /**
+     * Converts the given string to lowercase, dash separated string by replacing spaces and underscores to dashes
+     *
+     * @param DataEntryInterface|string|int|null $source
+     * @return DataEntryInterface|string|null
+     */
+    protected static function convertToLowerCaseDash(DataEntryInterface|string|int|null $source): DataEntryInterface|string|int|null
+    {
+        if (!$source) {
+            // NULL or "", return it
+            return $source;
+        }
+
+        if (is_numeric($source)) {
+            // This is a database id, return it
+            return $source;
+        }
+
+        if ($source instanceof DataEntryInterface) {
+            // This is a DataEntry object, return it
+            return $source;
+        }
+
+        $source = strtolower($source);
+        $source = str_replace([' ', '_'], '-', $source);
+
+        return $source;
     }
 }

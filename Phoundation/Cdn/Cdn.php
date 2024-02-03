@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Cdn;
 
 
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -17,13 +18,13 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Cdn
 {
     /**
-     * Adds the required amount of copies of the specified file to random CDN servers
+     * Adds the required number of copies of the specified file to random CDN servers
      *
      * @param $files
      * @param $section
@@ -104,7 +105,7 @@ class Cdn
                          * Switch to working without CDN servers
                          */
                         Notification(array('code' => 'invalid',
-                            'groups' => 'developers',
+                            'groups' => 'developer',
                             'title' => tr('Invalid configuration'),
                             'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured')));
 
@@ -174,7 +175,7 @@ class Cdn
             //         * Err we have no CDN servers, though CDN is configured.. Just
             //         * continue locally?
             //         */
-            //        Notification('no-cdn-servers', tr('CDN system is enabled, but no availabe CDN servers were found'), 'developers');
+            //        Notification('no-cdn-servers', tr('CDN system is enabled, but no availabe CDN servers were found'), 'developer');
             //        $_SESSION['cdn'] = false;
             //        return domain($url, $query, $prefix);
             //    }

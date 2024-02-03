@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -15,7 +16,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataReadonly
@@ -38,6 +39,20 @@ trait DataReadonly
     public function checkReadonly(string $action): static
     {
         if ($this->readonly) {
+            throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
+                ':action' => $action,
+                ':object' => Strings::fromReverse(get_class($this), '\\')
+            ]));
+        }
+
+        if (($this instanceof DataEntryInterface) and $this->isReadonly()) {
+            if ($this->isConfigured()) {
+                throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly because it was read from configuration', [
+                    ':action' => $action,
+                    ':object' => Strings::fromReverse(get_class($this), '\\')
+                ]));
+            }
+
             throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
                 ':action' => $action,
                 ':object' => Strings::fromReverse(get_class($this), '\\')

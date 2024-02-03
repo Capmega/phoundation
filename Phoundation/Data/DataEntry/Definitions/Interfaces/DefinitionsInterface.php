@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -14,25 +16,25 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 interface DefinitionsInterface extends IteratorInterface
 {
     /**
-     * Returns the field prefix
+     * Returns the column prefix
      *
      * @return string|null
      */
-    public function getFieldPrefix(): ?string;
+    public function getColumnPrefix(): ?string;
 
     /**
-     * Sets the field prefix
+     * Sets the column prefix
      *
      * @param string|null $prefix
      * @return static
      */
-    public function setFieldPrefix(?string $prefix): static;
+    public function setColumnPrefix(?string $prefix): static;
 
     /**
      * Returns the data entry
@@ -50,12 +52,12 @@ interface DefinitionsInterface extends IteratorInterface
     public function setDataEntry(DataEntryInterface $data_entry): static;
 
     /**
-     * Adds the specified Definition to the fields list
+     * Adds the specified Definition to the columns list
      *
-     * @param DefinitionInterface $field
+     * @param DefinitionInterface $column
      * @return static
      */
-    public function addDefinition(DefinitionInterface $field): static;
+    public function addDefinition(DefinitionInterface $column): static;
 
     /**
      * Returns the current Definition object
@@ -72,7 +74,7 @@ interface DefinitionsInterface extends IteratorInterface
     public function key(): string|float|int|null;
 
     /**
-     * Returns the specified field
+     * Returns the specified column
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception

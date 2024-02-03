@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Sql\Interfaces;
 
 
@@ -12,7 +14,7 @@ use PDOStatement;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 interface QueryBuilderInterface
@@ -159,10 +161,11 @@ interface QueryBuilderInterface
     /**
      * Executes the query and returns the single column from the single result
      *
+     * @param string|null $column
      * @param bool $debug
      * @return string|float|int|bool|null
      */
-    public function getColumn(bool $debug = false): string|float|int|bool|null;
+    public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null;
 
     /**
      * Executes the query and returns the list of results
@@ -171,4 +174,27 @@ interface QueryBuilderInterface
      * @return array
      */
     public function list(bool $debug = false): array;
+
+    /**
+     * Returns the name of the database connector where this DataEntry is stored
+     *
+     * @param string $database_connector
+     * return static
+     */
+    public function setDatabaseConnectorName(string $database_connector): static;
+
+    /**
+     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @return bool
+     */
+    public function getMetaEnabled(): bool;
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param bool $meta_enabled
+     * return static
+     */
+    public function setMetaEnabled(bool $meta_enabled): static;
 }

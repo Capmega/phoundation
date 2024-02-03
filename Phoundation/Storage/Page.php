@@ -26,7 +26,7 @@ use Phoundation\Storage\Interfaces\PageInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Pages
  */
 class Page extends DataEntry implements PageInterface
@@ -64,7 +64,7 @@ class Page extends DataEntry implements PageInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -149,7 +149,7 @@ class Page extends DataEntry implements PageInterface
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure categories id exists and that its or category
-                    $validator->or('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                    $validator->orColumn('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
             ->addDefinition(DefinitionFactory::getParent($this)
                 ->setCliAutoComplete([
@@ -162,7 +162,7 @@ class Page extends DataEntry implements PageInterface
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure category exists and that it's a category id or category name
-                    $validator->or('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
+                    $validator->orColumn('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
                 }))
             ->addDefinition(DefinitionFactory::getCategoriesId($this))
             ->addDefinition(DefinitionFactory::getCategory($this))

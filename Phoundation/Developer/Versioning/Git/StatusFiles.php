@@ -5,16 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Color;
+use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -24,12 +25,13 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class StatusFiles extends Iterator
 {
     use GitProcess;
+
 
     /**
      * A git object specifically for this path
@@ -51,7 +53,7 @@ class StatusFiles extends Iterator
         $files = $this->git_process
             ->clearArguments()
             ->addArgument('status')
-            ->addArgument($this->path)
+            ->addArgument($this->directory)
             ->addArgument('--porcelain')
             ->executeReturnArray();
 
@@ -84,9 +86,9 @@ class StatusFiles extends Iterator
 
         foreach ($this->getSource() as $file => $status) {
             if (trim(substr($status->getStatus(), 0, 1))) {
-                $status = Color::apply($status->getStatus()->getReadable(), 'green');
+                $status = CliColor::apply($status->getStatus()->getReadable(), 'green');
             } else {
-                $status = Color::apply($status->getStatus()->getReadable(), 'red');
+                $status = CliColor::apply($status->getStatus()->getReadable(), 'red');
             }
             $list[$file] = ['status' => $status];
         }
@@ -113,14 +115,14 @@ class StatusFiles extends Iterator
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-                File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+                File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
             }
 
             return $this;
 
         } catch(ProcessFailedException $e) {
-            Log::warning(tr('Patch failed to apply for target path ":path" with following exception', [
-                ':path' => $target_path
+            Log::warning(tr('Patch failed to apply for target directory ":directory" with following exception', [
+                ':directory' => $target_path
             ]));
 
             Log::warning($e->getMessages());
@@ -129,7 +131,7 @@ class StatusFiles extends Iterator
             if (isset($patch_file)) {
                 // Delete the temporary patch file
                 Core::ExecuteNotInTestMode(function() use ($patch_file) {
-                    File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+                    File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
                 }, tr('Removing git patch files'));
             }
 
@@ -138,10 +140,14 @@ class StatusFiles extends Iterator
             $data = array_pop($data);
 
             if (str_contains($data, 'patch does not apply')) {
-                throw new GitPatchException(tr('Failed to apply patch ":patch" to path ":path"', [
-                    ':patch' => isset_get($patch_file),
-                    ':path'  => $target_path
-                ]));
+                $file = Strings::cut($data, 'error: ', ': patch does not apply');
+
+                throw GitPatchException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
+                    ':patch'     => isset_get($patch_file),
+                    ':directory' => $target_path
+                ]))->addData([
+                    ':file' => $file
+                ]);
             }
 
             throw $e;
@@ -157,19 +163,19 @@ class StatusFiles extends Iterator
      */
     public function getPatchFile(bool $cached = false): ?string
     {
-        return Git::new(dirname($this->path))->saveDiff(basename($this->path), $cached);
+        return Git::new(dirname($this->directory))->saveDiff(basename($this->directory), $cached);
     }
 
 
     /**
      * Returns a git object for this path
      *
-     * @return Git
+     * @return GitInterface
      */
-    public function getGit(): Git
+    public function getGit(): GitInterface
     {
         if (!isset($this->git)) {
-            $this->git = Git::new($this->path);
+            $this->git = Git::new($this->directory);
         }
 
         return $this->git;

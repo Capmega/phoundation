@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Log\Log;
 use Phoundation\Date\Time;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -18,7 +19,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class ProcessControlSignals
@@ -143,7 +144,7 @@ class ProcessControlSignals
         Log::table($info);
         Core::exit($exit_code, tr('Script ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
             ':signal'   => $signal,
-            ':script'   => Strings::from(Core::readRegister('system', 'script'), PATH_ROOT),
+            ':script'   => Core::getExecutedPath(),
             ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
             ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
             ':exitcode' => $exit_code
@@ -164,6 +165,8 @@ class ProcessControlSignals
         }
 
         $default_handler = function (string $signal, mixed $info, int $exit_code) {
+            // Reset error handling to be managed by Core, then terminate process
+            Core::setErrorHandling(true);
             static::dumpTerminate($signal, $info, $exit_code);
         };
 

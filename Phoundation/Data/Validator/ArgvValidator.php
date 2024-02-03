@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
-use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -25,7 +24,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class ArgvValidator extends Validator implements ArgvValidatorInterface
@@ -51,6 +50,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     protected static array $argv = [];
 
+    /**
+     * Internal backup array of $argv
+     *
+     * @var array $backup
+     */
+    protected static array $backup = [];
+
 
     /**
      * Validator constructor.
@@ -63,7 +69,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?ValidatorInterface $parent = null) {
+    public function __construct(?ValidatorInterface $parent = null)
+    {
         // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
         // static::source!
         $this->construct($parent);
@@ -97,26 +104,98 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             if (!empty($argv)) {
-                if (str_ends_with(isset_get($argv[0]),  '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
+                if (str_ends_with(isset_get($argv[0]), '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
                     array_shift($argv);
                 }
             }
         }
 
+        // Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
+        $argv = static::expandSingleDashMultipleLetters($argv);
+
         // Copy $argv data and reset the global $argv
-        static::$argv = $argv;
+        static::$argv   = $argv;
+        static::$backup = $argv;
+
         $argv = [];
     }
 
 
     /**
-     * Selects the specified key within the array that we are validating
+     * Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
      *
-     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
-     * @param string|bool $next
-     * @return static
+     * @param array $argv
+     * @return array
      */
-    public function select(string|int $fields, string|bool $next = false): static
+    protected static function expandSingleDashMultipleLetters(array $argv): array
+    {
+        $return = [];
+
+        foreach ($argv as $value) {
+            if (preg_match('/^-[a-z]+$/i', $value)) {
+                // Expand
+                $length = strlen($value);
+
+                for($i = 1; $i < $length; $i++) {
+                    $return[] = '-' . $value[$i];
+                }
+
+            } else {
+                $return[] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Recovers an untouched backup of the command line arguments to the internal $argv array
+     *
+     * @return void
+     */
+    public static function recoverBackupSource(): void
+    {
+        static::$argv = static::$backup;
+    }
+
+
+    /**
+     * Returns an untouched backup of the command line arguments to the internal $argv array
+     *
+     * @return array
+     */
+    public static function getBackupSource(): array
+    {
+        return static::$backup;
+    }
+
+
+    /**
+     * Check if selecting is allowed
+     *
+     * @return void
+     */
+    protected function checkSelectAllowed(bool $selecting_all): void
+    {
+        static $select_allowed = true;
+
+        if (!$select_allowed) {
+            throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll()'));
+        }
+
+        // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
+        $select_allowed = !$selecting_all;
+    }
+
+
+    /**
+     * Initializes a select() request
+     *
+     * @param string|int $fields
+     * @return string
+     */
+    protected function initSelect(string|int $fields, string|bool $next = false): string
     {
         if ($this->source === null) {
             throw new OutOfBoundsException(tr('Cannot select fields ":fields", no source array specified', [
@@ -128,7 +207,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             throw new OutOfBoundsException(tr('No field specified'));
         }
 
-        // Make sure the fields value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken
@@ -142,8 +221,24 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->cli_fields           = $fields;
         $this->next                 = $next;
 
+        return $fields;
+    }
+
+
+    /**
+     * Selects all arguments
+     *
+     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     * @return static
+     */
+    public function selectAll(string|int $fields): static
+    {
+        // Check if we can select
+        static::checkSelectAllowed(true);
+
+        // Initialize select
+        $fields      = static::initSelect($fields);
         $clean_field = null;
-        $field       = null;
 
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
@@ -165,7 +260,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 continue;
             }
 
-            // This is not a modifier field but a method or value argument instead. Do not modify the field name
+            // This is not a modifier field but a command or value argument instead. Do not modify the field name
             // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
             // available argument
             $clean_field = $fields;
@@ -178,7 +273,80 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             ]));
         }
 
-        // Get the value from the arguments list
+        // Get the value from the argument list
+        $value = static::$argv;
+        static::$argv = [];
+
+        // Add the cleaned field to the source array
+        $this->source[$clean_field] = $value;
+
+        if (in_array($clean_field, $this->selected_fields)) {
+            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
+                ':key' => $clean_field
+            ]));
+        }
+
+        // Select the field.
+        $this->selected_field    = $clean_field;
+        $this->selected_fields[] = $clean_field;
+        $this->selected_value    = &$this->source[$clean_field];
+        $this->process_values    = [null => &$this->selected_value];
+        $this->selected_optional = null;
+
+        return $this;
+    }
+
+
+    /**
+     * Selects the specified key within the command line arguments that we are validating
+     *
+     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|bool $next
+     * @return static
+     */
+    public function select(string|int $fields, string|bool $next = false): static
+    {
+        // Check if selecting is allowed
+        static::checkSelectAllowed(false);
+
+        // Initialize select
+        $fields      = $this->initSelect($fields, $next);
+        $clean_field = null;
+
+        // Determine the correct clean field name for the specified argument field
+        foreach (Arrays::force($fields, ',') as $field) {
+            // Clean the field by stripping parameter information
+            $field       = trim($field);
+            $clean_field = Strings::until($field, ' ');
+
+            if (str_starts_with($clean_field, '--')) {
+                // This is the long form argument
+                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                break;
+            }
+
+            if (str_starts_with($clean_field, '-')) {
+                // This is the short form argument, won't be a variable name unless there is no alternative
+                $clean_field = Strings::startsNotWith($clean_field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                continue;
+            }
+
+            // This is not a modifier field but a command or value argument instead. Do not modify the field name
+            // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
+            // available argument
+            $clean_field = $fields;
+            $fields      = null;
+        }
+
+        if (!$clean_field) {
+            throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
+                ':field' => $field
+            ]));
+        }
+
+        // Get the value from the argument list
         try {
             $value = static::argument($fields, $next);
 
@@ -187,18 +355,18 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $value = null;
         }
 
-        if (!$field and str_starts_with((string) $value, '-')) {
-            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can'y
-            // We're looking not for a modifier, but for a method or value. This is a modifier, so don't use it. Put the
-            // value back on the arguments list
-            static::$argv[] = $value;
-            $value = null;
-        }
-
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
                 ':key' => $clean_field
             ]));
+        }
+
+        if (!$field and str_starts_with((string) $value, '-')) {
+            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can't
+            // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
+            // the value back on the arguments list
+            static::$argv[] = $value;
+            $value = null;
         }
 
         // Add the cleaned field to the source array
@@ -250,7 +418,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns the amount of command line arguments still available.
+     * Returns the number of command line arguments still available.
      *
      * @return int
      */
@@ -261,19 +429,19 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns the amount of command line method arguments still available.
+     * Returns the number of command line command arguments still available.
      *
      * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
      *       separated by a -. Modifier arguments may have or not have values accompanying them.
      * @note Methods are arguments NOT starting with - or --
-     * @note As soon as non method arguments start we can no longer discern if a value like "system" is actually a
-     *       method or a value linked to an argument. Because of this, as soon as modifier arguments start, methods may
-     *       no longer be specified. An exception to this are system modifier arguments because system modifier
-     *       arguments are filtered out BEFORE methods are processed.
+     * @note As soon as non-command arguments start we can no longer discern if a value like "system" is actually a
+     *       command or a value linked to an argument. Because of this, as soon as modifier arguments start, commands
+     *       may no longer be specified. An exception to this are system modifier arguments because system modifier
+     *       arguments are filtered out BEFORE commands are processed.
      *
      * @return int
      */
-    public static function getMethodCount(): int
+    public static function getCommandCount(): int
     {
         $count = 0;
 
@@ -295,13 +463,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Returns an array of command line methods
+     * Returns an array of command line commands
      *
      * @return array
      */
-    public static function getMethods(): array
+    public static function getCommands(): array
     {
-        $methods = [];
+        $commands = [];
 
         // Scan all arguments until named parameters start
         foreach (static::$argv as $argument) {
@@ -314,10 +482,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 break;
             }
 
-            $methods[] = $argument;
+            $commands[] = $argument;
         }
 
-        return $methods;
+        return $commands;
     }
 
 
@@ -346,7 +514,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::or()
+     * @see Validator::orColumn()
      */
     public function xor(string $field, bool $rename = false): static
     {
@@ -400,7 +568,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @return static
      *
      * @see Validator::isOptional()
-     * @see Validator::xor()
+     * @see Validator::xorColumn()
      */
     public function or(string $field): static
     {
@@ -437,7 +605,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @param string $method
      * @return void
      */
-    public static function removeMethod(string $method): void
+    public static function removeCommand(string $method): void
     {
         $key = array_search($method, static::$argv);
 

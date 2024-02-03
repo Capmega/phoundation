@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Data\Interfaces;
 
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Log\Log;
+use Phoundation\Utils\Utils;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -15,7 +19,7 @@ use Stringable;
  * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
  * methods:
  *
- * - getCount() Returns the amount of elements contained in this object
+ * - getCount() Returns the number of elements contained in this object
  *
  * - getFirst() Returns the first element contained in this object without changing the internal pointer
  *
@@ -29,7 +33,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
@@ -81,18 +85,19 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Add the specified value to the iterator array
      *
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Adds the specified source to the internal source
      *
-     * @param array|null $source
+     * @param IteratorInterface|array|string|null $source
      * @return $this
      */
-    public function addSource(?array $source): static;
+    public function addSources(IteratorInterface|array|string|null $source): static;
 
     /**
      * Returns a list of all internal values with their keys
@@ -114,11 +119,11 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * Sets value for the specified key
      *
      * @note This is a wrapper for Iterator::set()
-     * @param Stringable|string|float|int $key
      * @param mixed $value
+     * @param Stringable|string|float|int $key
      * @return mixed
      */
-    public function setSourceKey(Stringable|string|float|int $key, mixed $value): static;
+    public function set(mixed $value, Stringable|string|float|int $key): static;
 
     /**
      * Returns a list of items that are specified, but not available in this Iterator
@@ -142,10 +147,20 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Returns a list with all the keys that match the specified key
      *
-     * @param array|string $keys
-     * @return array
+     * @param array|string $needles
+     * @param int $options
+     * @return IteratorInterface
      */
-    public function getMatchingKeys(array|string $keys): array;
+    public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param array|string $needles
+     * @param int $options
+     * @return IteratorInterface
+     */
+    public function getMatchingValues(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
     /**
      * Returns value for the specified key
@@ -153,9 +168,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|float|int $key
      * @param array|string $columns
      * @param bool $exception
-     * @return mixed
+     * @return IteratorInterface
      */
-    public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): mixed;
+    public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
     /**
      * Returns value for the specified key
@@ -200,16 +215,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
-     * Sets the value for the specified key
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed $value
-     * @return mixed
-     */
-    public function set(Stringable|string|float|int $key, mixed $value): static;
-
-    /**
-     * Returns the amount of items contained in this object
+     * Returns the number of items contained in this object
      *
      * @return int
      */
@@ -242,7 +248,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|array|string|float|int $keys
      * @return static
      */
-    public function deleteEntries(Stringable|array|string|float|int $keys): static;
+    public function delete(Stringable|array|string|float|int $keys): static;
 
     /**
      * Deletes the entries that have columns with the specified value(s)
@@ -259,12 +265,176 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|float|int $key
      * @return bool
      */
-    public function exists(Stringable|string|float|int $key): bool;
+    public function keyExists(Stringable|string|float|int $key): bool;
 
     /**
-     * Returns if the list is empty or not
+     * Returns if the specified value exists or not
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public function valueExists(mixed $value): bool;
+
+    /**
+     * Returns if the list is empty
      *
      * @return bool
      */
     public function isEmpty(): bool;
+
+    /**
+     * Returns if the list is not empty
+     *
+     * @return bool
+     */
+    public function isNotEmpty(): bool;
+
+    /**
+     * Merge the specified Iterator or array into this Iterator
+     *
+     * @param IteratorInterface|array $source
+     * @return static
+     */
+    public function merge(IteratorInterface|array $source): static;
+
+    /**
+     * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed $value
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function default(Stringable|string|float|int $key, mixed $value): mixed;
+
+    /**
+     * Returns an array with array values containing only the specified columns
+     *
+     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     *       OutOfBoundsException
+     *
+     * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
+     *
+     * @param array|string|null $columns
+     * @return IteratorInterface
+     */
+    public function getSourceColumns(array|string|null $columns): IteratorInterface;
+
+    /**
+     * Returns an array with each value containing a scalar with only the specified column value
+     *
+     * @note This only works on sources that contains array / DataEntry object values. Any other value will cause an
+     *       OutOfBoundsException
+     *
+     * @param string $column
+     * @return IteratorInterface
+     */
+    public function getSourceColumn(string $column): IteratorInterface;
+
+    /**
+     * Returns the length of the longest value
+     *
+     * @return int
+     */
+    public function getLongestKeyLength(): int;
+
+    /**
+     * Returns the length of the shortest value
+     *
+     * @return int
+     */
+    public function getShortestKeyLength(): int;
+
+    /**
+     * Returns the length of the longest value
+     *
+     * @param string|null $key
+     * @param bool $exception
+     * @return int
+     */
+    public function getLongestValueLength(?string $key = null, bool $exception = false): int;
+
+    /**
+     * Returns the length of the shortest value
+     *
+     * @param string|null $key
+     * @param bool $exception
+     * @return int
+     */
+    public function getShortestValueLength(?string $key = null, bool $exception = false): int;
+
+    /**
+     * Returns the total amounts for all columns together
+     *
+     * @param array|string $columns
+     * @return array
+     */
+    public function getTotals(array|string $columns): array;
+
+    /**
+     * Displays a message on the command line
+     *
+     * @param string|null $message
+     * @param bool $header
+     * @return $this
+     */
+    public function displayCliMessage(?string $message = null, bool $header = false): static;
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param array|null $columns
+     * @param array $filters
+     * @param string|null $id_column
+     * @return static
+     */
+    public function displayCliTable(?array $columns = null, array $filters = [], ?string $id_column = 'id'): static;
+
+    /**
+     * Sorts the Iterator source in ascending order
+     *
+     * @return $this
+     */
+    public function sort(): static;
+
+    /**
+     * Sorts the Iterator source in descending order
+     *
+     * @return $this
+     */
+    public function rsort(): static;
+
+    /**
+     * Sorts the Iterator source keys in ascending order
+     *
+     * @return $this
+     */
+    public function ksort(): static;
+
+    /**
+     * Sorts the Iterator source keys in descending order
+     *
+     * @return $this
+     */
+    public function krsort(): static;
+
+    /**
+     * Sorts the Iterator source using the specified callback
+     *
+     * @return $this
+     */
+    public function uasort(callable $callback): static;
+
+    /**
+     * Sorts the Iterator source keys using the specified callback
+     *
+     * @return $this
+     */
+    public function uksort(callable $callback): static;
+
+    /**
+     * Will limit the amount of entries in the source of this Iterator to the auto complete limit
+     *
+     * @return $this
+     */
+    public function limitAutoComplete(): static;
 }

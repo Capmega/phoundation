@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Accounts\Users\Interfaces;
 
 use DateTimeInterface;
@@ -8,9 +10,7 @@ use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
 use Stringable;
 
 
@@ -22,7 +22,7 @@ use Stringable;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 interface UserInterface extends DataEntryInterface
@@ -460,7 +460,7 @@ interface UserInterface extends DataEntryInterface
      * @param string $validation
      * @return static
      */
-    public function setPassword(string $password, string $validation): static;
+    public function changePassword(string $password, string $validation): static;
 
     /**
      * Validates the specified password
@@ -474,9 +474,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Returns the name for this user that can be displayed
      *
+     * @param bool $official
      * @return string
      */
-    function getDisplayName(): string;
+    function getDisplayName(bool $official = false): string;
 
     /**
      * Returns the name with an id for a user
@@ -594,7 +595,7 @@ interface UserInterface extends DataEntryInterface
      * @param string|null $notifications_hash
      * @return static
      */
-    public function setNotificationsHash(string|null $notifications_hash): static;
+    public function setNotificationsHash(?string $notifications_hash): static;
 
     /**
      * Send a notification to only this user.
@@ -602,4 +603,11 @@ interface UserInterface extends DataEntryInterface
      * @return NotificationInterface
      */
     public function notify(): NotificationInterface;
+
+    /**
+     * Returns the password string for this user
+     *
+     * @return string|null
+     */
+    public function getPasswordString(): ?string;
 }

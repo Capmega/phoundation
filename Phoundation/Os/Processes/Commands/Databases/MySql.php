@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
-use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataHostnamePort;
 use Phoundation\Data\Traits\DataSource;
 use Phoundation\Data\Traits\DataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
@@ -22,6 +24,8 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Servers;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Throwable;
 
 
@@ -32,7 +36,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class MySql extends Command
@@ -40,29 +44,64 @@ class MySql extends Command
     use DataHostnamePort;
     use DataUserPass;
     use DataSource;
+    use DataConnector;
+
+
+    /**
+     * Drops the specified database
+     *
+     * @param string|null $database
+     * @return static
+     */
+    public function drop(?string $database): static
+    {
+        if ($database) {
+            // Drop the requested database
+            sql($this->connector, false)->schema(false)
+                ->database($database)
+                ->drop();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Drops the specified database
+     *
+     * @param string|null $database
+     * @return static
+     */
+    public function create(?string $database): static
+    {
+        if ($database) {
+            // Drop the requested database
+            sql($this->connector, false)->schema(false)
+                ->database($database)
+                ->create();
+        }
+
+        return $this;
+    }
 
 
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param string $instance
-     * @param bool $drop
      * @param string $file
+     * @param RestrictionsInterface $restrictions
+     * @throws Throwable
      */
-    public function import(string $instance, string $file, bool $drop, int $timeout = 3600): void
+    public function import(string $file, RestrictionsInterface $restrictions): void
     {
-        //
-        $file         = Filesystem::absolute($file, PATH_DATA . 'sources/');
-        $restrictions = Restrictions::new(PATH_DATA . 'sources/', false, 'Mysql importer');
+        // Get file and database information
+        $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
+        $restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
         $threshold    = Log::setThreshold(3);
-        $config       = Config::getArray('databases.sql.instances.' . $instance);
 
-        // Drop the requested database
-        if ($drop) {
-            sql($instance, false)->schema(false)
-                ->database($config['name'])
-                ->drop()
-                ->create();
+        // If we're importing the system database, then switch to init mode!
+        if ($this->connector->getDatabase() === sql()->getDatabase()) {
+            Core::enableInitState();
         }
 
         // Check file restrictions and start the import
@@ -72,20 +111,20 @@ class MySql extends Command
 
         switch ($file->getMimetype()) {
             case 'text/plain':
-                $this->setInternalCommand('mysql')
-                    ->setTimeout($timeout)
-                    ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']])
+                $this->setCommand('mysql')
+                    ->setTimeout($this->timeout)
+                    ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()])
                     ->setInputRedirect($file)
                     ->executeNoReturn();
                 break;
 
             case 'application/gzip':
-                $this->setInternalCommand('mysql')
-                    ->setTimeout($timeout)
-                    ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass'], '-B', $config['name']]);
+                $this->setCommand('mysql')
+                    ->setTimeout($this->timeout)
+                    ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword(), '-B', $this->connector->getDatabase()]);
 
                 Zcat::new()
-                    ->setTimeout($timeout)
+                    ->setTimeout($this->timeout)
                     ->setFile($file)
                     ->setPipe($this)
                     ->execute();
@@ -93,7 +132,7 @@ class MySql extends Command
 
             default:
                 throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
-                    ':file' => $file->getFile(),
+                    ':file' => $file->getPath(),
                     ':type' => $file->getMimetype()
                 ]));
         }
@@ -153,7 +192,7 @@ class MySql extends Command
 
         try {
             // Build the process parameters, then execute
-            $this->setInternalCommand('mysql')
+            $this->setCommand('mysql')
                  ->addArgument($this->hostname ? '--host' . $this->hostname : null)
                  ->addArgument($this->port     ? '--port' . $this->port     : null)
                  ->addArgument('--user' . $this->user)
@@ -223,7 +262,7 @@ class MySql extends Command
     /**
      * Import all timezones in MySQL
      *
-     * @note: This was designed for Ubuntu Linux and currently any support for other operating systems is NON-EXISTENT
+     * @note: This was designed for Ubuntu Linux, and currently any support for other operating systems is NON-EXISTENT
      *        I'll gladly add support later if I ever have time
      * @param string $password
      * @return void
@@ -252,5 +291,20 @@ class MySql extends Command
             ->addArgument('/usr/share/zoneinfo')
             ->setPipe($mysql)
             ->executePassthru();
+    }
+
+
+    /**
+     * Returns the instance configuration
+     *
+     * @param string $database
+     * @return array
+     */
+    protected function getInstanceConfigForDatabase(string $database): array
+    {
+        return Config::getArray('databases.connectors.' . $database);
+        foreach (Sql::getConnectors() as $connector) {
+
+        }
     }
 }

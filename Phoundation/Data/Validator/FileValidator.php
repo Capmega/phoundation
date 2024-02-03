@@ -18,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class FileValidator
@@ -97,7 +97,7 @@ class FileValidator
 
 
     /**
-     * Validates that the file is smaller than the specified amount of bytes
+     * Validates that the file is smaller than the specified number of bytes
      *
      * @param int $size
      * @return FileValidator

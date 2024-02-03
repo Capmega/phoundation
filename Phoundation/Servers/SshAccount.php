@@ -8,11 +8,14 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryFile;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Servers\Interfaces\SshAccountInterface;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -20,17 +23,18 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
-class SshAccount extends DataEntry
+class SshAccount extends DataEntry implements SshAccountInterface
 {
     use DataRestrictions;
     use DataEntryNameDescription;
     use DataEntryUsername;
+    use DataEntryFile;
 
 
     /**
@@ -60,9 +64,34 @@ class SshAccount extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
-        return 'seo_name';
+        return 'name';
+    }
+
+
+    /**
+     * SshAccount class constructor
+     *
+     * @param int|string|DataEntryInterface|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        $this->config_path = 'ssh.accounts.';
+        parent::__construct($identifier, $column, $meta_enabled);
+    }
+
+
+    /**
+     * Returns a unique log identifier that is both unique but also human readable
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        return $this->getSourceColumnValue('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceColumnValue('string', static::getUniqueColumn()) : '-') . '(' . $this->getUsername() . ')';
     }
 
 
@@ -73,7 +102,7 @@ class SshAccount extends DataEntry
      */
     public function getSshKey(): ?string
     {
-        return $this->getSourceFieldValue('string', 'ssh_key');
+        return $this->getSourceColumnValue('string', 'ssh_key');
     }
 
 
@@ -107,16 +136,23 @@ class SshAccount extends DataEntry
             ->addDefinition(Definition::new($this, 'username')
                 ->setLabel(tr('Username'))
                 ->setInputType(InputTypeExtended::username)
-                ->setCliField(tr('-u,--username NAME'))
+                ->setCliColumn(tr('-u,--username NAME'))
                 ->setCliAutoComplete(true)
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this account')))
+            ->addDefinition(DefinitionFactory::getFile($this)
+                ->setLabel(tr('SSH key file'))
+                ->setCliColumn(tr('-i,--ssh-key-file FILE'))
+                ->setHelpText(tr('The SSH key file for this account'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFile('/');
+                }))
             ->addDefinition(Definition::new($this, 'ssh_key')
                 ->setLabel(tr('SSH key'))
-                ->setCliField(tr('-i,--ssh-key-file FILE'))
+                ->setCliColumn(tr('-k,--ssh-key "KEY"'))
                 ->setCliAutoComplete(true)
                 ->setSize(12)
                 ->setMaxlength(65_535)

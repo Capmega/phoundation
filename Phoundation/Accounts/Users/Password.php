@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -19,7 +18,10 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Enums\InputType;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\InputType;
 
 
 /**
@@ -29,7 +31,7 @@ use Phoundation\Web\Http\Html\Enums\InputType;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class Password extends DataEntry implements PasswordInterface
@@ -61,12 +63,15 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool|null $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
         }
+
+        // TODO Should this constructor not pass all variables to the parent:: call?
 
         if (User::notExists($identifier, 'id')) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, the specified user ID ":id" does not exist', [
@@ -83,7 +88,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }
@@ -106,7 +111,7 @@ class Password extends DataEntry implements PasswordInterface
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
 
-            // In setup mode we won't have database access yet, so these 2 tests may be skipped in that case.
+            // In setup mode, we won't have database access yet, so these 2 tests may be skipped in that case.
             if (!Core::isState('setup')) {
                 if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));
@@ -156,6 +161,7 @@ class Password extends DataEntry implements PasswordInterface
      * @param string $password
      * @param string|null $email
      * @return int
+     * @throws NoPasswordSpecifiedException|PasswordTooShortException
      */
     protected static function getStrength(string $password, ?string $email): int
     {
@@ -165,15 +171,12 @@ class Password extends DataEntry implements PasswordInterface
 
         if($length < 10) {
             if(!$length) {
-                Log::warning(tr('No password specified'));
-                return -1;
+                throw new NoPasswordSpecifiedException(tr('No password specified'));
             }
 
-            Log::warning(tr('Specified password has only ":length" characters, 10 are the required minimum', [
+            throw new PasswordTooShortException(tr('Specified password has only ":length" characters, 10 are the required minimum', [
                 ':length' => $length
             ]));
-
-            return -1;
         }
 
         // Test for email parts
@@ -187,18 +190,18 @@ class Password extends DataEntry implements PasswordInterface
 
             foreach ($tests as $test) {
                 if (str_contains($password, $test)) {
-                    // password contains email parts, either straight or in reverse. Both are not allowed
+                    // The password contains email parts, either straight or in reverse. Both are not allowed
                     return -1;
                 }
             }
         }
 
-        // Check if password is not all lower case
+        // Check if password is not all a lower case
         if(strtolower($password) === $password){
             $strength -= 15;
         }
 
-        // Check if password is not all upper case
+        // Check if password is not all an upper case
         if(strtoupper($password) === $password){
             $strength -= 15;
         }
@@ -206,11 +209,11 @@ class Password extends DataEntry implements PasswordInterface
         // Bonus for long passwords
         $strength += ($length * 2);
 
-        // Get the amount of upper case letters in the password
+        // Get the number of upper case letters in the password
         preg_match_all('/[A-Z]/', $password, $matches);
         $a = (count($matches[0]) / strlen($password) * 100);
 
-        // Get the amount of lower case letters in the password
+        // Get the number of lower case letters in the password
         preg_match_all('/[a-z]/', $password, $matches);
         $b = (count($matches[0]) / strlen($password) * 100);
 
@@ -356,7 +359,7 @@ class Password extends DataEntry implements PasswordInterface
                 $start = microtime(true);
                 password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
                 $end = microtime(true);
-                CliCommand::dot();
+                Log::dot();
             } while (($end - $start) < $time);
 
             $costs[] = $cost;

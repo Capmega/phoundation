@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Filesystem\Interfaces;
 
 use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Filesystem\Directory;
+use Stringable;
 use Throwable;
 
 
@@ -15,11 +18,11 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FileInterface extends FileBasicsInterface
+interface FileInterface extends PathInterface
 {
     /**
      * Move uploaded image to correct target
@@ -69,6 +72,7 @@ interface FileInterface extends FileBasicsInterface
      *
      * @param string $target
      * @param callable $callback
+     * @param RestrictionsInterface $restrictions
      * @return static
      * @example:
      * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
@@ -77,7 +81,7 @@ interface FileInterface extends FileBasicsInterface
      *      }
      *  });
      */
-    public function copy(string $target, callable $callback): static;
+    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -117,11 +121,11 @@ interface FileInterface extends FileBasicsInterface
      * Search / replace the object files
      *
      * @param array $replaces The list of keys that will be replaced by values
-     * @param string|null $target
+     * @param FileInterface|null $target
      * @param bool $regex
      * @return static
      */
-    public function replace(array $replaces, ?string $target, bool $regex = false): static;
+    public function replace(array $replaces, ?FileInterface $target = null, bool $regex = false): static;
 
     /**
      * Return line count for the specified text file
@@ -129,15 +133,26 @@ interface FileInterface extends FileBasicsInterface
      * @param string $source
      * @return int
      */
-    public function lineCount(string $source): int;
+    public function getLineCount(string $source, int $buffer = 1048576): int;
 
     /**
      * Return word count for the specified text file
      *
-     * @param string $source
-     * @return int
+     * @param int $format
+     * @param string|null $characters
+     * @param int $buffer
+     * @return array|int
      */
-    public function wordCount(string $source): int;
+    public function getWordCount(int $format = 0, ?string $characters = null, int $buffer = 1048576): array|int;
+
+    /**
+     * Return word frequency for the specified text file
+     *
+     * @param string|null $characters
+     * @param int $buffer
+     * @return array
+     */
+    public function getWordFrequency(?string $characters = null, int $buffer = 1048576): array;
 
     /**
      * Returns true if any part of the object file path is a symlink
@@ -173,14 +188,14 @@ interface FileInterface extends FileBasicsInterface
     /**
      * Copy object file, see file_move_to_target for implementation
      *
-     * @param string $path
+     * @param string $directory
      * @param bool $extension
      * @param bool $singledir
      * @param int $length
      * @return string
      * @throws Exception
      */
-    public function copyToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4): string;
+    public function copyToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4): string;
 
     /**
      * Move object file (must be either file string or PHP uploaded file array) to a target and returns the target name
@@ -193,7 +208,7 @@ interface FileInterface extends FileBasicsInterface
      * If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will be in abcde
      * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
      *
-     * @param string $path
+     * @param string $directory
      * @param bool $extension
      * @param bool $singledir
      * @param int $length
@@ -202,7 +217,7 @@ interface FileInterface extends FileBasicsInterface
      * @return string The target file
      * @throws Exception
      */
-    public function moveToTarget(string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string;
+    public function moveToTarget(string $directory, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null): string;
 
     /**
      * Copy an entire tree with replace option
@@ -309,4 +324,12 @@ interface FileInterface extends FileBasicsInterface
      * @return static
      */
     public function unzip(): static;
+
+    /**
+     * Ensure that the line endings in this file are as specified
+     *
+     * @param string $line_endings
+     * @return $this
+     */
+    public function ensureLineEndings(string $line_endings = PHP_EOL): static;
 }

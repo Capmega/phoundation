@@ -6,18 +6,16 @@ namespace Phoundation\Utils;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Enums\Interfaces\JsonAfterReplyInterface;
-use Phoundation\Utils\Enums\JsonAfterReply;
+use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
+use Phoundation\Utils\Enums\EnumJsonAfterReply;
 use Phoundation\Utils\Exception\JsonException;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Stringable;
@@ -31,7 +29,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Utils
  */
 class Json
@@ -40,10 +38,10 @@ class Json
      * Send correct JSON reply
      *
      * @param array|Stringable|string|null $data
-     * @param JsonAfterReplyInterface $action_after
+     * @param EnumJsonAfterReplyInterface $action_after
      * @return void
      */
-    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, JsonAfterReplyInterface $action_after = JsonAfterReply::die): void
+    #[NoReturn] public static function reply(array|Stringable|string|null $data = null, EnumJsonAfterReplyInterface $action_after = EnumJsonAfterReply::die): void
     {
         // Always return all numbers as strings as javascript borks BADLY on large numbers, WTF JS?!
         if (is_array($data)) {
@@ -74,15 +72,15 @@ class Json
         echo $data;
 
         switch ($action_after) {
-            case JsonAfterReply::die:
+            case EnumJsonAfterReply::die:
                 // We're done, kill the connection % process (default)
                 exit();
 
-            case JsonAfterReply::continue:
+            case EnumJsonAfterReply::continue:
                 // Continue running, keep the HTTP connection open
                 break;
 
-            case JsonAfterReply::closeConnectionContinue:
+            case EnumJsonAfterReply::closeConnectionContinue:
                 // Close the current HTTP connection but continue in the background
                 session_write_close();
                 fastcgi_finish_request();
@@ -132,7 +130,7 @@ class Json
             }
 
             if (empty($message['e'])) {
-                if (Debug::production()) {
+                if (Core::isProductionEnvironment()) {
                     $message = $default;
                     Log::warning('No exception object specified for following error');
                     Log::warning($message);
@@ -144,7 +142,7 @@ class Json
                 }
 
             } else {
-                if (Debug::production()) {
+                if (Core::isProductionEnvironment()) {
                     Log::notice($message['e']);
 
                     $code = $message['e']->getCode();
@@ -404,6 +402,28 @@ class Json
 
 
     /**
+     * Ensure that the specified source is encoded into a JSON string
+     *
+     * This method will assume that given strings are encoded JSON. Anything else will be encoded into a JSON string
+     *
+     * @param mixed $source
+     * @param int $options
+     * @param int $depth Until what depth will we recurse until an exception will be thrown
+     * @return string
+     * @throws JsonException If JSON encoding failed
+     */
+    public static function ensureEncoded(mixed $source, int $options = 0, int $depth = 512): string
+    {
+        if (is_string($source)) {
+            // Assume this is a JSON string
+            return $source;
+        }
+
+        return static::encode($source, $options, $depth);
+    }
+
+
+    /**
      * Decode the given JSON string back into the original data. Can optionally decode into standard object classes or
      * arrays [default]
      *
@@ -432,12 +452,39 @@ class Json
 
 
     /**
+     * Ensure the given variable is decoded.
+     *
+     * If it is a JSON string it will be decoded back into the original data. If it is not a string, this method will
+     * assume it already was decoded. Can optionally decode into standard object classes or arrays [default]
+     *
+     * @param mixed $source
+     * @param int $options
+     * @param int $depth Until what depth will we recurse until an exception will be thrown
+     * @param bool $as_array If $as_array is set true [default] then this method will always return an array. If not,
+     *                       it will return a PHP JSON object
+     * @return mixed The decoded variable
+     * @throws JsonException
+     */
+    public static function ensureDecoded(mixed $source, int $options = 0, int $depth = 512, bool $as_array = true): mixed
+    {
+        if ($source and is_string($source)) {
+            return static::decode($source, $options, $depth, $as_array);
+        }
+
+        return $source;
+    }
+
+
+    /**
      * Returns the specified source, but limiting its maximum size to the specified $max_size.
      *
      * If it crosses this threshold, it will truncate entries in the $source array
      *
      * @param array|string $source
      * @param int $max_size
+     * @param string $fill
+     * @param string $method
+     * @param bool $on_word
      * @param int $options
      * @param int $depth
      * @return string

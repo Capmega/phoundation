@@ -16,7 +16,7 @@ use Phoundation\Geo\States\State;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryLongLat
@@ -28,7 +28,7 @@ trait DataEntryLongLat
      */
     public function getLongitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'longitude');
+        return $this->getSourceColumnValue('float', 'longitude');
     }
 
 
@@ -42,9 +42,9 @@ trait DataEntryLongLat
     {
         return $this->setSourceValue('longitude', $longitude);
     }
-    
-    
-    
+
+
+
     /**
      * Returns the latitude for this entry
      *
@@ -52,7 +52,7 @@ trait DataEntryLongLat
      */
     public function getLatitude(): ?float
     {
-        return $this->getSourceFieldValue('float', 'latitude');
+        return $this->getSourceColumnValue('float', 'latitude');
     }
 
 

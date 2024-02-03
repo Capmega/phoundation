@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
 
@@ -16,7 +17,7 @@ use Stringable;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 interface UsersInterface extends DataListInterface
@@ -32,10 +33,12 @@ interface UsersInterface extends DataListInterface
     /**
      * Add the specified user to the data list
      *
-     * @param User|array|string|int|null $user
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function addUser(User|array|string|int|null $user): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
 
     /**
      * Remove the specified data entry from the data list
@@ -43,7 +46,7 @@ interface UsersInterface extends DataListInterface
      * @param User|Stringable|array|string|float|int $user
      * @return static
      */
-    public function deleteEntries(User|Stringable|array|string|float|int $user): static;
+    public function delete(User|Stringable|array|string|float|int $user): static;
 
     /**
      * Remove all rights for this right
@@ -53,14 +56,15 @@ interface UsersInterface extends DataListInterface
     public function clear(): static;
 
     /**
-     * Load the data for this rights list into the object
+     * Load the data for this users list into the object
      *
+     * @param bool $clear
      * @return static
      */
-    public function load(): static;
+    public function load(bool $clear = true, bool $only_if_empty = false): static;
 
     /**
-     * Save the data for this rights list in the database
+     * Save the data for this users list in the database
      *
      * @return static
      */

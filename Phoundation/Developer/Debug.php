@@ -6,20 +6,20 @@ namespace Phoundation\Developer;
 
 use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
-use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -31,7 +31,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class Debug {
@@ -105,6 +105,17 @@ class Debug {
 
 
     /**
+     * Returns true if each request should print execution statistics in the log
+     *
+     * @return bool
+     */
+    public static function printStatistics(): bool
+    {
+        return Config::getBoolean('debug.statistics', false);
+    }
+
+
+    /**
      * Sets or returns if the system is running in debug mode or not
      *
      * @param bool|null $enabled
@@ -141,50 +152,6 @@ class Debug {
         }
 
         return static::$clean_data;
-    }
-
-
-    /**
-     * Sets or returns if the system is running in production mode or not
-     *
-     * @param bool|null $production
-     * @return bool
-     */
-    public static function production(?bool $production = null): bool
-    {
-        static $loop = false;
-
-        if ($loop) {
-            // We're in a loop!
-            return false;
-        }
-
-        $loop = true;
-
-        try {
-            if ($production === null) {
-                if (!defined('ENVIRONMENT')) {
-                    // Oops, we're so early in startup that we don't have an environment available yet!
-                    // Assume production!
-                    $loop = false;
-                    return true;
-                }
-
-                // Return the setting
-                $return = Config::getBoolean('debug.production', false);
-                $loop   = false;
-                return $return;
-            }
-
-            // Set the value
-            Config::set('debug.production', $production);
-            $loop = false;
-            return $production;
-        } catch (ConfigException) {
-            // Failed to get (or write) config. Assume production
-            $loop = false;
-            return true;
-        }
     }
 
 
@@ -337,28 +304,29 @@ class Debug {
      * in web page mode, the value will be nicely displayed in a recursive table
      *
      * @param mixed $value
+     * @param bool $sort
      * @param int $trace_offset
      * @param bool $quiet
      * @param bool|null $full_backtrace If true will dump full backtraces. If false, will dump limited backtraces
-     *                                  starting from the executed script. If NULL, will determine true or false from
+     *                                  starting from the executed command. If NULL, will determine true or false from
      *                                  config path "debug.backtrace.full"
      * @return mixed
      */
-    public static function show(mixed $value = null, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
+    public static function show(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, ?bool $full_backtrace = null): mixed
     {
         if (!static::getEnabled()) {
             return null;
         }
 
         if ($full_backtrace === null) {
-            // Show debug backtraces starting from scripts or full?
+            // Show debug backtraces starting from commands or full?
             $full_backtrace = Config::getBoolean('debug.backtrace.full', false);
         }
 
         try {
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
 
-            if (Debug::production()) {
+            if (Core::isProductionEnvironment()) {
                 // This is not usually something you want to happen!
                 Notification::new()
                     ->setUrl('developer/incidents.html')
@@ -374,7 +342,7 @@ class Debug {
                 $value = Arrays::hide($value, 'GLOBALS,%pass,ssh_key');
             }
 
-            if (Core::readyState() and PLATFORM_HTTP) {
+            if (Core::readyState() and PLATFORM_WEB) {
                 if (empty($core->register['debug_plain'])) {
                     switch (Core::getRequestType()) {
                         case EnumRequestTypes::api:
@@ -396,7 +364,7 @@ class Debug {
 
                         default:
                             // Force HTML content type, and show HTML data
-                            $output = static::showHtml($value, tr('Unknown'), $trace_offset, $full_backtrace);
+                            $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
 
                     // Show output on web
@@ -425,7 +393,7 @@ class Debug {
             } else {
                 $return = '';
 
-                if (PLATFORM_HTTP) {
+                if (PLATFORM_WEB) {
                     // We're displaying plain text to a browser platform. Send "<pre>" to force readable display
                     echo '<pre>';
                 }
@@ -441,8 +409,10 @@ class Debug {
 
                 } else {
                     // Sort if is array for easier reading
-                    if (is_array($value)) {
-                        ksort($value);
+                    if ($sort) {
+                        if (is_array($value)) {
+                            ksort($value);
+                        }
                     }
 
                     if (!$quiet) {
@@ -483,16 +453,23 @@ class Debug {
      *
      * @note Does NOT return data type "never" because in production mode this call will be completely ignored!
      * @param mixed $value
+     * @param bool $sort
      * @param int $trace_offset
      * @param bool $quiet
      * @return void
      */
-    #[NoReturn] public static function showDie(mixed $value = null, int $trace_offset = 1, bool $quiet = false): void
+    #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): void
     {
         if (static::getEnabled()) {
             try {
-                static::show($value, $trace_offset, $quiet);
-                Log::warning(tr('Reached showdie() call at :location', [':location' => static::currentLocation($trace_offset)]));
+                static::show($value, $sort, $trace_offset, $quiet);
+
+                // Don't log within Log::write() or tr() to avoid endless loops
+                if (!function_called('Log::write()') and !function_called('tr()')) {
+                    Log::warning(tr('Reached showdie() call at :location', [
+                        ':location' => static::currentLocation($trace_offset)
+                    ]));
+                }
 
             } catch (Throwable $e) {
                 if (php_sapi_name() !== 'cli') {
@@ -527,11 +504,12 @@ class Debug {
      *
      * @param mixed $value
      * @param string|null $key
+     * @param bool $sort
      * @param int $trace_offset
      * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtml(mixed $value, string|null $key = null, int $trace_offset = 0, bool $full_backtrace = false): string
+    protected static function showHtml(mixed $value, string|null $key = null, bool $sort = true, int $trace_offset = 0, bool $full_backtrace = false): string
     {
         static $style;
 
@@ -574,7 +552,7 @@ class Debug {
         return $return . '  <table class="debug">
                               <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
                               <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>
-                              '.static::showHtmlRow($value, $key, $full_backtrace) . '
+                              '.static::showHtmlRow($value, $key, $sort, $full_backtrace) . '
                             </table>';
     }
 
@@ -584,10 +562,11 @@ class Debug {
      *
      * @param mixed $value
      * @param string|null $key
+     * @param bool $sort
      * @param bool $full_backtrace
      * @return string
      */
-    protected static function showHtmlRow(mixed $value, ?string $key = null, bool $full_backtrace = false): string
+    protected static function showHtmlRow(mixed $value, ?string $key = null, bool $sort = true, bool $full_backtrace = false): string
     {
         if ($key === null) {
             $key = tr('Unknown');
@@ -666,10 +645,12 @@ class Debug {
             case 'array':
                 $return = '';
 
-                ksort($value);
+                if ($sort) {
+                    ksort($value);
+                }
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $full_backtrace);
+                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $sort, $full_backtrace);
                 }
 
                 return '<tr>
@@ -686,39 +667,7 @@ class Debug {
             case 'object':
                 // Format exception nicely
                 if ($value instanceof Throwable) {
-                    $exception  = tr(':type Exception', [':type' => get_class($value)]) . '<br><br>';
-                    $exception .= tr('Messages:') . '<br>';
-
-                    if ($value instanceof Exception) {
-                        foreach ($value->getMessages() as $message) {
-                            $exception .= htmlspecialchars((string) $message) . '<br>';
-                        }
-                    }else {
-                        $exception .= htmlspecialchars((string) $value->getMessage()) . '<br>';
-                    }
-
-                    $exception .= '<br>' . tr('Location: ') . htmlspecialchars($value->getFile()) . '@' . $value->getLine() . '<br><br>' . tr('Backtrace: ') . '<br>';
-
-                    foreach (Debug::formatBacktrace($value->getTrace()) as $line) {
-                        if (!$full_backtrace) {
-                            if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
-                                break;
-                            }
-                        }
-
-                        $exception .= htmlspecialchars((string) $line) . '<br>';
-                    }
-
-                    $exception .= '<br><br>' . tr('Data: ') . '<br>';
-
-                    if ($value instanceof Exception) {
-                        $exception .= htmlspecialchars((string)print_r($value->getData() ?? '-', true)) . '<br>';
-
-                    } else {
-                        $exception .= htmlspecialchars('-') . '<br>';
-                    }
-
-                    $value = $exception;
+                    $value =  static::displayException($value, $full_backtrace, 0);
 
                 } else {
                     $value  = print_r($value, true);
@@ -762,6 +711,58 @@ class Debug {
                     <td class="value">' . htmlspecialchars((string) $value) . '</td>
                 </tr>';
         }
+    }
+
+
+    /**
+     * Returns displayable information for the specified exception
+     *
+     * @param Throwable $e
+     * @param bool $full_backtrace
+     * @param int $indent
+     * @return string
+     */
+    protected static function displayException(Throwable $e, bool $full_backtrace, int $indent): string
+    {
+        $prefix  = str_repeat(' ', $indent);
+        $return  = $prefix . tr(':type Exception', [':type' => get_class($e)]) . '<br><br>';
+        $return .= $prefix . tr('Messages:') . '<br>';
+
+        if ($e instanceof Exception) {
+            foreach ($e->getMessages() as $message) {
+                $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+            }
+        }else {
+            $return .= $prefix . htmlspecialchars($e->getMessage()) . '<br>';
+        }
+
+        $return .= '<br>' . $prefix . tr('Location: ') . htmlspecialchars($e->getFile()) . '@' . $e->getLine() . '<br><br>' . $prefix . tr('Backtrace: ') . '<br>';
+
+        foreach (Debug::formatBacktrace($e->getTrace()) as $line) {
+            if (!$full_backtrace) {
+                if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
+                    break;
+                }
+            }
+
+            $return .= $prefix . htmlspecialchars((string) $line) . '<br>';
+        }
+
+        $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
+
+        if ($e instanceof Exception) {
+            $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r($e->getData() ?? '-', true))) . '<br>';
+
+        } else {
+            $return .= $prefix . htmlspecialchars('-') . '<br>';
+        }
+
+        if ($e->getPrevious()) {
+            $return .= tr('Previous exception: ') . '<br>';
+            $return .= static::displayException($e->getPrevious(), $full_backtrace, $indent + 4);
+        }
+
+        return $return;
     }
 
 
@@ -1032,7 +1033,7 @@ class Debug {
 
 
     /**
-     * Die when this method has been called the $count specified amount of times, and display the optional message
+     * Die when this method has been called the $count specified number of times, and display the optional message
      *
      * @param int $count
      * @param string|null $message
@@ -1048,7 +1049,7 @@ class Debug {
 
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
 
             exit(Strings::endsWith(str_replace('%count%', $count, $message), PHP_EOL));
         }
@@ -1081,7 +1082,7 @@ class Debug {
     public static function formatBackTrace(array $backtrace): array
     {
         $lines   = static::buildBackTrace($backtrace);
-        $longest = Arrays::getLongestValueSize($lines, 'call');
+        $longest = Arrays::getLongestValueLength($lines, 'call');
         $return  = [];
 
         // format and write the lines
@@ -1162,8 +1163,8 @@ class Debug {
 
             // Log the file@line information
             if (isset($step['file'])) {
-                // Remove PATH_ROOT from the filenames for clarity
-                $line['location'] = Strings::from($step['file'], PATH_ROOT) . '@' . $step['line'];
+                // Remove DIRECTORY_ROOT from the filenames for clarity
+                $line['location'] = Strings::from($step['file'], DIRECTORY_ROOT) . '@' . $step['line'];
             }
 
             if (!$line) {

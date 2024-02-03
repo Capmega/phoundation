@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Fprint extends Command
@@ -30,7 +30,7 @@ class Fprint extends Command
     public function enroll(string|int $id, EnumExecuteMethodInterface $method = EnumExecuteMethod::background): ?int
     {
         // Build the process parameters, then execute
-        $this->setInternalCommand('fprint-enroll')
+        $this->setCommand('fprint-enroll')
              ->clearArguments()
              ->addArgument($id);
 

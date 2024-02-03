@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web;
 
-use Phoundation\Core\Config;
-use Phoundation\Web\Http\Http;
-use Phoundation\Web\Http\Url;
-
 
 /**
  * Class Web
@@ -16,7 +12,7 @@ use Phoundation\Web\Http\Url;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Web
@@ -80,7 +76,7 @@ class Web
 //
 //        // Do language mapping, but only if routemap has been set
 //// :TODO: This will fail when using multiple CDN servers (WHY?)
-//        if (!empty(Config::get('languages.supported', [])) and ($domain !== Config::get('cdn.domain', '') . '/')) {
+//        if (!empty(Config::get('language.supported', [])) and ($domain !== Config::get('cdn.domain', '') . '/')) {
 //            if ($from_language !== 'en') {
 //                /*
 //                 * Translate the current non-English URL to English first

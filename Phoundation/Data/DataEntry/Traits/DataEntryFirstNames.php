@@ -12,7 +12,7 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryFirstNames
@@ -24,7 +24,7 @@ trait DataEntryFirstNames
      */
     public function getFirstNames(): ?string
     {
-        return $this->getSourceFieldValue('string', 'first_names');
+        return $this->getSourceColumnValue('string', 'first_names');
     }
 
 

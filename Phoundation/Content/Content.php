@@ -6,9 +6,9 @@ namespace Phoundation\Content;
 
 use Phoundation\Content\Exception\ContentException;
 use Phoundation\Content\Interfaces\ContentInterface;
-use Phoundation\Core\Strings;
 use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
 class Content extends File implements ContentInterface
@@ -30,7 +30,7 @@ class Content extends File implements ContentInterface
      */
     public function view(): void
     {
-        $file     = File::new($this->file)->checkReadable('image');
+        $file     = File::new($this->path)->checkReadable('image');
         $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
 
@@ -40,7 +40,7 @@ class Content extends File implements ContentInterface
             'pdf'       => static::viewPdf(),
             'directory' => static::viewDirectory(),
             default     => throw new ContentException(tr('Unknown mimetype ":viewer" for file ":file"', [
-                ':file'     => $file->getFile(),
+                ':file'     => $file->getPath(),
                 ':mimetype' => $mimetype
             ])),
         };
@@ -55,7 +55,7 @@ class Content extends File implements ContentInterface
     protected function viewImage(): void
     {
         Process::new('feh', $this->restrictions, 'feh')
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->executeBackground();
     }
 

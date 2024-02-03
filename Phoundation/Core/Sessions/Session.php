@@ -9,20 +9,18 @@ use Exception;
 use GeoIP;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
+use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignIn;
+use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
-use Phoundation\Core\Exception\ConfigException;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStatusException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -36,10 +34,14 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
-use Phoundation\Web\Http\Html\Components\FlashMessages\FlashMessages;
-use Phoundation\Web\Http\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -53,7 +55,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  */
 class Session implements SessionInterface
@@ -107,6 +109,13 @@ class Session implements SessionInterface
      */
     protected static ConfigInterface $config;
 
+    /**
+     * Stores the sign-in key, if available
+     *
+     * @var SignInKeyInterface|null $key
+     */
+    protected static ?SignInKeyInterface $key = null;
+
 
     /**
      * Start this session
@@ -141,7 +150,7 @@ class Session implements SessionInterface
      */
     public static function exit(): void
     {
-        if (PLATFORM_HTTP) {
+        if (PLATFORM_WEB) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
             static::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
@@ -236,17 +245,17 @@ class Session implements SessionInterface
 
             // Initialize session?
             if (!isset($_SESSION['init'])) {
-                static::start();
+                static::resume();
             }
 
             // Update the users sign-in and last sign-in information
-            sql()->query('UPDATE `accounts_users` SET `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1');
+            static::updateSignInTracking();
 
             // Store this sign in
             Signin::detect()->save();
 
             Incident::new()
-                ->setType('User sign in')->setSeverity(Severity::notice)
+                ->setType(tr('User sign in'))->setSeverity(Severity::notice)
                 ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
                 ->setDetails(['user' => static::$user->getLogId()])
                 ->save();
@@ -326,7 +335,7 @@ class Session implements SessionInterface
     protected static function setLanguage(): string
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
-        $supported_languages = Arrays::force(Config::get('languages.supported', []));
+        $supported_languages = Arrays::force(Config::get('language.supported', []));
         $requested_languages = Page::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
@@ -381,7 +390,7 @@ class Session implements SessionInterface
         if (array_key_exists(Config::get('web.sessions.cookies.name', 'phoundation'), $_COOKIE)) {
             try {
                 // We have a cookie! Start a session for it
-                static::start();
+                static::resume();
 
             } catch (SessionException $e) {
                 Log::warning(tr('Failed to resume session due to exception ":e"', [':e' => $e->getMessage()]));
@@ -418,11 +427,11 @@ class Session implements SessionInterface
 
 
     /**
-     * Start a session
+     * Resume an existing session
      *
      * @return bool
      */
-    public static function start(): bool
+    public static function resume(): bool
     {
         if (!Config::get('web.sessions.enabled', true)) {
             return false;
@@ -457,8 +466,8 @@ class Session implements SessionInterface
         // What handler to use?
         switch (Config::getString('web.sessions.handler', 'files')) {
             case 'files':
-                $path = Directory::new(Config::getString('web.sessions.path', PATH_DATA . 'sessions/'), Restrictions::new([PATH_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
-                session_save_path($path->getFile());
+                $directory = Directory::new(Config::getString('web.sessions.path', DIRECTORY_DATA . 'sessions/'), Restrictions::new([DIRECTORY_DATA, '/var/lib/php/sessions/'], true, 'system/sessions'))->ensure();
+                session_save_path($directory->getPath());
                 break;
 
             case 'memcached':
@@ -483,17 +492,19 @@ class Session implements SessionInterface
 
         // Initialize session?
         if (empty($_SESSION['init'])) {
-            static::init();
+            static::create();
+
+        } else {
+            // Check for extended sessions
+            // TODO Why are we still doing this? We should be able to do extended sessions better
+            static::checkExtended();
+
+            Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
+                ':session' => session_id(),
+                ':user'    => static::getUser()->getLogId(),
+                ':ip'      => $_SERVER['REMOTE_ADDR']
+            ]));
         }
-
-        // Check for extended sessions
-        // TODO Why are we still doing this? We shoudl be able to do extended sessions better
-        static::checkExtended();
-
-        Log::success(tr('Started session for user ":user" from IP ":ip"', [
-            ':user' => static::getUser()->getLogId(),
-            ':ip'   => $_SERVER['REMOTE_ADDR']
-        ]));
 
         // check and set last activity
         if (Config::getInteger('web.sessions.cookies.lifetime', 0)) {
@@ -606,12 +617,12 @@ Log::warning('RESTART SESSION');
                     Incident::new()
                         ->setType('User impersonation')->setSeverity(Severity::low)
                         ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                            ':user' => User::get($_SESSION['user']['id'])->getLogId(),
-                            ':impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                            ':user'        => User::get($_SESSION['user']['id']            ,  'id')->getLogId(),
+                            ':impersonate' => User::get($_SESSION['user']['impersonate_id'],  'id')->getLogId()
                         ]))
                         ->setDetails([
-                            'user' => User::get($_SESSION['user']['id'])->getLogId(),
-                            'impersonate' => User::get($_SESSION['user']['impersonate_id'])->getLogId()
+                            'user'        => User::get($_SESSION['user']['id']            ,  'id')->getLogId(),
+                            'impersonate' => User::get($_SESSION['user']['impersonate_id'],  'id')->getLogId()
                         ])
                         ->notifyRoles('accounts')
                         ->save();
@@ -624,7 +635,7 @@ Log::warning('RESTART SESSION');
                     unset($_SESSION['user']['impersonate_url']);
 
                     Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
-                        ':user' => User::get($users_id)->getLogId()
+                        ':user' => User::get($users_id,  'id')->getLogId()
                     ]));
 
                     Page::redirect($url);
@@ -649,7 +660,7 @@ Log::warning('RESTART SESSION');
             Incident::new()
                 ->setType('User sign out')
                 ->setSeverity(Severity::notice)
-                ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()]))
+                ->setTitle(tr('The user ":user" signed out', [':user' => static::getUser()->getLogId()]))
                 ->setDetails(['user' => static::getUser()->getLogId()])
                 ->save();
 
@@ -745,7 +756,24 @@ Log::warning('RESTART SESSION');
                 ]))
                 ->setDetails([
                     'user'                => static::getUser()->getLogId(),
-                    'impersonating'       => User::get($_SESSION['user']['impersonate_id'], 'id')->getLogId(),
+                    'impersonating'       => User::get($_SESSION['user']['impersonate_id'],  'id')->getLogId(),
+                    'want_to_impersonate' => $user->getLogId()
+                ])
+                ->notifyRoles('accounts')
+                ->save()
+                ->throw();
+        }
+
+        if (!$user->canBeImpersonated()) {
+            // We are already impersonating a user!
+            Incident::new()
+                ->setType('User impersonation failed')
+                ->setSeverity(Severity::high)
+                ->setTitle(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
+                    ':user' => static::getUser()->getLogId(),
+                ]))
+                ->setDetails([
+                    'user'                => static::getUser()->getLogId(),
                     'want_to_impersonate' => $user->getLogId()
                 ])
                 ->notifyRoles('accounts')
@@ -810,7 +838,7 @@ Log::warning('RESTART SESSION');
 
         // Notify the target user
         Notification::new()
-            ->setUrl('profiles/profile-' . $original_user->getId() . '.html')
+            ->setUrl('profiles/profile+' . $original_user->getId() . '.html')
             ->setMode(DisplayMode::warning)
             ->setUsersId($_SESSION['user']['impersonate_id'])
             ->setTitle(tr('Your account was impersonated'))
@@ -863,7 +891,7 @@ Log::warning('RESTART SESSION');
                         ->setUrl('security/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('configuration')
-                        ->setRoles('developers')
+                        ->setRoles('developer')
                         ->setTitle(tr('Invalid cookie domain'))
                         ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
                             ':domain'         => Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'),
@@ -891,7 +919,7 @@ Log::warning('RESTART SESSION');
                 ini_set('session.cookie_secure'  , Config::getBoolean('web.sessions.cookies.secure'     , true));
                 ini_set('session.cookie_samesite', Config::getBoolean('web.sessions.cookies.same-site'  , true));
                 ini_set('session.save_handler'   , Config::getString('sessions.handler'                 , 'files'));
-                ini_set('session.save_path'      , Config::getString('sessions.path'                    , PATH_DATA . 'data/sessions/'));
+                ini_set('session.save_path'      , Config::getString('sessions.path'                    , DIRECTORY_DATA . 'data/sessions/'));
 
                 if (Config::getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
@@ -915,8 +943,8 @@ Log::warning('RESTART SESSION');
 
             } else {
                 if (!is_writable(session_save_path())) {
-                    throw new SessionException(tr('Session startup failed because the session path ":path" is not writable for platform ":platform"', [
-                        ':path'     => session_save_path(),
+                    throw new SessionException(tr('Session startup failed because the session directory ":directory" is not writable for platform ":platform"', [
+                        ':directory'     => session_save_path(),
                         ':platform' => PLATFORM
                     ]), $e);
                 }
@@ -1067,13 +1095,109 @@ Log::warning('RESTART SESSION');
 
 
     /**
-     * Initialize the session with basic data
+     * Create a new session with basic data from the specified sign in key
+     *
+     * @param SignInKeyInterface $key
+     * @return UserInterface
+     */
+    public static function signKey(SignInKeyInterface $key): UserInterface
+    {
+        static::$key  = $key;
+        static::$user = $key->getUser();
+        static::clear();
+
+        // Initialize session?
+        if (!isset($_SESSION['init'])) {
+            static::resume();
+        }
+
+        // Update the users sign-in and last sign-in information
+        static::updateSignInTracking();
+
+        // Store this sign in
+        Signin::detect()->save();
+
+        Incident::new()
+            ->setSeverity(Severity::notice)
+            ->setType(tr('User sign in'))
+            ->setTitle(tr('The user ":user" signed in using UUID key ":key"', [
+                ':key'  => $key->getUuid(),
+                ':user' => static::$user->getLogId()
+            ]))
+            ->setDetails([
+                ':key'  => $key->getUuid(),
+                'user' => static::$user->getLogId()
+            ])
+            ->save();
+
+        $_SESSION['user']['id'] = static::$user->getId();
+        $_SESSION['sign-key']  = $key->getUuid();
+
+        return static::$user;
+    }
+
+
+    /**
+     * Updates the sign in tracking information for this user
+     *
+     * This method will reset the last_sign_in value for this user to NOW and increase the sign_in_count by one
+     *
+     * @return void
+     */
+    protected static function updateSignInTracking(): void
+    {
+        sql()->query('UPDATE `accounts_users`
+                            SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
+                            WHERE  `id` = :id', [
+            ':id' => static::$user->getId()
+        ]);
+    }
+
+
+    /**
+     * Returns the session sign in key, or NULL if not available
+     *
+     * @return SignInKeyInterface|null
+     */
+    public static function getSignInKey(): ?SignInKeyInterface
+    {
+        if (empty(static::$key)) {
+            if (isset($_SESSION['sign-key'])) {
+                try {
+                    static::$key = SignInKey::new($_SESSION['sign-key'], 'uuid');
+
+                } catch (DataEntryNotExistsException) {
+                    // This session key doesn't exist, WTF? If it exists in session, it should exist in the DB. Since it
+                    // does not exist, assume the session contains invalid data. Drop the session
+                    Incident::new()
+                        ->setSeverity(Severity::medium)
+                        ->setType(tr('Invalid session data'))
+                        ->setTitle(tr('Session has sign-key that does not exist, session will be dropped'))
+                        ->setDetails([
+                            'sign-key' => $_SESSION['sign-key'],
+                            'users_id' => Session::getUser()->getLogId()
+                        ])
+                        ->save();
+
+                    Session::signOut();
+                    Page::getFlashMessages()->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
+                    Page::redirect('sign-in');
+                }
+            }
+        }
+
+        return static::$key;
+    }
+
+
+    /**
+     * Create a new session with basic data
      *
      * @return bool
      */
-    protected static function init(): bool
+    protected static function create(): bool
     {
-        Log::action(tr('Initializing new session for user ":user"', [':user' => static::getUser()->getLogId()]));
+        Log::action(tr('Created new session for user ":user"', [':user' => static::getUser()->getLogId()]));
 
         // Initialize the session
         $_SESSION['init']         = microtime(true);
@@ -1141,7 +1265,7 @@ Log::warning('RESTART SESSION');
 
             } else {
                 // TODO What if we run setup from HTTP? Change this to some sort of system flag
-                if (PLATFORM_HTTP) {
+                if (PLATFORM_WEB) {
                     // There is no user, this is a guest session
                     static::$user = new GuestUser();
 
@@ -1165,9 +1289,10 @@ Log::warning('RESTART SESSION');
      */
     protected static function loadUser(int $users_id): UserInterface
     {
-        // Create new user object and ensure it's still good to go
+        // Create a new user object and ensure it's still good to go
         try {
-            $user = User::get($users_id);
+            // This user is loaded by the session object and should NOT use meta-tracking!
+            $user = User::get($users_id,  'id');
 
             if (!$user->getStatus()) {
                 return $user;

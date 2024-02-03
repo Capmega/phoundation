@@ -6,11 +6,10 @@ namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\InputSelect;
 
 
 /**
@@ -21,7 +20,7 @@ use Phoundation\Web\Http\Html\Components\Input\InputSelect;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Geo
  */
 class Country extends DataEntry
@@ -56,7 +55,7 @@ class Country extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -69,7 +68,7 @@ class Country extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getSourceFieldValue('int', 'timezones_id'));
+        return new Timezone($this->getSourceColumnValue('int', 'timezones_id'));
     }
 
 
@@ -80,7 +79,7 @@ class Country extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getSourceFieldValue('int', 'continents_id'));
+        return new Continent($this->getSourceColumnValue('int', 'continents_id'));
     }
 
 

@@ -7,6 +7,7 @@ namespace Phoundation\Web\Routing;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Stringable;
 
 
@@ -17,7 +18,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class RoutingParametersList
@@ -47,15 +48,15 @@ class RoutingParametersList
     /**
      * Add the specified parameters
      *
-     * @param RoutingParameters $parameters
+     * @param RoutingParametersInterface $parameters
      * @return $this
      */
-    public function add(RoutingParameters $parameters): static
+    public function add(RoutingParametersInterface $parameters): static
     {
         if ($parameters->getSystemPagesOnly()) {
             $this->system_list[$parameters->getPattern()] = $parameters;
         } else {
-            $this->list[$parameters->getPattern()] = $parameters;
+            $this->list[$parameters->getPattern()]        = $parameters;
         }
 
         $this->ordered = false;
@@ -133,12 +134,12 @@ class RoutingParametersList
                 ->setUri($uri);
 
             // Use this template
-            Log::action(tr('Selected parameters pattern ":pattern" with template ":template" and path ":path" for:system page from URI ":uri"', [
-                ':system'   => ($system ? ' system' : ''),
-                ':uri'      => $uri,
-                ':path'     => $parameters->getRootPath(),
-                ':template' => $parameters->getTemplate(),
-                ':pattern'  => $pattern
+            Log::success(tr('Selected parameters pattern ":pattern" with template ":template" and directory ":directory" for ":system" page from URI ":uri"', [
+                ':system'    => ($system ? ' system' : ''),
+                ':uri'       => $uri,
+                ':directory' => $parameters->getRootDirectory(),
+                ':template'  => $parameters->getTemplate(),
+                ':pattern'   => $pattern
             ]));
 
             return $parameters;
@@ -153,10 +154,10 @@ class RoutingParametersList
         // Use default template
         $parameters->setUri($uri);
 
-        Log::action(tr('Using default parameters ":pattern" with template ":template" and path ":path" for:system page from URI ":uri"', [
+        Log::action(tr('Using default parameters ":pattern" with template ":template" and directory ":directory" for ":system" page from URI ":uri"', [
             ':system'   => ($system ? ' system' : ''),
             ':uri'      => $uri,
-            ':path'     => $parameters->getRootPath(),
+            ':directory'     => $parameters->getRootDirectory(),
             ':template' => $parameters->getTemplate(),
             ':pattern'  => $pattern
         ]));

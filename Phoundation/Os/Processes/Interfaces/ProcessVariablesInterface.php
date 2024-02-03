@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Os\Processes\ProcessVariables;
@@ -18,7 +21,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 interface ProcessVariablesInterface
@@ -76,7 +79,7 @@ interface ProcessVariablesInterface
     public function getExecutionTime(bool $require_stop = true): ?float;
 
     /**
-     * Increases the amount of times quotes should be escaped
+     * Increases the number of times quotes should be escaped
      *
      * @return ProcessVariables
      */
@@ -117,16 +120,16 @@ interface ProcessVariablesInterface
      *
      * @return Directory
      */
-    public function getExecutionPath(): Directory;
+    public function getExecutionDirectory(): Directory;
 
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null $execution_path
+     * @param Directory|Stringable|string|null $execution_directory
      * @param RestrictionsInterface|array|string|null $restrictions
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPath(Directory|Stringable|string|null $execution_path, RestrictionsInterface|array|string|null $restrictions = null): static;
+    public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static;
 
     /**
      * Sets the execution path to private temp dir
@@ -134,7 +137,7 @@ interface ProcessVariablesInterface
      * @param bool $public
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionPathToTemp(bool $public = false): static;
+    public function setExecutionDirectoryToTemp(bool $public = false): static;
 
     /**
      * Sets the log path where the process output will be redirected to
@@ -205,10 +208,10 @@ interface ProcessVariablesInterface
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @param string|bool $sudo
+     * @param string|bool|null $sudo
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(string|bool $sudo): static;
+    public function setSudo(string|bool|null $sudo): static;
 
     /**
      * Returns the CLI return values that are accepted as "success" and won't cause an exception
@@ -292,30 +295,30 @@ interface ProcessVariablesInterface
      * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
-     * @param array $arguments
+     * @param array|null $arguments
      * @param bool $escape
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(array $arguments, bool $escape = true): static;
+    public function setArguments(?array $arguments, bool $escape = true): static;
 
     /**
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
-     * @param array|string $arguments
-     * @param bool $escape
+     * @param array|null $arguments
+     * @param bool $escape_arguments
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(array|string $arguments, bool $escape = true): static;
+    public function addArguments(array|null $arguments, bool $escape_arguments = true): static;
 
     /**
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
-     * @param array|string|null $argument
-     * @param bool $escape
+     * @param Stringable|array|string|float|int|null $argument
+     * @param bool $escape_argument
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(array|string|null $argument, bool $escape = true): static;
+    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true): static;
 
     /**
      * Sets a single argument for the command that will be executed
@@ -346,10 +349,10 @@ interface ProcessVariablesInterface
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
      * @param string $key
-     * @param string $value
-     * @return ProcessVariables This process so that multiple methods can be chained
+     * @param string|float|int $value
+     * @return static
      */
-    public function setVariable(string $key, string $value): static;
+    public function setVariable(string $key, string|float|int $value): static;
 
     /**
      * Returns the process where the output of this command will be piped to, IF specified
@@ -435,17 +438,18 @@ interface ProcessVariablesInterface
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @return string|array
+     * @return PackagesInterface
      */
-    public function getPackages(): string|array;
+    public function getPackages(): PackagesInterface;
 
     /**
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
-     * @param string|array $packages
+     * @param Stringable|string $operating_system
+     * @param array|string $packages
      * @return static
      */
-    public function setPackages(string|array $packages): static;
+    public function setPackages(Stringable|string $operating_system, array|string $packages): static;
 
     /**
      * Returns the timeout value for this process.

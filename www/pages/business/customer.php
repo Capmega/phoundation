@@ -6,14 +6,14 @@ declare(strict_types=1);
 use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Img;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Html\Layouts\GridColumn;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -23,7 +23,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$customer = Customer::get($get['id']);
+$customer = Customer::get($get['id'], no_identifier_exception: false);
 
 // Validate POST and submit
 if (Page::isPostRequestMethod()) {
@@ -31,7 +31,7 @@ if (Page::isPostRequestMethod()) {
 //        Customer::validate(PostValidator::new());
 //
 //        // Update customer
-//        $customer = Customer::get($get['id']);
+//        $customer = Customer::get($get['id'], exception: false);
 //        $customer->apply()->save();
 //
 //        // Go back to where we came from
@@ -50,7 +50,7 @@ if (Page::isPostRequestMethod()) {
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/customers.html'), true)
-    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta-' . $customer->getMeta() . '.html', false, true);
+    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
 
 
 // Build the customer form

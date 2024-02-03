@@ -1,42 +1,66 @@
 <?php
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Core\Config;
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
 
 /**
- * Sign in page
+ * Page sign-in
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
-    Page::redirect('prev', 302);
+    Page::redirect('prev', 302, reason_warning: tr('Sign-in page is only available to guest users'));
 }
+
+
+// Is email specified by URL?
+$post = GetValidator::new()
+    ->select('email')->isOptional()->isEmail()
+    ->select('redirect')->isOptional()->isUrl()
+    ->validate();
 
 
 // Validate sign in data and sign in
 if (Page::isPostRequestMethod()) {
     try {
-        $post = Session::validateSignIn();
+        $redirect = $post['redirect'];
+        $post     = Session::validateSignIn();
+
         Session::signIn($post['email'], $post['password']);
-        Page::redirect('prev');
+        Page::redirect($redirect ?? UrlBuilder::getPrevious());
+
+    } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+        Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+        ]));
+
+        if (empty($post['email'])) {
+            $post['email'] = PostValidator::new()->getSourceKey('email');
+        }
 
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('Please specify a valid email and password'));
+        Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Access denied'), tr('The specified email or password was incorrect'));
+        Page::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
     }
 }
 
@@ -46,12 +70,12 @@ Page::setBuildBody(false);
 
 ?>
 <?= Page::getFlashMessages()->render() ?>
-<body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+<body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
       <!-- /.login-logo -->
       <div class="card card-outline card-info">
         <div class="card-header text-center">
-          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Medi</span>web'); ?></a>
+          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
         </div>
         <div class="card-body">
           <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
@@ -61,7 +85,7 @@ Page::setBuildBody(false);
                 if (Session::supports('email')) {
                     ?>
                     <div class="input-group mb-3">
-                        <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>">
+                        <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>"<?= isset_get($post['email']) ? 'value="' . $post['email'] . '"' : '' ?>>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -118,7 +142,7 @@ Page::setBuildBody(false);
 
                 if (Session::supports('lost-password')) {
                     echo '  <p class="mb-1">
-                                <a href="' . UrlBuilder::getWww('/lost-password.html') . '">' . tr('I forgot my password') . '</a>
+                                <a href="' . UrlBuilder::getWww('/lost-password.html')->addQueries(isset_get($post['email']) ? 'email=' . $post['email'] : '', isset_get($post['redirect']) ? 'redirect=' . $post['redirect'] : '') . '">' . tr('I forgot my password') . '</a>
                             </p>';
                 }
 

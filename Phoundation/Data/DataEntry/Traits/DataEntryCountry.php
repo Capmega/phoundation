@@ -17,7 +17,7 @@ use Phoundation\Geo\States\State;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCountry
@@ -29,7 +29,7 @@ trait DataEntryCountry
      */
     public function getCountriesId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'countries_id');
+        return $this->getSourceColumnValue('int', 'countries_id');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryCountry
      */
     public function getCountry(): ?Country
     {
-        $countries_id = $this->getSourceFieldValue('int', 'countries_id');
+        $countries_id = $this->getSourceColumnValue('int', 'countries_id');
 
         if ($countries_id) {
             return new Country($countries_id);
@@ -69,7 +69,7 @@ trait DataEntryCountry
      */
     public function getCountriesName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'countries_name');
+        return $this->getSourceColumnValue('string', 'countries_name');
     }
 
 

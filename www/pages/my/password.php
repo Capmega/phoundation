@@ -3,18 +3,21 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
-use Phoundation\Web\Http\Html\Layouts\GridColumn;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -38,17 +41,22 @@ if (Page::isPostRequestMethod()) {
             User::authenticate($user->getEmail(), $post['current']);
 
             // Update user password
-            $user->setPassword($post['password'], $post['passwordv']);
+            $user->changePassword($post['password'], $post['passwordv']);
 
             Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
             Page::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
 
+        } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
+            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least 10 characters for the password'));
+
         } catch (AuthenticationException $e) {
-            // Oops! Current password was wrong
-            Page::getFlashMessages()->addWarningMessage(tr('Your current passwors was incorrect'));
+            // Oops! The Current password was wrong
+            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+                ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+            ]));
 
         } catch (ValidationFailedException $e) {
-            // Oops! Show validation errors and remain on page
+            // Oops! Show validation errors and remain on this page
             Page::getFlashMessages()->addWarningMessage($e);
 
         }catch (PasswordNotChangedException $e) {

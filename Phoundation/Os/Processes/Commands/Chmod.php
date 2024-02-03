@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Strings;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Chmod extends Command
@@ -34,7 +34,7 @@ class Chmod extends Command
         try {
             $mode = Strings::fromOctal($mode);
 
-            $this->setInternalCommand('chmod')
+            $this->setCommand('chmod')
                  ->addArguments([$mode, $file, ($recurse ? '-R' : '')])
                  ->setTimeout(2)
                  ->executeReturnArray();

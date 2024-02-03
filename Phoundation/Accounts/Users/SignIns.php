@@ -6,10 +6,10 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Http\Html\Components\Input\InputSelect;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Http\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\TableIdColumn;
 
 
 /**
@@ -20,7 +20,7 @@ use Phoundation\Web\Http\Html\Enums\TableIdColumn;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class SignIns extends DataList
@@ -76,7 +76,7 @@ class SignIns extends DataList
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }
@@ -91,7 +91,7 @@ class SignIns extends DataList
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         $table = parent::getHtmlTable();
-        $table->setTableIdColumn(TableIdColumn::checkbox);
+        $table->setCheckboxSelectors(TableIdColumn::checkbox);
 
         return $table;
     }
@@ -103,9 +103,10 @@ class SignIns extends DataList
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
+     * @param array|null $joins
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'created_on', string $key_column = 'id', ?string $order = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'created_on', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT    `accounts_signins`.`' . $key_column . '`,

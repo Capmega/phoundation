@@ -4,22 +4,29 @@ declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
+use Phoundation\Cache\Cache;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
+use Phoundation\Date\Interfaces\DateTimeZoneInterface;
+use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Page;
 
 
@@ -58,7 +65,7 @@ function is_version(string $version): bool
 
 
 /**
- * Sleep for the specified amount of milliseconds
+ * Sleep for the specified number of milliseconds
  *
  * @param int $milliseconds
  * @return void
@@ -93,56 +100,75 @@ function nl(): void
  * $replace values are always processed first by Strings::log() to ensure they are readable texts, so the texts sent to
  * tr() do NOT require Strings::log().
  *
- * On non production systems, tr() will perform a check on both the $text and $replace data to ensure that all markers
+ * On non-production systems, tr() will perform a check on both the $text and $replace data to ensure that all markers
  * have been replaced, and non were forgotten. If results were found, an exception will be thrown. This behaviour does
  * NOT apply to production systems.
  *
  * @param string $text
  * @param array|null $replace
  * @param bool $clean
+ * @param bool $check
  * @return string
  */
-function tr(string $text, ?array $replace = null, bool $clean = true): string
+function tr(string $text, ?array $replace = null, bool $clean = true, bool $check = true): string
 {
-    try {
-        if ($replace) {
-            if ($clean) {
-                foreach ($replace as &$value) {
-                    $value = Strings::log($value);
-                }
+    // Only on non-production machines, crash when not all entries were replaced as an extra check.
+    if (!Core::isProductionEnvironment() and $check) {
+        preg_match_all('/:\w+/', $text, $matches);
+
+        if (!empty($matches[0])) {
+            if (empty($replace)) {
+                throw new OutOfBoundsException(tr('The tr() text ":text" contains key(s) ":keys" but no replace values were specified', [
+                    ':keys' => Strings::force($matches[0], ', '),
+                    ':text' => $text,
+                ]));
             }
 
-            unset($value);
-
-            $text = str_replace(array_keys($replace), array_values($replace), $text, $count);
-
-            // Only on non production machines, crash when not all entries were replaced as an extra check.
-            if (!Debug::production()) {
-                if ($count < count($replace)) {
-                    foreach ($replace as $value) {
-                        if (str_contains($value, ':')) {
-                            // One of the $replace values contains :blah. This will cause the detector to fire off
-                            // incorrectly. Ignore this.
-                            return $text;
-                        }
-                    }
-
-                    throw new CoreException('tr(): Not all specified keywords were found in text');
+            // Verify that all specified text keys are available in the replace array
+            foreach ($matches[0] as $match) {
+                if (!array_key_exists($match, $replace)) {
+                    throw new OutOfBoundsException(tr('The tr() text key ":key" does not exist in the specified replace values for the text ":text"', [
+                        ':key'  => $match,
+                        ':text' => $text,
+                    ]));
                 }
-
-                // Do NOT check for :value here since the given text itself may contain :value (ie, in prepared
-                // statements!)
             }
-
-            return $text;
         }
 
-        return $text;
+        if ($replace) {
+            if (empty($matches[0])) {
+                throw new OutOfBoundsException(tr('The tr() replace array contains key(s) ":keys" but the text ":text" contains no keys', [
+                    ':keys' => Strings::force(array_keys($replace), ', '),
+                    ':text' => $text,
+                ]));
+            }
 
-    } catch (Exception $e) {
-        // Do NOT use tr() here for obvious endless loop reasons!
-        throw new CoreException('tr(): Failed with text "' . Strings::log($text) . '". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
+            // Verify that all specified replacement keys are available in the text
+            $matches = array_flip($matches[0]);
+
+            foreach ($replace as $key => $value) {
+                if (!array_key_exists($key, $matches)) {
+                    throw new \OutOfBoundsException(tr('The tr() replace key ":key" does not exist in the specified text ":text"', [
+                        ':key' => $key,
+                        ':text' => $text,
+                    ]));
+                }
+            }
+        }
     }
+
+    if ($replace) {
+        if ($clean) {
+            foreach ($replace as &$value) {
+                $value = Strings::log($value);
+            }
+        }
+
+        unset($value);
+        return str_replace(array_keys($replace), array_values($replace), $text);
+    }
+
+    return $text;
 }
 
 
@@ -245,8 +271,9 @@ function array_get_safe(array $source, string|float|int|null $key, mixed $defaul
  * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
  * @param array|string $types If the data exists, it must have one of these data types. Can be specified as array or |
  *                            separated string
- * @param mixed $variable The variable to test
- * @param mixed $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @param mixed $variable     The variable to test
+ * @param mixed $default      (optional) The value to return in case the specified $variable did not exist or was NULL.
+ * @param bool $exception
  * @return mixed
  */
 function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null, bool $exception = true): mixed
@@ -311,33 +338,43 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 case 'resource':
                     if (is_resource($variable)) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                    break;
 
                 case 'function':
                     // no-break
                 case 'callable':
                     if (is_callable($variable)) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                break;
 
                 case 'null':
                     if (is_null($variable)) {
-                        break;
+                        return $variable;
                     }
 
-                    return $variable;
+                    break;
 
-                default:
-                    // This should be an object
+                case 'datetime':
+                    if ($variable instanceof \DateTimeInterface) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'object':
                     if (is_object($variable)) {
                         return $variable;
                     }
 
+                    break;
+
+                default:
+                    // This should be an object
                     if ($variable instanceof $type) {
                         return $variable;
                     }
@@ -431,11 +468,11 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
  * A natural number here is defined as one of the set of positive whole numbers; a positive integer and the number 1 and
  * any other number obtained by adding 1 to it repeatedly. For ease of use, the number one can be adjusted if needed.
  *
- * @param $number
+ * @param mixed $number
  * @param int $start
  * @return bool
  */
-function is_natural($number, int $start = 1): bool
+function is_natural(mixed $number, int $start = 1): bool
 {
     if (!is_numeric($number)) {
         return false;
@@ -603,15 +640,16 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
+ * @param bool $sort
  * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         if (Core::scriptStarted()) {
-            return Debug::show($source, $trace_offset, $quiet);
+            return Debug::show($source, $sort, $trace_offset, $quiet);
         }
 
         return show_system($source, false);
@@ -625,15 +663,16 @@ function show(mixed $source = null, int $trace_offset = 1, bool $quiet = false):
  * Shortcut to the Debug::show() call, but displaying the data in hex
  *
  * @param mixed $source
+ * @param bool $sort
  * @param int $trace_offset
  * @param bool $quiet
  * @return mixed
  */
-function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = false): mixed
+function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         $source = bin2hex($source);
-        return show($source, $trace_offset);
+        return show($source, $sort, $trace_offset);
     }
 
     return null;
@@ -648,16 +687,17 @@ function showhex(mixed $source = null, int $trace_offset = 1, bool $quiet = fals
  * @param bool $quiet
  * @return mixed
  */
-function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = false): mixed
+function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         $backtrace = Debug::backtrace();
+        $backtrace = Debug::formatBackTrace($backtrace);
 
         if ($count) {
             $backtrace = Arrays::limit($backtrace, $count);
         }
 
-        return show($backtrace, $trace_offset, $quiet);
+        return show($backtrace, true, $trace_offset, $quiet);
     }
 
     return null;
@@ -668,15 +708,16 @@ function showbacktrace(int $count = 10, int $trace_offset = 1, bool $quiet = fal
  * Shortcut to the Debug::show() call
  *
  * @param mixed $source
+ * @param bool $sort
  * @param int $trace_offset
  * @param bool $quiet
  * @return void
  */
-#[NoReturn] function showdie(mixed $source = null, int $trace_offset = 2, bool $quiet = false): void
+#[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false): void
 {
     if (Debug::getEnabled()) {
         if (Core::scriptStarted()) {
-            Debug::showdie($source, $trace_offset, $quiet);
+            Debug::showdie($source, $sort, $trace_offset, $quiet);
         }
 
         show_system($source);
@@ -712,6 +753,22 @@ function get_null(mixed $source): mixed
     }
 
     return $source;
+}
+
+
+/**
+ * Returns NOT $source, unless $source is a NULL, which returns NULL.
+ *
+ * @param bool|null $source
+ * @return bool|null
+ */
+function null_not(?bool $source): ?bool
+{
+    if ($source === null) {
+        return null;
+    }
+
+    return !$source;
 }
 
 
@@ -849,19 +906,28 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 /**
  * Execute the specified script file
  *
+ * @note This function is used to execute commands and web pages to give them their own empty function scope
+ *
  * @param string $__file
  * @return void
  * @throws Throwable
  */
 function execute_script(string $__file): void
 {
-    try {
-        include($__file);
-
-    } catch (Throwable $e) {
-        // Did this fail because the specified file does not exist?
-        File::new($__file, PATH_SCRIPTS)->checkReadable('script', $e);
-    }
+    include($__file);
+//    try {
+//        include($__file);
+//
+//    } catch (Throwable $e) {
+//        // Did this fail because the specified command is not readable? First check if the command cache has already
+//        // been rebuilt. If not, rebuild it now so that we can chbeck
+//        if (PLATFORM_CLI) {
+//            // First rebuild the command cache before checking if the command perhaps does not exist
+//            CliCommand::rebuildCache();
+//        }
+//
+//        File::new($__file, DIRECTORY_COMMANDS)->checkReadable('script', $e);
+//    }
 }
 
 
@@ -935,12 +1001,13 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 /**
  * Returns the system SQL database object
  *
- * @param string|null $instance_name
- * @return Sql
+ * @param ConnectorInterface|string $connector
+ * @param bool $use_database
+ * @return SqlInterface
  */
-function sql(?string $instance_name = null, bool $use_database = true): Sql
+function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
 {
-    return Databases::Sql($instance_name, $use_database);
+    return Databases::Sql($connector, $use_database);
 }
 
 
@@ -1040,6 +1107,75 @@ function has_trait(string $trait, object|string $class): bool
     }
 
     return $source;
+}
+
+
+/**
+ * Returns true if the specified function was called
+ *
+ * @param string $function
+ * @return bool
+ */
+function function_called(string $function): bool
+{
+    // Clean requested function
+    $function = trim($function);
+
+    if (str_ends_with($function, '()')) {
+        $function = substr($function, 0, -2);
+    }
+
+    // Divide into class and function
+    $class    = Strings::until($function, '::', needle_required: true);
+    $class    = strtolower(trim($class));
+    $function = Strings::from($function, '::');
+    $function = strtolower(trim($function));
+
+    // Scan trace for class and function match
+    foreach (debug_backtrace() as $trace) {
+        $trace['function'] = strtolower(trim((string) $trace['function']));
+        $trace['class']    = strtolower(trim((string) isset_get($trace['class'])));
+        $trace['class']    = Strings::fromReverse($trace['class'], '\\');
+
+        if ($trace['function'] === $function) {
+            if ($trace['class'] === $class) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+
+/**
+ * Returns true if the specified value is in between the specified range
+ *
+ * @param float|int $value
+ * @param float|int $begin
+ * @param float|int $end
+ * @param bool $allow_same
+ * @return bool
+ */
+function in_range(float|int $value, float|int $begin, float|int $end, bool $allow_same = true): bool
+{
+    if ($allow_same) {
+        return ($value >= $begin) and ($value <= $end);
+    }
+
+    return ($value > $begin) and ($value < $end);
+}
+
+
+/**
+ * Returns a DateTime object for NOW
+ *
+ * @param DateTimeZoneInterface|string|null $timezone
+ * @return DateTimeInterface
+ */
+function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeInterface
+{
+    return new \Phoundation\Date\DateTime('now', $timezone);
 }
 
 

@@ -16,7 +16,7 @@ use Phoundation\Filesystem\Restrictions;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
 trait DataRestrictions
@@ -56,5 +56,21 @@ trait DataRestrictions
     {
         $this->restrictions = Restrictions::ensure($restrictions, $write, $label);
         return $this;
+    }
+
+
+    /**
+     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
+     *
+     * @param RestrictionsInterface|null $restrictions
+     * @return RestrictionsInterface
+     */
+    public function ensureRestrictions(?RestrictionsInterface $restrictions): RestrictionsInterface
+    {
+        if (isset($this->restrictions)) {
+            return Restrictions::default($restrictions, $this->restrictions);
+        }
+
+        return Restrictions::default($restrictions);
     }
 }

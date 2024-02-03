@@ -6,10 +6,12 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Core;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -27,17 +29,28 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
+use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
+use Phoundation\Os\Processes\Commands\PhoCommand;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Routing\Route;
+use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
 
 
@@ -49,7 +62,7 @@ use Throwable;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notification
  */
 class Notification extends DataEntry implements NotificationInterface
@@ -102,15 +115,16 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
+     * @param bool|null $meta_enabled
      */
-    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null)
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
         static::$auto_log = Config::getBoolean('notifications.auto-log', false);
 
         $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
 
-        parent::__construct($identifier, $column);
+        parent::__construct($identifier, $column, $meta_enabled);
     }
 
 
@@ -141,7 +155,7 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return null;
     }
@@ -166,22 +180,85 @@ class Notification extends DataEntry implements NotificationInterface
             $mode = DisplayMode::exception;
         }
 
-        $this
-            ->setUrl('/development/incidents.html')
-            ->setMode($mode)
-            ->setFile($e->getFile())
-            ->setLine($e->getLine())
-            ->setTrace($e->getTraceAsString())
-            ->setCode('E-' . $e->getCode())
-            ->setTitle(tr('Phoundation encountered an exception'))
-            ->setMessage($e->getMessage())
-            ->addRole('developer')
-            ->setDetails([
-            'trace' => $e->getTrace(),
-            'data' => (($e instanceof Exception) ? $e->getData() : 'No a Phoundation exception, no data available')
-        ]);
+        $details = $e->generateDetails();
+        $this->setUrl('/development/incidents.html')
+             ->setMode($mode)
+             ->setFile($e->getFile())
+             ->setLine($e->getLine())
+             ->setTrace($e->getTraceAsJson())
+             ->setCode('E-' . $e->getCode())
+             ->addRole('developer')
+             ->setTitle(tr('Phoundation project ":project" encountered an exception', [
+                 ':project' => $details['project']
+             ]))
+             ->setMessage(tr('<html>
+<body>
+<pre style="font: monospace">
+Phoundation project ":project" encountered the following :class exception:
 
-        $this->e = $e;
+Project: :project
+Project version: :version_project
+Database version: :version_database
+
+Environment: :environment
+Platform: :platform
+:request: :url
+Command line arguments: :argv
+Exception location: :file@:line
+Exception class: :class
+Exception code: :code
+
+Message: :message
+Additional messages:
+:all_messages
+
+Trace:
+:trace
+
+Data:
+:data
+
+User:
+:user
+
+Session:
+:session
+
+Environment variables:
+:env
+
+GET variables:
+:get
+
+POST variables:
+:post
+</pre>
+</body>
+</html>', [
+                ':url'              => (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
+                ':request'          => (($details['platform'] === 'web') ? 'Requested URL' : 'Executed command'),
+                ':file'             => Strings::from($e->getFile(), DIRECTORY_ROOT),
+                ':line'             => $e->getLine(),
+                ':code'             => $e->getCode(),
+                ':class'            => get_class($e),
+                ':trace'            => $e->getTraceAsFormattedString(),
+                ':message'          => $e->getMessage(),
+                ':all_messages'     => $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-',
+                ':data'             => ($e->getData() ? print_r($e->getData(), true) : '-'),
+                ':project'          => $details['project'],
+                ':version_project'  => $details['project_version'],
+                ':version_database' => $details['database_version'],
+                ':environment'      => $details['environment'],
+                ':platform'         => $details['platform'],
+                ':session'          => $details['session'],
+                ':user'             => $details['user'],
+                ':env'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
+                ':argv'             => $details['argv'] ? Strings::force($details['argv'], ' ') : '-',
+                ':get'              => $details['get']  ? print_r($details['get'] , true) : '-',
+                ':post'             => $details['post'] ? print_r($details['post'], true) : '-',
+             ], clean: false))
+             ->e = $e;
+
         return $this;
     }
 
@@ -224,10 +301,10 @@ class Notification extends DataEntry implements NotificationInterface
      * Sets the message for this notification
      *
      * @note: This will reset the current already registered roles
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function setRoles(IteratorInterface|array|string $roles): static
+    public function setRoles(IteratorInterface|array|string|int $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
@@ -240,19 +317,15 @@ class Notification extends DataEntry implements NotificationInterface
 
 
     /**
-     * Sets the message for this notification
+     * Will send this notification to the specified roles
      *
-     * @param IteratorInterface|array|string $roles
+     * @param IteratorInterface|array|string|int $roles
      * @return static
      */
-    public function addRoles(IteratorInterface|array|string $roles): static
+    public function addRoles(IteratorInterface|array|string|int $roles): static
     {
         if (!$roles) {
             throw new OutOfBoundsException('No roles specified for this notification');
-        }
-
-        if ($roles instanceof IteratorInterface) {
-            $roles = array_keys($roles->getSource());
         }
 
         foreach (Arrays::force($roles) as $role) {
@@ -264,7 +337,7 @@ class Notification extends DataEntry implements NotificationInterface
 
 
     /**
-     * Sets the message for this notification
+     * Will send this notification to the specified role
      *
      * @param string|null $role
      * @return static
@@ -339,9 +412,8 @@ class Notification extends DataEntry implements NotificationInterface
 
                 foreach ($users as $user) {
                     try {
-                        $this
-                            ->saveFor($user->getId())
-                            ->sendTo($user->getId());
+                        $this->saveFor($user->getId())
+                             ->sendTo($user->getId());
 
                     } catch (Throwable $e) {
                         Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
@@ -356,10 +428,10 @@ class Notification extends DataEntry implements NotificationInterface
 
         } catch (Throwable $e) {
             Log::error(tr('Failed to send the following notification with the following exception'));
-            Log::write(tr('Code    : ":code"'   , [':code' => $this->getCode()])      , 'debug', 10, false);
-            Log::write(tr('Title   : ":title"'  , [':title' => $this->getTitle()])    , 'debug', 10, false);
+            Log::write(tr('Code    : ":code"'   , [':code'    => $this->getCode()])   , 'debug', 10, false);
+            Log::write(tr('Title   : ":title"'  , [':title'   => $this->getTitle()])  , 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
-            Log::write(tr('Details :')                                                , 'debug', 10, false);
+            Log::write(tr('Data :')                                                   , 'debug', 10, false);
 
             try {
                 Log::write(print_r($this->getDetails(), true), 'debug', 10, false);
@@ -368,7 +440,7 @@ class Notification extends DataEntry implements NotificationInterface
                 Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
                 Log::error($f);
 
-                Log::write(print_r($this->getSourceFieldValue('string', 'details'), true), 'debug', 10, false);
+                Log::write(print_r($this->getSourceColumnValue('string', 'details'), true), 'debug', 10, false);
             }
 
             Log::error(tr('Notification sending exception:'));
@@ -431,8 +503,22 @@ class Notification extends DataEntry implements NotificationInterface
             Log::write(Strings::size('Details', 12) . ': ', 'debug', clean: false);
 
             foreach (Arrays::force($details) as $key => $value) {
-                Log::write(Strings::size($key, 12) . ': ', 'debug', clean: false, newline: false);
-                Log::write(Strings::log($value), use_prefix: false);
+                if (is_scalar($value)) {
+                    Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
+                    Log::write(Strings::log($value), use_prefix: false);
+
+                } else {
+                    switch ($key) {
+                        case 'trace':
+                            Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false);
+                            Log::backtrace(backtrace: $value);
+                            break;
+
+                        default:
+                            Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
+                            Log::printr($value, echo_header: false, use_prefix: false);
+                    }
+                }
             }
         }
 
@@ -466,9 +552,8 @@ class Notification extends DataEntry implements NotificationInterface
         }
 
         // Set the id to NULL so that the DataEntry will save a new record
-        $this
-            ->setSourceValue('id', null)
-            ->setUsersId($user);
+        $this->setSourceValue('id', null)
+             ->setUsersId($user);
 
         return parent::save();
     }
@@ -487,14 +572,14 @@ class Notification extends DataEntry implements NotificationInterface
             return $this;
         }
 
-        if (is_object($user)) {
-            $user = $user->getLogId();
-        }
+        $user = User::get($user);
 
-        Log::warning(tr('Not sending notification ":title" to user ":user", sending notifications has not yet been implemented', [
-            ':title' => $this->getTitle(),
-            ':user'  => $user
-        ]));
+        PhoCommand::new('email send')
+            ->addArgument('-h')
+            ->addArguments(['-t', $user->getEmail()])
+            ->addArguments(['-s', $this->getTitle()])
+            ->addArguments(['-b', $this->getMessage()])
+            ->executeBackground();
 
         return $this;
     }
@@ -593,7 +678,7 @@ class Notification extends DataEntry implements NotificationInterface
                     try {
                         $return  = '';
                         $details = Json::decode($value);
-                        $largest = Arrays::getLongestKeySize($details);
+                        $largest = Arrays::getLongestKeyLength($details);
 
                         foreach ($details as $key => $value) {
                             if ($value and !is_scalar($value)) {

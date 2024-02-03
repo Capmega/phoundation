@@ -12,7 +12,7 @@ namespace Phoundation\Data\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataNetworkConnection
@@ -27,9 +27,9 @@ trait DataNetworkConnection
     /**
      * The port for this connection
      *
-     * @var string|null $port
+     * @var int|null $port
      */
-    protected ?string $port = null;
+    protected ?int $port = null;
 
     /**
      * The user for this connection
@@ -77,9 +77,9 @@ trait DataNetworkConnection
     /**
      * Returns the port for this connection
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getPort(): ?string
+    public function getPort(): ?int
     {
         return $this->port;
     }
@@ -88,10 +88,10 @@ trait DataNetworkConnection
     /**
      * Sets the port for this connection
      *
-     * @param string $port
+     * @param int $port
      * @return static
      */
-    public function setPort(string $port): static
+    public function setPort(int $port): static
     {
         $this->port = $port;
         return $this;

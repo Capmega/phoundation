@@ -15,7 +15,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Kill extends Command
@@ -46,7 +46,7 @@ class Kill extends Command
             }
 
             $this
-                ->setInternalCommand('kill')
+                ->setCommand('kill')
                 ->addArgument('-' . $signal)
                 ->addArguments($pids)
                 ->setTimeout(10)
@@ -85,7 +85,7 @@ class Kill extends Command
             }
 
             $this
-                ->setInternalCommand('pkill')
+                ->setCommand('pkill')
                 ->addArgument('-' . $signal)
                 ->addArguments($processes)
                 ->setTimeout(10)

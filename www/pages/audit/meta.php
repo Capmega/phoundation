@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 use Phoundation\Core\Meta\MetaList;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Page;
 
 
@@ -23,7 +23,7 @@ $meta  = MetaList::new($get['id']);
 $table = $meta->getHtmlDataTable();
 $card  = Card::new()
     ->setTitle('Registered activities')
-    ->setSwitches('reload')
+    ->setSwitches('reload,maximize')
     ->setContent($table->render());
 
 
@@ -45,6 +45,7 @@ echo $grid->render();
 // Set page meta data
 Page::setHeaderTitle(tr('Audit information'));
 Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Audit information')
+    '/'           => tr('Home'),
+    '/audit.html' => tr('Audits'),
+    ''            => tr('Item')
 ]));

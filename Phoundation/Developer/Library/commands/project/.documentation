@@ -1,0 +1,24 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+
+
+
+/**
+ * system/plugins/.documentation script
+ *
+ * This script contains documentation for the plugins scripts
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @category Function reference
+ * @package Phoundation\Core
+ */
+CliDocumentation::usage('./pho project/...');
+
+CliDocumentation::help('The system projects scripts contain a variety of scripts to help you with the system administration of your project');
+

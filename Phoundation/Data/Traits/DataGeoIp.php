@@ -16,7 +16,7 @@ use Phoundation\Geo\GeoIp\GeoIp;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataGeoIp
@@ -44,8 +44,8 @@ trait DataGeoIp
         $this->geo_ip = $geo_ip;
 
         if ($geo_ip) {
-            $this->setLatitude($geo_ip->getLocation()->location->latitude);
-            $this->setLongitude($geo_ip->getLocation()->location->longitude);
+            $this->setLatitude($geo_ip->getLocation()?->location->latitude);
+            $this->setLongitude($geo_ip->getLocation()?->location->longitude);
         }
 
         return $this;

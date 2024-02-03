@@ -14,7 +14,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryParent
@@ -26,7 +26,7 @@ trait DataEntryParent
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'parents_id');
+        return $this->getSourceColumnValue('int', 'parents_id');
     }
 
 
@@ -49,7 +49,7 @@ trait DataEntryParent
      */
     public function getParentsName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'parents_name');
+        return $this->getSourceColumnValue('string', 'parents_name');
     }
 
 
@@ -60,7 +60,7 @@ trait DataEntryParent
      */
     public function getParent(): ?DataEntryInterface
     {
-        $parents_id = $this->getSourceFieldValue('int', 'parents_id');
+        $parents_id = $this->getSourceColumnValue('int', 'parents_id');
 
         if ($parents_id) {
             return new static($parents_id);

@@ -40,7 +40,7 @@ use Phoundation\Geo\States\States;
  * @see \Phoundation\Data\DataEntry\DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Business
  */
 class Customer extends DataEntry
@@ -85,7 +85,7 @@ class Customer extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -98,7 +98,7 @@ class Customer extends DataEntry
      */
     public function getAddress2(): ?string
     {
-        return $this->getSourceFieldValue('string', 'address2');
+        return $this->getSourceColumnValue('string', 'address2');
     }
 
 
@@ -121,7 +121,7 @@ class Customer extends DataEntry
      */
     public function getAddress3(): ?string
     {
-        return $this->getSourceFieldValue('string', 'address3');
+        return $this->getSourceColumnValue('string', 'address3');
     }
 
 
@@ -163,7 +163,7 @@ class Customer extends DataEntry
             ->addDefinition(Definition::new($this, 'address1')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--address1 ADDRESS')
+                ->setCliColumn('--address1 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
                 ->setLabel(tr('Address 1'))
@@ -171,7 +171,7 @@ class Customer extends DataEntry
             ->addDefinition(Definition::new($this, 'address2')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--address2 ADDRESS')
+                ->setCliColumn('--address2 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
                 ->setLabel(tr('Address 2'))
@@ -179,7 +179,7 @@ class Customer extends DataEntry
             ->addDefinition(Definition::new($this, 'address3')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--address3 ADDRESS')
+                ->setCliColumn('--address3 ADDRESS')
                 ->setMaxlength(64)
                 ->setSize(12)
                 ->setLabel(tr('Address 3'))
@@ -187,7 +187,7 @@ class Customer extends DataEntry
             ->addDefinition(Definition::new($this, 'zipcode')
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
-                ->setCliField('--zip-code ZIPCODE (POSTAL CODE)')
+                ->setCliColumn('--zip-code ZIPCODE (POSTAL CODE)')
                 ->setMaxlength(8)
                 ->setSize(6)
                 ->setLabel(tr('Postal code / Zipcode'))

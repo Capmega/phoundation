@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Phoundation\Core\Config;
+use Phoundation\Utils\Config;
 use PHPUnit\Framework\TestCase;
 
 
 /**
- * \Phoundation\Core\Config test class
+ * \Phoundation\Utils\Config test class
  */
 class ConfigTest extends TestCase
 {

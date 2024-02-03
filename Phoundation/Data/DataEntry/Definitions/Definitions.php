@@ -20,7 +20,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 class Definitions extends Iterator implements DefinitionsInterface
@@ -28,13 +28,13 @@ class Definitions extends Iterator implements DefinitionsInterface
     use DataDataEntry;
     use DataTable;
     use DataPrefix {
-        getPrefix as getFieldPrefix;
-        setPrefix as setFieldPrefix;
+        getPrefix as getColumnPrefix;
+        setPrefix as setColumnPrefix;
     }
 
 
     /**
-     * Tracks if meta information can be visible or not
+     * Tracks if meta-information can be visible or not
      *
      * @var bool
      */
@@ -42,18 +42,18 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Adds the specified Definition to the fields list
+     * Adds the specified Definition to the columns list
      *
-     * @param DefinitionInterface $field
+     * @param DefinitionInterface $column
      * @return static
      */
-    public function addDefinition(DefinitionInterface $field): static
+    public function addDefinition(DefinitionInterface $column): static
     {
         if ($this->prefix) {
-            $field->setField($this->prefix . $field->getField());
+            $column->setColumn($this->prefix . $column->getColumn());
         }
 
-        $this->source[$field->getField()] = $field;
+        $this->source[$column->getColumn()] = $column;
         return $this;
     }
 
@@ -70,7 +70,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Returns the specified field
+     * Returns the specified column
      *
      * @param Stringable|string|float|int $key
      * @param bool $exception
@@ -111,7 +111,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Returns if meta information is visible at all, or not
+     * Returns if meta-information is visible at all, or not
      *
      * @return bool
      */
@@ -122,7 +122,7 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Sets if meta information is visible at all, or not
+     * Sets if meta-information is visible at all, or not
      *
      * @param bool $meta_visible
      * @return static

@@ -5,15 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use PDOStatement;
-use Phoundation\Core\Strings;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Data\Traits\DataDebug;
+use Phoundation\Data\Traits\DataDatabaseConnector;
+use Phoundation\Data\Traits\DataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use function Phoundation\Databases\Sql\count;
-use function Phoundation\Databases\Sql\gettype;
 
 
 /**
@@ -23,11 +18,15 @@ use function Phoundation\Databases\Sql\gettype;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
 {
+    use DataMetaEnabled;
+    use DataDatabaseConnector;
+
+
     /**
      * The pre-defined query sections
      *
@@ -45,6 +44,11 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     public function getQuery(bool $debug = false): string
     {
         $query = (($this->debug or $debug) ? ' ' : '');
+
+        // Execute all predefines before executing the query
+        foreach ($this->predefines as $predefine) {
+            $predefine();
+        }
 
         if ($this->select) {
             $query .= implode(', ', $this->select) . ' FROM ' . implode(', ', $this->from) . ' ';
@@ -103,7 +107,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function execute(bool $debug = false): PDOStatement
     {
-        return sql()->query($this->getQuery($debug), $this->execute);
+        return sql($this->database_connector)->query($this->getQuery($debug), $this->execute);
     }
 
 
@@ -115,18 +119,19 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function get(bool $debug = false): ?array
     {
-        return sql()->get($this->getQuery($debug), $this->execute);
+        return sql($this->database_connector)->get($this->getQuery($debug), $this->execute, $this->meta_enabled);
     }
 
     /**
      * Executes the query and returns the single column from the single result
      *
+     * @param string|null $column
      * @param bool $debug
      * @return string|float|int|bool|null
      */
-    public function getColumn(bool $debug = false): string|float|int|bool|null
+    public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null
     {
-        return sql()->getColumn($this->getQuery($debug), $this->execute);
+        return sql($this->database_connector)->getColumn($this->getQuery($debug), $this->execute, $column);
     }
 
 
@@ -138,6 +143,6 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function list(bool $debug = false): array
     {
-        return sql()->list($this->getQuery($debug), $this->execute);
+        return sql($this->database_connector)->list($this->getQuery($debug), $this->execute);
     }
 }

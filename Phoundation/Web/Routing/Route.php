@@ -5,42 +5,46 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use Exception;
-use GeoIp2\Model\Domain;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\CookieValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
+use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\File;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+use Phoundation\Web\Routing\Interfaces\MappingInterface;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Throwable;
 
 
 /**
  * Class Route
  *
- * Core routing class that will route URL request queries to PHP scripts in the PATH_ROOT/www/LANGUAGE_CODE/ path
+ * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_ROOT/www/LANGUAGE_CODE/ path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Route
@@ -108,6 +112,13 @@ class Route
      */
     protected static bool $dynamic_pagematch = false;
 
+    /**
+     * URL mappings object
+     *
+     * @var MappingInterface $mapping
+     */
+    protected static MappingInterface $mapping;
+
 
     /**
      * Route constructor
@@ -128,6 +139,11 @@ class Route
         static::$uri    = Strings::startsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$uri    = Strings::until(static::$uri                   , '?');
 
+        if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
+            // By default, increase log threshold on all favicon.ico requests to avoid log clutter
+            Log::setThreshold(Config::getInteger('log.levels.web.favicon', 10));
+        }
+
         // Start the Core object, hide $_GET & $_POST
         try {
             if (Core::isState(null)) {
@@ -144,20 +160,20 @@ class Route
         }
 
         // Ensure the post-processing function is registered
-        Log::information(tr('Processing ":domain" routes for ":method" method request ":url" from client ":client"', [
+        Log::information(tr('[:method] ":url" from client ":client" for domain ":domain"', [
             ':domain' => Page::getDomain(),
             ':method' => static::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
-        ]));
+        ]), 9);
 
-        Core::registerShutdown('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
+        Core::addShutdownCallback('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
 
 
 
     /**
-     * Will execute a few initial checks
+     * Will execute a few initial checks and apply URL mappings
      *
      * @return void
      */
@@ -189,6 +205,9 @@ class Route
 
             static::executeSystem(404);
         }
+
+        // Apply mappings
+        static::$uri = static::applyMappings(static::$uri);
     }
 
 
@@ -203,9 +222,9 @@ class Route
             static::$instance = new static();
         }
 
-        // We should execute the initialisation only once
+        // We should execute the initialization only once
         if (!static::$init) {
-            // Only initialise when parameters list has been set, since init may cause this list to be needed
+            // Only initialize when a parameter list has been set, since init may cause this list to be needed
             if (isset(static::$parameters)) {
                 static::$init = true;
                 static::init();
@@ -213,6 +232,99 @@ class Route
         }
 
         return static::$instance;
+    }
+
+
+    /**
+     * Returns the original resource request
+     *
+     * @return string
+     */
+    public static function getRequest(): string
+    {
+        return (string) UrlBuilder::getWww();
+    }
+
+
+    /**
+     * Returns the original request method
+     *
+     * @return string
+     */
+    public static function getMethod(): string
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
+
+
+    /**
+     * Returns the request headers
+     *
+     * @return array
+     */
+    public static function getHeaders(): array
+    {
+        return getallheaders();
+    }
+
+
+    /**
+     * Returns the cookies from the request
+     *
+     * @return array
+     */
+    public static function getCookies(): array
+    {
+        return CookieValidator::new()->getSource();
+    }
+
+
+    /**
+     * Returns the POST data from the request
+     *
+     * @return array
+     */
+    public static function getPostData(): array
+    {
+        return PostValidator::new()->getSource();
+    }
+
+
+    /**
+     * Returns the mapping object
+     *
+     * @return MappingInterface
+     */
+    public static function getMapping(): MappingInterface
+    {
+        if (empty(static::$mapping)) {
+            static::$mapping = new Mapping();
+        }
+
+        return static::$mapping;
+    }
+
+
+    /**
+     * Applies any configured URL mappings
+     *
+     * @param string $url
+     * @return string
+     */
+    protected static function applyMappings(string $url): string
+    {
+        return static::getMapping()->apply($url);
+    }
+
+
+    /**
+     * Returns the real remote IP address
+     *
+     * @return string
+     */
+    public static function getRemoteIp(): string
+    {
+        return static::$ip;
     }
 
 
@@ -230,6 +342,50 @@ class Route
         }
 
         return static::$parameters;
+    }
+
+
+    /**
+     * Modify the incoming request with the specified regex, (optionally) only if the secondary regex matches
+     *
+     * @param string $replace_regex
+     * @param string $replace_value
+     * @param string|null $match_regex
+     * @return void
+     */
+    public static function modify(string $replace_regex, string $replace_value, ?string $match_regex = null): void
+    {
+        try {
+            if ($match_regex) {
+                try {
+                    if (!preg_match($match_regex, static::$uri)) {
+                        return;
+                    }
+
+                } catch (PhpException $e) {
+                    if ($e->messageContains('preg_replace():')) {
+                        throw new RegexException(tr('The Route::modify() match regular expression ":regex" failed with ":e"', [
+                            ':e'     => trim(Strings::from($e->getMessage(), 'preg_replace():')),
+                            ':regex' => $match_regex
+                        ]));
+                    }
+
+                    throw $e;
+                }
+            }
+
+            static::$uri = preg_replace($replace_regex, $replace_value, static::$uri);
+
+        } catch (PhpException $e) {
+            if ($e->messageContains('preg_replace():')) {
+                throw new RegexException(tr('The Route::modify() replace regular expression ":regex" failed with ":e"', [
+                    ':e'     => trim(Strings::from($e->getMessage(), 'preg_replace():')),
+                    ':regex' => $replace_regex
+                ]));
+            }
+
+            throw $e;
+        }
     }
 
 
@@ -271,12 +427,12 @@ class Route
      *                  must be taken when encountered
      * R301             Redirect to the specified page argument using HTTP 301
      * R302             Redirect to the specified page argument using HTTP 302
-     * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is
+     * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ number of seconds. $SECONDS$ is
      *                  optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing
      *                  naughty things for at least a day
      * T$TEMPLATE$      Use the specified template instead of the current template for this try
      * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and
-     *                  defaults to PATH_ROOT.'www,'.PATH_ROOT.'data/content/downloads'
+     *                  defaults to DIRECTORY_ROOT.'www,'.DIRECTORY_ROOT.'data/content/downloads'
      * Z$RIGHT$[$PAGE$] Requires that the current session user has the specified right, or $PAGE$ will be shown, with
      *                  $PAGE$ defaulting to system/403. Multiple Z flags may be specified
      *
@@ -377,10 +533,10 @@ class Route
             }
 
             // Apply pre-matching flags. Depending on individual flags we may do different things
-            $uri = static::$uri;
-            $flags = explode(',', $flags);
-            $until = false; // By default, do not store this rule
-            $block = false; // By default, do not block this request
+            $uri    = static::$uri;
+            $flags  = explode(',', $flags);
+            $until  = false; // By default, do not store this rule
+            $block  = false; // By default, do not block this request
             $static = true;  // By default, do check for rules, if configured so
 
             foreach ($flags as $flag) {
@@ -425,17 +581,17 @@ class Route
                     if ($exists) {
                         // Apply semi-permanent routing for this IP
                         Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [
-                            ':ip' => static::$ip,
-                            ':uri' => $exists['uri'],
-                            ':regex' => $exists['regex'],
+                            ':ip'     => static::$ip,
+                            ':uri'    => $exists['uri'],
+                            ':regex'  => $exists['regex'],
                             ':target' => $exists['target'],
-                            ':flags' => $exists['flags']
+                            ':flags'  => $exists['flags']
                         ]));
 
-                        $uri = $exists['uri'];
+                        $uri       = $exists['uri'];
                         $url_regex = $exists['regex'];
-                        $target = $exists['target'];
-                        $flags = explode(',', $exists['flags']);
+                        $target    = $exists['target'];
+                        $flags     = explode(',', $exists['flags']);
 
                         sql()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
 
@@ -582,7 +738,7 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         $block = true;
                         break;
 
@@ -629,10 +785,10 @@ class Route
                             ->setRoles('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
                             ->setMessage(tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
-                                ':ip' => static::$ip,
+                                ':ip'      => static::$ip,
                                 ':request' => $uri,
-                                ':regex' => $url_regex,
-                                ':flags' => implode(',', $flags)
+                                ':regex'   => $url_regex,
+                                ':flags'   => implode(',', $flags)
                             ]))->send();
                         break;
 
@@ -685,7 +841,7 @@ class Route
                                 ]));
                         }
 
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                         Page::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
@@ -801,7 +957,7 @@ class Route
                                 ':key' => $key
                             ]));
 
-                            Core::unregisterShutdown('route[postprocess]');
+                            Core::removeShutdownCallback('route[postprocess]');
                             Page::setRoutingParameters(static::getParameters()->select(static::$uri));
                             Page::redirect($domain);
                     }
@@ -810,7 +966,7 @@ class Route
 
             // Split the route into the page name and GET requests
             $page = Strings::until($route, '?');
-            $get  = Strings::from($route, '?', 0, true);
+            $get  = Strings::from($route, '?', needle_required: true);
 
             // Translate the route?
             if (isset($core->register['Route::map']) and empty($disable_language)) {
@@ -835,7 +991,7 @@ class Route
                         ]));
 
                         // TODO route_postprocess() This should be a class method!
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Route::executeSystem(404);
 
@@ -853,7 +1009,7 @@ class Route
                         if (!file_exists($page)) {
                             // TODO route_postprocess() This should be a class method!
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::unregisterShutdown('route[postprocess]');
+                            Core::removeShutdownCallback('route[postprocess]');
                             // TODO Check if this should be 404 or maybe some other HTTP code?
                             Route::executeSystem(404);
                         }
@@ -869,7 +1025,7 @@ class Route
                         ]));
 
                         // TODO route_postprocess() This should be a class method!
-                        Core::unregisterShutdown('route[postprocess]');
+                        Core::removeShutdownCallback('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Route::executeSystem(404);
                     }
@@ -882,39 +1038,27 @@ class Route
                     $get = explode('&', $get);
 
                     foreach ($get as $entry) {
-                        GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', 0, true));
+                        GetValidator::addData(Strings::until($entry, '='), Strings::from($entry, '=', needle_required: true));
                     }
                 }
 
                 // We are going to show the matched page so we no longer need to default to 404
                 // TODO route_postprocess() This should be a class method!
-                Core::unregisterShutdown('route[postprocess]');
+                Core::removeShutdownCallback('route[postprocess]');
 
-                /*
-                 * Execute the page specified in $target (from here, $route)
-                 * Update the current running script name
-                 *
-                 * Flip the routemap keys <=> values foreach language so that its
-                 * now english keys. This way, the routemap can be easily used to
-                 * generate foreign language URLs
-                 */
-                Core::writeRegister($page, 'system', 'script_path');
-                Core::writeRegister(Strings::fromReverse($page, '/'), 'system', 'script');
+                // Execute the page specified in $target (from here, $route)
+                // Update the current running script name
+
+                // Flip the routemap keys <=> values foreach language so that its
+                // now english keys. This way, the routemap can be easily used to
+                // generate foreign language URLs
             }
 
             if ($until) {
-                /*
-                 * Store the request as a rule until it expires
-                 *
-                 * Apply semi-permanent routing for this IP
-                 *
-                 * Remove the "S" flag since we don't want to store the rule again
-                 * in subsequent loads
-                 *
-                 * Remove the "H" flag since subsequent requests may not be a hack
-                 * attempt. Since we are going to act as if the rule AND URI
-                 * apply, we don't know really, avoid unneeded red flags
-                 */
+                // Store the request as a rule until it expires. Apply semi-permanent routing for this IP
+                // Remove the "S" flag since we don't want to store the rule again in subsequent loads
+                // Remove the "H" flag since subsequent requests may not be a hack attempt. Since we are going to act as
+                // if the rule AND URI apply, we don't know really, avoid unneeded red flags
                 foreach ($flags as $id => $flag) {
                     switch ($flag[0]) {
                         case 'H':
@@ -969,7 +1113,7 @@ class Route
             Log::warning(tr('Page ":page" does not exist', [':page' => $e->getDataKey('target') ?? $page]));
 
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
             // TODO Check if this should be 404 or maybe some other HTTP code?
             Route::executeSystem(404);
         }
@@ -1066,10 +1210,12 @@ class Route
     {
         Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
 
+        if (($http_code < 1) or ($http_code > 1000)) {
+            throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
+        }
+
         if (!$http_code) {
             $http_code = 500;
-        } elseif (($http_code < 1) or ($http_code > 1000)) {
-            throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [':code' => $http_code]));
         }
 
         $method = 'execute' . $http_code;
@@ -1092,16 +1238,17 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
+     * @param bool $system
      * @return never
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParameters $parameters = null): never
+    #[NoReturn] public static function execute(string $target, bool $attachment, ?RoutingParametersInterface $parameters = null, bool $system = false): never
     {
         // Get routing parameters and find the correct target page
         if (!$parameters) {
             $parameters = static::getParameters()->select(static::$uri);
         }
 
-        $target = Filesystem::absolute($parameters->getRootPath() . Strings::unslash($target));
+        $target = Filesystem::absolute($parameters->getRootDirectory() . Strings::unslash($target));
 
         // Check if configured page exists
         if ($target === 'index.php') {
@@ -1118,7 +1265,7 @@ class Route
             }
 
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
+            Core::removeShutdownCallback('route[postprocess]');
 
             // TODO Check if this should be 404 or maybe some other HTTP code?
             Route::executeSystem(404);
@@ -1130,8 +1277,8 @@ class Route
         if (str_ends_with($target, 'php')) {
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
-            Core::unregisterShutdown('route[postprocess]');
-            Page::execute($target, $attachment);
+            Core::removeShutdownCallback('route[postprocess]');
+            Page::execute($target, $attachment, $system);
         }
 
         if ($attachment) {

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use Phoundation\Cli\Exception\NoTtyException;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Numbers;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -20,7 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
 class Cli
@@ -102,13 +103,13 @@ class Cli
      * @note The required format for the source is as follows:
      *       $source[$id] = [$column1 => $value1, $column2 => $value2, ...];
      *
-     * @param Iterator|array $source
+     * @param IteratorInterface|array $source
      * @param array|string|null $headers
      * @param string|null $id_column
      * @param int $column_spacing
      * @return void
      */
-    public static function displayTable(Iterator|array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
+    public static function displayTable(IteratorInterface|array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
     {
         if (is_object($source)) {
             // This is an Iterator object, get the array source
@@ -121,52 +122,62 @@ class Cli
             ]));
         }
 
-        // Determine the size of the keys to display them
-        $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
-
         if ($source) {
+            // Determine the size of the keys to display them
+            $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
+
             // Get headers from columns
             if ($headers === null) {
-                $value   = str_replace(['_', '-'], ' ', $id_column);
+                $value   = str_replace(['_', '-'], ' ', (string) $id_column);
                 $value   = Strings::capitalize($value) . ':';
                 $headers = ($id_column ? [$id_column => $value] : []);
                 $row     = current($source);
+                $exists  = false;
 
-                foreach ($row as $header => $value) {
-                    $value = str_replace(['_', '-'], ' ', $header);
+                foreach (Arrays::force($row, null) as $header => $value) {
+                    $value = str_replace(['_', '-'], ' ', (string) $header);
                     $value = Strings::capitalize($value) . ':';
 
                     $headers[$header] = $value;
+
+                    if ($header === $id_column) {
+                        $exists = true;
+                    }
                 }
+
+                if (!$exists) {
+                    // The specified ID column doesn't exists in the rows, remove it
+                    unset($headers[$id_column]);
+                }
+
+            } else {
+                // Validate and clean headers
+                $headers = static::cleanHeaders($headers);
             }
 
             // Display header
-            foreach ($headers as $column => $header) {
-                $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                Log::cli(Color::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
-            }
+            if (!VERY_QUIET) {
+                foreach (Arrays::force($headers) as $column => $header) {
+                    $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
+                }
 
-            Log::cli();
+                Log::cli();
+            }
 
             // Display source
             foreach ($source as $id => $row) {
-                if (!is_array($row)) {
-                    // Wrong! This is a row and as such should be an array
-                    throw new OutOfBoundsException(tr('Invalid row ":row" specified for id ":id", it should be an array', [
-                        ':id' => $id,
-                        ':row' => $row,
-                    ]));
+                $row = Arrays::force($row, null);
+
+                if ($id_column) {
+                    array_unshift($row, $id);
                 }
 
-                array_unshift($row, $id);
+                // Display all row cells
+                foreach ($headers as $column => $label) {
+                    $value = $row[$column];
 
-                foreach ($row as $column => $value) {
-                    if ($column === 0) {
-                        // Due to the nature of array_unshift (we can't specify key name, so it always has key 0), rename!
-                        $column = $id_column;
-                    }
-
-                    if (array_key_exists($column, $headers)) {
+                    if (is_numeric($column) or array_key_exists($column, $headers)) {
                         Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
                     }
                 }
@@ -174,9 +185,35 @@ class Cli
                 Log::cli();
             }
         } else {
-            // Oops, there are no results!
+            // Oops, empty source!
             Log::warning(tr('No results'));
         }
+    }
+
+
+    /**
+     * Returns cleaned headers from the specified headers value
+     *
+     * @param array|string $headers
+     * @return array
+     */
+    protected static function cleanHeaders(array|string $headers): array
+    {
+        $headers = Arrays::force($headers);
+        $return  = [];
+
+        foreach (Arrays::force($headers) as $column => $header) {
+            if (is_numeric($column)) {
+                // Headers were assigned only a label, which will be the column name
+                $column = $header;
+                $header = str_replace(['_', '-'], ' ', (string) $header);
+                $header = Strings::capitalize($header) . ':';
+            }
+
+            $return[$column] = $header;
+        }
+
+        return $return;
     }
 
 
@@ -186,7 +223,7 @@ class Cli
      * @param array $source
      * @param string|null $key_header
      * @param string|null $value_header
-     * @param int $offset If specified, the text will be set $offset amount of characters to the right
+     * @param int $offset If specified, the text will be set $offset number of characters to the right
      * @return void
      */
     public static function displayForm(array $source, ?string $key_header = null, string $value_header = null, int $offset = 0): void
@@ -207,11 +244,11 @@ class Cli
         }
 
         // Determine the size of the keys to display them
-        $key_size = Arrays::getLongestKeySize($source) + 4;
+        $key_size = Arrays::getLongestKeyLength($source) + 4;
 
         // Display header
         if ($key_header and $value_header) {
-            Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key_header , $key_size), 'white') . ' ' . $value_header);
+            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header , $key_size), 'white') . ' ' . $value_header);
         }
 
         // Display source
@@ -226,7 +263,7 @@ class Cli
                 }
 
                 if (is_array($value)) {
-                    Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
+                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
                     static::displayForm($value, '', '', $key_size + 1);
                     continue;
                 }
@@ -235,7 +272,7 @@ class Cli
                 $value = gettype($value);
             }
 
-            Log::cli(Color::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') . ' ' . $value);
+            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') . ' ' . $value);
         }
     }
 

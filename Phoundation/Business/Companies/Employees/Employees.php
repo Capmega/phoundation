@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Employees;
 
-use PDOStatement;
-use Phoundation\Business\Companies\Company;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
 /**
@@ -20,7 +16,7 @@ use Phoundation\Web\Http\Html\Components\Input\Interfaces\InputSelectInterface;
  * @see \Phoundation\Data\DataEntry\DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Companies
  */
 class Employees extends DataList
@@ -65,7 +61,7 @@ class Employees extends DataList
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -77,11 +73,12 @@ class Employees extends DataList
      * @param string $value_column
      * @param string $key_column
      * @param string|null $order
+     * @param array|null $joins
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
             ->setName('employees_id')
             ->setNone(tr('Select a employee'))
             ->setObjectEmpty(tr('No employees available'));

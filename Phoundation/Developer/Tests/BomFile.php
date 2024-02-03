@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer\Tests;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Mtime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Stringable;
 
@@ -19,19 +21,19 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class BomFile extends File
 {
-    public function __construct(FileBasics|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(Path|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
         parent::__construct($file, $restrictions);
 
         // Only allow PHP files
-        if (!str_ends_with($this->file, '.php')) {
+        if (!str_ends_with($this->path, '.php')) {
             throw new OutOfBoundsException(tr('Cannot check file ":file" for BOM, only PHP files are supported', [
-                ':file' => $this->file
+                ':file' => $this->path
             ]));
         }
     }
@@ -45,12 +47,12 @@ class BomFile extends File
     public function hasBom(): bool
     {
         // Only check unmodified files
-        if (Mtime::isModified($this->file)) {
+        if (Mtime::isModified($this->path)) {
             $data = $this->readBytes(3);
 
             if($data === chr(0xEF) . chr(0xBB) . chr(0xBF)){
                 // Found a twitcher! Gotta shootem in the head!
-                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->file]));
+                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->path]));
                 return true;
             }
         }
@@ -71,7 +73,7 @@ class BomFile extends File
             $data = $this->getContentsAsString();
             $this->write(substr($data, 3));
 
-            Log::warning(tr('Cleared BOM from file ":file"', [':file' => $this->file]));
+            Log::warning(tr('Cleared BOM from file ":file"', [':file' => $this->path]));
         }
 
         return $this;

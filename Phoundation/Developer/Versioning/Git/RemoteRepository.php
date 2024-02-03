@@ -6,10 +6,10 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -19,7 +19,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class RemoteRepository extends Iterator
@@ -47,13 +47,13 @@ class RemoteRepository extends Iterator
     /**
      * Repository class constructor
      *
-     * @param string $path
+     * @param string $directory
      * @param string $repository
      */
-    public function __construct(string $path, string $repository)
+    public function __construct(string $directory, string $repository)
     {
         $this->repository = $repository;
-        $this->construct($path);
+        $this->construct($directory);
         $this->loadData();
     }
 
@@ -61,13 +61,13 @@ class RemoteRepository extends Iterator
     /**
      * Returns a new Repository object
      *
-     * @param string $path
+     * @param string $directory
      * @param string $repository
      * @return static
      */
-    public static function new(string $path, string $repository): static
+    public static function new(string $directory, string $repository): static
     {
-        return new static($path, $repository);
+        return new static($directory, $repository);
     }
 
 

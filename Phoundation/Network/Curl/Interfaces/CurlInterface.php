@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Network\Curl\Interfaces;
 
 
@@ -14,7 +16,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 interface CurlInterface
@@ -114,7 +116,7 @@ interface CurlInterface
      *
      * @return string
      */
-    public function getLogPath(): string;
+    public function getLogDirectory(): string;
 
     /**
      * Returns the restrictions for curl output logging
@@ -126,28 +128,28 @@ interface CurlInterface
     /**
      * Sets the path to where cURL will log. NULL or "" if logging has to be disabled
      *
-     * @param string $log_path
+     * @param string $log_directory
      * @param string $restrictions
      * @return static
      */
-    public function setLogPath(string $log_path, string $restrictions = PATH_DATA . 'log/'): static;
+    public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static;
 
     /**
-     * Returns the amount of retries executed for this request
+     * Returns the number of retries executed for this request
      *
      * @return int
      */
     public function getRetry(): int;
 
     /**
-     * Sets the maximum amount of retries executed for this request
+     * Sets the maximum number of retries executed for this request
      *
      * @return int
      */
     public function getRetries(): int;
 
     /**
-     * Returns the maximum amount of retries executed for this request
+     * Returns the maximum number of retries executed for this request
      *
      * @param int $retries
      * @return static
@@ -155,14 +157,14 @@ interface CurlInterface
     public function setRetries(int $retries): static;
 
     /**
-     * Sets the amount of time this object will wait before retrying a failed connection
+     * Sets the number of time this object will wait before retrying a failed connection
      *
      * @return int
      */
     public function getSleep(): int;
 
     /**
-     * Returns the amount of time this object will wait before retrying a failed connection
+     * Returns the number of time this object will wait before retrying a failed connection
      *
      * @param int $sleep
      * @return static
@@ -170,14 +172,14 @@ interface CurlInterface
     public function setSleep(int $sleep): static;
 
     /**
-     * Sets the amount of time in seconds before a complete request times out
+     * Sets the number of time in seconds before a complete request times out
      *
      * @return int
      */
     public function getTimeout(): int;
 
     /**
-     * Returns the amount of time in seconds before a complete request times out
+     * Returns the number of time in seconds before a complete request times out
      *
      * @param int $timeout
      * @return static
@@ -185,14 +187,14 @@ interface CurlInterface
     public function setTimeout(int $timeout): static;
 
     /**
-     * Sets the amount of time in seconds before a connection times out
+     * Sets the number of time in seconds before a connection times out
      *
      * @return int
      */
     public function getConnectTimeout(): int;
 
     /**
-     * Returns the amount of time in seconds before a connection times out
+     * Returns the number of time in seconds before a connection times out
      *
      * @param int $connect_timeout
      * @return static

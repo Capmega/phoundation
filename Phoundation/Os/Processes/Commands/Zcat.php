@@ -17,7 +17,7 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Zcat extends Command
@@ -29,12 +29,13 @@ class Zcat extends Command
      * Zcat class constructor
      *
      * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null $operating_system
      * @param string|null $packages
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $packages = null)
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
-        parent::__construct($restrictions, $packages);
-        $this->setInternalCommand('zcat');
+        parent::__construct($restrictions, $operating_system, $packages);
+        $this->setCommand('zcat');
     }
 
 
@@ -46,6 +47,10 @@ class Zcat extends Command
      */
     public function getFullCommandLine(bool $background = false): string
     {
+        if ($this->cached_command_line) {
+            return $this->cached_command_line;
+        }
+
         $this->addArgument($this->file);
         return parent::getFullCommandLine($background);
     }

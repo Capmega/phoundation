@@ -4,29 +4,22 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Exception;
 use Phoundation\Accounts\Users\Interfaces\EmailInterface;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
-use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validate;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\DataEntryForm;
-use Phoundation\Web\Http\Html\Components\Entry;
-use Phoundation\Web\Http\Html\Components\Form;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Components\DataEntryForm;
+use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
 
 
 /**
@@ -37,7 +30,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
  * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class Emails extends DataList implements EmailsInterface
@@ -47,10 +40,7 @@ class Emails extends DataList implements EmailsInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `accounts_emails`.`id`,
-                                        `accounts_emails`.`email`,
-                                        `accounts_emails`.`account_type`,
-                                        `accounts_emails`.`description`
+        $this->setQuery('SELECT   `accounts_emails`.*
                                FROM     `accounts_emails`
                                WHERE    `accounts_emails`.`users_id` = :users_id
                                  AND    `accounts_emails`.`status` IS NULL
@@ -87,7 +77,7 @@ class Emails extends DataList implements EmailsInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'email';
     }
@@ -116,12 +106,12 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Returns Emails list object with emails for the specified user.
      *
+     * @param bool $clear
      * @return static
-     * @throws SqlMultipleResultsException, NotExistsException
      */
-    public function load(): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::get($this->parent, 'seo_name');
+        $this->parent  = User::get($this->parent,  'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -138,7 +128,7 @@ class Emails extends DataList implements EmailsInterface
     public function getHtmlDataEntryForm(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $email = Email::new()->setFieldPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
+        $email = Email::new()->setColumnPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
         $definitions = $email->getDefinitions();
         $definitions->get('email')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -149,14 +139,14 @@ class Emails extends DataList implements EmailsInterface
 
         foreach ($this->ensureDataEntries() as $email) {
             $content[] = $email
-                ->setFieldPrefix($name)
+                ->setColumnPrefix($name)
                 ->getHtmlDataEntryForm()
                 ->setMetaVisible($meta_visible)
                 ->render();
         }
 
         return DataEntryForm::new()
-            ->addContent(implode('<hr>', $content))
+            ->appendContent(implode('<hr>', $content))
             ->setRenderContentsOnly(true);
     }
 
@@ -164,11 +154,12 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Add the specified email to the iterator array
      *
+     * @param Stringable|string|float|int|null $key
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof EmailInterface) {
             if (!is_string($value)) {
@@ -177,12 +168,10 @@ class Emails extends DataList implements EmailsInterface
                 ]));
             }
 
-            $value = Email::new()
-                ->setEmail($value)
-                ->setAccountType('other');
+            $value = Email::new($value, 'email')->setAccountType('other');
         }
 
-        // Ensure that the emails list has a parent
+        // Ensure that the email list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
                 ':email' => $value->getLogId()
@@ -193,7 +182,7 @@ class Emails extends DataList implements EmailsInterface
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {
                 throw new OutOfBoundsException(tr('Specified email ":email" has a different users id than the users id ":parent" for the emails in this list', [
-                    ':email' => $value->getId(),
+                    ':email' => $value->getEmail(),
                     ':parent' => $this->parent->getId()
                 ]));
             }
@@ -258,7 +247,7 @@ class Emails extends DataList implements EmailsInterface
 
             foreach ($diff['delete'] as $id => $email) {
                 Email::get($id, 'id')->setEmail(null)->save()->erase();
-                $this->deleteEntries($id);
+                $this->delete($id);
             }
 
             foreach ($diff['add'] as $email) {

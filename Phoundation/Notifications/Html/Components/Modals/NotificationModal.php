@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Html\Components\Modals;
 
-use Phoundation\Web\Http\Html\Components\Modals\LargeModal;
-use Phoundation\Web\Http\Html\Components\Script;
-use Phoundation\Web\Http\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Components\Modals\LargeModal;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -18,7 +18,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class NotificationModal extends LargeModal

@@ -14,7 +14,7 @@ use Phoundation\Geo\Cities\City;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryCity
@@ -26,7 +26,7 @@ trait DataEntryCity
      */
     public function getCitiesId(): ?int
     {
-        return $this->getSourceFieldValue('int', 'cities_id');
+        return $this->getSourceColumnValue('int', 'cities_id');
     }
 
 
@@ -49,7 +49,7 @@ trait DataEntryCity
      */
     public function getCity(): ?City
     {
-        $cities_id = $this->getSourceFieldValue('int', 'cities_id');
+        $cities_id = $this->getSourceColumnValue('int', 'cities_id');
 
         if ($cities_id) {
             return new City($cities_id);
@@ -66,7 +66,7 @@ trait DataEntryCity
      */
     public function getCitiesName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
+        return $this->getSourceColumnValue('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
     }
 
 

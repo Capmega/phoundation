@@ -16,7 +16,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryDetails
@@ -29,13 +29,13 @@ trait DataEntryDetails
     public function getDetails(): array|string|null
     {
         try {
-            return Json::decode($this->getSourceFieldValue('string', 'details'));
+            return Json::decode($this->getSourceColumnValue('string', 'details'));
 
         } catch (JsonException $e) {
             Log::warning(tr('Failed to decode details because of following exception'));
             Log::warning(tr('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
             Log::error($e);
-            return $this->getSourceFieldValue('string', 'details');
+            return $this->getSourceColumnValue('string', 'details');
         }
     }
 

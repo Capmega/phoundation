@@ -6,7 +6,7 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -16,7 +16,7 @@ use Phoundation\Core\Strings;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryPicture
@@ -28,7 +28,7 @@ trait DataEntryPicture
      */
     public function getPicture(): ImageInterface
     {
-        $picture = get_null($this->getSourceFieldValue('string', 'picture')) ?? 'img/profiles/default.png';
+        $picture = get_null($this->getSourceColumnValue('string', 'picture')) ?? 'img/profiles/default.png';
 
         return Image::new($picture)
             ->setDescription(tr('Profile picture for :customer', [':customer' => $this->getName()]));
@@ -48,6 +48,6 @@ trait DataEntryPicture
             $picture = Image::new($picture);
         }
 
-        return $this->setSourceValue('picture', Strings::from(get_null($picture)?->getFile(), PATH_CDN));
+        return $this->setSourceValue('picture', Strings::from(get_null($picture)?->getFile(), DIRECTORY_CDN));
     }
 }

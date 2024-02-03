@@ -6,16 +6,17 @@ namespace Phoundation\Web\Routing;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Http\Domains;
-use Phoundation\Web\Http\Html\Template\Template;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\AdminLte\AdminLte;
 
 
@@ -26,10 +27,10 @@ use Templates\AdminLte\AdminLte;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class RoutingParameters
+class RoutingParameters implements RoutingParametersInterface
 {
     /**
      * Sets what template to use
@@ -39,11 +40,11 @@ class RoutingParameters
     protected string $template;
 
     /**
-     * Set what path the router will be looking in for the scripts to execute
+     * Set what directory the router will be looking in for the scripts to execute
      *
-     * @var string $root_path
+     * @var string $root_directory
      */
-    protected string $root_path;
+    protected string $root_directory;
 
     /**
      * Server restrictions indicating what the router can access
@@ -71,7 +72,7 @@ class RoutingParameters
      *
      * @var bool $system_pages_only
      */
-    protected bool $system_pages_only;
+    protected bool $system_pages_only = false;
 
     /**
      * The required rights to access this resource
@@ -95,13 +96,13 @@ class RoutingParameters
     protected ?array $matches = null;
 
     /**
-     * If set, rights required to access a page would depend on each directory in its path. The last directory in the
-     * specified path, and each subsequent directory below it until the file itself will be a required right for the
-     * user to access that page
+     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
+     * the specified directory, and each subsequent directory below it until the file itself will be a required right
+     * for the user to access that page
      *
-     * @var string|null $require_path_rights
+     * @var string|null $require_directory_rights
      */
-    protected ?string $require_path_rights = null;
+    protected ?string $require_directory_rights = null;
 
     /**
      * Exception file names to the required directory rights
@@ -114,20 +115,21 @@ class RoutingParameters
     /**
      * RouteParameters class constructor
      */
-    public function __construct(bool $system_pages_only = false)
+    public function __construct(?string $pattern = null)
     {
-        $this->system_pages_only = $system_pages_only;
+        $this->pattern = $pattern;
     }
 
 
     /**
      * Returns a new RouteParameters object
      *
+     * @param string|null $pattern
      * @return static
      */
-    public static function new(): static
+    public static function new(?string $pattern = null): static
     {
-        return new static();
+        return new static($pattern);
     }
 
 
@@ -166,8 +168,8 @@ class RoutingParameters
      */
     public function setTemplate(string $template): static
     {
-        if (!is_subclass_of($template, 'Phoundation\Web\Http\Html\Template\Template')) {
-            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Http\Html\Template\Template"', [
+        if (!is_subclass_of($template, 'Phoundation\Web\Html\Template\Template')) {
+            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Html\Template\Template"', [
                 ':class' => $template
             ]));
         }
@@ -191,32 +193,32 @@ class RoutingParameters
         }
 
         // Check defined rights and directory rights, both have to pass
-        if ($this->require_path_rights) {
-            if (substr_count($this->require_path_rights, '/') > 1) {
-                $dirname = dirname($this->require_path_rights);
+        if ($this->require_directory_rights) {
+            if (substr_count($this->require_directory_rights, '/') > 1) {
+                $dirname = dirname($this->require_directory_rights);
             } else {
-                $dirname = $this->require_path_rights;
+                $dirname = $this->require_directory_rights;
             }
 
-            // First cut to WWW path
-            // Then the rest, as the path may be partial
-            // Then remove the file name to only have the path parts
+            // First cut to WWW directory
+            // Then the rest, as the directory may be partial
+            // Then remove the file name to only have the directory parts
             // Ensure it doesn't start with a slash to avoid empty right entries
             // Then explode to array
-            $path = Strings::from($target, PATH_WWW);
-            $path = Strings::from($path, $dirname);
-            $path = Strings::startsNotWith($path, '/');
-            $path = dirname($path);
+            $directory = Strings::from($target, DIRECTORY_WWW);
+            $directory = Strings::from($directory, $dirname);
+            $directory = Strings::startsNotWith($directory, '/');
+            $directory = dirname($directory);
 
-            if ($path === '.') {
-                // Current directory, there is no path
-                $path = [];
+            if ($directory === '.') {
+                // Current directory, there is no directory
+                $directory = [];
             } else {
-                $path = explode(Filesystem::DIRECTORY_SEPARATOR, $path);
+                $directory = explode(Filesystem::DIRECTORY_SEPARATOR, $directory);
             }
 
             // Merge with the already specified rights
-            return array_merge($this->rights, $path);
+            return array_merge($this->rights, $directory);
         }
 
         return $this->rights;
@@ -227,15 +229,15 @@ class RoutingParameters
      * Returns if (and from what directory onwards) rights should be taken from the directories automatically for each
      * page
      *
-     * If set, rights required to access a page would depend on each directory in its path. The last directory in the
-     * specified path, and each subsequent directory below it until the file itself will be a required right for the
-     * user to access that page
+     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
+     * the specified directory, and each subsequent directory below it until the file itself will be a required right
+     * for the user to access that page
      *
      * @return string|null
      */
-    public function getRequirePathRights(): ?string
+    public function getRequireDirectoryRights(): ?string
     {
-        return $this->require_path_rights;
+        return $this->require_directory_rights;
     }
 
 
@@ -266,17 +268,17 @@ class RoutingParameters
     /**
      * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
      *
-     * If set, rights required to access a page would depend on each directory in its path. The last directory in the
-     * specified path, and each subsequent directory below it until the file itself will be a required right for the
-     * user to access that page
+     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
+     * the specified directory, and each subsequent directory below it until the file itself will be a required right
+     * for the user to access that page
      *
-     * @param string $require_path_rights
+     * @param string $require_directory_rights
      * @param array|string|null $rights_exceptions
      * @return static
      */
-    public function setRequirePathRights(string $require_path_rights, array|string|null $rights_exceptions = null): static
+    public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
     {
-        $this->require_path_rights = Strings::slash($require_path_rights);
+        $this->require_directory_rights = Strings::slash($require_directory_rights);
 
         if ($rights_exceptions) {
             $this->rights_exceptions = Arrays::force($rights_exceptions, null);
@@ -335,38 +337,38 @@ class RoutingParameters
 
 
     /**
-     * Returns the path to use for the router so that it knows where to find the scripts to route to
+     * Returns the directory to use for the router so that it knows where to find the scripts to route to
      *
      * @return string
      */
-    public function getRootPath(): string
+    public function getRootDirectory(): string
     {
-        if (!isset($this->root_path)) {
-            $this->root_path = '';
+        if (!isset($this->root_directory)) {
+            $this->root_directory = '';
         }
 
-        $path = $this->root_path;
+        $directory = $this->root_directory;
 
         if ($this->matches) {
             // Apply matches for this parameters pattern
             foreach ($this->matches as $key => $value) {
-                $path = str_replace('$' . $key, $value[0], $path);
+                $directory = str_replace('$' . $key, $value[0], $directory);
             }
         }
 
-        return 'www/' . $path;
+        return 'www/' . $directory;
     }
 
 
     /**
-     * Sets the path to use for the router so that it knows where to find the scripts to route to
+     * Sets the directory to use for the router so that it knows where to find the scripts to route to
      *
-     * @param string $root_path
+     * @param string $root_directory
      * @return static
      */
-    public function setRootPath(string $root_path): static
+    public function setRootDirectory(string $root_directory): static
     {
-        $this->root_path = $root_path;
+        $this->root_directory = $root_directory;
         return $this;
     }
 
@@ -378,7 +380,7 @@ class RoutingParameters
      */
     public function getRestrictions(): RestrictionsInterface
     {
-        return Restrictions::default($this->restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
+        return Restrictions::default($this->restrictions, Restrictions::new(DIRECTORY_WWW, false, 'Route'));
     }
 
 
@@ -390,7 +392,7 @@ class RoutingParameters
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(PATH_WWW, false, 'Route'));
+        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_WWW, false, 'Route'));
         return $this;
     }
 
@@ -423,7 +425,7 @@ class RoutingParameters
     public function setRootUrl(string $root_url): static
     {
         // Make it a correct local URL
-        $this->root_url = (string) UrlBuilder::getWww($root_url);
+        $this->root_url = (string) UrlBuilder::getWww($root_url, true);
         return $this;
     }
 
@@ -517,7 +519,7 @@ class RoutingParameters
         $this->rights = [];
 
         foreach ($this->getRightsArray($rights) as $right) {
-            $this->addRight($right);
+            $this->add($right);
         }
 
         return $this;
@@ -530,7 +532,7 @@ class RoutingParameters
      * @param Right|string|null $right
      * @return static
      */
-    public function addRight(Right|string|null $right): static
+    public function add(Right|string|null $right): static
     {
         if ($right) {
             if (is_object($right)) {

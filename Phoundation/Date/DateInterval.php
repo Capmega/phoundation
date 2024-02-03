@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use Exception;
-use Phoundation\Core\Strings;
-use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 
@@ -20,7 +19,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
 class DateInterval extends \DateInterval implements Stringable
@@ -124,7 +123,7 @@ class DateInterval extends \DateInterval implements Stringable
             }
 
         } elseif (is_int($date_interval)) {
-            // Diff will always give a tiny amount of micro/milliseconds difference. Since we're on seconds resolution
+            // Diff will always give a tiny number of micro/milliseconds difference. Since we're on seconds resolution
             // here we can round that off
             $round_up = not_null($round_up, true);
             $date_interval = DateTime::new($date_interval . ' seconds')->diff(DateTime::new());
@@ -197,7 +196,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of years for this date interval
+     * Returns the number of years for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -214,7 +213,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of months for this date interval
+     * Returns the number of months for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -232,7 +231,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of weeks for this date interval
+     * Returns the number of weeks for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -248,7 +247,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of days for this date interval
+     * Returns the number of days for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -266,7 +265,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of hours for this date interval
+     * Returns the total number of hours for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -284,7 +283,23 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of minutes for this date interval
+     * Returns the total number of hours and minute fraction for this date interval
+     *
+     * @return float
+     */
+    public function getTotalHoursWithFraction(): float
+    {
+        $minutes  = $this->getTotalMinutes();
+        $hours    = (int) floor($minutes / 60);
+        $fraction = $minutes - ($hours * 60);
+        $fraction = $fraction / 60;
+
+        return $hours + $fraction;
+    }
+
+
+    /**
+     * Returns the total number of minutes for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -302,7 +317,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of seconds for this date interval
+     * Returns the number of seconds for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -320,7 +335,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of milliseconds for this date interval
+     * Returns the number of milliseconds for this date interval
      *
      * @param bool $round_down
      * @return int
@@ -338,7 +353,7 @@ class DateInterval extends \DateInterval implements Stringable
 
 
     /**
-     * Returns the amount of microseconds for this date interval
+     * Returns the number of microseconds for this date interval
      *
      * @return int
      */

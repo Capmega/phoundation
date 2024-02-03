@@ -8,15 +8,19 @@ use Error;
 use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
 use Phoundation\Core\Libraries\Exception\LibrariesException;
 use Phoundation\Core\Libraries\Exception\LibraryExistsException;
+use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
+use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -26,10 +30,10 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Library
+class Library implements LibraryInterface
 {
     /**
      * The library name
@@ -41,16 +45,16 @@ class Library
     /**
      * The library path
      *
-     * @var string $path
+     * @var string $directory
      */
-    protected string $path;
+    protected string $directory;
 
     /**
      * The Updates object for this library
      *
-     * @var Updates|null
+     * @var UpdatesInterface|null
      */
-    protected ?Updates $updates = null;
+    protected ?UpdatesInterface $updates = null;
 
     /**
      * Tracks if the structure check has been executed and what the result was
@@ -63,14 +67,14 @@ class Library
     /**
      * Library constructor
      *
-     * @param string $path
+     * @param string $directory
      */
-    public function __construct(string $path)
+    public function __construct(string $directory)
     {
-        $path          = Strings::slash($path);
-        $this->path    = $path;
-        $this->library = Strings::fromReverse(Strings::unslash($path), '/');
-        $this->library = strtolower($this->library);
+        $directory       = Strings::slash($directory);
+        $this->directory = $directory;
+        $this->library   = Strings::fromReverse(Strings::unslash($directory), '/');
+        $this->library   = strtolower($this->library);
 
         // Get the Init object
         $this->loadUpdatesObject();
@@ -107,9 +111,9 @@ class Library
      * Returns a new Library object for the specified library
      *
      * @param string $name
-     * @return Library
+     * @return LibraryInterface
      */
-    public static function get(string $name): Library
+    public static function get(string $name): LibraryInterface
     {
         if (str_contains($name, '/')) {
             // This is TYPE/NAME
@@ -146,11 +150,8 @@ class Library
      */
     public function init(?string $comments): bool
     {
-        // Execute a structural check on the library
-        $this->checkStructure($comments);
-
-        // TODO Check later if we should be able to let init initialize itself
         if ($this->library === 'libraries') {
+            // TODO Check later if we should be able to let init initialize itself
             // Never initialize the Init library itself!
             Log::warning(tr('Not initializing library "library", it has no versioning control available'));
             return false;
@@ -204,16 +205,16 @@ class Library
      */
     public function getType(): string
     {
-        $path = Strings::unslash($this->path);
-        $path = Strings::untilReverse($path, '/');
-        $path = Strings::fromReverse($path, '/');
-        $path = strtolower($path);
+        $directory = Strings::unslash($this->directory);
+        $directory = Strings::untilReverse($directory, '/');
+        $directory = Strings::fromReverse($directory, '/');
+        $directory = strtolower($directory);
 
-        if ($path === 'phoundation') {
+        if ($directory === 'phoundation') {
             return 'system';
         }
 
-        if ($path === 'templates') {
+        if ($directory === 'templates') {
             return 'template';
         }
 
@@ -259,9 +260,9 @@ class Library
      *
      * @return string
      */
-    public function getPath(): string
+    public function getDirectory(): string
     {
-        return $this->path;
+        return $this->directory;
     }
 
 
@@ -316,7 +317,7 @@ class Library
      */
     public function getSize(): int
     {
-        return Directory::new($this->path, PATH_ROOT)->treeFileSize();
+        return Directory::new($this->directory, DIRECTORY_ROOT)->treeFileSize();
     }
 
 
@@ -349,7 +350,7 @@ class Library
      */
     public function getPhpStatistics(): array
     {
-        return Directory::new($this->getPath(), [PATH_WWW, PATH_ROOT . '/scripts/', LIBRARIES::CLASS_PATH_SYSTEM, LIBRARIES::CLASS_PATH_PLUGINS, LIBRARIES::CLASS_PATH_TEMPLATES])->getPhpStatistics(true);
+        return Directory::new($this->getDirectory(), [DIRECTORY_WWW, LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
     }
 
 
@@ -361,14 +362,14 @@ class Library
      */
     public static function getClassPath(string $file): string
     {
-        if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])->isPhp()) {
+        if (!File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates'])->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates'])
+        $results   = File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates'])
             ->grep(['namespace ', 'class '], 100);
 
         // Get the namespace
@@ -417,10 +418,10 @@ class Library
 
         $file = str_replace('\\', '/', $class_path);
         $file = Strings::startsNotWith($file, '/');
-        $file = PATH_ROOT . $file . '.php';
+        $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!File::new($file, [PATH_ROOT . 'Phoundation', PATH_ROOT . 'Plugins', PATH_ROOT . 'Templates', ])->isPhp()) {
+            if (!File::new($file, [DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates', ])->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
@@ -504,7 +505,7 @@ class Library
             ]));
         }
 
-        if (file_exists(PATH_ROOT . $type->value . $name)) {
+        if (file_exists(DIRECTORY_ROOT . $type->value . $name)) {
             throw new LibraryExistsException(tr('Cannot create ":type" type library ":name", it already exists', [
                 ':type' => $type,
                 ':name' => $name
@@ -512,10 +513,10 @@ class Library
         }
 
         // Copy the library from the TemplateLibrary and run a search / replace
-        Cp::new()->archive(PATH_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(PATH_ROOT . 'Phoundation/'), PATH_ROOT . $type->value . $name, Restrictions::new(PATH_ROOT . $type->value, true));
+        Cp::new()->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', Restrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, Restrictions::new(DIRECTORY_ROOT . $type->value, true));
 
-        foreach (['.Library.php', 'Updates.php'] as $file) {
-            File::new(PATH_ROOT . $type->value . $name . '/.Library/' . $file, Restrictions::new(PATH_ROOT . $type->value, true))
+        foreach (['Updates.php'] as $file) {
+            File::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, Restrictions::new(DIRECTORY_ROOT . $type->value, true))
                 ->replace([
                     ':type' => $type,
                     ':name' => $name
@@ -532,7 +533,8 @@ class Library
      */
     protected function loadUpdatesObject(): void
     {
-        $file = Strings::slash($this->path) . 'Updates.php';
+        // Scan for the Updates.php file
+        $file = Strings::slash($this->directory) . 'Library/Updates.php';
 
         if (!file_exists($file)) {
             // There is no init class available
@@ -546,14 +548,15 @@ class Library
             $updates_class_path = static::getClassPath($file);
             $updates            = new $updates_class_path();
 
-            if (!($updates instanceof Updates)) {
-                Log::Warning(tr('The Updates.php file for the library ":library" in ":path" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file will be ignored', [
-                    ':path'    => $this->path,
-                    ':library' => $this->library
+            if ($updates instanceof UpdatesInterface) {
+                $this->updates = $updates;
+
+            } else {
+                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file has been ignored', [
+                    ':directory' => $this->directory,
+                    ':library'   => $this->library
                 ]));
             }
-
-            $this->updates = $updates;
 
         } catch (Error $e) {
             Log::warning(tr('Failed to load the Updates file for library ":library", see the following exception for more information', [
@@ -562,8 +565,8 @@ class Library
 
             Exception::new($e)
                 ->log()
-                ->register()
-                ->notification()
+                ->registerDeveloperIncident()
+                ->getNotificationObject()
                     ->send();
 
             $this->updates = null;
@@ -572,31 +575,65 @@ class Library
 
 
     /**
-     * This method will check the structure of the library and make sure everything is in working order
+     * This method will verify that the library is in working order, that the commands are symlinked, etc
      *
-     * @param string|null $comments
-     * @return bool
+     * @return static
      */
-    protected function checkStructure(?string $comments): bool
+    public function verify(): static
     {
         if ($this->structure_ok === null) {
             // Execute the structural check for this library
-            // TODO IMPLEMENT
+
+            // TODO IMPLEMENT MORE
 
             $this->structure_ok = true;
         }
 
-        return $this->structure_ok;
+        return $this;
     }
 
 
     /**
-     * Returns true if the structure for this library is okay, false otherwise
+     * Ensure that the Library/commands is symlinked
      *
-     * @return bool
+     * @param DirectoryInterface $commands_directory
+     * @return void
+     * @todo Add support for command sharing!
      */
-    public function getStructureOk(): bool
+    public function cacheCommands(DirectoryInterface $commands_directory): void
     {
-        return $this->checkStructure();
+        $library_path          = Strings::slash($this->directory) . 'Library/commands/';
+        $library_restrictions  = Restrictions::readonly($library_path, tr('Library command symlink validation'));
+        $library_path_o        = Directory::new($library_path, $library_restrictions);
+        $commands_restrictions = $commands_directory->getRestrictions();
+
+        if (!$library_path_o->exists()) {
+            // This library does not have a commands/ directory, we're fine
+            return;
+        }
+
+        foreach ($library_path_o->list() as $file => $path) {
+            $command_file = $commands_directory->appendPath($file);
+
+            if ($command_file->exists(true)) {
+                Log::warning(tr('Not adding commands symlink for ":path", the command already exists', [
+                    ':path' => $command_file
+                ]));
+                continue;
+            }
+
+            // TODO Check first if a symlink with this name already exists! If so, make a directory instead and put all sub commands as symlinks in that shared directory
+
+            // Symlink doesn't exist yet, place it now
+            Log::action(tr('Adding commands symlink for ":path"', [
+                ':path' => $file
+            ]), 2);
+
+            // Get the correct relative target link, don't let Path::symlink() resolve this automatically as the source
+            // path will change from a temp directory to data/cache/system/commands
+            Path::new($path, $commands_restrictions, true)
+                ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
+                ->symlinkToThis($command_file);
+        }
     }
 }

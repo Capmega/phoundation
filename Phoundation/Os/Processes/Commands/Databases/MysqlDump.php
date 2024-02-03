@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands\Databases;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Data\Traits\DataDebug;
-use Phoundation\Data\Traits\DataHost;
-use Phoundation\Data\Traits\DataPort;
-use Phoundation\Data\Traits\DataTarget;
-use Phoundation\Data\Traits\DataUserPass;
-use Phoundation\Databases\Exception\ExportException;
+use Phoundation\Data\Traits\DataFile;
+use Phoundation\Date\DateTime;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Os\Processes\Commands\Command;
-use Phoundation\Os\Processes\Commands\Databases\Interfaces\MysqlDumpInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -29,16 +27,13 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class MysqlDump extends Command implements MysqlDumpInterface
 {
-    use DataPort;
-    use DataHost;
-    use DataUserPass;
     use DataDebug;
-    use DataTarget;
+    use DataConnector;
 
 
     /**
@@ -89,7 +84,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
      *
      * @var bool $create_tables
      */
-    protected bool $create_tables = false;
+    protected bool $create_tables = true;
 
     /**
      * Write INSERT statements using multiple-row syntax that includes several VALUES lists. This results in a smaller
@@ -142,23 +137,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
      */
     public function setDatabases(array|string $databases): static
     {
-        $databases = Arrays::force($databases);
-
-        foreach ($databases as $database) {
-            try {
-                $database = Config::getArray('databases.sql.instances.' . $database);
-
-            } catch (ConfigurationDoesNotExistsException) {
-                // No configuration available for specified database
-                throw ExportException::new(tr('Specified database ":database" is not configured', [
-                    ':database' => $database
-                ]))->makeWarning();
-            }
-        }
-
-        $this->databases = $databases;
-
-        unset($database);
+        $this->databases = Arrays::force($databases);
         return $this;
     }
 
@@ -396,68 +375,60 @@ class MysqlDump extends Command implements MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
+     * @param string|null $file
      * @param EnumExecuteMethodInterface $method
-     * @return string|int|bool|array|null
+     * @return string
      */
-    public function dump(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
+    public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string
     {
-        // Add restrictions for the log file
-        $this->target = Filesystem::absolute($this->target, PATH_DATA . 'sources/', false);
-        $this->restrictions->addPath(PATH_DATA . 'log', true);
+        if (!$file) {
+            // Generate default file
+            $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+        }
 
-        // Apply file restrictions
-        File::new($this->target, $this->restrictions)->checkWritable();
-
-        // Get database configuration
-        // TODO Update to support multiple databases, other databases may have their own configuartion
-        $config = Config::getArray('databases.sql.instances.' . array_first($this->databases));
+        $file = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/', false);
+        $file = File::new($file, $this->restrictions);
+        $file->getParentDirectory()->ensure();
 
         // Build the process parameters, then execute
-        $this->clearArguments()
-             ->setInternalCommand('mysqldump')
-             ->addArgument( $this->disable_keys                   ? '--disable-keys'    : null)
-             ->addArgument( $this->events                         ? '--events'          : null)
-             ->addArgument( $this->routines                       ? '--routines'        : null)
-             ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
-             ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
-             ->addArgument( $this->extended_insert                ? '--extended-insert' : null)
-             ->addArgument( $this->comments                       ? '--comments'        : '--skip-comments')
-             ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null)
-             ->addArguments(['-h', $config['host'], '-u', $config['user'], '-p' . $config['pass']]) // Database config
-             ->setOutputRedirect(PATH_DATA . 'log/mysqldump_error.log', 2, true);
+        $this->setCommand('mysqldump')
+            ->clearArguments()
+            ->addArguments(['-h', $this->connector->getHostname(), '-u', $this->connector->getUsername(), '-p' . $this->connector->getPassword()])
+            ->addArgument( $this->disable_keys                   ? '--disable-keys'    : null)
+            ->addArgument( $this->events                         ? '--events'          : null)
+            ->addArgument( $this->routines                       ? '--routines'        : null)
+            ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
+            ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
+            ->addArgument( $this->extended_insert                ? '--extended-insert' : null)
+            ->addArgument( $this->comments                       ? '--comments'        : '--skip-comments')
+            ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
 
-        if ($this->host) {
-            $this->addArguments(['-h', $this->host]);
-        }
-
-        if ($this->port) {
-            $this->addArguments(['-p', $this->port]);
-        }
-
-        if ($this->port) {
-            $this->addArguments(['-p', $this->port]);
+        if ($this->connector->getPort()) {
+            $this->addArguments(['-p', $this->connector->getPort()]);
         }
 
         // Add databases
-        $this->addArgument('--databases');
-
-        foreach ($this->databases as $database) {
-            $this->addArgument(Config::getString('databases.sql.instances.' . $database . '.name'));
-        }
+        $this->addArgument('--databases')
+            ->addArguments($this->databases);
 
         // Optionally add gzip
         if ($this->gzip) {
             $this->setPipe('gzip');
         }
 
+        Log::action(tr('Creating MySQL dump file ":file" from databases ":databases", this may take a while...', [
+            ':file'      => $file,
+            ':databases' => Strings::force($this->databases, ', '),
+        ]));
+
         // Add pipe to output and execute
-        $results = $this->setOutputRedirect($this->target)->executeReturnArray();
+        $results = $this->setOutputRedirect((string) $file)->executeReturnArray();
 
         if ($this->debug) {
             Log::information(tr('Output of the mysqldump command:'), 4);
             Log::debug($results, 4);
         }
 
-        return $results;
+        return (string) $file;
     }
 }

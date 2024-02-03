@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
 
 
 /**
@@ -15,7 +18,7 @@ use Phoundation\Databases\Sql\Sql;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class Table extends SchemaAbstract
@@ -122,7 +125,7 @@ class Table extends SchemaAbstract
     {
         Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
-            ':instance' => $this->sql->getInstance(),
+            ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase()
         ]),3);
 
@@ -143,7 +146,7 @@ class Table extends SchemaAbstract
 
 
     /**
-     * Returns the amount of records in this table
+     * Returns the number of records in this table
      *
      * @return int
      */
@@ -167,11 +170,18 @@ class Table extends SchemaAbstract
     /**
      * Returns the table columns
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public function getColumns(): array
+    public function getColumns(): IteratorInterface
     {
-        return $this->columns;
+        $columns = [];
+        $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+
+        foreach ($results as $result) {
+            $columns[$result['Field']] = Arrays::lowercaseKeys($result);
+        }
+
+        return Iterator::new($columns);
     }
 
 
@@ -198,7 +208,7 @@ class Table extends SchemaAbstract
 
 
     /**
-     * Load the table parameters from database
+     * Load the table parameters from the database
      *
      * @return void
      */

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\HttpException;
 
 
@@ -20,7 +20,7 @@ use Phoundation\Web\Http\Exception\HttpException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class Http
@@ -190,7 +190,7 @@ class Http
 //     */
 //    #[NoReturn] public static function redirect(string $url = '', ?int $http_code = null, bool $clear_session_redirect = true, ?int $time_delay = null): never
 //    {
-//        if (!PLATFORM_HTTP) {
+//        if (!PLATFORM_WEB) {
 //            throw new HttpException(tr('This function can only be called on webservers'));
 //        }
 //
@@ -505,7 +505,7 @@ class Http
 //                    $requested = array('language' => Strings::until($requested, '-'),
 //                        'locale' => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
 //
-//                    if (empty(Config::get('languages.supported', [])[$requested['language']])) {
+//                    if (empty(Config::get('language.supported', [])[$requested['language']])) {
 //                        continue;
 //                    }
 //

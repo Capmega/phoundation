@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Exception\GetValidationFailedException;
+use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -22,7 +22,7 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class GetValidator extends Validator
@@ -137,5 +137,37 @@ class GetValidator extends Validator
     public function select(string|int $field): static
     {
         return $this->standardSelect($field);
+    }
+
+
+    /**
+     * Clears the internal GET array
+     *
+     * @return void
+     */
+    public function clear(): void
+    {
+        static::$get = [];
+        parent::clear();
+    }
+
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * Will throw a GetValidationFailedException if validation fails
+     *
+     * @param bool $clean_source
+     * @return array
+     * @throws GetValidationFailedException
+     */
+    public function validate(bool $clean_source = true): array
+    {
+        try {
+            return parent::validate($clean_source);
+
+        } catch (ValidationFailedException $e) {
+            throw new GetValidationFailedException($e);
+        }
     }
 }

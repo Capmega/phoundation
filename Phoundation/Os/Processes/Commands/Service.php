@@ -16,7 +16,7 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Service extends Command
@@ -119,7 +119,7 @@ class Service extends Command
         return $this
             ->clearArguments()
             ->setSudo(true)
-            ->setInternalCommand('service')
+            ->setCommand('service')
             ->addArgument($this->service_name)
             ->addArgument($action)
             ->executeReturnArray();

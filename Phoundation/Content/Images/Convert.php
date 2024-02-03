@@ -17,7 +17,7 @@ use Phoundation\Os\Processes\Commands\Command;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
 class Convert extends Command
@@ -108,7 +108,7 @@ class Convert extends Command
      */
     public function getSourceFile(): ?string
     {
-        return $this->source->getFile();
+        return $this->source->getPath();
     }
 
 
@@ -122,11 +122,11 @@ class Convert extends Command
     {
         if ($this->target) {
             // Target already exists. See if we need to clean the directory for this target
-            $this->path(dirname($this->target))->clear();
+            $this->directory(dirname($this->target))->clear();
         }
 
         // Ensure that a path for the target file exists
-        $this->path(dirname($this->target))->ensure();
+        $this->directory(dirname($this->target))->ensure();
         $this->target = $target;
         return $this;
     }
@@ -200,13 +200,13 @@ class Convert extends Command
 
 
     /**
-     * Returns a new Path object with the restrictions for this image object
+     * Returns a new Directory object with the restrictions for this image object
      *
-     * @param string $path
+     * @param string $directory
      * @return Directory
      */
-    protected function path(string $path): Directory
+    protected function getDirectory(string $directory): Directory
     {
-        return new Directory($path, $this->restrictions);
+        return new Directory($directory, $this->restrictions);
     }
 }

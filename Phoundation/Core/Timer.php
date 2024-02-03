@@ -19,7 +19,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  * @see Timers
  */
@@ -165,7 +165,7 @@ class Timer implements TimerInterface
 
 
     /**
-     * Returns the amount of laps
+     * Returns the number of laps
      *
      * @return int
      */

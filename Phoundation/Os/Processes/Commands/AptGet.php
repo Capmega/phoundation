@@ -14,7 +14,7 @@ use Phoundation\Core\Log\Log;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class AptGet extends Command
@@ -29,7 +29,7 @@ class AptGet extends Command
     {
         Log::action(tr('Installing packages ":packages"', [':packages' => $packages]));
 
-        $this->setInternalCommand('apt-get')
+        $this->setCommand('apt-get')
              ->setSudo(true)
              ->addArguments(['-y', 'install'])
              ->addArguments($packages)

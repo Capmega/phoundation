@@ -1,8 +1,9 @@
 <?php
 
-use Phoundation\Core\Config;
+use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Http\Html\Html;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -14,7 +15,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 
@@ -26,12 +27,12 @@ Page::setHeaderSubTitle(tr('Demo'));
 Page::setBuildBody(false);
 
 ?>
-<body class="hold-transition lockscreen" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Page::getProjectName() . '/lock-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+<body class="hold-transition lockscreen" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lock-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <!-- Automatic element centering -->
     <div class="lockscreen-wrapper card card-outline card-info">
         <div class="card-header text-center">
             <div class="lockscreen-logo">
-                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.customer-label', '<span>Medi</span>web'); ?></a><br>
+                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Medi</span>web'); ?></a><br>
                 Screen is locked
             </div>
         </div>

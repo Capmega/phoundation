@@ -5,23 +5,24 @@ declare(strict_types=1);
 namespace Phoundation\Web\Routing;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Templates\Template;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Throwable;
 
 
 /**
  * Class RouteSystem
  *
- * Core routing class that will route URL request queries to PHP scripts in the PATH_ROOT/www/LANGUAGE_CODE/ path
+ * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_ROOT/www/LANGUAGE_CODE/ path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class RouteSystem
@@ -36,15 +37,15 @@ class RouteSystem
     /**
      * Routing parameters for this system page
      *
-     * @var RoutingParameters $parameters
+     * @var RoutingParametersInterface $parameters
      */
-    protected RoutingParameters $parameters;
+    protected RoutingParametersInterface $parameters;
 
 
     /**
      * RouteSystem class constructor
      */
-    protected function __construct(RoutingParameters $parameters)
+    protected function __construct(RoutingParametersInterface $parameters)
     {
         $this->parameters  = $parameters;
         $this->system_page = Template::page('system/error');
@@ -54,10 +55,10 @@ class RouteSystem
     /**
      * Returns new RouteSystem object
      *
-     * @param RoutingParameters $parameters
+     * @param RoutingParametersInterface $parameters
      * @return static
      */
-    public static function new(RoutingParameters $parameters): static
+    public static function new(RoutingParametersInterface $parameters): static
     {
         return new static($parameters);
     }
@@ -179,7 +180,7 @@ class RouteSystem
         Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORKCODEVERSION . '</address>' : ''));
 
         try {
-            Route::execute($page ?? Config::get('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters);
+            Route::execute($page ?? Config::getString('web.pages.' . strtolower(str_replace(' ', '-', $variables['title'])), 'system/' . $variables['code'] . '.php'), false, $this->parameters, true);
 
         } catch (Throwable $e) {
             if ($e->getCode() === 'not-exists') {

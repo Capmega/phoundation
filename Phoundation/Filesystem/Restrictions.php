@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -18,7 +20,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -27,9 +29,9 @@ class Restrictions implements RestrictionsInterface
     /**
      * Internal store of all restrictions
      *
-     * @var array $paths
+     * @var array $source
      */
-    protected array $paths = [];
+    protected array $source = [];
 
     /**
      * Restrictions name
@@ -42,55 +44,81 @@ class Restrictions implements RestrictionsInterface
     /**
      * Restrictions constructor
      *
-     * @param Stringable|string|array|null $paths
+     * @param Stringable|string|array|null $directories
      * @param bool $write
      * @param string|null $label
      */
-    public function __construct(Stringable|string|array|null $paths = null, bool $write = false, ?string $label = null)
+    public function __construct(Stringable|string|array|null $directories = null, bool $write = false, ?string $label = null)
     {
         if ($label) {
             $this->label = $label;
         }
 
-        if ($paths) {
-            $this->setPaths($paths, $write);
+        if ($directories) {
+            $this->setSource($directories, $write);
         }
     }
 
 
     /**
-     * Return the paths for this Restrictions object in string format
+     * Return the directories for this Restrictions object in string format
      *
      * @return string
      */
     public function __toString(): string
     {
-        return implode(',', array_keys($this->paths));
+        return implode(',', array_keys($this->source));
     }
 
 
     /**
-     * Return the paths for this Restrictions object
+     * Return the directories for this Restrictions object
      *
      * @return array
      */
     public function __toArray(): array
     {
-        return $this->paths;
+        return $this->source;
     }
 
 
     /**
      * Returns a new Restrictions object with the specified restrictions
      *
-     * @param Stringable|string|array|null $paths
+     * @param Stringable|string|array|null $directories
      * @param bool $write
      * @param string|null $label
      * @return static
      */
-    public static function new(Stringable|string|array|null $paths = null, bool $write = false, ?string $label = null): static
+    public static function new(Stringable|string|array|null $directories = null, bool $write = false, ?string $label = null): static
     {
-        return new static($paths, $write, $label);
+        return new static($directories, $write, $label);
+    }
+
+
+    /**
+     * Returns a new writable Restrictions object with the specified restrictions
+     *
+     * @param Stringable|string|array|null $directories
+     * @param string|null $label
+     * @return static
+     */
+    public static function writable(Stringable|string|array|null $directories = null, ?string $label = null): static
+    {
+        return new static($directories, true, $label);
+    }
+
+
+    /**
+     * Returns a new readonly Restrictions object with the specified restrictions
+     *
+     * @param Stringable|string|array|null $directories
+     * @param string|null $label
+     * @return static
+     */
+    public static function readonly(Stringable|string|array|null $directories = null, ?string $label = null): static
+    {
+        return new static($directories, false, $label);
     }
 
 
@@ -124,13 +152,13 @@ class Restrictions implements RestrictionsInterface
      * @param RestrictionsInterface|array|string|null $restrictions  The restriction data that must be ensured to be a
      *                                                      Restrictions object
      * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $write modifier for that object
+     *                                                      but as a directory string, or array of directory strings,
+     *                                                      then this method will convert that into a Restrictions
+     *                                                      object and this is the $write modifier for that object
      * @param string|null $label                            If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $label modifier for that object
+     *                                                      but as a directory string, or array of directory strings,
+     *                                                      then this method will convert that into a Restrictions
+     *                                                      object and this is the $label modifier for that object
      * @return Restrictions                                 A Restrictions object. If possible, the specified
      *                                                      restrictions will be returned but if no $restictions were
      *                                                      specified ($restrictions was null or an empty string), the
@@ -140,7 +168,7 @@ class Restrictions implements RestrictionsInterface
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {
-                // Restrictions were specified by simple path string or array of paths. Convert to restrictions object
+                // Restrictions were specified by simple directory string or array of directories. Convert to restrictions object
                 $restrictions = new Restrictions($restrictions, $write, $label);
             }
 
@@ -152,19 +180,39 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
-     * Returns a restrictions object with parent paths for all paths in this restrictions object
+     * Returns a restrictions object with parent directories for all directories in this restrictions object
      *
-     * This is useful for the Path object where one will want to be able to access or create the parent path of the file
+     * This is useful for the Directory object where one will want to be able to access or create the parent directory of the file
      * that needs to be accessed
      *
+     * @param int|null $levels
      * @return Restrictions
      */
-    public function getParent(): Restrictions
+    public function getParent(?int $levels = null): Restrictions
     {
+        if (!$levels) {
+            $levels = 1;
+        }
+
         $restrictions = Restrictions::new()->setLabel($this->label);
 
-        foreach ($this->paths as $path => $write) {
-            $restrictions->addPath(dirname($path), $write);
+        foreach ($this->source as $directory => $write) {
+            // Negative level will calculate in reverse
+            if (!$levels) {
+                throw new OutOfBoundsException(tr('Invalid level ":level" specified, must be a positive or negative integer, and cannot be 0', [
+                    ':level' => $levels
+                ]));
+            }
+
+            if ($levels > 0) {
+                $parent = Strings::until($directory, '/', $levels);
+
+            } else {
+                $count  = Path::countDirectories($directory);
+                $parent = Strings::until($directory, '/', $count + $levels);
+            }
+
+            $restrictions->addDirectory($parent, $write);
         }
 
         return $restrictions;
@@ -172,22 +220,22 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
-     * Returns a restrictions object with the current path and the specified child path attached
+     * Returns a restrictions object with the current directory and the specified child directory attached
      *
      * This is useful when we want more strict restrictions
      *
-     * @param string|array $child_paths
+     * @param string|array $child_directories
      * @param bool|null $write
      * @return Restrictions
      */
-    public function getChild(string|array $child_paths, ?bool $write = null): Restrictions
+    public function getChild(string|array $child_directories, ?bool $write = null): Restrictions
     {
         $restrictions = Restrictions::new()->setLabel($this->label);
-        $child_paths  = Arrays::force($child_paths);
+        $child_directories  = Arrays::force($child_directories);
 
-        foreach ($this->paths as $path => $original_write) {
-            foreach ($child_paths as $child) {
-                $restrictions->addPath(Strings::slash($path) . Strings::startsNotWith($child, '/'), $write ?? $original_write);
+        foreach ($this->source as $directory => $original_write) {
+            foreach ($child_directories as $child) {
+                $restrictions->addDirectory(Strings::slash($directory) . Strings::startsNotWith($child, '/'), $write ?? $original_write);
             }
         }
 
@@ -196,53 +244,54 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
-     * Clear all paths for this restriction
+     * Clear all directories for this restriction
      *
      * @return static
      */
-    public function clearPaths(): static
+    public function clearDirectories(): static
     {
-        $this->paths = [];
+        $this->source = [];
         return $this;
     }
 
 
     /**
-     * Set all paths for this restriction
+     * Set all directories for this restriction
      *
-     * @param Stringable|array|string $paths
+     * @param Stringable|array|string $directories
      * @param bool $write
      * @return static
      */
-    public function setPaths(Stringable|array|string $paths, bool $write = false): static
+    public function setSource(Stringable|array|string $directories, bool $write = false): static
     {
-        $this->paths = [];
-        return $this->addPaths($paths, $write);
+        $this->source = [];
+        return $this->addDirectories($directories, $write);
     }
 
 
     /**
-     * Set all paths for this restriction
+     * Set all directories for this restriction
      *
-     * @param Stringable|array|string $paths
+     * @param Stringable|array|string $directories
      * @param bool $write
      * @return static
      */
-    public function addPaths(Stringable|array|string $paths, bool $write = false): static
+    public function addDirectories(Stringable|array|string $directories, bool $write = false): static
     {
-        foreach (Arrays::force($paths) as $path => $path_write) {
-            if (is_numeric($path)) {
-                // Path array was not specified as [path => write, path => write, ...] but as [path, path, ...]
-                // Get the correct path names and use the "global" $write flag instead
-                $path       = $path_write;
-                $path_write = $write;
+        foreach (Arrays::force($directories) as $directory => $directory_write) {
+            if (is_numeric($directory)) {
+                // Directory array was not specified as [directory => write, directory => write, ...] but as
+                // [directory, directory, ...]
+                // Get the correct directory names and use the "global" $write flag instead
+                $directory  = $directory_write;
+                $directory_write = $write;
             }
 
-            if (is_array($path)) {
-                $this->addPaths($paths, $path_write);
+            if (is_array($directory)) {
+                $this->addDirectories($directories, $directory_write);
 
             } else {
-                $this->addPath($path, $path_write);
+                $this->addDirectory($directory, $directory_write);
             }
         }
 
@@ -251,27 +300,27 @@ class Restrictions implements RestrictionsInterface
 
 
     /**
-     * Add new path for this restriction
+     * Add new directory for this restriction
      *
-     * @param Stringable|string $path
+     * @param Stringable|string $directory
      * @param bool $write
      * @return static
      */
-    public function addPath(Stringable|string $path, bool $write = false): static
+    public function addDirectory(Stringable|string $directory, bool $write = false): static
     {
-        $this->paths[Filesystem::absolute($path, null, false)] = $write;
+        $this->source[Filesystem::absolute($directory, null, false)] = $write;
         return $this;
     }
 
 
     /**
-     * Returns all paths for this restriction
+     * Returns all directories for this restriction
      *
      * @return array
      */
-    public function getPaths(): array
+    public function getSource(): array
     {
-        return $this->paths;
+        return $this->source;
     }
 
 
@@ -322,27 +371,27 @@ class Restrictions implements RestrictionsInterface
      */
     public function check(Stringable|array|string &$patterns, bool $write): void
     {
-        if (!$this->paths) {
-            throw new RestrictionsException(tr('The ":label" restrictions have no paths specified', [
+        if (!$this->source) {
+            throw new RestrictionsException(tr('The ":label" restrictions have no directories specified', [
                 ':label' => $this->label
             ]));
         }
 
-        // Check each specified path pattern to see if its allowed or restricted
+        // Check each specified directory pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as &$pattern) {
-            foreach ($this->paths as $path => $restrict_write) {
-                $path    = Filesystem::absolute($path   , null, false);
+            foreach ($this->source as $directory => $restrict_write) {
+                $directory    = Filesystem::absolute($directory   , null, false);
                 $pattern = Filesystem::absolute($pattern, null, false);
 
-                if (str_starts_with($pattern, $path)) {
+                if (str_starts_with($pattern, $directory)) {
                     if ($write and !$restrict_write) {
-                        throw RestrictionsException::new(tr('Write access to path patterns ":patterns" denied by ":label" restrictions', [
+                        throw RestrictionsException::new(tr('Write access to directory patterns ":patterns" denied by ":label" restrictions', [
                             ':patterns' => $pattern,
                             ':label'    => $this->label
                         ]))->addData([
                             'label'    => $this->label,
                             'patterns' => $patterns,
-                            'paths'    => $this->paths
+                            'directories'    => $this->source
                         ]);
                     }
 
@@ -352,14 +401,14 @@ class Restrictions implements RestrictionsInterface
             }
 
             // The specified pattern(s) are not allowed by the specified restrictions
-            throw RestrictionsException::new(tr('Access to requested path patterns ":patterns" denied by ":label" restrictions', [
+            throw RestrictionsException::new(tr('Access to requested directory patterns ":patterns" denied by ":label" restrictions', [
                 ':patterns' => $pattern,
                 ':label'    => $this->label
             ]))->addData([
-                'label'    => $this->label,
-                'patterns' => $patterns,
-                'paths'    => $this->paths
-            ])->makeWarning();
+                'label'       => $this->label,
+                'patterns'    => $patterns,
+                'directories' => $this->source
+            ]);
         }
     }
 
@@ -374,7 +423,24 @@ class Restrictions implements RestrictionsInterface
         static $restrictions;
 
         if (empty($restrictions)) {
-            $restrictions = Restrictions::new(PATH_DATA, false, 'System');
+            $restrictions = Restrictions::new(DIRECTORY_DATA, false, 'System');
+        }
+
+        return $restrictions;
+    }
+
+
+    /**
+     * Return these restrictions but with write enabled
+     *
+     * @return RestrictionsInterface
+     */
+    public function getWritable(): RestrictionsInterface
+    {
+        $restrictions = new Restrictions();
+
+        foreach ($this->source as $path => $write) {
+            $restrictions->addDirectory($path, true);
         }
 
         return $restrictions;

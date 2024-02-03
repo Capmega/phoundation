@@ -8,11 +8,11 @@ use GeoIp2\Database\Reader;
 use GeoIp2\Exception\AddressNotFoundException;
 use GeoIp2\Model\City;
 use MaxMind\Db\Reader\InvalidDatabaseException;
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataPath;
+use Phoundation\Data\Traits\DataDirectory;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Config;
 use Throwable;
 
 
@@ -23,12 +23,13 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Geo
  */
 class MaxMind extends GeoIp
 {
-    Use DataPath;
+    Use DataDirectory;
+
 
     /**
      * The location record
@@ -49,8 +50,8 @@ class MaxMind extends GeoIp
      */
     public function __construct()
     {
-        $this->path = PATH_DATA . 'sources/geoip/maxmind/';
-        $this->pro  = Config::getBoolean('geo.ip.maxmind.pro', false);
+        $this->directory = DIRECTORY_DATA . 'sources/geoip/maxmind/';
+        $this->pro       = Config::getBoolean('geo.ip.maxmind.pro', false);
     }
 
 
@@ -92,7 +93,7 @@ class MaxMind extends GeoIp
     public function setIpAddress(?string $ip_address): static
     {
         try {
-            $cityDbReader = new Reader($this->path . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'));
+            $cityDbReader = new Reader($this->directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'));
 
             $this->ip_address = $ip_address;
             $this->record     = $cityDbReader->city($ip_address);
@@ -149,7 +150,7 @@ class MaxMind extends GeoIp
             if (str_contains($e->getMessage(), 'Failed to open stream: No such file or directory')) {
                 // Database file does not exist, try to download it?
                 Log::warning(tr('MaxMind database file ":file" was not found, maybe try running "./pho system geo ip import" ?', [
-                    ':file' => $this->path . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb')
+                    ':file' => $this->directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb')
                 ]));
 
                 throw $e;

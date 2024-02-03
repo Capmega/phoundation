@@ -7,7 +7,6 @@ namespace Phoundation\Core;
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Core\Interfaces\TimersInterface;
-use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -18,7 +17,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Core
  * @see Timer
  */
@@ -87,7 +86,7 @@ class Timers implements TimersInterface
 
 
     /**
-     * Returns the amount of timer groups
+     * Returns the number of timer groups
      *
      * @return int
      */

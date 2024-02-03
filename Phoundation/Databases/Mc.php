@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Memcached;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
-use Phoundation\Core\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Utils\Exception\ConfigurationInvalidException;
+use Phoundation\Web\Html\Enums\DisplayMode;
 use Throwable;
 
 
@@ -24,10 +27,10 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Mc
+class Mc implements DatabaseInterface
 {
     /**
      * PHP Memcached drivers
@@ -70,21 +73,21 @@ class Mc
      * MC constructor.
      *
      * @note Instance always defaults to "system" if not specified
-     * @param string|null $instance_name
+     * @param ConnectorInterface|string|null $connector
      */
-    public function __construct(?string $instance_name = null)
+    public function __construct(ConnectorInterface|string|null $connector = null)
     {
         if (!class_exists('Memcached')) {
             throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
 
         // Get the configuration for the specified instance. Always default to "system"
-        if (!$instance_name) {
-            $instance_name = 'system';
+        if (!$connector) {
+            $connector = 'mc_system';
         }
 
         // Get instance information and connect to memcached servers
-        $this->instance_name = $instance_name;
+        $this->instance_name = $connector;
         $this->memcached     = new Memcached();
         $this->namespace     = new MemcachedNamespace($this);
 
@@ -242,12 +245,12 @@ class Mc
      *
      *
      * @param mixed $value
-     * @param string $key
+     * @param string|float|int $key
      * @param string|null $namespace
      * @param int|null $expires
      * @return false|mixed
      */
-    public function add(mixed $value, string $key, ?string $namespace = null, ?int $expires = null): mixed
+    public function add(mixed $value, string|float|int|null $key, ?string $namespace = null, ?int $expires = null): mixed
     {
         if (!$this->connections) {
             return $value;
@@ -256,8 +259,11 @@ class Mc
         $key = $this->namespace()->getKey($key, $namespace);
         $expires = $expires ?? $this->configuration['expires'];
 
-        if (!$this->memcached->add($key, $value, $expires)) {
-            Log::warning(tr('Failed to add ":bytes" bytes value to key ":key"', [':key' => $key, ':bytes' => strlen($value)]));
+        if (!$this->memcached->add($value, $key, $expires)) {
+            Log::warning(tr('Failed to add ":bytes" bytes value to key ":key"', [
+                ':key'   => $key,
+                ':bytes' => strlen($value)
+            ]));
         }
 
         return $value;
@@ -403,16 +409,16 @@ class Mc
     protected function readConfiguration(): void
     {
         // Read the configuration
-        $this->configuration = Config::getArray('databases.memcached.instances.' . $this->instance_name);
+        $this->configuration = Config::getArray('databases.connectors.' . $this->instance_name);
 
         // Ensure that all required keys are available
         Arrays::ensure($this->configuration , 'connections');
         Arrays::default($this->configuration, 'expires', 86400);
-        Arrays::default($this->configuration, 'prefix', gethostname());
+        Arrays::default($this->configuration, 'prefix' , gethostname());
 
         // Default connections to localhost if nothing was defined
         if (empty($this->configuration['connections'])) {
-            throw ConfigurationDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
+            throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
                 ':instance' => $this->instance_name
             ]))->makeWarning();
         }
@@ -429,7 +435,7 @@ class Mc
             if (!is_array($connection)) {
                 if ($connection) {
                     throw new ConfigurationInvalidException(tr('Configuration path ":path" contains invalid information', [
-                        ':path' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                        ':path' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight
                     ]));
                 }
 
@@ -469,10 +475,10 @@ class Mc
                     $this->connections[] = $connection;
 
                 } catch (Throwable $e) {
-                    Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration path ":path"', [
+                    Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration directory ":directory"', [
                         ':host' => $connection['host'],
                         ':port' => $connection['port'],
-                        ':path' => 'databases.memcached.instances.' . $this->instance_name . '.connections.' . $weight
+                        ':directory' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight
                     ]));
                     Log::error($e);
                     $failed++;
@@ -488,12 +494,24 @@ class Mc
                         ->setUrl('developer/incidents.html')
                         ->setMode(DisplayMode::warning)
                         ->setCode('not-available')
-                        ->addRole('developers')
+                        ->addRole('developer')
                         ->setTitle(tr('Memcached server not available'))
                         ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
                         ->send();
                 }
             }
         }
+    }
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        throw new UnderConstructionException();
+        return $this;
     }
 }

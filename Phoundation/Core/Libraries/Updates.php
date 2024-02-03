@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
+use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
-use Phoundation\Data\Validator\Validate;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -20,10 +20,10 @@ use Phoundation\Exception\UnexpectedValueException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
-abstract class Updates
+abstract class Updates implements UpdatesInterface
 {
     /**
      * The name for this library
@@ -67,10 +67,17 @@ abstract class Updates
     public function __construct()
     {
         // Detect the library name
-        $library = Strings::untilReverse(get_class($this), '\\');
-        $library = Strings::fromReverse($library, '\\');
-        $library = strtolower($library);
+        $library = strtolower(get_class($this));
 
+        do {
+            $library = Strings::untilReverse($library, '\\');
+            $test    = Strings::fromReverse($library, '\\');
+
+        } while ($test === 'library');
+
+        $library = $test;
+
+        // Load the updates and the code version
         $this->updates();
         $code_version = $this->version();
 
@@ -94,7 +101,7 @@ abstract class Updates
             ]));
         }
 
-        $this->file         = PATH_ROOT . str_replace('\\', '/', get_class($this)) . '.php';
+        $this->file         = DIRECTORY_ROOT . str_replace('\\', '/', get_class($this)) . '.php';
         $this->library      = $library;
         $this->code_version = $code_version;
     }
@@ -181,17 +188,19 @@ abstract class Updates
 
         if (($version === null) or ($version === '0.0.0')) {
             // There is no version registered in the database at all, so the first available init is it!
-            if ($this->updates) {
-                return array_key_first($this->updates);
+            if (!$this->updates) {
+                // Err, the update file contains no updates!
+                return null;
             }
 
-            // Err, the update file contains no updates!
-            return null;
+            $next_version = array_key_first($this->updates);
+
+        } else {
+            // Get the next available update version in the updates file. NULL if there are no versions
+            $next_version = $this->getNextVersion($this->updates, $version);
         }
 
-        // Get the next available update version in the updates file. NULL if there are no versions
-        $next_version = $this->getNextVersion($this->updates, $version);
-//Log::warning('Next version for ' . $this->library . ' after ' . $version . ' is ' . $next_version);
+//Log::warning('Next version for ' . $this->library . ' after ' . ($version ?? 'N/A') . ' is ' . $next_version);
 
         if ($next_version) {
             if ($this->isFuture($next_version)) {

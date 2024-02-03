@@ -14,23 +14,17 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Geo\Timezones\Timezone;
-use Phoundation\Web\Http\Html\Components\DataEntryForm;
-use Phoundation\Web\Http\Html\Components\Entry;
-use Phoundation\Web\Http\Html\Components\Form;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Components\DataEntryForm;
+use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**
@@ -41,13 +35,26 @@ use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
  * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class Role extends DataEntry implements RoleInterface
 {
     use DataEntryNameLowercaseDash;
     use DataEntryDescription;
+
+
+    /**
+     * Role class constructor
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        return parent::__construct(static::convertToLowerCaseDash($identifier), $column, $meta_enabled);
+    }
 
 
     /**
@@ -77,7 +84,7 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
     }
@@ -117,17 +124,17 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
-        $entry  = DataEntryForm::new();
+        $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
         $rights = Rights::new();
         $select = $rights->getHtmlSelect()->setCache(true)->setName($name);
 
         // Add extra entry with nothing selected
         $select->clearSelected();
-        $entry->addContent($select->render() . '<br>');
+        $entry->appendContent($select->render() . '<br>');
 
         foreach ($this->getRights() as $right) {
             $select->setSelected($right->getId());
-            $entry->addContent($select->render() . '<br>');
+            $entry->appendContent($select->render() . '<br>');
         }
 
         return $entry;
@@ -135,22 +142,24 @@ class Role extends DataEntry implements RoleInterface
 
 
     /**
-     * Returns a DataEntry object matching the specified identifier
+     * Returns a Role object matching the specified identifier
      *
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
-     * @return static|null
-     * @throws RoleNotExistsExceptionInterface|OutOfBoundsExceptionInterface
+     * @param bool $meta_enabled
+     * @param bool $force
+     * @param bool $no_identifier_exception
+     * @return Role
      */
-    public static function get(DataEntryInterface|string|int|null $identifier = null, ?string $column = null): ?static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get($identifier, $column);
+            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
 
-        } catch (DataEntryNotExistsExceptionInterface $e) {
+        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
         }
     }
@@ -177,12 +186,12 @@ class Role extends DataEntry implements RoleInterface
 
         // This role must get all rights from the $FROM role
         foreach ($from->getRights() as $right) {
-            $this->getRights()->addRight($right);
+            $this->getRights()->add($right);
         }
 
         // All users that have the $FROM role must get this role too
         foreach ($from->getUsers() as $user) {
-            $user->getRoles()->addRole($this);
+            $user->getRoles()->add($this);
         }
 
         // Remove the "from" role
@@ -201,6 +210,7 @@ class Role extends DataEntry implements RoleInterface
     {
         $definitions
             ->addDefinition(DefinitionFactory::getName($this)
+                ->setOptional(false)
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)

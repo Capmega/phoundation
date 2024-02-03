@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplayMode;
 
 
 /**
@@ -15,7 +15,7 @@ use Phoundation\Web\Http\Html\Enums\DisplayMode;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryIcon
@@ -27,7 +27,7 @@ trait DataEntryIcon
      */
     public function getIcon(): ?string
     {
-        $return = $this->getSourceFieldValue('string', 'icon');
+        $return = $this->getSourceColumnValue('string', 'icon');
 
         if (!$return) {
             // Assign default icon
@@ -60,4 +60,3 @@ trait DataEntryIcon
         return $this->setSourceValue('icon', $icon);
     }
 }
-

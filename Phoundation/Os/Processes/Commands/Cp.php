@@ -18,7 +18,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Cp extends Command
@@ -44,7 +44,7 @@ class Cp extends Command
         Directory::new(dirname($target), $target_restrictions)->ensure();
 
         // Build the process parameters, then execute
-        $this->setInternalCommand('cp')
+        $this->setCommand('cp')
              ->clearArguments()
              ->addArgument('-a')
              ->addArguments($source)

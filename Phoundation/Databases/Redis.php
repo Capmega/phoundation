@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Core\Exception\ConfigurationDoesNotExistsException;
 use Phoundation\Databases\Exception\RedisException;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigException;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Json;
 
 
@@ -20,10 +21,10 @@ use Phoundation\Utils\Json;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-class Redis extends \Redis
+class Redis extends \Redis implements DatabaseInterface
 {
     /**
      * Configuration
@@ -113,7 +114,7 @@ class Redis extends \Redis
      * Get the document for the specified key from the specified collection
      *
      * @param $key
-     * @return int The amount of documents deleted
+     * @return int The number of documents deleted
      */
     public function delete($key): int
     {
@@ -133,8 +134,8 @@ class Redis extends \Redis
         $this->instance = $instance;
 
         try {
-            $configuration = Config::get('databases.redis.instances.' . $instance);
-        } catch (ConfigurationDoesNotExistsException $e) {
+            $configuration = Config::get('databases.redis.connectors.' . $instance);
+        } catch (ConfigPathDoesNotExistsException $e) {
             throw new RedisException(tr('The specified redis instance ":instance" is not configured', [
                 ':instance' => $instance
             ]));
@@ -160,5 +161,17 @@ class Redis extends \Redis
         // Copy the configuration options over the template
         $this->configuration = Arrays::mergeFull($template, $configuration);
         $this->database      = $this->configuration['database'];
+    }
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        throw new UnderConstructionException();
+        return $this;
     }
 }

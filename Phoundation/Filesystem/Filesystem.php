@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\Interfaces\FileBasicsInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -23,7 +21,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -212,53 +210,53 @@ class Filesystem
 
 
     /**
-     * Return the absolute path for the specified path
+     * Return the absolute directory for the specified directory
      *
-     * @note If the specified path exists, and it is a directory, this function will automatically add a trailing / to
-     *       the path name
-     * @param Stringable|string|null $path
+     * @note If the specified directory exists, and it is a directory, this function will automatically add a trailing / to
+     *       the directory name
+     * @param Stringable|string|null $directory
      * @param Stringable|string|null $prefix
      * @param bool $must_exist
-     * @return string The absolute path
+     * @return string The absolute directory
      */
-    public static function absolute(Stringable|string|null $path = null, Stringable|string|null $prefix = null, bool $must_exist = true): string
+    public static function absolute(Stringable|string|null $directory = null, Stringable|string|null $prefix = null, bool $must_exist = true): string
     {
-        $path = trim((string) $path);
+        $directory = trim((string) $directory);
 
-        if (!$path) {
-            return PATH_ROOT;
+        if (!$directory) {
+            return DIRECTORY_ROOT;
         }
 
-        Filesystem::validateFilename($path);
+        Filesystem::validateFilename($directory);
 
-        if (str_starts_with($path, '/')) {
-        // This is already an absolute path
-            $return = $path;
+        if (str_starts_with($directory, '/')) {
+        // This is already an absolute directory
+            $return = $directory;
 
-        } elseif (str_starts_with($path, '~')) {
+        } elseif (str_starts_with($directory, '~')) {
             // This is a user home directory
-            $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($path, 1), '/');
+            $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($directory, 1), '/');
 
-        } elseif (str_starts_with($path, './')) {
+        } elseif (str_starts_with($directory, './')) {
             // This is a user home directory
-            $return = STARTDIR . substr($path, 2);
+            $return = STARTDIR . substr($directory, 2);
 
         } else {
-            // This is not an absolute path, make it an absolute path
+            // This is not an absolute directory, make it an absolute directory
             $prefix = trim((string) $prefix);
 
             if (!$prefix) {
-                $prefix = PATH_ROOT;
+                $prefix = DIRECTORY_ROOT;
             } else {
                 switch ($prefix) {
                     case 'css':
-                        $prefix = PATH_CDN . LANGUAGE . '/css/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
                         break;
 
                     case 'js':
                         // no-break
                     case 'javascript':
-                        $prefix = PATH_CDN . LANGUAGE . '/js/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
                         break;
 
                     case 'img':
@@ -266,24 +264,24 @@ class Filesystem
                     case 'image':
                         // no-break
                     case 'images':
-                        $prefix = PATH_CDN . LANGUAGE . '/img/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
                         break;
 
                     case 'font':
                         // no-break
                     case 'fonts':
-                        $prefix = PATH_CDN . LANGUAGE . '/fonts/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
                         break;
 
                     case 'video':
                         // no-break
                     case 'videos':
-                        $prefix = PATH_CDN . LANGUAGE . '/video/';
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
                         break;
                 }
             }
 
-            $return = Strings::slash($prefix) . Strings::unslash($path);
+            $return = Strings::slash($prefix) . Strings::unslash($directory);
         }
 
         // If this is a directory, make sure it has a slash suffix
@@ -293,13 +291,14 @@ class Filesystem
             }
         } else {
             if ($must_exist) {
-                throw new FileNotExistException(tr('The specified file or path ":path" with prefix ":prefix" does not exist', [
-                    ':prefix' => $prefix,
-                    ':path'   => $path
+                throw new FileNotExistException(tr('The resolved path ":resolved" for the specified path ":directory" with prefix ":prefix" does not exist', [
+                    ':prefix'    => $prefix,
+                    ':directory' => $directory,
+                    ':resolved'  => $return
                 ]));
             }
 
-            // Path doesn't exist, but apparently that's okay! Continue!
+            // The path doesn't exist, but apparently that's okay! Continue!
         }
 
         return $return;
@@ -307,16 +306,16 @@ class Filesystem
 
 
     /**
-     * realpath() wrapper that won't crash with an exception if the specified string is not a real path
+     * realdirectory() wrapper that won't crash with an exception if the specified string is not a real directory
      *
-     * @param string $path
-     * @return ?string string The real path extrapolated from the specified $path, if exists. False if whatever was
+     * @param string $directory
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
      *                 specified does not exist.
      *
      * @example
      * code
-     * show(is_path('test'));
-     * showdie(is_path('/bin'));
+     * show(is_directory('test'));
+     * showdie(is_directory('/bin'));
      * /code
      *
      * This would return
@@ -326,16 +325,16 @@ class Filesystem
      * /code
      *
      */
-    public static function real(string $path): ?string
+    public static function real(string $directory): ?string
     {
         try {
-            return realpath($path);
+            return realdirectory($directory);
 
         }catch(Throwable $e) {
-            // If PHP threw an error for the path not being a path at all, just return false
+            // If PHP threw an error for the directory not being a directory at all, just return false
             $message = $e->getMessage();
 
-            if (str_contains($message, 'expects parameter 1 to be a valid path')) {
+            if (str_contains($message, 'expects parameter 1 to be a valid directory')) {
                 return null;
             }
 
@@ -349,17 +348,17 @@ class Filesystem
      * Creates a temporary directory
      *
      * @param bool $public
-     * @return Directory A Path object with the temp directory
+     * @return Directory A Directory object with the temp directory
      */
     public static function createTempDirectory(bool $public = true) : Directory
     {
         // Public or private TMP?
-        $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
-        $path     = static::createTemp($tmp_path);
+        $tmp_directory = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
+        $directory     = static::createTemp($tmp_directory);
 
-        mkdir($path);
+        mkdir($directory);
 
-        return new Directory($path, Restrictions::new($tmp_path, true));
+        return new Directory($directory, Restrictions::new($tmp_directory, true));
     }
 
 
@@ -368,17 +367,18 @@ class Filesystem
      *
      * @param bool $public
      * @param string|null $extension
-     * @return File A Path object with the temp directory
+     * @return File A File object with the temp directory
+     * @deprecated
      */
     public static function createTempFile(bool $public = true, ?string $extension = null) : File
     {
         // Public or private TMP?
-        $tmp_path = ($public ? PATH_PUBTMP : PATH_TMP);
-        $file     = static::createTemp($tmp_path, $extension);
+        $tmp_directory = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
+        $file     = static::createTemp($tmp_directory, $extension);
 
         touch($file);
 
-        return new File($file, Restrictions::new($tmp_path, true));
+        return new File($file, Restrictions::new($tmp_directory, true));
     }
 
 
@@ -425,24 +425,24 @@ class Filesystem
 
 
     /**
-     * Return a system path for the specified type
+     * Return a system directory for the specified type
      *
      * @param string $type
-     * @param string $path
+     * @param string $directory
      * @return string
      */
-    public static function systemPath(string $type, string $path = ''): string
+    public static function systemDirectory(string $type, string $directory = ''): string
     {
         switch ($type) {
             case 'img':
                 // no-break
             case 'image':
-                return '/pub/img/' . $path;
+                return '/pub/img/' . $directory;
 
             case 'css':
                 // no-break
             case 'style':
-                return '/pub/css/' . $path;
+                return '/pub/css/' . $directory;
 
             default:
                 throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
@@ -451,16 +451,16 @@ class Filesystem
 
 
     /**
-     * Creates a path to a temporary directory or file
+     * Creates a directory to a temporary directory or file
      *
-     * @param string $tmp_path
+     * @param string $tmp_directory
      * @param string|null $extension
-     * @return string Path to the tmp file or directory
+     * @return string Directory to the tmp file or directory
      */
-    protected static function createTemp(string $tmp_path, ?string $extension = null) : string
+    protected static function createTemp(string $tmp_directory, ?string $extension = null) : string
     {
-        // Ensure that the TMP path exists
-        Directory::new($tmp_path, $tmp_path)->ensure();
+        // Ensure that the TMP directory exists
+        Directory::new($tmp_directory, $tmp_directory)->ensure();
 
         // All temp files and directories are limited to their sessions
         $session_id = session_id();
@@ -474,36 +474,13 @@ class Filesystem
             $file .= '.' . $extension;
         }
 
-        $file = $tmp_path . $file;
+        $file = $tmp_directory . $file;
 
         // Temp directory can not exist yet
         if (file_exists($file)) {
-            File::new($file, Restrictions::new($tmp_path, true, 'temporary'))->delete();
+            File::new($file, Restrictions::new($tmp_directory, true, 'temporary'))->delete();
         }
 
         return $file;
-    }
-
-
-    /**
-     * Returns a File object for the specified file or Path object for the specified directory
-     *
-     * @param Stringable|string $file
-     * @param RestrictionsInterface $restrictions
-     * @return FileBasicsInterface
-     */
-    public static function get(Stringable|string $file, RestrictionsInterface $restrictions): FileBasicsInterface
-    {
-        if (is_dir($file)) {
-            return Directory::new($file, $restrictions);
-        }
-
-        if (file_exists($file)) {
-            return File::new($file, $restrictions);
-        }
-
-        throw new FileNotExistException(tr('The specified file ":file" does not exist', [
-            ':file' => $file
-        ]));
     }
 }

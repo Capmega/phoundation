@@ -22,7 +22,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Audio
  */
 class Audio extends File
@@ -37,8 +37,8 @@ class Audio extends File
     {
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
-                Mplayer::new(Restrictions::new(PATH_DATA . 'audio', true))
-                    ->setFile(Filesystem::absolute($this->file, PATH_DATA . 'audio'))
+                Mplayer::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
+                    ->setFile(Filesystem::absolute($this->path, DIRECTORY_DATA . 'audio'))
                     ->play($background);
 
             } catch (FileNotExistException|ProcessesException $e) {
@@ -65,9 +65,9 @@ class Audio extends File
             case EnumRequestTypes::html:
                 // no break
             case EnumRequestTypes::admin:
-                Page::addToFooter('html', \Phoundation\Web\Http\Html\Components\Audio::new()
+                Page::addToFooter('html', \Phoundation\Web\Html\Components\Audio::new()
                     ->addClass($class)
-                    ->setFile($this->file)
+                    ->setFile($this->path)
                     ->render());
                 break;
 

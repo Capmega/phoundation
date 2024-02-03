@@ -7,8 +7,6 @@ namespace Phoundation\Core\Meta;
 use DateTime;
 use Exception;
 use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
@@ -19,8 +17,10 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Http\Html\Components\HtmlTable;
-use Phoundation\Web\Http\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Components\HtmlTable;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
@@ -32,7 +32,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Core
  */
 class Meta implements MetaInterface
@@ -66,6 +66,13 @@ class Meta implements MetaInterface
     protected static bool $buffer;
 
     /**
+     * Maximum buffer size until a flush is forced
+     *
+     * @var int $max_buffer
+     */
+    protected static int $max_buffer = 100;
+
+        /**
      * In case buffer mode is enabled, all meta updates will be stored here until flushing
      *
      * @var array $updates
@@ -89,7 +96,8 @@ class Meta implements MetaInterface
     public function __construct(?int $id = null, bool $load = true)
     {
         if (!isset(static::$buffer)) {
-            static::$buffer = Config::getBoolean('meta.buffer', false);
+            static::$buffer     = Config::getBoolean('meta.buffer.enabled', false);
+            static::$max_buffer = Config::getInteger('meta.buffer.max-size', 100);
         }
 
         if ($id) {
@@ -216,16 +224,18 @@ class Meta implements MetaInterface
 
 
     /**
-     * Erases all meta history for the specified meta ids
+     * Erases all meta-history for the specified meta ids
      *
      * @param array|string|int $ids
      * @return void
      */
     public static function eraseEntries(array|string|int $ids): void
     {
-        // Erase the meta entry, the history will cascade
-        $ids = Sql::in(Arrays::force($ids));
-        sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+        // Erase the specified meta-entries, the history will cascade
+        if ($ids) {
+            $ids = Sql::in(Arrays::force($ids));
+            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+        }
     }
 
 
@@ -320,7 +330,7 @@ throw new UnderConstructionException();
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
                     ':created_by_' . static::$pointer => Session::getUser()->getId(),
-                    ':source_' . static::$pointer     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
+                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
                     ':data_' . static::$pointer       => $data
@@ -328,15 +338,20 @@ throw new UnderConstructionException();
             } else {
                 // Insert the action in the meta_history table
                 sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
-                                VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
+                                    VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
                     ':created_by' => Session::getUser()->getId(),
-                    ':source'     => (string) (PLATFORM_HTTP ? UrlBuilder::getCurrent() : CliCommand::getCurrent()),
+                    ':source'     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,
                     ':data'       => $data
                 ]);
             }
+        }
+
+
+        if (static::$pointer > static::$max_buffer) {
+            static::flush();
         }
 
         return $this;
@@ -365,6 +380,10 @@ throw new UnderConstructionException();
     {
         try {
             if (static::$updates) {
+                Log::action(tr('Flushing ":count" meta entries to database', [
+                    ':count' => count(static::$updates)
+                ]), 4);
+
                 $values  = ' (:meta_id_:ID , :created_by_:ID , :action_:ID , :source_:ID , :comments_:ID , :data_:ID)';
                 $execute = [];
 
@@ -379,6 +398,9 @@ throw new UnderConstructionException();
 
                 // Flush!
                 sql()->query($query, $execute);
+
+                static::$updates = [];
+                static::$pointer = 1;
             }
 
         } catch (Throwable $e) {

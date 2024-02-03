@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Docker;
 
-use Phoundation\Data\Traits\DataPath;
+use Phoundation\Data\Traits\DataDirectory;
 use Phoundation\Data\Traits\DataPort;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
@@ -20,12 +20,12 @@ use Phoundation\Virtualization\Traits\DataImage;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
 class DockerFile
 {
-    use DataPath;
+    use DataDirectory;
     use DataPort;
     use DataImage;
     use DataRestrictions;
@@ -41,16 +41,16 @@ class DockerFile
      * DockerFile class constructor
      *
      * @param string $image
-     * @param string $path
+     * @param string $directory
      */
-    public function __construct(string $image, string $path = PATH_ROOT)
+    public function __construct(string $image, string $directory = DIRECTORY_ROOT)
     {
         if (!$image) {
             throw new OutOfBoundsException(tr('No docker image specified'));
         }
 
         $this->setImage($image);
-        $this->setPath($path);
+        $this->setDirectory($directory);
     }
 
 
@@ -58,12 +58,12 @@ class DockerFile
      * Returns a new object
      *
      * @param string $image
-     * @param string $path
+     * @param string $directory
      * @return static
      */
-    public static function new(string $image, string $path = PATH_ROOT): static
+    public static function new(string $image, string $directory = DIRECTORY_ROOT): static
     {
-        return new static($image, $path);
+        return new static($image, $directory);
     }
 
 
@@ -99,17 +99,17 @@ class DockerFile
     public function writeConfig(): static
     {
         // Delete old docker configuration files
-        File::new($this->path . '.docker')->setRestrictions($this->restrictions->getChild('.docker'))->delete();
-        File::new($this->path . 'docker-compose.yml')->setRestrictions($this->restrictions->getChild('docker-compose.yml'))->delete();
+        File::new($this->directory . '.docker')->setRestrictions($this->restrictions->getChild('.docker'))->delete();
+        File::new($this->directory . 'docker-compose.yml')->setRestrictions($this->restrictions->getChild('docker-compose.yml'))->delete();
 
-        File::new($this->path . '.docker/Dockerfile')
+        File::new($this->directory . '.docker/Dockerfile')
             ->setRestrictions($this->restrictions->getChild('.docker/Dockerfile'))
             ->create('FROM php:8.2-apache
 COPY . /app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /app && a2enmod rewrite');
 
-        File::new($this->path . '.docker/vhost.conf')
+        File::new($this->directory . '.docker/vhost.conf')
             ->setRestrictions($this->restrictions->getChild('.docker/vhost.conf'))
             ->create('<VirtualHost *:80>
     DocumentRoot /app/public
@@ -121,14 +121,14 @@ RUN chown -R www-data:www-data /app && a2enmod rewrite');
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>');
 
-        File::new($this->path . 'docker-compose.yml')
+        File::new($this->directory . 'docker-compose.yml')
             ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
             ->create('version: ‘3’
 services:
   docker-tutorial:
     build:
       context: .
-      dockerfile: ' . $this->path . '.docker/Dockerfile
+      dockerfile: ' . $this->directory . '.docker/Dockerfile
     image: ' . $this->image . '
     ports:
       – 8080:80
@@ -150,9 +150,9 @@ services:
         $process = Process::new('docker')
             ->setSudo(true)
             ->setTimeout(300)
-            ->setRestrictions($this->path)
-            ->setExecutionPath($this->path)
-            ->addArguments(['build', '-f', $this->path . '.docker/Dockerfile', '-t', $this->image, '.']);
+            ->setRestrictions($this->directory)
+            ->setExecutionDirectory($this->directory)
+            ->addArguments(['build', '-f', $this->directory . '.docker/Dockerfile', '-t', $this->image, '.']);
 
         if ($passthru) {
             $process->executePassthru();

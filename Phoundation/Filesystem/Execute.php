@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Utils\Arrays;
 use Throwable;
 
 
@@ -20,7 +20,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
@@ -37,7 +37,7 @@ class Execute extends Directory implements ExecuteInterface
     protected bool $recurse = false;
 
     /**
-     * The mode that paths will receive when executing this each
+     * The mode that directories will receive when executing this each
      *
      * @var string|int|null $mode
      */
@@ -58,7 +58,7 @@ class Execute extends Directory implements ExecuteInterface
     protected ?array $whitelist_extensions = null;
 
     /**
-     * The paths to $skip
+     * The directories to $skip
      *
      * @var array $skip
      */
@@ -135,7 +135,7 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Returns the path mode that will be set for each path
+     * Returns the directory mode that will be set for each directory
      *
      * @return string|int|null
      */
@@ -146,7 +146,7 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Sets the path mode that will be set for each path
+     * Sets the directory mode that will be set for each directory
      *
      * @param string|int|null $mode
      * @return static
@@ -235,22 +235,22 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Returns the path that will be skipped
+     * Returns the directory that will be skipped
      *
      * @return array
      */
-    public function getSkipPaths(): array
+    public function getSkipDirectories(): array
     {
         return $this->skip;
     }
 
 
     /**
-     * Clears the paths that will be skipped
+     * Clears the directories that will be skipped
      *
      * @return static
      */
-    public function clearSkipPaths(): static
+    public function clearSkipDirectories(): static
     {
         $this->skip = [];
         return $this;
@@ -258,30 +258,30 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Sets the paths that will be skipped
+     * Sets the directories that will be skipped
      *
-     * @param string|array $paths
+     * @param string|array $directories
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setSkipPaths(string|array $paths): static
+    public function setSkipDirectories(string|array $directories): static
     {
         $this->skip = [];
-        return $this->addSkipPaths(Arrays::force($paths, ''));
+        return $this->addSkipDirectories(Arrays::force($directories, ''));
     }
 
 
     /**
-     * Adds the paths that will be skipped
+     * Adds the directories that will be skipped
      *
-     * @param string|array $paths
+     * @param string|array $directories
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPaths(string|array $paths): static
+    public function addSkipDirectories(string|array $directories): static
     {
-        foreach ($paths as $path) {
-            $this->addSkipPath($path);
+        foreach ($directories as $directory) {
+            $this->addSkipDirectory($directory);
         }
 
         return $this;
@@ -289,16 +289,16 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Sets the path that will be skipped
+     * Sets the directory that will be skipped
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function addSkipPath(string $path): static
+    public function addSkipDirectory(string $directory): static
     {
-        if ($path) {
-            $this->skip[] = Filesystem::absolute($path);
+        if ($directory) {
+            $this->skip[] = Filesystem::absolute($directory);
         }
 
         return $this;
@@ -331,21 +331,21 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Execute the callback function on each file in the specified path
+     * Execute the callback function on each file in the specified directory
      *
      * @param callable $callback
      * @return void
      */
-    public function onPathOnly(callable $callback): void
+    public function onDirectoryOnly(callable $callback): void
     {
-        $this->restrictions->check($this->file, true);
+        $this->restrictions->check($this->path, true);
 
-        foreach (Arrays::force($this->file, '') as $this->file) {
+        foreach (Arrays::force($this->path, '') as $this->path) {
             // Get al files in this directory
-            $this->file = Filesystem::absolute($this->file);
+            $this->path = Filesystem::absolute($this->path);
 
-            // Skip this path
-            if ($this->skip($this->file)) {
+            // Skip this directory
+            if ($this->skip($this->path)) {
                 continue;
             }
 
@@ -353,11 +353,11 @@ class Execute extends Directory implements ExecuteInterface
                 $mode = $this->switchMode($this->mode);
             }
 
-            Log::action(tr('Executing callback function on path ":path"', [
-                ':path' => $this->file
+            Log::action(tr('Executing callback function on directory ":directory"', [
+                ':directory' => $this->path
             ]), 2);
 
-            $callback($this->file);
+            $callback($this->path);
 
             // Return original file mode
             if (isset($mode)) {
@@ -368,7 +368,7 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Execute the callback function on each file in the specified path
+     * Execute the callback function on each file in the specified directory
      *
      * @param callable $callback
      * @return int
@@ -379,10 +379,10 @@ class Execute extends Directory implements ExecuteInterface
         $files = [];
 
         // Get al files in this directory
-        $this->file = Filesystem::absolute($this->file);
+        $this->path = Filesystem::absolute($this->path);
 
-        // Skip this path?
-        if ($this->skip($this->file)) {
+        // Skip this directory?
+        if ($this->skip($this->path)) {
             return 0;
         }
 
@@ -392,9 +392,9 @@ class Execute extends Directory implements ExecuteInterface
         }
 
         try {
-            $files = scandir($this->file);
+            $files = scandir($this->path);
         } catch (Exception $e) {
-            Directory::new($this->file, $this->restrictions)->checkReadable(previous_e: $e);
+            Directory::new($this->path, $this->restrictions)->checkReadable(previous_e: $e);
         }
 
         foreach ($files as $file) {
@@ -405,21 +405,21 @@ class Execute extends Directory implements ExecuteInterface
 
             if ($file[0] === '.') {
                 if (!$this->follow_hidden) {
-                    Log::warning(tr('Not following path ":path", hidden files are ignored', [
-                        ':path' => $this->file . $file
+                    Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
+                        ':directory' => $this->path . $file
                     ]), 2);
                 }
             }
 
             if (is_link($file)) {
                 if (!$this->follow_symlinks) {
-                    Log::warning(tr('Not following path ":path", symlinks are ignored', [
-                        ':path' => $this->file . $file
+                    Log::warning(tr('Not following directory ":directory", symlinks are ignored', [
+                        ':directory' => $this->path . $file
                     ]), 2);
                 }
             }
 
-            if (is_dir($this->file . $file)) {
+            if (is_dir($this->path . $file)) {
                 // Directory! Recurse?
                 if (!$this->recurse) {
                     continue;
@@ -428,10 +428,10 @@ class Execute extends Directory implements ExecuteInterface
                 $recurse = clone $this;
 
                 $count += $recurse
-                    ->setFile($this->file . $file)
+                    ->setPath($this->path . $file)
                     ->onFiles($callback);
 
-            } elseif (file_exists($this->file . $file)) {
+            } elseif (file_exists($this->path . $file)) {
                 // Execute the callback
                 $count++;
                 $extension = Filesystem::getExtension($file);
@@ -440,7 +440,7 @@ class Execute extends Directory implements ExecuteInterface
                     // Extension MUST be on this list
                     if (!array_key_exists($extension, $this->whitelist_extensions)) {
                         Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
-                            ':file' => $this->file . $file
+                            ':file' => $this->path . $file
                         ]), 2);
                     }
                 }
@@ -449,17 +449,17 @@ class Execute extends Directory implements ExecuteInterface
                     // Extension MUST NOT be on this list
                     if (array_key_exists($extension, $this->whitelist_extensions)) {
                         Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
-                            ':file' => $this->file . $file
+                            ':file' => $this->path . $file
                         ]), 2);
                     }
                 }
 
                 Log::action(tr('Executing callback function on file ":file"', [
-                    ':file' => $this->file . $file
+                    ':file' => $this->path . $file
                 ]), 2);
 
                 try {
-                    $callback($this->file . $file);
+                    $callback($this->path . $file);
 
                 } catch (Throwable $e) {
                     if (!$this->ignore_exceptions) {
@@ -475,7 +475,7 @@ class Execute extends Directory implements ExecuteInterface
                 }
             } else {
                 Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
-                    ':file' => $this->file . $file
+                    ':file' => $this->path . $file
                 ]));
             }
 
@@ -490,18 +490,18 @@ class Execute extends Directory implements ExecuteInterface
 
 
     /**
-     * Returns true if this path is on the skip list
+     * Returns true if this directory is on the skip list
      *
-     * If part of this path is on the skip list as well, true will also be returned
+     * If part of this directory is on the skip list as well, true will also be returned
      *
-     * @param string $path
+     * @param string $directory
      * @return bool
      */
-    protected function skip(string $path): bool
+    protected function skip(string $directory): bool
     {
         foreach ($this->skip as $skip) {
-            if (str_starts_with($path, $skip)) {
-                // Parent of this path (or the path itself) must be skipped
+            if (str_starts_with($directory, $skip)) {
+                // Parent of this directory (or the directory itself) must be skipped
                 return true;
             }
         }

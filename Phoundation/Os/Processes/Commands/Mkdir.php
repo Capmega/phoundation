@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Mkdir extends Command
@@ -36,7 +36,7 @@ class Mkdir extends Command
             $mode = Strings::fromOctal($mode);
 
             $this
-                ->setInternalCommand('mkdir')
+                ->setCommand('mkdir')
                 ->addArguments([$file, '-p', '-m', $mode])
                 ->setTimeout(1)
                 ->executeReturnArray();
@@ -46,15 +46,15 @@ class Mkdir extends Command
             static::handleException('mkdir', $e, function($first_line, $last_line, $e) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($first_line, 'not a directory')) {
-                        $path = Strings::from($first_line, 'directory \'');
-                        $path = Strings::until($path, '\':');
-                        throw new CommandsException(tr('Failed to create directory file ":file" because the section ":path" already exists and is not a directory', [':file' => $file, ':path' => $path]));
+                        $directory = Strings::from($first_line, 'directory \'');
+                        $directory = Strings::until($directory, '\':');
+                        throw new CommandsException(tr('Failed to create directory file ":file" because the section ":directory" already exists and is not a directory', [':file' => $file, ':directory' => $directory]));
                     }
 
                     if (str_contains($first_line, 'permission denied')) {
-                        $path = Strings::from($first_line, 'directory \'');
-                        $path = Strings::until($path, '\':');
-                        throw new CommandsException(tr('Failed to create directory file ":file", permission denied to create section ":path" ', [':file' => $file, ':path' => $path]));
+                        $directory = Strings::from($first_line, 'directory \'');
+                        $directory = Strings::until($directory, '\':');
+                        throw new CommandsException(tr('Failed to create directory file ":file", permission denied to create section ":directory" ', [':file' => $file, ':directory' => $directory]));
                     }
                 }
             });

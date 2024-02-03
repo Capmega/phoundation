@@ -6,7 +6,7 @@ namespace Phoundation\Content\Images;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FileBasics;
+use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Process;
 
 
@@ -17,10 +17,10 @@ use Phoundation\Os\Processes\Process;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Resize extends FileBasics
+class Resize extends Path
 {
     /**
      * If the resize command should be executed in the background or not
@@ -116,7 +116,7 @@ class Resize extends FileBasics
     public function absolute(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height)
             ->addArgument($this->getTarget());
@@ -141,7 +141,7 @@ class Resize extends FileBasics
     public function absoluteKeepAspectration(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\!')
             ->addArgument($this->target);
@@ -166,7 +166,7 @@ class Resize extends FileBasics
     public function shrinkOnlyLarger(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
             ->addArgument($this->target);
@@ -191,7 +191,7 @@ class Resize extends FileBasics
     public function enlargeOnlySmaller(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($width . 'x' . $height . '\\>')
             ->addArgument($this->target);
@@ -215,7 +215,7 @@ class Resize extends FileBasics
     public function percentage(float $percentage): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($percentage . '%')
             ->addArgument($this->target);
@@ -231,7 +231,7 @@ class Resize extends FileBasics
 
 
     /**
-     * Resize image to the specified amount of pixels, irrespective of the width or height
+     * Resize image to the specified number of pixels, irrespective of the width or height
      *
      * @param int $pixel_count
      * @return void
@@ -239,7 +239,7 @@ class Resize extends FileBasics
     public function pixelCount(int $pixel_count): void
     {
         $process = $this->convert()
-            ->addArgument($this->file)
+            ->addArgument($this->path)
             ->addArgument('-' . $this->method)
             ->addArgument($pixel_count . '@')
             ->addArgument($this->target);

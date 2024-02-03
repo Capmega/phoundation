@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception\Interfaces;
 
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
+use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Json;
 use Throwable;
 
 
@@ -16,7 +19,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Exception
  */
 interface ExceptionInterface extends Throwable
@@ -126,16 +129,16 @@ interface ExceptionInterface extends Throwable
     /**
      * Returns a notification object for this exception
      *
-     * @return Notification
+     * @return NotificationInterface
      */
-    public function notification(): Notification;
+    public function getNotificationObject(): NotificationInterface;
 
     /**
      * Register this exception in the developer incidents log
      *
      * @return Exception
      */
-    public function register(): static;
+    public function registerDeveloperIncident(): static;
 
     /**
      * Export this exception as an array
@@ -160,4 +163,32 @@ interface ExceptionInterface extends Throwable
      * @return array
      */
     public function getLimitedTrace(): array;
+
+    /**
+     * Returns the backtrace as a JSON string
+     *
+     * @return string
+     */
+    public function getTraceAsJson(): string;
+
+    /**
+     * Returns the backtrace as an array with nicely formatted lines
+     *
+     * @return array
+     */
+    public function getTraceAsFormattedArray(): array;
+
+    /**
+     * Returns the backtrace as a string with nicely formatted lines
+     *
+     * @return string
+     */
+    public function getTraceAsFormattedString(): string;
+
+    /**
+     * Generates and returns a full exception data array
+     *
+     * @return array
+     */
+    public function generateDetails(): array;
 }

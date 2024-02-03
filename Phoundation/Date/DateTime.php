@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateTimeInterface;
-use Exception;
-use Phoundation\Core\Config;
+use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Enums\Interfaces\DateTimeSegmentInterface;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -24,7 +26,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Date
  */
 class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
@@ -49,6 +51,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     {
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
+        $datetime = $datetime ?? 'now';
 
         if (is_string($timezone)) {
             $timezone = new DateTimeZone($timezone);
@@ -122,7 +125,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Subtracts an amount of days, months, years, hours, minutes and seconds from a DateTime object
+     * Subtracts an number of days, months, years, hours, minutes and seconds from a DateTime object
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
      * @param \DateInterval $interval
@@ -135,7 +138,7 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Adds an amount of days, months, years, hours, minutes and seconds to a DateTime object
+     * Adds an number of days, months, years, hours, minutes and seconds to a DateTime object
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
      * @param \DateInterval $interval
@@ -144,6 +147,32 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
     public function add(\DateInterval $interval): \DateTime
     {
         return new DateTime(parent::add($interval));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the end of the day of the specified date
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getBeginningOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(static::new($datetime)->format('Y-m-d 00:00:00'), DateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the end of the day of the specified date
+     *
+     * @param DateTime|string|null $datetime
+     * @param \DateTimeZone|string|null $timezone
+     * @return static
+     */
+    public static function getEndOfDay(DateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(static::new($datetime)->format('Y-m-d 23:59:59.999999'), DateTimeZone::new($timezone));
     }
 
 
@@ -301,26 +330,6 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns a new DateTime object for the first day of the current monthly period
-     *
-     * @return static
-     */
-    public function getCurrentPeriodStart(): static
-    {
-        $datetime = static::new($this);
-        $date_day = $datetime->format('d');
-
-        if ($date_day >= 16) {
-            // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
-        }
-
-        // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
-    }
-
-
-    /**
      * Returns a new DateTime object for the first day of the next monthly period
      *
      * @return static
@@ -342,13 +351,22 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
 
     /**
-     * Returns true if this date is the first day of a period (the 1st or 16th of a month)
+     * Returns a new DateTime object for the first day of the current monthly period
      *
-     * @return bool
+     * @return static
      */
-    public function isPeriodStart(): bool
+    public function getCurrentPeriodStart(): static
     {
-        return in_array($this->format('d'), [1, 16]);
+        $datetime = static::new($this);
+        $date_day = $datetime->format('d');
+
+        if ($date_day >= 16) {
+            // 15-30 this month
+            return DateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+        }
+
+        // 16 - 3(0|1) this month
+        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -364,11 +382,50 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return DateTime::new($datetime->format('Y-m-t 00:00:00'), $datetime->getTimezone());
+            return DateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return DateTime::new($datetime->format('Y-m-15 00:00:00'), $datetime->getTimezone());
+        return DateTime::new($datetime->format('Y-m-15 23:59:59.999999'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of the current month
+     *
+     * @return static
+     */
+    public function getCurrentMonthStart(): static
+    {
+        $datetime = static::new($this);
+        $date_day = $datetime->format('d');
+
+        return DateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns the stop date for the month in which this date is
+     *
+     * @return static
+     */
+    public function getCurrentMonthStop(): static
+    {
+        $datetime = static::new($this);
+        $max      = $datetime->format('t');
+
+        return DateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a period (the 1st or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isPeriodStart(): bool
+    {
+        return in_array($this->format('d'), ['1', '16']);
     }
 
 
@@ -547,5 +604,239 @@ class DateTime extends \DateTime implements Stringable, Interfaces\DateTimeInter
 
         $this->setTime((int) $time[0], (int) $time[1], (int) $time[2], (int) $time[3]);
         return $this;
+    }
+
+
+    /**
+     * Returns the date time format from PHP to JS
+     *
+     * @param string $php_format
+     * @return string
+     */
+    public static function convertPhpToJsFormat(string $php_format): string
+    {
+        throw new UnderConstructionException();
+        $js_format = $php_format;
+        $lookup    = [
+            'M'         => ['js' => 'n'],
+            'Mo'        => ['js' => 'n',
+                'callback' => function (&$value) {
+                    $value = $value . Strings::ordinalIndicator($value);
+                }],
+            'MM'        => ['js' => 'm'],
+            'MMM'       => ['js' => 'M'],
+            'MMMM'      => ['js' => 'F'],
+            'Q'         => null,
+            'Qo'        => null,
+            'D'         => ['js' => 'j'],
+            'Do'        => ['js' => 'jS'],
+            'DD'        => ['js' => 'd'],
+            'DDD'       => null,
+            'DDDo'      => null,
+            'DDDD'      => null,
+            'd'         => null,
+            'do'        => null,
+            'dd'        => null,
+            'ddd'       => null,
+            'dddd'      => ['js' => 'l'],
+            'e'         => null,
+            'E'         => null,
+            'w'         => null,
+            'wo'        => null,
+            'ww'        => null,
+            'W'         => null,
+            'Wo'        => null,
+            'WW'        => null,
+            'YY'        => null,
+            'YYYY'      => ['js' => 'Y'],
+            'YYYYYY'    => null,
+            'Y'         => null,
+            'y'         => null,
+            'N'         => null,
+            'NN'        => null,
+            'NNN'       => null,
+            'NNNN'      => null,
+            'NNNNN'     => null,
+            'gg'        => null,
+            'gggg'      => null,
+            'GG'        => null,
+            'GGGG'      => null,
+            'A'         => null,
+            'a'         => null,
+            'H'         => ['js' => 'G'],
+            'HH'        => ['js' => 'H'],
+            'h'         => ['js' => 'g'],
+            'hh'        => ['js' => 'h'],
+            'k'         => null,
+            'kk'        => null,
+            'm'         => null,
+            'mm'        => ['js' => 'i'],
+            's'         => null,
+            'ss'        => ['js' => 's'],
+            'S'         => null,
+            'SS'        => null,
+            'SSS'       => null,
+            'SSSS'      => null,
+            'SSSSS'     => null,
+            'SSSSSS'    => null,
+            'SSSSSSS'   => null,
+            'SSSSSSSS'  => null,
+            'SSSSSSSSS' => null,
+            'z'         => null,
+            'zz'        => null,
+            'Z'         => null,
+            'ZZ'        => null,
+            'X'         => null,
+            'x'         => null,
+        ];
+
+        // Get all javascript matches
+        preg_match_all('/([a-z])+/i', $js_format, $matches);
+
+        if (empty($matches)) {
+            throw new OutOfBoundsException(tr('Failed to convert Javascript date time format string ":format" to PHP', [
+                ':format' => $js_format
+            ]));
+        }
+
+        $matches = $matches[0];
+        $matches = Arrays::sortByValueLength($matches);
+
+        foreach ($matches as $match) {
+            if (!array_key_exists($match, $lookup)) {
+                throw new OutOfBoundsException(tr('Unknown Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format"', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            if ($lookup[$match] === null) {
+                throw new UnsupportedException(tr('Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format" is currently not supported', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            $php_format = str_replace($match, $lookup[$match]['php'], $php_format);
+        }
+
+        return $php_format;
+    }
+
+
+    /**
+     * Returns the date time format from JS to PHP
+     *
+     * @param string $js_format
+     * @return string
+     * @throws OutOfBoundsException|UnsupportedException
+     */
+    public static function convertJsToPhpFormat(string $js_format): string
+    {
+        $php_format = $js_format;
+        $lookup     = [
+                'M'         => ['php'      => 'n'],
+                'Mo'        => ['php'      => 'n',
+                                'callback' => function (&$value) {
+                                     $value = $value . Strings::ordinalIndicator($value);
+                                 }],
+                'MM'        => ['php'      => 'm'],
+                'MMM'       => ['php'      => 'M'],
+                'MMMM'      => ['php'      => 'F'],
+                'Q'         => null,
+                'Qo'        => null,
+                'D'         => ['php' => 'j'],
+                'Do'        => ['php' => 'jS'],
+                'DD'        => ['php' => 'd'],
+                'DDD'       => null,
+                'DDDo'      => null,
+                'DDDD'      => null,
+                'd'         => null,
+                'do'        => null,
+                'dd'        => null,
+                'ddd'       => null,
+                'dddd'      => ['php' => 'l'],
+                'e'         => null,
+                'E'         => null,
+                'w'         => null,
+                'wo'        => null,
+                'ww'        => null,
+                'W'         => null,
+                'Wo'        => null,
+                'WW'        => null,
+                'YY'        => null,
+                'YYYY'      => ['php' => 'Y'],
+                'YYYYYY'    => null,
+                'Y'         => null,
+                'y'         => null,
+                'N'         => null,
+                'NN'        => null,
+                'NNN'       => null,
+                'NNNN'      => null,
+                'NNNNN'     => null,
+                'gg'        => null,
+                'gggg'      => null,
+                'GG'        => null,
+                'GGGG'      => null,
+                'A'         => null,
+                'a'         => null,
+                'H'         => ['php' => 'G'],
+                'HH'        => ['php' => 'H'],
+                'h'         => ['php' => 'g'],
+                'hh'        => ['php' => 'h'],
+                'k'         => null,
+                'kk'        => null,
+                'm'         => null,
+                'mm'        => ['php' => 'i'],
+                's'         => null,
+                'ss'        => ['php' => 's'],
+                'S'         => null,
+                'SS'        => null,
+                'SSS'       => null,
+                'SSSS'      => null,
+                'SSSSS'     => null,
+                'SSSSSS'    => null,
+                'SSSSSSS'   => null,
+                'SSSSSSSS'  => null,
+                'SSSSSSSSS' => null,
+                'z'         => null,
+                'zz'        => null,
+                'Z'         => null,
+                'ZZ'        => null,
+                'X'         => null,
+                'x'         => null,
+        ];
+
+        // Get all javascript matches
+        preg_match_all('/([a-z])+/i', $js_format, $matches);
+
+        if (empty($matches)) {
+            throw new OutOfBoundsException(tr('Failed to convert Javascript date time format string ":format" to PHP', [
+                ':format' => $js_format
+            ]));
+        }
+
+        $matches = $matches[0];
+        $matches = Arrays::sortByValueLength($matches);
+
+        foreach ($matches as $match) {
+            if (!array_key_exists($match, $lookup)) {
+                throw new OutOfBoundsException(tr('Unknown Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format"', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            if ($lookup[$match] === null) {
+                throw new UnsupportedException(tr('Javascript date time format string identifier ":identifier" encountered in Javascript date time format string ":format" is currently not supported', [
+                    ':identifier' => $match,
+                    ':format'     => $js_format
+                ]));
+            }
+
+            $php_format = str_replace($match, $lookup[$match]['php'], $php_format);
+        }
+
+        return $php_format;
     }
 }

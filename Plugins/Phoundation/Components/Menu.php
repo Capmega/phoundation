@@ -2,24 +2,20 @@
 
 declare(strict_types=1);
 
-
 namespace Plugins\Phoundation\Components;
 
 
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-
 /**
- * TemplateMenus class
+ * Class Menu
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Menu extends \Phoundation\Web\Http\Html\Components\Menu
+class Menu extends \Phoundation\Web\Html\Components\Menu
 {
     /**
      * Menu class constructor
@@ -29,18 +25,13 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
         parent::__construct();
 
         $this->setSource([
+            tr('System') => [
+                'icon' => '',
+            ],
             tr('Dashboard') => [
                 'rights' => 'admin',
                 'url'    => '/',
                 'icon'   => 'fa-tachometer-alt',
-            ],
-            tr('Test') => [
-                'rights' => 'admin',
-                'url'    => '/test.html',
-                'icon'   => 'fa-tachometer-alt',
-            ],
-            tr('System') => [
-                'icon' => '',
             ],
             tr('Accounts') => [
                 'rights' => 'admin,accounts',
@@ -82,6 +73,11 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                         'rights' => 'logs',
                         'url'    => '/security/incidents.html',
                         'icon'   => 'fa-key'
+                    ],
+                    tr('Non HTTP-200 URL\'s') => [
+                        'rights' => 'logs',
+                        'url'    => '/security/non-200-urls.html',
+                        'icon'   => 'fa-tasks'
                     ],
                     tr('Activity log') => [
                         'rights' => 'logs',
@@ -229,7 +225,7 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                     ],
                     tr('Plugins') => [
                         'rights' => 'plugins',
-                        'url'    => '/phoundation/plugins.html',
+                        'url'    => '/phoundation/plugins/plugins.html',
                         'icon'   => ''
                     ],
                     tr('Templates') => [
@@ -237,7 +233,39 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                         'url'    => '/phoundation/templates.html',
                         'icon'   => ''
                     ],
-                ]
+                    tr('Filesystems') => [
+                        'rights' => 'file-system',
+                        'icon' => 'fa-lock',
+                        'menu' => [
+                            tr('Auto mounts') => [
+                                'rights' => 'mounts',
+                                'url'    => '/phoundation/file-system/auto-mounts/mounts.html',
+                                'icon'   => 'fa-key'
+                            ],
+                            tr('Requirements') => [
+                                'rights' => 'requirements',
+                                'url'    => '/phoundation/file-system/requirements/requirements.html',
+                                'icon'   => 'fa-key'
+                            ],
+                        ],
+                    ],
+                    tr('Databases') => [
+                        'rights' => 'databases',
+                        'icon' => 'fa-lock',
+                        'menu' => [
+                            tr('Connectors') => [
+                                'rights' => 'mounts',
+                                'url'    => '/phoundation/databases/connectors/connectors.html',
+                                'icon'   => 'fa-key'
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            tr('About') => [
+                'rights' => 'admin',
+                'url'  => '/about.html',
+                'icon' => ''
             ],
             tr('Productivity') => [
                 'icon' => '',
@@ -282,14 +310,6 @@ class Menu extends \Phoundation\Web\Http\Html\Components\Menu
                         'icon'   => 'fa-shopping-cart'
                     ]
                 ]
-            ],
-            tr('Other') => [
-                'icon' => ''
-            ],
-            tr('About') => [
-                'rights' => 'admin',
-                'url'  => '/about',
-                'icon' => ''
             ]
         ]);
     }

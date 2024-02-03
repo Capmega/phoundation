@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer\Project\Interfaces;
 
 
@@ -10,7 +12,7 @@ namespace Phoundation\Developer\Project\Interfaces;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package \Phoundation\Developer
  */
 interface ProjectInterface
@@ -18,10 +20,10 @@ interface ProjectInterface
     /**
      * Returns true if the specified filesystem location contains a valid Phoundation project installation
      *
-     * @param string $path
+     * @param string $directory
      * @return bool
      */
-    public function isPhoundationProject(string $path): bool;
+    public function isPhoundationProject(string $directory): bool;
 
     /**
      * Updates your Phoundation installation

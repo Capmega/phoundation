@@ -12,7 +12,7 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryAddress
@@ -24,7 +24,7 @@ trait DataEntryAddress
      */
     public function getAddress(): ?string
     {
-        return $this->getSourceFieldValue('string', 'address');
+        return $this->getSourceColumnValue('string', 'address');
     }
 
 
@@ -38,9 +38,9 @@ trait DataEntryAddress
     {
         return $this->setSourceValue('address', $address);
     }
-    
-    
-    
+
+
+
     /**
      * Returns the zipcode for this object
      *
@@ -48,7 +48,7 @@ trait DataEntryAddress
      */
     public function getZipcode(): ?string
     {
-        return $this->getSourceFieldValue('string', 'zipcode');
+        return $this->getSourceColumnValue('string', 'zipcode');
     }
 
 

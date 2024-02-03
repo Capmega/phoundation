@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
-use Phoundation\Core\Strings;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Databases\Sql\Sql;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 class TableDefine extends SchemaAbstract
@@ -276,7 +276,7 @@ class TableDefine extends SchemaAbstract
             $query .= ",\n" . Strings::endsNotWith(trim($foreign_keys), ',') . "\n";
         }
 
-        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.instances.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.instances.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.instances.system.collate', 'utf8mb4_general_ci') . '";';
+        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
 
         $this->sql->query($query);
         $this->parent->reload();

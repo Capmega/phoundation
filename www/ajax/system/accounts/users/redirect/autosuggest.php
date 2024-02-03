@@ -14,7 +14,7 @@ use Plugins\Medinet\Programs\Programs;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 
@@ -29,7 +29,7 @@ $get = GetValidator::new()->validate();
 
 // Reply
 $reply = Json::encode([
-    (string) UrlBuilder::getWww('/force-password-update.html')
+    '/force-password-update.html'
 ]);
 
 $reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';

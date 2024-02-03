@@ -5,27 +5,21 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 use Exception;
-use Phoundation\Accounts\Users\Interfaces\EmailInterface;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Strings;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Data\Validator\Validate;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Components\DataEntryForm;
-use Phoundation\Web\Http\Html\Components\Entry;
-use Phoundation\Web\Http\Html\Components\Form;
-use Phoundation\Web\Http\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\EntryInterface;
-use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
+use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Components\DataEntryForm;
+use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Stringable;
 
 
 /**
@@ -36,7 +30,7 @@ use Phoundation\Web\Http\Html\Components\Interfaces\FormInterface;
  * @see DataList
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 class Phones extends DataList implements PhonesInterface
@@ -46,10 +40,7 @@ class Phones extends DataList implements PhonesInterface
      */
     public function __construct()
     {
-        $this->setQuery('SELECT   `accounts_phones`.`id`,
-                                        `accounts_phones`.`phone`,
-                                        `accounts_phones`.`account_type`,
-                                        `accounts_phones`.`description`
+        $this->setQuery('SELECT   `accounts_phones`.*
                                FROM     `accounts_phones`
                                WHERE    `accounts_phones`.`users_id` = :users_id
                                  AND    `accounts_phones`.`status` IS NULL
@@ -86,7 +77,7 @@ class Phones extends DataList implements PhonesInterface
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
         return 'phone';
     }
@@ -115,12 +106,12 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Returns Phones list object with phones for the specified user.
      *
+     * @param bool $clear
      * @return static
-     * @throws SqlMultipleResultsException, NotExistsException
      */
-    public function load(): static
+    public function load(bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::get($this->parent, 'seo_name');
+        $this->parent  = User::get($this->parent,  'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -137,7 +128,7 @@ class Phones extends DataList implements PhonesInterface
     public function getHtmlDataEntryForm(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $phone = Phone::new()->setFieldPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
+        $phone = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
         $definitions = $phone->getDefinitions();
         $definitions->get('phone')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -148,14 +139,14 @@ class Phones extends DataList implements PhonesInterface
 
         foreach ($this->ensureDataEntries() as $phone) {
             $content[] = $phone
-                ->setFieldPrefix($name)
+                ->setColumnPrefix($name)
                 ->getHtmlDataEntryForm()
                 ->setMetaVisible($meta_visible)
                 ->render();
         }
 
         return DataEntryForm::new()
-            ->addContent(implode('<hr>', $content))
+            ->appendContent(implode('<hr>', $content))
             ->setRenderContentsOnly(true);
     }
 
@@ -163,11 +154,12 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Add the specified phone to the iterator array
      *
+     * @param Stringable|string|float|int|null $key
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param bool $skip_null
      * @return static
      */
-    public function add(mixed $value, string|float|int|null $key = null): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
         if (!$value instanceof PhoneInterface) {
             if (!is_string($value)) {
@@ -181,7 +173,7 @@ class Phones extends DataList implements PhonesInterface
                 ->setAccountType('other');
         }
 
-        // Ensure that the phones list has a parent
+        // Ensure that the phone list has a parent
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
                 ':phone' => $value->getLogId()
@@ -192,7 +184,7 @@ class Phones extends DataList implements PhonesInterface
         if ($value->getUsersId()) {
             if ($value->getUsersId() !== $this->parent->getId()) {
                 throw new OutOfBoundsException(tr('Specified phone ":phone" has a different users id than the users id ":parent" for the phones in this list', [
-                    ':phone' => $value->getId(),
+                    ':phone' => $value->getPhone(),
                     ':parent' => $this->parent->getId()
                 ]));
             }
@@ -201,7 +193,7 @@ class Phones extends DataList implements PhonesInterface
             $value->setUsersId($this->parent->getId())->save();
         }
 
-        return parent::add($value, $key);
+        return parent::add($value, $key, $skip_null);
     }
 
 
@@ -265,7 +257,7 @@ class Phones extends DataList implements PhonesInterface
 
             foreach ($diff['delete'] as $id => $phone) {
                 Phone::get($id, 'id')->setPhone(null)->save()->delete();
-                $this->deleteEntries($id);
+                $this->delete($id);
             }
 
             foreach ($diff['add'] as $phone) {

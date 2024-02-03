@@ -17,7 +17,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
 class Rm extends Command
@@ -30,14 +30,14 @@ class Rm extends Command
      *                           deleted
      * @param bool $recurse_up   If set to true, all directories above will be deleted as well IF they are empty after this
      *                           delete operation
-     * @param int $timeout       The maximum amount of time that may be spent on this delete operation
+     * @param int $timeout       The maximum number of time that may be spent on this delete operation
      * @return void
      */
     public function delete(string $file, bool $recurse_down = true, bool $recurse_up = false, int $timeout = 10): void
     {
         try {
             $this
-                ->setInternalCommand('rm')
+                ->setCommand('rm')
                 ->addArguments([$file, '-f', ($recurse_down ? '-r' : '')])
                 ->setTimeout($timeout)
                 ->setRegisterRunfile(false)

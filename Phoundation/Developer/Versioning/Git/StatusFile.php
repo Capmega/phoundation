@@ -15,7 +15,7 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 class StatusFile
@@ -133,7 +133,7 @@ class StatusFile
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-//            File::new($patch_file, Restrictions::new(PATH_TMP, true))->delete();
+//            File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
             }
 
             return $this;
@@ -143,10 +143,12 @@ class StatusFile
             $data = array_pop($data);
 
             if (str_contains($data, 'patch does not apply')) {
-                throw new GitPatchException(tr('Failed to apply patch ":patch" to file ":file"', [
+                throw GitPatchException::new(tr('Failed to apply patch ":patch" to file ":file"', [
                     ':patch' => isset_get($patch_file),
                     ':file'  => $this->file
-                ]));
+                ]))->addData([
+                    'file' => $this->file
+                ]);
             }
 
             throw $e;

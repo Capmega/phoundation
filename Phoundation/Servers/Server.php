@@ -13,35 +13,48 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
+use Phoundation\Data\DataEntry\Traits\DataEntryCity;
+use Phoundation\Data\DataEntry\Traits\DataEntryCode;
+use Phoundation\Data\DataEntry\Traits\DataEntryCountry;
 use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
+use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
+use Phoundation\Data\DataEntry\Traits\DataEntryState;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\States\States;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Servers\Exception\SshException;
+use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
-use Phoundation\Web\Http\Html\Enums\InputType;
-use Phoundation\Web\Http\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\InputTypeExtended;
 
 
 /**
  * Server class
  *
- * This class manages the localhost server
+ * This class manages a single server
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Servers
  */
-class Server extends DataEntry
+class Server extends DataEntry implements ServerInterface
 {
+    use DataEntryCountry;
+    use DataEntryState;
+    use DataEntryCity;
+    use DataEntryCategory;
+    use DataEntryCode;
     use DataEntryHostnamePort;
-    use DataEntryDescription;
+    use DataEntryNameDescription;
     use DataEntryCustomer;
     use DataEntryProvider;
     use DataEntrySshAccount;
@@ -74,9 +87,23 @@ class Server extends DataEntry
      *
      * @return string|null
      */
-    public static function getUniqueField(): ?string
+    public static function getUniqueColumn(): ?string
     {
-        return 'seo_hostname';
+        return 'hostname';
+    }
+
+
+    /**
+     * Server class constructor
+     *
+     * @param int|string|DataEntryInterface|null $identifier
+     * @param string|null $column
+     * @param bool|null $meta_enabled
+     */
+    public function __construct(int|string|DataEntryInterface|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
+    {
+        $this->config_path = 'servers.';
+        parent::__construct($identifier, $column, $meta_enabled);
     }
 
 
@@ -87,7 +114,7 @@ class Server extends DataEntry
      */
     public function getCost(): ?float
     {
-        return $this->getSourceFieldValue('float', 'cost');
+        return $this->getSourceColumnValue('float', 'cost');
     }
 
 
@@ -110,7 +137,7 @@ class Server extends DataEntry
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getSourceFieldValue('string', 'bill_due_date');
+        return $this->getSourceColumnValue('string', 'bill_due_date');
     }
 
 
@@ -134,7 +161,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getSourceFieldValue('string', 'interval');
+        return $this->getSourceColumnValue('string', 'interval');
     }
 
 
@@ -158,7 +185,7 @@ class Server extends DataEntry
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getSourceFieldValue('string', 'os_name');
+        return $this->getSourceColumnValue('string', 'os_name');
     }
 
 
@@ -181,7 +208,7 @@ class Server extends DataEntry
      */
     public function getOsVersion(): ?string
     {
-        return $this->getSourceFieldValue('string', 'os_version');
+        return $this->getSourceColumnValue('string', 'os_version');
     }
 
 
@@ -205,7 +232,7 @@ class Server extends DataEntry
      */
     public function getWebServices(): bool
     {
-        return $this->getSourceFieldValue('bool', 'web_services', false);
+        return $this->getSourceColumnValue('bool', 'web_services', false);
     }
 
 
@@ -228,7 +255,7 @@ class Server extends DataEntry
      */
     public function getMailServices(): bool
     {
-        return $this->getSourceFieldValue('bool', 'mail_services', false);
+        return $this->getSourceColumnValue('bool', 'mail_services', false);
     }
 
 
@@ -251,7 +278,7 @@ class Server extends DataEntry
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getSourceFieldValue('bool', 'database_services', false);
+        return $this->getSourceColumnValue('bool', 'database_services', false);
     }
 
 
@@ -274,7 +301,7 @@ class Server extends DataEntry
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getSourceFieldValue('bool', 'allow_sshd_modifications', false);
+        return $this->getSourceColumnValue('bool', 'allow_sshd_modifications', false);
     }
 
 
@@ -293,9 +320,9 @@ class Server extends DataEntry
     /**
      * Returns the username for the SSH account for this server
      *
-     * @return string
+     * @return string|null
      */
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->getSshAccount()->getUsername();
     }
@@ -309,12 +336,36 @@ class Server extends DataEntry
      */
     public function getSshCommandLine(string $command_line): string
     {
+        if (!$this->getHostname()) {
+            throw new SshException(tr('Cannot generate SSH command line, server ":server" has no hostname', [
+                ':server' => $this->getLogId()
+            ]));
+        }
+
+        if (empty($this->ssh_account)) {
+            throw new SshException(tr('Cannot generate SSH command line, no account specified for hostname ":hostname"', [
+                ':hostname' => $this->getHostname()
+            ]));
+        }
+
+        if (!$this->ssh_account->getFile()) {
+            throw new SshException(tr('Cannot generate SSH command line, the SSH account ":account" has no private key specified', [
+                ':account' => $this->ssh_account->getLogId()
+            ]));
+        }
+
+        $username = $this->getUsername();
+
+        if ($username) {
+            $username .= '@';
+        }
+
         return Process::new('ssh')
-            ->addArgument('-p')
-            ->addArgument($this->getPort())
-            ->addArgument($this->getUsername() . '@' . $this->getHostname())
+            ->addArguments($this->getPort() ? ['-p', $this->getPort()] : null)
+            ->addArguments(['-t', '-i', $this->getSshAccount()->getFile()])
+            ->addArgument($username . $this->getHostname())
             ->addArgument($command_line)
-            ->getFullCommandLine();
+            ->getBasicCommandLine();
     }
 
 
@@ -329,103 +380,103 @@ class Server extends DataEntry
             ->addDefinition(Definition::new($this, 'seo_hostname')
                 ->setVirtual(true)
                 ->setReadonly(true))
-            ->addDefinition(Definition::new($this, 'ssh_account')
-                ->setVirtual(true)
-                ->setInputType(InputTypeExtended::name)
-                ->setCliField('-a,--account ACCOUNT-NAME')
-                ->setCliAutoComplete([
-                    'word'   => function($word) { return SshAccounts::new()->getMatchingKeys($word); },
-                    'noword' => function()      { return SshAccounts::new()->getSource(); },
-                ])
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
-                }))
             ->addDefinition(Definition::new($this, 'category')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--category CATEGORY-NAME')
+                ->setCliColumn('--category CATEGORY-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Categories::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Categories::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('categories_id')->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$category']);
+                    $validator->xorColumn('categories_id')->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$category']);
                 }))
             ->addDefinition(Definition::new($this, 'provider')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--provider PROVIDER-NAME')
+                ->setCliColumn('--provider PROVIDER-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Providers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Providers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('providers_id')->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider']);
+                    $validator->xorColumn('providers_id')->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$provider']);
                 }))
             ->addDefinition(Definition::new($this, 'customer')
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setCliField('--customer CUSTOMER-NAME')
+                ->setCliColumn('--customer CUSTOMER-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Customers::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Customers::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('customers_id')->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer']);
+                    $validator->xorColumn('customers_id')->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customer']);
                 }))
             ->addDefinition(Definition::new($this, 'country')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
-                ->setCliField('--country COUNTRY-NAME')
+                ->setCliColumn('--country COUNTRY-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Countries::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Countries::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('countries_id')->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
+                    $validator->xorColumn('countries_id')->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$country']);
                 }))
             ->addDefinition(Definition::new($this, 'state')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
-                ->setCliField('--state STATE-NAME')
+                ->setCliColumn('--state STATE-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return States::new()->getMatchingKeys($word); },
                     'noword' => function()      { return States::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('states_id')->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$state']);
+                    $validator->xorColumn('states_id')->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$state']);
                 }))
             ->addDefinition(Definition::new($this, 'city')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::text)
                 ->setMaxlength(200)
-                ->setCliField('--city STATE-NAME')
+                ->setCliColumn('--city STATE-NAME')
                 ->setCliAutoComplete([
                     'word'   => function($word) { return Cities::new()->getMatchingKeys($word); },
                     'noword' => function()      { return Cities::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('cities_id')->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
+                    $validator->xorColumn('cities_id')->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$city']);
                 }))
+            ->addDefinition(DefinitionFactory::getName($this)
+                ->setOptional(false)
+                ->setInputType(InputTypeExtended::name)
+                ->setSize(12)
+                ->setMaxlength(64)
+                ->setHelpText(tr('The name for this role'))
+                ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                }))
+            ->addDefinition(DefinitionFactory::getSeoName($this))
             ->addDefinition(Definition::new($this, 'hostname')
                 ->setInputType(InputType::text)
                 ->setMaxlength(128)
                 ->setSize(4)
                 ->setLabel(tr('Hostname'))
-                ->setCliField('-h,--hostname HOSTNAME')
+                ->setCliColumn('-h,--hostname HOSTNAME')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete(true))
-            ->addDefinition(Definition::new($this, 'account')
+            ->addDefinition(Definition::new($this, 'ssh_accounts_name')
                 ->setVirtual(true)
+                ->setVisible(false)
                 ->setInputType(InputTypeExtended::name)
-                ->setLabel(tr('account'))
-                ->setCliField('--accounts-id DATABASE-ID')
+                ->setLabel(tr('Account'))
+                ->setCliColumn('-a,--account ACCOUNT-NAME')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The unique hostname for this server'))
                 ->setCliAutoComplete([
@@ -433,7 +484,8 @@ class Server extends DataEntry
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
+showdie('fuck!');
+                    $validator->xorColumn('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
             ->addDefinition(Definition::new($this, 'ssh_accounts_id')
                 ->setInputType(InputTypeExtended::dbid)
@@ -445,16 +497,16 @@ class Server extends DataEntry
                     'noword' => function()      { return SshAccounts::new()->getSource(); },
                 ])
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
+                    $validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$ssh_accounts_id']);
                 }))
             ->addDefinition(Definition::new($this, 'port')
-                ->setOptional(true)
+                ->setOptional(true, 22)
                 ->setInputType(InputTypeExtended::integer)
                 ->setMin(1)
                 ->setMax(65535)
                 ->setSize(2)
                 ->setLabel(tr('Port'))
-                ->setCliField('-p,--port PORT (1 - 65535)')
+                ->setCliColumn('-p,--port PORT (1 - 65535)')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('The port where one can connect to the servers SSH service')))
             ->addDefinition(Definition::new($this, 'code')
@@ -463,7 +515,7 @@ class Server extends DataEntry
                 ->setSize(2)
                 ->setMaxlength(16)
                 ->setLabel(tr('Code'))
-                ->setCliField('-c,--code CODE')
+                ->setCliColumn('-c,--code CODE')
                 ->setHelpGroup(tr('Identification and network'))
                 ->setHelpText(tr('A unique identifying code for this server'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -476,7 +528,7 @@ class Server extends DataEntry
                 ->setStep('any')
                 ->setSize(4)
                 ->setLabel(tr('Cost'))
-                ->setCliField('--cost CURRENCY')
+                ->setCliColumn('--cost CURRENCY')
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The cost per interval for this server')))
             ->addDefinition(Definition::new($this, 'bill_due_date')
@@ -486,7 +538,7 @@ class Server extends DataEntry
                 ->setStep('any')
                 ->setSize(4)
                 ->setLabel(tr('Bill due date'))
-                ->setCliField('-b,--bill-due-date DATE')
+                ->setCliColumn('-b,--bill-due-date DATE')
                 ->setHelpGroup(tr('Payment'))
                 ->setHelpText(tr('The next date when payment for this server is due')))
             ->addDefinition(Definition::new($this, 'interval')
@@ -494,7 +546,7 @@ class Server extends DataEntry
                 ->setInputType(InputType::date)
                 ->setSize(4)
                 ->setLabel(tr('Payment interval'))
-                ->setCliField('-i,--interval POSITIVE-INTEGER')
+                ->setCliColumn('-i,--interval POSITIVE-INTEGER')
                 ->setSource([
                     'hourly'     => tr('Hourly'),
                     'daily'      => tr('Daily'),
@@ -509,7 +561,7 @@ class Server extends DataEntry
                 ->setHelpText(tr('The interval for when this server must be paid')))
             ->addDefinition(Definition::new($this, 'categories_id')
                 ->setOptional(true)
-                ->setCliField('--categories-id CATEGORIES-ID')
+                ->setCliColumn('--categories-id CATEGORIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The category for this server'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -519,11 +571,11 @@ class Server extends DataEntry
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('category')->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
+                    $validator->xorColumn('category')->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
                 }))
             ->addDefinition(Definition::new($this, 'providers_id')
                 ->setOptional(true)
-                ->setCliField('--providers-id PROVIDERS-ID')
+                ->setCliColumn('--providers-id PROVIDERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The service provider where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -533,11 +585,11 @@ class Server extends DataEntry
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('provider')->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
+                    $validator->xorColumn('provider')->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
                 }))
             ->addDefinition(Definition::new($this, 'customers_id')
                 ->setOptional(true)
-                ->setCliField('--customers-id CUSTOMERS-ID')
+                ->setCliColumn('--customers-id CUSTOMERS-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpText(tr('The client using this server'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -547,11 +599,11 @@ class Server extends DataEntry
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('customer')->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
+                    $validator->xorColumn('customer')->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
                 }))
             ->addDefinition(Definition::new($this, 'countries_id')
                 ->setOptional(true)
-                ->setCliField('--countries-id COUNTRIES-ID')
+                ->setCliColumn('--countries-id COUNTRIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The country where this server is hosted'))
@@ -562,11 +614,11 @@ class Server extends DataEntry
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('country')->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
+                    $validator->xorColumn('country')->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
                 }))
             ->addDefinition(Definition::new($this, 'states_id')
                 ->setOptional(true)
-                ->setCliField('--states-id STATES-ID')
+                ->setCliColumn('--states-id STATES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The state where this server is hosted'))
@@ -577,11 +629,11 @@ class Server extends DataEntry
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('state')->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
+                    $validator->xorColumn('state')->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
                 }))
             ->addDefinition(Definition::new($this, 'cities_id')
                 ->setOptional(true)
-                ->setCliField('--cities-id CITIES-ID')
+                ->setCliColumn('--cities-id CITIES-ID')
                 ->setInputType(InputTypeExtended::dbid)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
@@ -590,14 +642,14 @@ class Server extends DataEntry
                         ->render();
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->xor('city')->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
+                    $validator->xorColumn('city')->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
                 }))
             ->addDefinition(Definition::new($this, 'os_name')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
                 ->setSize(9)
                 ->setLabel(tr('Operating system'))
-                ->setCliField('-o,--os-name OPERATING-SYSTEM-NAME')
+                ->setCliColumn('-o,--os-name OPERATING-SYSTEM-NAME')
                 ->setCliAutoComplete(true)
                 ->setSource([
                     'debian'    => tr('Debian'),
@@ -615,38 +667,38 @@ class Server extends DataEntry
             ->addDefinition(Definition::new($this, 'os_version')
                 ->setOptional(true)
                 ->setInputType(InputType::text)
-                ->setSize(9)
-                ->setSize(16)
+                ->setMinlength(9)
+                ->setMaxlength(16)
                 ->setLabel(tr('Operating system version'))
-                ->setCliField('-v,--os-version VERSION')
+                ->setCliColumn('-v,--os-version VERSION')
                 ->setHelpText(tr('The current version of the installed operating system')))
             ->addDefinition(Definition::new($this, 'web_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Web services'))
-                ->setCliField('-w,--web-services')
+                ->setCliColumn('-w,--web-services')
                 ->setHelpText(tr('Sets if this server manages web services')))
             ->addDefinition(Definition::new($this, 'mail_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Email services'))
-                ->setCliField('-m,--mail-services')
+                ->setCliColumn('-m,--mail-services')
                 ->setHelpText(tr('Sets if this server manages mail services')))
             ->addDefinition(Definition::new($this, 'database_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Database services'))
-                ->setCliField('-e,--database-services')
+                ->setCliColumn('-e,--database-services')
                 ->setHelpText(tr('Sets if this server manages database services')))
             ->addDefinition(Definition::new($this, 'mail_services')
                 ->setOptional(true)
                 ->setInputType(InputType::checkbox)
                 ->setSize(3)
                 ->setLabel(tr('Allow SSHD modification'))
-                ->setCliField('-s,--allow-sshd-modification')
+                ->setCliColumn('-s,--allow-sshd-modification')
                 ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
             ->addDefinition(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('A description for this server')));

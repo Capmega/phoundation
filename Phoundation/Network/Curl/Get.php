@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use Exception;
-use Phoundation\Cli\Color;
+use Phoundation\Cli\CliColor;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
-use Phoundation\Filesystem\Directory;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
 use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Curl\Exception\CurlNon200Exception;
 use Phoundation\Network\Interfaces;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -30,7 +30,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Network
  */
 class Get extends Curl
@@ -113,14 +113,14 @@ class Get extends Curl
         }
 
         // Do we log?
-        if ($this->log_path) {
+        if ($this->log_directory) {
             // We log!
             Log::notice(tr('cURL result status:'));
 
             $this->result_status = curl_getinfo($this->curl);
 
             foreach ($this->result_status as $key => $value) {
-                Log::notice(Color::apply($key.' : ', 'white') . Strings::force($value));
+                Log::notice(CliColor::apply($key.' : ', 'white') . Strings::force($value));
             }
         }
 
@@ -139,7 +139,7 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                File::new($this->cookie_file, PATH_DATA . 'curl/')->delete();
+                File::new($this->cookie_file, DIRECTORY_DATA . 'curl/')->delete();
             }
 
             unset($this->cookie_file);
@@ -230,8 +230,8 @@ class Get extends Curl
         //curl_setopt($this->curl, CURLOPT_HTTPHEADER    , true);
 
         // Log cURL request?
-        if ($this->log_path) {
-            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_path . getmypid(), $this->log_restrictions)->open(EnumFileOpenMode::writeOnlyAppend)->getStream());
+        if ($this->log_directory) {
+            curl_setopt($this->curl, CURLOPT_STDERR, File::new($this->log_directory . getmypid(), $this->log_restrictions)->open(EnumFileOpenMode::writeOnlyAppend)->getStream());
 
             Log::action(tr('Preparing ":method" cURL request to ":url"', [
                 ':method' => $this->method,
@@ -246,7 +246,7 @@ class Get extends Curl
         // Use cookies?
         if (isset_get($this->cookies)) {
             if (!isset_get($this->cookie_file)) {
-                $this->cookie_file = Filesystem::createTempFile()->getFile();
+                $this->cookie_file = Filesystem::createTempFile()->getPath();
             }
 
             // Make sure the specified cookie path exists

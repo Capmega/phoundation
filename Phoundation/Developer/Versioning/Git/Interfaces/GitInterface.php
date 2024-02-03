@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
 use Phoundation\Developer\Versioning\Git\Branches;
 use Phoundation\Developer\Versioning\Git\RemoteRepositories;
 use Phoundation\Developer\Versioning\Git\Stash;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
+use Stringable;
 
 
 /**
@@ -15,7 +18,7 @@ use Phoundation\Developer\Versioning\Git\StatusFiles;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
 interface GitInterface
@@ -25,15 +28,15 @@ interface GitInterface
      *
      * @return string
      */
-    public function getPath(): string;
+    public function getDirectory(): string;
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param string $path
+     * @param string $directory
      * @return static
      */
-    public function setPath(string $path): static;
+    public function setDirectory(string $directory): static;
 
     /**
      * Clone the specified URL to this path
@@ -81,19 +84,19 @@ interface GitInterface
     /**
      * Checks out the specified branches or paths for this git path
      *
-     * @param array|string $branches_or_paths
+     * @param array|string $branches_or_directories
      * @return static
      */
-    public function checkout(array|string $branches_or_paths): static;
+    public function checkout(array|string $branches_or_directories): static;
 
     /**
      * Resets the current branch to the specified revision
      *
      * @param string $revision
-     * @param array|string|null $files
+     * @param Stringable|array|string|null $files
      * @return static
      */
-    public function reset(string $revision, array|string|null $files = null): static;
+    public function reset(string $revision, Stringable|array|string|null $files = null): static;
 
     /**
      * Apply the specified patch to the specified target file
@@ -115,10 +118,10 @@ interface GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param string|null $path
+     * @param string|null $directory
      * @return StatusFiles
      */
-    public function getStatus(?string $path = null): StatusFiles;
+    public function getStatus(?string $directory = null): StatusFiles;
 
     /**
      * Returns if this git path has any changes

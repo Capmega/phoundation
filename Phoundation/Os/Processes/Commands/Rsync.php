@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Arrays;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataNetworkConnection;
 use Phoundation\Data\Traits\DataSource;
+use Phoundation\Data\Traits\DataSourceServer;
 use Phoundation\Data\Traits\DataTarget;
+use Phoundation\Data\Traits\DataTargetServer;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Interfaces\RsyncInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
+use Phoundation\Utils\Arrays;
+use Stringable;
 
 
 /**
@@ -21,15 +26,17 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-class Rsync extends Command
+class Rsync extends Command implements RsyncInterface
 {
     use DataDebug;
-    use DataSource;
-    use DataTarget;
     use DataNetworkConnection;
+    use DataSource;
+    use DataSourceServer;
+    use DataTarget;
+    use DataTargetServer;
 
 
     /**
@@ -40,7 +47,7 @@ class Rsync extends Command
     protected bool $progress = false;
 
     /**
-     * Archive mode, is -rlptgoD (no -A,-X,-U,-N,-H)
+     * Archive mode is -rlptgoD (no -A,-X,-U,-N,-H)
      *
      * @var bool
      */
@@ -109,6 +116,51 @@ class Rsync extends Command
      */
     protected ?string $ssh_key = null;
 
+    /**
+     * Tracks if destination files should be deleted if not existing on source
+     *
+     * @var bool $delete
+     */
+    protected bool $delete = false;
+
+
+    /**
+     * Rsync class constructor
+     *
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string|null $operating_system
+     * @param string|null $packages
+     */
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
+    {
+        parent::__construct($restrictions, $operating_system, $packages);
+        $this->setCommand('rsync');
+    }
+
+
+    /**
+     * Returns if destination files should be deleted if not existing on source
+     *
+     * @return bool
+     */
+    public function getDelete(): bool
+    {
+        return $this->delete;
+    }
+
+
+    /**
+     * Sets if destination files should be deleted if not existing on source
+     *
+     * @param bool $delete
+     * @return static
+     */
+    public function setDelete(bool $delete): static
+    {
+        $this->delete = $delete;
+        return $this;
+    }
+
 
     /**
      * Returns if file progress should be displayed or not
@@ -170,6 +222,19 @@ class Rsync extends Command
         }
 
         return $this;
+    }
+
+
+    /**
+     * Sets the specified paths to the list that will be excluded
+     *
+     * @param array|string $paths
+     * @return static
+     */
+    public function setExclude(array|string $paths): static
+    {
+        $this->exclude = [];
+        return $this->addExclude($paths);
     }
 
 
@@ -259,12 +324,21 @@ class Rsync extends Command
     /**
      * Returns if rsync should be executed using sudo on the remote host
      *
-     * @param bool $sudo
+     * @param string|bool|null $sudo
      * @return static
      */
-    public function setRemoteSudo(bool $sudo): static
+    public function setRemoteSudo(string|bool|null $sudo): static
     {
-        $this->rsync_path = 'sudo rsync';
+        if ($sudo === true) {
+            $this->rsync_path = 'sudo rsync';
+
+        } elseif ($sudo === true) {
+            $this->rsync_path = null;
+
+        } else {
+            $this->rsync_path = $sudo;
+        }
+
         return $this;
     }
 
@@ -342,6 +416,56 @@ class Rsync extends Command
 
 
     /**
+     * Returns the full command line
+     *
+     * @param bool $background
+     * @return string
+     */
+    public function getFullCommandLine(bool $background = false): string
+    {
+        if ($this->cached_command_line) {
+            return $this->cached_command_line;
+        }
+
+        // If port is a non-default SSH port, then generate the RSH variable
+        if (empty($this->rsh)) {
+            if ($this->source_server) {
+                $this->port = $this->source_server->getPort();
+
+            } elseif ($this->target_server) {
+                $this->port = $this->target_server->getPort();
+            }
+
+            if ($this->port) {
+                $this->rsh = 'ssh -p ' . $this->port;
+            }
+        }
+
+        // Build the process parameters, then execute
+        $this->addArgument($this->progress   ? '--progress'   : null)
+            ->addArgument($this->archive    ? '-a'           : null)
+            ->addArgument($this->quiet      ? '-q'           : null)
+            ->addArgument($this->verbose    ? '-v'           : null)
+            ->addArgument($this->compress   ? '-z'           : null)
+            ->addArgument($this->safe_links ? '--safe-links' : null)
+            ->addArgument($this->delete     ? '--delete'     : null)
+            ->addArgument($this->rsh        ? '-e'           : null)
+            ->addArgument($this->rsh)
+            ->addArgument($this->ssh_key    ? '-i'           : null)
+            ->addArgument($this->ssh_key)
+            ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false, false)
+            ->addArgument($this->source)
+            ->addArgument($this->target);
+
+        foreach ($this->exclude as $exclude) {
+            $this->addArgument('--exclude=' . escapeshellarg($exclude), false);
+        }
+
+        return parent::getFullCommandLine($background);
+    }
+
+
+    /**
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethodInterface $method
@@ -349,34 +473,6 @@ class Rsync extends Command
      */
     public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null
     {
-        // If port is a non-default SSH port, then generate the RSH variable
-        if (empty($this->rsh)) {
-            if ($this->port) {
-                $this->rsh = 'ssh -p ' . $this->port;
-            }
-        }
-
-        // Build the process parameters, then execute
-        $this->setInternalCommand('rsync')
-             ->clearArguments()
-             ->addArgument($this->progress   ? '--progress'   : null)
-             ->addArgument($this->archive    ? '-a'           : null)
-             ->addArgument($this->quiet      ? '-q'           : null)
-             ->addArgument($this->verbose    ? '-v'           : null)
-             ->addArgument($this->compress   ? '-z'           : null)
-             ->addArgument($this->safe_links ? '--safe-links' : null)
-             ->addArgument($this->rsh        ? '-e'           : null)
-             ->addArgument($this->rsh)
-             ->addArgument($this->ssh_key    ? '-i'           : null)
-             ->addArgument($this->ssh_key)
-             ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false)
-             ->addArgument($this->source)
-             ->addArgument($this->target);
-
-        foreach ($this->exclude as $exclude) {
-            $this->addArgument('--exclude=' . escapeshellarg($exclude), false);
-        }
-
         $results = parent::execute($method);
 
         if ($this->debug) {

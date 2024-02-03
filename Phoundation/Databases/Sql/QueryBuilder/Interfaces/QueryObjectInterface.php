@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Sql\QueryBuilder\Interfaces;
 
 
@@ -10,7 +12,7 @@ namespace Phoundation\Databases\Sql\QueryBuilder\Interfaces;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
 interface QueryObjectInterface
@@ -130,4 +132,13 @@ interface QueryObjectInterface
      * @return static
      */
     public function addExecuteArray(?array $execute): static;
+
+    /**
+     * Add the specified predefined column
+     *
+     * @param string $name
+     * @param callable $callback
+     * @return static
+     */
+    public function addPredefine(string $name, callable $callback): static;
 }

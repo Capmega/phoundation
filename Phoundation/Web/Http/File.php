@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Core\Config;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -14,9 +12,8 @@ use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\DataRestrictions;
-use Stringable;
+use Phoundation\Utils\Config;
 
 
 /**
@@ -28,7 +25,7 @@ use Stringable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
 class File
@@ -381,8 +378,8 @@ Log::checkpoint();
     /**
      * Download the specified single file to the specified path
      *
-     * If the path is not specified then by default the function will download to the PATH_TMP directory;
-     * PATH_ROOT/data/tmp
+     * If the path is not specified then by default the function will download to the DIRECTORY_TMP directory;
+     * DIRECTORY_ROOT/data/tmp
      *
      * @see \Phoundation\Filesystem\Filesystem::createTempFile()
      * @param string $url             The URL of the file to be downloaded
@@ -393,7 +390,7 @@ Log::checkpoint();
     public function download(string $url, callable $callback = null): FileInterface|null
     {
         // Set temp file and download data
-        $file = Filesystem::createTempFile()->getFile();
+        $file = Filesystem::createTempFile()->getPath();
         $data = file_get_contents($url);
 
         // Write data to the temp file
@@ -448,7 +445,7 @@ Log::checkpoint();
             $this->files          = $this->temp();
             $is_downloaded = true;
 
-            $this->path()->ensure(dirname($this->files));
+            $this->directory()->ensure(dirname($this->files));
             file_put_contents(file_get_contents($url, false, $context));
 
             return $this->files;

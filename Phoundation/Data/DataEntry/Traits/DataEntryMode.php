@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\Interfaces\DisplayModeInterface;
-use Throwable;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
 
 
 /**
@@ -18,7 +15,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryMode
@@ -30,7 +27,7 @@ trait DataEntryMode
      */
     public function getMode(): DisplayModeInterface
     {
-        return DisplayMode::from((string) $this->getSourceFieldValue('string', 'mode', 'primary'));
+        return DisplayMode::from((string) $this->getSourceColumnValue('string', 'mode', 'primary'));
     }
 
 

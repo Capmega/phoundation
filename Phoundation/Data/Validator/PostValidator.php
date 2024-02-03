@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Strings;
+use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Page;
 
 
@@ -21,7 +21,7 @@ use Phoundation\Web\Page;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Company\Data
  */
 class PostValidator extends Validator
@@ -49,7 +49,7 @@ class PostValidator extends Validator
 
 
     /**
-     * Validator constructor.
+     * PostValidator constructor.
      *
      * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
      *       should never be used
@@ -68,16 +68,16 @@ class PostValidator extends Validator
      * Returns a new $_POST data Validator object
      *
      * @param ValidatorInterface|null $parent
-     * @return PostValidator
+     * @return static
      */
-    public static function new(?ValidatorInterface $parent = null): PostValidator
+    public static function new(?ValidatorInterface $parent = null): static
     {
         return new static($parent);
     }
 
 
     /**
-     * Link $_GET and $_POST and $argv data to internal arrays to ensure developers cannot access them until validation
+     * Link $_POST data to internal arrays to ensure developers cannot access them until validation
      * has been completed
      *
      * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
@@ -338,5 +338,37 @@ class PostValidator extends Validator
         }
 
         return $value;
+    }
+
+
+    /**
+     * Clears the internal POST array
+     *
+     * @return void
+     */
+    public function clear(): void
+    {
+        static::$post = [];
+        parent::clear();
+    }
+
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * Will throw a PostValidationFailedException if validation fails
+     *
+     * @param bool $clean_source
+     * @return array
+     * @throws PostValidationFailedException
+     */
+    public function validate(bool $clean_source = true): array
+    {
+        try {
+            return parent::validate($clean_source);
+
+        } catch (ValidationFailedException $e) {
+            throw new PostValidationFailedException($e);
+        }
     }
 }

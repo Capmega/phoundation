@@ -9,9 +9,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Http\Html\Enums\InputElement;
-use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Html\Enums\InputElement;
 
 
 /**
@@ -21,10 +19,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
 {
     /**
      * The different status values to filter on
@@ -55,7 +53,7 @@ class FilterForm extends \Phoundation\Web\Http\Html\Components\FilterForm
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setValue(isset_get($this->source['entry_status']))
-                ->setKey('auto_submit', true)
+                ->setKey(true, 'auto_submit')
                 ->setSource($this->states))
             ->addDefinition(Definition::new(null, 'roles_id')
                 ->setLabel(tr('Role'))

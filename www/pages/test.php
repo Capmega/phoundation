@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Web\Http\Html\Components\Input\InputSelect2;
+use Phoundation\Web\Html\Components\Input\InputSelect2;
 use Phoundation\Web\Http\UrlBuilder;
 
 $suggest = InputSelect2::new()

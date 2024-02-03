@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Core\Strings;
+use Phoundation\Utils\Strings;
 
 
 /**
@@ -14,7 +14,7 @@ use Phoundation\Core\Strings;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait DataEntryPhone
@@ -26,18 +26,18 @@ trait DataEntryPhone
      */
     public function getPhone(): ?string
     {
-        return $this->getSourceFieldValue('string', 'phone');
+        return $this->getSourceColumnValue('string', 'phone');
     }
 
 
     /**
      * Sets the phone for this object
      *
-     * @param array|string|null $phone
+     * @param string|null $phone
      * @return static
      */
-    public function setPhone(array|string|null $phone): static
+    public function setPhone(?string $phone): static
     {
-        return $this->setSourceValue('phone', Strings::force($phone));
+        return $this->setSourceValue('phone', $phone);
     }
 }

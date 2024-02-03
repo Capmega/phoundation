@@ -4,24 +4,30 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Core\Arrays;
-use Phoundation\Core\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Strings;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\Exception\PathException;
-use Phoundation\Filesystem\Exception\PathNotDirectoryException;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\DirectoryException;
+use Phoundation\Filesystem\Exception\DirectoryNotDirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
-use Phoundation\Filesystem\Interfaces\ExecuteInterface;
-use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Filesystem\Interfaces\ExecuteInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\Interfaces\FileInterface;
+use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Mounts\Mounts;
+use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Tar;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
@@ -35,62 +41,83 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Directory extends FileBasics implements DirectoryInterface
+class Directory extends Path implements DirectoryInterface
 {
     /**
-     * Temporary path (public data), if set
+     * Temporary directory (public data), if set
      *
-     * @var DirectoryInterface|null $temp_path_private
+     * @var DirectoryInterface|null $temp_directory_private
      */
-    protected static ?DirectoryInterface $temp_path_private = null;
+    protected static ?DirectoryInterface $temp_directory_private = null;
     /**
-     * Temporary path (private data), if set
+     * Temporary directory (private data), if set
      *
-     * @var DirectoryInterface|null $temp_path_public
+     * @var DirectoryInterface|null $temp_directory_public
      */
-    protected static ?DirectoryInterface $temp_path_public = null;
+    protected static ?DirectoryInterface $temp_directory_public = null;
 
 
     /**
-     * Path class constructor
+     * Returns the path
      *
-     * @param FileBasics|string|null $file
+     * @param bool $remove_terminating_slash
+     * @return string|null
+     */
+    public function getPath(bool $remove_terminating_slash = false): ?string
+    {
+        if ($remove_terminating_slash) {
+            if ($this->path === '/') {
+                // Root path is just what it is, it is a slash, don't remove it!
+                return '/';
+            }
+
+            return Strings::endsNotWith($this->path, '/');
+        }
+
+        return $this->path;
+    }
+
+
+    /**
+     * Directory class constructor
+     *
+     * @param Path|string|null $path
      * @param array|string|Restrictions|null $restrictions
      */
-    public function __construct(FileBasics|string|null $file = null, array|string|Restrictions|null $restrictions = null)
+    public function __construct(Path|string|null $path = null, array|string|Restrictions|null $restrictions = null)
     {
-        parent::__construct($file, $restrictions);
+        parent::__construct($path, $restrictions);
 
-        $this->file = Strings::slash($this->file);
+        $this->path = Strings::slash($this->path);
 
-        if (file_exists($this->file)) {
+        if (file_exists($this->path)) {
             // This exists, it must be a directory!
-            if (!is_dir($this->file)) {
-                throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $file
+            if (!is_dir($this->path)) {
+                throw new DirectoryNotDirectoryException(tr('The specified path ":path" is not a directory', [
+                    ':path' => $path
                 ]));
             }
         }
 
-        if ($this->real_file) {
-            $this->real_file = Strings::slash($this->real_file);
+        if ($this->real_path) {
+            $this->real_path = Strings::slash($this->real_path);
         }
     }
 
 
     /**
-     * Returns an Execute object to execute callbacks on each file in specified paths
+     * Returns an Execute object to execute callbacks on each file in specified directories
      *
      * @return ExecuteInterface
      */
     public function execute(): ExecuteInterface
     {
-        $this->file = Strings::slash($this->file);
-        return new Execute($this->file, $this->restrictions);
+        $this->path = Strings::slash($this->path);
+        return new Execute($this->path, $this->restrictions);
     }
 
 
@@ -111,13 +138,13 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
-        $this->file = Strings::slash($this->file);
+        $this->path = Strings::slash($this->path);
         parent::checkReadable($type, $previous_e);
 
-        if (!is_dir($this->file)) {
+        if (!is_dir($this->path)) {
             throw new FilesystemException(tr('The:type directory ":file" cannot be read because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->file
+                ':file' => $this->path
             ]), $previous_e);
         }
 
@@ -146,13 +173,13 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null) : static
     {
-        $this->file = Strings::slash($this->file);
+        $this->path = Strings::slash($this->path);
         parent::checkWritable($type, $previous_e);
 
-        if (!is_dir($this->file)) {
+        if (!is_dir($this->path)) {
             throw new FilesystemException(tr('The:type directory ":file" cannot be written because it is not a directory', [
                 ':type' => ($type ? '' : ' ' . $type),
-                ':file' => $this->file
+                ':file' => $this->path
             ]), $previous_e);
         }
 
@@ -165,10 +192,10 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Ensures existence of the specified path
+     * Ensures existence of the specified directory
      *
-     * @param string|null $mode octal $mode If the specified $this->path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
+     * @param string|null $mode octal $mode If the specified $this->directory does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param boolean $clear If set to true, and the specified directory already exists, it will be deleted and then re-created
      * @param bool $sudo
      * @return static
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -181,65 +208,67 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
-        $this->file = Strings::slash($this->file);
-        Filesystem::validateFilename($this->file);
+        $this->path = Strings::slash($this->path);
+        Filesystem::validateFilename($this->path);
 
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
         if ($clear) {
-            // Delete the currently existing path, so we can  be sure we have a clean path to work with
-            File::new($this->file, $this->restrictions)->delete(false, $sudo);
+            // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
+            File::new($this->path, $this->restrictions)->delete(false, $sudo);
         }
 
-        if (!file_exists(Strings::unslash($this->file))) {
-            // The complete requested path doesn't exist. Try to create it, but directory by directory so that we can
+        if (!file_exists(Strings::unslash($this->path))) {
+            // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs = explode('/', Strings::startsNotWith($this->file, '/'));
-            $this->file = '';
+            $dirs       = explode('/', Strings::startsNotWith($this->path, '/'));
+            $this->path = '';
 
-            foreach ($dirs as $dir) {
-                $this->file .= '/' . $dir;
+            foreach ($dirs as $id => $dir) {
+                $this->path .= '/' . $dir;
 
-                if (file_exists($this->file)) {
-                    if (!is_dir($this->file)) {
+                if (file_exists($this->path)) {
+                    if (!is_dir($this->path)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        File::new($this->file, $this->restrictions)->delete(false, $sudo);
+                        File::new($this->path, $this->restrictions)->delete(false, $sudo);
                         return $this->ensure($mode, $clear, $sudo);
                     }
 
                     continue;
 
-                } elseif (is_link($this->file)) {
+                } elseif (is_link($this->path)) {
                     // This is a dead symlink, delete it
-                    File::new($this->file, $this->restrictions)->delete(false, $sudo);
+                    File::new($this->path, $this->restrictions)->delete(false, $sudo);
                 }
 
                 try {
-                    // Make sure that the parent path is writable when creating the directory
-                    Directory::new(dirname($this->file), $this->restrictions->getParent())->execute()
+                    // Make sure that the parent directory is writable when creating the directory
+                    Directory::new(dirname($this->path), $this->restrictions->getParent($id + 1))->execute()
                         ->setMode(0770)
-                        ->onPathOnly(function() use ($mode) {
-                            mkdir($this->file, $mode);
+                        ->onDirectoryOnly(function() use ($mode) {
+                            mkdir($this->path, $mode);
                         });
 
                 } catch(RestrictionsException $e) {
                     throw $e;
 
                 } catch(Throwable $e) {
-                    // It sometimes happens that the specified path was created just in between the file_exists and
+                    // It sometimes happens that the specified directory was created just in between the file_exists and
                     // mkdir
-                    if (!file_exists($this->file)) {
-                        throw PathException::new(tr('Failed to create directory ":path"', [
-                            ':path' => $this->file
-                        ]), $e)->addData(['path' => $this->file]);
+                    if (!file_exists($this->path)) {
+                        throw DirectoryException::new(tr('Failed to create directory ":directory"', [
+                            ':directory' => $this->path
+                        ]), $e)->addData(['directory' => $this->path]);
                     }
+
+                    // We're okay, the directory already exists
                 }
             }
 
-        } elseif (!is_dir($this->file)) {
+        } elseif (!is_dir($this->path)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::new(Strings::endsNotWith($this->file, '/'), $this->restrictions)->delete(false, $sudo);
+            File::new(Strings::endsNotWith($this->path, '/'), $this->restrictions)->delete(false, $sudo);
             return $this->ensure($mode, $clear, $sudo);
         }
 
@@ -248,25 +277,25 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns true if the object paths are all empty
+     * Returns true if the object directories are all empty
      *
      * @return bool
      */
     public function isEmpty(): bool
     {
-        $this->file = Strings::slash($this->file);
+        $this->path = Strings::slash($this->path);
         $this->exists();
 
-        if (!is_dir($this->file)) {
+        if (!is_dir($this->path)) {
             $this->checkReadable();
 
-            throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                ':path' => $this->file
+            throw new DirectoryNotDirectoryException(tr('The specified directory ":directory" is not a directory', [
+                ':directory' => $this->path
             ]));
         }
 
         // Start reading the directory.
-        $handle = opendir($this->file);
+        $handle = opendir($this->path);
 
         while (($file = readdir($handle)) !== false) {
             // Skip . and ..
@@ -286,10 +315,10 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Delete the path, and each parent directory until a non-empty directory is encountered
+     * Delete the directory, and each parent directory until a non-empty directory is encountered
      *
-     * @param string|null $until_path If specified as a path, the method will stop deleting upwards when the specified
-     *                                path is encountered as well. If specified as true, the method will continue
+     * @param string|null $until_directory If specified as a directory, the method will stop deleting upwards when the specified
+     *                                directory is encountered as well. If specified as true, the method will continue
      *                                deleting until either Restrictions stops it, or a non empty directory has been
      *                                encountered
      * @param bool $sudo
@@ -298,34 +327,34 @@ class Directory extends FileBasics implements DirectoryInterface
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
      */
-    public function clear(?string $until_path = null, bool $sudo = false, bool $use_run_file = true): void
+    public function clear(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void
     {
-        $this->file = Strings::slash($this->file);
+        $this->path = Strings::slash($this->path);
 
         try {
-            while ($this->file) {
+            while ($this->path) {
                 // Restrict location access
-                $this->restrictions->check($this->file, true);
+                $this->restrictions->check($this->path, true);
 
-                if (!file_exists($this->file)) {
+                if (!file_exists($this->path)) {
                     // This section does not exist, jump up to the next section above
-                    $this->file = dirname($this->file);
+                    $this->path = dirname($this->path);
                     continue;
                 }
 
-                if (!is_dir($this->file)) {
+                if (!is_dir($this->path)) {
                     // This is a normal file, we only delete directories here!
-                    throw new OutOfBoundsException(tr('Not clearing path ":path", it is not a directory', [
-                        ':path' => $this->file
+                    throw new OutOfBoundsException(tr('Not clearing directory ":directory", it is not a directory', [
+                        ':directory' => $this->path
                     ]));
                 }
 
-                if ($until_path and ($this->file === $until_path)){
+                if ($until_directory and ($this->path === $until_directory)){
                     // We've cleaned until the requested directory, so we're good!
                     break;
                 }
 
-                if (!Directory::new($this->file, $this->restrictions)->isEmpty()) {
+                if (!Directory::new($this->path, $this->restrictions)->isEmpty()) {
                     // Do not remove anything more, there is contents here!
                     break;
                 }
@@ -340,7 +369,7 @@ class Directory extends FileBasics implements DirectoryInterface
                     // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
                     // Just register the event and leave it be.
                     Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
-                        ':pattern' => $this->file,
+                        ':pattern' => $this->path,
                         ':e'       => $e
                     ]));
 
@@ -348,7 +377,7 @@ class Directory extends FileBasics implements DirectoryInterface
                 }
 
                 // Go one entry up, check if we're still within restrictions, and continue deleting
-                $this->file = dirname($this->file) . '/';
+                $this->path = dirname($this->path) . '/';
             }
         } catch (RestrictionsException) {
             // We're out of our territory, stop scanning!
@@ -357,7 +386,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Creates a random path in specified base path (If it does not exist yet), and returns that path
+     * Creates a random directory in specified base directory (If it does not exist yet), and returns that directory
      *
      * @param bool $single
      * @param int $length
@@ -366,34 +395,52 @@ class Directory extends FileBasics implements DirectoryInterface
     public function createTarget(?bool $single = null, int $length = 0): string
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, true);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, true);
         $this->exists();
 
         // Check configuration
         if (!$length) {
-            $length = Config::getInteger('filesystem.target-path.size', 8);
+            $length = Config::getInteger('filesystem.target-directory.size', 8);
         }
 
         if ($single === null) {
-            $single = Config::getBoolean('filesystem.target-path.single', false);
+            $single = Config::getBoolean('filesystem.target-directory.single', false);
         }
 
-        $this->file = Strings::unslash(Directory::new($this->file, $this->restrictions)->ensure()->getFile());
+        $this->path = Strings::unslash(Directory::new($this->path, $this->restrictions)->ensure()->getPath());
 
         if ($single) {
-            // Assign path in one dir, like abcde/
-            $this->file = Strings::slash($this->file) . substr(uniqid(), -$length, $length);
+            // Assign directory in one dir, like abcde/
+            $this->path = Strings::slash($this->path) . substr(uniqid(), -$length, $length);
 
         } else {
-            // Assign path in multiple dirs, like a/b/c/d/e/
+            // Assign directory in multiple dirs, like a/b/c/d/e/
             foreach (str_split(substr(uniqid(), -$length, $length)) as $char) {
-                $this->file .= DIRECTORY_SEPARATOR . $char;
+                $this->path .= DIRECTORY_SEPARATOR . $char;
             }
         }
 
         // Ensure again to be sure the target directories too have been created
-        return Strings::slash(Directory::new($this->file, $this->restrictions)->ensure()->getFile());
+        return Strings::slash(Directory::new($this->path, $this->restrictions)->ensure()->getPath());
+    }
+
+
+    /**
+     * Return all files in this directory
+     *
+     * @return FilesInterface The files
+     */
+    public function list(): FilesInterface
+    {
+        $return = [];
+        $list   = Arrays::removeValues(scandir($this->path), ['.', '..']);
+
+        foreach ($list as $value) {
+            $return[$value] = $this->path . $value;
+        }
+
+        return Files::new($return, $this->restrictions);
     }
 
 
@@ -401,18 +448,18 @@ class Directory extends FileBasics implements DirectoryInterface
      * Return all files in a directory that match the specified pattern with optional recursion.
      *
      * @param array|string|null $filters One or multiple regex filters
-     * @param boolean $recursive If set to true, return all files below the specified path, including in sub-directories
+     * @param boolean $recursive If set to true, return all files below the specified directory, including in sub-directories
      * @return array The matched files
      */
     public function listTree(array|string|null $filters = null, bool $recursive = true): array
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, false);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
         $return = [];
-        $fh     = opendir($this->file);
+        $fh     = opendir($this->path);
 
         // Go over all files
         while (($filename = readdir($fh)) !== false) {
@@ -433,8 +480,8 @@ class Directory extends FileBasics implements DirectoryInterface
                 }
             }
 
-            // Get the complete file path
-            $file = Strings::slash($this->file) . $filename;
+            // Get the complete file directory
+            $file = Strings::slash($this->path) . $filename;
 
             // Add the file to the list. If the file is a directory, then recurse instead. Do NOT add the directory
             // itself, only files!
@@ -452,39 +499,39 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Pick and return a random file name from the specified path
+     * Pick and return a random file name from the specified directory
      *
      * @note This function reads all files into memory, do NOT use with huge directory (> 10000 files) listings!
      *
-     * @return string A random file from a random path from the object paths
+     * @return string A random file from a random directory from the object directories
      */
     public function random(): string
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, false);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
-        $this->file = Arrays::getRandomValue($this->file);
-        $files      = scandir($this->file);
+        $this->path = Arrays::getRandomValue($this->path);
+        $files      = scandir($this->path);
 
         Arrays::unsetValue($files, '.');
         Arrays::unsetValue($files, '..');
 
         if (!$files) {
-            throw new FilesystemException(tr('The specified path ":path" contains no files', [
-                ':path' => $this->file
+            throw new FilesystemException(tr('The specified directory ":directory" contains no files', [
+                ':directory' => $this->path
             ]));
         }
 
-        return Strings::slash($this->file) . Arrays::getRandomValue($files);
+        return Strings::slash($this->path) . Arrays::getRandomValue($files);
     }
 
 
     /**
-     * Scan the entire object path STRING upward for the specified file.
+     * Scan the entire object directory STRING upward for the specified file.
      *
-     * If the object file doesn't exist in the specified path, go one dir up,
+     * If the object file doesn't exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -493,19 +540,19 @@ class Directory extends FileBasics implements DirectoryInterface
     public function scanUpwardsForFile(string $filename): ?string
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, false);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
-        while (strlen($this->file) > 1) {
-            $this->file = Strings::slash($this->file);
+        while (strlen($this->path) > 1) {
+            $this->path = Strings::slash($this->path);
 
-            if (file_exists($this->file . $filename)) {
-                // The requested file is found! Return the path where it was found
-                return $this->file;
+            if (file_exists($this->path . $filename)) {
+                // The requested file is found! Return the directory where it was found
+                return $this->path;
             }
 
-            $this->file = dirname($this->file);
+            $this->path = dirname($this->path);
         }
 
         return null;
@@ -515,7 +562,7 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * If the object file doesn't exist in the specified path, go one dir up,
+     * If the object file doesn't exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -524,37 +571,37 @@ class Directory extends FileBasics implements DirectoryInterface
     public function hasFile(string $filename): bool
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, false);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
-        return file_exists($this->file . Strings::startsNotWith($filename, '/'));
+        return file_exists($this->path . Strings::startsNotWith($filename, '/'));
     }
 
 
     /**
-     * Returns the total size in bytes of the tree under the specified path
+     * Returns the total size in bytes of the tree under the specified directory
      *
-     * @return int The amount of bytes this tree takes
+     * @return int The number of bytes this tree takes
      */
     public function treeFileSize(): int
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, false);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
         $return = 0;
 
-        foreach (scandir($this->file) as $file) {
+        foreach (scandir($this->path) as $file) {
             if (($file == '.') or ($file == '..')) continue;
 
-            if (is_dir($this->file . $file)) {
+            if (is_dir($this->path . $file)) {
                 // Recurse
-                $return += Directory::new($this->file . $file, $this->restrictions)->treeFileSize();
+                $return += Directory::new($this->path . $file, $this->restrictions)->treeFileSize();
 
             } else {
-                $return += filesize($this->file . $file);
+                $return += filesize($this->path . $file);
             }
         }
 
@@ -563,24 +610,24 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns the amount of files under the object path (directories not included in count)
+     * Returns the number of files under the object directory (directories not included in count)
      *
-     * @return int The amount of files
+     * @return int The number of files
      */
     public function treeFileCount(): int
     {
         // Check filesystem restrictions
-        $this->file = Strings::slash($this->file);
-        $this->restrictions->check($this->file, false);
+        $this->path = Strings::slash($this->path);
+        $this->restrictions->check($this->path, false);
         $this->exists();
 
         $return = 0;
 
-        foreach (scandir($this->file) as $file) {
+        foreach (scandir($this->path) as $file) {
             if (($file == '.') or ($file == '..')) continue;
 
-            if (is_dir($this->file . $file)) {
-                $return += Directory::new($this->file . $file, $this->restrictions)->treeFileCount();
+            if (is_dir($this->path . $file)) {
+                $return += Directory::new($this->path . $file, $this->restrictions)->treeFileCount();
 
             } else {
                 $return++;
@@ -592,7 +639,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns PHP code statistics for this path
+     * Returns PHP code statistics for this directory
      *
      * @param bool $recurse
      * @return array
@@ -721,12 +768,12 @@ class Directory extends FileBasics implements DirectoryInterface
         $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
-            Log::action(tr('Creating non existing path ":file" with file mode ":mode"', [
+            Log::action(tr('Creating non existing directory ":file" with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
-                ':file' => $this->file
+                ':file' => $this->path
             ]), 3);
 
-            mkdir($this->file, $mode);
+            mkdir($this->path, $mode);
         }
 
         return $this;
@@ -734,45 +781,76 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns a temporary path specific for this process
+     * Returns a temporary directory specific for this process that will be removed once the process terminates
+     *
+     * The temporary directory returned will always be the same within one process, if per
      *
      * @param bool $public
      * @return DirectoryInterface
      */
-    public static function getTemporaryBase(bool $public): DirectoryInterface
+    public static function getSessionTemporaryPath(bool $public = false): DirectoryInterface
     {
         if ($public) {
-            // Return public temp path
-            if (!static::$temp_path_public) {
-                static::$temp_path_public = static::new(PATH_PUBTMP . Session::getUUID(), Restrictions::new(PATH_PUBTMP, true, 'base public temporary path'))
+            // Return public temp directory
+            if (empty(static::$temp_directory_public)) {
+                // Initialize public temp directory first
+                $path = DIRECTORY_PUBTMP . Session::getUUID();
+                static::$temp_directory_public = static::new($path, Restrictions::writable($path, 'public temporary directory'))
                     ->delete()
                     ->ensure();
 
-                // Put lock file to avoid delete cleanup removing this session directory
-                touch(static::$temp_path_public->getFile() . '.lock');
+                // Put lock file to avoid delete directory auto cleanup removing this session directory
+                touch(static::$temp_directory_public->getPath() . '.lock');
             }
 
-            return static::$temp_path_public;
+            return static::$temp_directory_public;
         }
 
-        if (!static::$temp_path_private) {
-            // Return private temp path
-            static::$temp_path_private = static::new(PATH_TMP . Session::getUUID(), Restrictions::new(PATH_TMP, true, 'base private temporary path'))
+        // Return private temp directory
+        if (empty(static::$temp_directory_private)) {
+            // Initialize private temp directory first
+            $path = DIRECTORY_TMP . Session::getUUID();
+            static::$temp_directory_private = static::new($path, Restrictions::writable($path, 'private temporary directory'))
                 ->delete()
                 ->ensure();
 
-            // Put lock file to avoid delete cleanup removing this session directory
-            touch(static::$temp_path_private->getFile() . '.lock');
+            // Put lock file to avoid delete directory auto cleanup removing this session directory
+            touch(static::$temp_directory_private->getPath() . '.lock');
         }
 
-        return static::$temp_path_private;
+        return static::$temp_directory_private;
     }
 
 
     /**
-     * Removes the temporary path specific for this process
+     * Returns a temporary directory specific for this process that will be removed once the process terminates
      *
-     * @note Will not delete temporary paths in debug mode as these paths may be required for debugging purposes
+     * The temporary directory returned will always be the same within one process, if per
+     *
+     * @param bool $public
+     * @param bool $persist If specified, the temporary directory will persist and not be removed once the process
+     *                      terminates
+     * @return DirectoryInterface
+     */
+    public static function newTemporary(bool $public = false, bool $persist = false): DirectoryInterface
+    {
+        if (!$persist) {
+            // Return a non-persistent temporary directory that will be deleted once this process terminates
+            $path = static::getSessionTemporaryPath($public) . Strings::generateUuid();
+            return static::new($path, Restrictions::writable($path, tr('persistent temporary directory')))->ensure();
+        }
+
+        $directory    = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
+        $restrictions = Restrictions::writable($directory, tr('persistent temporary directory'));
+
+        return static::new($directory . Strings::generateUuid(), $restrictions)->ensure();
+    }
+
+
+    /**
+     * Removes the temporary directory specific for this process
+     *
+     * @note Will not delete temporary directories in debug mode as these directories may be required for debugging purposes
      * @return void
      */
     public static function removeTemporary(): void
@@ -780,38 +858,38 @@ class Directory extends FileBasics implements DirectoryInterface
         Core::ExecuteNotInTestMode(function() {
             $action = false;
 
-            if (static::$temp_path_private) {
-                File::new(static::$temp_path_private, Restrictions::new(PATH_TMP, true))->delete();
+            if (static::$temp_directory_private) {
+                File::new(static::$temp_directory_private, Restrictions::new(DIRECTORY_TMP, true))->delete();
                 $action = true;
             }
 
-            if (static::$temp_path_public) {
-                File::new(static::$temp_path_public, Restrictions::new(PATH_PUBTMP, true))->delete();
+            if (static::$temp_directory_public) {
+                File::new(static::$temp_directory_public, Restrictions::new(DIRECTORY_PUBTMP, true))->delete();
                 $action = true;
             }
 
             return $action;
 
         }, tr('Cleaned up temporary directories ":private, :public"', [
-            ':private' => Strings::from(static::$temp_path_private, PATH_ROOT),
-            ':public'  => Strings::from(static::$temp_path_public, PATH_ROOT)
+            ':private' => Strings::from(static::$temp_directory_private, DIRECTORY_ROOT),
+            ':public'  => Strings::from(static::$temp_directory_public, DIRECTORY_ROOT)
         ]));
     }
 
 
     /**
-     * Tars this path and returns a file object for the tar file
+     * Tars this directory and returns a file object for the tar file
      *
      * @return FileInterface
      */
     public function tar(): FileInterface
     {
-        return File::new(Tar::new($this->restrictions)->tar($this->file), $this->restrictions);
+        return File::new(Tar::new($this->restrictions)->tar($this->path), $this->restrictions);
     }
 
 
     /**
-     * Returns the single one file in this path IF there is only one file
+     * Returns the single one file in this directory IF there is only one file
      *
      * @param string|null $regex
      * @param bool $allow_multiple
@@ -819,12 +897,12 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function getSingleFile(?string $regex = null, bool $allow_multiple = false): FileInterface
     {
-        return File::new($this->file . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
+        return File::new($this->path . $this->getSingle($regex, false, $allow_multiple), $this->restrictions);
     }
 
 
     /**
-     * Returns the single one directory in this path IF there is only one file
+     * Returns the single one directory in this directory IF there is only one file
      *
      * @param string|null $regex
      * @param bool $allow_multiple
@@ -832,12 +910,12 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function getSingleDirectory(?string $regex = null, bool $allow_multiple = false): DirectoryInterface
     {
-        return Directory::new($this->file . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
+        return Directory::new($this->path . $this->getSingle($regex, true, $allow_multiple), $this->restrictions);
     }
 
 
     /**
-     * Returns the single one file in this path IF there is only one file
+     * Returns the single one file in this directory IF there is only one file
      *
      * @param string|null $regex
      * @param bool|null $directory
@@ -846,11 +924,11 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     protected function getSingle(?string $regex = null, ?bool $directory = null, bool $allow_multiple = false): string
     {
-        $files = scandir($this->file);
+        $files = scandir($this->path);
 
         if (!$files) {
-            throw new FilesystemException(tr('Cannot get single file from path ":path", scandir failed', [
-                ':path' => $this->file
+            throw new FilesystemException(tr('Cannot get single file from directory ":directory", scandir failed', [
+                ':directory' => $this->path
             ]));
         }
 
@@ -861,7 +939,7 @@ class Directory extends FileBasics implements DirectoryInterface
         foreach ($files as $id => $file) {
             if (is_bool($directory)) {
                 // Filter on directories or non directories
-                if (is_dir($this->file . $file)) {
+                if (is_dir($this->path . $file)) {
                     // This is a directory
                     if (!$directory) {
                         // But we're looking for non directories
@@ -892,8 +970,8 @@ class Directory extends FileBasics implements DirectoryInterface
         // one and as such not equal an the same as one and therefor shall not be accepted.
         switch (count($files)) {
             case 0:
-                throw new FilesystemException(tr('Cannot return a single file, the path ":path" matches no files', [
-                    ':path'  => $this->file
+                throw new FilesystemException(tr('Cannot return a single file, the directory ":directory" matches no files', [
+                    ':directory'  => $this->path
                 ]));
 
             case 1:
@@ -901,8 +979,8 @@ class Directory extends FileBasics implements DirectoryInterface
 
             default:
                 if (!$allow_multiple) {
-                    throw new FilesystemException(tr('Cannot return a single file, the path ":path" matches ":count" files', [
-                        ':path'  => $this->file,
+                    throw new FilesystemException(tr('Cannot return a single file, the directory ":directory" matches ":count" files', [
+                        ':directory'  => $this->path,
                         ':count' => count($files)
                     ]));
 
@@ -914,7 +992,7 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns the amount of available files in the current file path
+     * Returns the number of available files in the current file directory
      *
      * @param bool $recursive
      * @return int
@@ -930,8 +1008,8 @@ class Directory extends FileBasics implements DirectoryInterface
             return 0;
         }
 
-        // Return the amount of all files in this directory
-        $files = scandir($this->file);
+        // Return the number of all files in this directory
+        $files = scandir($this->path);
         $count = count($files);
 
         // Recurse?
@@ -943,12 +1021,12 @@ class Directory extends FileBasics implements DirectoryInterface
                     continue;
                 }
 
-                // Filename must have complete absolute path
-                $file = $this->file . $file;
+                // Filename must have complete absolute directory
+                $file = $this->path . $file;
 
                 if (is_dir($file)) {
                     // Count all files in this sub directory, minus the directory itself
-                    $count += Filesystem::get($file, $this->restrictions)->getCount($recursive) - 1;
+                    $count += FileBsics::newExisting($file, $this->restrictions)->getCount($recursive) - 1;
                 }
             }
         }
@@ -958,23 +1036,23 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
      *
      * @param string|null $file_patterns The single or multiple pattern(s) that should be matched
      * @param int $glob_flags            Flags for the internal glob() call
      * @param int $match_flags           Flags for the internal fnmatch() call
-     * @return array                     The resulting file paths
+     * @return array                     The resulting file directories
      */
     public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD|FNM_CASEFOLD): array
     {
-        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($this->path, false);
 
         $return = [];
 
-        // Get path pattern part and file pattern part
+        // Get directory pattern part and file pattern part
         if ($file_patterns) {
-            $path_pattern  = dirname($file_patterns);
-            $file_patterns = basename($file_patterns);
+            $directory_pattern = dirname($file_patterns);
+            $file_patterns     = basename($file_patterns);
 
             // Parse file patterns
             switch (substr_count($file_patterns, '{')) {
@@ -1011,26 +1089,26 @@ class Directory extends FileBasics implements DirectoryInterface
                     ]));
             }
 
-            // Fix path pattern
-            if ($path_pattern === '.') {
-                $path_pattern  = '';
+            // Fix directory pattern
+            if ($directory_pattern === '.') {
+                $directory_pattern  = '';
 
             } else {
-                $path_pattern .= '/';
+                $directory_pattern .= '/';
             }
 
         } else {
             // All
-            $path_pattern  =  '';
+            $directory_pattern  =  '';
             $base_pattern  =  '';
             $file_patterns = [''];
         }
 
         // Get files
-         $glob = glob($this->file . $path_pattern . '*', $glob_flags);
+         $glob = glob($this->path . $directory_pattern . '*', $glob_flags);
 
         if (empty($glob)) {
-            // This path pattern search had no results
+            // This directory pattern search had no results
             return [];
         }
 
@@ -1039,11 +1117,11 @@ class Directory extends FileBasics implements DirectoryInterface
             foreach ($file_patterns as $file_pattern) {
                 $file_pattern = $base_pattern . $file_pattern;
 
-                $file = Strings::from($file, $this->real_file);
+                $file = Strings::from($file, $this->real_path);
                 $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
                 if ($file_pattern){
-                    if (is_dir($this->file . $file)) {
+                    if (is_dir($this->path . $file)) {
                         $directory_pattern = Strings::until($file_pattern, '.');
 
                         if (!fnmatch($directory_pattern, $test, $match_flags)) {
@@ -1068,28 +1146,28 @@ class Directory extends FileBasics implements DirectoryInterface
 
 
     /**
-     * Returns a list of all available files in this path matching the specified (multiple) pattern(s)
+     * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
      *
      * @param string|null $file_pattern The single or multiple pattern(s) that should be matched
      * @param int $glob_flags           Flags for the internal glob() call
-     * @return array                    The resulting file paths
+     * @return array                    The resulting file directories
      */
     public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): array
     {
-        $this->restrictions->check($this->file, false);
+        $this->restrictions->check($this->path, false);
 
         // Get files
         $return = [];
-        $glob   = glob($this->file . '*', $glob_flags);
+        $glob   = glob($this->path . '*', $glob_flags);
 
         if (empty($glob)) {
-            // This path pattern search had no results
+            // This directory pattern search had no results
             return [];
         }
 
         // Check file patterns
         foreach ($glob as $file) {
-            $file = Strings::from($file, $this->real_file);
+            $file = Strings::from($file, $this->real_path);
             $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
             if ($file_pattern){
@@ -1115,10 +1193,10 @@ class Directory extends FileBasics implements DirectoryInterface
      * Issues can be either that the .isnotmounted file is visible (which it should NOT be if mounted) or (if specified)
      * $source does not match the mounted source
      *
-     * @param Stringable|string|null $source
+     * @param array|Stringable|string|null $sources
      * @return bool|null
      */
-    public function isMounted(Stringable|string|null $source): ?bool
+    public function isMounted(array|Stringable|string|null $sources): ?bool
     {
         $is_mounted  = false;
         $mounted     = $this->hasFile('.ismounted');
@@ -1126,10 +1204,17 @@ class Directory extends FileBasics implements DirectoryInterface
 
         if ($mounted and !$not_mounted) {
             // This directory is mounted, yay!
-            if ($source) {
+            if ($sources) {
                 // But is it mounted at the right place?
                 $mount = Mounts::getDirectoryMountInformation($this);
-                return $mount['source'] == Directory::new($source)->getFile();
+
+                foreach ($sources as $source) {
+                    if ($mount['source'] == Directory::new($source)->getPath()) {
+                        return true;
+                    }
+                }
+
+                return false;
             }
 
             return true;
@@ -1147,26 +1232,26 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
-     * @param Stringable|string|null $source
+     * @param array|Stringable|string|null $sources
      * @return static
      * @throws DirectoryNotMountedException
      */
-    public function checkMounted(Stringable|string|null $source): static
+    public function checkMounted(array|Stringable|string|null $sources): static
     {
-        $status = $this->isMounted($source);
+        $status = $this->isMounted($sources);
 
         if ($status === false) {
-            throw new DirectoryNotMountedException(tr('The path ":path" should be mounted from ":source" but has mount status ":status"', [
-                ':path'   => $this->getFile(),
-                ':source' => Directory::new($source)->getFile(),
+            throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has mount status ":status"', [
+                ':directory' => $this->getPath(),
+                ':source' => Directory::new($source)->getPath(),
                 ':status' => gettype($status)
             ]));
         }
 
         if (!$status) {
-            throw new DirectoryNotMountedException(tr('The path ":path" should be mounted from ":source" but has mount status ":status"', [
-                ':path'   => $this->getFile(),
-                ':source' => Directory::new($source)->getFile(),
+            throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has mount status ":status"', [
+                ':directory'   => $this->getPath(),
+                ':source' => Directory::new($source)->getPath(),
                 ':status' => gettype($status)
             ]));
         }
@@ -1180,12 +1265,12 @@ class Directory extends FileBasics implements DirectoryInterface
     /**
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
-     * @param Stringable|string|null $source
+     * @param array|Stringable|string|null $sources
      * @param array|null $options
      * @param string|null $filesystem
      * @return static
      */
-    public function ensureMounted(Stringable|string|null $source, ?array $options = null, ?string $filesystem = null): static
+    public function ensureMounted(array|Stringable|string|null $sources, ?array $options = null, ?string $filesystem = null): static
     {
         if (!$this->isMounted($source)) {
             $this->mount($source, $options, $filesystem);
@@ -1199,13 +1284,13 @@ class Directory extends FileBasics implements DirectoryInterface
      * Returns true if this specific directory is mounted from somewhere, false otherwise
      *
      * @param Stringable|string|null $source
-     * @param array|null $options
      * @param string|null $filesystem
+     * @param array|null $options
      * @return static
      */
-    public function mount(Stringable|string|null $source, ?array $options = null, ?string $filesystem = null): static
+    public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        Mounts::mount(File::new($source), $this, $options, $filesystem);
+        Mounts::mount(File::new($source), $this, $filesystem, $options);
         return $this;
     }
 
@@ -1231,7 +1316,7 @@ class Directory extends FileBasics implements DirectoryInterface
      */
     public function bind(Stringable|string|null $source, ?array $options = null): static
     {
-        // Add bind option
+        // Add the required bind option
         $options[] = '--bind';
 
         // Source must be a directory
@@ -1247,5 +1332,77 @@ class Directory extends FileBasics implements DirectoryInterface
     public function unbind(): static
     {
         return $this->unmount();
+    }
+
+
+    /**
+     * Copy this directory with progress notification
+     *
+     * @param Stringable|string $target
+     * @param callable $callback
+     * @param RestrictionsInterface $restrictions
+     * @return static
+     * @example:
+     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     *      if ($notification_code == STREAM_Notification_PROGRESS) {
+     *          // save $bytes_transferred and $bytes_max to file or database
+     *      }
+     *  });
+     */
+    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static
+    {
+        throw new UnderConstructionException();
+
+        $context      = stream_context_create();
+        $restrictions = $this->ensureRestrictions($restrictions);
+
+        $this->restrictions->check($this->path, true);
+        $restrictions->check($target, false);
+
+        stream_context_set_params($context, [
+            'notification' => $callback
+        ]);
+
+        copy($this->path, $target, $context);
+        return new static($target, $this->restrictions);
+    }
+
+
+    /**
+     * Returns a new Find object
+     *
+     * @return FindInterface
+     */
+    public function find(): FindInterface
+    {
+        return Find::new($this->restrictions)->setFindPath($this);
+    }
+
+
+    /**
+     * Returns the specified directory added to this directory
+     *
+     * @param PathInterface|string $directory
+     * @return DirectoryInterface
+     */
+    public function addDirectory(PathInterface|string $directory): DirectoryInterface
+    {
+        $directory = $this->getPath() . Strings::startsNotWith((string) $directory, '/');
+        return Directory::new($directory, $this->restrictions);
+    }
+
+
+    /**
+     * Returns true if this path contains any files
+     *
+     * @return bool
+     */
+    public function containFiles(): bool
+    {
+        return Find::new()
+            ->setFindPath($this->path)
+            ->setType('f')
+            ->executeReturnIterator()
+            ->isNotEmpty();
     }
 }

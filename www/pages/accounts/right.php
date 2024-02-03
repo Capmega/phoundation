@@ -8,17 +8,15 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Http\Html\Components\BreadCrumbs;
-use Phoundation\Web\Http\Html\Components\Button;
-use Phoundation\Web\Http\Html\Components\Buttons;
-use Phoundation\Web\Http\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Http\Html\Enums\DisplayMode;
-use Phoundation\Web\Http\Html\Enums\DisplaySize;
-use Phoundation\Web\Http\Html\Layouts\Grid;
+use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Button;
+use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-
-Session::getUser()->hasAllRights('blergh');
 
 
 /**
@@ -28,7 +26,7 @@ Session::getUser()->hasAllRights('blergh');
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
 
@@ -40,7 +38,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$right = Right::get($get['id']);
+$right = Right::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
@@ -81,15 +79,15 @@ if (Page::isPostRequestMethod()) {
 // Audit button.
 if (!$right->isNew()) {
     $audit = Button::new()
-        ->setRight(true)
+        ->setFloatRight(true)
         ->setMode(DisplayMode::information)
-        ->setAnchorUrl('/audit/meta-' . $right->getMeta() . '.html')
-        ->setRight(true)
+        ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
+        ->setFloatRight(true)
         ->setValue(tr('Audit'))
         ->setContent(tr('Audit'));
 
     $delete = Button::new()
-        ->setRight(true)
+        ->setFloatRight(true)
         ->setMode(DisplayMode::warning)
         ->setOutlined(true)
         ->setValue(tr('Delete'))
