@@ -3,9 +3,16 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\User;
+use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Emails\Email;
+use Phoundation\Notifications\Exception\NotificationsException;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 
 /**
@@ -18,26 +25,94 @@ use Phoundation\Emails\Email;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
+
+
+CliDocumentation::autoComplete([
+    'arguments' => [
+        '-f,--from'  => [
+            'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
+            'noword' => function ()      { return Users::new()->load()->limitAutoComplete(); },
+        ],
+        '-t,--to'  => [
+            'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
+            'noword' => function ()      { return Users::new()->load()->limitAutoComplete(); },
+        ],
+        '-s,--to'   => true,
+        '-b,--body' => true,
+        '-h,--html' => false,
+    ]
+]);
+
 CliDocumentation::usage('./pho email send');
+
 CliDocumentation::help('This command can send out emails
 
 
 ARGUMENTS
 
 
--');
+-b,--body STRING                        The email body
+
+[-f,--from EMAIL]                       The email address of the user from which this mail should be sent
+
+-h,--html                               If specified, the email body will be sent as HTML
+
+-s,--subject STRING                     The subject line for the email
+
+-t,--to EMAIL                           The email address of the user to which this mail should be sent');
 
 
+// Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--from')->isEmail()
-    ->select('-t,--to')->isEmail()
-    ->select('-s,--subject')->hasMaxCharacters(255)
-    ->select('-b,--body')->hasMaxCharacters(65536)
+    ->select('-f,--from'   , true)->isOptional()->isEmail()
+    ->select('-t,--to'     , true)->isEmail()
+    ->select('-s,--subject', true)->hasMaxCharacters(255)
+    ->select('-b,--body'   , true)->hasMaxCharacters(16_777_200)
+    ->select('-h,--html')->isOptional()->isBoolean()
     ->validate();
 
-Email::new()
-    ->addFrom($argv['from'])
-    ->addTo($argv['to'])
-    ->setSubject($argv['subject'])
-    ->setBody($argv['body'])
-    ->send();
+
+// TODO Use the Email library for this once its ready
+$to   = User::get($argv['to']);
+$mail = new PHPMailer();
+
+$mail->Host    = "10.10.0.9";
+$mail->Port    = "25";
+$mail->Subject = $argv['subject'];
+$mail->Body    = $argv['body'];
+
+$mail->isSMTP();
+$mail->isHTML($argv['html']);
+$mail->addAddress($to->getEmail(), $to->getDisplayName());
+
+try {
+    if ($argv['from']) {
+        $from = User::get($argv['from']);
+        $mail->setFrom($from->getEmail(), $from->getDisplayName());
+
+    } else {
+        $mail->setFrom(Config::getString('email.from.email'), Config::getString('email.from.name', 'Your Phoundation project'));
+    }
+
+} catch (ConfigPathDoesNotExistsException $e) {
+    // Phoundation isn't properly configured
+    throw new NotificationsException(tr('Cannot send email because the email.from.email and or email.from.name are not correctly configured'), $e);
+}
+
+if (!$mail->send()) {
+    throw new NotificationsException(tr('Cannot send email because ":e"', [':e' => $mail->ErrorInfo]));
+}
+
+Log::success(tr('Sent email ":subject" to ":user"', [
+    ':subject' => $argv['subject'],
+    ':user'    => $to->getLogId()
+]));
+
+
+
+//Email::new()
+//    ->addFrom($argv['from'])
+//    ->addTo($argv['to'])
+//    ->setSubject($argv['subject'])
+//    ->setBody($argv['body'])
+//    ->send();
