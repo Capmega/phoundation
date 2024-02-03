@@ -829,6 +829,7 @@ $skip = false;
             Rsync::new()
                 ->setSource($phoundation->getDirectory() . 'Phoundation/')
                 ->setTarget(DIRECTORY_ROOT . 'Phoundation')
+                ->setExclude(['.git', '.gitignore'])
                 ->setDelete(true)
                 ->execute();
 
@@ -837,6 +838,7 @@ $skip = false;
             Rsync::new()
                 ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
                 ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
+                ->setExclude(['.git', '.gitignore'])
                 ->setDelete(true)
                 ->execute();
 
@@ -845,6 +847,7 @@ $skip = false;
             Rsync::new()
                 ->setSource($phoundation->getDirectory() . 'pho')
                 ->setTarget(DIRECTORY_ROOT . 'pho')
+                ->setExclude(['.git', '.gitignore'])
                 ->setDelete(true)
                 ->execute();
 
@@ -911,8 +914,8 @@ $skip = false;
             Log::action('Updating Phoundation plugins');
             Rsync::new()
                 ->setSource($plugins->getDirectory())
-                ->setExclude(['Plugins/Phoundation', '.git', '.gitignore'])
                 ->setTarget(DIRECTORY_ROOT)
+                ->setExclude(['Plugins/Phoundation', '.git', '.gitignore'])
                 ->execute();
 
             // Switch phoundation back to its previous branch
