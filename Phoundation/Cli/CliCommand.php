@@ -401,7 +401,7 @@ class CliCommand
      *
      * @return array
      */
-    public static function getCommands(): array
+    public static function getCommandsArray(): array
     {
         return static::$commands;
     }
@@ -517,7 +517,7 @@ class CliCommand
                 if (!static::cacheHasBeenRebuilt()) {
                     // Command was not found, try rebuilding the cache and try at least once more.
                     static::rebuildCache();
-                    ArgvValidator::recoverBackupArguments();
+                    ArgvValidator::recoverBackupSource();
                     return static::findCommand();
                 }
 
@@ -582,7 +582,7 @@ class CliCommand
         if (!static::cacheHasBeenRebuilt()) {
             // Command was not found, try rebuilding the cache and try at least once more.
             static::rebuildCache();
-            ArgvValidator::recoverBackupArguments();
+            ArgvValidator::recoverBackupSource();
             return static::findCommand();
         }
 
