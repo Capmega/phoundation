@@ -1393,20 +1393,6 @@ class Page implements PageInterface
 
         } catch (Http409Exception $e) {
             Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-
-        } catch (Exception $e) {
-            // This will cause a 500 page on non debug environments, core dump on debug environments
-            // TODO Test if this assumption is correct!
-            Notification::new()
-                ->setTitle(tr('Failed to execute ":type" page ":page" with language ":language"', [
-                    ':type'     => Core::getRequestType()->value,
-                    ':page'     => $target,
-                    ':language' => LANGUAGE
-                ]))
-                ->setException($e)
-                ->send();
-
-            throw $e;
         }
     }
 
