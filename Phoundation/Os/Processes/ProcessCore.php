@@ -37,7 +37,7 @@ use Phoundation\Utils\Strings;
  * @package Phoundation\Os
  * @uses ProcessVariables
  */
-abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInterface
+abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInterface
 {
     use ProcessVariables;
 
@@ -544,16 +544,17 @@ abstract class ProcessCore implements  ProcessVariablesInterface, ProcessCoreInt
                 $argument = str_replace((string) $key, (string) $variable, $argument);
             }
 
-            if ($escape_argument) {
-                $argument = escapeshellarg($argument);
-            }
-
             if ($escape_quotes) {
                 // Escape quotes if required so for shell
                 for ($i = 0; $i < $this->escape_quotes; $i++) {
                     $argument = str_replace('\\', '\\\\', $argument);
                     $argument = str_replace('\'', '\\\'', $argument);
+                    $argument = str_replace('"' ,'\\"'  , $argument);
                 }
+            }
+
+            if ($escape_argument) {
+                $argument = escapeshellarg($argument);
             }
 
             $arguments[] = $argument;
