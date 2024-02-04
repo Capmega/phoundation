@@ -6,10 +6,9 @@ namespace Phoundation\Developer\Phoundation;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
-use Phoundation\Developer\Phoundation\Exception\IsPhoundationException;
-use Phoundation\Developer\Phoundation\Exception\NotPhoundationException;
+use Phoundation\Developer\Phoundation\Exception\NotPluginsException;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
-use Phoundation\Developer\Phoundation\Exception\PhoundationNotFoundException;
+use Phoundation\Developer\Phoundation\Exception\PhoundationPluginsNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
@@ -18,7 +17,6 @@ use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
@@ -88,16 +86,10 @@ class Plugins extends Project
                 ]));
             }
 
-            if (!$this->isPhoundationProject($directory)) {
-                // This is not a Phoundation type project directory
-                throw new NotPhoundationException(tr('The specified Phoundation plugins location ":file" exists but is not a Phoundation project', [
+            if (!$this->isPhoundationPlugins($directory)) {
+                // This is not a Phoundation plugins directory
+                throw new NotPluginsException(tr('The specified Phoundation plugins location ":file" exists but is not a Phoundation plugins project', [
                     ':directory' => $directory
-                ]));
-            }
-
-            if (!$this->isPhoundation($directory)) {
-                throw new NotPhoundationException(tr('The specified Phoundation plugins location ":file" exists but is not a Phoundation core installation', [
-                    ':file' => $location
                 ]));
             }
 
@@ -107,7 +99,6 @@ class Plugins extends Project
 
             $this->directory = $directory;
             return $directory;
-
         }
 
         // Scan for phoundation installation location.
@@ -161,7 +152,7 @@ class Plugins extends Project
             }
         }
 
-        throw new PhoundationNotFoundException();
+        throw new PhoundationPluginsNotFoundException();
     }
 
 
@@ -180,10 +171,19 @@ class Plugins extends Project
             }
 
             // Select the previous branch and reset it
+            Log::action(tr('Switching Phoundation plugins back to branch ":branch"', [
+                ':branch' => $branch
+            ]), 3);
+
             $this->git->setBranch($this->branch);
             $this->branch = null;
 
         } else {
+            // Select the previous branch and reset it
+            Log::action(tr('Switching Phoundation plugins to branch ":branch"', [
+                ':branch' => $branch
+            ]), 4);
+
             // Select the new branch and store the previous
             $this->branch = $this->git->getBranch();
             $this->git->setBranch($branch);
