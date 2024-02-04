@@ -2922,6 +2922,81 @@ class Arrays extends Utils
 
 
     /**
+     * Returns all array values from the haystack that matches the needle(s)
+     *
+     * @param array|string $needles
+     * @param array $haystack
+     * @param int $options          Flags that will modify this functions behavior. Current flags are one of
+     *                              Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or Utils::MATCH_ANYWHERE
+     *                              Utils::MATCH_ANY
+     *
+     * Utils::MATCH_NO_CASE:  Will match entries in case-insensitive mode
+     * Utils::MATCH_ALL:      Will match entries that contain all the specified needles
+     * Utils::MATCH_ANY:      Will match entries that contain any of the specified needles
+     * Utils::MATCH_BEGIN:    Will match entries that start with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_END, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_END:      Will match entries that end with the specified needles. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_ANYWHERE: Will match entries that contain the specified needles anywhere. Mutually exclusive with
+     *                         Utils::MATCH_BEGIN, Utils::MATCH_ANYWHERE
+     * Utils::MATCH_RECURSE:  Will recurse into sub-arrays, if encountered
+     * @return array
+     */
+    public static function getSubMatches(array $haystack, array|string $needles, string $subkey, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_RECURSE): array
+    {
+        $flags   = static::decodeMatchOptions($options, true);
+        $needles = static::checkRequiredNeedles($needles, $flags['match_no_case']);
+        $return  = [];
+
+        foreach ($haystack as $key => $value) {
+            if (!$value) {
+                // Ignore empty lines
+                continue;
+            }
+
+            // $value must be an array or DataEntry, get the test value from the subkey
+            if (!is_array($value)) {
+                if (!($value instanceof DataEntryInterface)) {
+                    throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value must be an array or DataEntryInterface but is an ":type"', [
+                        ':key'     => $key,
+                        ':needles' => Strings::force($needles),
+                        ':type'    => gettype($value),
+                    ]));
+                }
+
+                try {
+                    $test_value = $value->getSourceValue($subkey);
+
+                } catch (OutOfBoundsException $e) {
+                    throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value does not have the required sub key ":sub"', [
+                        ':key'     => $key,
+                        ':needles' => Strings::force($needles),
+                        ':sub'     => $subkey,
+                    ]), $e);
+                }
+
+            } else {
+                if (!array_key_exists($key, $value)) {
+                    throw new OutOfBoundsException(tr('Cannot filter value with key ":key" for needles ":needles", the value does not have the required sub key ":sub"', [
+                        ':key'     => $key,
+                        ':needles' => Strings::force($needles),
+                        ':sub'     => $subkey,
+                    ]));
+                }
+
+                $test_value = $value[$subkey];
+            }
+
+            if (static::testStringMatchesNeedles(static::getTestValue($test_value, $flags['match_no_case']), $needles, $flags)) {
+                $return[$key] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Returns true if any of the array values matches the specified needles using the specified match options
      *
      * @param array $haystack
