@@ -62,9 +62,11 @@ ARGUMENTS
 
 [-l / --local]                          If specified update from a local Phoundation core repository
 
+[-m / --message]                        The git commit message for this update. If not specified, a default will be used
+
 [-n / --no-plugins]                     If specified will not update the plugins
 
-[-m / --message]                        The git commit message for this update. If not specified, a default will be used
+[--no-phoundation]                      If specified will not update phoundation core files
 
 [-p / --phoundation]                    If specified should contain the path to your local Phoundation installation
 
@@ -86,6 +88,7 @@ $argv = ArgvValidator::new()
     ->select('-l,--local')->isOptional()->isBoolean()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
     ->select('-n,--no-plugins')->isOptional()->isBoolean()
+    ->select('--no-phoundation')->isOptional()->isBoolean()
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
     ->select('-s,--signed')->isOptional(false)->isBoolean()
     ->select('--skip-caching')->isOptional(false)->isBoolean()
@@ -95,8 +98,12 @@ $argv = ArgvValidator::new()
 
 if ($argv['local']) {
     try {
-        Log::action(tr('Pulling updates from local Phoundation installation...'));
-        Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching']);
+        if ($argv['no_phoundation']) {
+            Log::warning('Not updating phoundation core files');
+        } else {
+            Log::action(tr('Pulling updates from local Phoundation installation...'));
+            Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching']);
+        }
 
         if ($argv['no_plugins']) {
             Log::warning('Not updating plugins');
