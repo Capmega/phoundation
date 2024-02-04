@@ -11,6 +11,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Commands\Mplayer;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Web\Page;
@@ -37,7 +38,7 @@ class Audio extends File
     {
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
-                Mplayer::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
+                Mpg123::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
                     ->setFile(Filesystem::absolute($this->path, DIRECTORY_DATA . 'audio'))
                     ->play($background);
 
