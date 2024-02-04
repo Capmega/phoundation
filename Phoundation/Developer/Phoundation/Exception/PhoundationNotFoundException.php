@@ -28,12 +28,12 @@ class PhoundationNotFoundException extends DeveloperException
      * @param string|null $code
      * @param Throwable|null $previous
      */
-    public function __construct(Throwable|array|string|null $messages = null, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
+    public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)
     {
         if (!$messages) {
             $messages = tr('Failed to find a Phoundation installation');
         }
 
-        parent::__construct($messages, $data, $code, $previous);
+        parent::__construct($messages, $previous);
     }
 }
