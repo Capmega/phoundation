@@ -252,7 +252,7 @@ class Phones extends DataList implements PhonesInterface
             }
 
             // Get a list of what we should add and remove and apply this
-            $diff = Arrays::valueDiff($this->getSourceColumn('phone'), array_keys($phones), true);
+            $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('phone'), array_keys($phones), true);
             $diff = Arrays::deleteDiff($diff, $phones);
 
             foreach ($diff['delete'] as $id => $phone) {

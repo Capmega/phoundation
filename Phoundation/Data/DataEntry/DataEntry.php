@@ -1857,7 +1857,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $force
      * @return static
      */
-    protected function setSourceValue(string $column, mixed $value, bool $force = false): static
+    public function setSourceValue(string $column, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
             Log::debug('TRY SET SOURCE VALUE FIELD "' . $column . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);

@@ -304,7 +304,7 @@ abstract class DataList extends Iterator implements DataListInterface
             // Create and return the table
             return HtmlTable::new()
                 ->setId(static::getTable())
-                ->setSource($this->getSourceColumns($columns))
+                ->setSource($this->getAllRowsMultipleColumns($columns))
                 ->setCallbacks($this->callbacks)
                 ->setCheckboxSelectors(TableIdColumn::checkbox);
         }
@@ -333,7 +333,7 @@ abstract class DataList extends Iterator implements DataListInterface
             // Create and return the table
             return HtmlDataTable::new()
                 ->setId(static::getTable())
-                ->setSource($this->getSourceColumns($columns))
+                ->setSource($this->getAllRowsMultipleColumns($columns))
                 ->setCallbacks($this->callbacks)
                 ->setCheckboxSelectors(TableIdColumn::checkbox);
         }
@@ -367,7 +367,7 @@ abstract class DataList extends Iterator implements DataListInterface
             $value_column = trim($value_column);
             $value_column = Strings::fromReverse($value_column, ' ');
             $value_column = str_replace('`', '', $value_column);
-            $select->setSource($this->getSourceColumn($value_column));
+            $select->setSource($this->getAllRowsSingleColumn($value_column));
 
         } else {
             $query = 'SELECT ' . $key_column . ', ' . $value_column . ' 

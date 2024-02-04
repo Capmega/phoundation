@@ -113,7 +113,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return mixed
      */
-    public function getSourceKey(Stringable|string|float|int $key, bool $exception = true): mixed;
+    public function getSourceValue(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Sets value for the specified key
@@ -170,7 +170,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return IteratorInterface
      */
-    public function getSourceKeyColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
+    public function getSingleRowMultipleColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
     /**
      * Returns value for the specified key
@@ -180,7 +180,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return mixed
      */
-    public function getSourceKeyColumn(Stringable|string|float|int $key, string $column, bool $exception = true): mixed;
+    public function getSingleRowsSingleColumn(Stringable|string|float|int $key, string $column, bool $exception = true): mixed;
 
     /**
      * Sets the internal source directly
@@ -257,7 +257,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param string $column
      * @return static
      */
-    public function deleteByColumnValue(Stringable|array|string|float|int $values, string $column): static;
+    public function deleteByColumnValues(Stringable|array|string|float|int $values, string $column): static;
 
     /**
      * Returns if the specified key exists or not
@@ -317,7 +317,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param array|string|null $columns
      * @return IteratorInterface
      */
-    public function getSourceColumns(array|string|null $columns): IteratorInterface;
+    public function getAllRowsMultipleColumns(array|string|null $columns): IteratorInterface;
 
     /**
      * Returns an array with each value containing a scalar with only the specified column value
@@ -328,7 +328,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param string $column
      * @return IteratorInterface
      */
-    public function getSourceColumn(string $column): IteratorInterface;
+    public function getAllRowsSingleColumn(string $column): IteratorInterface;
 
     /**
      * Returns the length of the longest value

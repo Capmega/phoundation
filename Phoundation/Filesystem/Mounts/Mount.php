@@ -325,7 +325,7 @@ class Mount extends DataEntry implements MountInterface
     public function isMounted(): bool
     {
         try {
-            foreach (Mounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)->getSourceColumn('source_path') as $source_path) {
+            foreach (Mounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)->getAllRowsSingleColumn('source_path') as $source_path) {
                 if ($this->getSourcePath() !== $source_path) {
                     throw new MountsException(tr('The target path ":target" should be mounted from ":source" but is mounted from ":current"', [
                         ':source'  => $this->getTargetPath(),
@@ -353,7 +353,7 @@ class Mount extends DataEntry implements MountInterface
     public function getCurrentSource(): string|null
     {
         try {
-            $mounts = Mounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)->getSourceColumn('source_path');
+            $mounts = Mounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)->getAllRowsSingleColumn('source_path');
             return end($mounts);
 
         } catch (NotExistsException) {

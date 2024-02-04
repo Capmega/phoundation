@@ -84,7 +84,7 @@ $builder = $requirements->getQueryBuilder()->setDebug(true)
                  `filesystem_requirements`.`status`, 
                  `filesystem_requirements`.`created_on`');
 
-switch ($filters->getSourceKey('entry_status')) {
+switch ($filters->getSourceValue('entry_status')) {
     case '__all':
         break;
 
@@ -93,7 +93,7 @@ switch ($filters->getSourceKey('entry_status')) {
         break;
 
     default:
-        $builder->addWhere('`filesystem_requirements`.`status` = :status', [':status' => $filters->getSourceKey('entry_status')]);
+        $builder->addWhere('`filesystem_requirements`.`status` = :status', [':status' => $filters->getSourceValue('entry_status')]);
 }
 
 // Build SQL requirements table

@@ -35,4 +35,3 @@ $reply = Json::encode([
 $reply = AutoSuggestRequest::getCallback() . '(' . $reply . ')';
 
 Json::reply($reply);
-

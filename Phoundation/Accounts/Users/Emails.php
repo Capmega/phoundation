@@ -242,7 +242,7 @@ class Emails extends DataList implements EmailsInterface
             }
 
             // Get a list of what we should add and remove and apply this
-            $diff = Arrays::valueDiff($this->getSourceColumn('email'), array_keys($emails), true);
+            $diff = Arrays::valueDiff($this->getAllRowsSingleColumn('email'), array_keys($emails), true);
             $diff = Arrays::deleteDiff($diff, $emails);
 
             foreach ($diff['delete'] as $id => $email) {

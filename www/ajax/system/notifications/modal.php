@@ -43,7 +43,7 @@ $reply = [
     'buttons' => isset_get($button) .
         Button::new()
             ->setOutlined(true)
-            ->setAnchorUrl('http://mediweb.medinet.ca.local/en/notifications/notification-' . $notification->getId() . '.html')
+            ->setAnchorUrl('http://mediweb.medinet.ca.local/en/notifications/notification+' . $notification->getId() . '.html')
             ->setContent(tr('See details'))
             ->render()];
 
