@@ -72,7 +72,16 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-// TODO Use the Email library for this once its ready
+// TODO Use the Email library for sending emails, once its ready
+//Email::new()
+//    ->addFrom($argv['from'])
+//    ->addTo($argv['to'])
+//    ->setSubject($argv['subject'])
+//    ->setBody($argv['body'])
+//    ->send();
+
+
+// Send emails directly using PHPMailer
 $to   = User::get($argv['to']);
 $mail = new PHPMailer();
 
@@ -96,7 +105,7 @@ try {
 
 } catch (ConfigPathDoesNotExistsException $e) {
     // Phoundation isn't properly configured
-    throw new NotificationsException(tr('Cannot send email because the email.from.email and or email.from.name are not correctly configured'), $e);
+    Log::error(tr('Cannot send email because the email.from.email and or email.from.name are not correctly configured'));
 }
 
 if (!$mail->send()) {
@@ -107,12 +116,3 @@ Log::success(tr('Sent email ":subject" to ":user"', [
     ':subject' => $argv['subject'],
     ':user'    => $to->getLogId()
 ]));
-
-
-
-//Email::new()
-//    ->addFrom($argv['from'])
-//    ->addTo($argv['to'])
-//    ->setSubject($argv['subject'])
-//    ->setBody($argv['body'])
-//    ->send();
