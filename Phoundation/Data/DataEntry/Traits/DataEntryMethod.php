@@ -24,7 +24,7 @@ trait DataEntryMethod
      */
     public function getMethod(): ?string
     {
-        return $this->getSourceColumnValue('string', 'method');
+        return $this->getSourceValueTypesafe('string', 'method');
     }
 
 

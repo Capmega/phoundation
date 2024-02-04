@@ -24,7 +24,7 @@ trait DataEntryReason
      */
     public function getReason(): ?string
     {
-        return $this->getSourceColumnValue('string', 'reason');
+        return $this->getSourceValueTypesafe('string', 'reason');
     }
 
 

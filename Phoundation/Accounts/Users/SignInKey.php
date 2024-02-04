@@ -106,7 +106,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getValidUntil(): ?string
     {
-        return $this->getSourceColumnValue('int', 'valid_until');
+        return $this->getSourceValueTypesafe('int', 'valid_until');
     }
 
 
@@ -129,7 +129,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getAllowNavigation(): bool
     {
-        return (bool) $this->getSourceColumnValue('bool', 'allow_navigation', false);
+        return (bool) $this->getSourceValueTypesafe('bool', 'allow_navigation', false);
     }
 
 
@@ -152,7 +152,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getOnce(): ?bool
     {
-        return $this->getSourceColumnValue('bool', 'once', true);
+        return $this->getSourceValueTypesafe('bool', 'once', true);
     }
 
 

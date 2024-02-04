@@ -26,7 +26,7 @@ trait DataEntryFile
      */
     public function getFile(): ?string
     {
-        return $this->getSourceColumnValue('string', 'file');
+        return $this->getSourceValueTypesafe('string', 'file');
     }
 
 

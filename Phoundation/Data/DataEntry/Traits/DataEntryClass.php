@@ -24,7 +24,7 @@ trait DataEntryClass
      */
     public function getClass(): ?string
     {
-        return $this->getSourceColumnValue('string', 'class');
+        return $this->getSourceValueTypesafe('string', 'class');
     }
 
 

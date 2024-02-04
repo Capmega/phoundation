@@ -33,7 +33,7 @@ trait DataEntryServer
      */
     public function getServersId(): ?int
     {
-        return $this->getSourceColumnValue('int', 'servers_id');
+        return $this->getSourceValueTypesafe('int', 'servers_id');
 
     }
 

@@ -26,7 +26,7 @@ trait DataEntryVersion
      */
     public function getSeoVersion(): ?string
     {
-        return $this->getSourceColumnValue('string', 'seo_version');
+        return $this->getSourceValueTypesafe('string', 'seo_version');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryVersion
      */
     public function getVersion(): ?string
     {
-        return $this->getSourceColumnValue('string', 'version');
+        return $this->getSourceValueTypesafe('string', 'version');
     }
 
 
@@ -68,7 +68,7 @@ trait DataEntryVersion
         } else {
             // Get SEO version and ensure that the seo_version does NOT surpass the version maxlength because MySQL
             // won't find the entry if it does!
-            $seo_version = Seo::unique(substr($version, 0, $this->definitions->get('version')->getMaxlength()), static::getTable(), $this->getSourceColumnValue('int', 'id'), 'seo_version');
+            $seo_version = Seo::unique(substr($version, 0, $this->definitions->get('version')->getMaxlength()), static::getTable(), $this->getSourceValueTypesafe('int', 'id'), 'seo_version');
             $this->setSourceValue('seo_version', $seo_version, true);
         }
 

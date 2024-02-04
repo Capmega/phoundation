@@ -28,7 +28,7 @@ trait DataEntryOptions
      */
     public function getOptions(): ?string
     {
-        return $this->getSourceColumnValue('string', 'options');
+        return $this->getSourceValueTypesafe('string', 'options');
     }
 
 

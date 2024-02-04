@@ -24,7 +24,7 @@ trait DataEntryDevice
      */
     public function getDevice(): ?string
     {
-        return $this->getSourceColumnValue('string', 'device');
+        return $this->getSourceValueTypesafe('string', 'device');
     }
 
 

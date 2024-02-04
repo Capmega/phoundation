@@ -114,7 +114,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getCost(): ?float
     {
-        return $this->getSourceColumnValue('float', 'cost');
+        return $this->getSourceValueTypesafe('float', 'cost');
     }
 
 
@@ -137,7 +137,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getSourceColumnValue('string', 'bill_due_date');
+        return $this->getSourceValueTypesafe('string', 'bill_due_date');
     }
 
 
@@ -161,7 +161,7 @@ class Server extends DataEntry implements ServerInterface
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getSourceColumnValue('string', 'interval');
+        return $this->getSourceValueTypesafe('string', 'interval');
     }
 
 
@@ -185,7 +185,7 @@ class Server extends DataEntry implements ServerInterface
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getSourceColumnValue('string', 'os_name');
+        return $this->getSourceValueTypesafe('string', 'os_name');
     }
 
 
@@ -208,7 +208,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getOsVersion(): ?string
     {
-        return $this->getSourceColumnValue('string', 'os_version');
+        return $this->getSourceValueTypesafe('string', 'os_version');
     }
 
 
@@ -232,7 +232,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getWebServices(): bool
     {
-        return $this->getSourceColumnValue('bool', 'web_services', false);
+        return $this->getSourceValueTypesafe('bool', 'web_services', false);
     }
 
 
@@ -255,7 +255,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getMailServices(): bool
     {
-        return $this->getSourceColumnValue('bool', 'mail_services', false);
+        return $this->getSourceValueTypesafe('bool', 'mail_services', false);
     }
 
 
@@ -278,7 +278,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getSourceColumnValue('bool', 'database_services', false);
+        return $this->getSourceValueTypesafe('bool', 'database_services', false);
     }
 
 
@@ -301,7 +301,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getSourceColumnValue('bool', 'allow_sshd_modifications', false);
+        return $this->getSourceValueTypesafe('bool', 'allow_sshd_modifications', false);
     }
 
 

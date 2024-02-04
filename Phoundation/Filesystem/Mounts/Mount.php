@@ -155,7 +155,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getFilesystem(): ?string
     {
-        return $this->getSourceColumnValue('string', 'filesystem');
+        return $this->getSourceValueTypesafe('string', 'filesystem');
     }
 
 
@@ -178,7 +178,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAutoMount(): ?bool
     {
-        return $this->getSourceColumnValue('bool', 'auto_mount');
+        return $this->getSourceValueTypesafe('bool', 'auto_mount');
     }
 
 
@@ -201,7 +201,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAutoUnmount(): ?bool
     {
-        return $this->getSourceColumnValue('bool', 'auto_unmount');
+        return $this->getSourceValueTypesafe('bool', 'auto_unmount');
     }
 
 
@@ -224,7 +224,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getSourcePath(): ?string
     {
-        return $this->getSourceColumnValue('string', 'source_path');
+        return $this->getSourceValueTypesafe('string', 'source_path');
     }
 
 
@@ -258,7 +258,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getTargetPath(): ?string
     {
-        return $this->getSourceColumnValue('string', 'target_path');
+        return $this->getSourceValueTypesafe('string', 'target_path');
     }
 
 

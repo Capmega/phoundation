@@ -26,7 +26,7 @@ trait DataEntryProduct
      */
     public function getProduct(): ?string
     {
-        return $this->getSourceColumnValue('string', 'product');
+        return $this->getSourceValueTypesafe('string', 'product');
     }
 
 

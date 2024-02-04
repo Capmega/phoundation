@@ -24,7 +24,7 @@ trait DataEntryTitle
      */
     public function getTitle(): ?string
     {
-        return $this->getSourceColumnValue('string', 'title');
+        return $this->getSourceValueTypesafe('string', 'title');
     }
 
 

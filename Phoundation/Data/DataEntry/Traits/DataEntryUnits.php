@@ -26,7 +26,7 @@ trait DataEntryUnits
      */
     public function getUnits(): ?string
     {
-        return $this->getSourceColumnValue('string', 'units');
+        return $this->getSourceValueTypesafe('string', 'units');
     }
 
 

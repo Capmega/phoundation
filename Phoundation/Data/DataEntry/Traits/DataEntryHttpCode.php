@@ -24,7 +24,7 @@ trait DataEntryHttpCode
      */
     public function getHttpCode(): ?int
     {
-        return $this->getSourceColumnValue('int', 'http_code');
+        return $this->getSourceValueTypesafe('int', 'http_code');
     }
 
 

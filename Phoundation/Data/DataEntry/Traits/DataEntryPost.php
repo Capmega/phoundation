@@ -24,7 +24,7 @@ trait DataEntryPost
      */
     public function getPost(): ?array
     {
-        return $this->getSourceColumnValue('array', 'post');
+        return $this->getSourceValueTypesafe('array', 'post');
     }
 
 

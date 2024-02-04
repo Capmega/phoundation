@@ -24,7 +24,7 @@ trait DataEntryCookies
      */
     public function getCookies(): ?array
     {
-        return $this->getSourceColumnValue('array', 'cookies');
+        return $this->getSourceValueTypesafe('array', 'cookies');
     }
 
 

@@ -27,7 +27,7 @@ trait DataEntryProfileObject
      */
     public function getProfilesId(): ?int
     {
-        return $this->getSourceColumnValue('int', 'profiles_id');
+        return $this->getSourceValueTypesafe('int', 'profiles_id');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryProfileObject
      */
     public function getProfile(): ?ProfileInterface
     {
-        $profiles_id = $this->getSourceColumnValue('int', 'profiles_id');
+        $profiles_id = $this->getSourceValueTypesafe('int', 'profiles_id');
 
         if ($profiles_id) {
             return Profile::get($profiles_id,  'id');
@@ -67,7 +67,7 @@ trait DataEntryProfileObject
      */
     public function getProfilesName(): ?string
     {
-        return $this->getSourceColumnValue('string', 'profiles_name');
+        return $this->getSourceValueTypesafe('string', 'profiles_name');
     }
 
 

@@ -27,7 +27,7 @@ trait DataEntryDeviceObject
      */
     public function getDevicesId(): ?int
     {
-        return $this->getSourceColumnValue('int', 'devices_id');
+        return $this->getSourceValueTypesafe('int', 'devices_id');
     }
 
 
@@ -50,7 +50,7 @@ trait DataEntryDeviceObject
      */
     public function getDevice(): ?DeviceInterface
     {
-        $devices_id = $this->getSourceColumnValue('int', 'devices_id');
+        $devices_id = $this->getSourceValueTypesafe('int', 'devices_id');
 
         if ($devices_id) {
             return Device::get($devices_id,  'id');
@@ -67,7 +67,7 @@ trait DataEntryDeviceObject
      */
     public function getDevicesName(): ?string
     {
-        return $this->getSourceColumnValue('string', 'devices_name');
+        return $this->getSourceValueTypesafe('string', 'devices_name');
     }
 
 

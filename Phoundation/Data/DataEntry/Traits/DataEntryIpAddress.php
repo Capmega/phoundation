@@ -24,7 +24,7 @@ trait DataEntryIpAddress
      */
     public function getIpAddress(): ?string
     {
-        return $this->getSourceColumnValue('string', 'ip_address');
+        return $this->getSourceValueTypesafe('string', 'ip_address');
     }
 
 

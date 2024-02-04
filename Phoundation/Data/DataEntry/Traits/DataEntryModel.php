@@ -26,7 +26,7 @@ trait DataEntryModel
      */
     public function getModel(): ?string
     {
-        return $this->getSourceColumnValue('string', 'model');
+        return $this->getSourceValueTypesafe('string', 'model');
     }
 
 

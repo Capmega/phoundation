@@ -24,7 +24,7 @@ trait DataEntryFirstNames
      */
     public function getFirstNames(): ?string
     {
-        return $this->getSourceColumnValue('string', 'first_names');
+        return $this->getSourceValueTypesafe('string', 'first_names');
     }
 
 

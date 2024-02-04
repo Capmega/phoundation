@@ -71,7 +71,7 @@ class City extends DataEntry
      */
     public function getTimezone(): Timezone
     {
-        return new Timezone($this->getSourceColumnValue('int', 'timezones_id'));
+        return new Timezone($this->getSourceValueTypesafe('int', 'timezones_id'));
     }
 
 
@@ -82,7 +82,7 @@ class City extends DataEntry
      */
     public function getContinent(): Continent
     {
-        return new Continent($this->getSourceColumnValue('int', 'continents_id'));
+        return new Continent($this->getSourceValueTypesafe('int', 'continents_id'));
     }
 
 
@@ -93,7 +93,7 @@ class City extends DataEntry
      */
     public function getCountry(): Country
     {
-        return new Country($this->getSourceColumnValue('int', 'countries_id'));
+        return new Country($this->getSourceValueTypesafe('int', 'countries_id'));
     }
 
 
@@ -104,7 +104,7 @@ class City extends DataEntry
      */
     public function getState(): State
     {
-        return new State($this->getSourceColumnValue('int', 'states_id'));
+        return new State($this->getSourceValueTypesafe('int', 'states_id'));
     }
 
 
@@ -115,7 +115,7 @@ class City extends DataEntry
      */
     public function getCounty(): County
     {
-        return new County($this->getSourceColumnValue('int', 'counties_id'));
+        return new County($this->getSourceValueTypesafe('int', 'counties_id'));
     }
 
 

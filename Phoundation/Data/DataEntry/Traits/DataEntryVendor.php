@@ -26,7 +26,7 @@ trait DataEntryVendor
      */
     public function getVendor(): ?string
     {
-        return $this->getSourceColumnValue('string', 'vendor');
+        return $this->getSourceValueTypesafe('string', 'vendor');
     }
 
 

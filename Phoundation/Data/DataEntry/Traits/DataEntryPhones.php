@@ -27,7 +27,7 @@ trait DataEntryPhones
      */
     public function getPhones(): ?string
     {
-        return $this->getSourceColumnValue('string', 'phones');
+        return $this->getSourceValueTypesafe('string', 'phones');
     }
 
 

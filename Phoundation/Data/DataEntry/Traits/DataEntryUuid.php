@@ -27,7 +27,7 @@ trait DataEntryUuid
      */
     public function getUuid(): ?string
     {
-        return $this->getSourceColumnValue('string', 'uuid');
+        return $this->getSourceValueTypesafe('string', 'uuid');
     }
 
 

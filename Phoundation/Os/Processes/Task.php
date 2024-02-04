@@ -81,7 +81,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceColumnValue('int', 'parents_id');
+        return $this->getSourceValueTypesafe('int', 'parents_id');
     }
 
 
@@ -141,7 +141,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecuteAfter(): ?DateTimeInterface
     {
-        return $this->getSourceColumnValue('int', 'execute_after');
+        return $this->getSourceValueTypesafe('int', 'execute_after');
     }
 
 
@@ -184,7 +184,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStart(): ?DateTimeInterface
     {
-        return $this->getSourceColumnValue('datetime', 'start');
+        return $this->getSourceValueTypesafe('datetime', 'start');
     }
 
 
@@ -207,7 +207,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStop(): ?DateTimeInterface
     {
-        return $this->getSourceColumnValue('datetime', 'stop');
+        return $this->getSourceValueTypesafe('datetime', 'stop');
     }
 
 
@@ -230,7 +230,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getSendToId(): ?int
     {
-        return $this->getSourceColumnValue('int', 'send_to_id');
+        return $this->getSourceValueTypesafe('int', 'send_to_id');
     }
 
 
@@ -253,7 +253,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPid(): ?int
     {
-        return $this->getSourceColumnValue('int', 'pid');
+        return $this->getSourceValueTypesafe('int', 'pid');
     }
 
 
@@ -276,7 +276,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExitCode(): ?int
     {
-        return $this->getSourceColumnValue('int', 'exit_code');
+        return $this->getSourceValueTypesafe('int', 'exit_code');
     }
 
 
@@ -299,7 +299,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getNocache(): ?int
     {
-        return $this->getSourceColumnValue('int', 'nocache');
+        return $this->getSourceValueTypesafe('int', 'nocache');
     }
 
 
@@ -322,7 +322,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getIonice(): ?int
     {
-        return $this->getSourceColumnValue('int', 'ionice');
+        return $this->getSourceValueTypesafe('int', 'ionice');
     }
 
 
@@ -345,7 +345,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getIoniceLevel(): ?int
     {
-        return $this->getSourceColumnValue('int', 'ionice_level');
+        return $this->getSourceValueTypesafe('int', 'ionice_level');
     }
 
 
@@ -368,7 +368,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getNice(): ?int
     {
-        return $this->getSourceColumnValue('int', 'nice');
+        return $this->getSourceValueTypesafe('int', 'nice');
     }
 
 
@@ -391,7 +391,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getTimeout(): ?int
     {
-        return $this->getSourceColumnValue('int', 'timeout');
+        return $this->getSourceValueTypesafe('int', 'timeout');
     }
 
 
@@ -414,7 +414,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getWait(): ?int
     {
-        return $this->getSourceColumnValue('int', 'wait');
+        return $this->getSourceValueTypesafe('int', 'wait');
     }
 
 
@@ -437,7 +437,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getBackground(): bool
     {
-        return $this->getSourceColumnValue('bool', 'background');
+        return $this->getSourceValueTypesafe('bool', 'background');
     }
 
 
@@ -460,7 +460,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getClearLogs(): bool
     {
-        return $this->getSourceColumnValue('bool', 'clear_logs');
+        return $this->getSourceValueTypesafe('bool', 'clear_logs');
     }
 
 
@@ -483,7 +483,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getEscapeQuotes(): bool
     {
-        return $this->getSourceColumnValue('bool', 'escape_quotes');
+        return $this->getSourceValueTypesafe('bool', 'escape_quotes');
     }
 
 
@@ -506,7 +506,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getLogFile(): ?string
     {
-        return $this->getSourceColumnValue('string', 'log_file');
+        return $this->getSourceValueTypesafe('string', 'log_file');
     }
 
 
@@ -529,7 +529,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPidFile(): ?string
     {
-        return $this->getSourceColumnValue('string', 'pid_file');
+        return $this->getSourceValueTypesafe('string', 'pid_file');
     }
 
 
@@ -552,7 +552,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getSudo(): ?string
     {
-        return $this->getSourceColumnValue('string', 'sudo');
+        return $this->getSourceValueTypesafe('string', 'sudo');
     }
 
 
@@ -575,7 +575,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getTerm(): ?string
     {
-        return $this->getSourceColumnValue('string', 'term');
+        return $this->getSourceValueTypesafe('string', 'term');
     }
 
 
@@ -598,7 +598,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPipe(): ?string
     {
-        return $this->getSourceColumnValue('string', 'pipe');
+        return $this->getSourceValueTypesafe('string', 'pipe');
     }
 
 
@@ -621,7 +621,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getInputRedirect(): ?string
     {
-        return $this->getSourceColumnValue('string', 'input_redirect');
+        return $this->getSourceValueTypesafe('string', 'input_redirect');
     }
 
 
@@ -644,7 +644,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getOutputRedirect(): ?string
     {
-        return $this->getSourceColumnValue('string', 'output_redirect');
+        return $this->getSourceValueTypesafe('string', 'output_redirect');
     }
 
 
@@ -667,7 +667,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getRestrictions(): ?string
     {
-        return $this->getSourceColumnValue('string', 'restrictions');
+        return $this->getSourceValueTypesafe('string', 'restrictions');
     }
 
 
@@ -690,7 +690,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPackages(): ?string
     {
-        return $this->getSourceColumnValue('string', 'packages');
+        return $this->getSourceValueTypesafe('string', 'packages');
     }
 
 
@@ -713,7 +713,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPreExec(): ?string
     {
-        return $this->getSourceColumnValue('string', 'pre_exec');
+        return $this->getSourceValueTypesafe('string', 'pre_exec');
     }
 
 
@@ -736,7 +736,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPostExec(): ?string
     {
-        return $this->getSourceColumnValue('string', 'post_exec');
+        return $this->getSourceValueTypesafe('string', 'post_exec');
     }
 
 
@@ -759,7 +759,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getComments(): ?string
     {
-        return $this->getSourceColumnValue('string', 'comments');
+        return $this->getSourceValueTypesafe('string', 'comments');
     }
 
 
@@ -782,7 +782,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getResults(): string
     {
-        return $this->getSourceColumnValue('string', 'results');
+        return $this->getSourceValueTypesafe('string', 'results');
     }
 
 
@@ -805,7 +805,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecutionDirectory(): ?string
     {
-        return $this->getSourceColumnValue('string', 'execution_directory');
+        return $this->getSourceValueTypesafe('string', 'execution_directory');
     }
 
 
@@ -828,7 +828,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getCommand(): ?string
     {
-        return $this->getSourceColumnValue('string', 'command');
+        return $this->getSourceValueTypesafe('string', 'command');
     }
 
 
@@ -851,7 +851,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecutedCommand(): string
     {
-        return $this->getSourceColumnValue('string', 'executed_command');
+        return $this->getSourceValueTypesafe('string', 'executed_command');
     }
 
 
@@ -874,7 +874,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getArguments(): ?array
     {
-        return $this->getSourceColumnValue('array', 'arguments');
+        return $this->getSourceValueTypesafe('array', 'arguments');
     }
 
 
@@ -897,7 +897,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getVariables(): ?array
     {
-        return $this->getSourceColumnValue('array', 'variables');
+        return $this->getSourceValueTypesafe('array', 'variables');
     }
 
 
@@ -931,7 +931,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getEnvironmentVariables(): ?array
     {
-        return $this->getSourceColumnValue('array', 'environment_variables');
+        return $this->getSourceValueTypesafe('array', 'environment_variables');
     }
 
 
@@ -954,7 +954,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getAcceptedExitCodes(): ?array
     {
-        return $this->getSourceColumnValue('array', 'accepted_exit_codes');
+        return $this->getSourceValueTypesafe('array', 'accepted_exit_codes');
     }
 
 
@@ -1010,7 +1010,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getCode(): ?string
     {
-        return $this->getSourceColumnValue('string', 'code');
+        return $this->getSourceValueTypesafe('string', 'code');
     }
 
 

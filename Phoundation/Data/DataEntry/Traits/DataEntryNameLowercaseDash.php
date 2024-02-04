@@ -28,7 +28,7 @@ trait DataEntryNameLowercaseDash
      */
     public function getSeoName(): ?string
     {
-        return $this->getSourceColumnValue('string', 'seo_name');
+        return $this->getSourceValueTypesafe('string', 'seo_name');
     }
 
 
@@ -52,7 +52,7 @@ trait DataEntryNameLowercaseDash
      */
     public function getName(): ?string
     {
-        return $this->getSourceColumnValue('string', 'name');
+        return $this->getSourceValueTypesafe('string', 'name');
     }
 
 
@@ -71,7 +71,7 @@ trait DataEntryNameLowercaseDash
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
             $name     = static::convertToLowerCaseDash($name);
-            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceColumnValue('int', 'id'), 'seo_name');
+            $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceValueTypesafe('int', 'id'), 'seo_name');
 
             $this->setSourceValue('seo_name', $seo_name, true);
         }

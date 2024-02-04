@@ -99,7 +99,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getSourceColumnValue('bool', 'enabled', false);
+        return $this->getSourceValueTypesafe('bool', 'enabled', false);
     }
 
 
@@ -207,7 +207,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        $path = $this->getSourceColumnValue('string', 'path');
+        $path = $this->getSourceValueTypesafe('string', 'path');
 
         if (!$path) {
             // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.

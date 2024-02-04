@@ -27,7 +27,7 @@ trait DataEntryMode
      */
     public function getMode(): DisplayModeInterface
     {
-        return DisplayMode::from((string) $this->getSourceColumnValue('string', 'mode', 'primary'));
+        return DisplayMode::from((string) $this->getSourceValueTypesafe('string', 'mode', 'primary'));
     }
 
 

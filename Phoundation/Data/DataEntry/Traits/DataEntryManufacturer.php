@@ -26,7 +26,7 @@ trait DataEntryManufacturer
      */
     public function getManufacturer(): ?string
     {
-        return $this->getSourceColumnValue('string', 'manufacturer');
+        return $this->getSourceValueTypesafe('string', 'manufacturer');
     }
 
 

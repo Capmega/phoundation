@@ -816,7 +816,7 @@ abstract class DataEntry implements DataEntryInterface
             $postfix = ' ' . tr('[DELETED]');
         }
 
-        return $this->getSourceColumnValue('string', static::getUniqueColumn() ?? 'id') . $postfix;
+        return $this->getSourceValueTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
     }
 
 
@@ -1006,7 +1006,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getId(): int|null
     {
-        return $this->getSourceColumnValue('int', 'id');
+        return $this->getSourceValueTypesafe('int', 'id');
     }
 
 
@@ -1017,7 +1017,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getUniqueColumnValue(): string|float|int|null
     {
-        return $this->getSourceColumnValue('string|float|int|null', static::getUniqueColumn());
+        return $this->getSourceValueTypesafe('string|float|int|null', static::getUniqueColumn());
     }
 
 
@@ -1028,7 +1028,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceColumnValue('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceColumnValue('string', static::getUniqueColumn()) : '-');
+        return $this->getSourceValueTypesafe('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceValueTypesafe('string', static::getUniqueColumn()) : '-');
     }
 
 
@@ -1039,7 +1039,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getStatus(): ?string
     {
-        return $this->getSourceColumnValue('string', 'status');
+        return $this->getSourceValueTypesafe('string', 'status');
     }
 
 
@@ -1051,7 +1051,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function hasStatus(string $status): bool
     {
-        return $status === $this->getSourceColumnValue('string', 'status');
+        return $status === $this->getSourceValueTypesafe('string', 'status');
     }
 
 
@@ -1063,7 +1063,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function isStatus(?string $status): bool
     {
-        return $this->getSourceColumnValue('string', 'status') === $status;
+        return $this->getSourceValueTypesafe('string', 'status') === $status;
     }
 
 
@@ -1145,7 +1145,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaState(): ?string
     {
-        return $this->getSourceColumnValue('string', 'meta_state');
+        return $this->getSourceValueTypesafe('string', 'meta_state');
     }
 
 
@@ -1232,7 +1232,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedBy(): ?UserInterface
     {
-        $created_by = $this->getSourceColumnValue('int', 'created_by');
+        $created_by = $this->getSourceValueTypesafe('int', 'created_by');
 
         if ($created_by === null) {
             return null;
@@ -1250,7 +1250,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedOn(): ?DateTime
     {
-        $created_on = $this->getSourceColumnValue('string', 'created_on');
+        $created_on = $this->getSourceValueTypesafe('string', 'created_on');
 
         if ($created_on === null) {
             return null;
@@ -1276,7 +1276,7 @@ abstract class DataEntry implements DataEntryInterface
             return null;
         }
 
-        $meta_id = $this->getSourceColumnValue('int', 'meta_id');
+        $meta_id = $this->getSourceValueTypesafe('int', 'meta_id');
 
         if ($meta_id === null) {
             throw new DataEntryException(tr('DataEntry ":id" does not have meta_id information', [
@@ -1317,7 +1317,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaId(): ?int
     {
-        return $this->getSourceColumnValue('int', 'meta_id');
+        return $this->getSourceValueTypesafe('int', 'meta_id');
     }
 
 
@@ -1782,7 +1782,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param mixed|null $default
      * @return mixed
      */
-    protected function getSourceColumnValue(string $type, string $column, mixed $default = null): mixed
+    protected function getSourceValueTypesafe(string $type, string $column, mixed $default = null): mixed
     {
         $this->checkProtected($column);
         return isset_get_typed($type, $this->source[$column], $default, false);

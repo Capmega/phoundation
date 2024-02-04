@@ -24,7 +24,7 @@ trait DataEntryValues
      */
     public function getValues(): ?array
     {
-        return $this->getSourceColumnValue('array', 'values');
+        return $this->getSourceValueTypesafe('array', 'values');
     }
 
 

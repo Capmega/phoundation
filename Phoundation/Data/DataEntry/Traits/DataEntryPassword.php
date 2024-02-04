@@ -24,7 +24,7 @@ trait DataEntryPassword
      */
     public function getPassword(): ?string
     {
-        return $this->getSourceColumnValue('string', 'password');
+        return $this->getSourceValueTypesafe('string', 'password');
     }
 
 
