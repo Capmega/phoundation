@@ -534,6 +534,8 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         }
 
         // Update the arguments with the variables and escape all of them
+show($this->command);
+show($this->arguments);
         foreach ($this->arguments as $argument) {
             $escape_quotes   = $argument['escape_quotes'];
             $escape_argument = $argument['escape_argument'];
@@ -544,13 +546,13 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
                 $argument = str_replace((string) $key, (string) $variable, $argument);
             }
 
-            if ($escape_quotes) {
-                // Escape quotes if required so for shell
-                for ($i = 0; $i < $this->escape_quotes; $i++) {
-                    $argument = str_replace('\\', '\\\\', $argument);
-                    $argument = str_replace('\'', '\\\'', $argument);
-                    $argument = str_replace('"' ,'\\"'  , $argument);
-                }
+            $escape_quotes = $this->escape_quotes - ($escape_quotes ? 0 : 1);
+
+            // Escape quotes if required so for shell
+            for ($i = 0; $i < $escape_quotes; $i++) {
+                $argument = str_replace('\\', '\\\\', $argument);
+                $argument = str_replace('\'', '\\\'', $argument);
+                $argument = str_replace('"' ,'\\"'  , $argument);
             }
 
             if ($escape_argument) {
@@ -560,6 +562,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $arguments[] = $argument;
         }
 
+show($arguments);
         // Add arguments to the command and return
         return $this->real_command . ' ' . implode(' ', $arguments);
     }
