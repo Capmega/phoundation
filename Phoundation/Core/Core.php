@@ -1871,7 +1871,7 @@ die($errfile. $errline);
             }
 
             try {
-                $e->getNotificationObject()->send();
+                $e->getNotificationObject()->send(false);
 
             } catch (Throwable $e) {
                 Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
