@@ -460,40 +460,45 @@ POST variables:
     {
         Log::information(tr('Notification:'));
 
+        // Remove HTML from the message for logging
+        $message = $this->getMessage();
+        $message = strip_tags($message);
+        $message = trim($message);
+
         switch ($this->getMode()) {
             case DisplayMode::danger:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::error($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::error($this->getMessage(), use_prefix: false);
+                Log::error($message, use_prefix: false);
                 break;
 
             case DisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::warning($this->getMessage(), use_prefix: false);
+                Log::warning($message, use_prefix: false);
                 break;
 
             case DisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::success($this->getMessage(), use_prefix: false);
+                Log::success($message, use_prefix: false);
                 break;
 
             case DisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::information($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::information($this->getMessage(), use_prefix: false);
+                Log::information($message, use_prefix: false);
                 break;
 
             default:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::notice($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
-                Log::notice($this->getMessage(), use_prefix: false);
+                Log::notice($message, use_prefix: false);
                 break;
         }
 
@@ -516,7 +521,7 @@ POST variables:
 
                         default:
                             Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, newline: false);
-                            Log::printr($value, echo_header: false, use_prefix: false);
+                            Log::printr($value, use_prefix: false, echo_header: false);
                     }
                 }
             }
@@ -575,6 +580,7 @@ POST variables:
         $user = User::get($user);
 
         PhoCommand::new('email send')
+            ->addArgument('--no-audio')
             ->addArgument('-h')
             ->addArguments(['-t', $user->getEmail()])
             ->addArguments(['-s', $this->getTitle()])
