@@ -534,6 +534,8 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         }
 
         // Update the arguments with the variables and escape all of them
+show($this->command);
+show($this->arguments);
         foreach ($this->arguments as $argument) {
             $escape_quotes   = $argument['escape_quotes'];
             $escape_argument = $argument['escape_argument'];
@@ -560,6 +562,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
             $arguments[] = $argument;
         }
 
+show($arguments);
         // Add arguments to the command and return
         return $this->real_command . ' ' . implode(' ', $arguments);
     }
