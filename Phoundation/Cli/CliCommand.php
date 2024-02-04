@@ -291,7 +291,10 @@ class CliCommand
         CliAutoComplete::ensureAvailable();
 
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
-            Log::warning(tr('Warning: STDIN stream was specified but not used'));
+            // STDIN might happen with commands executed  Test the input stream if there was any data at all in it
+            if (static::readStdInStream()) {
+                Log::warning(tr('Warning: STDIN stream was specified but not used'));
+            }
         }
 
         exit();
@@ -841,8 +844,6 @@ class CliCommand
                 }
 
             } else {
-                Audio::new('data/audio/critical.mp3')->playLocal(true);
-
                 if ($exit_message) {
                     Log::error($exit_message, 8);
                 } else {
@@ -857,6 +858,8 @@ class CliCommand
             }
 
         } else {
+            Audio::new('data/audio/success.mp3')->playLocal(true);
+
             if ($exit_message) {
                 Log::success($exit_message, 8);
             }
