@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliColor;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -65,7 +66,7 @@ $templates_size = 0;
 Log::cli(CliColor::apply(Strings::size(tr('Project name:') , 28), 'white') . ' ' . PROJECT);
 Log::cli(CliColor::apply(Strings::size(tr('Platform:')     , 28), 'white') . ' ' . PLATFORM);
 Log::cli(CliColor::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . ENVIRONMENT);
-Log::cli(CliColor::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::fromBoolean(Debug::production()));
+Log::cli(CliColor::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
 Log::cli(CliColor::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::fromBoolean(Debug::getEnabled()));
 Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
