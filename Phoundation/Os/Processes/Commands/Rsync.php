@@ -458,7 +458,7 @@ class Rsync extends Command implements RsyncInterface
             ->addArgument($this->target);
 
         foreach ($this->exclude as $exclude) {
-            $this->addArgument('--exclude=' . escapeshellarg($exclude), false);
+            $this->addArgument('--exclude=' . escapeshellarg($exclude), false, false);
         }
 
         return parent::getFullCommandLine($background);
