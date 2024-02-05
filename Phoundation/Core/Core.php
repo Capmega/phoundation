@@ -2673,7 +2673,7 @@ die($errfile. $errline);
         }
 
         if ($sig_kill) {
-            Log::warning(tr('Not cleaning up due to kill signal!'));
+            Log::warning(tr('Not cleaning up due to kill signal!'), 3);
 
         } elseif (static::inStartupState()) {
             // Exit with exitcode during startup == baaaaaaad.
