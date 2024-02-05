@@ -15,6 +15,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
@@ -2723,7 +2724,7 @@ class Page implements PageInterface
      */
     protected static function getAbsoluteTarget(string $target): string
     {
-        return Filesystem::absolute($target, DIRECTORY_WWW . 'pages/');
+        return Filesystem::absolute($target, DIRECTORY_WEB . 'pages/');
     }
 
 

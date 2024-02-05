@@ -131,7 +131,7 @@ class Css
 
         // Ensure that any previous version is deleted
         File::new($purged_css_file)->delete();
-        File::new(DIRECTORY_WWW . LANGUAGE . '/pub/css')->delete();
+        File::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
 
         // Add list of selectors that should be whitelisted
         if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {

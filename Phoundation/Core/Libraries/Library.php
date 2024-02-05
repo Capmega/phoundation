@@ -350,7 +350,7 @@ class Library implements LibraryInterface
      */
     public function getPhpStatistics(): array
     {
-        return Directory::new($this->getDirectory(), [DIRECTORY_WWW, LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
+        return Directory::new($this->getDirectory(), [DIRECTORY_WEB, LIBRARIES::CLASS_DIRECTORY_SYSTEM, LIBRARIES::CLASS_DIRECTORY_PLUGINS, LIBRARIES::CLASS_DIRECTORY_TEMPLATES])->getPhpStatistics(true);
     }
 
 
@@ -632,6 +632,51 @@ class Library implements LibraryInterface
             // Get the correct relative target link, don't let Path::symlink() resolve this automatically as the source
             // path will change from a temp directory to data/cache/system/commands
             Path::new($path, $commands_restrictions, true)
+                ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
+                ->symlinkToThis($command_file);
+        }
+    }
+
+
+    /**
+     * Ensure that the Library/web is symlinked
+     *
+     * @param DirectoryInterface $web_directory
+     * @return void
+     * @todo Add support for command sharing!
+     */
+    public function cacheWeb(DirectoryInterface $web_directory): void
+    {
+        $library_path          = Strings::slash($this->directory) . 'Library/web/';
+        $library_restrictions  = Restrictions::readonly($library_path, tr('Library web symlink validation'));
+        $library_path_o        = Directory::new($library_path, $library_restrictions);
+        $web_restrictions      = $web_directory->getRestrictions();
+
+        if (!$library_path_o->exists()) {
+            // This library does not have a web/ directory, we're fine
+            return;
+        }
+
+        foreach ($library_path_o->list() as $file => $path) {
+            $command_file = $web_directory->appendPath($file);
+
+            if ($command_file->exists(true)) {
+                Log::warning(tr('Not adding web symlink for ":path", the command already exists', [
+                    ':path' => $command_file
+                ]));
+                continue;
+            }
+
+            // TODO Check first if a symlink with this name already exists! If so, make a directory instead and put all sub web as symlinks in that shared directory
+
+            // Symlink doesn't exist yet, place it now
+            Log::action(tr('Adding web symlink for ":path"', [
+                ':path' => $file
+            ]), 2);
+
+            // Get the correct relative target link, don't let Path::symlink() resolve this automatically as the source
+            // path will change from a temp directory to data/cache/system/web
+            Path::new($path, $web_restrictions, true)
                 ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
                 ->symlinkToThis($command_file);
         }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web;
 
+use Phoundation\Core\Libraries\Libraries;
+
 
 /**
  * Class Web
@@ -17,6 +19,29 @@ namespace Phoundation\Web;
  */
 class Web
 {
+    /**
+     * Instructs the Libraries class to clear the commands cache
+     *
+     * @return void
+     */
+    public static function clearCache(): void
+    {
+        Libraries::clearWebCache();
+    }
+
+
+    /**
+     * Instructs the Libraries class to have each library rebuild its command cache
+     *
+     * @return void
+     */
+    public static function rebuildCache(): void
+    {
+        Libraries::rebuildWebCache();;
+    }
+
+
+
 //    /**
 //     * Return complete domain with HTTP and all
 //     *

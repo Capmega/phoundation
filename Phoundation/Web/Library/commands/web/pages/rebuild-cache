@@ -1,0 +1,25 @@
+#!/usr/bin/php
+<?php
+
+declare(strict_types=1);
+
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Web\Web;
+
+
+/**
+ * Script web pages rebuild-cache
+ *
+ * Rebuilds the web cache
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
+ArgvValidator::new()->validate();
+
+
+// Rebuild the www cache
+Web::rebuildCache();

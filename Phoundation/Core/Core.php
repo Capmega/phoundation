@@ -277,7 +277,7 @@ class Core implements CoreInterface
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
         define('REQUEST'           , substr(uniqid(), 7));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
-        define('DIRECTORY_WWW'     , DIRECTORY_ROOT . 'www/');
+        define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'www/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
         define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
         define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');

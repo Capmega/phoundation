@@ -522,7 +522,7 @@ class Libraries
 
 
     /**
-     * Deletes the PHO commands cache and returns the COMMANDS directory
+     * Deletes the PHO commands cache
      *
      * @return void
      */
@@ -555,6 +555,41 @@ class Libraries
 
         static::$cache_has_been_rebuilt = true;
         Log::success(tr('Finished rebuilding command cache'), 5, echo_screen: false);
+    }
+
+
+    /**
+     * Deletes the web cache
+     *
+     * @return void
+     */
+    public static function clearWebCache(): void
+    {
+        Log::action(tr('Clearing web cache'), 3);
+        Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))->delete();
+    }
+
+
+    /**
+     * Rebuilds the web cache
+     *
+     * @return void
+     */
+    public static function rebuildWebCache(): void
+    {
+        Log::action(tr('Rebuilding web cache'), 4, echo_screen: false);
+
+        $temporary = Directory::newTemporary();
+        $web       = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB));
+
+        foreach (static::listLibraries() as $library) {
+            $library->cacheWeb($temporary);
+        }
+
+        // Move the old out of the way, push the new in
+        $web->replaceWithPath($temporary);
+
+        Log::success(tr('Finished rebuilding web cache'), 5, echo_screen: false);
     }
 
 
