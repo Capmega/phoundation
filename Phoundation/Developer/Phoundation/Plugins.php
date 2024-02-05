@@ -413,7 +413,7 @@ class Plugins extends Project
      *
      * @return bool
      */
-    protected function stashNonPhoundationPlugins(): bool
+    public function stashNonPhoundationPlugins(): bool
     {
         $pre_stash_count  = 0;
         $post_stash_count = 0;
@@ -439,29 +439,28 @@ class Plugins extends Project
      *
      * @return array
      */
-    protected function getNonPhoundationPlugins(): array
+    public function getNonPhoundationPlugins(): array
     {
         $plugins = array_diff($this->getLocalPlugins(), $this->getPhoundationPlugins());
+        $return  = [];
+        $skip    = [
+            'Phoundation',
+            'disabled'
+        ];
 
         foreach ($plugins as $id => &$plugin) {
             $plugin = Strings::endsNotWith($plugin, '/');
         }
 
-        $return = [];
         unset($plugin);
-
-        // The "Phoundation" plugin should NEVER be copied to the official repository!
-        if (!in_array('Phoundation', $plugins)) {
-            $plugins[] = 'Phoundation';
-        }
-
-        // The "disabled" directory should NEVER be copied to the official repository!
-        if (!in_array('disabled', $plugins)) {
-            $plugins[] = 'disabled';
-        }
 
         // All the plugins must contain files, or git stash will fail
         foreach ($plugins as $plugin) {
+            if (in_array($plugin, $skip)) {
+                // These are DEFINITELY not non-phoundation plugins
+                continue;
+            }
+
             if (Directory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
                 $return[] = $plugin;
 
@@ -481,7 +480,7 @@ class Plugins extends Project
      *
      * @return array
      */
-    protected function getLocalPlugins(): array
+    public function getLocalPlugins(): array
     {
         return Directory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')->scan();
     }
@@ -492,7 +491,7 @@ class Plugins extends Project
      *
      * @return array
      */
-    protected function getPhoundationPlugins(): array
+    public function getPhoundationPlugins(): array
     {
         return Directory::new($this->directory . 'Plugins/', $this->directory)->scan();
     }
