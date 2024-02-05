@@ -1860,7 +1860,7 @@ die($errfile. $errline);
         // Ensure the exception is a Phoundation exception and register it
         $e = Exception::ensurePhoundationException($e);
 
-        if (Debug::getEnabled()) {
+        if (!Debug::getEnabled()) {
             // In debug mode we can assume the developer is looking at the system
             try {
                 $e->registerDeveloperIncident();

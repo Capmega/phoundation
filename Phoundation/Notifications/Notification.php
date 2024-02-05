@@ -196,19 +196,19 @@ class Notification extends DataEntry implements NotificationInterface
 <pre style="font: monospace">
 Phoundation project ":project" encountered the following :class exception:
 
-Project: :project
-Project version: :version_project
-Database version: :version_database
+Project          : :project
+Project version  : :version_project
+Database version : :version_database
 
-Environment: :environment
-Platform: :platform
-:request: :url
-Command line arguments: :argv
-Exception location: :file@:line
-Exception class: :class
-Exception code: :code
+Environment            : :environment
+Platform               : :platform
+:request               : :url
+Command line arguments : :argv
+Exception location     : :file@:line
+Exception class        : :class
+Exception code         : :code
 
-Message: :message
+Message            : :message
 Additional messages:
 :all_messages
 
