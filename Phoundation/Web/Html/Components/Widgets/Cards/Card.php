@@ -408,13 +408,13 @@ class Card extends Widget
      */
     public function getTabsObject(bool $create = true): ?TabsInterface
     {
-        if ($this->content !== null) {
-            throw new OutOfBoundsException(tr('Cannot access card tabs, content has already been specified and card can only display either content or tabs'));
-        }
-
         if (empty($this->tabs)) {
             if (!$create) {
                 return null;
+            }
+
+            if ($this->content !== null) {
+                throw new OutOfBoundsException(tr('Cannot access card tabs, content has already been specified and card can only display either content or tabs'));
             }
 
             $this->tabs = new Tabs();

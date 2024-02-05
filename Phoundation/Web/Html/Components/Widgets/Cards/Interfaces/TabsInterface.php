@@ -3,11 +3,11 @@
 namespace Phoundation\Web\Html\Components\Widgets\Cards\Interfaces;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 
 /**
- * Tabs class
+ * Interface TabsInterface
  *
  *
  *
@@ -16,7 +16,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface TabsInterface extends IteratorInterface
+interface TabsInterface extends ElementsBlockInterface
 {
     /**
      * Returns the orientation
