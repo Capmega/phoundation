@@ -726,7 +726,8 @@ class Debug {
     {
         $prefix  = str_repeat(' ', $indent);
         $return  = $prefix . tr(':type Exception', [':type' => get_class($e)]) . '<br><br>';
-        $return .= $prefix . tr('Messages:') . '<br>';
+        $return .= $prefix . tr('Message:') . $e->getMessage() . '<br>';
+        $return .= $prefix . tr('Additional messages:') . '<br>';
 
         if ($e instanceof Exception) {
             foreach ($e->getMessages() as $message) {
