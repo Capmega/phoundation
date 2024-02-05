@@ -241,7 +241,18 @@ class Phoundation extends Project
 
         // Ensure specified source files exist and make files absolute
         foreach ($files as $id => $file) {
-            $source = Filesystem::absolute($file, DIRECTORY_ROOT);
+            $source  = Filesystem::absolute($file, DIRECTORY_ROOT);
+            $test    = Strings::from($source, DIRECTORY_ROOT);
+            $test    = Strings::until($test, '/');
+            $plugins = [
+                'Templates',
+                'Plugins'
+            ];
+
+            if (in_array($test, $plugins)) {
+                // Plugins should be copied to Phoundation plugins!
+                continue;
+            }
 
             if (!file_exists($source)) {
                 throw new FileNotExistException(tr('The specified file ":file" does not exist', [
