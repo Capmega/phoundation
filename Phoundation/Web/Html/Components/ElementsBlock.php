@@ -49,9 +49,9 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
     /**
      * A form around this element block
      *
-     * @var Form|null
+     * @var FormInterface|null
      */
-    protected ?Form $form = null;
+    protected ?FormInterface $form = null;
 
     /**
      * The data source of this object
