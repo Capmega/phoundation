@@ -452,12 +452,12 @@ class Plugins extends Project
 
         // The "Phoundation" plugin should NEVER be copied to the official repository!
         if (!in_array('Phoundation', $plugins)) {
-            $plugins[] = 'Phoundation';
+            $return[] = 'Phoundation';
         }
 
         // The "disabled" directory should NEVER be copied to the official repository!
         if (!in_array('disabled', $plugins)) {
-            $plugins[] = 'disabled';
+            $return[] = 'disabled';
         }
 
         // All the plugins must contain files, or git stash will fail
