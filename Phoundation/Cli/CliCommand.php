@@ -858,7 +858,10 @@ class CliCommand
             }
 
         } else {
-            Audio::new('data/audio/success.mp3')->playLocal(true);
+            // Give a "success!" sound for normally executed commands (so NOT auto complete actions!)
+            if (!CliAutoComplete::isActive()) {
+                Audio::new('data/audio/success.mp3')->playLocal(true);
+            }
 
             if ($exit_message) {
                 Log::success($exit_message, 8);
