@@ -68,7 +68,7 @@ use Throwable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 abstract class DataEntry implements DataEntryInterface
 {
@@ -222,7 +222,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function __clone(): void
     {
-        unset($this->source['id']);
+        unset($this->source[static::getIdColumn()]);
     }
 
 
@@ -257,7 +257,8 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
-        $column = static::getColumn($identifier, $column);
+        $this->database_connector = static::getDefaultConnector();
+        $column                   = static::getColumn($identifier, $column);
 
         // Set up the columns for this object
         $this->setMetaDefinitions();
@@ -307,6 +308,40 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return static::new()->setSource($source, $direct);
+    }
+
+
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string|null
+     */
+    public static function getDefaultConnector(): ?string
+    {
+        return '';
+    }
+
+
+    /**
+     * Returns the column considered the "id" column
+     *
+     * @return string
+     */
+    public static function getIdColumn(): string
+    {
+        return 'id';
+    }
+
+
+    /**
+     * Returns true if the ID column is the specified column
+     *
+     * @param string $column
+     * @return bool
+     */
+    public static function idColumnIs(string $column): bool
+    {
+        return static::getIdColumn() === $column;
     }
 
 
@@ -668,6 +703,13 @@ abstract class DataEntry implements DataEntryInterface
             $path = static::new()->getConfigPath();
 
             if ($path) {
+                if (!static::idColumnIs('id')) {
+                    throw new DataEntryException(tr('Cannot use configuration paths for DataEntry object ":class" that uses id column ":column" instead of "id"', [
+                        ':class'  => static::class,
+                        ':column' => static::getIdColumn()
+                    ]));
+                }
+
                 // See if there is a configuration entry in the specified path
                 $entry = Config::getArray(Strings::endsWith($path, '.') . Config::escape($identifier), []);
 
@@ -842,10 +884,10 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $meta_enabled
      * @return static|null
      */
-    public static function getRandom(string $database_connector = 'system', bool $meta_enabled = false): ?static
+    public static function getRandom(bool $meta_enabled = false): ?static
     {
         $table = static::getTable();
-        $identifier = sql($database_connector)->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
+        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
 
         if ($identifier) {
             return static::get($identifier, 'id', $meta_enabled);
@@ -884,11 +926,11 @@ abstract class DataEntry implements DataEntryInterface
             $execute[':id'] = $not_id;
         }
 
-        $exists = sql()->get('SELECT `id`, `status` 
-                                    FROM   `' . static::getTable() . '` 
-                                    WHERE  `' . $column . '`   = :identifier
-                                    ' . ($not_id ? 'AND `id` != :id' : '') . ' 
-                                    LIMIT  1', $execute);
+        $exists = sql(static::getDefaultConnector())->get('SELECT `id`, `status` 
+                                                                 FROM   `' . static::getTable() . '` 
+                                                                 WHERE  `' . $column . '`   = :identifier
+                                                                 ' . ($not_id ? 'AND `id` != :id' : '') . ' 
+                                                                 LIMIT  1', $execute);
 
         if (!$exists) {
             // Entry does not exist!
@@ -948,11 +990,11 @@ abstract class DataEntry implements DataEntryInterface
             $execute[':id'] = $id;
         }
 
-        $exists = sql()->get('SELECT `id`, `status`
-                                    FROM   `' . static::getTable() . '` 
-                                    WHERE  `' . $column . '` = :identifier
-                                    ' . ($id ? 'AND `id`   != :id' : '') . ' 
-                                    LIMIT  1', $execute);
+        $exists = sql(static::getDefaultConnector())->get('SELECT `id`, `status`
+                                                          FROM   `' . static::getTable() . '` 
+                                                          WHERE  `' . $column . '` = :identifier
+                                                          ' . ($id ? 'AND `id`   != :id' : '') . ' 
+                                                          LIMIT  1', $execute);
 
         if ($exists) {
             // Entry exists
@@ -2159,8 +2201,8 @@ abstract class DataEntry implements DataEntryInterface
         // Debug this specific entry?
         if ($this->debug) {
             Log::debug('SAVING DATA ENTRY WITH ID "' . $this->source['id'] . '"', 10, echo_header: false);
-            $debug = sql()->getQueryLogging();
-            sql()->setQueryLogging(true);
+            $debug = sql($this->database_connector)->getQueryLogging();
+            sql($this->database_connector)->setQueryLogging(true);
         }
 
         // Write the entry
@@ -2172,7 +2214,7 @@ abstract class DataEntry implements DataEntryInterface
 
         // Return debug mode if required
         if (isset($debug)) {
-            sql()->setQueryLogging($debug);
+            sql($this->database_connector)->setQueryLogging($debug);
         }
 
         // Write the list, if set
