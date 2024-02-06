@@ -440,6 +440,7 @@ class Plugins extends Project
         $post_stash_count = 0;
 
         $non_phoundation_plugins = $this->getNonPhoundationPlugins();
+        $non_phoundation_plugins = $this->filterNonGitPlugins($non_phoundation_plugins);
         $non_phoundation_plugins = $this->addPluginPaths($non_phoundation_plugins);
 
         if ($non_phoundation_plugins) {
@@ -452,6 +453,34 @@ class Plugins extends Project
         }
 
         return (bool) ($post_stash_count - $pre_stash_count);
+    }
+
+
+    /**
+     * Filters plugins from the specified list that are not tracked by git
+     *
+     * @param array $phoundation_plugins
+     * @return array
+     */
+    protected function filterNonGitPlugins(array $phoundation_plugins): array
+    {
+        $paths = $this->git->getStatus(DIRECTORY_ROOT . 'Plugins/');
+
+        foreach ($paths as $path => $info) {
+            $path = Strings::from($path, 'Plugins/');
+            $file = Strings::from($path, '/');
+            $path = Strings::until($path, '/');
+
+            // If it's a file within a tracked plugin, that's file
+            if (!$file) {
+                if (!$info->getStatus()->isTracked()) {
+                    // This Plugin isn't tracked yet, ensure its removed!
+                    $phoundation_plugins = Arrays::removeValues($phoundation_plugins, $path);
+                }
+            }
+        }
+
+        return $phoundation_plugins;
     }
 
 
@@ -469,7 +498,7 @@ class Plugins extends Project
             'disabled'
         ];
 
-        foreach ($plugins as $id => &$plugin) {
+        foreach ($plugins as &$plugin) {
             $plugin = Strings::endsNotWith($plugin, '/');
         }
 
