@@ -119,6 +119,13 @@ class Route
      */
     protected static MappingInterface $mapping;
 
+    /**
+     * The callback to be called when a route resolved and needs to execute a page
+     *
+     * @var mixed
+     */
+    protected static mixed $execute_page_callback;
+
 
     /**
      * Route constructor
@@ -140,7 +147,7 @@ class Route
         static::$uri    = Strings::until(static::$uri                   , '?');
 
         if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
-            // By default, increase log threshold on all favicon.ico requests to avoid log clutter
+            // By default, increase logger threshold on all favicon.ico requests to avoid log clutter
             Log::setThreshold(Config::getInteger('log.levels.web.favicon', 10));
         }
 
@@ -168,8 +175,24 @@ class Route
         ]), 9);
 
         Core::addShutdownCallback('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
+        Page::setExecuteCallback();
     }
 
+
+    /**
+     * Sets the execute-page callback
+     *
+     * @param callable $execute_page_callback
+     * @return void
+     */
+    public static function setExecuteCallback(callable $execute_page_callback): void
+    {
+        if (!empty(static::$execute_page_callback)) {
+            throw new RouteException(tr('Cannot set the execute-page callback, it has already been set'));
+        }
+
+        static::$execute_page_callback = $execute_page_callback;
+    }
 
 
     /**
@@ -1278,7 +1301,15 @@ class Route
             // Remove the 404 auto execution on shutdown
             // TODO route_postprocess() This should be a class method!
             Core::removeShutdownCallback('route[postprocess]');
-            Page::execute($target, $attachment, $system);
+
+            if (empty(static::$execute_page_callback)) {
+                throw new RouteException(tr('Cannot execute page ":target", the execute-page callback has not been set', [
+                    ':target' => $target
+                ]));
+            }
+
+            $callback = static::$execute_page_callback;
+            $callback($target, $attachment, $system);
         }
 
         if ($attachment) {

@@ -939,21 +939,9 @@ function execute_script(string $__file): void
  */
 function execute_page(string $__file): ?string
 {
+    ob_start(chunk_size: 0);
     include($__file);
-    $body = '';
-
-    // Get all output buffers and restart buffer
-    while (ob_get_level()) {
-        $body .= ob_get_contents();
-        ob_end_clean();
-    }
-
-    ob_start(chunk_size: 4096);
-
-    // Merge the flash messages from sessions into page flash messages
-    Page::getFlashMessages()->pullMessagesFrom(Session::getFlashMessages());
-
-    return $body;
+    return get_null(ob_get_clean());
 }
 
 

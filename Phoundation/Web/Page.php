@@ -10,7 +10,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
-use Phoundation\Api\ApiInterface;
+use Phoundation\Api\Api;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
@@ -36,6 +36,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
@@ -48,6 +49,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\RedirectException;
+use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Enums\DisplayMode;
@@ -55,6 +57,7 @@ use Phoundation\Web\Html\Menus\Menus;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -67,6 +70,7 @@ use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Stringable;
+use Symfony\Component\Routing\RouterInterface;
 use Throwable;
 
 
@@ -95,16 +99,16 @@ class Page implements PageInterface
     /**
      * Singleton
      *
-     * @var Page $instance
+     * @var PageInterface $instance
      */
-    protected static Page $instance;
+    protected static PageInterface $instance;
 
     /**
      * The server filesystem restrictions
      *
      * @var Restrictions $restrictions
      */
-    protected static Restrictions $restrictions;
+    protected static RestrictionsInterface $restrictions;
 
     /**
      * The TemplatePage class that builds the UI
@@ -123,9 +127,9 @@ class Page implements PageInterface
     /**
      * The Phoundation API interface
      *
-     * @var ApiInterface $api_interface
+     * @var Api $api_interface
      */
-    protected static ApiInterface $api_interface;
+    protected static Api $api_interface;
 
     /**
      * The flash object for this user
@@ -325,6 +329,19 @@ class Page implements PageInterface
 
 
     /**
+     * Sets the Route object execution callback sharing Page scope to keep executeRoute() private within the Page object
+     *
+     * @return void
+     */
+    public static function setExecuteCallback(): void
+    {
+        Route::setExecuteCallback(function (string $route, bool $attachment = false, bool $system = false) {
+            static::executeRoute($route, $attachment, $system);
+        });
+    }
+
+
+    /**
      * Singleton
      *
      * @return static
@@ -342,9 +359,9 @@ class Page implements PageInterface
     /**
      * Returns the current tab index and automatically increments it
      *
-     * @return Restrictions
+     * @return RestrictionsInterface
      */
-    public static function getRestrictions(): Restrictions
+    public static function getRestrictions(): RestrictionsInterface
     {
         return static::$restrictions;
     }
@@ -353,10 +370,10 @@ class Page implements PageInterface
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param Restrictions $restrictions
+     * @param RestrictionsInterface $restrictions
      * @return void
      */
-    public static function setRestrictions(Restrictions $restrictions): void
+    public static function setRestrictions(RestrictionsInterface $restrictions): void
     {
         static::$restrictions = $restrictions;
     }
@@ -393,9 +410,9 @@ class Page implements PageInterface
     /**
      * Returns page parameters specified by the router
      *
-     * @return RoutingParameters
+     * @return RoutingParametersInterface
      */
-    public static function getRoutingParameters(): RoutingParameters
+    public static function getRoutingParameters(): RoutingParametersInterface
     {
         if (PLATFORM_CLI) {
             throw new PageException(tr('Cannot return routing parameters, this requires the HTTP platform'));
@@ -1322,17 +1339,18 @@ class Page implements PageInterface
      * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
      * Route::execute() instead!
      *
-     * @param string $target      The target file that should be executed or sent to the client
+     * @param string $target       The target file that should be executed or sent to the client
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @param bool $system        If true, this is a system page being executed
      * @return never
      *
+     * @todo Make Page::executeFromRoute() use Page::executePage() somehow
      * @see Route::execute()
      * @see Template::execute()
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
+    #[NoReturn] protected static function executeRoute(string $target, bool $attachment = false, bool $system = false): never
     {
         // Ensure we have received routing parameters, can't execute without!
         if (empty(static::$parameters)) {
@@ -1341,40 +1359,68 @@ class Page implements PageInterface
             ]));
         }
 
+        // Start the page up
+        static::startup($target, $attachment, $system);
+
+        // Execute the specified target file
+        // Build the headers, cache output and headers together, then send the headers
+        // TODO Work on the HTTP headers, lots of issues here still, like content-length!
+        $output  = static::executePage($target);
+        $headers = static::buildHttpHeaders($output, $attachment);
+
+        // Merge the flash messages from sessions into page flash messages
+        Page::getFlashMessages()->pullMessagesFrom(Session::getFlashMessages());
+
+        if ($headers) {
+            // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
+            // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
+            Cache::write([
+                'output'  => $output,
+                'headers' => $headers,
+            ], $target,'pages');
+
+            $length = static::sendHttpHeaders($headers);
+            Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
+        }
+
+        // All done, send output to the client
+        $output = static::filterOutput($output);
+        static::sendOutputToClient($output, $target, $attachment);
+    }
+
+
+    /**
+     * Executes the specified page and returns the output
+     *
+     * Also handles a variety of exceptions and redirects to showing system pages instead, like 400, 401, 404, etc...
+     *
+     * @param string $page The target page that should be executed and returned
+     * @return string
+     *
+     * @see Route::execute()
+     * @see Template::execute()
+     */
+    public static function executePage(string $page): string
+    {
+        // Ensure we have an absolute target
+        if (!str_starts_with($page, '/')) {
+            // Ensure we have an absolute target
+            try {
+                $page = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($page));
+
+            } catch (FileNotExistException $e) {
+                throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
+                    ':page' => $page
+                ]), $e)->addData([
+                    'page' => $page
+                ]);
+            }
+        }
+
         try {
-            // Start the page up
-            static::startup($target);
-
-            if (!$system) {
-                // System pages never have a redirect
-                static::checkForceRedirect();
-            }
-
-            static::tryCache($target, $attachment);
-
-            ob_start();
-
             // Execute the specified target file
-            // Build the headers, cache output and headers together, then send the headers
-            // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-            $output  = static::executeTarget($target);
-            $headers = static::buildHttpHeaders($output, $attachment);
-
-            if ($headers) {
-                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
-                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                Cache::write([
-                    'output'  => $output,
-                    'headers' => $headers,
-                ], $target,'pages');
-
-                $length = static::sendHttpHeaders($headers);
-                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-            }
-
-            // All done, send output to the client
-            $output = static::filterOutput($output);
-            static::sendOutputToClient($output, $target, $attachment);
+            // Get all output buffers and restart buffer
+            return static::executeTarget($page, true);
 
         } catch (ValidationFailedExceptionInterface $e) {
             Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
@@ -1385,7 +1431,7 @@ class Page implements PageInterface
         } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
             Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
 
-        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+        } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
@@ -1734,7 +1780,7 @@ class Page implements PageInterface
 
 
     /**
-     * Returns the HTML output buffer for this page
+     * Returns the current HTML output buffer for this page
      *
      * @return string
      */
@@ -1767,7 +1813,7 @@ class Page implements PageInterface
 
 
     /**
-     * Returns the length HTML output buffer for this page
+     * Returns the current length HTML output buffer for this page
      *
      * @return int
      */
@@ -1792,7 +1838,7 @@ class Page implements PageInterface
         ob_flush();
         flush();
 
-        // Headers have been sent, from here we know if its a 200 or something else
+        // Headers have been sent, from here we know if it's a 200 or something else
         if (static::$http_code === 200) {
             Log::success(tr('Sent :http with ":length bytes" for URL ":url"', [
                 ':length' => $length,
@@ -2116,7 +2162,7 @@ class Page implements PageInterface
 
         $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
-        $headers[] = 'Content-Length: ' . (ob_get_length() + strlen($output));
+        $headers[] = 'Content-Length: ' . strlen($output);
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
@@ -2486,10 +2532,11 @@ class Page implements PageInterface
      * an absolute filename, and will check target restrictions.
      *
      * @param string $target
+     * @param bool $attachment
+     * @param bool $system
      * @return void
-     * @throws Exception
      */
-    protected static function startup(string &$target): void
+    protected static function startup(string $target, bool $attachment = false, bool $system = false): void
     {
         // Ensure we have flash messages available
         if (!isset(static::$flash_messages)) {
@@ -2498,38 +2545,42 @@ class Page implements PageInterface
 
         // Start the session if Core hasn't failed so far
         if (!Core::getFailed()) {
-            // But not for API's! API's have to handle a different session management
+            // But not for API's! API's have to handle different session management
             if (!Core::isRequestType(EnumRequestTypes::api)) {
                 Session::startup();
             }
         }
 
         if (Strings::fromReverse(dirname($target), '/') === 'system') {
-            // Wait a small random time (0S - 100mS) to avoid timing attacks on system pages
-            usleep(random_int(1, 100000));
-        }
+            // Wait a small random time (Between 0mS and 100mS) to avoid timing attacks on system pages
+            try {
+                usleep(random_int(1, 100000));
 
-        // Ensure we have an absolute target
-        try {
-            $target = static::getAbsoluteTarget($target);
-
-        } catch (FileNotExistException $e) {
-            throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
-                ':target' => $target
-            ]), $e)->addData(['target' => $target]);
+            } catch (Exception $e) {
+                // random_int() crashed for ... reasons? Fall back on mt_rand()
+                usleep(mt_rand(1, 100000));
+            }
         }
 
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
-        static::$target = static::getAbsoluteTarget($target);
-
+        static::$target = $target;
         static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
-        // Check only when in state "script". State "maintentance" for example, requires no rights checking
+        // Check only when in state "script". State "maintenance", for example, requires no rights checking
         if (Core::isState('script')) {
             Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }
+
+        // Check if this session should actually be redirected somewhere else.
+        // System pages never have a redirect, though!
+        if (!$system) {
+            static::checkForceRedirect();
+        }
+
+        // Do we have this page in cache, perhaps?
+        static::tryCache($target, $attachment);
     }
 
 
@@ -2640,11 +2691,12 @@ class Page implements PageInterface
     /**
      * Executes the target with the correct page driver (API or normal web page for now)
      *
-     * @todo Move AccessDeniedException handling to Page::execute()
      * @param string $target
+     * @param bool $main_content_only
      * @return string
+     * @todo Move AccessDeniedException handling to Page::execute()
      */
-    protected static function executeTarget(string $target): string
+    protected static function executeTarget(string $target, bool $main_content_only = false): string
     {
         try {
             // Execute the file and send the output HTML as a web page
@@ -2660,12 +2712,12 @@ class Page implements PageInterface
                 case EnumRequestTypes::api:
                     // no-break
                 case EnumRequestTypes::ajax:
-                    static::$api_interface = new ApiInterface();
+                    static::$api_interface = new Api();
                     $output = static::$api_interface->execute($target);
                     break;
 
                 default:
-                    $output = static::$template_page->execute($target);
+                    $output = static::$template_page->execute($target, $main_content_only);
             }
 
         } catch (AccessDeniedException $e) {

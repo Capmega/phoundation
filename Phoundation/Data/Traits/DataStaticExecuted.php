@@ -55,15 +55,48 @@ trait DataStaticExecuted
     /**
      * Returns the executed path
      *
+     * @param bool $from_root
      * @return string
      */
-    public static function getExecutedPath(): string
+    public static function getExecutedPath(bool $from_root = false): string
     {
         if (empty(static::$executed_path)) {
             return '_none_';
         }
 
-        return implode(' > ', static::$executed_path);
+        $return = static::$executed_path;
+
+        if ($from_root) {
+            foreach ($return as &$path) {
+                $path = Strings::from($path, DIRECTORY_ROOT);
+            }
+        }
+
+        unset($path);
+
+        return implode(' > ', $return);
+    }
+
+
+    /**
+     * Returns the executed path
+     *
+     * @param bool $from_root
+     * @return string
+     */
+    public static function getCurrentExecutedPath(bool $from_root = false): string
+    {
+        if (empty(static::$executed_path)) {
+            return '_none_';
+        }
+
+        $return = end(static::$executed_path);
+
+        if ($from_root) {
+            $return = Strings::from($return, DIRECTORY_ROOT);
+        }
+
+        return $return;
     }
 
 

@@ -26,11 +26,16 @@ abstract class TemplatePage
      *
      * This WILL send the HTTP headers, but will return the HTML instead of sending it to the browser
      * @param string $target
+     * @param bool $main_content_only
      * @return string|null
      */
-    public function execute(string $target): ?string
+    public function execute(string $target, bool $main_content_only = false): ?string
     {
         $body = $this->buildBody($target);
+
+        if ($main_content_only) {
+            return $body;
+        }
 
         // Build HTML and minify the output
         $output = $this->buildHtmlHeader();
