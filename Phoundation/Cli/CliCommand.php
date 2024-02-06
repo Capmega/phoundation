@@ -6,6 +6,7 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
+use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\CommandNotExistsException;
 use Phoundation\Cli\Exception\CommandNotFoundException;
@@ -253,6 +254,8 @@ class CliCommand
         static::$run_file = new CliRunFile($command);
 
         static::addExecutedPath(static::$command);
+        static::checkUsage();
+        static::checkHelp();
 
         Log::action(tr('Executing command ":command"', [
             ':command' => static::getExecutedPath()
@@ -1138,5 +1141,43 @@ class CliCommand
     public static function getPhoUid(): int
     {
         return static::$pho_uid;
+    }
+
+
+    /**
+     * Returns true if the specified command has help support available
+     *
+     * @return void
+     */
+    protected static function checkHelp(): void
+    {
+        global $argv;
+
+        if ($argv['help']) {
+            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::help('], 100))) {
+                throw CliCommandException::new(tr('The command ":command" has no help information available', [
+                    ':command' => static::getExecutedPath(true)
+                ]))->makeWarning();
+            }
+        }
+    }
+
+
+    /**
+     * Returns true if the specified command has usage support available
+     *
+     * @return void
+     */
+    protected static function checkUsage(): void
+    {
+        global $argv;
+
+        if ($argv['usage']) {
+            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::usage('], 100))) {
+                throw CliCommandException::new(tr('The command ":command" has no usage information available', [
+                    ':command' => static::getExecutedPath(true)
+                ]))->makeWarning();
+            }
+        }
     }
 }
