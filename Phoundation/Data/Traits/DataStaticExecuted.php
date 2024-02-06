@@ -68,7 +68,8 @@ trait DataStaticExecuted
 
         if ($from_root) {
             foreach ($return as &$path) {
-                $path = Strings::from($path, DIRECTORY_ROOT);
+                $path = Strings::from($path, DIRECTORY_DATA);
+                $path = Strings::from($path, 'data/cache/system/commands/');
             }
         }
 
@@ -90,13 +91,14 @@ trait DataStaticExecuted
             return '_none_';
         }
 
-        $return = end(static::$executed_path);
+        $path = end(static::$executed_path);
 
         if ($from_root) {
-            $return = Strings::from($return, DIRECTORY_ROOT);
+            $path = Strings::from($path, DIRECTORY_DATA);
+            $path = Strings::from($path, 'data/cache/system/commands/');
         }
 
-        return $return;
+        return $path;
     }
 
 
