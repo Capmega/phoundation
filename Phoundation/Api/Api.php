@@ -10,7 +10,7 @@ use Phoundation\Web\Page;
 
 
 /**
- * Class ApiInterface
+ * Class Api
  *
  * This class contains methods to assist in building web pages
  *
@@ -19,7 +19,7 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class ApiInterface
+class Api
 {
     /**
      * Returns a new ApiInterface object
@@ -40,22 +40,7 @@ class ApiInterface
      */
     public function execute(string $target): ?string
     {
-        include($target);
-
-        $output = '';
-
-        // Get all output buffers and restart buffer
-        while(ob_get_level()) {
-            $output .= ob_get_contents();
-            ob_end_clean();
-        }
-
-        ob_start(chunk_size: 4096);
-
-        // Build Template specific HTTP headers
-        $this->buildHttpHeaders($output);
-
-        return $output;
+        return execute_page($target);
     }
 
 
