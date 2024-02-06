@@ -29,14 +29,16 @@ CliDocumentation::autoComplete([
             'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->getMatchingKeys($word); },
             'noword' => function ()      { return Phoundation::new()->getPhoundationBranches()->getKeys(); },
         ],
-        '-c,--check'       => false,
-        '-l,--local'       => false,
-        '-n,--no-plugins'  => false,
-        '-m,--message'     => true,
         '-p,--phoundation' => [
             'word'   => function ($word) { return Directory::new('/var/www/html', '/var/www/html')->scan($word. '*'); },
             'noword' => function ()      { return Directory::new('/var/www/html', '/var/www/html')->scan(); },
         ],
+        '-c,--check'       => false,
+        '-l,--local'       => false,
+        '-m,--message'     => true,
+        '--no-commit'      => false,
+        '--no-phoundation' => false,
+        '-n,--no-plugins'  => false,
         '-s,--signed'      => false,
         '--skip-caching'   => false,
     ]
@@ -51,9 +53,7 @@ CliDocumentation::usage('./pho system update [OPTIONS]
 CliDocumentation::help('This command will update your Phoundation libraries and list
 
 
-
 ARGUMENTS
-
 
 
 -b / --branch                           The branch from which to update
@@ -64,9 +64,11 @@ ARGUMENTS
 
 [-m / --message]                        The git commit message for this update. If not specified, a default will be used
 
-[-n / --no-plugins]                     If specified will not update the plugins
+[--no-commit]                           If specified will not commit after updating
 
 [--no-phoundation]                      If specified will not update phoundation core files
+
+[-n / --no-plugins]                     If specified will not update the plugins
 
 [-p / --phoundation]                    If specified should contain the path to your local Phoundation installation
 
@@ -80,13 +82,13 @@ ARGUMENTS
                                         update system actually is expected or required');
 
 
-
 // Get command line arguments
 $argv = ArgvValidator::new()
     ->select('-b,--branch', true)->isOptional()->isVariable()
     ->select('-c,--check')->isOptional()->isBoolean()
     ->select('-l,--local')->isOptional()->isBoolean()
     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+    ->select('--no-commit')->isOptional()->isBoolean()
     ->select('-n,--no-plugins')->isOptional()->isBoolean()
     ->select('--no-phoundation')->isOptional()->isBoolean()
     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
@@ -95,21 +97,20 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-
 if ($argv['local']) {
     try {
         if ($argv['no_phoundation']) {
             Log::warning('Not updating phoundation core files');
         } else {
             Log::action(tr('Pulling updates from local Phoundation installation...'));
-            Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching']);
+            Project::new()->updateLocalProject($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching'], !$argv['no_commit']);
         }
 
         if ($argv['no_plugins']) {
             Log::warning('Not updating plugins');
         } else {
             Log::action(tr('Pulling updates from local Phoundation plugins installation...'));
-            Project::new()->updateLocalProjectPlugins($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching']);
+            Project::new()->updateLocalProjectPlugins($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], $argv['skip_caching'], !$argv['no_commit']);
         }
 
     } catch (PhoundationBranchNotExistException $e) {
