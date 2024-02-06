@@ -329,19 +329,6 @@ class Page implements PageInterface
 
 
     /**
-     * Sets the Route object execution callback sharing Page scope to keep executeRoute() private within the Page object
-     *
-     * @return void
-     */
-    public static function setExecuteCallback(): void
-    {
-        Route::setExecuteCallback(function (string $route, bool $attachment = false, bool $system = false) {
-            static::executeRoute($route, $attachment, $system);
-        });
-    }
-
-
-    /**
      * Singleton
      *
      * @return static
@@ -1350,22 +1337,15 @@ class Page implements PageInterface
      * @see Route::execute()
      * @see Template::execute()
      */
-    #[NoReturn] protected static function executeRoute(string $target, bool $attachment = false, bool $system = false): never
+    #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
     {
-        // Ensure we have received routing parameters, can't execute without!
-        if (empty(static::$parameters)) {
-            throw new PageException(tr('Cannot execute target ":target", no routing parameters specified', [
-                ':target' => $target
-            ]));
-        }
-
         // Start the page up
         static::startup($target, $attachment, $system);
 
         // Execute the specified target file
         // Build the headers, cache output and headers together, then send the headers
         // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-        $output  = static::executePage($target);
+        $output  = static::executeTarget($target, false);
         $headers = static::buildHttpHeaders($output, $attachment);
 
         // Merge the flash messages from sessions into page flash messages
@@ -1395,51 +1375,17 @@ class Page implements PageInterface
      * Also handles a variety of exceptions and redirects to showing system pages instead, like 400, 401, 404, etc...
      *
      * @param string $page The target page that should be executed and returned
+     * @param bool $main_content_only
      * @return string
      *
      * @see Route::execute()
      * @see Template::execute()
      */
-    public static function executePage(string $page): string
+    public static function executeReturn(string $page, bool $main_content_only = true): string
     {
-        // Ensure we have an absolute target
-        if (!str_starts_with($page, '/')) {
-            // Ensure we have an absolute target
-            try {
-                $page = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($page));
-
-            } catch (FileNotExistException $e) {
-                throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
-                    ':page' => $page
-                ]), $e)->addData([
-                    'page' => $page
-                ]);
-            }
-        }
-
-        try {
-            // Execute the specified target file
-            // Get all output buffers and restart buffer
-            return static::executeTarget($page, true);
-
-        } catch (ValidationFailedExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
-
-        } catch (AuthenticationExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 401, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
-
-        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
-
-        } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
-            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
-
-        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
-
-        } catch (Http409Exception $e) {
-            Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-        }
+        // Execute the specified target file
+        // Get all output buffers and restart buffer
+        return static::executeTarget($page, $main_content_only);
     }
 
 
@@ -2538,6 +2484,13 @@ class Page implements PageInterface
      */
     protected static function startup(string $target, bool $attachment = false, bool $system = false): void
     {
+        // Ensure we have received routing parameters, can't execute without!
+        if (empty(static::$parameters)) {
+            throw new PageException(tr('Cannot execute target ":target", no routing parameters specified', [
+                ':target' => $target
+            ]));
+        }
+
         // Ensure we have flash messages available
         if (!isset(static::$flash_messages)) {
             static::$flash_messages = FlashMessages::new();
@@ -2698,16 +2651,31 @@ class Page implements PageInterface
      */
     protected static function executeTarget(string $target, bool $main_content_only = false): string
     {
+        Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+            ':target'   => Strings::from($target, DIRECTORY_ROOT),
+            ':template' => static::$template->getName(),
+            ':language' => LANGUAGE
+        ]));
+
+        static::addExecutedPath($target);
+
         try {
-            // Execute the file and send the output HTML as a web page
-            Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                ':target'   => Strings::from($target, DIRECTORY_ROOT),
-                ':template' => static::$template->getName(),
-                ':language' => LANGUAGE
-            ]));
+            // Ensure we have an absolute target
+            if (!str_starts_with($target, '/')) {
+                // Ensure we have an absolute target
+                try {
+                    $page = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
 
-            static::addExecutedPath($target);
+                } catch (FileNotExistException $e) {
+                    throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
+                        ':target' => $target
+                    ]), $e)->addData([
+                        'target'  => $target
+                    ]);
+                }
+            }
 
+            // Execute the target
             switch (Core::getRequestType()) {
                 case EnumRequestTypes::api:
                     // no-break
@@ -2720,21 +2688,35 @@ class Page implements PageInterface
                     $output = static::$template_page->execute($target, $main_content_only);
             }
 
-        } catch (AccessDeniedException $e) {
+        } catch (ValidationFailedExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+
+        } catch (AuthenticationExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 401, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+
+        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
             $new_target = $e->getNewTarget();
 
-            Log::warning(tr('Access denied to target ":target" for user ":user", executing target ":new" instead', [
-                ':target' => $target,
-                ':user'   => Session::getUser()->getDisplayId(),
-                ':new'    => $new_target
-            ]));
+            if ($new_target) {
+                Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+                    ':target' => $target,
+                    ':user'   => Session::getUser()->getDisplayId(),
+                    ':new'    => $new_target
+                ]));
 
-            static::addExecutedPath($new_target);
+                Page::execute($target);
+            }
 
-            $output = match (Core::getRequestType()) {
-                EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),
-                default                                       => static::$template_page->execute($new_target),
-            };
+            Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
+
+        } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+
+        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
+
+        } catch (Http409Exception $e) {
+            Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
         }
 
         return $output;
