@@ -6,6 +6,7 @@ namespace Phoundation\Developer;
 
 use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
+use Phoundation\Audio\Audio;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\CoreException;
@@ -469,6 +470,7 @@ class Debug {
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset)
                     ]));
+                    Audio::new('data/audio/showdie.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $e) {

@@ -1848,7 +1848,17 @@ die($errfile. $errline);
         // When on commandline, ring an alarm
         if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
             try {
-                Audio::new('data/audio/critical.mp3')->playLocal(true);
+                if ($e instanceof Exception) {
+                    if ($e->isWarning()) {
+                        Audio::new('data/audio/warning.mp3')->playLocal(true);
+
+                    } else {
+                        Audio::new('data/audio/critical.mp3')->playLocal(true);
+                    }
+
+                } else {
+                    Audio::new('data/audio/critical.mp3')->playLocal(true);
+                }
 
             } catch (Throwable $f) {
                 Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
