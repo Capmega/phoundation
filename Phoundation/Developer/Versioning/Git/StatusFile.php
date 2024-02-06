@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 
@@ -37,19 +38,19 @@ class StatusFile
     /**
      * The status for this file
      *
-     * @var Status $status
+     * @var StatusInterface $status
      */
-    protected Status $status;
+    protected StatusInterface $status;
 
 
     /**
      * ChangedFile class constructor
      *
-     * @param Status|string $status
+     * @param StatusInterface|string $status
      * @param string $file
      * @param string $target
      */
-    public function __construct(Status|string $status, string $file, string $target)
+    public function __construct(StatusInterface|string $status, string $file, string $target)
     {
         $this->file   = $file;
         $this->target = $target;
@@ -60,12 +61,12 @@ class StatusFile
     /**
      * Returns a new Change object
      *
-     * @param Status|string $status
+     * @param StatusInterface|string $status
      * @param string $file
      * @param string $target
      * @return static
      */
-    public static function new(Status|string $status, string $file, string $target): static
+    public static function new(StatusInterface|string $status, string $file, string $target): static
     {
         return new static($status, $file, $target);
     }
@@ -96,9 +97,9 @@ class StatusFile
     /**
      * Returns the status for this file
      *
-     * @return Status
+     * @return StatusInterface
      */
-    public function getStatus(): Status
+    public function getStatus(): StatusInterface
     {
         return $this->status;
     }

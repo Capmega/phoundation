@@ -7,12 +7,12 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -140,7 +140,7 @@ class Git extends Versioning implements GitInterface
             }
         }
 
-        throw new GitException(tr('No brach selected for directory ":directory"', [
+        throw new GitException(tr('No branch selected for directory ":directory"', [
             ':directory' => $this->directory
         ]));
     }
@@ -309,13 +309,13 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param string|null $path
-     * @return StatusFiles
+     * @param string|null $directory
+     * @return StatusFilesInterface
      */
-    public function getStatus(?string $path = null): StatusFiles
+    public function getStatus(?string $directory = null): StatusFilesInterface
     {
         return StatusFiles::new()
-            ->setDirectory($path ?? $this->directory)
+            ->setDirectory($directory ?? $this->directory)
             ->scanChanges();
     }
 

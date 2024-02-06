@@ -11,6 +11,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
@@ -28,7 +29,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class StatusFiles extends Iterator
+class StatusFiles extends Iterator implements StatusFilesInterface
 {
     use GitProcess;
 
@@ -36,9 +37,9 @@ class StatusFiles extends Iterator
     /**
      * A git object specifically for this path
      *
-     * @var Git $git
+     * @var GitInterface $git
      */
-    protected Git $git;
+    protected GitInterface $git;
 
 
     /**

@@ -7,6 +7,7 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Filesystem;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 
 
@@ -33,14 +34,6 @@ trait GitProcess
     protected string $directory;
 
     /**
-     * The git process
-     *
-     * @var Process $git_process
-     */
-    protected Process $git_process;
-
-
-    /**
      * Returns the directory for this ChangedFiles object
      *
      * @return string
@@ -49,6 +42,14 @@ trait GitProcess
     {
         return $this->directory;
     }
+
+
+    /**
+     * The git process
+     *
+     * @var ProcessInterface $git_process
+     */
+    protected ProcessInterface $git_process;
 
 
     /**
