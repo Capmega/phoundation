@@ -305,6 +305,14 @@ class Page implements PageInterface
      */
     protected static LanguageInterface $language;
 
+    /**
+     * The number of page levels that we're recursed in. Typically, this will be 0, but when executing pages from within
+     * pages, recursing down, each time it will go up by one until that page is finished, then it will be lowered again
+     *
+     * @var int $levels
+     */
+    protected static int $levels = 0;
+
 
     /**
      * Resets all headers / footers
@@ -669,6 +677,30 @@ class Page implements PageInterface
     public static function isPostRequestMethod(): bool
     {
         return static::isRequestMethod('POST');
+    }
+
+
+    /**
+     * Returns if this page is executed directly from Route, or if its executed by executeReturn() call
+     *
+     * @return bool
+     */
+    public static function isExecutedDirectly(): bool
+    {
+        return !static::$levels;
+    }
+
+
+    /**
+     * Returns the number of pages we have recursed into.
+     *
+     * Returns 0 for the first page, 1 for the next, etc.
+     *
+     * @return int
+     */
+    public static function getLevels(): int
+    {
+        return static::$levels;
     }
 
 
@@ -1385,7 +1417,9 @@ class Page implements PageInterface
     {
         // Execute the specified target file
         // Get all output buffers and restart buffer
+        static::$levels++;
         return static::executeTarget($page, $main_content_only);
+        static::$levels--;
     }
 
 
