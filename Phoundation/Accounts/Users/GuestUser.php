@@ -35,4 +35,15 @@ class GuestUser extends User implements GuestUserInterface
         $this->setValidate(false);
         $this->setNickname('Guest');
     }
+
+
+    /**
+     * Always returns false, this entry is guest!
+     *
+     * @return bool
+     */
+    public function isNew(): bool
+    {
+        return false;
+    }
 }
