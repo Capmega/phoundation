@@ -529,18 +529,19 @@ abstract class Validator implements ValidatorInterface
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
+     * @param int $max_characters
      * @return static
      */
-    public function isCode(?string $until = null): static
+    public function isCode(?string $until = null, int $max_characters = 64): static
     {
-        return $this->validateValues(function(&$value) use ($until) {
+        return $this->validateValues(function(&$value) use ($until, $max_characters) {
             if ($until) {
                 // Truncate the code at one of the specified characters
                 $value = Strings::until($value, $until);
                 $value = trim($value);
             }
 
-            $this->hasMinCharacters(2)->hasMaxCharacters(16);
+            $this->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
