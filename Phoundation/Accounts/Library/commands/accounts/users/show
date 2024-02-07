@@ -24,8 +24,8 @@ use Phoundation\Utils\Config;
 CliDocumentation::autoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
-            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
         ]
     ],
 ]));

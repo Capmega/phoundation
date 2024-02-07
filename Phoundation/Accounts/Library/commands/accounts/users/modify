@@ -24,8 +24,8 @@ use Phoundation\Databases\Sql\Limit;
 CliDocumentation::autoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
-            'word'   => 'SELECT `email` FROM `accounts_users` WHERE `email` LIKE :word AND `status` IS NULL',
-            'noword' => 'SELECT `email` FROM `accounts_users` WHERE `status` IS NULL'
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL'
         ]
     ],
 ]));
@@ -75,7 +75,11 @@ if ($argv['roles']) {
 
 
 // Get the user and modify, then update roles
-$user = User::get($argv['user'])->apply()->save();
+$user = User::find([
+    'username' => $argv['user'],
+    'email'    => $argv['user'],
+    'code'     => $argv['user'],
+], filter: 'OR')->apply()->save();
 $user->getRoles()->setRoles($argv['roles']);
 $user->getEmails()->apply()->save();
 $user->getPhones()->apply()->save();
