@@ -49,7 +49,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
         $connector = Connector::new();
 
         $this->definitions = Definitions::new()
-            ->addDefinition(Definition::new(null, 'entry_status')
+            ->add(Definition::new(null, 'entry_status')
                 ->setLabel(tr('Status'))
                 ->setSize(4)
                 ->setOptional(true)
@@ -57,6 +57,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
                 ->setValue(isset_get($this->source['entry_status']))
                 ->setKey(true, 'auto_submit')
                 ->setSource($this->states))
-            ->addDefinition($connector->getDefinitions()->get('type'));
+            ->add($connector->getDefinitions()->get('type'));
     }
 }

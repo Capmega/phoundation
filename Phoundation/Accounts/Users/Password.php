@@ -169,7 +169,7 @@ class Password extends DataEntry implements PasswordInterface
         $strength = 10;
         $length   = strlen($password);
 
-        if($length < 10) {
+        if($length < Config::getInteger('security.password.min-length', 10)) {
             if(!$length) {
                 throw new NoPasswordSpecifiedException(tr('No password specified'));
             }
@@ -457,7 +457,7 @@ class Password extends DataEntry implements PasswordInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'current')
+            ->add(Definition::new($this, 'current')
                 ->setVisible(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
@@ -467,7 +467,7 @@ class Password extends DataEntry implements PasswordInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
                 }))
-            ->addDefinition(Definition::new($this, 'password')
+            ->add(Definition::new($this, 'password')
                 ->setVisible(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::password)
@@ -477,7 +477,7 @@ class Password extends DataEntry implements PasswordInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isStrongPassword();
                 }))
-            ->addDefinition(Definition::new($this, 'passwordv')
+            ->add(Definition::new($this, 'passwordv')
                 ->setVisible(true)
                 ->setVirtual(true)
                 ->setInputType(InputType::password)

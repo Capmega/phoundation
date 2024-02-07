@@ -89,7 +89,7 @@ class Incident extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'type')
+            ->add(Definition::new($this, 'type')
                 ->setReadonly(true)
                 ->setLabel('Type')
                 ->setSize(6)
@@ -97,16 +97,16 @@ class Incident extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isName(16);
                 }))
-            ->addDefinition(DefinitionFactory::getTitle($this)
+            ->add(DefinitionFactory::getTitle($this)
                 ->setSize(6))
-            ->addDefinition(Definition::new($this, 'url')
+            ->add(Definition::new($this, 'url')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('URL')
                 ->setSize(12)
                 ->setMaxlength(2048))
-            ->addDefinition(DefinitionFactory::getDescription($this))
-            ->addDefinition(Definition::new($this, 'exception')
+            ->add(DefinitionFactory::getDescription($this))
+            ->add(Definition::new($this, 'exception')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('Exception')
@@ -115,7 +115,7 @@ class Incident extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'data')
+            ->add(Definition::new($this, 'data')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)

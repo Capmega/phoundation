@@ -89,7 +89,7 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this))
-            ->addDefinition(DefinitionFactory::getDescription($this));
+            ->add(DefinitionFactory::getName($this))
+            ->add(DefinitionFactory::getDescription($this));
     }
 }

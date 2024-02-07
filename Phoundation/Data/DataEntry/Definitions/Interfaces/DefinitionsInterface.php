@@ -52,14 +52,6 @@ interface DefinitionsInterface extends IteratorInterface
     public function setDataEntry(DataEntryInterface $data_entry): static;
 
     /**
-     * Adds the specified Definition to the columns list
-     *
-     * @param DefinitionInterface $column
-     * @return static
-     */
-    public function addDefinition(DefinitionInterface $column): static;
-
-    /**
      * Returns the current Definition object
      *
      * @return DefinitionInterface

@@ -209,17 +209,17 @@ class Phone extends DataEntry implements PhoneInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'verification_code')
+            ->add(Definition::new($this, 'verification_code')
                 ->setOptional(true)
                 ->setVisible(false)
                 ->setReadonly(true))
-            ->addDefinition(DefinitionFactory::getUsersId($this)
+            ->add(DefinitionFactory::getUsersId($this)
                 ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getPhone($this)
+            ->add(DefinitionFactory::getPhone($this)
                 ->setSize(4)
                 ->setOptional(false)
                 ->setHelpText(tr('An extra phone for the user')))
-            ->addDefinition(Definition::new($this, 'account_type')
+            ->add(Definition::new($this, 'account_type')
                 ->setOptional(true)
                 ->setElement(InputElement::select)
                 ->setSize(3)
@@ -235,7 +235,7 @@ class Phone extends DataEntry implements PhoneInterface
                 ])
                 ->setLabel(tr('Type'))
                 ->setHelpText(tr('The type of phone')))
-            ->addDefinition(DefinitionFactory::getDateTime($this, 'verified_on')
+            ->add(DefinitionFactory::getDateTime($this, 'verified_on')
                 ->setReadonly(true)
                 ->setSize(3)
                 ->setNullInputType(InputType::text)
@@ -244,14 +244,14 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setLabel(tr('Verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
-            ->addDefinition(Definition::new($this, 'delete')
+            ->add(Definition::new($this, 'delete')
                 ->setVirtual(true)
                 ->setInputType(InputType::submit)
                 ->setSize(2)
                 ->setLabel(tr('Delete'))
                 ->addClasses('btn btn-outline-warning')
                 ->setValue(tr('Delete')))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this phone')));
     }
 }

@@ -80,5 +80,5 @@ interface RolesInterface extends DataListInterface
      * @return InputSelectInterface
      */
 
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
 }

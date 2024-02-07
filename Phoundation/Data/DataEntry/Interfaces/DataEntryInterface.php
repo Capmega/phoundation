@@ -29,6 +29,28 @@ use Stringable;
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
     /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string|null
+     */
+    public static function getDefaultConnector(): ?string;
+
+    /**
+     * Returns the column considered the "id" column
+     *
+     * @return string
+     */
+    public static function getIdColumn(): string;
+
+    /**
+     * Returns true if the ID column is the specified column
+     *
+     * @param string $column
+     * @return bool
+     */
+    public static function idColumnIs(string $column): bool;
+
+    /**
      * Returns if this DataEntry validates data before saving
      *
      * @return bool

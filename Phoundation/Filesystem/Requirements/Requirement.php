@@ -74,7 +74,7 @@ class Requirement extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(128)
@@ -83,8 +83,8 @@ class Requirement extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'path')
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(Definition::new($this, 'path')
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(6)
                 ->setMaxlength(255)
@@ -93,7 +93,7 @@ class Requirement extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(Definition::new($this, 'filesystem')
+            ->add(Definition::new($this, 'filesystem')
                 ->setInputType(InputType::select)
                 ->setSource([
                     ''             => tr('No requirements'),
@@ -123,7 +123,7 @@ class Requirement extends DataEntry
                 ->setMaxlength(16)
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem this should use')))
-            ->addDefinition(Definition::new($this, 'file_type')
+            ->add(Definition::new($this, 'file_type')
                 ->setInputType(InputType::select)
                 ->setSource([
                     ''                 => tr('No requirements'),
@@ -138,7 +138,7 @@ class Requirement extends DataEntry
                 ->setMaxlength(16)
                 ->setLabel(tr('File type'))
                 ->setHelpText(tr('The type of file this should be')))
-           ->addDefinition(DefinitionFactory::getDescription($this)
+           ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this mount')));
     }
 }

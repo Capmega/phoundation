@@ -162,11 +162,11 @@ class Language extends DataEntry implements LanguageInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setDisabled(true)
                 ->setHelpText(tr('The name for this language')))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'code_639_1')
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(Definition::new($this, 'code_639_1')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-1 code'))
@@ -174,7 +174,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setSize(12)
                 ->setMaxlength(2)
                 ->setHelpText(tr('The ISO 639-1 code for this language')))
-            ->addDefinition(Definition::new($this, 'code_639_2_t')
+            ->add(Definition::new($this, 'code_639_2_t')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/T code'))
@@ -182,7 +182,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/T code for this language')))
-            ->addDefinition(Definition::new($this, 'code_639_2_b')
+            ->add(Definition::new($this, 'code_639_2_b')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/B code'))
@@ -190,7 +190,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/B code for this language')))
-            ->addDefinition(Definition::new($this, 'code_639_3')
+            ->add(Definition::new($this, 'code_639_3')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::code)
                 ->setLabel(tr('ISO 639-3 code'))
@@ -198,7 +198,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this language')));
     }
 }

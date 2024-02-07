@@ -826,7 +826,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(InputTypeExtended::code)
             ->setSize(3)
-            ->setMaxlength(16)
+            ->setMaxlength(64)
             ->setMinlength(1)
             ->setCliColumn('-c,--code CODE')
             ->setCliAutoComplete(true)
@@ -1237,6 +1237,7 @@ class DefinitionFactory
             ->setInputType(InputTypeExtended::array_json)
             ->setSize(12)
             ->setMaxlength(16_777_200)
+            ->setLabel(tr('Data'))
             ->setCliAutoComplete(true);
     }
 

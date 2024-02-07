@@ -102,7 +102,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function setRights(?array $list, ?string $column = null): static
     {
-        $this->ensureParent('save entries');
+        $this->ensureParent(tr('save entries'));
 
         if (is_array($list)) {
             // Convert the list with whatever is specified (id, seo_name, role object) to seo_names
@@ -141,7 +141,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
     {
-        $this->ensureParent('add Right entry to parent');
+        $this->ensureParent(tr('add Right entry to parent'));
 
         if ($value) {
             if (is_array($value)) {
@@ -211,7 +211,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function delete(RightInterface|Stringable|array|string|float|int $keys): static
     {
-        $this->ensureParent('remove entry from parent');
+        $this->ensureParent(tr('remove entry from parent'));
 
         if (!$keys) {
             // Nothing to do
@@ -307,7 +307,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function clear(): static
     {
-        $this->ensureParent('clear all entries from parent');
+        $this->ensureParent(tr('clear all entries from parent'));
 
         if ($this->parent instanceof UserInterface) {
             Log::action(tr('Removing all rights from user ":user"', [
@@ -513,7 +513,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function save(): static
     {
-//        $this->ensureParent('save parent entries');
+//        $this->ensureParent(tr('save parent entries'));
 //
 //        if ($this->parent instanceof UserInterface) {
 //            // Delete the current list
@@ -559,7 +559,7 @@ class Rights extends DataList implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
             ->setName('rights_id')

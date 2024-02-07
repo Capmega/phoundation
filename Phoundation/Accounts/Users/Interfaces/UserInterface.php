@@ -59,10 +59,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the nickname for this user
      *
-     * @param string|null $nickname
+     * @param string|null $remote_id
      * @return static
      */
-    public function setNickname(?string $nickname): static;
+    public function setNickname(?string $remote_id): static;
 
     /**
      * Returns the name for this user

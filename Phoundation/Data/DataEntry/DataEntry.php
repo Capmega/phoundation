@@ -100,7 +100,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @var array $meta_columns
      */
-    protected static array $meta_columns = [
+    protected array $meta_columns = [
         'id',
         'created_by',
         'created_on',
@@ -312,13 +312,24 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns true if the definitions of this DataEntry have their own methods
+     *
+     * @return bool
+     */
+    public function definitionsHaveMethods(): bool
+    {
+        return true;
+    }
+
+
+    /**
      * Returns the default database connector to use for this table
      *
      * @return string|null
      */
     public static function getDefaultConnector(): ?string
     {
-        return '';
+        return 'system';
     }
 
 
@@ -664,7 +675,9 @@ abstract class DataEntry implements DataEntryInterface
                     ':class'      => static::getClassName(),
                     ':column'     => static::getColumn($identifier, $column),
                     ':identifier' => $identifier
-                ]));
+                ]))->addData([
+                    'class' => static::class
+                ]);
             }
 
             // Return an empty DataEntryInterface object
@@ -732,7 +745,9 @@ abstract class DataEntry implements DataEntryInterface
                 ':class'      => static::getClassName(),
                 ':column'     => static::getColumn($identifier, $column),
                 ':identifier' => $identifier
-            ]));
+            ]))->addData([
+                'class' => static::class
+            ]);
         }
 
         if ($entry->isDeleted() and !$force) {
@@ -742,8 +757,9 @@ abstract class DataEntry implements DataEntryInterface
                     ':class'      => static::getClassName(),
                     ':column'     => static::getColumn($identifier, $column),
                     ':identifier' => $identifier
-                ]));
-
+                ]))->addData([
+                    'class' => static::class
+                ]);
             }
         }
 
@@ -773,7 +789,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $exception
      * @return static|null
      */
-    public static function find(array $identifiers, bool $meta_enabled = false, bool $force = false, bool $exception = true): ?static
+    public static function find(array $identifiers, bool $meta_enabled = false, bool $force = false, bool $exception = true, string $filter = 'AND'): ?static
     {
         if (!$identifiers) {
             // No identifiers specified, return an empty object
@@ -783,15 +799,21 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // Build the find query, and execute it
+        // TODO Do this with the query builder, add functions for this in the query builder
+        $where   = [];
+        $execute = [];
+
+        foreach ($identifiers as $column => $identifier) {
+            $where[]                = '`' . $column . '` = :' . $column;
+            $execute[':' . $column] = $identifier;
+        }
+
         $builder = QueryBuilder::new()
             ->setMetaEnabled($meta_enabled)
 //            ->setDatabaseConnectorName()
             ->addFrom(static::getTable())
-            ->addSelect('`' . static::getTable() . '`.*');
-
-        foreach ($identifiers as $column => $identifier) {
-            $builder->addWhere('`' . $column . '` = :' . $column, [':' . $column => $identifier]);
-        }
+            ->addSelect('`' . static::getTable() . '`.*')
+            ->addWhere(implode(' ' . $filter . ' ', $where), $execute);
 
         $entry = $builder->get();
 
@@ -1037,7 +1059,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function isNew(): bool
     {
-        return !$this->getId();
+        return $this->getId() === null;
     }
 
 
@@ -1048,7 +1070,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getId(): int|null
     {
-        return $this->getSourceValueTypesafe('int', 'id');
+        return $this->getSourceValueTypesafe('int', $this->getIdColumn());
     }
 
 
@@ -1672,7 +1694,14 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected function setColumnValueWithObjectSetter(string $column, mixed $value, bool $directly, DefinitionInterface $definition): void
     {
-        if ($directly or $this->definitions->get($column)?->getDirectUpdate()) {
+        /*
+         * Update columns directly if:
+         *
+         * 1) This DataEntry has no direct methods defined for its source keys
+         * 2) This method was called with the $directly flag
+         * 3) If this specific column has no direct methods defined and updates directly
+         */
+        if (!$this->definitionsHaveMethods() or $directly or $this->definitions->get($column)?->getDirectUpdate()) {
             // Store data directly, bypassing the set method for this key
             $this->setSourceValue($column, $value);
 
@@ -1762,7 +1791,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         if ($filter_meta) {
             // Remove meta-columns too
-            return Arrays::removeKeys(Arrays::removeKeys($this->source, static::$meta_columns), $this->protected_columns);
+            return Arrays::removeKeys(Arrays::removeKeys($this->source, $this->meta_columns), $this->protected_columns);
         }
 
         return Arrays::removeKeys($this->source, $this->protected_columns);
@@ -1862,7 +1891,7 @@ abstract class DataEntry implements DataEntryInterface
     protected function setMetaData(?array $data = null): static
     {
         // Reset meta columns
-        foreach (static::$meta_columns as $column) {
+        foreach ($this->meta_columns as $column) {
             $this->source[$column] = null;
         }
 
@@ -1879,7 +1908,7 @@ abstract class DataEntry implements DataEntryInterface
 
         foreach ($data as $key => $value) {
             // Only these keys will be set through setMetaData()
-            if (!in_array($key, static::$meta_columns)) {
+            if (!in_array($key, $this->meta_columns)) {
                 continue;
             }
 
@@ -1919,8 +1948,8 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        // Skip all meta columns like id, created_on, meta_id, etc etc etc..
-        if (in_array($column, static::$meta_columns)) {
+        // Skip all meta-columns like id, created_on, meta_id, etc, etc, etc..
+        if (in_array($column, $this->meta_columns)) {
             return $this;
         }
 
@@ -2465,7 +2494,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         $this->definitions = Definitions::new()
             ->setTable(static::getTable())
-            ->addDefinition(Definition::new($this, 'id')
+            ->add(Definition::new($this, 'id')
                 ->setDisabled(true)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addClasses('text-center')
@@ -2473,7 +2502,7 @@ abstract class DataEntry implements DataEntryInterface
                 ->setCliAutoComplete(true)
                 ->setTooltip(tr('This column contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
                 ->setLabel(tr('Database ID')))
-            ->addDefinition(Definition::new($this, 'created_on')
+            ->add(Definition::new($this, 'created_on')
                 ->setDisabled(true)
                 ->setInputType(InputType::datetime_local)
                 ->setNullInputType(InputType::text)
@@ -2481,7 +2510,7 @@ abstract class DataEntry implements DataEntryInterface
                 ->setSize(3)
                 ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                 ->setLabel(tr('Created on')))
-            ->addDefinition(Definition::new($this, 'created_by')
+            ->add(Definition::new($this, 'created_by')
                 ->setDisabled(true)
                 ->setSize(3)
                 ->setLabel(tr('Created by'))
@@ -2511,20 +2540,20 @@ abstract class DataEntry implements DataEntryInterface
                         }
                     }
                 }))
-            ->addDefinition(Definition::new($this, 'meta_id')
+            ->add(Definition::new($this, 'meta_id')
                 ->setDisabled(true)
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->setNullInputType(InputType::text)
                 ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
                 ->setLabel(tr('Meta ID')))
-            ->addDefinition(Definition::new($this, 'meta_state')
+            ->add(Definition::new($this, 'meta_state')
                 ->setDisabled(true)
                 ->setVisible(false)
                 ->setInputType(InputType::text)
                 ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
                 ->setLabel(tr('Meta state')))
-            ->addDefinition(Definition::new($this, 'status')
+            ->add(Definition::new($this, 'status')
                 ->setOptional(true)
                 ->setDisabled(true)
                 ->setInputType(InputType::text)

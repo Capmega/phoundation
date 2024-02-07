@@ -290,13 +290,13 @@ class Incident extends DataEntry implements IncidentInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'type')
+            ->add(Definition::new($this, 'type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
                 ->setDefault(tr('Unknown'))
                 ->setSize(6)
                 ->setMaxlength(6))
-            ->addDefinition(Definition::new($this, 'severity')
+            ->add(Definition::new($this, 'severity')
                 ->setElement(InputElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
@@ -309,13 +309,13 @@ class Incident extends DataEntry implements IncidentInterface
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
                 ]))
-            ->addDefinition(Definition::new($this, 'title')
+            ->add(Definition::new($this, 'title')
                 ->setLabel(tr('Title'))
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(4)
                 ->setMaxlength(255))
-            ->addDefinition(Definition::new($this, 'details')
+            ->add(Definition::new($this, 'details')
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)

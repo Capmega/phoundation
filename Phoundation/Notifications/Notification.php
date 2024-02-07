@@ -599,13 +599,13 @@ POST variables:
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'users_id')
+            ->add(Definition::new($this, 'users_id')
                 ->setVisible(false)
                 ->setInputType(InputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                 }))
-            ->addDefinition(Definition::new($this, 'code')
+            ->add(Definition::new($this, 'code')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
@@ -616,7 +616,7 @@ POST variables:
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'mode')
+            ->add(Definition::new($this, 'mode')
                 ->setLabel(tr('Mode'))
                 ->setReadonly(true)
                 ->setOptional(true, DisplayMode::notice)
@@ -626,11 +626,11 @@ POST variables:
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDisplayMode();
                 }))
-            ->addDefinition(Definition::new($this, 'icon')
+            ->add(Definition::new($this, 'icon')
                 ->setVisible(false)
                 ->setOptional(true)
                 ->setInputType(InputType::url))
-            ->addDefinition(Definition::new($this, 'priority')
+            ->add(Definition::new($this, 'priority')
                 ->setReadonly(true)
                 ->setInputType(InputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
@@ -639,7 +639,7 @@ POST variables:
                 ->setMin(1)
                 ->setMax(9)
                 ->setSize(3))
-            ->addDefinition(Definition::new($this, 'title')
+            ->add(Definition::new($this, 'title')
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
@@ -647,7 +647,7 @@ POST variables:
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'message')
+            ->add(Definition::new($this, 'message')
                 ->setReadonly(true)
                 ->setElement(InputElement::textarea)
                 ->setLabel(tr('Message'))
@@ -656,14 +656,14 @@ POST variables:
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'url')
+            ->add(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setInputType(InputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->addDefinition(Definition::new($this, 'details')
+            ->add(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setElement(InputElement::textarea)
@@ -701,7 +701,7 @@ POST variables:
                         return $value;
                     }
                 }))
-            ->addDefinition(Definition::new($this, 'file')
+            ->add(Definition::new($this, 'file')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
@@ -709,7 +709,7 @@ POST variables:
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
-            ->addDefinition(Definition::new($this, 'line')
+            ->add(Definition::new($this, 'line')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
@@ -717,7 +717,7 @@ POST variables:
                 ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))
-            ->addDefinition(Definition::new($this, 'trace')
+            ->add(Definition::new($this, 'trace')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)

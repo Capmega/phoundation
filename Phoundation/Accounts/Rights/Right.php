@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
+use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Exception\RightNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -114,6 +115,12 @@ class Right extends DataEntry implements RightInterface
      */
     public function getRoles(): RolesInterface
     {
+        if ($this->isNew()) {
+            throw new AccountsException(tr('Cannot access roles for right ":right", the right has not yet been saved', [
+                ':right' => $this->getLogId()
+            ]));
+        }
+
         return Roles::new()->setParent($this)->load();
     }
 
@@ -126,7 +133,7 @@ class Right extends DataEntry implements RightInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setInputType(InputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
@@ -134,8 +141,8 @@ class Right extends DataEntry implements RightInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this right')));
     }
 }
