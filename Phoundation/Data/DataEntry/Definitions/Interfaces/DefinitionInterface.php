@@ -286,17 +286,17 @@ interface DefinitionInterface
     /**
      * Return the type of input element.
      *
-     * @return string|null
+     * @return InputTypeExtendedInterface|InputTypeInterface
      */
-    public function getType(): ?string;
+    public function getInputType(): InputTypeExtendedInterface|InputTypeInterface;
 
     /**
      * Sets the type of input element.
      *
-     * @param InputTypeInterface|InputTypeExtendedInterface|null $value
+     * @param InputTypeInterface|InputTypeExtendedInterface|string $value
      * @return static
      */
-    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|null $value): static;
+    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|string $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -755,7 +755,7 @@ interface DefinitionInterface
      *
      * @return string|null
      */
-    public function getNullType(): ?string;
+    public function getNullInputType(): ?string;
 
     /**
      * Sets the type for this element if the value is NULL
@@ -818,14 +818,6 @@ interface DefinitionInterface
     public function setHelpGroup(?string $value): static;
 
     /**
-     * Returns true if the specified input type is supported
-     *
-     * @param string $type
-     * @return bool
-     */
-    public function inputTypeSupported(string $type): bool;
-
-    /**
      * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
@@ -875,4 +867,34 @@ interface DefinitionInterface
      * @return static
      */
     public function setAutoSubmit(?bool $value): static;
+
+    /**
+     * Returns the column
+     *
+     * @return string|null
+     */
+    public function getColumn(): ?string;
+
+    /**
+     * Sets the column
+     *
+     * @param string|null $column
+     * @return static
+     */
+    public function setColumn(?string $column): static;
+
+    /**
+     * Returns what element should be displayed if the value of this entry is NULL
+     *
+     * @return InputElementInterface|null
+     */
+    public function getNullElement(): InputElementInterface|null;
+
+    /**
+     * Sets what element should be displayed if the value of this entry is NULL
+     *
+     * @param InputElementInterface|null $value
+     * @return static
+     */
+    public function setNullElement(InputElementInterface|null $value): static;
 }

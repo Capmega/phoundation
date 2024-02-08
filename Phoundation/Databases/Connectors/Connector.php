@@ -578,7 +578,6 @@ class Connector extends DataEntry implements ConnectorInterface
             ->add(Definition::new($this, 'environment')
                 ->setSize(4)
                 ->setLabel('Environment')
-                ->setInputType(null)
                 ->setElement(InputElement::select)
                 ->setSource([
                     'production' => tr('Production'),

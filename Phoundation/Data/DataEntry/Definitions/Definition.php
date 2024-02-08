@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
 use Phoundation\Web\Html\Html;
 use Stringable;
 use Throwable;
+use ValueError;
 
 
 /**
@@ -588,12 +589,13 @@ class Definition implements DefinitionInterface
      */
     public function setElement(InputElementInterface|null $value): static
     {
+        // If (input) type exists and is not null, then we can ONLY use element "input"
         if (!empty($this->rules['type'])) {
-            if ($value !== 'input') {
-                throw new OutOfBoundsException(tr('Cannot set element ":value" for column ":column" as the element type has already been set to ":type" and typed columns can only have the element "input"', [
-                    ':value' => $value?->value,
+            if ($value !== InputElement::input) {
+                throw new OutOfBoundsException(tr('Cannot set element ":value" for column ":column" as the input type has already been set to ":type" and typed columns can only have the element "input"', [
+                    ':value'  => $value?->value,
                     ':column' => $this->column,
-                    ':type'  => $this->rules['element']
+                    ':type'   => $this->rules['type']
                 ]));
             }
         }
@@ -631,17 +633,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Return the type of input element.
-     *
-     * @return string|null
-     */
-    public function getType(): ?string
-    {
-        return isset_get_typed('string', $this->rules['type']);
-    }
-
-
-    /**
      * Returns true if the input type is scalar, false if it is not
      *
      * @return bool
@@ -661,14 +652,14 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @return InputTypeExtendedInterface|InputTypeInterface|null
+     * @return InputTypeExtendedInterface|InputTypeInterface
      */
-    public function getInputType(): InputTypeExtendedInterface|InputTypeInterface|null
+    public function getInputType(): InputTypeExtendedInterface|InputTypeInterface
     {
         $return = $this->getKey('type');
 
         if ($return === null) {
-            return null;
+            return InputType::text;
         }
 
         try {
@@ -689,108 +680,129 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @param InputTypeInterface|InputTypeExtendedInterface|null $value
+     * @param InputTypeInterface|InputTypeExtendedInterface|string|null $value
      * @return static
      */
-    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|null $value): static
+    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|string|null $value): static
     {
-        if ($value) {
-            if ($value instanceof InputTypeExtendedInterface) {
-                // This is an extended virtual input type, adjust it to an existing input type.
-                switch ($value) {
-                    case InputTypeExtended::dbid:
-                        $value = InputType::number;
+        if (is_string($value)) {
+            // Convert the string input type to the correct InputType or InputTypeExtended enums
+            try {
+                $value = InputType::from($value);
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isNatural();
-                        });
+            } catch (ValueError) {
+                try {
+                    $value = InputTypeExtended::from($value);
 
-                        break;
+                } catch (ValueError) {
+                    throw new OutOfBoundsException(tr('Invalid input type ":type" specified', [
+                        ':type' => $value
+                    ]));
+                }
+            }
+        }
 
-                    case InputTypeExtended::natural:
-                        $value = InputType::number;
+        if (!$value) {
+            // NULL specified
+            return $this->setKey(null, 'type');
+        }
 
-                        $this->setKey($value->value, 'type');
-                        $this->setMin(0);
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isNatural();
-                        });
+        if ($value instanceof InputTypeExtendedInterface) {
+            // This is an extended virtual input type, adjust it to an existing input type.
+            switch ($value) {
+                case InputTypeExtended::dbid:
+                    $value = InputType::number;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isNatural();
+                    });
 
-                    case InputTypeExtended::integer:
-                        $value = InputType::number;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isInteger();
-                        });
+                case InputTypeExtended::natural:
+                    $value = InputType::number;
 
-                        break;
+                    $this->setKey($value->value, 'type');
+                    $this->setMin(0);
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isNatural();
+                    });
 
-                    case InputTypeExtended::positiveInteger:
-                        $value = InputType::number;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isInteger()->isMoreThan(0, true);
-                        });
+                case InputTypeExtended::integer:
+                    $value = InputType::number;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isInteger();
+                    });
 
-                    case InputTypeExtended::negativeInteger:
-                        $value = InputType::number;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isInteger()->isLessThan(0, true);
-                        });
+                case InputTypeExtended::positiveInteger:
+                    $value = InputType::number;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isInteger()->isMoreThan(0, true);
+                    });
 
-                    case InputTypeExtended::float:
-                        $value = InputType::number;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isFloat();
-                        });
+                case InputTypeExtended::negativeInteger:
+                    $value = InputType::number;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isInteger()->isLessThan(0, true);
+                    });
 
-                    case InputTypeExtended::name:
-                        $value = InputType::text;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isName();
-                        });
+                case InputTypeExtended::float:
+                    $value = InputType::number;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isFloat();
+                    });
 
-                    case InputTypeExtended::variable:
-                        $value = InputType::text;
-                        break;
+                    break;
 
-                    case InputType::email:
-                        $this->setMaxlength(128)->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isEmail();
-                        });
+                case InputTypeExtended::name:
+                    $value = InputType::text;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isName();
+                    });
 
-                    case InputTypeExtended::url:
-                        $value = InputType::text;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isUrl();
-                        });
+                case InputTypeExtended::variable:
+                    $value = InputType::text;
+                    break;
 
-                        break;
+                case InputType::email:
+                    $this->setMaxlength(128)->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isEmail();
+                    });
 
-                    case InputTypeExtended::phone:
-                        $value = InputType::tel;
+                    break;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->sanitizePhoneNumber();
-                        });
+                case InputTypeExtended::url:
+                    $value = InputType::text;
 
-                        break;
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isUrl();
+                    });
+
+                    break;
+
+                case InputTypeExtended::phone:
+                    $value = InputType::tel;
+
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->sanitizePhoneNumber();
+                    });
+
+                    break;
 
 //                    case InputTypeExtended::phones:
 //                        $value = InputType::text;
@@ -801,77 +813,73 @@ class Definition implements DefinitionInterface
 //
 //                        break;
 
-                    case InputTypeExtended::username:
-                        $value = InputType::text;
+                case InputTypeExtended::username:
+                    $value = InputType::text;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isUsername();
-                        });
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isUsername();
+                    });
 
-                        break;
+                    break;
 
-                    case InputTypeExtended::path:
-                        $value = InputType::text;
+                case InputTypeExtended::path:
+                    $value = InputType::text;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isDirectory();
-                        });
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isDirectory();
+                    });
 
-                        break;
+                    break;
 
-                    case InputTypeExtended::file:
-                        $value = InputType::text;
+                case InputTypeExtended::file:
+                    $value = InputType::text;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isFile();
-                        });
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isFile();
+                    });
 
-                        break;
+                    break;
 
-                    case InputTypeExtended::code:
-                        $value = InputType::text;
+                case InputTypeExtended::code:
+                    $value = InputType::text;
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isCode();
-                        });
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isCode();
+                    });
 
-                        break;
+                    break;
 
-                    case InputTypeExtended::description:
-                        $this->setElement(InputElement::textarea);
+                case InputTypeExtended::description:
+                    $this->setElement(InputElement::textarea);
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isDescription();
-                        });
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isDescription();
+                    });
 
-                        // Don't set the value, textarea does not have an input type
-                        return $this;
+                    // Don't set the value, textarea does not have an input type
+                    return $this;
 
-                    case InputTypeExtended::boolean:
-                        $this->setElement(InputElement::input);
-                        $this->setInputType(InputType::checkbox);
+                case InputTypeExtended::boolean:
+                    $this->setElement(InputElement::input);
+                    $this->setInputType(InputType::checkbox);
 
-                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isBoolean();
-                        });
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->isBoolean();
+                    });
 
-                        // Don't set the value, textarea does not have an input type
-                        return $this;
-                }
+                    // Don't set the value, textarea does not have an input type
+                    return $this;
             }
-
-            switch ($value) {
-                case InputType::number:
-                    // Numbers should never be longer than this
-                    $this->setMaxlength(24);
-            }
-
-            $this->validateType('type', $value->value);
-            return $this->setKey($value->value, 'type');
         }
 
-        // NULL specified
-        return $this->setKey(null, 'type');
+        switch ($value) {
+            case InputType::number:
+                // Numbers should never be longer than this
+                $this->setMaxlength(24);
+        }
+
+        $this->validateType('type', $value->value);
+        return $this->setKey($value->value, 'type');
     }
 
 
@@ -1611,6 +1619,29 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns what element should be displayed if the value of this entry is NULL
+     *
+     * @return InputElementInterface|null
+     */
+    public function getNullElement(): InputElementInterface|null
+    {
+        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\InputElementInterface|null', $this->rules['null_element'], InputElement::input);
+    }
+
+
+    /**
+     * Sets what element should be displayed if the value of this entry is NULL
+     *
+     * @param InputElementInterface|null $value
+     * @return static
+     */
+    public function setNullElement(InputElementInterface|null $value): static
+    {
+        return $this->setKey($value, 'null_element');
+    }
+
+
+    /**
      * Returns if this column should be disabled if the value is NULL
      *
      * @note Defaults to false
@@ -1665,7 +1696,7 @@ class Definition implements DefinitionInterface
      *
      * @return string|null
      */
-    public function getNullType(): ?string
+    public function getNullInputType(): ?string
     {
         return isset_get_typed('string', $this->rules['null_type']);
     }
@@ -1679,7 +1710,7 @@ class Definition implements DefinitionInterface
      */
     public function setNullInputType(?InputType $value): static
     {
-        $this->validateType('type', $value->value);
+        $this->validateType('null_input_type', $value->value);
         return $this->setKey($value->value, 'type');
     }
 
@@ -1774,18 +1805,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns true if the specified input type is supported
-     *
-     * @param string $type
-     * @return bool
-     */
-    public function inputTypeSupported(string $type): bool
-    {
-        return in_array($type, static::$supported_input_types);
-    }
-
-
-    /**
      * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
@@ -1807,7 +1826,7 @@ class Definition implements DefinitionInterface
         }
 
         // Checkbox inputs always are boolean and does this column have a prefix?
-        $bool   = ($this->getType() === 'checkbox');
+        $bool   = ($this->getInputType()?->value === 'checkbox');
         $column = $this->getCliColumn();
 
         if (!$column) {
@@ -1862,7 +1881,7 @@ class Definition implements DefinitionInterface
                     break;
 
                 case 'input':
-                    switch ($this->getType()) {
+                    switch ($this->getInputType()->value) {
                         case 'date':
                             $validator->sanitizeTrim();
                             $validator->isDate();
@@ -2037,7 +2056,7 @@ class Definition implements DefinitionInterface
         if (isset_get($this->rules['element'], 'input') !== 'input') {
             throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for "number" type input elements', [
                 ':attribute' => $key,
-                ':column'     => $this->column,
+                ':column'    => $this->column,
                 ':element'   => $this->rules['element'],
                 ':value'     => $value
             ]));
@@ -2079,29 +2098,15 @@ class Definition implements DefinitionInterface
      */
     protected function validateType(string $key, ?string $value): void
     {
-        if ($value === null) {
-            $value = 'text';
-        }
-
         if (empty($this->rules['element'])) {
             $this->rules['element'] = 'input';
-        }
 
-        if ($this->rules['element'] !== 'input') {
-            throw new OutOfBoundsException(tr('Cannot set :key ":value" for column ":column" as the element must be input (or empty, default) but is ":element"', [
+        } elseif ($this->rules['element'] !== 'input') {
+            throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for column ":column" as the element must be input (or empty, default) but is ":element"', [
                 ':key'     => $key,
                 ':value'   => $value,
-                ':column'   => $this->column,
+                ':column'  => $this->column,
                 ':element' => $this->rules['element']
-            ]));
-        }
-
-        if (!$this->inputTypeSupported($value)) {
-            throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for column ":column", only the types ":types" are supported', [
-                ':key'   => $key,
-                ':value' => $value,
-                ':column' => $this->column,
-                ':types' => static::$supported_input_types
             ]));
         }
     }

@@ -36,14 +36,6 @@ interface DataEntryFormInterface extends ElementsBlockInterface
     public function setAutoFocusId(?string $auto_focus_id): static;
 
     /**
-     * Returns true if the specified input type is supported
-     *
-     * @param string $input
-     * @return bool
-     */
-    public function inputTypeSupported(string $input): bool;
-
-    /**
      * Returns the optional class for input elements
      *
      * @return string

@@ -19,7 +19,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputDate extends Input
+class InputDate extends InputText
 {
     /**
      * InputDate class constructor

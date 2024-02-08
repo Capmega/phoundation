@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -27,6 +29,11 @@ use Stringable;
  */
 trait ElementAttributes
 {
+    use DataDefinition {
+        setDefinition as protected __setDefinition;
+    }
+
+
     /**
      * The HTML id element attribute
      *
@@ -828,7 +835,29 @@ trait ElementAttributes
      */
     public static function canRenderHtml(object|string $class): void
     {
+        // TODO Replace this with a RenderInterface check
         static::ensureElementAttributesTrait($class);
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $definition
+     * @return $this
+     */
+    public function setDefinition(?DefinitionInterface $definition): static
+    {
+        if ($definition) {
+            // Apply the definition rules to this element
+            $this->setName($definition->getColumn())
+                 ->setClasses($definition->getClasses())
+                 ->setDisabled((bool) $definition->getDisabled())
+                 ->setReadOnly((bool) $definition->getReadonly())
+                 ->setAutoFocus($definition->getAutoFocus());
+        }
+
+        return $this->__setDefinition($definition);
     }
 
 

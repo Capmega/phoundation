@@ -78,7 +78,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      */
     public function __toString(): string
     {
-        return $this->render();
+        return (string) $this->render();
     }
 
 
