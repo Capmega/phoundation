@@ -47,8 +47,8 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Phoundation\Web\Routing\Route;
 use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
@@ -601,7 +601,7 @@ POST variables:
         $definitions
             ->add(Definition::new($this, 'users_id')
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                 }))
@@ -629,10 +629,10 @@ POST variables:
             ->add(Definition::new($this, 'icon')
                 ->setVisible(false)
                 ->setOptional(true)
-                ->setInputType(InputType::url))
+                ->setInputType(EnumInputType::url))
             ->add(Definition::new($this, 'priority')
                 ->setReadonly(true)
-                ->setInputType(InputTypeExtended::integer)
+                ->setInputType(EnumInputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
                 ->addClasses('text-center')
@@ -659,7 +659,7 @@ POST variables:
             ->add(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setInputType(InputType::url)
+                ->setInputType(EnumInputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
@@ -705,7 +705,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
@@ -713,7 +713,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::natural)
+                ->setInputType(EnumInputTypeExtended::natural)
                 ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))

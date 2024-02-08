@@ -8,7 +8,7 @@ use Phoundation\Date\DateRangePickerRanges;
 use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\JavascriptWrappers;
 use Phoundation\Web\Page;
 use Plugins\Medinet\Traits\DataStartDate;
@@ -58,7 +58,7 @@ class InputDateRange extends InputText
      */
     public function __construct()
     {
-        $this->type = InputType::text;
+        $this->type = EnumInputType::text;
         parent::__construct();
     }
 

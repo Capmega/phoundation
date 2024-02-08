@@ -27,10 +27,9 @@ use Phoundation\Databases\Databases;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -661,16 +660,16 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSource([
 
                 ])
-                ->setInputType(InputType::select)
+                ->setInputType(EnumInputType::select)
                 ->setSize(2))
             ->add(DefinitionFactory::getNumber($this, 'auto_increment')
                 ->setLabel(tr('Auto increment'))
-                ->setInputType(InputTypeExtended::positiveInteger)
+                ->setInputType(EnumInputTypeExtended::positiveInteger)
                 ->setSize(1))
             ->add(DefinitionFactory::getNumber($this, 'limit_max')
                 ->setLabel(tr('Maximum row limit'))
                 ->setDefault(1_000_000)
-                ->setInputType(InputTypeExtended::positiveInteger)
+                ->setInputType(EnumInputTypeExtended::positiveInteger)
                 ->setSize(1))
             ->add(DefinitionFactory::getBoolean($this, 'persist')
                 ->setLabel(tr('Persist'))

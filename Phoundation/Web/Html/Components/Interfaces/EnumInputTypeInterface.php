@@ -2,13 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Enums\Interfaces;
-
-use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
+namespace Phoundation\Web\Html\Components\Interfaces;
 
 
 /**
- * Interface ButtonTypeInterface
+ * Interface InputTypeInterface
  *
  * The different available HTML button types
  *
@@ -17,6 +15,6 @@ use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ButtonTypeInterface extends InputTypeInterface
+interface EnumInputTypeInterface
 {
 }

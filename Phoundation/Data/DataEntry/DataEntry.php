@@ -54,8 +54,8 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\DataEntryForm;
 use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Stringable;
 use Throwable;
 
@@ -2496,7 +2496,7 @@ abstract class DataEntry implements DataEntryInterface
             ->setTable(static::getTable())
             ->add(Definition::new($this, 'id')
                 ->setDisabled(true)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->addClasses('text-center')
                 ->setSize(3)
                 ->setCliAutoComplete(true)
@@ -2504,8 +2504,8 @@ abstract class DataEntry implements DataEntryInterface
                 ->setLabel(tr('Database ID')))
             ->add(Definition::new($this, 'created_on')
                 ->setDisabled(true)
-                ->setInputType(InputType::datetime_local)
-                ->setNullInputType(InputType::text)
+                ->setInputType(EnumInputType::datetime_local)
+                ->setNullInputType(EnumInputType::text)
                 ->addClasses('text-center')
                 ->setSize(3)
                 ->setTooltip(tr('This column contains the exact date / time when this object was created'))
@@ -2543,20 +2543,20 @@ abstract class DataEntry implements DataEntryInterface
             ->add(Definition::new($this, 'meta_id')
                 ->setDisabled(true)
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
-                ->setNullInputType(InputType::text)
+                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setNullInputType(EnumInputType::text)
                 ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
                 ->setLabel(tr('Meta ID')))
             ->add(Definition::new($this, 'meta_state')
                 ->setDisabled(true)
                 ->setVisible(false)
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
                 ->setLabel(tr('Meta state')))
             ->add(Definition::new($this, 'status')
                 ->setOptional(true)
                 ->setDisabled(true)
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
 //                ->setDisplayDefault(tr('Ok'))
                 ->addClasses('text-center')

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Plugins\Medinet\Traits\DataStartDateTime;
 use Plugins\Medinet\Traits\DataStopDate;
 
@@ -30,7 +30,7 @@ class InputDateTimeRange extends InputText
      */
     public function __construct()
     {
-        $this->type = InputType::text;
+        $this->type = EnumInputType::text;
         parent::__construct();
     }
 }

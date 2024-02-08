@@ -20,8 +20,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -368,7 +368,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         $definitions
             ->add(Definition::new($this, 'disabled')
-                ->setInputType(InputTypeExtended::boolean)
+                ->setInputType(EnumInputTypeExtended::boolean)
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setVisible(false)
@@ -380,7 +380,7 @@ class Plugin extends DataEntry implements PluginInterface
                 ->setHelpText(tr('The name of this plugin')))
             ->add(Definition::new($this, 'priority')
                 ->setOptional(true)
-                ->setInputType(InputType::number)
+                ->setInputType(EnumInputType::number)
                 ->setNullDb(false, 5)
                 ->setSize(3)
                 ->setCliColumn('--priority')
@@ -394,7 +394,7 @@ class Plugin extends DataEntry implements PluginInterface
                 }))
             ->add(Definition::new($this, 'enabled')
                 ->setOptional(true)
-                ->setInputType(InputType::checkbox)
+                ->setInputType(EnumInputType::checkbox)
                 ->setSize(3)
                 ->setCliColumn('-e,--enabled')
                 ->setLabel(tr('Enabled'))
@@ -405,7 +405,7 @@ class Plugin extends DataEntry implements PluginInterface
                 }))
             ->add(Definition::new($this, 'class')
                 ->setLabel(tr('Class'))
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setHelpText(tr('The base class path of this plugin'))
@@ -414,7 +414,7 @@ class Plugin extends DataEntry implements PluginInterface
                 }))
             ->add(Definition::new($this, 'path')
                 ->setLabel(tr('Directory'))
-                ->setInputType(InputTypeExtended::path)
+                ->setInputType(EnumInputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))

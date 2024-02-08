@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use function Phoundation\Web\Html\Components\Input\ready;
 
 
@@ -25,7 +25,7 @@ class InputSelect2 extends InputSelect
      */
     public function __construct()
     {
-        $this->type = $this->type ?? InputType::text;
+        $this->type = $this->type ?? EnumInputType::text;
 
         $(document).ready(function() {
             $('.js-example-basic-multiple').select2();

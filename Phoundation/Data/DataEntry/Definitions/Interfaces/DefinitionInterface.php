@@ -10,9 +10,9 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\InputTypeExtendedInterface;
-use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
 /**
@@ -286,17 +286,17 @@ interface DefinitionInterface
     /**
      * Return the type of input element.
      *
-     * @return InputTypeExtendedInterface|InputTypeInterface
+     * @return EnumInputTypeExtendedInterface|EnumInputTypeInterface
      */
-    public function getInputType(): InputTypeExtendedInterface|InputTypeInterface;
+    public function getInputType(): EnumInputTypeExtendedInterface|EnumInputTypeInterface;
 
     /**
      * Sets the type of input element.
      *
-     * @param InputTypeInterface|InputTypeExtendedInterface|string $value
+     * @param EnumInputTypeInterface|EnumInputTypeExtendedInterface|string $value
      * @return static
      */
-    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|string $value): static;
+    public function setInputType(EnumInputTypeInterface|EnumInputTypeExtendedInterface|string $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -760,10 +760,10 @@ interface DefinitionInterface
     /**
      * Sets the type for this element if the value is NULL
      *
-     * @param InputType|null $value
+     * @param EnumInputType|null $value
      * @return static
      */
-    public function setNullInputType(?InputType $value): static;
+    public function setNullInputType(?EnumInputType $value): static;
 
     /**
      * Returns the type for this element if the value is NULL

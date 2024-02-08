@@ -8,7 +8,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -73,10 +73,10 @@ class EmailAddress extends DataEntry
             ->add(DefinitionFactory::getPort($this, 'smtp_port')
                 ->setVisible(false))
             ->add(Definition::new($this, 'smtp_auth')
-                ->setInputType(InputType::checkbox)
+                ->setInputType(EnumInputType::checkbox)
                 ->setVisible(false))
             ->add(Definition::new($this, 'smtp_secure')
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setSource(['tls' => tr('TLS')])
                 ->setVisible(false))
             ->add(DefinitionFactory::getName($this)

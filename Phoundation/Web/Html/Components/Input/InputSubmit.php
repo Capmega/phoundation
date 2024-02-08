@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -24,7 +24,7 @@ class InputSubmit extends Input
      */
     public function __construct()
     {
-        $this->type = InputType::submit;
+        $this->type = EnumInputType::submit;
         parent::__construct();
     }
 }

@@ -9,8 +9,8 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -75,7 +75,7 @@ class Requirement extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getName($this)
-                ->setInputType(InputTypeExtended::name)
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(128)
                 ->setLabel(tr('Name'))
@@ -85,7 +85,7 @@ class Requirement extends DataEntry
                 }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(Definition::new($this, 'path')
-                ->setInputType(InputTypeExtended::name)
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(6)
                 ->setMaxlength(255)
                 ->setLabel(tr('Path'))
@@ -94,7 +94,7 @@ class Requirement extends DataEntry
                     $validator->isFile();
                 }))
             ->add(Definition::new($this, 'filesystem')
-                ->setInputType(InputType::select)
+                ->setInputType(EnumInputType::select)
                 ->setSource([
                     ''             => tr('No requirements'),
                     'ext2'         => tr('EXT2'),
@@ -124,7 +124,7 @@ class Requirement extends DataEntry
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem this should use')))
             ->add(Definition::new($this, 'file_type')
-                ->setInputType(InputType::select)
+                ->setInputType(EnumInputType::select)
                 ->setSource([
                     ''                 => tr('No requirements'),
                     'directory'        => tr('Directory'),

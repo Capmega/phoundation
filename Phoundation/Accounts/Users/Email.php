@@ -24,7 +24,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -196,7 +196,7 @@ class Email extends DataEntry implements EmailInterface
             ->add(DefinitionFactory::getDateTime($this, 'verified_on')
                 ->setReadonly(true)
                 ->setSize(3)
-                ->setNullInputType(InputType::text)
+                ->setNullInputType(EnumInputType::text)
                 ->setNullDb(true, tr('Not verified'))
                 ->addClasses('text-center')
                 ->setLabel(tr('Verified on'))
@@ -204,7 +204,7 @@ class Email extends DataEntry implements EmailInterface
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
             ->add(Definition::new($this, 'delete')
                 ->setVirtual(true)
-                ->setInputType(InputType::submit)
+                ->setInputType(EnumInputType::submit)
                 ->setSize(2)
                 ->setLabel(tr('Delete'))
                 ->addClasses('btn btn-outline-warning')

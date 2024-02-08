@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Components\Interfaces\InputTypeExtendedInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
 
 
 /**
- * Enum InputType
+ * Enum EnumInputTypeExtended
  *
  * The different available HTML <input> types
  *
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Components\Interfaces\InputTypeExtendedInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum InputTypeExtended: string implements InputTypeExtendedInterface
+enum EnumInputTypeExtended: string implements EnumInputTypeExtendedInterface
 {
     case url              = 'url';
     case dbid             = 'dbid';
