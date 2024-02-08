@@ -36,7 +36,6 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
 use Phoundation\Date\DateTimeZone;
 use Phoundation\Developer\Debug;
-use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1861,9 +1860,7 @@ die($errfile. $errline);
                 }
 
             } catch (Throwable $f) {
-                Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
-                    ':e' => $f->getMessage()
-                ]));
+                Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
             }
         }
 
