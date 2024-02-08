@@ -1493,12 +1493,12 @@ class Page implements PageInterface
      *
      * @param string $page The target page that should be executed and returned
      * @param bool $main_content_only
-     * @return string
+     * @return string|null
      *
      * @see Route::execute()
      * @see Template::execute()
      */
-    public static function executeReturn(string $page, bool $main_content_only = true): string
+    public static function executeReturn(string $page, bool $main_content_only = true): ?string
     {
         // Execute the specified target file
         // Get all output buffers and restart buffer
@@ -2766,10 +2766,10 @@ class Page implements PageInterface
      *
      * @param string $target
      * @param bool $main_content_only
-     * @return string
+     * @return string|null
      * @todo Move AccessDeniedException handling to Page::execute()
      */
-    protected static function executeTarget(string $target, bool $main_content_only = false): string
+    protected static function executeTarget(string $target, bool $main_content_only = false): ?string
     {
         Log::information(tr('Executing target ":target"', [
             ':target' => Strings::from($target, DIRECTORY_ROOT),
