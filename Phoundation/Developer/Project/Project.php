@@ -535,6 +535,27 @@ class Project implements ProjectInterface
 
 
     /**
+     * Returns either the specified branch or the current project branch as default
+     *
+     * @param string|null $branch
+     * @return string
+     */
+    protected function getBranch(?string $branch): string
+    {
+        if (!$branch) {
+            // Select the current branch
+            $branch = $this->git->getBranch();
+
+            Log::notice(tr('Using project branch ":branch"', [
+                ':branch' => $branch
+            ]));
+        }
+
+        return $branch;
+    }
+
+
+    /**
      * Updates your Phoundation installation
      *
      * @param string|null $branch
@@ -547,13 +568,11 @@ class Project implements ProjectInterface
      */
     public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
-        if (!$branch) {
-            $branch = $this->git->getBranch();
+        $branch = $this->getBranch($branch);
 
-            Log::notice(tr('Trying to pull updates from Phoundation using current project branch ":branch"', [
-                ':branch' => $branch
-            ]));
-        }
+        Log::notice(tr('Trying to pull updates from Phoundation using current project branch ":branch"', [
+            ':branch' => $branch
+        ]));
 
         Log::information('Updating your project from a local Phoundation repository');
 

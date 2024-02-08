@@ -283,22 +283,19 @@ class Phoundation extends Project
      */
     public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true, bool $update = true): void
     {
-        if ($sign === null) {
-            $sign = Config::getBoolean('developer.phoundation.patch.sign', true);
-        }
-
-        $branch = $this->defaultBranch($branch);
+        $sign    = $sign ?? Config::getBoolean('developer.phoundation.patch.sign', true);
+        $project = new Project();
+        $branch  = $project->getBranch($branch);
 
         Log::action(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
             ':branch' => $branch
         ]));
 
-
         // Reset the local project to HEAD and update
-        Project::new()->resetHead();
+        $project->resetHead();
 
         if ($update) {
-            Project::new()->updateLocalProject($branch, $message, $sign);
+            $project->updateLocalProject($branch, $message, $sign);
         }
 
         // Detect Phoundation installation and ensure its clean and on the right branch
