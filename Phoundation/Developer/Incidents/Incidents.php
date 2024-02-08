@@ -88,12 +88,12 @@ class Incidents extends DataList
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'title', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'title', ?string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
     {
         return InputSelect::new()
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
