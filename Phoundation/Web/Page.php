@@ -282,6 +282,20 @@ class Page implements PageInterface
     protected static bool $build_body = true;
 
     /**
+     * Tracks if the body header should be built or not
+     *
+     * @var bool|null $build_body_header
+     */
+    protected static ?bool $build_body_header = true;
+
+    /**
+     * Sets if the page footers should be built or not
+     *
+     * @var bool $build_footers
+     */
+    protected static bool $build_footers = true;
+
+    /**
      * Contains the routing parameters like root url, template, etc
      *
      * @var RoutingParametersInterface $parameters
@@ -574,6 +588,52 @@ class Page implements PageInterface
 
 
     /**
+     * Sets if the body header should be built or not
+     *
+     * @param bool|null $build_body_header
+     * @return void
+     */
+    public static function setBuildBodyHeader(?bool $build_body_header): void
+    {
+        static::$build_body_header = $build_body_header;
+    }
+
+
+    /**
+     * Returns if the body header should be built or not
+     *
+     * @return bool|null
+     */
+    public static function getBuildBodyHeader(): ?bool
+    {
+        return static::$build_body_header;
+    }
+
+
+    /**
+     * Sets if the body header should be built or not
+     *
+     * @param bool $build_footers
+     * @return void
+     */
+    public static function setBuildFooters(bool $build_footers): void
+    {
+        static::$build_footers = $build_footers;
+    }
+
+
+    /**
+     * Returns if the body header should be built or not
+     *
+     * @return bool
+     */
+    public static function getBuildFooters(): bool
+    {
+        return static::$build_footers;
+    }
+
+
+    /**
      * Sets the class for the given page section
      *
      * @param string $class
@@ -688,6 +748,25 @@ class Page implements PageInterface
     public static function isExecutedDirectly(): bool
     {
         return !static::$levels;
+    }
+
+
+    /**
+     * Will throw a Http404Exception when this page is executed directly from Route
+     *
+     * @return void
+     */
+    public static function cannotBeExecutedDirectly(?string $message = null): void
+    {
+        if (Page::isExecutedDirectly()) {
+            if (!$message) {
+                $message = tr('The page ":page" cannot be accessed directly', [
+                    ':page' => Strings::untilReverse(static::getExecutedFile(), '.php')
+                ]);
+            }
+
+            throw Http404Exception::new($message)->makeWarning();
+        }
     }
 
 
@@ -1371,6 +1450,12 @@ class Page implements PageInterface
      */
     #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
     {
+        Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+            ':target'   => Strings::from($target, DIRECTORY_ROOT),
+            ':template' => static::$template->getName(),
+            ':language' => LANGUAGE
+        ]));
+
         // Start the page up
         static::startup($target, $attachment, $system);
 
@@ -2080,9 +2165,6 @@ class Page implements PageInterface
      * @param string $output
      * @param bool $attachment
      * @return array|null
-     * @todo Refactor and remove $_CONFIG dependancies
-     * @todo Refactor and remove $core dependancies
-     * @todo Refactor and remove $params dependancies
      */
     public static function buildHttpHeaders(string $output, bool $attachment = false): ?array
     {
@@ -2104,7 +2186,7 @@ class Page implements PageInterface
             define('LANGUAGE', Config::get('http.language.default', 'en'));
         }
 
-        // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
+        // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
         static::cacheEtag();
 
         // What to do with the PHP signature?
@@ -2126,7 +2208,9 @@ class Page implements PageInterface
                 break;
 
             case 'full':
-                header(tr('Powered-By: Phoundation version ":version"', [':version' => Core::FRAMEWORKCODEVERSION]));
+                header(tr('Powered-By: Phoundation version ":version"', [
+                    ':version' => Core::FRAMEWORKCODEVERSION
+                ]));
                 break;
 
             case 'none':
@@ -2197,12 +2281,14 @@ class Page implements PageInterface
                         break;
 
                     default:
-                        throw new HttpException(tr('Unknown CORS header ":header" specified', [':header' => $key]));
+                        throw new HttpException(tr('Unknown CORS header ":header" specified', [
+                            ':header' => $key
+                        ]));
                 }
             }
         }
 
-        // Add cache headers and store headers in object headers list
+        // Add cache headers and store headers in the object headers list
         return static::addCacheHeaders($headers);
     }
 
@@ -2685,11 +2771,9 @@ class Page implements PageInterface
      */
     protected static function executeTarget(string $target, bool $main_content_only = false): string
     {
-        Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-            ':target'   => Strings::from($target, DIRECTORY_ROOT),
-            ':template' => static::$template->getName(),
-            ':language' => LANGUAGE
-        ]));
+        Log::information(tr('Executing target ":target"', [
+            ':target' => Strings::from($target, DIRECTORY_ROOT),
+        ]), 4);
 
         static::addExecutedPath($target);
 
