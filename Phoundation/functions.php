@@ -375,7 +375,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 default:
                     // This should be an object
-                    if ($variable instanceof $type) {
+                    if (is_subclass_of($variable, $type)) {
                         return $variable;
                     }
 
