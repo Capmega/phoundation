@@ -1971,7 +1971,7 @@ throw new UnderConstructionException();
                 return tr('3rd');
 
             default:
-                return tr(':countth', [':count' => $count]);
+                return tr(':count th', [':count' => $count]);
         }
     }
 
