@@ -368,6 +368,8 @@ class Debug {
                             $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
 
+                    $output = get_null(ob_get_clean()) . $output;
+
                     // Show output on web
                     if (!headers_sent()) {
                         Page::setContentType('text/html');
@@ -376,19 +378,23 @@ class Debug {
 
                     echo $output;
 
-                    ob_flush();
-                    flush();
-
                 } else {
                     echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                    ]) . PHP_EOL;;
-                    print_r($value, true) . PHP_EOL;
-                    flush();
-                    ob_flush();
+                    ]) . PHP_EOL;
+
+                    $output = get_null(ob_get_clean());
+
+                    // Show output on web
+                    if (!headers_sent()) {
+                        Page::setContentType('text/html');
+                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                    }
+
+                    echo $output;
                 }
 
             } else {
