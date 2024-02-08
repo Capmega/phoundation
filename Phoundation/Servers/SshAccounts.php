@@ -94,11 +94,12 @@ class SshAccounts extends DataList
      * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
             ->setName('ssh_accounts_id')
             ->setNone(tr('Select an SSH account'))
             ->setObjectEmpty(tr('No SSH accounts available'));

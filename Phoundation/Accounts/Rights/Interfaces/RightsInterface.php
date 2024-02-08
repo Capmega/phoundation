@@ -60,6 +60,7 @@ interface RightsInterface extends DataListInterface
      * Load the data for this rights list into the object
      *
      * @param bool $clear
+     * @param bool $only_if_empty
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;
@@ -76,5 +77,5 @@ interface RightsInterface extends DataListInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'seo_name', ?string $order = null, ?array $joins = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'seo_name', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 }

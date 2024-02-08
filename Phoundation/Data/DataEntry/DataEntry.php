@@ -513,7 +513,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns if this DataEntry will allow modification of existing entries
+     * Returns if this DataEntry allows modification of existing entries
      *
      * @return bool
      */
@@ -524,7 +524,7 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Sets if this DataEntry will allow modification of existing entries
+     * Sets if this DataEntry allows modification of existing entries
      *
      * @param bool $allow_modify
      * @return static

@@ -9,6 +9,7 @@ use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Interfaces\RendererInterface;
 
 
 /**
@@ -21,7 +22,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Renderer
+class Renderer implements RendererInterface
 {
     /**
      * The rendered HTML, so far

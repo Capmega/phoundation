@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http\Exception;
 
 
+use Throwable;
+
 /**
  * Class Http404Exception
  *

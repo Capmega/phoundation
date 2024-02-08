@@ -559,9 +559,9 @@ class Rights extends DataList implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
             ->setName('rights_id')
             ->setNone(tr('Select a right'))
             ->setObjectEmpty(tr('No rights available'));
