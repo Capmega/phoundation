@@ -32,6 +32,6 @@ class Bootstrap implements BootstrapInterface
             $default_to = $default_to->value;
         }
 
-        return ContainerTier::tryFrom(Config::getString('web.bootstrap.grid.container-tier', $default_to));
+        return ContainerTier::from(Config::getString('web.bootstrap.grid.container-tier', $default_to));
     }
 }
