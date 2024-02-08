@@ -42,3 +42,4 @@ config/kubernetes
 data/garbage
 /test
 /Templates
+/Plugins/^Phoundation
