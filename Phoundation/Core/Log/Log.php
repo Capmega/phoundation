@@ -775,7 +775,7 @@ Class Log {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        return static::write($messages, 'debug', $threshold, echo_screen: $echo_screen);
+        return static::write($messages, 'debug', $threshold, false, echo_screen: $echo_screen);
     }
 
 

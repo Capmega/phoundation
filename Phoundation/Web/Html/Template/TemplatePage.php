@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Template;
 
 use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 
@@ -31,7 +32,7 @@ abstract class TemplatePage
      */
     public function execute(string $target, bool $main_content_only = false): ?string
     {
-        $body = $this->buildBody($target);
+        $body = $this->buildBody($target, $main_content_only);
 
         if ($main_content_only) {
             return $body;
@@ -67,9 +68,10 @@ abstract class TemplatePage
      * Build the page body
      *
      * @param string $target
+     * @param bool $main_content_only
      * @return string|null
      */
-    public function buildBody(string $target): ?string
+    public function buildBody(string $target, bool $main_content_only = false): ?string
     {
         return execute_page($target);
     }

@@ -1237,6 +1237,7 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
+     * @param RoutingParametersInterface|null $parameters
      * @param bool $system
      * @return never
      */
