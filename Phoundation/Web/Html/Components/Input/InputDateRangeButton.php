@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\Traits\DataStartDate;
+use Phoundation\Data\Traits\DataStopDate;
 use Phoundation\Web\Html\Enums\InputType;
-use Plugins\Medinet\Traits\DataStartDate;
-use Plugins\Medinet\Traits\DataStopDate;
 
 
 /**
