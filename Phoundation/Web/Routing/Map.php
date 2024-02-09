@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Routing;
 
 use Phoundation\Core\Log\Log;

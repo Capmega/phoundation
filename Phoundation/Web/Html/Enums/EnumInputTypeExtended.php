@@ -38,4 +38,5 @@ enum EnumInputTypeExtended: string implements EnumInputTypeExtendedInterface
     case array_serialized = 'array_serialized';
     case positiveInteger  = 'positive_integer';
     case negativeInteger  = 'negative_integer';
+    case auto_suggest     = 'auto-suggest';
 }

@@ -64,7 +64,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      *
      * @var ImageInterface|null $image
      */
-    protected ?Image $image = null;
+    protected ?ImageInterface $image = null;
 
     /**
      * If true, show the flash message on the top, else on the bottom

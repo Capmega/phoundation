@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Html\Components\Widgets\Cards\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;

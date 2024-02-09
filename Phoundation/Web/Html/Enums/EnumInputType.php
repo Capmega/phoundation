@@ -42,5 +42,4 @@ enum EnumInputType: string implements EnumInputTypeInterface
     case url            = 'url';
     case week           = 'week';
     case select         = 'select';
-    case auto_suggest   = 'auto-suggest';
 }

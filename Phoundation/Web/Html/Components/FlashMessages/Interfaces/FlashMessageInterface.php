@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\FlashMessages\Interfaces;
 
-
 use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+
 
 /**
- * Class FlashMessage
+ * interface FlashMessageInterface
  *
  * This class contains a single Flash message and can render it to HTML
  *
@@ -17,7 +18,7 @@ use Phoundation\Content\Images\Interfaces\ImageInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface FlashMessageInterface
+interface FlashMessageInterface extends ElementsBlockInterface
 {
     /**
      * Returns the flash message contents
