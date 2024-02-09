@@ -12,6 +12,9 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
 use Stringable;
 
@@ -196,6 +199,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getMetaState(): ?string;
 
     /**
+     * Returns the meta-columns for this database entry
+     *
+     * @return array
+     */
+    public function getMetaColumns(): array;
+
+    /**
      * Delete the specified entries
      *
      * @param string|null $comments
@@ -258,7 +268,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param bool $load
      * @return MetaInterface|null
      */
-    public function getMeta(bool $load = false): ?MetaInterface;
+    public function getMetaObject(bool $load = false): ?MetaInterface;
 
     /**
      * Returns the meta id for this entry
@@ -316,6 +326,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return array
      */
     public function getSource(): array;
+
+    /**
+     * Returns a list of all internal source keys
+     *
+     * @return mixed
+     */
+    public function getKeys(bool $filter_meta = false): array;
 
     /**
      * Returns only the specified key from the source of this DataEntry
@@ -450,4 +467,52 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return static
      */
     public function setSource(Iterator|array $source): static;
+
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return $this
+     */
+    public function appendDataEntry(DataEntryInterface $data_entry): static;
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return $this
+     */
+    public function prependDataEntry(DataEntryInterface $data_entry): static;
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string $key
+     * @return $this
+     */
+    public function injectDataEntryBefore(DataEntryInterface $data_entry, string $key): static;
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string $key
+     * @return $this
+     */
+    public function injectDataEntryAfter(DataEntryInterface $data_entry, string $key): static;
+
+    /**
+     * Extracts a DataEntry with the specified columns (in the specified order)
+     *
+     * The extracted data entry will have the source and definitions
+     *
+     * The extracted data entry will have the same class and interface as this
+     *
+     * @param array|string $columns
+     * @param EnumMatchModeInterface $match_mode
+     * @return DataEntryInterface
+     */
+    public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
 }

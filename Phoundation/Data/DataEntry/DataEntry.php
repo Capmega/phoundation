@@ -46,9 +46,12 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\DataEntryForm;
@@ -298,7 +301,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         if ($source instanceof DataEntryInterface) {
             if ($source instanceof static) {
-                return $source;
+                return clone $source;
             }
 
             throw new BadDataEntryException(tr('The specified source ":source" must be either an array or an instance of ":static"', [
@@ -415,6 +418,84 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return $this->query_builder;
+    }
+
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return $this
+     */
+    public function appendDataEntry(DataEntryInterface $data_entry): static
+    {
+        $this->source = array_merge($this->source, $data_entry->getSource());
+        $this->definitions->merge($data_entry->getDefinitions());
+        return $this;
+    }
+
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return $this
+     */
+    public function prependDataEntry(DataEntryInterface $data_entry): static
+    {
+        $this->source = array_merge($data_entry->getSource(), $this->source);
+        $data_entry->getDefinitions()->merge($this->definitions)->setDataEntry($this);
+        return $this;
+    }
+
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string $key
+     * @return $this
+     */
+    public function injectDataEntryBefore(DataEntryInterface $data_entry, string $key): static
+    {
+        $this->source = array_merge($this->source, $data_entry->getSource());
+        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions());
+        return $this;
+    }
+
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string $key
+     * @return $this
+     */
+    public function injectDataEntryAfter(DataEntryInterface $data_entry, string $key): static
+    {
+        $this->source = array_merge($this->source, $data_entry->getSource());
+        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions(), true);
+        return $this;
+    }
+
+
+    /**
+     * Extracts a DataEntry with the specified columns (in the specified order)
+     *
+     * The extracted data entry will have the source and definitions
+     *
+     * The extracted data entry will have the same class and interface as this
+     *
+     * @param array|string $columns
+     * @param EnumMatchModeInterface $match_mode
+     * @return DataEntryInterface
+     */
+    public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface
+    {
+        $entry = static::fromSource(Arrays::keepKeys($this->source, $columns, $match_mode));
+        $entry->getDefinitions()->keepKeys($columns, $match_mode);
+
+        return $entry;
     }
 
 
@@ -1203,6 +1284,17 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns the meta-columns for this database entry
+     *
+     * @return array
+     */
+    public function getMetaColumns(): array
+    {
+        return $this->meta_columns;
+    }
+
+
+    /**
      * Returns the meta-state for this database entry
      *
      * @return ?string
@@ -1257,7 +1349,7 @@ abstract class DataEntry implements DataEntryInterface
     public function erase(): static
     {
         $this->checkReadonly('erase');
-        $this->getMeta()->erase();
+        $this->getMetaObject()->erase();
 
         sql($this->database_connector)->erase(static::getTable(), ['id' => $this->getId()]);
         return $this;
@@ -1330,10 +1422,27 @@ abstract class DataEntry implements DataEntryInterface
      * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
      *       yet
      *
+     * @return array
+     */
+    public function getMetaData(): array
+    {
+        $meta = Arrays::keep($this->source, $this->meta_columns);
+        $meta = Arrays::ensureReturn($meta, $this->meta_columns);
+
+        return $meta;
+    }
+
+
+    /**
+     * Returns the meta-information for this entry
+     *
+     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
+     *       yet
+     *
      * @param bool $load
      * @return MetaInterface|null
      */
-    public function getMeta(bool $load = true): ?MetaInterface
+    public function getMetaObject(bool $load = true): ?MetaInterface
     {
         if ($this->isNew()) {
             // New DataEntry objects have no meta-information
@@ -1368,7 +1477,7 @@ abstract class DataEntry implements DataEntryInterface
             ]));
         }
 
-        $this->getMeta()->action($action, $comments, get_null(Strings::force($diff)));
+        $this->getMetaObject()->action($action, $comments, get_null(Strings::force($diff)));
 
         return $this;
     }
@@ -1799,6 +1908,23 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns a list of all internal source keys
+     *
+     * @return mixed
+     */
+    public function getKeys(bool $filter_meta = false): array
+    {
+        $keys = array_keys($this->source);
+
+        if ($filter_meta) {
+            return Arrays::removeValues($keys, $this->meta_columns);
+        }
+
+        return $keys;
+    }
+
+
+    /**
      * Loads the specified data into this DataEntry object
      *
      * @param Iterator|array $source
@@ -1890,30 +2016,21 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected function setMetaData(?array $data = null): static
     {
-        // Reset meta columns
-        foreach ($this->meta_columns as $column) {
-            $this->source[$column] = null;
-        }
-
-        if ($data === null) {
-            // No data set
-            return $this;
-        }
-
         if ($this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => get_class($this)
             ]));
         }
 
-        foreach ($data as $key => $value) {
-            // Only these keys will be set through setMetaData()
-            if (!in_array($key, $this->meta_columns)) {
-                continue;
-            }
+        if ($data === null) {
+            // No data specified, all columns should be null
+            $this->source = Arrays::setKeys($this->source, $this->meta_columns, null);
 
-            // Store the meta data
-            $this->source[$key] = $value;
+        } else {
+            // Reset meta columns
+            foreach ($this->meta_columns as $column) {
+                $this->source[$column] = isset_get($data[$column]);
+            }
         }
 
         return $this;
