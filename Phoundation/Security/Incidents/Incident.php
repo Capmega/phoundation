@@ -22,8 +22,8 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -241,15 +241,15 @@ class Incident extends DataEntry implements IncidentInterface
                 case 'notice':
                     // no break
                 case 'low':
-                    $notification->setMode(DisplayMode::notice);
+                    $notification->setMode(EnumDisplayMode::notice);
                     break;
 
                 case 'medium':
-                    $notification->setMode(DisplayMode::warning);
+                    $notification->setMode(EnumDisplayMode::warning);
                     break;
 
                 default:
-                    $notification->setMode(DisplayMode::danger);
+                    $notification->setMode(EnumDisplayMode::danger);
                     break;
             }
 
@@ -297,7 +297,7 @@ class Incident extends DataEntry implements IncidentInterface
                 ->setSize(6)
                 ->setMaxlength(6))
             ->add(Definition::new($this, 'severity')
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
                 ->setSize(6)
@@ -316,7 +316,7 @@ class Incident extends DataEntry implements IncidentInterface
                 ->setMaxlength(4)
                 ->setMaxlength(255))
             ->add(Definition::new($this, 'details')
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)
                 ->setSize(12)

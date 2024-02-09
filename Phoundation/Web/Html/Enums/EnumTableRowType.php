@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 
 
 /**
- * Enum InputElement
+ * Enum TableRowType
  *
- * The different available HTML <input> types
+ *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package Phoundation\Data
  */
-enum InputElement: string implements InputElementInterface
+enum EnumTableRowType: string implements EnumTableRowTypeInterface
 {
-    case input    = 'input';
-    case textarea = 'textarea';
-    case select   = 'select';
+    case header = 'header';
+    case row    = 'row';
+    case footer = 'footer';
 }

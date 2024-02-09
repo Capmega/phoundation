@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Enums;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 
 
 /**
@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum DisplayMode: string implements DisplayModeInterface
+enum EnumDisplayMode: string implements EnumDisplayModeInterface
 {
     case white     = 'white';
     case success   = 'success';
@@ -50,35 +50,35 @@ enum DisplayMode: string implements DisplayModeInterface
     /**
      * Returns the primary mode for the given mode which might be an alias
      *
-     * @param DisplayModeInterface $mode
-     * @return DisplayModeInterface
+     * @param EnumDisplayModeInterface $mode
+     * @return EnumDisplayModeInterface
      */
-    public static function getPrimary(DisplayModeInterface $mode): DisplayModeInterface
+    public static function getPrimary(EnumDisplayModeInterface $mode): EnumDisplayModeInterface
     {
         // Convert aliases
         return match ($mode) {
-            DisplayMode::white       => DisplayMode::white,
-            DisplayMode::blue,
-            DisplayMode::info,
-            DisplayMode::notice,
-            DisplayMode::information => DisplayMode::info,
-            DisplayMode::green,
-            DisplayMode::success     => DisplayMode::success,
-            DisplayMode::yellow,
-            DisplayMode::warning,    => DisplayMode::warning,
-            DisplayMode::red,
-            DisplayMode::error,
-            DisplayMode::exception,
-            DisplayMode::danger      => DisplayMode::danger,
-            DisplayMode::plain,
-            DisplayMode::primary,
-            DisplayMode::secondary,
-            DisplayMode::tertiary,
-            DisplayMode::link,
-            DisplayMode::light,
-            DisplayMode::dark        => $mode,
-            DisplayMode::null,
-            DisplayMode::unknown     => DisplayMode::null,
+            EnumDisplayMode::white       => EnumDisplayMode::white,
+            EnumDisplayMode::blue,
+            EnumDisplayMode::info,
+            EnumDisplayMode::notice,
+            EnumDisplayMode::information => EnumDisplayMode::info,
+            EnumDisplayMode::green,
+            EnumDisplayMode::success     => EnumDisplayMode::success,
+            EnumDisplayMode::yellow,
+            EnumDisplayMode::warning,    => EnumDisplayMode::warning,
+            EnumDisplayMode::red,
+            EnumDisplayMode::error,
+            EnumDisplayMode::exception,
+            EnumDisplayMode::danger      => EnumDisplayMode::danger,
+            EnumDisplayMode::plain,
+            EnumDisplayMode::primary,
+            EnumDisplayMode::secondary,
+            EnumDisplayMode::tertiary,
+            EnumDisplayMode::link,
+            EnumDisplayMode::light,
+            EnumDisplayMode::dark        => $mode,
+            EnumDisplayMode::null,
+            EnumDisplayMode::unknown     => EnumDisplayMode::null,
             default => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
                 ':mode' => $mode
             ]))

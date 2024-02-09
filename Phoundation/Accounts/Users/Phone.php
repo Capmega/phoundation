@@ -25,7 +25,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Sanitize;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
@@ -221,7 +221,7 @@ class Phone extends DataEntry implements PhoneInterface
                 ->setHelpText(tr('An extra phone for the user')))
             ->add(Definition::new($this, 'account_type')
                 ->setOptional(true)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSize(3)
                 ->setCliColumn('-t,--type')
                 ->setSource([

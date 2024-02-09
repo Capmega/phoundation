@@ -19,7 +19,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Enums\StateMismatchHandling;
+use Phoundation\Data\DataEntry\Enums\EnunmStateMismatchHandling;
 use Phoundation\Data\DataEntry\Exception\BadDataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
@@ -126,9 +126,9 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * What to do when a record state mismatch was detected
      *
-     * @var StateMismatchHandling $state_mismatch_handling
+     * @var EnunmStateMismatchHandling $state_mismatch_handling
      */
-    protected StateMismatchHandling $state_mismatch_handling = StateMismatchHandling::ignore;
+    protected EnunmStateMismatchHandling $state_mismatch_handling = EnunmStateMismatchHandling::ignore;
 
     /**
      * $diff information showing what changed
@@ -1520,7 +1520,7 @@ abstract class DataEntry implements DataEntryInterface
             if (isset_get($data['meta_state']) !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
-                    case StateMismatchHandling::ignore:
+                    case EnunmStateMismatchHandling::ignore:
                         Log::warning(tr('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
                             ':id' => $this->getId(),
                             ':type' => static::getDataEntryName(),
@@ -1529,13 +1529,13 @@ abstract class DataEntry implements DataEntryInterface
                         ]));
                         break;
 
-                    case StateMismatchHandling::allow_override:
+                    case EnunmStateMismatchHandling::allow_override:
                         // Okay, so the state did NOT match, and we WILL throw the state mismatch exception, BUT we WILL
                         // update the state data so that a second attempt can succeed
                         $data['meta_state'] = $this->getMetaState();
                         break;
 
-                    case StateMismatchHandling::restrict:
+                    case EnunmStateMismatchHandling::restrict:
                         throw new DataEntryStateMismatchException(tr('Database and user meta-state for ":type" type record with ID ":id" do not match', [
                             ':id' => $this->getId(),
                             ':type' => static::getDataEntryName()

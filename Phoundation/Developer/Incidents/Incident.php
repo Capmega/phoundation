@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Routing\Route;
 use Throwable;
 
@@ -118,7 +118,7 @@ class Incident extends DataEntry
             ->add(Definition::new($this, 'data')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel('Data')
                 ->setSize(12)
                 ->setMaxlength(16_777_200));

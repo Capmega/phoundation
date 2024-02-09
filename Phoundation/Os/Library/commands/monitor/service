@@ -14,7 +14,7 @@ use Phoundation\Os\Processes\Commands\Service;
 use Phoundation\Os\Processes\Exception\MonitorException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
 /**
@@ -77,7 +77,7 @@ try {
 
     if (count($status) == 2) {
         Notification::new()
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setRoles('administrator')
             ->setTitle(tr('Restarted dead service'))
             ->setMessage(tr('Service ":service" was down but successfully restarted', [':service' => $argv['service']]))
@@ -85,7 +85,7 @@ try {
             ->send(true);
     } else {
         Notification::new()
-            ->setMode(DisplayMode::error)
+            ->setMode(EnumDisplayMode::error)
             ->setRoles('administrator')
             ->setTitle(tr('Restarted dead service'))
             ->setMessage(tr('Service ":service" was down but successfully restarted', [':service' => $argv['service']]))

@@ -10,7 +10,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -143,7 +143,7 @@ abstract class Element implements ElementInterface
             $this->attributes->delete('auto_submit');
             $postfix .= Script::new()
                 ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
-                ->setJavascriptWrapper(JavascriptWrappers::window);
+                ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
         $renderer_class  = Page::getTemplate()->getRendererClass($this);

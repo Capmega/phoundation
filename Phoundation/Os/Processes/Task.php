@@ -34,8 +34,8 @@ use Phoundation\Os\Processes\Traits\DataEntryWorkers;
 use Phoundation\Servers\Traits\DataEntryServer;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
@@ -1157,7 +1157,7 @@ class Task extends DataEntry implements TaskInterface
                 // Notify the specified role!
                 Notification::new()
                     ->setUrl('/tasks/task+' . $this->getId() . '.html')
-                    ->setMode(DisplayMode::info)
+                    ->setMode(EnumDisplayMode::info)
                     ->setRoles($this->getRolesId())
                     ->setTitle(tr('A task has been completed'))
                     ->setMessage(tr('Task ":task" has been completed successfully'))
@@ -1200,7 +1200,7 @@ class Task extends DataEntry implements TaskInterface
                 // Notify the specified role!
                 Notification::new()
                     ->setUrl('/tasks/task+' . $this->getId() . '.html')
-                    ->setMode(DisplayMode::info)
+                    ->setMode(EnumDisplayMode::info)
                     ->setRoles($this->getRolesId())
                     ->setTitle(tr('A task has failed'))
                     ->setMessage(tr('Task ":task" failed to complete successfully'))
@@ -1553,7 +1553,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel('Results')
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setSize(12)
                 ->setMaxlength(16_777_215)
                 ->setReadonly(true))

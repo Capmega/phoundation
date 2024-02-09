@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\ContainerTierInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumContainerTierInterface;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\Interfaces\ContainerTierInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum ContainerTier: string implements ContainerTierInterface
+enum EnumContainerTier: string implements EnumContainerTierInterface
 {
     case null = '';
     case xxs = 'xxs';

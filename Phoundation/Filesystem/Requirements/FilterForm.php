@@ -9,7 +9,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -51,7 +51,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
                 ->setLabel(tr('Status'))
                 ->setSize(4)
                 ->setOptional(true)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setValue(isset_get($this->source['entry_status']))
                 ->setKey(true, 'auto_submit')
                 ->setSource($this->states));

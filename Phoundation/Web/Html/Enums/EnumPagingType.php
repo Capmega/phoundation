@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\PagingTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\Interfaces\PagingTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Virtualization
  */
-enum PagingType: string implements PagingTypeInterface
+enum EnumPagingType: string implements EnumPagingTypeInterface
 {
     case numbers            = 'numbers';
     case simple             = 'simple';

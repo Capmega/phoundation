@@ -9,7 +9,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -262,10 +262,10 @@ interface DefinitionInterface
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param InputElementInterface|null $value
+     * @param EnumInputElementInterface|null $value
      * @return static
      */
-    public function setElement(InputElementInterface|null $value): static;
+    public function setElement(EnumInputElementInterface|null $value): static;
 
     /**
      * Returns the HTML client element to be used for this column
@@ -886,15 +886,15 @@ interface DefinitionInterface
     /**
      * Returns what element should be displayed if the value of this entry is NULL
      *
-     * @return InputElementInterface|null
+     * @return EnumInputElementInterface|null
      */
-    public function getNullElement(): InputElementInterface|null;
+    public function getNullElement(): EnumInputElementInterface|null;
 
     /**
      * Sets what element should be displayed if the value of this entry is NULL
      *
-     * @param InputElementInterface|null $value
+     * @param EnumInputElementInterface|null $value
      * @return static
      */
-    public function setNullElement(InputElementInterface|null $value): static;
+    public function setNullElement(EnumInputElementInterface|null $value): static;
 }

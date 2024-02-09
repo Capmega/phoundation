@@ -9,7 +9,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\HtmlDataTable;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
-use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Http\UrlBuilder;
@@ -137,7 +137,7 @@ class MetaList
 
          $table = HtmlDataTable::new()
             ->setId('meta')
-            ->setCheckboxSelectors(TableIdColumn::visible)
+            ->setCheckboxSelectors(EnumTableIdColumn::visible)
             ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
             ->setOrder([0 => 'desc'])
             ->setProcessEntities(false)

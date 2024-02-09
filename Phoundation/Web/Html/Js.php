@@ -9,7 +9,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\WebException;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Core;
 use function Phoundation\Web\Html\cdn_domain;
 use function Phoundation\Web\Html\html_bundler;
@@ -71,7 +71,7 @@ class Js
 
                     Notification::new()
                         ->setUrl('developer/incidents.html')
-                        ->setMode(DisplayMode::exception)
+                        ->setMode(EnumDisplayMode::exception)
                         ->setCode('not-exists')
                         ->setRoles('developer')
                         ->setTitle(tr('html_load_js() issue detected'))
@@ -82,7 +82,7 @@ class Js
                     $file = substr($file, 0, -7);
 
                     Notification::new()
-                        ->setMode(DisplayMode::exception)
+                        ->setMode(EnumDisplayMode::exception)
                         ->setUrl('developer/incidents.html')
                         ->setCode('not-exists')
                         ->setRoles('developer')

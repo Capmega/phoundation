@@ -11,10 +11,10 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
-use Phoundation\Web\Html\Enums\Interfaces\PagingTypeInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
-use Phoundation\Web\Html\Enums\PagingType;
+use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 
@@ -104,9 +104,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Pagination button display options
      *
-     * @var PagingTypeInterface|null $paging_enabled
+     * @var EnumPagingTypeInterface|null $paging_enabled
      */
-    protected ?PagingTypeInterface $paging_type = null;
+    protected ?EnumPagingTypeInterface $paging_type = null;
 
     /**
      * The menu available to the user displaying the optional paging lengths
@@ -222,11 +222,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         // Set defaults
         $this
             ->setPagingEnabled(Config::getBoolean('data.paging.enabled', true))
-            ->setPagingType(PagingType::from(Config::getString('data.paging.type', 'simple_numbers')))
+            ->setPagingType(EnumPagingType::from(Config::getString('data.paging.type', 'simple_numbers')))
             ->setPageLength(Config::getInteger('data.paging.limit', 25))
             ->setOrderClassesEnabled(Config::getBoolean('data.paging.order-classes', true))
             ->setButtons(['copy', 'csv', 'excel', 'pdf', 'print', 'colvis'])
-            ->addCallback(function (IteratorInterface|array &$row, TableRowTypeInterface $type, &$params) {
+            ->addCallback(function (IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params) {
                 if (isset($row['created_on'])) {
                     $row['created_on'] = DateTime::new($row['created_on'])->setTimezone('user')->format($this->php_date_format);
                 }
@@ -759,9 +759,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets pagination button display options
      *
-     * @return PagingTypeInterface
+     * @return EnumPagingTypeInterface
      */
-    public function getPagingType(): PagingTypeInterface
+    public function getPagingType(): EnumPagingTypeInterface
     {
         return $this->paging_type;
     }
@@ -770,10 +770,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets pagination button display options
      *
-     * @param PagingTypeInterface $type
+     * @param EnumPagingTypeInterface $type
      * @return $this
      */
-    public function setPagingType(PagingTypeInterface $type): static
+    public function setPagingType(EnumPagingTypeInterface $type): static
     {
         $this->paging_type = $type;
         return $this;
@@ -1228,7 +1228,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
         $id     = $this->getId();
         $render = Script::new()
-            ->setJavascriptWrapper(JavascriptWrappers::dom_content)
+            ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
             ->setContent($content . '
 
 

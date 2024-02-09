@@ -13,8 +13,8 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\TabsInterface;
-use Phoundation\Web\Html\Enums\DisplaySize;
-use Phoundation\Web\Html\Enums\Interfaces\DisplaySizeInterface;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 use Stringable;
 
 
@@ -38,9 +38,9 @@ class Tabs extends ElementsBlock implements TabsInterface
     /**
      * The display size of the contents
      *
-     * @var DisplaySizeInterface|DisplaySize
+     * @var EnumDisplaySizeInterface|EnumDisplaySize
      */
-    protected DisplaySizeInterface $content_display_size = DisplaySize::ten;
+    protected EnumDisplaySizeInterface $content_display_size = EnumDisplaySize::ten;
 
 
     /**
@@ -58,9 +58,9 @@ class Tabs extends ElementsBlock implements TabsInterface
     /**
      * Returns the display size for tab contents (left and right orientation only)
      *
-     * @return DisplaySizeInterface
+     * @return EnumDisplaySizeInterface
      */
-    public function getContentDisplaySize(): DisplaySizeInterface
+    public function getContentDisplaySize(): EnumDisplaySizeInterface
     {
         return $this->content_display_size;
     }
@@ -69,10 +69,10 @@ class Tabs extends ElementsBlock implements TabsInterface
     /**
      * Sets the display size for tab contents (left and right orientation only)
      *
-     * @param DisplaySizeInterface $content_display_size
+     * @param EnumDisplaySizeInterface $content_display_size
      * @return static
      */
-    public function setContentDisplaySize(DisplaySizeInterface $content_display_size): static
+    public function setContentDisplaySize(EnumDisplaySizeInterface $content_display_size): static
     {
         $this->content_display_size = $content_display_size;
         return $this;

@@ -6,8 +6,8 @@ namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Bootstrap;
-use Phoundation\Web\Html\Enums\ContainerTier;
-use Phoundation\Web\Html\Enums\Interfaces\DisplaySizeInterface;
+use Phoundation\Web\Html\Enums\EnumContainerTier;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 use Phoundation\Web\Html\Traits\UsesSize;
 use Phoundation\Web\Html\Traits\UsesTier;
 use Stringable;
@@ -34,7 +34,7 @@ class GridColumn extends Layout
      */
     public function __construct()
     {
-        $this->tier = Bootstrap::getGridContainerTier(ContainerTier::md);
+        $this->tier = Bootstrap::getGridContainerTier(EnumContainerTier::md);
         parent::__construct();
     }
 
@@ -44,10 +44,10 @@ class GridColumn extends Layout
      *
      * @param Stringable|string|float|int|null $content
      * @param bool $make_safe
-     * @param DisplaySizeInterface|int|null $size
+     * @param EnumDisplaySizeInterface|int|null $size
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false, DisplaySizeInterface|int|null $size = null): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false, EnumDisplaySizeInterface|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);
@@ -61,11 +61,11 @@ class GridColumn extends Layout
      * Adds the specified content to the content of the grid
      *
      * @param Stringable|string|float|int|null $content
-     * @param DisplaySizeInterface|int|null $size $size
+     * @param EnumDisplaySizeInterface|int|null $size $size
      * @param bool $use_form
      * @return static
      */
-    public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         if ($size !== null) {
             $this->setSize($size);

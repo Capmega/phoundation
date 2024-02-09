@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
 
 
 /**
- * Enum TableRowType
+ * Enum TableIdColumn
  *
  *
  *
@@ -17,9 +17,9 @@ use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-enum TableRowType: string implements TableRowTypeInterface
+enum EnumTableIdColumn: string implements EnumTableIdColumnInterface
 {
-    case header = 'header';
-    case row    = 'row';
-    case footer = 'footer';
+    case hidden   = 'hidden';
+    case checkbox = 'checkbox';
+    case visible  = 'visible';
 }

@@ -3,8 +3,8 @@
 namespace Phoundation\Web;
 
 use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Enums\ContainerTier;
-use Phoundation\Web\Html\Enums\Interfaces\ContainerTierInterface;
+use Phoundation\Web\Html\Enums\EnumContainerTier;
+use Phoundation\Web\Html\Enums\Interfaces\EnumContainerTierInterface;
 use Phoundation\Web\Interfaces\BootstrapInterface;
 
 
@@ -23,15 +23,15 @@ class Bootstrap implements BootstrapInterface
     /**
      * Returns the default configured bootstrap grid container tier
      *
-     * @param ContainerTierInterface|string|null $default_to
-     * @return ContainerTierInterface
+     * @param EnumContainerTierInterface|string|null $default_to
+     * @return EnumContainerTierInterface
      */
-    public static function getGridContainerTier(ContainerTierInterface|string|null $default_to = null): ContainerTierInterface
+    public static function getGridContainerTier(EnumContainerTierInterface|string|null $default_to = null): EnumContainerTierInterface
     {
-        if ($default_to instanceof ContainerTierInterface) {
+        if ($default_to instanceof EnumContainerTierInterface) {
             $default_to = $default_to->value;
         }
 
-        return ContainerTier::from(Config::getString('web.bootstrap.grid.container-tier', $default_to));
+        return EnumContainerTier::from(Config::getString('web.bootstrap.grid.container-tier', $default_to));
     }
 }

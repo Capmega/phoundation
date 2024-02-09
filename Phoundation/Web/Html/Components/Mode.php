@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 
 
 /**
@@ -23,17 +23,17 @@ trait Mode
     /**
      * The type of mode for the element or element block
      *
-     * @var DisplayModeInterface $mode
+     * @var EnumDisplayModeInterface $mode
      */
-    protected DisplayModeInterface $mode = DisplayMode::primary;
+    protected EnumDisplayModeInterface $mode = EnumDisplayMode::primary;
 
 
     /**
      * Returns the type of mode for the element or element block
      *
-     * @return DisplayModeInterface
+     * @return EnumDisplayModeInterface
      */
-    public function getMode(): DisplayModeInterface
+    public function getMode(): EnumDisplayModeInterface
     {
         return $this->mode;
     }
@@ -42,12 +42,12 @@ trait Mode
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param DisplayModeInterface|string $mode
+     * @param EnumDisplayModeInterface|string $mode
      * @return static
      */
-    public function setMode(DisplayModeInterface|string $mode): static {
+    public function setMode(EnumDisplayModeInterface|string $mode): static {
         if (is_string($mode)) {
-            $mode = DisplayMode::from($mode);
+            $mode = EnumDisplayMode::from($mode);
         }
 
         // Ensure we have primary display mode

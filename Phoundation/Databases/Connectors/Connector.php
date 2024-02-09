@@ -27,7 +27,7 @@ use Phoundation\Databases\Databases;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
@@ -577,7 +577,7 @@ class Connector extends DataEntry implements ConnectorInterface
             ->add(Definition::new($this, 'environment')
                 ->setSize(4)
                 ->setLabel('Environment')
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSource([
                     'production' => tr('Production'),
                     'trial'      => tr('Trial'),
@@ -587,7 +587,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSize(4)
                 ->setLabel('Connector type')
                 ->setInputType(null)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSource([
                     'sql'       => tr('SQL'),
                     'memcached' => tr('Memcached'),
@@ -599,7 +599,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setOptional(true)
                 ->setLabel('Driver')
                 ->setInputType(null)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSource([
                     ''        => tr('Not specified'),
                     'mysql'   => tr('MySQL'),

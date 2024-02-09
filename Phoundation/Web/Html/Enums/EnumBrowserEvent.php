@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
+use Phoundation\Web\Html\Enums\Interfaces\EnumBrowserEventInterface;
+
 
 /**
  * Enum BrowserEvents
@@ -15,7 +17,7 @@ namespace Phoundation\Web\Html\Enums;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-enum BrowserEvent: string
+enum EnumBrowserEvent: string implements EnumBrowserEventInterface
 {
     case abort = 'abort';
     case activate = 'activate';

@@ -13,10 +13,10 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Phoundation\Web\Html\Html;
@@ -584,14 +584,14 @@ class Definition implements DefinitionInterface
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param InputElementInterface|null $value
+     * @param EnumInputElementInterface|null $value
      * @return static
      */
-    public function setElement(InputElementInterface|null $value): static
+    public function setElement(EnumInputElementInterface|null $value): static
     {
         // If (input) type exists and is not null, then we can ONLY use element "input"
         if (!empty($this->rules['type'])) {
-            if ($value !== InputElement::input) {
+            if ($value !== EnumInputElement::input) {
                 throw new OutOfBoundsException(tr('Cannot set element ":value" for column ":column" as the input type has already been set to ":type" and typed columns can only have the element "input"', [
                     ':value'  => $value?->value,
                     ':column' => $this->column,
@@ -850,7 +850,7 @@ class Definition implements DefinitionInterface
                     break;
 
                 case EnumInputTypeExtended::description:
-                    $this->setElement(InputElement::textarea);
+                    $this->setElement(EnumInputElement::textarea);
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
                         $validator->isDescription();
@@ -860,7 +860,7 @@ class Definition implements DefinitionInterface
                     return $this;
 
                 case EnumInputTypeExtended::boolean:
-                    $this->setElement(InputElement::input);
+                    $this->setElement(EnumInputElement::input);
                     $this->setInputType(EnumInputType::checkbox);
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1621,21 +1621,21 @@ class Definition implements DefinitionInterface
     /**
      * Returns what element should be displayed if the value of this entry is NULL
      *
-     * @return InputElementInterface|null
+     * @return EnumInputElementInterface|null
      */
-    public function getNullElement(): InputElementInterface|null
+    public function getNullElement(): EnumInputElementInterface|null
     {
-        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\InputElementInterface|null', $this->rules['null_element'], InputElement::input);
+        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\InputElementInterface|null', $this->rules['null_element'], EnumInputElement::input);
     }
 
 
     /**
      * Sets what element should be displayed if the value of this entry is NULL
      *
-     * @param InputElementInterface|null $value
+     * @param EnumInputElementInterface|null $value
      * @return static
      */
-    public function setNullElement(InputElementInterface|null $value): static
+    public function setNullElement(EnumInputElementInterface|null $value): static
     {
         return $this->setKey($value, 'null_element');
     }

@@ -15,13 +15,13 @@ namespace Phoundation\Web\Html\Enums\Interfaces;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface DisplayModeInterface
+interface EnumDisplayModeInterface
 {
     /**
      * Sets the type of mode for the element or element block
      *
-     * @param DisplayModeInterface $mode
+     * @param EnumDisplayModeInterface $mode
      * @return static
      */
-    public static function getPrimary(DisplayModeInterface $mode): DisplayModeInterface;
+    public static function getPrimary(EnumDisplayModeInterface $mode): EnumDisplayModeInterface;
 }

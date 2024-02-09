@@ -7,7 +7,7 @@ namespace Phoundation\Geo\States;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
 /**
@@ -78,7 +78,7 @@ class States extends DataList
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         $table = parent::getHtmlTable();
-        $table->setCheckboxSelectors(TableIdColumn::checkbox);
+        $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
     }

@@ -52,7 +52,7 @@ use Phoundation\Web\Exception\RedirectException;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Menus\Menus;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Html\Template\TemplatePage;
@@ -2725,7 +2725,7 @@ class Page implements PageInterface
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
                     ->setUrl('developer/incidents.html')
-                    ->setMode(DisplayMode::warning)
+                    ->setMode(EnumDisplayMode::warning)
                     ->setCode('unsupported-languages-requested')
                     ->setRoles('developer')
                     ->setTitle(tr('Unsupported language requested by client'))

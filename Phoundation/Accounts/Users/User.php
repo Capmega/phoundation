@@ -68,7 +68,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\DataEntryForm;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
@@ -1766,7 +1766,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('The title added to this users name')))
             ->add(Definition::new($this, 'gender')
                 ->setOptional(true)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSize(3)
                 ->setCliColumn('-g,--gender')
                 ->setSource([

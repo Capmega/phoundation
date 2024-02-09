@@ -17,6 +17,6 @@ use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ButtonTypeInterfaceEnum extends EnumInputTypeInterface
+interface EnumButtonTypeInterface extends EnumInputTypeInterface
 {
 }

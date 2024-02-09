@@ -26,7 +26,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Url;
@@ -779,7 +779,7 @@ class Route
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
                         Notification::new()
                             ->setUrl('security/incidents.html')
-                            ->setMode(DisplayMode::exception)
+                            ->setMode(EnumDisplayMode::exception)
                             ->setCode('hack')
                             ->setRoles('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))

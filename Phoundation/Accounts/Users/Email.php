@@ -23,7 +23,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -179,7 +179,7 @@ class Email extends DataEntry implements EmailInterface
                 }))
             ->add(Definition::new($this, 'account_type')
                 ->setOptional(true)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSize(3)
                 ->setCliColumn('-t,--type')
                 ->setSource([

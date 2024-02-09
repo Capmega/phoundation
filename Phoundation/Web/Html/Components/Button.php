@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Web\Html\Components\Input\Input;
-use Phoundation\Web\Html\Enums\ButtonType;
+use Phoundation\Web\Html\Enums\EnumButtonType;
 use Stringable;
 
 
@@ -43,7 +43,7 @@ class Button extends Input
         $this->setName('submit');
         $this->setClasses('btn');
         $this->setElement('button');
-        $this->setType(ButtonType::submit);
+        $this->setType(EnumButtonType::submit);
     }
 
 

@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Components\Tooltips\Enums\EnumTooltipTrigger;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
 
 /**
@@ -508,7 +508,7 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
             static::$javascript_sent = true;
 
             $return = Script::new()
-                ->setJavascriptWrapper(JavascriptWrappers::window)
+                ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                 ->setContent('$(function () {
                 $(\'[data-tooltip="tooltip"]\').tooltip();
             })')->render();

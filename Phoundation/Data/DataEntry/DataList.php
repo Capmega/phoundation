@@ -27,7 +27,7 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -341,7 +341,7 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setId(static::getTable())
                 ->setSource($this->getAllRowsMultipleColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(TableIdColumn::checkbox);
+                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
 
         $this->selectQuery();
@@ -351,7 +351,7 @@ abstract class DataList extends Iterator implements DataListInterface
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(TableIdColumn::checkbox);
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
 
@@ -370,7 +370,7 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setId(static::getTable())
                 ->setSource($this->getAllRowsMultipleColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(TableIdColumn::checkbox);
+                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
 
         $this->selectQuery();
@@ -380,7 +380,7 @@ abstract class DataList extends Iterator implements DataListInterface
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(TableIdColumn::checkbox);
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
 

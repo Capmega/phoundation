@@ -45,8 +45,8 @@ use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Phoundation\Web\Routing\Route;
@@ -171,13 +171,13 @@ class Notification extends DataEntry implements NotificationInterface
     {
         if ($e instanceof Exception) {
             if ($e->isWarning()) {
-                $mode = DisplayMode::warning;
+                $mode = EnumDisplayMode::warning;
             } else {
-                $mode = DisplayMode::exception;
+                $mode = EnumDisplayMode::exception;
             }
 
         } else {
-            $mode = DisplayMode::exception;
+            $mode = EnumDisplayMode::exception;
         }
 
         $details = $e->generateDetails();
@@ -466,28 +466,28 @@ POST variables:
         $message = trim($message);
 
         switch ($this->getMode()) {
-            case DisplayMode::danger:
+            case EnumDisplayMode::danger:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::error($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::error($message, use_prefix: false);
                 break;
 
-            case DisplayMode::warning:
+            case EnumDisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($message, use_prefix: false);
                 break;
 
-            case DisplayMode::success:
+            case EnumDisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($message, use_prefix: false);
                 break;
 
-            case DisplayMode::info:
+            case EnumDisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::information($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
@@ -619,7 +619,7 @@ POST variables:
             ->add(Definition::new($this, 'mode')
                 ->setLabel(tr('Mode'))
                 ->setReadonly(true)
-                ->setOptional(true, DisplayMode::notice)
+                ->setOptional(true, EnumDisplayMode::notice)
                 ->addClasses('text-center')
                 ->setSize(3)
                 ->setMaxlength(16)
@@ -649,7 +649,7 @@ POST variables:
                 }))
             ->add(Definition::new($this, 'message')
                 ->setReadonly(true)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Message'))
                 ->setMaxlength(65_535)
                 ->setSize(12)
@@ -666,7 +666,7 @@ POST variables:
             ->add(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
@@ -721,7 +721,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)

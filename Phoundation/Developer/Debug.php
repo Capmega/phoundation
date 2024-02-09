@@ -19,7 +19,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 use Throwable;
@@ -331,7 +331,7 @@ class Debug {
                 // This is not usually something you want to happen!
                 Notification::new()
                     ->setUrl('developer/incidents.html')
-                    ->setMode(DisplayMode::exception)
+                    ->setMode(EnumDisplayMode::exception)
                     ->setTitle('Debug mode enabled on production environment!')
                     ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
                     ->setRoles('developer')

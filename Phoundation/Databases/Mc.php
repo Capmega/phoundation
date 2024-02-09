@@ -16,7 +16,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Throwable;
 
 
@@ -492,7 +492,7 @@ class Mc implements DatabaseInterface
 
                     Notification::new()
                         ->setUrl('developer/incidents.html')
-                        ->setMode(DisplayMode::warning)
+                        ->setMode(EnumDisplayMode::warning)
                         ->setCode('not-available')
                         ->addRole('developer')
                         ->setTitle(tr('Memcached server not available'))

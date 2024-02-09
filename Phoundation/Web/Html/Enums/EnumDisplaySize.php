@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Enums\Interfaces\DisplaySizeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 
 
 /**
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\Interfaces\DisplaySizeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum DisplaySize: string implements DisplaySizeInterface
+enum EnumDisplaySize: string implements EnumDisplaySizeInterface
 {
     case one    = '1';
     case two    = '2';

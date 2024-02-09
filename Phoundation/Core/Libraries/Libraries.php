@@ -22,7 +22,7 @@ use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\HtmlTable;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
 /**
@@ -173,7 +173,7 @@ class Libraries
             // Notification developers
             Notification::new()
                 ->setUrl('/system/information.html')
-                ->setMode(DisplayMode::info)
+                ->setMode(EnumDisplayMode::info)
                 ->setRoles('developer')->setTitle(tr('System initialization'))
                 ->setMessage(tr('The system ran an initialization'))
                 ->setDetails([
