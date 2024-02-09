@@ -143,9 +143,9 @@ class Arrays extends Utils
 
     /**
      * Ensure that the specified $params source is an array. If it's a numeric value, convert it to
-     * [$numeric_key => $params]. If its a string value, convert it to [$string_key => $params]
+     * [$numeric_key => $params]. If its string value, convert it to [$string_key => $params]
      *
-     * @param mixed $params A parameters array
+     * @param mixed $params A parameter array
      * @param string|null $string_key
      * @param string|null $numeric_key
      * @param bool|null $default The default value for the non-selected key
@@ -159,31 +159,31 @@ class Arrays extends Utils
      */
     public static function params(mixed &$params, string $string_key = null, ?string $numeric_key = null, ?bool $default = false): void
     {
-        if(!$params) {
+        if (!$params) {
             // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
             $params = [];
         }
 
-        if(is_array($params)) {
+        if (is_array($params)) {
             Arrays::ensure($params, array($string_key, $numeric_key), $default);
             return;
         }
 
-        if(is_numeric($params)) {
+        if (is_numeric($params)) {
             // The specified value is numeric, convert it to an array with the specified numeric key set having the value $params
             $params = [
                 $numeric_key => $params,
-                $string_key  => $default
+                $string_key => $default
             ];
 
             return;
         }
 
-        if(is_string($params)) {
+        if (is_string($params)) {
             // The specified value is string, convert it to an array with the specified string key set having the value $params
             $params = [
                 $numeric_key => $default,
-                $string_key  => $params
+                $string_key => $params
             ];
 
             return;
@@ -297,7 +297,7 @@ class Arrays extends Utils
      */
     public static function toObject(array $array): object
     {
-        return (object) $array;
+        return (object)$array;
     }
 
 
@@ -359,7 +359,7 @@ class Arrays extends Utils
                 }
 
                 if ($quote_character) {
-                    $return[] .= $key . $key_separator . Strings::quote((string) $value, $quote_character, $quote_always);
+                    $return[] .= $key . $key_separator . Strings::quote((string)$value, $quote_character, $quote_always);
 
                 } else {
                     $return[] .= $key . $key_separator . $value;
@@ -378,12 +378,12 @@ class Arrays extends Utils
      * @param array $array2
      * @param...
      * @return array
+     * @todo Reimplement with ...$arrays
      */
     public static function mergeFull(): array
     {
         $arguments = static::getArgumentArrays(func_get_args());
         $return    = [];
-        $count     = 0;
 
         foreach ($arguments as $id => $array) {
             static::requireArrayOrNull($array, $id);
@@ -405,11 +405,11 @@ class Arrays extends Utils
     /**
      * Limit the specified array to the specified number of entries
      *
-     * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      * @param array $source
      * @param int $count
      * @param bool $return_source
      * @return array
+     * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      */
     public static function limit(array $source, int $count, bool $return_source = true): array
     {
@@ -446,8 +446,8 @@ class Arrays extends Utils
 
         $return = [];
 
-        for($i = 0; $i < $count; $i++) {
-            $return[] = $base_value_name.$i;
+        for ($i = 0; $i < $count; $i++) {
+            $return[] = $base_value_name . $i;
         }
 
         return $return;
@@ -466,7 +466,7 @@ class Arrays extends Utils
      */
     public static function sequentialKeys(array $source, string|int $base_key_name, bool $filter_null = false, bool $null_string = false, int $start = 0): array
     {
-        $i      = $start;
+        $i = $start;
         $return = [];
 
         foreach ($source as $value) {
@@ -602,7 +602,7 @@ class Arrays extends Utils
      */
     public static function keepKeys(DataListInterface|array $source, string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
-        $return  = [];
+        $return = [];
         $needles = Arrays::force($needles);
 
         if ($source instanceof DataListInterface) {
@@ -895,7 +895,7 @@ class Arrays extends Utils
      */
     public static function keepValues(DataListInterface|array $source, string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
     {
-        $return  = [];
+        $return = [];
         $needles = Arrays::force($needles);
 
         if ($source instanceof DataListInterface) {
@@ -1093,7 +1093,7 @@ class Arrays extends Utils
 
             default:
                 throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
-                    ':keysmode' => $match_mode
+                    ':mode' => $match_mode
                 ]));
         }
     }
@@ -1348,7 +1348,7 @@ class Arrays extends Utils
     public static function from(array &$source, string|int $from_key, bool $delete = false, bool $skip = true): array
     {
         $return = [];
-        $add    = false;
+        $add = false;
 
         foreach ($source as $key => $value) {
             if (!$add) {
@@ -1418,15 +1418,15 @@ class Arrays extends Utils
      */
     public static function prefix(array $source, string|int $prefix, bool $auto = false): array
     {
-        $count  = 0;
+        $count = 0;
         $return = [];
 
         foreach ($source as $key => $value) {
             if ($auto) {
-                $return[$prefix.$count++] = $value;
+                $return[$prefix . $count++] = $value;
 
             } else {
-                $return[$prefix.$key] = $value;
+                $return[$prefix . $key] = $value;
             }
         }
 
@@ -1602,7 +1602,7 @@ class Arrays extends Utils
         foreach ($source1 as $key => $value) {
             if ($value === null) {
                 $source1[$key] = isset_get($source2[$key], $default);
-                $modified      = true;
+                $modified = true;
             }
         }
 
@@ -1645,7 +1645,7 @@ class Arrays extends Utils
     public static function range(int $min, int $max): array
     {
         if (!is_numeric($min)) {
-                throw new OutOfBoundsException(tr('Specified $min is not numeric'));
+            throw new OutOfBoundsException(tr('Specified $min is not numeric'));
         }
 
         if (!is_numeric($max)) {
@@ -1658,7 +1658,7 @@ class Arrays extends Utils
 
         $return = [];
 
-        for($i = $min; $i <= $max; $i++) {
+        for ($i = $min; $i <= $max; $i++) {
             $return[$i] = $i;
         }
 
@@ -1736,7 +1736,7 @@ class Arrays extends Utils
      */
     public static function hasDuplicates(array $source): bool
     {
-        return (bool) Arrays::countDuplicates($source);
+        return (bool)Arrays::countDuplicates($source);
     }
 
 
@@ -1795,7 +1795,7 @@ class Arrays extends Utils
     public static function mergeNull(): array
     {
         $arguments = static::getArgumentArrays(func_get_args(), 3);
-        $return    = [];
+        $return = [];
 
         foreach ($arguments as $array) {
             foreach ($array as $key => $value) {
@@ -1840,13 +1840,13 @@ class Arrays extends Utils
                     if (str_contains($key, '%')) {
                         // These keys can match partial source keys, so "%pass" will also match the source key
                         // "password" for example
-                        if (str_contains((string) $source_key, str_replace('%', '', $key))) {
-                            $source_value = Strings::hide((string) $source_value, $hide, $empty);
+                        if (str_contains((string)$source_key, str_replace('%', '', $key))) {
+                            $source_value = Strings::hide((string)$source_value, $hide, $empty);
                         }
 
                     } else {
                         if ($source_key === $key) {
-                            $source_value = Strings::hide((string) $source_value, $hide, $empty);
+                            $source_value = Strings::hide((string)$source_value, $hide, $empty);
                         }
                     }
                 }
@@ -1861,12 +1861,12 @@ class Arrays extends Utils
     /**
      * Rename the specified old key to the new key
      *
-     * @version 2.7.100: Added function and documentation
-     *
      * @param array $source
      * @param string|int $old_key
      * @param string|int $new_key
      * @return array The array with the specified key renamed
+     * @version 2.7.100: Added function and documentation
+     *
      */
     public static function renameKey(array $source, string|int $old_key, string|int $new_key): array
     {
@@ -1884,13 +1884,13 @@ class Arrays extends Utils
     /**
      * Returns the value of the first element of the specified array
      *
+     * @param array $source The source array from which the first value must be returned
+     * @return mixed The first value of the specified source array
      * @see Arrays::lastValue()
      * @version 1.27.0: Added function and documentation
      *
-     * @param array $source The source array from which the first value must be returned
-     * @return mixed The first value of the specified source array
      */
-    public static function firstValue(array$source): mixed
+    public static function firstValue(array $source): mixed
     {
         reset($source);
         $current = current($source);
@@ -1906,10 +1906,10 @@ class Arrays extends Utils
     /**
      * Returns the value of the last element of the specified array
      *
-     * @see Arrays::firstValue()
-     * @version 1.27.0: Added function and documentation
      * @param array $source The source array from which the last value must be returned
      * @return mixed The last value of the specified source array
+     * @see Arrays::firstValue()
+     * @version 1.27.0: Added function and documentation
      */
     public static function lastValue(array $source): mixed
     {
@@ -1927,31 +1927,31 @@ class Arrays extends Utils
      * Make sure the specified keys are available on the array
      *
      * @param array|null $source
-     * @param string|array $keys
+     * @param string|array $needles
      * @param mixed $default_value
      * @param bool $trim_existing
      * @return void
      */
-    public static function ensure(?array &$source, string|array $keys = [], mixed $default_value = null, bool $trim_existing = false): void
+    public static function ensure(?array &$source, string|array $needles = [], mixed $default_value = null, bool $trim_existing = false): void
     {
         if (!$source) {
             $source = [];
         }
 
-        if ($keys) {
-            foreach (Arrays::force($keys) as $key) {
-                if (!$key) {
+        if ($needles) {
+            foreach (Arrays::force($needles) as $needle) {
+                if (!$needle) {
                     continue;
                 }
 
-                if (array_key_exists($key, $source)) {
-                    if ($trim_existing and is_string($source[$key])) {
+                if (array_key_exists($needle, $source)) {
+                    if ($trim_existing and is_string($source[$needle])) {
                         // Automatically trim the found value
-                        $source[$key] = trim($source[$key], (is_bool($trim_existing) ? ' ' : $trim_existing));
+                        $source[$needle] = trim($source[$needle], (is_bool($trim_existing) ? ' ' : $trim_existing));
                     }
 
                 } else {
-                    $source[$key] = $default_value;
+                    $source[$needle] = $default_value;
                 }
             }
         }
@@ -1959,9 +1959,47 @@ class Arrays extends Utils
 
 
     /**
+     * Return the specified source array, making sure that the specified keys are available
+     *
+     * @param array|null $source
+     * @param string|array $needles
+     * @param mixed $default_value
+     * @param bool $trim_existing
+     * @return array
+     */
+    public static function ensureReturn(?array $source, string|array $needles = [], mixed $default_value = null, bool $trim_existing = false): array
+    {
+        $return = [];
+
+        if ($needles) {
+            foreach (Arrays::force($needles) as $needle) {
+                if (!$needle) {
+                    continue;
+                }
+
+                if (array_key_exists($needle, $source)) {
+                    if ($trim_existing and is_string($source[$needle])) {
+                        // Automatically trim the found value
+                        $return[$needle] = trim($source[$needle], (is_bool($trim_existing) ? ' ' : $trim_existing));
+                    }
+
+                } else {
+                    $return[$needle] = $default_value;
+                }
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Specified variable may be either string or array, but ensure that its returned as an array.
      *
-     * @see Strings::force()
+     * @param string $source The variable that should be forced to be an array
+     * @param string|null $separator
+     * @return DataListInterface|IteratorInterface|array The specified $source, but now converted to an array data type
+     *         (if it was not an array yet)
      * @example
      * code
      * print_r(Arrays::force(array('test')));
@@ -1983,10 +2021,7 @@ class Arrays extends Utils
      * array('test')
      * /code
      *
-     * @param string $source The variable that should be forced to be an array
-     * @param string|null $separator
-     * @return DataListInterface|IteratorInterface|array The specified $source, but now converted to an array data type
-     *         (if it was not an array yet)
+     * @see Strings::force()
      */
     public static function force(mixed $source, ?string $separator = ','): DataListInterface|IteratorInterface|array
     {
@@ -2075,7 +2110,7 @@ class Arrays extends Utils
 
             // The key length
             if ($add_key !== null) {
-                $length = (strlen((string) $key) + $add_extra);
+                $length = (strlen((string)$key) + $add_extra);
 
                 if ($length > $columns[$add_key]) {
                     $columns[$add_key] = $length;
@@ -2084,14 +2119,14 @@ class Arrays extends Utils
 
             // The length of each column
             foreach ($row as $column => $value) {
-                $length = (strlen((string) $value) + $add_extra);
+                $length = (strlen((string)$value) + $add_extra);
 
                 if ($length > $columns[$column]) {
                     $columns[$column] = $length;
                 }
 
                 if ($check_column_key_length) {
-                    $length = (strlen((string) $column) + $add_extra);
+                    $length = (strlen((string)$column) + $add_extra);
 
                     if ($length > $columns[$column]) {
                         $columns[$column] = $length;
@@ -2132,7 +2167,7 @@ class Arrays extends Utils
      */
     public static function unsetValue(array &$source, string|float|int $value): string|int|null
     {
-        $key = array_search($value , $source);
+        $key = array_search($value, $source);
 
         if ($key === false) {
             return null;
@@ -2151,11 +2186,12 @@ class Arrays extends Utils
      * @param array $array3
      * @param...
      * @return array
+     * @todo Re-Implement with ...$arrays
      */
     public static function addValues(): array
     {
         $arguments = static::getArgumentArrays(func_get_args());
-        $target    = array_shift($arguments);
+        $target = array_shift($arguments);
 
         // Ensure target is an array
         static::requireArrayOrNull($target);
@@ -2172,7 +2208,7 @@ class Arrays extends Utils
                         if (array_key_exists($key, $target)) {
                             if (!is_array($target[$key])) {
                                 throw new OutOfBoundsException(tr('Target / source data incompatibility detected. Source ":id" key ":key" is an array while the target key is not', [
-                                    ':id'  => $id,
+                                    ':id' => $id,
                                     ':key' => $key
                                 ]));
                             }
@@ -2188,8 +2224,8 @@ class Arrays extends Utils
 
                     throw new OutOfBoundsException(tr('Target and all source arrays must contain only numeric values while source ":source" contains key ":key" with non numeric value ":value"', [
                         ':source' => $id,
-                        ':key'    => $key,
-                        ':value'  => $value
+                        ':key' => $key,
+                        ':value' => $value
                     ]));
                 }
 
@@ -2204,8 +2240,8 @@ class Arrays extends Utils
                 if (!is_numeric($target[$key])) {
                     throw new OutOfBoundsException(tr('Target and all source arrays must contain only numeric values while target ":target" contains key ":key" with non numeric value ":value"', [
                         ':source' => $id,
-                        ':key'    => $key,
-                        ':value'  => $value
+                        ':key' => $key,
+                        ':value' => $value
                     ]));
                 }
 
@@ -2270,8 +2306,8 @@ class Arrays extends Utils
     /**
      * Returns an array with "remove" and "add" section to indicate required actions to change $source1 into $source2
      *
-     * @param array $source1
-     * @param array $source2
+     * @param IteratorInterface|array $source1
+     * @param IteratorInterface|array $source2
      * @param bool $keep If true, the result array will also contain a "keep" column with entries that exists in both
      *                   and should not be added nor deleted (but perhaps updated, for example)
      * @return array
@@ -2279,7 +2315,7 @@ class Arrays extends Utils
     public static function valueDiff(IteratorInterface|array $source1, IteratorInterface|array $source2, bool $keep = false): array
     {
         $return = [
-            'add'    => [],
+            'add' => [],
             'delete' => []
         ];
 
@@ -2441,11 +2477,11 @@ class Arrays extends Utils
     public static function format(string $source, array $format): array
     {
         $return = [];
-        $pos    = 0;
+        $pos = 0;
 
         foreach ($format as $key => $size) {
             $return[$key] = substr($source, $pos, $size);
-            $pos         += $size;
+            $pos += $size;
         }
 
         return $return;
@@ -2478,7 +2514,7 @@ class Arrays extends Utils
                 // First row. Do we start with a separator? If so, we're in end mode
                 if ($source[$pos] === $separator) {
                     $start = false;
-                    $key   = null;
+                    $key = null;
                     continue;
                 }
             }
@@ -2550,7 +2586,7 @@ class Arrays extends Utils
 
         foreach ($source as $key => $value) {
             // Determine the largest key
-            $size = strlen((string) $key);
+            $size = strlen((string)$key);
 
             if ($size < $largest) {
                 $largest = $size;
@@ -2573,7 +2609,7 @@ class Arrays extends Utils
 
         foreach ($source as $key => $value) {
             // Determine the largest key
-            $size = strlen((string) $key);
+            $size = strlen((string)$key);
 
             if ($size > $largest) {
                 $largest = $size;
@@ -2625,7 +2661,7 @@ class Arrays extends Utils
             }
 
             // Determine the largest call line
-            $size = strlen((string) $value);
+            $size = strlen((string)$value);
 
             if ($size < $shortest) {
                 $shortest = $size;
@@ -2643,6 +2679,7 @@ class Arrays extends Utils
      *
      * @param array $source
      * @param string|null $key
+     * @param bool $exception
      * @return int
      */
     public static function getLongestValueLength(array $source, ?string $key = null, bool $exception = false): int
@@ -2674,7 +2711,7 @@ class Arrays extends Utils
             }
 
             // Determine the largest call line
-            $size = strlen((string) $value);
+            $size = strlen((string)$value);
 
             if ($size > $largest) {
                 $largest = $size;
@@ -2809,6 +2846,27 @@ class Arrays extends Utils
      * at least one character ending with an underscore, so entries like "230984_name" will have presumed to have the
      * prefix "230984_". Returns NULL if no prefix was found.
      *
+     * @param array $source
+     * @return string|float|int|null
+     * @example :
+     * [
+     *   name        => $value,
+     *   description => $value
+     * ]
+     *
+     * will return
+     * NULL
+     *
+     * @example :
+     * [
+     *   name         => $value,
+     *   _description => $value,
+     *   _information => $value
+     * ]
+     *
+     * will return
+     * NULL
+     *
      * @example :
      * [
      *   $keya         => $value,
@@ -2829,27 +2887,6 @@ class Arrays extends Utils
      * will return
      * "25346"
      *
-     * @example :
-     * [
-     *   name        => $value,
-     *   description => $value
-     * ]
-     *
-     * will return
-     * NULL
-     *
-     * @example :
-     * [
-     *   name         => $value,
-     *   _description => $value,
-     *   _information => $value
-     * ]
-     *
-     * will return
-     * NULL
-     *
-     * @param array $source
-     * @return string|float|int|null
      */
     public static function findPrefix(array $source): string|float|int|null
     {
@@ -2870,7 +2907,7 @@ class Arrays extends Utils
      *
      * @param array|string $needles
      * @param array $haystack
-     * @param int $options          Flags that will modify this functions behavior. Current flags are one of
+     * @param int $options Flags that will modify this functions behavior. Current flags are one of
      *                              Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or Utils::MATCH_ANYWHERE
      *                              Utils::MATCH_ANY
      *
@@ -2888,9 +2925,9 @@ class Arrays extends Utils
      */
     public static function getMatches(array $haystack, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_RECURSE): array
     {
-        $flags   = static::decodeMatchOptions($options, true);
+        $flags = static::decodeMatchOptions($options, true);
         $needles = static::checkRequiredNeedles($needles, $flags['match_no_case']);
-        $return  = [];
+        $return = [];
 
         foreach ($haystack as $key => $value) {
             if (!$value) {
@@ -2901,7 +2938,7 @@ class Arrays extends Utils
             if (!is_scalar($value)) {
                 if (!is_array($value) or !$flags['recurse']) {
                     Log::warning(tr('Arrays match ignoring key ":key" with non scalar value ":value"', [
-                        ':key'   => $key,
+                        ':key' => $key,
                         ':value' => $value
                     ]), 3);
                     continue;
@@ -2926,7 +2963,7 @@ class Arrays extends Utils
      *
      * @param array|string $needles
      * @param array $haystack
-     * @param int $options          Flags that will modify this functions behavior. Current flags are one of
+     * @param int $options Flags that will modify this functions behavior. Current flags are one of
      *                              Utils::MATCH_ALL, Utils::MATCH_BEGIN, Utils::MATCH_END, or Utils::MATCH_ANYWHERE
      *                              Utils::MATCH_ANY
      *
@@ -2944,9 +2981,9 @@ class Arrays extends Utils
      */
     public static function getSubMatches(array $haystack, array|string $needles, string $subkey, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_RECURSE): array
     {
-        $flags   = static::decodeMatchOptions($options, true);
+        $flags = static::decodeMatchOptions($options, true);
         $needles = static::checkRequiredNeedles($needles, $flags['match_no_case']);
-        $return  = [];
+        $return = [];
 
         foreach ($haystack as $key => $value) {
             if (!$value) {
@@ -3173,8 +3210,8 @@ class Arrays extends Utils
     {
         if ($descending) {
             $callback = function ($a, $b) use ($descending) {
-                $a = strlen((string) $a);
-                $b = strlen((string) $b);
+                $a = strlen((string)$a);
+                $b = strlen((string)$b);
 
                 if ($a < $b) {
                     return 1;
@@ -3189,8 +3226,8 @@ class Arrays extends Utils
 
         } else {
             $callback = function ($a, $b) use ($descending) {
-                $a = strlen((string) $a);
-                $b = strlen((string) $b);
+                $a = strlen((string)$a);
+                $b = strlen((string)$b);
 
                 if ($a < $b) {
                     return -1;
@@ -3245,5 +3282,170 @@ class Arrays extends Utils
         throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
             ':value' => $value
         ]));
+    }
+
+
+    /**
+     * Ensure that all specified array keys have the specified value
+     *
+     * @param array $source
+     * @param array|string $keys
+     * @param mixed $value
+     * @return array
+     */
+    public static function setKeys(array $source, array|string $keys, mixed $value): array
+    {
+        foreach (Arrays::force($keys) as $key) {
+            $source[$key] = $value;
+        }
+
+        return $source;
+    }
+
+
+    /**
+     * Returns the positional offset of the specified key in the specified array
+     *
+     * @param array $source
+     * @param string|float|int $key
+     * @param bool $exception
+     * @return int|null
+     */
+    public static function getKeyOffset(array $source, string|float|int $key, bool $exception = true): ?int
+    {
+        $return = array_search($key, array_keys($source));
+
+        if ($return === false) {
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Cannot return offset for key ":key", it does not exist in the source array', [
+                    ':key' => $key
+                ]));
+            }
+
+            return null;
+        }
+
+        return (int)$return;
+    }
+
+
+    /**
+     * Returns the positional offset of the position in front of the specified key in the specified array
+     *
+     * @param array $source
+     * @param string|float|int $key
+     * @param bool $exception
+     * @return int|null
+     */
+    public static function getKeyPreviousOffset(array $source, string|float|int $key, bool $exception = true): ?int
+    {
+        $return = array_search($key, array_keys($source));
+
+        if ($return === false) {
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Cannot return offset for key ":key", it does not exist in the source array', [
+                    ':key' => $key
+                ]));
+            }
+
+            return null;
+        }
+
+        if ($return === 0) {
+            return 0;
+        }
+
+        return ((int)$return) - 1;
+    }
+
+
+    /**
+     * Returns the positional offset of the position after the specified key in the specified array
+     *
+     * @param array $source
+     * @param string|float|int $key
+     * @param bool $exception
+     * @return int|null
+     */
+    public static function getKeyNextOffset(array $source, string|float|int $key, bool $exception = true): ?int
+    {
+        $return = array_search($key, array_keys($source));
+
+        if ($return === false) {
+            if ($exception) {
+                throw new OutOfBoundsException(tr('Cannot return offset for key ":key", it does not exist in the source array', [
+                    ':key' => $key
+                ]));
+            }
+
+            return null;
+        }
+
+        if ($return >= (count($source) - 1)) {
+            return count($source) - 1;
+        }
+
+        return ((int)$return) + 1;
+    }
+
+
+    /**
+     * Same as array_splice() but the source and replacement array keys are preserved
+     *
+     * @param array $source
+     * @param int $offset
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @return array
+     */
+    public static function splice(array &$source, int $offset, ?int $length = null, IteratorInterface|array $replacement = []): array
+    {
+        // Normalize offset
+        if ($offset < 0) {
+            $offset = count($source) + $offset;
+        }
+
+        // Normalize length
+        if ($length === null) {
+            $length = count($source) - $offset;
+
+        } elseif ($length < 0) {
+            $length = count($source) + $length - $offset;
+        }
+
+        // Ensure replacement is array
+        if ($replacement instanceof IteratorInterface) {
+            $replacement = $replacement->getSource();
+        }
+
+        // Manipulate each part and merge parts, allowing the latter overrides the former
+        $before  = array_slice($source, 0                , $offset   , true);
+        $removed = array_slice($source, $offset                , $length   , true);
+        $after   = array_slice($source, $offset + $length, null, true);
+        $source  = array_replace($before, (array)$replacement, $after);
+
+        return $removed;
+    }
+
+
+    /**
+     * Same as Arrays::splice() but the offset is an array key
+     *
+     * @param array $source
+     * @param string|float|int $key
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param bool $after
+     * @return array
+     */
+    public static function spliceByKey(array &$source, string|float|int $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false): array
+    {
+        if ($after) {
+            $offset = static::getKeyNextOffset($source, $key);
+        } else {
+            $offset = static::getKeyOffset($source, $key);
+        }
+
+        return static::splice($source, $offset, $length, $replacement);
     }
 }
