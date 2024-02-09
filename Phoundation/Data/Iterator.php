@@ -743,11 +743,11 @@ class Iterator implements IteratorInterface
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function keepKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepKeys($this->source, $needles, $match_mode);
         return $this;
@@ -757,11 +757,11 @@ class Iterator implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function removeKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function removeKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeKeys($this->source, $needles, $match_mode);
         return $this;
@@ -771,12 +771,12 @@ class Iterator implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function keepValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepValues($this->source, $needles, $column, $match_mode);
         return $this;
@@ -786,12 +786,12 @@ class Iterator implements IteratorInterface
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function removeValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function removeValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeValues($this->source, $needles, $column, $match_mode);
         return $this;
