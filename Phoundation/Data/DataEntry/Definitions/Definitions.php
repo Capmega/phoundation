@@ -150,7 +150,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function getFirst(): DefinitionInterface
     {
-        return array_first($this->source);
+        return $this->source[array_key_first($this->source)];
     }
 
 
@@ -161,6 +161,6 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function getLast(): DefinitionInterface
     {
-        return array_last($this->source);
+        return $this->source[array_key_last($this->source)];
     }
 }

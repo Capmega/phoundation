@@ -1625,7 +1625,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullElement(): EnumInputElementInterface|null
     {
-        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\InputElementInterface|null', $this->rules['null_element'], EnumInputElement::input);
+        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface|null', $this->rules['null_element']);
     }
 
 
