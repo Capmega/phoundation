@@ -105,4 +105,11 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function show(Stringable|string|float|int $key, bool $exception = true): static;
+
+    /**
+     * Returns if meta-information is visible at all, or not
+     *
+     * @return bool
+     */
+    public function getMetaVisible(): bool;
 }
