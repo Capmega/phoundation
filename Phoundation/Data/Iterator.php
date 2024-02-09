@@ -301,7 +301,7 @@ class Iterator implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
      * @return static
      */
@@ -1199,5 +1199,38 @@ class Iterator implements IteratorInterface
     #[ReturnTypeWillChange] public function setSourceValue(mixed $value, Stringable|string|float|int $key): static
     {
         return $this->set($value, $key);
+    }
+
+
+    /**
+     * Same as Arrays::splice() but for this Iterator
+     *
+     * @param int $offset
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param array|null $spliced
+     * @return static
+     */
+    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static
+    {
+        $spliced = Arrays::splice($this->source, $offset, $length, $replacement);
+        return $this;
+    }
+
+
+    /**
+     * Same as Arrays::spliceKey() but for this Iterator
+     *
+     * @param string $key
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param bool $after
+     * @param array|null $spliced
+     * @return static
+     */
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static
+    {
+        $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+        return $this;
     }
 }
