@@ -596,11 +596,11 @@ class Arrays extends Utils
      * Return the source array with the specified keys kept, all else removed.
      *
      * @param DataListInterface|array $source
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function keepKeys(DataListInterface|array $source, string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
+    public static function keepKeys(DataListInterface|array $source, array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
         $return = [];
         $needles = Arrays::force($needles);
@@ -743,11 +743,11 @@ class Arrays extends Utils
      * Return the source array with the specified keys removed.
      *
      * @param DataListInterface|array $source
-     * @param array|string $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function removeKeys(DataListInterface|array $source, array|string $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
+    public static function removeKeys(DataListInterface|array $source, array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
         $needles = Arrays::force($needles);
 
@@ -887,13 +887,13 @@ class Arrays extends Utils
      * Return the source array with the specified values kept, all else removed.
      *
      * @param DataListInterface|array $source
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @param bool $single
      * @return array
      */
-    public static function keepValues(DataListInterface|array $source, string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
+    public static function keepValues(DataListInterface|array $source, array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
     {
         $return = [];
         $needles = Arrays::force($needles);
@@ -1103,13 +1103,13 @@ class Arrays extends Utils
      * Return the source array with the specified values removed.
      *
      * @param DataListInterface|array $source
-     * @param array|string $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @param bool $single
      * @return array
      */
-    public static function removeValues(DataListInterface|array $source, array|string $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
+    public static function removeValues(DataListInterface|array $source, array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full, bool $single = false): array
     {
         $needles = Arrays::force($needles);
 
