@@ -103,14 +103,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @var array $meta_columns
      */
-    protected array $meta_columns = [
-        'id',
-        'created_by',
-        'created_on',
-        'status',
-        'meta_id',
-        'meta_state',
-    ];
+    protected array $meta_columns;
 
     /**
      * Columns that will NOT be inserted
@@ -260,6 +253,10 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
+        if (empty($this->meta_columns)) {
+            $this->meta_columns = static::getDefaultMetaColumns();
+        }
+
         $this->database_connector = static::getDefaultConnector();
         $column                   = static::getColumn($identifier, $column);
 
@@ -311,6 +308,24 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         return static::new()->setSource($source, $direct);
+    }
+
+
+    /**
+     * Returns the default meta data for DataEntry object
+     *
+     * @return array
+     */
+    final public function getDefaultMetaColumns(): array
+    {
+        return [
+            'id',
+            'created_on',
+            'created_by',
+            'meta_id',
+            'status',
+            'meta_state',
+        ];
     }
 
 
@@ -424,13 +439,16 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      * @param DataEntryInterface $data_entry
+     * @param bool $strip_meta
      * @return $this
      */
-    public function appendDataEntry(DataEntryInterface $data_entry): static
+    public function appendDataEntry(DataEntryInterface $data_entry, bool $strip_meta = true): static
     {
-        $this->source = array_merge($this->source, $data_entry->getSource());
-        $this->definitions->merge($data_entry->getDefinitions());
+        $data_entry   = clone $data_entry;
+        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
+        $this->definitions->merge($data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
         return $this;
     }
 
@@ -438,13 +456,16 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      * @param DataEntryInterface $data_entry
+     * @param bool $strip_meta
      * @return $this
      */
-    public function prependDataEntry(DataEntryInterface $data_entry): static
+    public function prependDataEntry(DataEntryInterface $data_entry, bool $strip_meta = true): static
     {
-        $this->source = array_merge($data_entry->getSource(), $this->source);
-        $data_entry->getDefinitions()->merge($this->definitions)->setDataEntry($this);
+        $data_entry   = clone $data_entry;
+        $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()), $this->source);
+        $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)->merge($this->definitions)->setDataEntry($this);
         return $this;
     }
 
@@ -452,14 +473,17 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      * @param DataEntryInterface $data_entry
      * @param string $key
+     * @param bool $strip_meta
      * @return $this
      */
-    public function injectDataEntryBefore(DataEntryInterface $data_entry, string $key): static
+    public function injectDataEntryBefore(DataEntryInterface $data_entry, string $key, bool $strip_meta = true): static
     {
-        $this->source = array_merge($this->source, $data_entry->getSource());
-        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions());
+        $data_entry   = clone $data_entry;
+        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
+        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
         return $this;
     }
 
@@ -467,14 +491,18 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      * @param DataEntryInterface $data_entry
      * @param string $key
+     * @param bool $strip_meta
      * @return $this
      */
-    public function injectDataEntryAfter(DataEntryInterface $data_entry, string $key): static
+    public function injectDataEntryAfter(DataEntryInterface $data_entry, string $key, bool $strip_meta = true): static
     {
-        $this->source = array_merge($this->source, $data_entry->getSource());
-        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions(), true);
+        $data_entry   = clone $data_entry;
+        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
+        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), true);
+
         return $this;
     }
 
@@ -2603,82 +2631,104 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
-     * Returns the meta-columns that apply for all DataEntry objects
+     * Returns the configured meta-column definitions for this DataEntry object
      *
      * @return void
      */
     protected function setMetaDefinitions(): void
     {
-        $this->definitions = Definitions::new()
-            ->setTable(static::getTable())
-            ->add(Definition::new($this, 'id')
-                ->setDisabled(true)
-                ->setInputType(EnumInputTypeExtended::dbid)
-                ->addClasses('text-center')
-                ->setSize(3)
-                ->setCliAutoComplete(true)
-                ->setTooltip(tr('This column contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
-                ->setLabel(tr('Database ID')))
-            ->add(Definition::new($this, 'created_on')
-                ->setDisabled(true)
-                ->setInputType(EnumInputType::datetime_local)
-                ->setNullInputType(EnumInputType::text)
-                ->addClasses('text-center')
-                ->setSize(3)
-                ->setTooltip(tr('This column contains the exact date / time when this object was created'))
-                ->setLabel(tr('Created on')))
-            ->add(Definition::new($this, 'created_by')
-                ->setDisabled(true)
-                ->setSize(3)
-                ->setLabel(tr('Created by'))
-                ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
-                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
-                    if ($this->isNew()) {
-                        // This is a new DataEntry object, so the creator is.. well, you!
-                        return InputText::new()
-                            ->setDisabled(true)
-                            ->addClasses('text-center')
-                            ->setValue(Session::getUser()->getDisplayName())
-                            ->render();
-                    } else {
-                        // This is created by a user or by the system user
-                        if ($source[$key]) {
-                            return InputText::new()
-                                ->setDisabled(true)
-                                ->addClasses('text-center')
-                                ->setValue(User::get($source[$key],  null)->getDisplayName())
-                                ->render();
-                        } else {
-                            return InputText::new()
-                                ->setDisabled(true)
-                                ->addClasses('text-center')
-                                ->setValue(tr('System'))
-                                ->render();
-                        }
-                    }
-                }))
-            ->add(Definition::new($this, 'meta_id')
-                ->setDisabled(true)
-                ->setVisible(false)
-                ->setInputType(EnumInputTypeExtended::dbid)
-                ->setNullInputType(EnumInputType::text)
-                ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
-                ->setLabel(tr('Meta ID')))
-            ->add(Definition::new($this, 'meta_state')
-                ->setDisabled(true)
-                ->setVisible(false)
-                ->setInputType(EnumInputType::text)
-                ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
-                ->setLabel(tr('Meta state')))
-            ->add(Definition::new($this, 'status')
-                ->setOptional(true)
-                ->setDisabled(true)
-                ->setInputType(EnumInputType::text)
-                ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
+        $definitions = Definitions::new()->setTable(static::getTable());
+
+        foreach ($this->meta_columns as $meta_column) {
+            switch ($meta_column) {
+                case 'id':
+                    $definitions->add(Definition::new($this, 'id')
+                        ->setDisabled(true)
+                        ->setInputType(EnumInputTypeExtended::dbid)
+                        ->addClasses('text-center')
+                        ->setSize(3)
+                        ->setCliAutoComplete(true)
+                        ->setTooltip(tr('This column contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
+                        ->setLabel(tr('Database ID')));
+                    break;
+
+                case 'created_on':
+                    $definitions->add(Definition::new($this, 'created_on')
+                        ->setDisabled(true)
+                        ->setInputType(EnumInputType::datetime_local)
+                        ->setNullInputType(EnumInputType::text)
+                        ->addClasses('text-center')
+                        ->setSize(3)
+                        ->setTooltip(tr('This column contains the exact date / time when this object was created'))
+                        ->setLabel(tr('Created on')));
+                    break;
+
+                case 'created_by':
+                    $definitions->add(Definition::new($this, 'created_by')
+                        ->setDisabled(true)
+                        ->setSize(3)
+                        ->setLabel(tr('Created by'))
+                        ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
+                        ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
+                            if ($this->isNew()) {
+                                // This is a new DataEntry object, so the creator is.. well, you!
+                                return InputText::new()
+                                    ->setDisabled(true)
+                                    ->addClasses('text-center')
+                                    ->setValue(Session::getUser()->getDisplayName())
+                                    ->render();
+                            } else {
+                                // This is created by a user or by the system user
+                                if ($source[$key]) {
+                                    return InputText::new()
+                                        ->setDisabled(true)
+                                        ->addClasses('text-center')
+                                        ->setValue(User::get($source[$key],  null)->getDisplayName())
+                                        ->render();
+                                } else {
+                                    return InputText::new()
+                                        ->setDisabled(true)
+                                        ->addClasses('text-center')
+                                        ->setValue(tr('System'))
+                                        ->render();
+                                }
+                            }
+                        }));
+                    break;
+
+                case 'meta_id':
+                    $definitions->add(Definition::new($this, 'meta_id')
+                        ->setDisabled(true)
+                        ->setVisible(false)
+                        ->setInputType(EnumInputTypeExtended::dbid)
+                        ->setNullInputType(EnumInputType::text)
+                        ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
+                        ->setLabel(tr('Meta ID')));
+                    break;
+
+                case 'status':
+                    $definitions->add(Definition::new($this, 'status')
+                        ->setOptional(true)
+                        ->setDisabled(true)
+                        ->setInputType(EnumInputType::text)
+                        ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
 //                ->setDisplayDefault(tr('Ok'))
-                ->addClasses('text-center')
-                ->setSize(3)
-                ->setLabel(tr('Status')));
+                        ->addClasses('text-center')
+                        ->setSize(3)
+                        ->setLabel(tr('Status')));
+                    break;
+
+                case 'meta_state':
+                    $definitions->add(Definition::new($this, 'meta_state')
+                        ->setDisabled(true)
+                        ->setVisible(false)
+                        ->setInputType(EnumInputType::text)
+                        ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
+                        ->setLabel(tr('Meta state')));
+            }
+        }
+
+        $this->definitions = $definitions;
     }
 
 
