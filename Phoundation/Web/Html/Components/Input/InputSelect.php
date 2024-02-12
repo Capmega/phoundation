@@ -232,12 +232,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Sets multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function setSelected(array|string|int|null $selected = null): static
+    public function setSelected(array|string|int|null $selected = null, bool $value = false): static
     {
         $this->selected = [];
-        return $this->addSelected($selected);
+        return $this->addSelected($selected, $value);
     }
 
 
@@ -245,9 +246,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Adds a single or multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function addSelected(array|string|int|null $selected): static
+    public function addSelected(array|string|int|null $selected, bool $value = false): static
     {
         if (is_array($selected)) {
             // Add multiple selected, only supported when multiple is enabled
@@ -257,11 +259,11 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
             // Add each selected to the list
             foreach (Arrays::force($selected) as $selected) {
-                $this->addSelected($selected);
+                $this->addSelected($selected, $value);
             }
         } else {
             // Add each selected to the list
-            $this->selected[$selected] = true;
+            $this->selected[$selected] = $value;
         }
 
         return $this;
@@ -438,7 +440,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
                 $value = (string) $value;
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
@@ -452,7 +454,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      *
      * Return the body HTML for a <select> list
      *
-     * @return void
+     * @return null
      * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
      * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
@@ -574,11 +576,24 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     /**
      * Returns the " selected" string that can be injected into <options> elements if the element value is selected
      *
+     * @param string|int|null $key
      * @param string|int|null $value
      * @return string|null
      */
-    protected function buildSelectedString(string|int|null $value): ?string
+    protected function buildSelectedString(string|int|null $key, string|int|null $value): ?string
     {
-        return (array_key_exists($value, $this->selected) ? ' selected' : null);
+        // Does the key match?
+        if (array_key_exists($key, $this->selected)) {
+            // If $this->selected[$value] is false, it means it's a key
+            return ($this->selected[$value] ? null : ' selected');
+        }
+
+        // Does the value match?
+        if (array_key_exists($value, $this->selected)) {
+            // If $this->selected[$value] is true, it means it's a value
+            return ($this->selected[$value] ? ' selected' : null);
+        }
+
+        return null;
     }
 }
