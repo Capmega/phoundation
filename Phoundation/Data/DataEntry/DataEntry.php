@@ -56,7 +56,10 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\DataEntryForm;
 use Phoundation\Web\Html\Components\Input\InputText;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Stringable;
@@ -257,7 +260,7 @@ abstract class DataEntry implements DataEntryInterface
             $this->meta_columns = static::getDefaultMetaColumns();
         }
 
-        $this->database_connector = static::getDefaultConnector();
+        $this->database_connector = static::getDefaultConnectorName();
         $column                   = static::getColumn($identifier, $column);
 
         // Set up the columns for this object
@@ -345,7 +348,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return string|null
      */
-    public static function getDefaultConnector(): ?string
+    public static function getDefaultConnectorName(): ?string
     {
         return 'system';
     }
@@ -473,35 +476,79 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
-     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      * @param DataEntryInterface $data_entry
-     * @param string $key
+     * @param string $at_key
      * @param bool $strip_meta
+     * @param bool $after
      * @return $this
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      */
-    public function injectDataEntryBefore(DataEntryInterface $data_entry, string $key, bool $strip_meta = true): static
+    public function injectDataEntry(string $at_key, DataEntryInterface $data_entry, bool $after = true, bool $strip_meta = true): static
     {
         $data_entry   = clone $data_entry;
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
-        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
+        $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), $after);
+
         return $this;
     }
+
+
+//    /**
+//     * Add the complete definitions and source from the specified data entry to this data entry
+//     *
+//     * @param string $at_key
+//     * @param mixed $value
+//     * @param DefinitionInterface $definition
+//     * @param bool $after
+//     * @return $this
+//     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
+//     */
+//    public function injectDataEntryValue(string $at_key, string|float|int|null $value, DefinitionInterface $definition, bool $after = true): static
+//    {
+//        $this->source[$definition->getColumn()] = $value;
+//        $this->definitions->spliceByKey($at_key, 0, [$definition->getColumn() => $definition], $after);
+//        return $this;
+//    }
 
 
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
-     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
-     * @param DataEntryInterface $data_entry
-     * @param string $key
-     * @param bool $strip_meta
+     * @note When $definition is specified as an object, it will completely overwrite the existing object.
+     *
+     * @note When $definition is specified as an array, only the specified entries will overwrite the existing object's
+     *       entries
+     *
+     * @note The entries' name CANNOT be changed here!
+     *
+     * @param string $at_key
+     * @param ElementInterface|ElementsBlockInterface $value
+     * @param DefinitionInterface|array|null $definition
+     * @param bool $after
      * @return $this
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      */
-    public function injectDataEntryAfter(DataEntryInterface $data_entry, string $key, bool $strip_meta = true): static
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static
     {
-        $data_entry   = clone $data_entry;
-        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
-        $this->definitions->spliceByKey($key, 0, $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), true);
+        // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
+        $element_definition = $value->getDefinition()->setContent($value->render());
+        $this->source[$element_definition->getColumn()] = null;
+        $this->definitions->spliceByKey($at_key, 0, [$element_definition->getColumn() => $element_definition], $after);
+
+        if ($definition) {
+            // Apply specified definitions as well
+            if ($definition instanceof DefinitionInterface) {
+                $definition->setColumn($element_definition->getColumn());
+                $this->definitions->get($element_definition->getColumn())->setRules($definition->getRules());
+            } else {
+                // Merge the specified definitions over the existing one
+                $definition = Arrays::removeKeys($definition, 'column');
+                $rules      = $this->definitions->get($element_definition->getColumn())->getRules();
+                $rules      = array_merge($rules, $definition);
+
+                $this->definitions->get($element_definition->getColumn())->setRules($rules);
+            }
+        }
 
         return $this;
     }
@@ -1018,7 +1065,7 @@ abstract class DataEntry implements DataEntryInterface
     public static function getRandom(bool $meta_enabled = false): ?static
     {
         $table = static::getTable();
-        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
+        $identifier = sql(static::getDefaultConnectorName())->getInteger('SELECT `id` FROM `' . $table . '` ORDER BY RAND() LIMIT 1;');
 
         if ($identifier) {
             return static::get($identifier, 'id', $meta_enabled);
@@ -1057,7 +1104,7 @@ abstract class DataEntry implements DataEntryInterface
             $execute[':id'] = $not_id;
         }
 
-        $exists = sql(static::getDefaultConnector())->get('SELECT `id`, `status` 
+        $exists = sql(static::getDefaultConnectorName())->get('SELECT `id`, `status` 
                                                                  FROM   `' . static::getTable() . '` 
                                                                  WHERE  `' . $column . '`   = :identifier
                                                                  ' . ($not_id ? 'AND `id` != :id' : '') . ' 
@@ -1121,7 +1168,7 @@ abstract class DataEntry implements DataEntryInterface
             $execute[':id'] = $id;
         }
 
-        $exists = sql(static::getDefaultConnector())->get('SELECT `id`, `status`
+        $exists = sql(static::getDefaultConnectorName())->get('SELECT `id`, `status`
                                                           FROM   `' . static::getTable() . '` 
                                                           WHERE  `' . $column . '` = :identifier
                                                           ' . ($id ? 'AND `id`   != :id' : '') . ' 
@@ -1319,6 +1366,19 @@ abstract class DataEntry implements DataEntryInterface
     public function getMetaColumns(): array
     {
         return $this->meta_columns;
+    }
+
+
+    /**
+     * Sets the meta-columns for this database entry
+     *
+     * @param array $columns
+     * @return DataEntry
+     */
+    protected function setMetaColumns(array $columns): static
+    {
+        $this->meta_columns = $columns;
+        return $this;
     }
 
 
@@ -1988,8 +2048,8 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getSourceValue(string $key): mixed
     {
-        if (array_key_exists($key, $this->source)) {
-            return $this->source[$key];
+        if ($this->definitions->keyExists($key)) {
+            return isset_get($this->source[$key]);
         }
 
         throw new OutOfBoundsException(tr('Specified key ":key" does not exist in this DataEntry ":class" object', [

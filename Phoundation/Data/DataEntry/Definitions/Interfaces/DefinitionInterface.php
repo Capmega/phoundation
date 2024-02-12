@@ -148,6 +148,17 @@ interface DefinitionInterface
     public function addClasses(array|string $value): static;
 
     /**
+     * Sets specified HTML classes to the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setClasses(array|string $value): static;
+
+    /**
      * Returns if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to true
@@ -403,7 +414,7 @@ interface DefinitionInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getSource(): array|PDOStatement|Stringable|string|null;
+    public function getDataSource(): array|PDOStatement|Stringable|string|null;
 
     /**
      * Sets a data source for the HTML client element contents of this column
@@ -413,7 +424,7 @@ interface DefinitionInterface
      * @param array|PDOStatement|Stringable|string|null $value
      * @return static
      */
-    public function setSource(array|PDOStatement|Stringable|string|null $value): static;
+    public function setDataSource(array|PDOStatement|Stringable|string|null $value): static;
 
     /**
      * Returns variables for the component

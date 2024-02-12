@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -16,6 +17,8 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Stringable;
 
 
@@ -36,7 +39,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return string|null
      */
-    public static function getDefaultConnector(): ?string;
+    public static function getDefaultConnectorName(): ?string;
 
     /**
      * Returns the column considered the "id" column
@@ -488,20 +491,25 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
+     * @param string $at_key
      * @param DataEntryInterface $data_entry
-     * @param string $key
+     * @param bool $after
+     * @param bool $strip_meta
      * @return $this
      */
-    public function injectDataEntryBefore(DataEntryInterface $data_entry, string $key): static;
+    public function injectDataEntry(string $at_key, DataEntryInterface $data_entry, bool $after = true, bool $strip_meta = true): static;
 
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
-     * @param DataEntryInterface $data_entry
-     * @param string $key
+     * @param string $at_key
+     * @param ElementInterface|ElementsBlockInterface $value
+     * @param DefinitionInterface|array|null $definition
+     * @param bool $after
      * @return $this
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
      */
-    public function injectDataEntryAfter(DataEntryInterface $data_entry, string $key): static;
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static;
 
     /**
      * Extracts a DataEntry with the specified columns (in the specified order)

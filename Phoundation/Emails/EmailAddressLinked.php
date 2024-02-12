@@ -134,7 +134,7 @@ class EmailAddressLinked extends DataEntry
                 ->setVisible(false))
             ->add(Definition::new($this, 'type')
                 ->setVisible(false)
-                ->setSource([
+                ->setDataSource([
                     'from' => tr('From'),
                     'to'   => tr('To'),
                     'cc'   => tr('Cc'),

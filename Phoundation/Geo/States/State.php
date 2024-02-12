@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -104,6 +104,7 @@ class State extends DataEntry
     public function getHtmlCitiesSelect(string $name = 'cities_id'): InputSelect
     {
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_cities` 
                                           WHERE `states_id` = :states_id AND `status` IS NULL ORDER BY `name`', [

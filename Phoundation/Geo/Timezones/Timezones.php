@@ -94,6 +94,7 @@ class Timezones extends DataList
     public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
     {
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_timezones` 
                                           WHERE `status` IS NULL ORDER BY `name`')

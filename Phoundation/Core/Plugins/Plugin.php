@@ -353,7 +353,7 @@ class Plugin extends DataEntry implements PluginInterface
         $plugin = parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
         $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
-        $class  = Library::loadClassFile($class);
+        $class  = Library::includeClassFile($class);
 
         return $class::fromSource($plugin->getSource());
     }

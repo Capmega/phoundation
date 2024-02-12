@@ -110,6 +110,7 @@ class SignIns extends DataList
     public function getHtmlSelect(string $value_column = 'created_on', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT    `accounts_signins`.`' . $key_column . '`,
                                                    `accounts_signins`.`' . $value_column . '`,
                                          WHERE     `created_by` = :created_by 

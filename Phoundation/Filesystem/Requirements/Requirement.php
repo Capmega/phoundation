@@ -97,7 +97,7 @@ class Requirement extends DataEntry
                 }))
             ->add(Definition::new($this, 'filesystem')
                 ->setInputType(EnumInputType::select)
-                ->setSource([
+                ->setDataSource([
                     ''             => tr('No requirements'),
                     'ext2'         => tr('EXT2'),
                     'ext3'         => tr('EXT3'),
@@ -127,7 +127,7 @@ class Requirement extends DataEntry
                 ->setHelpText(tr('The filesystem this should use')))
             ->add(Definition::new($this, 'file_type')
                 ->setInputType(EnumInputType::select)
-                ->setSource([
+                ->setDataSource([
                     ''                 => tr('No requirements'),
                     'directory'        => tr('Directory'),
                     'fifo device'      => tr('Fifo device'),

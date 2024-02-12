@@ -7,6 +7,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataColumn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -37,9 +38,6 @@ use ValueError;
  */
 class Definition implements DefinitionInterface
 {
-    use DataColumn;
-
-
     /**
      * The data entry where this definition belongs to
      *
@@ -51,34 +49,6 @@ class Definition implements DefinitionInterface
      * Validations to execute to ensure
      */
     protected array $validations = [];
-
-    /**
-     * The prefix that is automatically added to this value, after validation
-     *
-     * @var string|null $prefix
-     */
-    protected ?string $prefix = null;
-
-    /**
-     * The postfix that is automatically added to this value, after validation
-     *
-     * @var string|null $postfix
-     */
-    protected ?string $postfix = null;
-
-    /**
-     * These keys should not ever be processed
-     *
-     * @var array $meta_columns
-     */
-    protected static array $meta_columns = [
-        'id',
-        'created_by',
-        'created_on',
-        'status',
-        'meta_id',
-        'meta_state',
-    ];
 
     /**
      * Supported input element types
@@ -168,7 +138,7 @@ class Definition implements DefinitionInterface
     public function __construct(?DataEntryInterface $data_entry, ?string $column = null)
     {
         $this->data_entry = $data_entry;
-        $this->column      = $column;
+        $this->setColumn($column);
     }
 
 
@@ -182,6 +152,23 @@ class Definition implements DefinitionInterface
     public static function new(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
     {
         return new static($data_entry, $column);
+    }
+
+
+    /**
+     * Returns the default meta data for DataEntry object
+     *
+     * @return array
+     */
+    final public function getMetaColumns(): array
+    {
+        if ($this->data_entry) {
+            // Return the meta colums from the data entry
+            return $this->data_entry->getMetaColumns();
+        }
+
+        // There is no data entry specified, we don't know anything about meta columns!
+        return [];
     }
 
 
@@ -234,50 +221,71 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the prefix that is automatically added to this value, after validation
+     * Sets the column name for this definition
+     *
+     * @return string|null
+     */
+    public function getColumn(): ?string
+    {
+        return isset_get_typed('string', $this->rules['column']);
+    }
+
+
+    /**
+     * Sets the column name for this definition
+     *
+     * @param string|null $column
+     * @return static
+     */
+    public function setColumn(?string $column): static
+    {
+        return $this->setKey($column, 'column');
+    }
+
+
+    /**
+     * Returns the prefix automatically added to this value, after validation
      *
      * @return string|null
      */
     public function getPrefix(): ?string
     {
-        return $this->prefix;
+        return isset_get_typed('string', $this->rules['prefix']);
     }
 
 
     /**
-     * Sets the prefix that is automatically added to this value, after validation
+     * Sets the prefix automatically added to this value, after validation
      *
      * @param string|null $prefix
      * @return static
      */
     public function setPrefix(?string $prefix): static
     {
-        $this->prefix = $prefix;
-        return $this;
+        return $this->setKey($prefix, 'prefix');
     }
 
 
     /**
-     * Returns the postfix that is automatically added to this value, after validation
+     * Returns the postfix automatically added to this value, after validation
      *
      * @return string|null
      */
     public function getPostfix(): ?string
     {
-        return $this->postfix;
+        return isset_get_typed('string', $this->rules['postfix']);
     }
 
 
     /**
-     * Sets the postfix that is automatically added to this value, after validation
+     * Sets the postfix automatically added to this value, after validation
      *
      * @param string|null $postfix
      * @return static
      */
     public function setPostfix(?string $postfix): static
     {
-        $this->postfix = $postfix;
-        return $this;
+        return $this->setKey($postfix, 'postfix');
     }
 
 
@@ -356,7 +364,7 @@ class Definition implements DefinitionInterface
 
         if ($add_prefixless_names) {
             // Add the column name without prefix as a class name
-            $classes[] = $this->column;
+            $classes[] = $this->getColumn();
         }
 
         return $classes;
@@ -374,10 +382,29 @@ class Definition implements DefinitionInterface
      */
     public function addClasses(array|string $value): static
     {
-        $value   = Arrays::force($value, ' ');
-        $value   = array_merge($this->getClasses(), $value);
+        $value = Arrays::force($value, ' ');
+        $value = array_merge($this->getClasses(), $value);
 
         return $this->setKey($value, 'classes');
+    }
+
+
+    /**
+     * Sets specified HTML classes to the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param IteratorInterface|array|string $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setClasses(IteratorInterface|array|string $value): static
+    {
+        if ($value instanceof IteratorInterface) {
+            $value = $value->getSource();
+        }
+
+        return $this->setKey(Arrays::force($value, ' '), 'classes');
     }
 
 
@@ -417,7 +444,7 @@ class Definition implements DefinitionInterface
      */
     public function isMeta(): bool
     {
-        return in_array($this->column, static::$meta_columns);
+        return in_array($this->getColumn(), static::getMetaColumns());
     }
 
 
@@ -594,7 +621,7 @@ class Definition implements DefinitionInterface
             if ($value !== EnumInputElement::input) {
                 throw new OutOfBoundsException(tr('Cannot set element ":value" for column ":column" as the input type has already been set to ":type" and typed columns can only have the element "input"', [
                     ':value'  => $value?->value,
-                    ':column' => $this->column,
+                    ':column' => $this->getCcolumn(),
                     ':type'   => $this->rules['type']
                 ]));
             }
@@ -891,7 +918,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->column, static::$meta_columns) or isset_get_typed('bool', $this->rules['readonly'], false);
+        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->rules['readonly'], false);
     }
 
 
@@ -966,7 +993,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->column, static::$meta_columns) or isset_get_typed('bool', $this->rules['disabled'], false);
+        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->rules['disabled'], false);
     }
 
 
@@ -1013,7 +1040,7 @@ class Definition implements DefinitionInterface
      */
     public function getSize(): ?int
     {
-        return isset_get_typed('int', $this->rules['size']);
+        return isset_get_typed('int', $this->rules['size'], 12);
     }
 
 
@@ -1028,8 +1055,8 @@ class Definition implements DefinitionInterface
         if ($value) {
             if (($value < 1) or ($value > 12)) {
                 throw new OutOfBoundsException(tr('Invalid size ":value" specified for column ":column", it must be an integer number between 1 and 12', [
-                    ':column' => $this->column,
-                    ':value' => $value
+                    ':column' => $this->getColumn(),
+                    ':value'  => $value
                 ]));
             }
         }
@@ -1068,7 +1095,7 @@ class Definition implements DefinitionInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getSource(): array|PDOStatement|Stringable|string|null
+    public function getDataSource(): array|PDOStatement|Stringable|string|null
     {
         return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->rules['source']);
     }
@@ -1082,7 +1109,7 @@ class Definition implements DefinitionInterface
      * @param array|PDOStatement|Stringable|string|null $value
      * @return static
      */
-    public function setSource(array|PDOStatement|Stringable|string|null $value): static
+    public function setDataSource(array|PDOStatement|Stringable|string|null $value): static
     {
         return $this->setKey($value, 'source');
     }
@@ -1148,15 +1175,15 @@ class Definition implements DefinitionInterface
     {
         if (!array_key_exists('source', $this->rules)) {
             throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", a data query string source must be specified first', [
-                ':column' => $this->column,
-                ':value' => $value
+                ':column' => $this->getColumn(),
+                ':value'  => $value
             ]));
         }
 
         if (is_array($this->rules['source'])) {
             throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", the "source" must be a string query but is an array instead', [
-                ':column' => $this->column,
-                ':value' => $value
+                ':column' => $this->getColumn(),
+                ':value'  => $value
             ]));
         }
 
@@ -1185,7 +1212,7 @@ class Definition implements DefinitionInterface
     {
         if ($value === false) {
             throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
-                ':column' => $this->column,
+                ':column' => $this->getColumn(),
             ]));
         }
 
@@ -1200,8 +1227,8 @@ class Definition implements DefinitionInterface
 
             if (isset($fail)) {
                 throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
-                    ':column' => $this->column,
-                    ':value' => $value
+                    ':column' => $this->getColumn(),
+                    ':value'  => $value
                 ]));
             }
         }
@@ -1219,7 +1246,7 @@ class Definition implements DefinitionInterface
     {
         if (PLATFORM_WEB or !$this->data_entry->isApplying()) {
             // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
-            return $this->column;
+            return $this->getColumn();
         }
 
         // We're on the command line and data is being applied. We're working with data from the $argv command line
@@ -1534,7 +1561,7 @@ class Definition implements DefinitionInterface
     {
         if (isset_get($this->rules['element']) !== 'textarea') {
             throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
-                ':column'   => $this->column,
+                ':column'  => $this->getColumn(),
                 ':element' => $value,
             ]));
         }
@@ -1955,7 +1982,7 @@ class Definition implements DefinitionInterface
                     $validator->sanitizeTrim();
             }
 
-            $source = $this->getSource();
+            $source = $this->getDataSource();
 
             if ($source) {
                 if ($source instanceof SqlQueryInterface) {
@@ -1970,7 +1997,7 @@ class Definition implements DefinitionInterface
 
                 } elseif (is_string($source)) {
                     throw new OutOfBoundsException(tr('Invalid source specified for DataEntry Definition ":column"', [
-                        ':column' => $this->column
+                        ':column' => $this->getColumn()
                     ]));
                 }
 
@@ -2021,15 +2048,15 @@ class Definition implements DefinitionInterface
 
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
-                    ':column'     => $this->column,
+                    ':column'    => $this->getColumn(),
                     ':type'      => $this->rules['type'] ?? 'text',
-                      ':value'     => $value
+                      ':value'   => $value
                 ]));
 
             default:
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
                     ':attribute' => $key,
-                    ':column'     => $this->column,
+                    ':column'    => $this->getColumn(),
                     ':element'   => $this->rules['element'],
                     ':value'     => $value
                 ]));
@@ -2056,7 +2083,7 @@ class Definition implements DefinitionInterface
         if (isset_get($this->rules['element'], 'input') !== 'input') {
             throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for "number" type input elements', [
                 ':attribute' => $key,
-                ':column'    => $this->column,
+                ':column'    => $this->getColumn(),
                 ':element'   => $this->rules['element'],
                 ':value'     => $value
             ]));
@@ -2081,7 +2108,7 @@ class Definition implements DefinitionInterface
             default:
                 throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for "number" type input elements', [
                     ':attribute' => $key,
-                    ':column'     => $this->column,
+                    ':column'    => $this->getColumn(),
                     ':type'      => $this->rules['type'] ?? 'text',
                     ':value'     => $value
                 ]));
@@ -2105,7 +2132,7 @@ class Definition implements DefinitionInterface
             throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for column ":column" as the element must be input (or empty, default) but is ":element"', [
                 ':key'     => $key,
                 ':value'   => $value,
-                ':column'  => $this->column,
+                ':column'  => $this->getColumn(),
                 ':element' => $this->rules['element']
             ]));
         }

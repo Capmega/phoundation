@@ -578,7 +578,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSize(4)
                 ->setLabel('Environment')
                 ->setElement(EnumInputElement::select)
-                ->setSource([
+                ->setDataSource([
                     'production' => tr('Production'),
                     'trial'      => tr('Trial'),
                     'local'      => tr('Local'),
@@ -588,7 +588,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setLabel('Connector type')
                 ->setInputType(null)
                 ->setElement(EnumInputElement::select)
-                ->setSource([
+                ->setDataSource([
                     'sql'       => tr('SQL'),
                     'memcached' => tr('Memcached'),
                     'mongodb'   => tr('MongoDB'),
@@ -600,7 +600,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setLabel('Driver')
                 ->setInputType(null)
                 ->setElement(EnumInputElement::select)
-                ->setSource([
+                ->setDataSource([
                     ''        => tr('Not specified'),
                     'mysql'   => tr('MySQL'),
                     'postgre' => tr('PostGRE'),
@@ -657,7 +657,7 @@ class Connector extends DataEntry implements ConnectorInterface
             ->add(Definition::new($this, 'ssh_tunnels_id')
                 ->setLabel(tr('SSL Tunnel'))
                 ->setOptional(true)
-                ->setSource([
+                ->setDataSource([
 
                 ])
                 ->setInputType(EnumInputType::select)

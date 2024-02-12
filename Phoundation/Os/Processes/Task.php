@@ -1275,7 +1275,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(EnumInputType::select)
                 ->setLabel('Parent task')
-                ->setSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
+                ->setDataSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
@@ -1334,7 +1334,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setVisible(false)
                 ->setInputType(EnumInputType::select)
-                ->setSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
+                ->setDataSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
@@ -1354,7 +1354,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setVisible(false)
                 ->setInputType(EnumInputType::select)
-                ->setSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
+                ->setDataSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
                 ->addValidationFunction(function(ValidatorInterface $validator) {
                     $validator->orColumn('server')->isDbId()->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
                 }))
@@ -1363,7 +1363,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setInputType(EnumInputType::select)
                 ->setLabel('Notify roles')
                 ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
-                ->setSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
+                ->setDataSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
                 ->setSize(4)
                 ->setMaxlength(17)
                 ->addValidationFunction(function(ValidatorInterface $validator) {
@@ -1427,7 +1427,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setOptional(true)
                 ->setInputType(EnumInputType::select)
                 ->setLabel('No cache mode')
-                ->setSource([
+                ->setDataSource([
 
                 ])
                 ->setSize(4)
@@ -1438,7 +1438,7 @@ class Task extends DataEntry implements TaskInterface
                 ->setInputType(EnumInputType::select)
                 ->setLabel('IO nice')
                 ->setCliColumn('[-i,--ionice CLASSNUMBER]')
-                ->setSource([
+                ->setDataSource([
                     0 => 'none',
                     1 => 'realtime',
                     2 => 'best_effort',

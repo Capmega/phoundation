@@ -20,7 +20,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 trait DataEntryDefinitions
 {
     /**
-     * Meta information about the keys in this DataEntry
+     * Meta-information about the keys in this DataEntry
      *
      * @var DefinitionsInterface|null $definitions
      */

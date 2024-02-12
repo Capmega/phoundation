@@ -302,7 +302,7 @@ class Incident extends DataEntry implements IncidentInterface
                 ->setDisabled(true)
                 ->setSize(6)
                 ->setMaxlength(6)
-                ->setSource([
+                ->setDataSource([
                     Severity::notice->value => tr('Notice'),
                     Severity::low->value    => tr('Low'),
                     Severity::medium->value => tr('Medium'),

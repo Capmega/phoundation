@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
 /**
@@ -63,4 +64,19 @@ interface ElementsBlockInterface extends RenderInterface
      * @return bool
      */
     public function hasRendered(): bool;
+
+    /**
+     * Returns the definition
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinition(): ?DefinitionInterface;
+
+    /**
+     * Sets the definition
+     *
+     * @param DefinitionInterface|null $definition
+     * @return static
+     */
+    public function setDefinition(DefinitionInterface|null $definition): static;
 }

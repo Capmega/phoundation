@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
 
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
@@ -144,7 +144,7 @@ class StatusFile
             $data = array_pop($data);
 
             if (str_contains($data, 'patch does not apply')) {
-                throw GitPatchException::new(tr('Failed to apply patch ":patch" to file ":file"', [
+                throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to file ":file"', [
                     ':patch' => isset_get($patch_file),
                     ':file'  => $this->file
                 ]))->addData([

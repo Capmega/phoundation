@@ -194,6 +194,7 @@ class Notifications extends DataList implements NotificationsInterface
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 

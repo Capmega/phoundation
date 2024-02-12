@@ -469,7 +469,7 @@ class Mount extends DataEntry implements MountInterface
             ->add(Definition::new($this, 'filesystem')
                 ->setOptional(true)
                 ->setSize(4)
-                ->setSource([
+                ->setDataSource([
                     ''             => tr('Auto detect'),
                     'ext2'         => tr('EXT2'),
                     'ext3'         => tr('EXT3'),

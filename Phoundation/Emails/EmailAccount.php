@@ -77,7 +77,7 @@ class EmailAccount extends DataEntry
                 ->setVisible(false))
             ->add(Definition::new($this, 'smtp_secure')
                 ->setInputType(EnumInputType::text)
-                ->setSource(['tls' => tr('TLS')])
+                ->setDataSource(['tls' => tr('TLS')])
                 ->setVisible(false))
             ->add(DefinitionFactory::getName($this)
                 ->setSize(3))

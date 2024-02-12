@@ -525,6 +525,7 @@ class Users extends DataList implements UsersInterface
         }
 
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
                                          FROM  `accounts_users`
                                          WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')

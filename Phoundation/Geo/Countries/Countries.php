@@ -94,6 +94,7 @@ class Countries extends DataList
     public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
     {
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_countries` 
                                           WHERE `status` IS NULL ORDER BY `name`')

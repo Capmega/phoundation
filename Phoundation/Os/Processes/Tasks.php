@@ -125,6 +125,7 @@ class Tasks extends DataList implements TasksInterface
         }
 
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
