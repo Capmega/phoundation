@@ -321,13 +321,11 @@ class Phoundation extends Project
                         break;
 
                     } catch (GitPatchFailedException $e) {
-show('aaaaaaaaaaaaaaaaaaaaaaaaa');
                         // Fork me, the patch failed on one or multiple files. Stash those files and try again to patch
                         // the rest of the files that do apply
                         $files = $e->getDataKey('files');
                         $git   = Git::new(DIRECTORY_ROOT);
 
-show($files);
                         if ($files) {
                             Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
                                 ':count' => count($files),
@@ -377,7 +375,6 @@ show($files);
 //                        }
                         }
                     }
-showdie('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
 
                     if ($checkout) {
                         // Checkout files locally in the specified sections so that these changes are removed from the project

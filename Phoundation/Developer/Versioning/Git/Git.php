@@ -90,7 +90,6 @@ class Git extends Versioning implements GitInterface
     {
         $this->directory = Filesystem::absolute($directory);
         $this->git       = Process::new('git')
-            ->setDebug(true)
             ->setExecutionDirectory($this->directory)
             ->setTimeout(300);
 
