@@ -47,7 +47,7 @@ interface DefinitionInterface
      *
      * @return array
      */
-    public function getRules(): array;
+    public function getSource(): array;
 
     /**
      * Sets all the internal definitions for this column in one go
@@ -55,7 +55,7 @@ interface DefinitionInterface
      * @param array $rules
      * @return static
      */
-    public function setRules(array $rules): static;
+    public function setSource(array $rules): static;
 
     /**
      * Returns the prefix that is automatically added to this value, after validation

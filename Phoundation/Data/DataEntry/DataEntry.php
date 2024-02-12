@@ -539,14 +539,14 @@ abstract class DataEntry implements DataEntryInterface
             // Apply specified definitions as well
             if ($definition instanceof DefinitionInterface) {
                 $definition->setColumn($element_definition->getColumn());
-                $this->definitions->get($element_definition->getColumn())->setRules($definition->getRules());
+                $this->definitions->get($element_definition->getColumn())->setSource($definition->getSource());
             } else {
                 // Merge the specified definitions over the existing one
                 $definition = Arrays::removeKeys($definition, 'column');
-                $rules      = $this->definitions->get($element_definition->getColumn())->getRules();
+                $rules      = $this->definitions->get($element_definition->getColumn())->getSource();
                 $rules      = array_merge($rules, $definition);
 
-                $this->definitions->get($element_definition->getColumn())->setRules($rules);
+                $this->definitions->get($element_definition->getColumn())->setSource($rules);
             }
         }
 

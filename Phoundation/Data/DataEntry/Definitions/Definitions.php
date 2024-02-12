@@ -92,6 +92,21 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
+     * Returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool $exception
+     * @return DefinitionInterface
+     */
+    public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
+    {
+        // Rename Definition in Iterator and Definition object itself
+        return parent::rename($key, $target, $exception)->setColumn($target);
+    }
+
+
+    /**
      * Direct method to hide entries
      *
      * @param Stringable|string|float|int $key

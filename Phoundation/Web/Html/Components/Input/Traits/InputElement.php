@@ -184,7 +184,7 @@ trait InputElement
     public static function newFromDataEntryField(DefinitionInterface $field): static
     {
         $element    = new static();
-        $attributes = $field->getRules();
+        $attributes = $field->getSource();
 
         // Set all attributes from the definitions file
         foreach($attributes as $key => $value) {

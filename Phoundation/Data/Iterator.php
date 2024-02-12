@@ -9,7 +9,9 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Databases\Sql\Limit;
@@ -1232,5 +1234,34 @@ class Iterator implements IteratorInterface
     {
         $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
         return $this;
+    }
+
+
+    /**
+     * Renames and returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool $exception
+     * @return DefinitionInterface
+     */
+    #[ReturnTypeWillChange] public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed
+    {
+        // First, ensure the target doesn't exist yet!
+        if (array_key_exists($target, $this->source)) {
+            throw new IteratorException(tr('Cannot rename key ":key" to target ":target", the target key already exists', [
+                ':key'    => $key,
+                ':target' => $target,
+            ]));
+        }
+
+        // Then, get the definition
+        $entry = $this->get($key, $exception);
+
+        // Now rename
+        $this->source[$target] = $this->source[$key];
+
+        // Done, return!
+        return $entry;
     }
 }

@@ -7,12 +7,12 @@ namespace Phoundation\Data\Interfaces;
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Utils;
 use ReturnTypeWillChange;
 use Stringable;
+
 
 /**
  * Class Iterator
@@ -538,4 +538,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static;
+
+    /**
+     * Renames and returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed;
 }
