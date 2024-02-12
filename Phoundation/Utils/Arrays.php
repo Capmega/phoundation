@@ -14,6 +14,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
+use Stringable;
 use Throwable;
 use UnitEnum;
 
@@ -2049,6 +2050,25 @@ class Arrays extends Utils
         }
 
         return explode($separator, $source);
+    }
+
+
+    /**
+     * Ensures the source is split into an array.
+     *
+     * If specified source is an array, the method will assume it has already been split
+     *
+     * @param array|Stringable|string $source
+     * @param int $length
+     * @return array
+     */
+    public static function forceSplit(array|Stringable|string $source, int $length = 1): array
+    {
+        if (is_array($source)) {
+            return $source;
+        }
+
+        return str_split($source, $length);
     }
 
 
