@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Libraries;
 
 use Error;
+use Phoundation\Core\Core;
 use Phoundation\Core\Enums\Interfaces\EnumLibraryTypeInterface;
 use Phoundation\Core\Libraries\Exception\LibrariesException;
 use Phoundation\Core\Libraries\Exception\LibraryExistsException;
@@ -431,14 +432,19 @@ class Library implements LibraryInterface
 
 
     /**
-     * Get the .php file for the specified class path
+     * Includes the .php file for the specified class path and returns the specified class path
      *
      * @param object|string $class_path
-     * @param bool $check_php
+     * @param bool|null $check_php
      * @return string
      */
-    public static function loadClassFile(object|string $class_path, bool $check_php = true): string
+    public static function includeClassFile(object|string $class_path, ?bool $check_php = null): string
     {
+        if ($check_php === null) {
+            // PHP check only done on non-production environments (on production we want to save the CPU cycles)
+            $check_php = !Core::isProductionEnvironment();
+        }
+
         $file = Library::getClassFile($class_path, $check_php);
         Log::action(tr('Including class file ":file"', [':file' => $file]), 2);
         include_once($file);
