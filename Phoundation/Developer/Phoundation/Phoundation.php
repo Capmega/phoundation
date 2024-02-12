@@ -375,28 +375,28 @@ class Phoundation extends Project
 //                        }
                         }
                     }
-
-                    if ($checkout) {
-                        // Checkout files locally in the specified sections so that these changes are removed from the project
-                        // Clean files locally in the specified sections so that new files are removed from the project
-                        Git::new(DIRECTORY_ROOT)
-                            ->checkout($sections)
-                            ->clean($sections, true, true);
-                    }
-
-                    if ($stash->getCount()) {
-                        $bad_files = clone $stash;
-
-                        // Whoopsie, we have shirts in stash, meaning some file was naughty.
-                        Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $files]));
-                        Git::new(DIRECTORY_ROOT)->getStash()->pop();
-
-                        throw PatchPartiallySuccessfulException::new(tr('Phoundation patch was partially successful, some files failed'))
-                            ->addData([
-                                'files' => $bad_files
-                            ]);
-                    }
                 }
+            }
+
+            if ($checkout) {
+                // Checkout files locally in the specified sections so that these changes are removed from the project
+                // Clean files locally in the specified sections so that new files are removed from the project
+                Git::new(DIRECTORY_ROOT)
+                    ->checkout($sections)
+                    ->clean($sections, true, true);
+            }
+
+            if ($stash->getCount()) {
+                $bad_files = clone $stash;
+
+                // Whoopsie, we have shirts in stash, meaning some file was naughty.
+                Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $files]));
+                Git::new(DIRECTORY_ROOT)->getStash()->pop();
+
+                throw PatchPartiallySuccessfulException::new(tr('Phoundation patch was partially successful, some files failed'))
+                    ->addData([
+                        'files' => $bad_files
+                    ]);
             }
 
         } catch (GitHasChangesException $e) {
