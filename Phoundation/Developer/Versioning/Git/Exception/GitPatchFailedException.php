@@ -15,6 +15,6 @@ namespace Phoundation\Developer\Versioning\Git\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class GitPatchException extends GitException
+class GitPatchFailedException extends GitException
 {
 }

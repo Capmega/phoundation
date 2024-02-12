@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Stringable;
 
@@ -52,4 +53,19 @@ interface ElementInterface extends RenderInterface
      * @return static
      */
     public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+
+    /**
+     * Returns the definition
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinition(): ?DefinitionInterface;
+
+    /**
+     * Sets the definition
+     *
+     * @param DefinitionInterface|null $definition
+     * @return static
+     */
+    public function setDefinition(DefinitionInterface|null $definition): static;
 }

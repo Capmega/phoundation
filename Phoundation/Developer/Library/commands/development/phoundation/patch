@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Utils\Arrays;
 
 
@@ -25,6 +25,19 @@ use Phoundation\Utils\Arrays;
  * @category Function reference
  * @package Phoundation\Development
  */
+// TODO Improve autocomplete, --branch should show branch options
+CliDocumentation::autoComplete([
+    'arguments' => [
+        '-b,--branch' => true,
+        '-m,--message' => true,
+        '-c,--no-checkout' => false,
+        '--no-phoundation' => false,
+        '-n,--no-plugins' => false,
+        '-u,--no-update' => false,
+        '-p,--phoundation' => true,
+        '-s,--signed' => false
+    ]
+]);
 
 CliDocumentation::usage('./pho project update [OPTIONS]
 ./pho system development phoundation patch -b BRANCH
@@ -35,28 +48,26 @@ CliDocumentation::usage('./pho project update [OPTIONS]
 CliDocumentation::help('This command will update your Phoundation libraries and list
 
 
-
 ARGUMENTS
 
 
+[-b,--branch BRANCH]                    The branch from which to update
 
-[-b / --branch]                         The branch from which to update
+[-m,--message MESSAGE]                  The git commit message for this update. If not specified, a default will be used
 
-[-c / --no-checkout]                    If specified will not automatically checkout (and thus remove) the local changes
-
-[-m / --message]                        The git commit message for this update. If not specified, a default will be used
-
-[-s / --signed]                         If specified will make a signed commit. This requires your git setup to be
-                                        configured correctly for this
-
-[-p / --phoundation PATH]               If specified should contain the path to your local Phoundation installation
-
-[-n / --no-plugins]                     If specified will not patch the plugins
+[-c,--no-checkout]                      If specified will not automatically checkout (and thus remove) the local changes
 
 [--no-phoundation]                      If specified will not patch the Phoundation core libraries
 
-[-u / --no-update]                      If specified will not perform a system update before executing the patching
-                                        process');
+[-n,--no-plugins]                       If specified will not patch the plugins
+
+[-u,--no-update]                        If specified will not perform a system update before executing the patching
+                                        process
+
+[-p,--phoundation PATH]                 If specified should contain the path to your local Phoundation installation
+
+[-s,--signed]                           If specified will make a signed commit. This requires your git setup to be
+                                        configured correctly for this');
 
 
 
@@ -104,8 +115,8 @@ try {
         Plugins::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
     }
 
-}catch (GitPatchException|PatchPartiallySuccessfulException $e) {
-    $files = $e->getData();
+}catch (GitPatchFailedException|PatchPartiallySuccessfulException $e) {
+    $files = $e->getDataKey('files');
 
     if ($files) {
         Log::warning(tr('Failed to merge the following files:'));

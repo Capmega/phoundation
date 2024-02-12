@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -31,6 +32,7 @@ trait ElementAttributes
 {
     use DataDefinition {
         setDefinition as protected __setDefinition;
+        getDefinition as protected __getDefinition;
     }
 
 
@@ -841,6 +843,27 @@ trait ElementAttributes
 
 
     /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface
+     */
+    public function getDefinition(): DefinitionInterface
+    {
+        if (!$this->definition) {
+            $this->__setDefinition(Definition::new(null, $this->getName())
+                ->setClasses($this->getClasses())
+                ->setDisabled($this->getDisabled())
+                ->setReadOnly($this->getReadonly())
+                ->setAutoFocus($this->getAutoFocus()));
+        }
+
+        return $this->__getDefinition();
+    }
+
+
+    /**
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $definition
@@ -851,10 +874,10 @@ trait ElementAttributes
         if ($definition) {
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
-                 ->setClasses($definition->getClasses())
-                 ->setDisabled((bool) $definition->getDisabled())
-                 ->setReadOnly((bool) $definition->getReadonly())
-                 ->setAutoFocus($definition->getAutoFocus());
+                ->setClasses($definition->getClasses())
+                ->setDisabled($definition->getDisabled())
+                ->setReadOnly($definition->getReadonly())
+                ->setAutoFocus($definition->getAutoFocus());
         }
 
         return $this->__setDefinition($definition);

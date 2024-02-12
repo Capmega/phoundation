@@ -13,6 +13,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -40,9 +41,9 @@ class Git extends Versioning implements GitInterface
     /**
      * The git process
      *
-     * @var Process $git
+     * @var ProcessInterface $git
      */
-    protected Process $git;
+    protected ProcessInterface $git;
 
 
     /**
@@ -89,6 +90,7 @@ class Git extends Versioning implements GitInterface
     {
         $this->directory = Filesystem::absolute($directory);
         $this->git       = Process::new('git')
+            ->setDebug(true)
             ->setExecutionDirectory($this->directory)
             ->setTimeout(300);
 

@@ -348,6 +348,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         // Create and return the table
         return HtmlTable::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
@@ -377,6 +378,7 @@ abstract class DataList extends Iterator implements DataListInterface
 
         // Create and return the table
         return HtmlDataTable::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
@@ -396,7 +398,8 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        $select = InputSelect::new();
+        $select  = InputSelect::new();
+        $execute = [];
 
         if ($this->is_loaded or count($this->source)) {
             // Data was either loaded from DB or manually added. $value_column may contain query parts, strip em.
@@ -411,6 +414,8 @@ abstract class DataList extends Iterator implements DataListInterface
                       ' . Strings::force($joins, ' ');
 
             if ($filters) {
+                $where = [];
+
                 foreach ($filters as $key => $value) {
                     $where[] = $key . Sql::is($key, $value, 'value', $execute);
                 }
@@ -429,7 +434,9 @@ abstract class DataList extends Iterator implements DataListInterface
             }
 
             // No data was loaded from DB or manually added
-            $select->setSourceQuery($query, $execute);
+            $select
+                ->setConnector(static::getDefaultConnectorName())
+                ->setSourceQuery($query, $execute);
         }
 
         return $select;
@@ -801,7 +808,6 @@ abstract class DataList extends Iterator implements DataListInterface
         }
 
         $this->source = sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : static::getIdColumn());
-
         return $this;
     }
 

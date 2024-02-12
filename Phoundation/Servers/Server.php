@@ -547,7 +547,7 @@ showdie('fuck!');
                 ->setSize(4)
                 ->setLabel(tr('Payment interval'))
                 ->setCliColumn('-i,--interval POSITIVE-INTEGER')
-                ->setSource([
+                ->setDataSource([
                     'hourly'     => tr('Hourly'),
                     'daily'      => tr('Daily'),
                     'weekly'     => tr('Weekly'),
@@ -651,7 +651,7 @@ showdie('fuck!');
                 ->setLabel(tr('Operating system'))
                 ->setCliColumn('-o,--os-name OPERATING-SYSTEM-NAME')
                 ->setCliAutoComplete(true)
-                ->setSource([
+                ->setDataSource([
                     'debian'    => tr('Debian'),
                     'ubuntu'    => tr('Ubuntu'),
                     'redhat'    => tr('Redhat'),

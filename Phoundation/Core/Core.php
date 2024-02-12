@@ -2847,7 +2847,7 @@ die($errfile. $errline);
                             } elseif (is_string($function[0])) {
                                 if (is_string($function[1])) {
                                     // Ensure the class file is loaded
-                                    Library::loadClassFile($function[0]);
+                                    Library::includeClassFile($function[0]);
 
                                     // Execute this shutdown function with the specified value
                                     $function[0]::{$function[1]}($value);

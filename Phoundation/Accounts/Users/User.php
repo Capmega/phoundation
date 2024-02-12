@@ -246,7 +246,7 @@ class User extends DataEntry implements UserInterface
             return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsException $e) {
-            if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
+            if ((static::getDefaultConnectorName() === 'system') and (static::getTable() === 'accounts_users')) {
                 if ($column === 'email') {
                     // Try to find the user by alternative email address
                     $user = sql()->get('SELECT `users_id`, `verified_on`
@@ -1770,7 +1770,7 @@ class User extends DataEntry implements UserInterface
                 ->setElement(EnumInputElement::select)
                 ->setSize(3)
                 ->setCliColumn('-g,--gender')
-                ->setSource([
+                ->setDataSource([
                     ''       => tr('Select a gender'),
                     'male'   => tr('Male'),
                     'female' => tr('Female'),
@@ -1980,7 +1980,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
             ->add(DefinitionFactory::getUrl($this, 'redirect')
                 ->setSize(3)
-                ->setSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
                 ->setInputType(EnumInputTypeExtended::auto_suggest)
                 ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
                 ->setLabel(tr('Redirect URL'))
@@ -1988,7 +1988,7 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
             ->add(DefinitionFactory::getUrl($this, 'default_page')
                 ->setSize(3)
-                ->setSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
                 ->setInputType(EnumInputTypeExtended::auto_suggest)
                 ->setLabel(tr('Default page'))
                 ->setHelpGroup(tr('Preferences'))

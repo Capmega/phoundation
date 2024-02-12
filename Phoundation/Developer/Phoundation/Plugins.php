@@ -11,7 +11,7 @@ use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulExceptio
 use Phoundation\Developer\Phoundation\Exception\PhoundationPluginsNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
@@ -363,7 +363,7 @@ class Plugins extends Project
                                 }
                             } else {
                                 // Other unknown error
-                                throw new GitPatchException(tr('Encountered unknown patch exception'), $e);
+                                throw new GitPatchFailedException(tr('Encountered unknown patch exception'), $e);
                             }
                         }
                     }
