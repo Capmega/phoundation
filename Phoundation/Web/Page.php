@@ -1417,6 +1417,7 @@ class Page implements PageInterface
 
         // Clear flash messages
         Session::getFlashMessages()->clear();
+        Page::getFlashMessages()->clear();
 
         // Modify POST requests to GET requests and remove all GET and POST data
         $_SERVER['REQUEST_METHOD'] = 'GET';
