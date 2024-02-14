@@ -51,12 +51,13 @@ $argv = ArgvValidator::new()
 $user  = Users::new();
 $query = $user->getQueryBuilder()
     ->addSelect('`accounts_users`.`id`, 
-                       `accounts_users`.`email`, 
-                       IFNULL(`accounts_users`.`status`, "' . tr('Ok') . '") AS `status`, 
-                       GROUP_CONCAT(CONCAT(UPPER(LEFT(`roles`.`name`, 1)), SUBSTRING(`roles`.`name`, 2)) SEPARATOR ", ") AS `roles` ')
+                 `accounts_users`.`email`, 
+                 IFNULL(`accounts_users`.`status`, "' . tr('Ok') . '") AS `status`, 
+                 GROUP_CONCAT(CONCAT(UPPER(LEFT(`roles`.`name`, 1)), SUBSTRING(`roles`.`name`, 2)) SEPARATOR ", ") AS `roles` ')
     ->addJoin('LEFT JOIN `accounts_users_roles` AS `users_roles` ON `users_roles`.`users_id` = `accounts_users`.`id`')
     ->addJoin('LEFT JOIN `accounts_roles` AS `roles` ON `roles`.`id` = `users_roles`.`roles_id`')
-    ->addGroupBy('`id`, `email`, `status`');
+    ->addGroupBy('`id`, `email`, `status`')
+    ->addOrderBy('`accounts_users`.`email`');
 
 if ($argv['roles']) {
     $roles = Sql::in($argv['roles']);

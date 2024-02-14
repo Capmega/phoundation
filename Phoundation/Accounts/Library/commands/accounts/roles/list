@@ -41,15 +41,16 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-$user  = Roles::new();
-$query = $user->getQueryBuilder()
+$roles = Roles::new();
+$query = $roles->getQueryBuilder()
     ->addSelect('`accounts_roles`.`id`, 
-                       `accounts_roles`.`name`, 
-                       IFNULL(`accounts_roles`.`status`, "' . tr('Ok') . '") AS `status`, 
-                       GROUP_CONCAT(CONCAT(UPPER(LEFT(`rights`.`name`, 1)), SUBSTRING(`rights`.`name`, 2)) SEPARATOR ", ") AS `rights` ')
+                 `accounts_roles`.`name`, 
+                 IFNULL(`accounts_roles`.`status`, "' . tr('Ok') . '") AS `status`, 
+                 GROUP_CONCAT(CONCAT(UPPER(LEFT(`rights`.`name`, 1)), SUBSTRING(`rights`.`name`, 2)) SEPARATOR ", ") AS `rights` ')
     ->addJoin('LEFT JOIN `accounts_roles_rights` AS `roles_rights` ON `roles_rights`.`roles_id` = `accounts_roles`.`id`')
     ->addJoin('LEFT JOIN `accounts_rights` AS `rights` ON `rights`.`id` = `roles_rights`.`rights_id`')
-    ->addGroupBy('`id`, `name`, `status`');
+    ->addGroupBy('`id`, `name`, `status`')
+    ->addOrderBy('`accounts_roles`.`name`');
 
 if ($argv['rights']) {
     $rights = Sql::in($argv['rights']);
@@ -64,4 +65,4 @@ if ($argv['status']) {
     $query->addWhere('`accounts_roles`.`status` IS NULL');
 }
 
-$user->displayCliTable();
+$roles->displayCliTable();
