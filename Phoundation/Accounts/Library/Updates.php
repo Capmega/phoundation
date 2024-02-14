@@ -729,6 +729,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setDescription('This right will give the user access to the audit information system of the site')
                 ->save();
 
+            $test = Right::new('Test', 'name')
+                ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
+                ->save();
+
+            $demo = Right::new('Demo', 'name')
+                ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
+                ->save();
+
+            Role::new('Test', 'name')
+                ->setDescription('This role gives the user the test right. See demo right for more information.')
+                ->save()
+                ->getRights()
+                ->add($test);
+
+            Role::new('Demo', 'name')
+                ->setDescription('This role gives the user the demo right. See demo right for more information.')
+                ->save()
+                ->getRights()
+                ->add($demo);
+
             // Define basic roles
             Role::new('God', 'name')
                 ->setName('God')
