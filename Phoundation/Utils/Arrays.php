@@ -10,6 +10,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Enums\EnumMatchMode;
@@ -3245,5 +3246,38 @@ class Arrays extends Utils
         throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or a DataEntryInterface type object', [
             ':value' => $value
         ]));
+    }
+
+
+    /**
+     * Quotes all string entries in the specified source array
+     *
+     * @note Any non-scalar entries will be ignored
+     * @note If the specified source is an array, an array will be returned. If the specified source is an
+     *       IteratorInterface object, an IteratorInterface object will be returned
+     * @param IteratorInterface|array $source
+     * @param string $quote
+     * @return IteratorInterface|array
+     */
+    public static function quote(IteratorInterface|array $source, string $quote = "'"): IteratorInterface|array
+    {
+        if (is_object($source)) {
+            $iterator = true;
+            $source   = $source->getSource();
+        }
+
+        foreach ($source as &$value) {
+            if (is_string($value)) {
+                $value = Strings::quote($value, $quote);
+            }
+        }
+
+        unset($value);
+
+        if (isset($iterator)) {
+            return Iterator::new($source);
+        }
+
+        return $source;
     }
 }
