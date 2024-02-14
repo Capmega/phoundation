@@ -522,14 +522,6 @@ interface PathInterface
     public function append(string $data, ?int $length = null): static;
 
     /**
-     * Create the specified file
-     *
-     * @param bool $force
-     * @return static
-     */
-    public function create(bool $force = false): static;
-
-    /**
      * Sets access and modification time of file
      *
      * @return $this
