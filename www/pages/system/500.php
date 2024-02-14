@@ -36,10 +36,7 @@ switch (Core::getRequestType()) {
 }
 
 
-// Add this exception as a flash message
-Page::getFlashMessages()->addMessage($e);
-
-
+// Build the error page
 echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '500',
     ':h3'     => tr('500 Internal Server Error'),
