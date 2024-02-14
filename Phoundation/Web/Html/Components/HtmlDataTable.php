@@ -1230,8 +1230,6 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         $render = Script::new()
             ->setJavascriptWrapper(JavascriptWrappers::dom_content)
             ->setContent($content . '
-
-
                 $("#' . Html::safe($id) . '").DataTable({
                   ' . implode(', ' . PHP_EOL, $options) . '
                 })

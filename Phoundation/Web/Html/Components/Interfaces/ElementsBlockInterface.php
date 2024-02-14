@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 
-use Phoundation\Web\Html\Components\ElementsBlock;
 
 /**
- * Class ElementsBlock
+ * interface ElementsBlockInterface
  *
  *
  *
@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ElementsBlockInterface
+interface ElementsBlockInterface extends IteratorInterface
 {
     /**
      * Sets the content of the element to display
