@@ -791,15 +791,16 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
+     * @param bool $no_identifier_exception
      * @return static|null
      */
-    public static function getOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
+    public static function getOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): ?static
     {
        if ($identifier === null) {
            return null;
        }
 
-       return static::get($identifier, $column, $meta_enabled, $force);
+       return static::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
     }
 
 
