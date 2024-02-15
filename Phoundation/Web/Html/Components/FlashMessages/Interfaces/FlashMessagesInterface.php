@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\FlashMessages\Interfaces;
 
-
 use Phoundation\Exception\Exception;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Stringable;
 
+
 /**
- * Class FlashMessages
+ * Interface FlashMessagesInterface
  *
  * This class tracks HTML flash messages and can render each message and return HTML code.
  *
@@ -20,7 +21,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface FlashMessagesInterface
+interface FlashMessagesInterface extends ElementsBlockInterface
 {
     /**
      * This method will move all messages from the specified FlashMessages object here.

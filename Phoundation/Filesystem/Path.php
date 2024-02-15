@@ -2135,38 +2135,6 @@ class Path implements Stringable, PathInterface
 
 
     /**
-     * Create the specified file
-     *
-     * @param bool $force
-     * @return static
-     */
-    public function create(bool $force = false): static
-    {
-        if ($this->exists()) {
-            if (!$force) {
-                throw new FileExistsException(tr('Cannot create file ":file", it already exists', [
-                    ':file' => $this->path
-                ]));
-            }
-        }
-
-        if ($this->isOpen()) {
-            // Yeah, so it exists anyway because we have it open. Perhaps the file was removed while open, so the inode
-            // is still there?
-            if (!$force) {
-                throw new FileExistsException(tr('Cannot create file ":file", it does not exist, but is open. Perhaps the file was deleted but the open inode is still there?', [
-                    ':file' => $this->path
-                ]));
-            }
-
-            $this->close();
-        }
-
-        return $this->touch();
-    }
-
-
-    /**
      * Sets access and modification time of file
      *
      * @return $this

@@ -171,7 +171,7 @@ class Role extends DataEntry implements RoleInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);

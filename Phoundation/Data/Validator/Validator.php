@@ -1566,36 +1566,91 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Returns the given date sanitized if the specified date matches any of the specified formats, NULL otherwise
+     *
+     * @param string $date
+     * @param array $formats
+     * @return string|null
+     */
+    protected static function dateMatchesFormats(string $date, array $formats): ?string
+    {
+        // We must be able to create a date object using the given formats without failure, and the resulting date
+        // must be the same as the specified date
+        $given = static::normalizeDate($date);
+
+        foreach ($formats as $format) {
+            try {
+                // Create DateTime object
+                $format = static::normalizeDate($format);
+                $value  = DateTime::createFromFormat($format, $given);
+
+                if ($value) {
+                    // DateTime object created successfully! Now get a dateformat, and normalize it
+                    $test = static::normalizeDate($value->format($format));
+
+                    // Test the normalized test DateTime against the specified normalized date time string
+                    if ($test === $given) {
+                        return $given;
+                    }
+                }
+
+                // Yeah, this is not a valid date, try again
+
+            } catch (Throwable) {
+                // Yeah, this is not a valid date, try again
+            }
+        }
+
+        // Nothing matched
+        return null;
+    }
+
+
+    /**
+     * Ensures that the date only uses - as element separators, will replace " ", "-", "_", "/", "\"
+     *
+     * @param string $date
+     * @return string
+     */
+    protected static function normalizeDate(string $date): string
+    {
+        return str_replace([' ', '-', '_', '/', '\\'], '-', $date);
+    }
+
+
+    /**
      * Validates that the selected field is a date
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @param array|string|null $formats
      * @return static
+     * @todo Add locale support instead , see https://www.php.net/manual/en/book.intl.php and https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      */
-    public function isDate(): static
+    public function isDate(array|string|null $formats = null): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+        return $this->validateValues(function(&$value) use ($formats) {
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            // Must match regex
-            if (strtotime($value)) {
-                // Must be able to create date object without failure
-                try {
-                    if (strtotime($value) !== false) {
-                        return;
-                    }
-                    // Yeah, this is not a valid date
-
-                } catch (Throwable) {
-                    // Yeah, this is not a valid date
-                }
+            // Ensure we have formats to work with
+            if (!$formats) {
+                // Default to a number of acceptable formats
+                $formats = Config::get('locale.dates.formats', ['Y-m-d', 'd-m-Y']);
             }
 
-            $this->addFailure(tr('must be a valid date'));
+            $formats = Arrays::force($formats, null);
+
+
+            // We must be able to create a date object using the given formats without failure, and the resulting date
+            // must be the same as the specified date
+            if (!static::dateMatchesFormats($value, $formats)) {
+                $this->addFailure(tr('must be a valid date'));
+            }
         });
     }
 
@@ -1604,11 +1659,12 @@ abstract class Validator implements ValidatorInterface
      * Validates that the selected field is a date
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @param array|string|null $formats
      * @return static
      */
-    public function isTime(): static
+    public function isTime(array|string|null $formats = null): static
     {
-        return $this->validateValues(function(&$value) {
+        return $this->validateValues(function(&$value) use ($formats) {
             $this->hasMaxCharacters(15); // 00:00:00.000000
 
             if ($this->process_value_failed) {
@@ -1616,15 +1672,24 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (!is_object(DateTime::createFromFormat('h:i a', $value))){
-                if (!is_object(DateTime::createFromFormat('H:i', $value))){
-                    if (!is_object(DateTime::createFromFormat('h:i:s a', $value))){
-                        if (!is_object(DateTime::createFromFormat('H:i:s', $value))){
-                            $this->addFailure(tr('must be a valid time'));
-                        }
-                    }
+            // Ensure we have formats to work with
+            if (!$formats) {
+                // Default to a number of acceptable formats
+                $formats = Config::get('locale.dates.formats', ['h:i a', 'H:i', 'h:i:s a', 'H:i:s']);
+            }
+
+            $formats = Arrays::force($formats, null);
+
+
+            // Validate the user time against all allowed formats
+            foreach ($formats as $format) {
+                if (is_object(DateTime::createFromFormat($format, $value))) {
+                    // The specified time matches one of the allowed formats
+                    return;
                 }
             }
+
+            $this->addFailure(tr('must be a valid time'));
         });
     }
 
@@ -1633,33 +1698,35 @@ abstract class Validator implements ValidatorInterface
      * Validates that the selected field is a date time field
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @todo Add locale support, see https://www.php.net/manual/en/book.intl.php and https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
+     * @param array|string|null $formats
      * @return static
      */
-    public function isDateTime(): static
+    public function isDateTime(array|string|null $formats = null): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+        return $this->validateValues(function(&$value) use ($formats) {
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            // Must match regex
-            if (strtotime($value)) {
-                // Must be able to create date object without failure
-                try {
-                    if (strtotime($value) !== false) {
-                        return;
-                    }
-                    // Yeah, this is not a valid date
-
-                } catch (Throwable) {
-                    // Yeah, this is not a valid date
-                }
+            // Ensure we have formats to work with
+            if (!$formats) {
+                // Default to a number of acceptable formats
+                $formats = Config::get('locale.dates.formats', ['Y-m-d H:i:s', 'd-m-Y H:i:s']);
             }
 
-            $this->addFailure(tr('must be a valid date time'));
+            $formats = Arrays::force($formats, null);
+
+
+            // We must be able to create a date object using the given formats without failure, and the resulting date
+            // must be the same as the specified date
+            if (!static::dateMatchesFormats($value, $formats)) {
+                $this->addFailure(tr('must be a valid date time'));
+            }
         });
     }
 
@@ -1673,7 +1740,8 @@ abstract class Validator implements ValidatorInterface
     public function isBefore(?DateTime $before = null): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1697,7 +1765,8 @@ abstract class Validator implements ValidatorInterface
     public function isAfter(?DateTime $after = null): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1726,7 +1795,8 @@ abstract class Validator implements ValidatorInterface
     public function isCreditCard(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1801,7 +1871,8 @@ abstract class Validator implements ValidatorInterface
     public function isTimezone(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(64); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(64);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more

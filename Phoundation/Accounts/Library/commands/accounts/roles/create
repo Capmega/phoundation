@@ -31,7 +31,9 @@ ARGUMENTS
 
 NAME                                    The name for the role
 
-[-d / --description]                    The description for the role');
+[-d,--description]                      The description for the role
+
+[-r,--rights,--right "RIGHT RIGHT..."]  The rights associated wit this role');
 
 
 // Validate arguments

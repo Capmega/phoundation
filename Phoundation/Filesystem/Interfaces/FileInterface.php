@@ -332,4 +332,12 @@ interface FileInterface extends PathInterface
      * @return $this
      */
     public function ensureLineEndings(string $line_endings = PHP_EOL): static;
+
+    /**
+     * Create the specified file
+     *
+     * @param bool $force
+     * @return static
+     */
+    public function create(bool $force = false): static;
 }

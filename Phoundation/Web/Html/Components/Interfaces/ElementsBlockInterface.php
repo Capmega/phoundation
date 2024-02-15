@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Interfaces;
 
-
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 
+
 /**
- * Class ElementsBlock
+ * interface ElementsBlockInterface
  *
  *
  *
@@ -18,7 +19,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface ElementsBlockInterface extends RenderInterface
+interface ElementsBlockInterface extends RenderInterface, IteratorInterface
 {
     /**
      * Sets the content of the element to display
