@@ -36,9 +36,10 @@ interface RolesInterface extends DataListInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Remove the specified role from the roles list

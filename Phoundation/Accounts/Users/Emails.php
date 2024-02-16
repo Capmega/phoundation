@@ -154,12 +154,13 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Add the specified email to the iterator array
      *
-     * @param Stringable|string|float|int|null $key
      * @param mixed $value
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!$value instanceof EmailInterface) {
             if (!is_string($value)) {
@@ -191,7 +192,7 @@ class Emails extends DataList implements EmailsInterface
             $value->setUsersId($this->parent->getId())->save();
         }
 
-        return parent::add($value, $key);
+        return parent::add($value, $key, $skip_null, $exception);
     }
 
 
@@ -283,7 +284,6 @@ class Emails extends DataList implements EmailsInterface
      * @param bool $force
      * @param string|null $comments
      * @return static
-     * @throws OutOfBoundsException|DataEntryReadonlyException
      */
     public function save(bool $force = false, ?string $comments = null): static
     {
