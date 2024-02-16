@@ -42,7 +42,7 @@ class Url {
      */
     public static function isExternal(string $url, bool $check_sub_domains = true): bool
     {
-        if (!static::is($url)) {
+        if (!static::isValid($url)) {
             // This isn't even a complete URL, must be internal, there is no domain name expected here
             return false;
         }
