@@ -548,7 +548,7 @@ trait ElementAttributes
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
-                // Some element has auto focus, is it this one?
+                // Some element has auto-focus, is it this one?
                 if (static::$autofocus === $this->name) {
                     throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
                         ':name' => $this->name

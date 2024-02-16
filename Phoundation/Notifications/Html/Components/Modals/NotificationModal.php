@@ -6,7 +6,7 @@ namespace Phoundation\Notifications\Html\Components\Modals;
 
 use Phoundation\Web\Html\Components\Modals\LargeModal;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -40,7 +40,7 @@ class NotificationModal extends LargeModal
 
         // Render the sign in modal.
         return Script::new()
-            ->setJavascriptWrapper(JavascriptWrappers::window)
+            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
             ->setContent('
             $("nav.main-header").on("click", ".notification.open-modal", function(e) {
                 e.stopPropagation();

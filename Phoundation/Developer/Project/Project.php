@@ -563,9 +563,10 @@ class Project implements ProjectInterface
      * @param bool $signed
      * @param string|null $phoundation_path
      * @param bool $skip_caching
+     * @param bool $commit
      * @return static
      */
-    public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false): static
+    public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
         $branch = $this->getBranch($branch);
 
@@ -597,7 +598,10 @@ class Project implements ProjectInterface
                 }
 
                 $this->git->add([DIRECTORY_ROOT]);
-                $this->git->commit($message, $signed);
+
+                if ($commit) {
+                    $this->git->commit($message, $signed);
+                }
 
                 Log::warning(tr('Committed local Phoundation update to git'));
             } else {
@@ -632,9 +636,10 @@ class Project implements ProjectInterface
      * @param bool $signed
      * @param string|null $phoundation_path
      * @param bool $skip_caching
+     * @param bool $commit
      * @return static
      */
-    public function updateLocalProjectPlugins(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false): static
+    public function updateLocalProjectPlugins(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
         if (!$branch) {
             $branch = $this->git->getBranch();
@@ -668,11 +673,14 @@ class Project implements ProjectInterface
                 }
 
                 $this->git->add([DIRECTORY_ROOT]);
-                $this->git->commit($message, $signed);
+
+                if ($commit) {
+                    $this->git->commit($message, $signed);
+                }
 
                 Log::warning(tr('Committed local Phoundation update to git'));
             } else {
-                Log::warning(tr('No updates found in local Phoundation update'));
+                Log::warning(tr('No updates found in local Phoundation plugins update'));
             }
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty

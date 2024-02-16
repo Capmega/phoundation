@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -24,7 +24,7 @@ class InputUrl extends InputText
      */
     public function __construct()
     {
-        $this->type = InputType::url;
+        $this->type = EnumInputType::url;
         parent::__construct();
     }
 }

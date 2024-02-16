@@ -137,7 +137,7 @@ class Category extends DataEntry implements CategoryInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'parents_id')
+            ->add(Definition::new($this, 'parents_id')
                 ->setOptional(true)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
@@ -151,7 +151,7 @@ class Category extends DataEntry implements CategoryInterface
                     // Ensure parents_id exists and that its or parent
                     $validator->orColumn('parent')->isDbId()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
-            ->addDefinition(Definition::new($this, 'parent')
+            ->add(Definition::new($this, 'parent')
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setCliColumn('--parent PARENT CATEGORY NAME')
@@ -163,13 +163,13 @@ class Category extends DataEntry implements CategoryInterface
                     // Ensure parent exists and that its or parents_id
                     $validator->orColumn('parents_id')->isName(64)->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                 }))
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
                         Category::exists($value, 'name', isset_get($source['id']));
                     }, tr('already exists'));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(DefinitionFactory::getDescription($this));
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(DefinitionFactory::getDescription($this));
     }
 }

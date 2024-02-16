@@ -12,8 +12,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Templates\Template;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
@@ -180,43 +180,43 @@ class Email extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getUsersEmail($this)
+            ->add(DefinitionFactory::getUsersEmail($this)
                 ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getUsersId($this)
+            ->add(DefinitionFactory::getUsersId($this)
                 ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'parents_id')
+            ->add(Definition::new($this, 'parents_id')
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [':id' => '$parents_id']);
                 }))
-            ->addDefinition(Definition::new($this, 'main')
+            ->add(Definition::new($this, 'main')
                 ->setVisible(false)
-                ->setInputType(InputType::checkbox))
-            ->addDefinition(Definition::new($this, 'read')
+                ->setInputType(EnumInputType::checkbox))
+            ->add(Definition::new($this, 'read')
                 ->setVisible(false)
-                ->setInputType(InputType::checkbox))
-            ->addDefinition(Definition::new($this, 'categories_id')
+                ->setInputType(EnumInputType::checkbox))
+            ->add(Definition::new($this, 'categories_id')
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [':id' => '$categories']);
                 }))
-            ->addDefinition(Definition::new($this, 'templates_id')
+            ->add(Definition::new($this, 'templates_id')
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [':id' => '$templates_id']);
                 }))
-            ->addDefinition(DefinitionFactory::getCode($this)
+            ->add(DefinitionFactory::getCode($this)
                 ->setSize(3))
-            ->addDefinition(Definition::new($this, 'subject')
+            ->add(Definition::new($this, 'subject')
                 ->setSize(3)
                 ->setMaxlength(255))
-            ->addDefinition(Definition::new($this, 'body')
+            ->add(Definition::new($this, 'body')
                 ->setSize(3)
                 ->setSize(12)
                 ->setMaxlength(16_777_215));

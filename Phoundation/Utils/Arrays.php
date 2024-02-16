@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use GeoIp2\Util;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -193,7 +192,7 @@ class Arrays extends Utils
 
         throw new OutOfBoundsException(tr('Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', [
             ':datatype' => gettype($params),
-            ':params' => (is_resource($params) ? '{php resource}' : $params)
+            ':params'   => (is_resource($params) ? '{php resource}' : $params)
         ]));
     }
 
@@ -330,9 +329,9 @@ class Arrays extends Utils
         $return = [];
 
         // Decode options
-        $filter_null = (bool)($options & self::FILTER_NULL);
-        $filter_empty = (bool)($options & self::FILTER_EMPTY);
-        $quote_always = (bool)($options & self::QUOTE_ALWAYS);
+        $filter_null       = (bool)($options & self::FILTER_NULL);
+        $filter_empty      = (bool)($options & self::FILTER_EMPTY);
+        $quote_always      = (bool)($options & self::QUOTE_ALWAYS);
         $hide_empty_values = (bool)($options & self::HIDE_EMPTY_VALUES);
 
         foreach ($source as $key => $value) {
@@ -385,7 +384,7 @@ class Arrays extends Utils
     public static function mergeFull(): array
     {
         $arguments = static::getArgumentArrays(func_get_args());
-        $return = [];
+        $return    = [];
 
         foreach ($arguments as $id => $array) {
             static::requireArrayOrNull($array, $id);
@@ -3169,7 +3168,7 @@ class Arrays extends Utils
 
 
     /**
-     * Returns an array with all values uppercase strings
+     * Returns an array with all the values uppercase strings
      *
      * @note Non scalar values (except NULL) will cause OutOfBoundsException
      * @note NULL values will remain NULL
@@ -3473,10 +3472,10 @@ class Arrays extends Utils
         }
 
         // Manipulate each part and merge parts, allowing the latter overrides the former
-        $before = array_slice($source, 0, $offset, true);
-        $removed = array_slice($source, $offset, $length, true);
-        $after = array_slice($source, $offset + $length, null, true);
-        $source = array_replace($before, (array)$replacement, $after);
+        $before  = array_slice($source, 0                , $offset   , true);
+        $removed = array_slice($source, $offset                , $length   , true);
+        $after   = array_slice($source, $offset + $length, null, true);
+        $source  = array_replace($before, (array)$replacement, $after);
 
         return $removed;
     }
@@ -3496,6 +3495,7 @@ class Arrays extends Utils
     {
         if ($after) {
             $offset = static::getKeyNextOffset($source, $key);
+
         } else {
             $offset = static::getKeyOffset($source, $key);
         }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -20,6 +22,13 @@ use Phoundation\Web\Http\UrlBuilder;
  */
 class TopPanel extends Panel
 {
+    /**
+     * Tracks the elements in this panel
+     *
+     * @var IteratorInterface
+     */
+    protected IteratorInterface $elements;
+
     /**
      * The top notifications drop down
      *
@@ -57,6 +66,23 @@ class TopPanel extends Panel
         }
 
         parent::__construct();
+        $this->elements = Iterator::new()->setSource([
+            'search',
+            'notifications',
+            'full-screen',
+            'sign-out'
+        ]);
+    }
+
+
+    /**
+     * Access to the elements object
+     *
+     * @return IteratorInterface
+     */
+    public function getElementsObject(): IteratorInterface
+    {
+        return $this->elements;
     }
 
 

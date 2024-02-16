@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -31,7 +31,7 @@ class InputFile extends Input
      */
     public function __construct()
     {
-        $this->type = InputType::file;
+        $this->type = EnumInputType::file;
         parent::__construct();
     }
 }

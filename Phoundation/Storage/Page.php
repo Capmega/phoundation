@@ -140,7 +140,7 @@ class Page extends DataEntry implements PageInterface
 
 
         $definitions
-            ->addDefinition(DefinitionFactory::getParentsId($this)
+            ->add(DefinitionFactory::getParentsId($this)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Pages::new()->getHtmlSelect()
                         ->setName($key)
@@ -151,7 +151,7 @@ class Page extends DataEntry implements PageInterface
                     // Ensure categories id exists and that its or category
                     $validator->orColumn('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                 }))
-            ->addDefinition(DefinitionFactory::getParent($this)
+            ->add(DefinitionFactory::getParent($this)
                 ->setCliAutoComplete([
                     'word' => function ($word) {
                         return Categories::new()->getMatchingKeys($word);
@@ -164,20 +164,20 @@ class Page extends DataEntry implements PageInterface
                     // Ensure category exists and that it's a category id or category name
                     $validator->orColumn('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
                 }))
-            ->addDefinition(DefinitionFactory::getCategoriesId($this))
-            ->addDefinition(DefinitionFactory::getCategory($this))
-            ->addDefinition(DefinitionFactory::getCode($this)
+            ->add(DefinitionFactory::getCategoriesId($this))
+            ->add(DefinitionFactory::getCategory($this))
+            ->add(DefinitionFactory::getCode($this)
                 ->setDefault(tr('-')))
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFalse(function($value, $source) {
                         static::exists($value, 'name', isset_get($source['id']));
                     }, tr('already exists'));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this page')))
-            ->addDefinition(DefinitionFactory::getContent($this)
+            ->add(DefinitionFactory::getContent($this)
                 ->setHelpText(tr('The content for this page')));
     }
 }

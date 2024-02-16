@@ -108,6 +108,13 @@ abstract class DataEntry implements DataEntryInterface
     protected array $protected_columns = [];
 
     /**
+     * These keys should not ever be processed
+     *
+     * @var array $meta_columns
+     */
+    protected array $meta_columns;
+
+    /**
      * Columns that will NOT be inserted
      *
      * @var array $columns_filter_on_insert
@@ -1386,6 +1393,30 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns the meta-columns for this database entry
+     *
+     * @return array
+     */
+    public function getMetaColumns(): array
+    {
+        return $this->meta_columns;
+    }
+
+
+    /**
+     * Sets the meta-columns for this database entry
+     *
+     * @param array $columns
+     * @return DataEntry
+     */
+    protected function setMetaColumns(array $columns): static
+    {
+        $this->meta_columns = $columns;
+        return $this;
+    }
+
+
+    /**
      * Returns the meta-state for this database entry
      *
      * @return ?string
@@ -2451,6 +2482,7 @@ abstract class DataEntry implements DataEntryInterface
         // Debug this specific entry?
         if ($this->debug) {
             Log::debug('SAVING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', 10, echo_header: false);
+
             $debug = sql($this->database_connector)->getQueryLogging();
             sql($this->database_connector)->setQueryLogging(true);
         }

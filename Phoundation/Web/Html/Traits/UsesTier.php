@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Web\Html\Enums\ContainerTier;
+use Phoundation\Web\Html\Enums\EnumContainerTier;
 
 
 /**
@@ -22,18 +22,18 @@ trait UsesTier
     /**
      * Container value for this container
      *
-     * @var ContainerTier $tier
+     * @var EnumContainerTier $tier
      */
-    protected ContainerTier $tier = ContainerTier::md;
+    protected EnumContainerTier $tier = EnumContainerTier::md;
 
 
     /**
      * Sets the type for this container
      *
-     * @param ContainerTier $tier
+     * @param EnumContainerTier $tier
      * @return static
      */
-    public function setTier(ContainerTier $tier): static
+    public function setTier(EnumContainerTier $tier): static
     {
         $this->tier = $tier;
         return $this;
@@ -43,9 +43,9 @@ trait UsesTier
     /**
      * Returns the type for this container
      *
-     * @return ContainerTier
+     * @return EnumContainerTier
      */
-    public function getTier(): ContainerTier
+    public function getTier(): EnumContainerTier
     {
         return $this->tier;
     }

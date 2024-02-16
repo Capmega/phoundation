@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -24,7 +24,7 @@ class InputSearch extends Input
      */
     public function __construct()
     {
-        $this->type = InputType::search;
+        $this->type = EnumInputType::search;
         parent::__construct();
     }
 }

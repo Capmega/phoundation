@@ -9,8 +9,9 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
@@ -28,7 +29,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class StatusFiles extends Iterator
+class StatusFiles extends Iterator implements StatusFilesInterface
 {
     use GitProcess;
 
@@ -36,9 +37,9 @@ class StatusFiles extends Iterator
     /**
      * A git object specifically for this path
      *
-     * @var Git $git
+     * @var GitInterface $git
      */
-    protected Git $git;
+    protected GitInterface $git;
 
 
     /**
@@ -135,21 +136,23 @@ class StatusFiles extends Iterator
                 }, tr('Removing git patch files'));
             }
 
-            $data = $e->getData();
-            $data = $data['output'];
-            $data = array_pop($data);
+            foreach ($e->getDataKey('output') as $line) {
+                if (str_contains($line, 'patch does not apply')) {
+                    $files[] = Strings::cut($line, 'error: ', ': patch does not apply');
+                }
+            }
 
-            if (str_contains($data, 'patch does not apply')) {
-                $file = Strings::cut($data, 'error: ', ': patch does not apply');
-
-                throw GitPatchException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
+            if (isset($files)) {
+                // Specific files failed to apply
+                throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
                     ':patch'     => isset_get($patch_file),
                     ':directory' => $target_path
-                ]))->addData([
-                    ':file' => $file
+                ]), $e)->addData([
+                    'files' => $files
                 ]);
             }
 
+            // We have a different git failure
             throw $e;
         }
     }

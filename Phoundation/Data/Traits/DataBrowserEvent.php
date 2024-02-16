@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Web\Html\Enums\BrowserEvent;
+use Phoundation\Web\Html\Enums\EnumBrowserEvent;
 
 
 /**
@@ -19,14 +19,14 @@ use Phoundation\Web\Html\Enums\BrowserEvent;
  */
 trait DataBrowserEvent
 {
-    protected BrowserEvent $browser_event;
+    protected EnumBrowserEvent $browser_event;
 
     /**
      * Returns the source
      *
-     * @return BrowserEvent
+     * @return EnumBrowserEvent
      */
-    public function getBrowserEvent(): BrowserEvent
+    public function getBrowserEvent(): EnumBrowserEvent
     {
         return $this->browser_event;
     }
@@ -35,10 +35,10 @@ trait DataBrowserEvent
     /**
      * Sets the source
      *
-     * @param BrowserEvent $browser_event
+     * @param EnumBrowserEvent $browser_event
      * @return static
      */
-    public function setBrowserEvent(BrowserEvent $browser_event): static
+    public function setBrowserEvent(EnumBrowserEvent $browser_event): static
     {
         $this->browser_event = $browser_event;
         return $this;

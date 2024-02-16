@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Web
+ * @package Phoundation\Web
  */
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
@@ -41,40 +41,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      * @var string|null $auto_focus_id
      */
     protected ?string $auto_focus_id = null;
-
-    /**
-     * Supported input element types
-     *
-     * @var array[] $supported_input
-     */
-    protected static array $supported_input = [
-        'button',
-        'checkbox',
-        'color',
-        'date',
-        'datetime-local',
-        'email',
-        'file',
-        'hidden',
-        'image',
-        'month',
-        'number',
-        'password',
-        'radio',
-        'range',
-        'reset',
-        'search',
-        'submit',
-        'tel',
-        'text',
-        'time',
-        'url',
-        'week',
-        'auto-suggest',
-        'select',
-        'array_json'
-    ];
-
 
     /**
      * Returns if meta-information is visible at all, or not
@@ -121,18 +87,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     {
         $this->auto_focus_id = $auto_focus_id;
         return $this;
-    }
-
-
-    /**
-     * Returns true if the specified input type is supported
-     *
-     * @param string $input
-     * @return bool
-     */
-    public function inputTypeSupported(string $input): bool
-    {
-        return in_array($input, static::$supported_input);
     }
 
 

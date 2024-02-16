@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 
 
 /**
@@ -23,18 +23,18 @@ trait UsesSize
     /**
      * Container value for this container
      *
-     * @var DisplaySize|null $size
+     * @var EnumDisplaySize|null $size
      */
-    protected DisplaySize|null $size = DisplaySize::twelve;
+    protected EnumDisplaySize|null $size = EnumDisplaySize::twelve;
 
 
     /**
      * Sets the type for this container
      *
-     * @param DisplaySize|int|null $size
+     * @param EnumDisplaySize|int|null $size
      * @return static
      */
-    public function setSize(DisplaySize|int|null $size): static
+    public function setSize(EnumDisplaySize|int|null $size): static
     {
         if (is_numeric($size)) {
             if (($size < 1) or ($size > 12)) {
@@ -43,7 +43,7 @@ trait UsesSize
                 ]));
             }
 
-            $size = DisplaySize::from((string) $size);
+            $size = EnumDisplaySize::from((string) $size);
         }
 
         $this->size = $size;
@@ -54,9 +54,9 @@ trait UsesSize
     /**
      * Returns the type for this container
      *
-     * @return DisplaySize|int|null
+     * @return EnumDisplaySize|int|null
      */
-    public function getSize(): DisplaySize|int|null
+    public function getSize(): EnumDisplaySize|int|null
     {
         return $this->size;
     }

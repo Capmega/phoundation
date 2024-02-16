@@ -22,7 +22,7 @@ use Stringable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 interface DataListInterface extends IteratorInterface
 {
@@ -103,22 +103,22 @@ interface DataListInterface extends IteratorInterface
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 
     /**
      * Set the specified status for the specified entries
      *
      * @param string|null $status
      * @param string|null $comments
-     * @param bool $meta_enabled
      * @return int
      */
-    public function updateStatusAll(?string $status, ?string $comments = null, bool $meta_enabled = true): int;
+    public function updateStatusAll(?string $status, ?string $comments = null): int;
 
     /**
      * Delete the specified entries

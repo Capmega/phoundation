@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Traits\DataStartDateTime;
 use Phoundation\Data\Traits\DataStopDate;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -30,7 +30,7 @@ class InputDateTimeRange extends InputText
      */
     public function __construct()
     {
-        $this->type = InputType::text;
+        $this->type = EnumInputType::text;
         parent::__construct();
     }
 }

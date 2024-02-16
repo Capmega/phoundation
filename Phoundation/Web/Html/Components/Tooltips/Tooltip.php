@@ -561,8 +561,10 @@ class Tooltip extends Element implements TooltipInterface
             // Build data string
             if (is_array($value)) {
                 $value = '"' . implode(' ', $value) . '"';
+
             } elseif (is_bool($value)) {
                 $value = Strings::fromBoolean($value);
+
             } else {
                 $value =  '"' . htmlentities($value) . '"';
             }

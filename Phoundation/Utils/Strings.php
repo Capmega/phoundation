@@ -418,7 +418,7 @@ class Strings extends Utils
 
 
     /**
-     * Return a camel cased string
+     * Return a camel-cased string
      *
      * @param Stringable|string $source
      * @param Stringable|string $separator

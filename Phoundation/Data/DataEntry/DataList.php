@@ -463,13 +463,14 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @param string|null $status
      * @param string|null $comments
-     * @param bool $meta_enabled
      * @return int
      */
-    public function updateStatusAll(?string $status, ?string $comments = null, bool $meta_enabled = true): int
+    public function updateStatusAll(?string $status, ?string $comments = null): int
     {
         foreach ($this->source as $entry) {
-            sql(static::getDefaultConnectorName())->getSqlDataEntryObject()->setStatus($status, static::getTable(), $entry, $comments, $meta_enabled);
+            sql(static::getDefaultConnectorName())
+                ->getSqlDataEntryObject()
+                    ->setStatus($status, $entry, $comments);
         }
 
         return count($this->source);

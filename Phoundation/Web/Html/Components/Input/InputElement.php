@@ -6,9 +6,9 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Components\Mode;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
 use Stringable;
 
@@ -31,9 +31,9 @@ trait InputElement
     /**
      * Input element type
      *
-     * @var InputTypeInterface|null $type
+     * @var EnumInputTypeInterface|null $type
      */
-    protected ?InputTypeInterface $type = InputType::text;
+    protected ?EnumInputTypeInterface $type = EnumInputType::text;
 
     /**
      * Input element value
@@ -46,9 +46,9 @@ trait InputElement
     /**
      * Returns the type for the input element
      *
-     * @return InputTypeInterface|null
+     * @return EnumInputTypeInterface|null
      */
-    public function getType(): ?InputTypeInterface
+    public function getType(): ?EnumInputTypeInterface
     {
         return $this->type;
     }
@@ -57,10 +57,10 @@ trait InputElement
     /**
      * Sets the type for the input element
      *
-     * @param InputTypeInterface|null $type
+     * @param EnumInputTypeInterface|null $type
      * @return static
      */
-    public function setType(?InputTypeInterface $type): static
+    public function setType(?EnumInputTypeInterface $type): static
     {
         $this->type = $type;
         return $this;

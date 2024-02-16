@@ -26,7 +26,7 @@ use Phoundation\Filesystem\Mounts\Exception\MountsException;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -438,8 +438,8 @@ class Mount extends DataEntry implements MountInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
-                ->setInputType(InputTypeExtended::name)
+            ->add(DefinitionFactory::getName($this)
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setLabel(tr('Name'))
@@ -447,9 +447,9 @@ class Mount extends DataEntry implements MountInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'source_path')
-                ->setInputType(InputTypeExtended::name)
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(Definition::new($this, 'source_path')
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(4)
                 ->setMaxlength(255)
                 ->setLabel(tr('Source'))
@@ -457,8 +457,8 @@ class Mount extends DataEntry implements MountInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(Definition::new($this, 'target_path')
-                ->setInputType(InputTypeExtended::name)
+            ->add(Definition::new($this, 'target_path')
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(4)
                 ->setMaxlength(255)
                 ->setLabel(tr('Target'))
@@ -466,10 +466,10 @@ class Mount extends DataEntry implements MountInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(Definition::new($this, 'filesystem')
+            ->add(Definition::new($this, 'filesystem')
                 ->setOptional(true)
                 ->setSize(4)
-                ->setSource([
+                ->setDataSource([
                     ''             => tr('Auto detect'),
                     'ext2'         => tr('EXT2'),
                     'ext3'         => tr('EXT3'),
@@ -495,7 +495,7 @@ class Mount extends DataEntry implements MountInterface
                 ])
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem with which to mount this source')))
-            ->addDefinition(Definition::new($this, 'options')
+            ->add(Definition::new($this, 'options')
                 ->setOptional(true)
                 ->setSize(6)
                 ->setDefault('defaults')
@@ -505,20 +505,20 @@ class Mount extends DataEntry implements MountInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'auto_mount')
+            ->add(DefinitionFactory::getBoolean($this, 'auto_mount')
                 ->setSize(2)
                 ->setHelpText(tr('If checked, this mount will automatically be mounted by the process using a path in this mount'))
                 ->setLabel(tr('Auto mount')))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'auto_unmount')
+            ->add(DefinitionFactory::getBoolean($this, 'auto_unmount')
                 ->setSize(2)
                 ->setHelpText(tr('If checked, this mount will automatically be unmounted after use when the process using a path in this mount terminates'))
                 ->setLabel(tr('Auto unmount')))
-            ->addDefinition(DefinitionFactory::getNumber($this, 'timeout')
+            ->add(DefinitionFactory::getNumber($this, 'timeout')
                 ->setOptional(true, 3)
                 ->setSize(2)
                 ->setHelpText(tr('If specified, the mount attempt for this filesystem will be aborted after this number of seconds'))
                 ->setLabel(tr('Timeout')))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this mount')));
     }
 }

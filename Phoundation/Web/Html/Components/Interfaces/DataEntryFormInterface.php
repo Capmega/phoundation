@@ -16,7 +16,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Web
+ * @package Phoundation\Web
  */
 interface DataEntryFormInterface extends ElementsBlockInterface
 {
@@ -34,14 +34,6 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      * @return $this
      */
     public function setAutoFocusId(?string $auto_focus_id): static;
-
-    /**
-     * Returns true if the specified input type is supported
-     *
-     * @param string $input
-     * @return bool
-     */
-    public function inputTypeSupported(string $input): bool;
 
     /**
      * Returns the optional class for input elements

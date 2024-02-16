@@ -24,8 +24,8 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Stringable;
@@ -41,7 +41,7 @@ use UnitEnum;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 abstract class Validator implements ValidatorInterface
 {
@@ -529,18 +529,19 @@ abstract class Validator implements ValidatorInterface
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
+     * @param int $max_characters
      * @return static
      */
-    public function isCode(?string $until = null): static
+    public function isCode(?string $until = null, int $max_characters = 64): static
     {
-        return $this->validateValues(function(&$value) use ($until) {
+        return $this->validateValues(function(&$value) use ($until, $max_characters) {
             if ($until) {
                 // Truncate the code at one of the specified characters
                 $value = Strings::until($value, $until);
                 $value = trim($value);
             }
 
-            $this->hasMinCharacters(2)->hasMaxCharacters(16);
+            $this->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1845,10 +1846,10 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (!($value instanceof DisplayModeInterface)) {
+            if (!($value instanceof EnumDisplayModeInterface)) {
                 if (is_string($value)) {
                     // Maybe a string representation of a backed enum?
-                    $test = DisplayMode::tryFrom($value);
+                    $test = EnumDisplayMode::tryFrom($value);
 
                     if ($test) {
                         $value = $test;

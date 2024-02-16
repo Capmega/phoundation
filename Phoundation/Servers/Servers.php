@@ -11,7 +11,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
 /**
@@ -82,26 +82,25 @@ class Servers extends DataList
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
         $table = parent::getHtmlTable();
-        $table->setCheckboxSelectors(TableIdColumn::checkbox);
+        $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
     }
-
-
 
 
     /**
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
             ->setName('servers_id')
             ->setNone(tr('Select a server'))
             ->setObjectEmpty(tr('No servers available'));

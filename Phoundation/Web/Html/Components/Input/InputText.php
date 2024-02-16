@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -25,7 +25,7 @@ class InputText extends Input
      */
     public function __construct()
     {
-        $this->type = $this->type ?? InputType::text;
+        $this->type = $this->type ?? EnumInputType::text;
         parent::__construct();
     }
 

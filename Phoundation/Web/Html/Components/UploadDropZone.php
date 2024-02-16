@@ -20,11 +20,11 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableIdColumnInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
-use Phoundation\Web\Html\Enums\TableIdColumn;
-use Phoundation\Web\Html\Enums\TableRowType;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Stringable;
@@ -169,7 +169,7 @@ class UploadDropZone extends ResourceElement
         Page::loadJavascript('plugins/dropzone/min/dropzone');
 
         return Script::new()
-            ->setJavascriptWrapper(JavascriptWrappers::window)
+            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
             ->setContent('
               var myDropzone = new Dropzone(' . $this->selector . ', {
                 url: "' . not_empty($this->url, UrlBuilder::getWww()) . '",

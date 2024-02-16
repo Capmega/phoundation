@@ -15,7 +15,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
 use Phoundation\Utils\Enums\EnumJsonAfterReply;
 use Phoundation\Utils\Exception\JsonException;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Stringable;
@@ -365,7 +365,7 @@ class Json
 
             default:
                 Notification::new()
-                    ->setMode(DisplayMode::exception)
+                    ->setMode(EnumDisplayMode::exception)
                     ->setCode('unknown')
                     ->setRoles('developer')
                     ->setTitle('Unknown message specified')

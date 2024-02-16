@@ -36,7 +36,6 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Date\Date;
 use Phoundation\Date\DateTimeZone;
 use Phoundation\Developer\Debug;
-use Phoundation\Developer\Incidents\Incident;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1848,12 +1847,20 @@ die($errfile. $errline);
         // When on commandline, ring an alarm
         if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
             try {
-                Audio::new('data/audio/critical.mp3')->playLocal(true);
+                if ($e instanceof Exception) {
+                    if ($e->isWarning()) {
+                        Audio::new('data/audio/warning.mp3')->playLocal(true);
+
+                    } else {
+                        Audio::new('data/audio/critical.mp3')->playLocal(true);
+                    }
+
+                } else {
+                    Audio::new('data/audio/critical.mp3')->playLocal(true);
+                }
 
             } catch (Throwable $f) {
-                Log::warning(tr('Failed to play uncaught exception audio because ":e"', [
-                    ':e' => $f->getMessage()
-                ]));
+                Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
             }
         }
 
@@ -2840,7 +2847,7 @@ die($errfile. $errline);
                             } elseif (is_string($function[0])) {
                                 if (is_string($function[1])) {
                                     // Ensure the class file is loaded
-                                    Library::loadClassFile($function[0]);
+                                    Library::includeClassFile($function[0]);
 
                                     // Execute this shutdown function with the specified value
                                     $function[0]::{$function[1]}($value);

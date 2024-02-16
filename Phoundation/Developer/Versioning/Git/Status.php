@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
 
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -17,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Status
+class Status implements StatusInterface
 {
     /**
      * The specified status
@@ -91,9 +92,9 @@ class Status
      * Returns a new Status object
      *
      * @param string $status
-     * @return Status
+     * @return static
      */
-    public function new(string $status): Status
+    public function new(string $status): static
     {
         return new Status($status);
     }

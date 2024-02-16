@@ -16,9 +16,9 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableIdColumnInterface;
-use Phoundation\Web\Html\Enums\TableIdColumn;
-use Phoundation\Web\Html\Enums\TableRowType;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -126,9 +126,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets how the id columns will be displayed
      *
-     * @var TableIdColumnInterface $checkbox_selectors
+     * @var EnumTableIdColumnInterface $checkbox_selectors
      */
-    protected TableIdColumnInterface $checkbox_selectors = TableIdColumn::hidden;
+    protected EnumTableIdColumnInterface $checkbox_selectors = EnumTableIdColumn::hidden;
 
     /**
      * Sets whether the table is responsive or not
@@ -466,9 +466,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns if the first column automatically is converted to checkboxes
      *
-     * @return TableIdColumnInterface
+     * @return EnumTableIdColumnInterface
      */
-    public function getCheckboxSelectors(): TableIdColumnInterface
+    public function getCheckboxSelectors(): EnumTableIdColumnInterface
     {
         return $this->checkbox_selectors;
     }
@@ -477,10 +477,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets if the first column automatically is converted to checkboxes
      *
-     * @param TableIdColumnInterface $checkbox_selectors
+     * @param EnumTableIdColumnInterface $checkbox_selectors
      * @return static
      */
-    public function setCheckboxSelectors(TableIdColumnInterface $checkbox_selectors): static
+    public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static
     {
         $this->checkbox_selectors = $checkbox_selectors;
         return $this;
@@ -628,7 +628,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $row = Arrays::keepKeys($row, $this->columns);
             }
 
-            $this->executeCallbacks($row, TableRowType::row, $params);
+            $this->executeCallbacks($row, EnumTableRowType::row, $params);
             $return .= $this->renderRow($row, $key, $params);
 
 //            $row_data = '';
@@ -686,7 +686,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         // Process SQL resource
         while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $this->executeCallbacks($row, TableRowType::row, $params);
+            $this->executeCallbacks($row, EnumTableRowType::row, $params);
             $return .= $this->renderRow($row, array_first($row), $params);
         }
 
@@ -730,17 +730,17 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $first = false;
 
                 switch ($this->checkbox_selectors) {
-                    case TableIdColumn::hidden:
+                    case EnumTableIdColumn::hidden:
                         break;
 
-                    case TableIdColumn::checkbox:
+                    case EnumTableIdColumn::checkbox:
                         $return .= '<th>' . InputCheckbox::new()
                             ->setName($column . '[]')
                             ->setValue(1)
                             ->render() . '</th>';
                         break;
 
-                    case TableIdColumn::visible:
+                    case EnumTableIdColumn::visible:
                         $return .= '<th>' . $header . '</th>';
                         break;
                 }
@@ -769,7 +769,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $return  = '<tfoot><tr>';
         $footers = $this->footers->__toArray();
 
-        $this->executeCallbacks($footers, TableRowType::footer, $params);
+        $this->executeCallbacks($footers, EnumTableRowType::footer, $params);
 
         foreach ($footers as $column => $footer) {
             $return .= '<th>' . $footer . '</th>';
@@ -964,13 +964,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected function renderCheckboxColumn(string $column, string|float|int|null $value, bool &$made_checkbox): string|null
     {
         switch ($this->checkbox_selectors) {
-            case TableIdColumn::hidden:
+            case EnumTableIdColumn::hidden:
                 return null;
 
-            case TableIdColumn::visible:
+            case EnumTableIdColumn::visible:
                 return (string) $value;
 
-            case TableIdColumn::checkbox:
+            case EnumTableIdColumn::checkbox:
                 // no break
 
             default:

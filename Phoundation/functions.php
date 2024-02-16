@@ -376,7 +376,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
                 default:
                     // This should be an object
-                    if ($variable instanceof $type) {
+                    if (is_subclass_of($variable, $type)) {
                         return $variable;
                     }
 
@@ -385,6 +385,14 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
         }
 
         if ($exception) {
+            if (is_object($variable)) {
+                throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
+                    ':variable' => $variable,
+                    ':class'    => get_class($variable),
+                    ':types'    => $types,
+                ]))->addData(['variable' => $variable]);
+            }
+
             throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
@@ -940,21 +948,9 @@ function execute_script(string $__file): void
  */
 function execute_page(string $__file): ?string
 {
+    ob_start(chunk_size: 0);
     include($__file);
-    $body = '';
-
-    // Get all output buffers and restart buffer
-    while (ob_get_level()) {
-        $body .= ob_get_contents();
-        ob_end_clean();
-    }
-
-    ob_start(chunk_size: 4096);
-
-    // Merge the flash messages from sessions into page flash messages
-    Page::getFlashMessages()->pullMessagesFrom(Session::getFlashMessages());
-
-    return $body;
+    return get_null(ob_get_clean());
 }
 
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\UsesAttributeMultiple;
 
 
@@ -27,7 +27,7 @@ class InputEmail extends InputText
      */
     public function __construct()
     {
-        $this->type = InputType::email;
+        $this->type = EnumInputType::email;
         parent::__construct();
     }
 }

@@ -119,9 +119,9 @@ interface GitInterface
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
      * @param string|null $directory
-     * @return StatusFiles
+     * @return StatusFilesInterface
      */
-    public function getStatus(?string $directory = null): StatusFiles;
+    public function getStatus(?string $directory = null): StatusFilesInterface;
 
     /**
      * Returns if this git path has any changes

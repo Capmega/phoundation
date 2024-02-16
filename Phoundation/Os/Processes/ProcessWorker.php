@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumInputType;
-use function Phoundation\Web\Html\Components\Input\ready;
-
 
 /**
  * Class InputSelect2

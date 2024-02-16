@@ -10,7 +10,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -162,43 +162,43 @@ class Language extends DataEntry implements LanguageInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setDisabled(true)
                 ->setHelpText(tr('The name for this language')))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'code_639_1')
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(Definition::new($this, 'code_639_1')
                 ->setDisabled(true)
-                ->setInputType(InputTypeExtended::code)
+                ->setInputType(EnumInputTypeExtended::code)
                 ->setLabel(tr('ISO 639-1 code'))
                 ->setCliColumn(tr('--iso-691-1 CODE'))
                 ->setSize(12)
                 ->setMaxlength(2)
                 ->setHelpText(tr('The ISO 639-1 code for this language')))
-            ->addDefinition(Definition::new($this, 'code_639_2_t')
+            ->add(Definition::new($this, 'code_639_2_t')
                 ->setDisabled(true)
-                ->setInputType(InputTypeExtended::code)
+                ->setInputType(EnumInputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/T code'))
                 ->setCliColumn(tr('--iso-691-2-t CODE'))
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/T code for this language')))
-            ->addDefinition(Definition::new($this, 'code_639_2_b')
+            ->add(Definition::new($this, 'code_639_2_b')
                 ->setDisabled(true)
-                ->setInputType(InputTypeExtended::code)
+                ->setInputType(EnumInputTypeExtended::code)
                 ->setLabel(tr('ISO 639-2/B code'))
                 ->setCliColumn(tr('--iso-691-2-b CODE'))
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-2/B code for this language')))
-            ->addDefinition(Definition::new($this, 'code_639_3')
+            ->add(Definition::new($this, 'code_639_3')
                 ->setDisabled(true)
-                ->setInputType(InputTypeExtended::code)
+                ->setInputType(EnumInputTypeExtended::code)
                 ->setLabel(tr('ISO 639-3 code'))
                 ->setCliColumn(tr('--iso-691-2-b CODE'))
                 ->setSize(12)
                 ->setMaxlength(3)
                 ->setHelpText(tr('The ISO 639-3 code for this language')))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this language')));
     }
 }

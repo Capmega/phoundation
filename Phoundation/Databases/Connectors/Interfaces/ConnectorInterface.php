@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Connectors\Interfaces;
 
 use MongoDB\Exception\UnsupportedException;

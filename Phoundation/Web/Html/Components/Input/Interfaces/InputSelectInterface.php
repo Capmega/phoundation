@@ -93,17 +93,19 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function setSelected(array|string|int|null $selected = null): static;
+    public function setSelected(array|string|int|null $selected = null, bool $value = false): static;
 
     /**
      * Adds a single or multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function addSelected(array|string|int|null $selected): static;
+    public function addSelected(array|string|int|null $selected, bool $value = false): static;
 
     /**
      * Returns the selected option(s)

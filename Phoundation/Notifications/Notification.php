@@ -45,10 +45,10 @@ use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Phoundation\Web\Routing\Route;
 use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
@@ -171,13 +171,13 @@ class Notification extends DataEntry implements NotificationInterface
     {
         if ($e instanceof Exception) {
             if ($e->isWarning()) {
-                $mode = DisplayMode::warning;
+                $mode = EnumDisplayMode::warning;
             } else {
-                $mode = DisplayMode::exception;
+                $mode = EnumDisplayMode::exception;
             }
 
         } else {
-            $mode = DisplayMode::exception;
+            $mode = EnumDisplayMode::exception;
         }
 
         $details = $e->generateDetails();
@@ -466,28 +466,28 @@ POST variables:
         $message = trim($message);
 
         switch ($this->getMode()) {
-            case DisplayMode::danger:
+            case EnumDisplayMode::danger:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::error($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::error($message, use_prefix: false);
                 break;
 
-            case DisplayMode::warning:
+            case EnumDisplayMode::warning:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::warning($message, use_prefix: false);
                 break;
 
-            case DisplayMode::success:
+            case EnumDisplayMode::success:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::success($message, use_prefix: false);
                 break;
 
-            case DisplayMode::info:
+            case EnumDisplayMode::info:
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, newline: false);
                 Log::information($this->getTitle(), use_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, newline: false);
@@ -599,13 +599,13 @@ POST variables:
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'users_id')
+            ->add(Definition::new($this, 'users_id')
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                 }))
-            ->addDefinition(Definition::new($this, 'code')
+            ->add(Definition::new($this, 'code')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Code'))
@@ -616,30 +616,30 @@ POST variables:
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'mode')
+            ->add(Definition::new($this, 'mode')
                 ->setLabel(tr('Mode'))
                 ->setReadonly(true)
-                ->setOptional(true, DisplayMode::notice)
+                ->setOptional(true, EnumDisplayMode::notice)
                 ->addClasses('text-center')
                 ->setSize(3)
                 ->setMaxlength(16)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDisplayMode();
                 }))
-            ->addDefinition(Definition::new($this, 'icon')
+            ->add(Definition::new($this, 'icon')
                 ->setVisible(false)
                 ->setOptional(true)
-                ->setInputType(InputType::url))
-            ->addDefinition(Definition::new($this, 'priority')
+                ->setInputType(EnumInputType::url))
+            ->add(Definition::new($this, 'priority')
                 ->setReadonly(true)
-                ->setInputType(InputTypeExtended::integer)
+                ->setInputType(EnumInputTypeExtended::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
                 ->addClasses('text-center')
                 ->setMin(1)
                 ->setMax(9)
                 ->setSize(3))
-            ->addDefinition(Definition::new($this, 'title')
+            ->add(Definition::new($this, 'title')
                 ->setReadonly(true)
                 ->setLabel(tr('Title'))
                 ->setMaxlength(255)
@@ -647,26 +647,26 @@ POST variables:
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'message')
+            ->add(Definition::new($this, 'message')
                 ->setReadonly(true)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Message'))
                 ->setMaxlength(65_535)
                 ->setSize(12)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isPrintable();
                 }))
-            ->addDefinition(Definition::new($this, 'url')
+            ->add(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setInputType(InputType::url)
+                ->setInputType(EnumInputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
-            ->addDefinition(Definition::new($this, 'details')
+            ->add(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
@@ -701,27 +701,27 @@ POST variables:
                         return $value;
                     }
                 }))
-            ->addDefinition(Definition::new($this, 'file')
+            ->add(Definition::new($this, 'file')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
-            ->addDefinition(Definition::new($this, 'line')
+            ->add(Definition::new($this, 'line')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
-                ->setInputType(InputTypeExtended::natural)
+                ->setInputType(EnumInputTypeExtended::natural)
                 ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))
-            ->addDefinition(Definition::new($this, 'trace')
+            ->add(Definition::new($this, 'trace')
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setVisible(false)
-                ->setElement(InputElement::textarea)
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)

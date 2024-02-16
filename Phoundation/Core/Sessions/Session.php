@@ -7,6 +7,7 @@ namespace Phoundation\Core\Sessions;
 use DateTimeZone;
 use Exception;
 use GeoIP;
+use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
@@ -41,7 +42,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
 use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -258,12 +259,13 @@ class Session implements SessionInterface
      *
      * @param string $user
      * @param string $password
+     * @param string $user_class
      * @return UserInterface
      */
-    public static function signIn(string $user, string $password): UserInterface
+    public static function signIn(string $user, string $password, string $user_class = User::class): UserInterface
     {
         try {
-            static::$user = User::authenticate($user, $password);
+            static::$user = $user_class::authenticate($user, $password);
             static::clear();
 
             // Initialize session?
@@ -273,9 +275,6 @@ class Session implements SessionInterface
 
             // Update the users sign-in and last sign-in information
             static::updateSignInTracking();
-
-            // Store this sign in
-            Signin::detect()->save();
 
             Incident::new()
                 ->setType(tr('User sign in'))->setSeverity(Severity::notice)
@@ -287,18 +286,27 @@ class Session implements SessionInterface
 
             return static::$user;
 
-        } catch (DataEntryNotExistsException) {
-            Incident::new()
-                ->setType('User does not exist')->setSeverity(Severity::low)
-                ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
-                ->setDetails(['user' => $user])
-                ->notifyRoles('accounts')
-                ->save();
+        } catch (DataEntryNotExistsException $e) {
+            if ($e->getDataKey('class')) {
+                switch (Strings::fromReverse($e->getDataKey('class'), '\\')) {
+                    case '':
+                        // no break
+                    case 'User':
+                        Incident::new()
+                            ->setType('User does not exist')->setSeverity(Severity::low)
+                            ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
+                            ->setDetails(['user' => $user])
+                            ->notifyRoles('accounts')
+                            ->save();
 
-            // The specified user does not exist
-            throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
-                ':user' => $user
-            ]))->makeWarning()->log();
+                        // The specified user does not exist
+                        throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
+                            ':user' => $user
+                        ]))->makeWarning()->log();
+                }
+            }
+
+            throw $e;
         }
     }
 
@@ -862,7 +870,7 @@ Log::warning('RESTART SESSION');
         // Notify the target user
         Notification::new()
             ->setUrl('profiles/profile+' . $original_user->getId() . '.html')
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setUsersId($_SESSION['user']['impersonate_id'])
             ->setTitle(tr('Your account was impersonated'))
             ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
@@ -912,7 +920,7 @@ Log::warning('RESTART SESSION');
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
                         ->setUrl('security/incidents.html')
-                        ->setMode(DisplayMode::warning)
+                        ->setMode(EnumDisplayMode::warning)
                         ->setCode('configuration')
                         ->setRoles('developer')
                         ->setTitle(tr('Invalid cookie domain'))
@@ -1243,11 +1251,16 @@ Log::warning('RESTART SESSION');
      */
     protected static function updateSignInTracking(): void
     {
-        sql()->query('UPDATE `accounts_users`
-                            SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
-                            WHERE  `id` = :id', [
-            ':id' => static::$user->getId()
-        ]);
+        if (Config::getBoolean('sessions.tracking.enabled', true)) {
+            sql()->query('UPDATE `accounts_users`
+                                SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
+                                WHERE  `id` = :id', [
+                ':id' => static::$user->getId()
+            ]);
+
+            // Store this sign in
+            Signin::detect()->save();
+        }
     }
 
 

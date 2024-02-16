@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Os\Processes\Tasks;
+use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
@@ -14,20 +16,21 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
-interface TasksInterface
+interface TasksInterface extends DataListInterface
 {
     /**
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = '', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 
     /**
      * Execute the tasks in this list

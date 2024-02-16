@@ -9,7 +9,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 
 
 /**
- * Interface Input
+ * Interface InputInterface
  *
  * This interface describes the basic input class
  *
@@ -32,11 +32,4 @@ interface InputInterface extends ElementInterface
      * @return static
      */
     public static function newFromDataEntryField(DefinitionInterface $field): static;
-
-    /**
-     * Render and return the HTML for this Input Element
-     *
-     * @return string|null
-     */
-    function render(): ?string;
 }

@@ -17,7 +17,7 @@ use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Page;
 use Throwable;
 
@@ -242,7 +242,7 @@ class Bundler
                     if (!file_exists($this->directory . $import)) {
                         Notification::new()
                             ->setUrl('developer/incidents.html')
-                            ->setMode(DisplayMode::exception)
+                            ->setMode(EnumDisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
@@ -267,7 +267,7 @@ class Bundler
                     if (!file_exists($import)) {
                         Notification::new()
                             ->setUrl('developer/incidents.html')
-                            ->setMode(DisplayMode::exception)
+                            ->setMode(EnumDisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))
@@ -352,7 +352,7 @@ class Bundler
                     if (!file_exists($file)) {
                         Notification::new()
                             ->setUrl('developer/incidents.html')
-                            ->setMode(DisplayMode::exception)
+                            ->setMode(EnumDisplayMode::exception)
                             ->setCode('not-exists')
                             ->setRoles('developer')
                             ->setTitle(tr('Bundler file does not exist'))

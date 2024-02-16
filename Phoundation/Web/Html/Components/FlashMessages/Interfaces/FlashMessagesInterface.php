@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\FlashMessages\Interfaces;
 
 use Phoundation\Exception\Exception;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
 use Stringable;
 
 
@@ -86,12 +86,12 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @param FlashMessageInterface|Exception|Stringable|string|null $message
      * @param string|null $title
-     * @param DisplayModeInterface|null $mode
+     * @param EnumDisplayModeInterface|null $mode
      * @param string|null $icon
      * @param int|null $auto_close
      * @return $this
      */
-    public function addMessage(FlashMessageInterface|Exception|Stringable|string|null $message, ?string $title = null, ?DisplayModeInterface $mode = DisplayMode::error, string $icon = null, ?int $auto_close = 5000): static;
+    public function addMessage(FlashMessageInterface|Exception|Stringable|string|null $message, ?string $title = null, ?EnumDisplayModeInterface $mode = EnumDisplayMode::error, string $icon = null, ?int $auto_close = 5000): static;
 
     /**
      * Renders all flash messages

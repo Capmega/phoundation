@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Components;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
@@ -26,6 +27,7 @@ use Phoundation\Web\Html\Exception\HtmlException;
 abstract class ResourceElement extends Element implements ResourceElementInterface, InputInterface
 {
     use InputElement;
+    use DataConnector;
 
 
     /**
@@ -252,7 +254,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
 
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
-            $source_query = sql()->query($source_query, $execute);
+            $source_query = sql($this->connector)->query($source_query, $execute);
         }
 
         $this->source_query = $source_query;

@@ -6,6 +6,7 @@ namespace Phoundation\Developer;
 
 use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
+use Phoundation\Audio\Audio;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\CoreException;
@@ -19,7 +20,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 use Throwable;
@@ -331,7 +332,7 @@ class Debug {
                 // This is not usually something you want to happen!
                 Notification::new()
                     ->setUrl('developer/incidents.html')
-                    ->setMode(DisplayMode::exception)
+                    ->setMode(EnumDisplayMode::exception)
                     ->setTitle('Debug mode enabled on production environment!')
                     ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
                     ->setRoles('developer')
@@ -368,6 +369,8 @@ class Debug {
                             $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
 
+                    $output = get_null(ob_get_clean()) . $output;
+
                     // Show output on web
                     if (!headers_sent()) {
                         Page::setContentType('text/html');
@@ -376,19 +379,23 @@ class Debug {
 
                     echo $output;
 
-                    ob_flush();
-                    flush();
-
                 } else {
                     echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                    ]) . PHP_EOL;;
-                    print_r($value, true) . PHP_EOL;
-                    flush();
-                    ob_flush();
+                    ]) . PHP_EOL;
+
+                    $output = get_null(ob_get_clean());
+
+                    // Show output on web
+                    if (!headers_sent()) {
+                        Page::setContentType('text/html');
+                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                    }
+
+                    echo $output;
                 }
 
             } else {
@@ -470,6 +477,7 @@ class Debug {
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset)
                     ]));
+                    Audio::new('data/audio/showdie.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $e) {

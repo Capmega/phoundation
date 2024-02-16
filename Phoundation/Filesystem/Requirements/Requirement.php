@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Filesystem\Requirements;
 
 use Phoundation\Data\DataEntry\DataEntry;
@@ -9,8 +11,8 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -74,8 +76,8 @@ class Requirement extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
-                ->setInputType(InputTypeExtended::name)
+            ->add(DefinitionFactory::getName($this)
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(128)
                 ->setLabel(tr('Name'))
@@ -83,9 +85,9 @@ class Requirement extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'path')
-                ->setInputType(InputTypeExtended::name)
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(Definition::new($this, 'path')
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(6)
                 ->setMaxlength(255)
                 ->setLabel(tr('Path'))
@@ -93,9 +95,9 @@ class Requirement extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile();
                 }))
-            ->addDefinition(Definition::new($this, 'filesystem')
-                ->setInputType(InputType::select)
-                ->setSource([
+            ->add(Definition::new($this, 'filesystem')
+                ->setInputType(EnumInputType::select)
+                ->setDataSource([
                     ''             => tr('No requirements'),
                     'ext2'         => tr('EXT2'),
                     'ext3'         => tr('EXT3'),
@@ -123,9 +125,9 @@ class Requirement extends DataEntry
                 ->setMaxlength(16)
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem this should use')))
-            ->addDefinition(Definition::new($this, 'file_type')
-                ->setInputType(InputType::select)
-                ->setSource([
+            ->add(Definition::new($this, 'file_type')
+                ->setInputType(EnumInputType::select)
+                ->setDataSource([
                     ''                 => tr('No requirements'),
                     'directory'        => tr('Directory'),
                     'fifo device'      => tr('Fifo device'),
@@ -138,7 +140,7 @@ class Requirement extends DataEntry
                 ->setMaxlength(16)
                 ->setLabel(tr('File type'))
                 ->setHelpText(tr('The type of file this should be')))
-           ->addDefinition(DefinitionFactory::getDescription($this)
+           ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this mount')));
     }
 }
