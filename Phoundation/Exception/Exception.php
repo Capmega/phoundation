@@ -108,6 +108,9 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
             } else {
                 // This is a standard PHP exception
+                $this->setLine($messages->getLine());
+                $this->setFile($messages->getFile());
+
                 $messages = [$messages->getMessage()];
             }
 
