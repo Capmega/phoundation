@@ -9,6 +9,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
@@ -908,4 +909,19 @@ interface DefinitionInterface
      * @return static
      */
     public function setNullElement(EnumInputElementInterface|null $value): static;
+
+    /**
+     * Returns the additional content for this component
+     *
+     * @return RenderInterface|callable|string|null
+     */
+    public function getAdditionalContent(): RenderInterface|callable|string|null;
+
+    /**
+     * Sets the additional content for this component
+     *
+     * @param RenderInterface|callable|string|null $prefix
+     * @return static
+     */
+    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static;
 }

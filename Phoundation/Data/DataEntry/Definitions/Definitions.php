@@ -48,10 +48,10 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param mixed $value
      * @param float|Stringable|int|string|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return $this
      */
-
-    public function add(mixed $value, float|Stringable|int|string|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!($value instanceof DefinitionInterface)) {
             throw new OutOfBoundsException(tr('Cannot add variable ":value" to the DataEntry definitions list, it is not a DefinitionInterface object', [
@@ -63,7 +63,7 @@ class Definitions extends Iterator implements DefinitionsInterface
             $value->setColumn($this->prefix . $value->getColumn());
         }
 
-        return parent::add($value, $key ?? $value->getColumn(), $skip_null);
+        return parent::add($value, $key ?? $value->getColumn(), $skip_null, $exception);
     }
 
 

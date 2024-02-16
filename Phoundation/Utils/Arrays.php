@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use GeoIp2\Util;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -175,7 +174,7 @@ class Arrays extends Utils
             // The specified value is numeric, convert it to an array with the specified numeric key set having the value $params
             $params = [
                 $numeric_key => $params,
-                $string_key => $default
+                $string_key  => $default
             ];
 
             return;
@@ -185,7 +184,7 @@ class Arrays extends Utils
             // The specified value is string, convert it to an array with the specified string key set having the value $params
             $params = [
                 $numeric_key => $default,
-                $string_key => $params
+                $string_key  => $params
             ];
 
             return;
@@ -193,7 +192,7 @@ class Arrays extends Utils
 
         throw new OutOfBoundsException(tr('Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', [
             ':datatype' => gettype($params),
-            ':params' => (is_resource($params) ? '{php resource}' : $params)
+            ':params'   => (is_resource($params) ? '{php resource}' : $params)
         ]));
     }
 
@@ -330,10 +329,10 @@ class Arrays extends Utils
         $return = [];
 
         // Decode options
-        $filter_null       = (bool) ($options & self::FILTER_NULL);
-        $filter_empty      = (bool) ($options & self::FILTER_EMPTY);
-        $quote_always      = (bool) ($options & self::QUOTE_ALWAYS);
-        $hide_empty_values = (bool) ($options & self::HIDE_EMPTY_VALUES);
+        $filter_null       = (bool)($options & self::FILTER_NULL);
+        $filter_empty      = (bool)($options & self::FILTER_EMPTY);
+        $quote_always      = (bool)($options & self::QUOTE_ALWAYS);
+        $hide_empty_values = (bool)($options & self::HIDE_EMPTY_VALUES);
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
@@ -1576,9 +1575,9 @@ class Arrays extends Utils
     public static function filteredMerge()
     {
         $arguments = static::getArgumentArrays(func_get_args(), 3);
-        $filters   = array_shift($arguments);
-        $source    = array_shift($arguments);
-        $source    = Arrays::removeKeys($source, $filters);
+        $filters = array_shift($arguments);
+        $source = array_shift($arguments);
+        $source = Arrays::removeKeys($source, $filters);
 
         array_unshift($arguments, $source);
 
@@ -2452,9 +2451,9 @@ class Arrays extends Utils
      */
     public static function prepend(array $source, string|float|int $key, mixed $value): array
     {
-        $source       = array_reverse($source, true);
+        $source = array_reverse($source, true);
         $source[$key] = $value;
-        $source       = array_reverse($source, true);
+        $source = array_reverse($source, true);
 
         return $source;
     }
@@ -2526,9 +2525,9 @@ class Arrays extends Utils
         }
 
         $return = [];
-        $start  = true;
-        $last   = 0;
-        $key    = 'a';
+        $start = true;
+        $last = 0;
+        $key = 'a';
 
         for ($pos = 0; $pos < strlen($source); $pos++) {
             if (!$pos) {
@@ -2912,7 +2911,7 @@ class Arrays extends Utils
     public static function findPrefix(array $source): string|float|int|null
     {
         foreach ($source as $key => $value) {
-            $prefix = (int) Strings::until($key, '_', needle_required: true);
+            $prefix = (int)Strings::until($key, '_', needle_required: true);
 
             if ($prefix) {
                 return $prefix;
@@ -2946,9 +2945,9 @@ class Arrays extends Utils
      */
     public static function getMatches(array $haystack, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_ANYWHERE | Utils::MATCH_RECURSE): array
     {
-        $flags = static::decodeMatchOptions($options, true);
+        $flags   = static::decodeMatchOptions($options, true);
         $needles = static::checkRequiredNeedles($needles, $flags['match_no_case']);
-        $return = [];
+        $return  = [];
 
         foreach ($haystack as $key => $value) {
             if (!$value) {
@@ -3169,7 +3168,7 @@ class Arrays extends Utils
 
 
     /**
-     * Returns an array with all values uppercase strings
+     * Returns an array with all the values uppercase strings
      *
      * @note Non scalar values (except NULL) will cause OutOfBoundsException
      * @note NULL values will remain NULL
@@ -3338,7 +3337,7 @@ class Arrays extends Utils
     {
         if (is_object($source)) {
             $iterator = true;
-            $source   = $source->getSource();
+            $source = $source->getSource();
         }
 
         foreach ($source as &$value) {
@@ -3435,8 +3434,8 @@ class Arrays extends Utils
             return null;
         }
 
-        if ($return >= (count($source) - 1)) {
-            return count($source) - 1;
+        if ($return >= (count($source))) {
+            return count($source);
         }
 
         return ((int)$return) + 1;
@@ -3496,12 +3495,34 @@ class Arrays extends Utils
     {
         if ($after) {
             $offset = static::getKeyNextOffset($source, $key);
+
         } else {
             $offset = static::getKeyOffset($source, $key);
         }
 
         return static::splice($source, $offset, $length, $replacement);
     }
-=======
->>>>>>> 4.6
+
+
+    /**
+     * Converts the given source to an array with key=value entries, optionally quoted
+     *
+     * @param array $source
+     * @param bool $quote
+     * @return array
+     */
+    public static function convertToKeyIsValue(array $source, bool $quote = true): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if ($quote) {
+                $value = Strings::quote($value);
+            }
+
+            $return[] = $key . '=' . $value;
+        }
+
+        return $return;
+    }
 }

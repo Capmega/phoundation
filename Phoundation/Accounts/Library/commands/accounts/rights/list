@@ -52,14 +52,14 @@ $query = $user->getQueryBuilder()
     ->addGroupBy('`id`, `name`, `status`');
 
 if ($argv['roles']) {
-    $roles = Sql::in($argv['roles']);
+    $roles = SqlQueries::in($argv['roles']);
     $query
         ->addJoin('JOIN `accounts_roles_rights` ON `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`')
         ->addJoin('JOIN `accounts_roles` ON `accounts_roles`.`name` IN (' . implode(', ', array_keys($roles)) . ') AND `accounts_roles`.`id` = `accounts_roles_rights`.`roles_id`', $roles);
 }
 
 if ($argv['status']) {
-    $query->addWhere('`accounts_rights`.`status` ' . Sql::is($argv['status'], 'status'));
+    $query->addWhere('`accounts_rights`.`status` ' . SqlQueries::is($argv['status'], 'status'));
 } else {
     $query->addWhere('`accounts_rights`.`status` IS NULL');
 }

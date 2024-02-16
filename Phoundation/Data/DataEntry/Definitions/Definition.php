@@ -8,12 +8,12 @@ use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\DataColumn;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
@@ -267,6 +267,29 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the additional content for this component
+     *
+     * @return RenderInterface|callable|string|null
+     */
+    public function getAdditionalContent(): RenderInterface|callable|string|null
+    {
+        return isset_get_typed('Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface|callable|string|null', $this->source['additional_content']);
+    }
+
+
+    /**
+     * Sets the additional content for this component
+     *
+     * @param RenderInterface|callable|string|null $prefix
+     * @return static
+     */
+    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static
+    {
+        return $this->setKey($prefix, 'additional_content');
+    }
+
+
+    /**
      * Returns the postfix automatically added to this value, after validation
      *
      * @return string|null
@@ -364,7 +387,7 @@ class Definition implements DefinitionInterface
 
         if ($add_prefixless_names) {
             // Add the column name without prefix as a class name
-            $classes[] = $this->getColumn();
+            $classes[] = strtolower($this->getColumn());
         }
 
         return $classes;

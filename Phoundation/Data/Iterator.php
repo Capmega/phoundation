@@ -12,6 +12,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Exception\IteratorException;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Databases\Sql\Limit;
@@ -305,9 +306,10 @@ class Iterator implements IteratorInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -321,6 +323,13 @@ class Iterator implements IteratorInterface
             $this->source[] = $value;
 
         } else {
+            if (array_key_exists($key, $this->source) and $exception) {
+                throw new IteratorKeyExistsException(tr('Cannot add key ":key to Iterator class ":class" object because the key already exists', [
+                    ':key'   => $key,
+                    ':class' => get_class($this)
+                ]));
+            }
+
             $this->source[$key] = $value;
         }
 
@@ -1260,6 +1269,7 @@ class Iterator implements IteratorInterface
 
         // Now rename
         $this->source[$target] = $this->source[$key];
+        unset($this->source[$key]);
 
         // Done, return!
         return $entry;

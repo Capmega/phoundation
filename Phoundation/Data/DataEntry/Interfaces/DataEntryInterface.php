@@ -13,7 +13,6 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
@@ -356,7 +355,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function addSourceValue(string $column, mixed $value): static;
 
     /**
-     * Will save the data from this data entry to database
+     * Will save the data from this data entry to the database
      *
      * @param bool $force
      * @param string|null $comments
@@ -523,4 +522,66 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return DataEntryInterface
      */
     public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
+
+    /**
+     * Returns whether to use random_id
+     *
+     * @return bool
+     */
+    public function getRandomId(): bool;
+
+    /**
+     * Sets whether to use random_id
+     *
+     * @param bool $random_id
+     * @return static
+     */
+    public function setRandomId(bool $random_id): static;
+
+
+    /**
+     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @return bool
+     */
+    public function getMetaEnabled(): bool;
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param bool $meta_enabled
+     * return static
+     */
+    public function setMetaEnabled(bool $meta_enabled): static;
+
+
+    /**
+     * Returns whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
+     *
+     * @return bool
+     */
+    public function getInsertUpdate(): bool;
+
+    /**
+     * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
+     *
+     * @param bool $insert_update
+     * @return static
+     */
+    public function setInsertUpdate(bool $insert_update): static;
+
+    /**
+     * Returns how many random id retries to perform
+     *
+     * @return int
+     */
+    public function getMaxIdRetries(): int;
+
+    /**
+     * Sets how many random id retries to perform
+     *
+     * @param int $max_id_retries
+     * @return static
+     */
+    public function setMaxIdRetries(int $max_id_retries): static;
 }

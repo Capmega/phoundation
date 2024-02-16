@@ -96,11 +96,12 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Adds the specified source(s) to the internal source

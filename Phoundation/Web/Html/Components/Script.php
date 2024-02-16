@@ -73,6 +73,18 @@ class Script extends Element
 
 
     /**
+     * Script class constructor
+     */
+    public function __construct(?string $content = null)
+    {
+        parent::__construct($content);
+
+        // Default the javascript wrapper
+        $this->javascript_wrapper = EnumJavascriptWrappers::dom_content;
+    }
+
+    
+    /**
      * Returns if this script is loaded async
      *
      * @return bool

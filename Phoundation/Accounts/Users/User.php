@@ -21,9 +21,10 @@ use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -146,6 +147,13 @@ class User extends DataEntry implements UserInterface
      */
     protected array $columns_filter_on_insert = ['id', 'password'];
 
+    /**
+     * User from a different authentication system
+     *
+     * @var UserInterface|null $remote_user
+     */
+    protected ?UserInterface $remote_user = null;
+
 
     /**
      * Returns the table name used by this object
@@ -189,7 +197,9 @@ class User extends DataEntry implements UserInterface
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
-        $this->protected_columns = ['password', 'key'];
+        if (empty($this->protected_columns)) {
+            $this->protected_columns = ['password', 'key'];
+        }
 
         parent::__construct($identifier, $column, $meta_enabled);
 
@@ -278,6 +288,24 @@ class User extends DataEntry implements UserInterface
             // The requested user identifier doesn't exist
             throw $e;
         }
+    }
+
+
+    /**
+     * Returns the session for this user
+     *
+     * @return SessionInterface
+     */
+    public function getSession(): SessionInterface
+    {
+        if ($this->getId() === Session::getUser()->getId()) {
+            return Session::getInstance();
+        }
+
+        throw new SessionException(tr('Cannot access session data for user ":user", that user is not the current session user ":session"', [
+            ':user'    => $this->getId(),
+            ':session' => Session::getUser()->getLogId()
+        ]));
     }
 
 
@@ -430,6 +458,30 @@ class User extends DataEntry implements UserInterface
     public function setRemoteId(?int $remote_id): static
     {
         return $this->setSourceValue('remote_id', $remote_id);
+    }
+
+
+    /**
+     * Returns the remote user for this user
+     *
+     * @return UserInterface|null
+     */
+    public function getRemoteUser(): ?UserInterface
+    {
+        return $this->remote_user->setRemoteUser($this);
+    }
+
+
+    /**
+     * Sets the remote user for this user
+     *
+     * @param UserInterface|null $remote_user
+     * @return static
+     */
+    public function setRemoteUser(?UserInterface $remote_user): static
+    {
+        $this->remote_user = $remote_user;
+        return $this;
     }
 
 

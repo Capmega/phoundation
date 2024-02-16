@@ -13,6 +13,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
@@ -136,10 +137,11 @@ class Rights extends DataList implements RightsInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      * @throws OutOfBoundsExceptionInterface
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         $this->ensureParent(tr('add Right entry to parent'));
 
@@ -394,7 +396,7 @@ class Rights extends DataList implements RightsInterface
     public static function getNotExist(array|string $rights): array
     {
         $rights = Arrays::force($rights);
-        $values = Sql::in($rights);
+        $values = SqlQueries::in($rights);
         $rights = array_flip($rights);
 
         $exist  = sql()->query('SELECT `seo_name` 

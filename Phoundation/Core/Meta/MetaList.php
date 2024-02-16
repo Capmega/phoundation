@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Meta;
 
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\HtmlDataTable;
@@ -65,7 +66,7 @@ class MetaList
     public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
     {
         // Create and return the table
-        $in     = Sql::in($this->meta_list);
+        $in     = SqlQueries::in($this->meta_list);
         $source = sql()->list('SELECT    `meta_history`.`id`,
                                                `meta_history`.`created_by`,
                                                DATE_FORMAT(`meta_history`.`created_on`, "%Y-%m-%d %h:%m:%s") AS `date_time`,

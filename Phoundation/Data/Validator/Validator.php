@@ -2821,7 +2821,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (sql()->DataEntryExists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
+            if (sql()->dataEntryExists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
                 $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
             }
         });
@@ -3449,6 +3449,38 @@ abstract class Validator implements ValidatorInterface
             }
 
             $value = $callback($value, $this->source);
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by executing the specified callback over it, but the results may NOT be NULL
+     *
+     * @note The callback should accept values mixed $value and array $source
+     * @param callback $callback
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeCallbackNoNull(callable $callback): static
+    {
+        return $this->validateValues(function(&$value) use ($callback) {
+            $this->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $results = $callback($value, $this->source);
+
+            if ($results === null) {
+                $this->addFailure(tr('is not valid'));
+
+            } else {
+                $value = $results;
+            }
         });
     }
 

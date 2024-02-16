@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Traits\DataStatus;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -83,7 +83,7 @@ class NotificationsDropDown extends ElementsBlock
             $this->notifications->getQueryBuilder()->addSelect('`id` AS `_id`, `notifications`.*')->addOrderBy('`created_on` DESC');
 
             if ($this->status) {
-                $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND ' . Sql::is('`status`', $this->status, 'status'), [
+                $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
                     ':users_id' => Session::getUser()->getId(),
                     ':status'   => $this->status
                 ]);

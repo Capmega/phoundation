@@ -12,7 +12,7 @@ use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\TooltipInterface;
+use Phoundation\Web\Html\Components\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Stringable;
@@ -234,7 +234,7 @@ trait ElementAttributes
     public function getTooltip(): TooltipInterface
     {
         if (empty($this->tooltip)) {
-            $this->tooltip = new Tooltip($this);
+            $this->tooltip = Tooltip::new()->setSourceElement($this);
         }
 
         return $this->tooltip;
@@ -319,7 +319,7 @@ trait ElementAttributes
     public function addClasses(IteratorInterface|array|string|null $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
-            $this->classes->add(true, $class);
+            $this->classes->add(true, $class, exception: false);
         }
 
         return $this;
@@ -334,7 +334,7 @@ trait ElementAttributes
      */
     public function addClass(?string $class): static
     {
-        $this->classes->add(true, $class);
+        $this->classes->add(true, $class, exception: false);
         return $this;
     }
 
@@ -548,7 +548,7 @@ trait ElementAttributes
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
-                // Some element has auto focus, is it this one?
+                // Some element has auto-focus, is it this one?
                 if (static::$autofocus === $this->name) {
                     throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
                         ':name' => $this->name
@@ -874,6 +874,7 @@ trait ElementAttributes
         if ($definition) {
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
+                ->setRequired($definition->getRequired())
                 ->setClasses($definition->getClasses())
                 ->setDisabled($definition->getDisabled())
                 ->setReadOnly($definition->getReadonly())

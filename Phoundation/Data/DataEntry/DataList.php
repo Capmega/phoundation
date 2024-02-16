@@ -13,10 +13,12 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataParent;
 use Phoundation\Data\Traits\DataReadonly;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -254,17 +256,6 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Returns the schema Table object for the table that is the source for this DataList object
-     *
-     * @return Table
-     */
-    public function getTableSchema(): Table
-    {
-        return sql(static::getDefaultConnectorName())->schema()->table(static::getTable());
-    }
-
-
-    /**
      * Returns the item with the specified identifier
      *
      * @param Stringable|string|float|int $key
@@ -396,10 +387,14 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         $select  = InputSelect::new();
         $execute = [];
+
+        if (!$key_column) {
+            $key_column = static::getIdColumn();
+        }
 
         if ($this->is_loaded or count($this->source)) {
             // Data was either loaded from DB or manually added. $value_column may contain query parts, strip em.
@@ -417,7 +412,7 @@ abstract class DataList extends Iterator implements DataListInterface
                 $where = [];
 
                 foreach ($filters as $key => $value) {
-                    $where[] = $key . Sql::is($key, $value, 'value', $execute);
+                    $where[] = $key . SqlQueries::is($key, $value, 'value', $execute);
                 }
 
                 $query .= ' WHERE ' . implode(' AND ', $where);
@@ -474,7 +469,9 @@ abstract class DataList extends Iterator implements DataListInterface
     public function updateStatusAll(?string $status, ?string $comments = null, bool $meta_enabled = true): int
     {
         foreach ($this->source as $entry) {
-            sql(static::getDefaultConnectorName())->dataEntrySetStatus($status, static::getTable(), $entry, $comments, $meta_enabled);
+            sql(static::getDefaultConnectorName())
+                ->getSqlDataEntryObject()
+                    ->setStatus($status, $entry, $comments, $meta_enabled);
         }
 
         return count($this->source);
@@ -523,7 +520,7 @@ abstract class DataList extends Iterator implements DataListInterface
             if (is_array($entry)) {
                 $meta[] = $entry['meta_id'];
 
-            } elseif ($entry instanceof DataEntry) {
+            } elseif ($entry instanceof DataEntryInterface) {
                 $meta[] = $entry->getMetaId();
             }
         }
@@ -562,7 +559,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function listIds(array $identifiers): array
     {
         if ($identifiers) {
-            $in = Sql::in($identifiers);
+            $in = SqlQueries::in($identifiers);
 
             return sql(static::getDefaultConnectorName())->list('SELECT `id` 
                                                                    FROM   `' . static::getTable() . '` 
@@ -579,9 +576,10 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!$value instanceof DataEntryInterface) {
             // Value might be NULL if we skip NULLs?
@@ -637,7 +635,7 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-        return parent::add($value, $key, $skip_null);
+        return parent::add($value, $key, $skip_null, $exception);
     }
 
 

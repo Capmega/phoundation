@@ -18,6 +18,7 @@ use Phoundation\Web\Html\Components\Tooltips\Enums\EnumTooltipTrigger;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
 use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
+use Phoundation\Web\Html\Components\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
 
@@ -34,7 +35,7 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
+class Tooltip extends Element implements TooltipInterface
 {
     /**
      * The element to which this tooltip belongs
@@ -83,33 +84,20 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
      * Tooltip class constructor
      *
      * @note This method does NOT call its parent constructor!
-     *
-     * @param ElementInterface|null $source_element
      */
-    public function __construct(?ElementInterface $source_element = null)
+    public function __construct()
     {
-        $this->data           = new Iterator();
-        $this->element        = 'tooltip';
-        $this->source_element = $source_element;
+        parent::__construct();
+
+        $this->data    = new Iterator();
+        $this->element = 'tooltip';
 
         // Set default values
         $this->setRenderBefore(Config::getBoolean('web.html.tooltips.icon.before', false))
-             ->setPlacement(EnumTooltipPlacement::right)
-             ->setTriggers(EnumTooltipTrigger::from(Config::getString('web.html.tooltips.trigger', 'click')))
-             ->setUseIcon(Config::getBoolean('web.html.tooltips.icon.use', false))
-             ->setHtml(Config::getBoolean('web.html.tooltips.html', false));
-    }
-
-
-    /**
-     * Returns a new Tooltip class
-     *
-     * @param Element|null $element
-     * @return static
-     */
-    public static function new(?Element $element = null): static
-    {
-        return new static($element);
+            ->setPlacement(EnumTooltipPlacement::right)
+            ->setTriggers(EnumTooltipTrigger::from(Config::getString('web.html.tooltips.trigger', 'click')))
+            ->setUseIcon(Config::getBoolean('web.html.tooltips.icon.use', false))
+            ->setHtml(Config::getBoolean('web.html.tooltips.html', false));
     }
 
 
@@ -121,6 +109,20 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
     public function getSourceElement(): ?ElementInterface
     {
         return $this->source_element;
+    }
+
+
+    /**
+     * Sets the source element to which this tooltip is bound, if any
+     *
+     * @param ElementInterface|null $source_element
+     * @return static
+     */
+    public function setSourceElement(?ElementInterface $source_element): static
+    {
+        $this->source_element = $source_element;
+
+        return $this;
     }
 
 
@@ -559,8 +561,10 @@ class Tooltip extends Element implements Enums\Interfaces\TooltipInterface
             // Build data string
             if (is_array($value)) {
                 $value = '"' . implode(' ', $value) . '"';
+
             } elseif (is_bool($value)) {
                 $value = Strings::fromBoolean($value);
+
             } else {
                 $value =  '"' . htmlentities($value) . '"';
             }
