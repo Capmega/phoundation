@@ -10,6 +10,7 @@ use Phoundation\Audio\Audio;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\Exception;
@@ -528,7 +529,7 @@ class Debug {
         if (empty($style)) {
             $style  = true;
 
-            $return = '<style type="text/css">
+            $return = '<style>
                 table.debug{
                     font-family: sans-serif;
                     width:99%;
@@ -650,6 +651,36 @@ class Debug {
                     <td class="value">' . $value.'</td>
                 </tr>';
 
+            case 'object':
+                if (!($value instanceof ArrayableInterface)) {
+                    // Format exception nicely
+                    if ($value instanceof Throwable) {
+                        $value =  static::displayException($value, $full_backtrace, 0);
+
+                    } else {
+                        $value  = print_r($value, true);
+                        $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
+                        $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
+                    }
+
+                    $return = '<pre>' . $value . '</pre>';
+
+                    return '<tr>
+                            <td>' . $key . '</td>
+                            <td>' . $type.'</td>
+                            <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
+                            <td>' . $return . '</td>
+                        </tr>';
+                }
+
+                // This is an object that has a $value::__toArray() method, convert it to array and display it as such
+                $value = [
+                    ''         => 'Arreable object',
+                    'class'    => get_class($value),
+                    'contents' => $value->__toArray()
+                ];
+                // No break
+
             case 'array':
                 $return = '';
 
@@ -671,45 +702,6 @@ class Debug {
                         </table>
                     </td>
                 </tr>';
-
-            case 'object':
-                // Format exception nicely
-                if ($value instanceof Throwable) {
-                    $value =  static::displayException($value, $full_backtrace, 0);
-
-                } else {
-                    $value  = print_r($value, true);
-                    $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-                    $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                }
-
-                $return = '<pre>' . $value . '</pre>';
-
-                return '<tr>
-                            <td>' . $key . '</td>
-                            <td>' . $type.'</td>
-                            <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
-                            <td>' . $return . '</td>
-                        </tr>';
-
-//                if ($value instanceof \Exception) {
-//
-//                } elseif ($value instanceof \Exception) {
-//
-//                } else {
-//                    // Clean contents!
-//                    $value  = print_r($value, true);
-//                    $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-//                    $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-//                    $return = '<pre>' . $value.'</pre>';
-//
-//                    return '<tr>
-//                                <td>' . $key . '</td>
-//                                <td>' . $type.'</td>
-//                                <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
-//                                <td>' . $return.'</td>
-//                            </tr>';
-//                }
 
             default:
                 return '<tr>

@@ -1868,7 +1868,7 @@ die($errfile. $errline);
         $e = Exception::ensurePhoundationException($e);
 
         if (!Debug::getEnabled()) {
-            // In debug mode we can assume the developer is looking at the system
+            // In debug mode, we can assume the developer is looking at the system
             try {
                 $e->registerDeveloperIncident();
 

@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces;
+namespace Phoundation\Web\Html\Components\Tooltips\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipBoundaryInterface;
+use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipPlacementInterface;
+use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\EnumTooltipTriggerInterface;
 
 
 /**
@@ -229,4 +232,12 @@ interface TooltipInterface extends ElementInterface
      * @return string|null
      */
     public function render(?string $render = null): ?string;
+
+    /**
+     * Sets the source element to which this tooltip is bound, if any
+     *
+     * @param ElementInterface|null $source_element
+     * @return static
+     */
+    public function setSourceElement(?ElementInterface $source_element): static;
 }

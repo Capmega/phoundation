@@ -161,7 +161,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
         $this->setExitCode($exit_code, $output);
 
         if ($this->debug) {
-            Log::notice($output, 3);
+            Log::debug($output);
         }
 
         return $output;
