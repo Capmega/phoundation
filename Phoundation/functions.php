@@ -18,6 +18,7 @@ use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
+use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
@@ -1007,7 +1008,7 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
  */
 function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
 {
-    return Databases::Sql($connector, $use_database);
+    return Databases::sql($connector, $use_database);
 }
 
 
@@ -1019,7 +1020,7 @@ function sql(ConnectorInterface|string $connector = 'system', bool $use_database
  */
 function mc(?string $instance_name = null): Mc
 {
-    return Databases::Mc($instance_name);
+    return Databases::mc($instance_name);
 }
 
 
@@ -1031,7 +1032,7 @@ function mc(?string $instance_name = null): Mc
  */
 function mongo(?string $instance_name = null): Mongo
 {
-    return Databases::Mongo($instance_name);
+    return Databases::mongo($instance_name);
 }
 
 
@@ -1043,7 +1044,7 @@ function mongo(?string $instance_name = null): Mongo
  */
 function redis(?string $instance_name = null): Redis
 {
-    return Databases::Redis($instance_name);
+    return Databases::redis($instance_name);
 }
 
 
@@ -1055,7 +1056,7 @@ function redis(?string $instance_name = null): Redis
  */
 function null(?string $instance_name = null): NullDb
 {
-    return Databases::NullDb($instance_name);
+    return Databases::nullDb($instance_name);
 }
 
 
