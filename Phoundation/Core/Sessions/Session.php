@@ -45,6 +45,7 @@ use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
+use Random\RandomException;
 use Throwable;
 
 
@@ -60,6 +61,13 @@ use Throwable;
  */
 class Session implements SessionInterface
 {
+    /**
+     * Singleton
+     *
+     * @var SessionInterface
+     */
+    protected static SessionInterface $instance;
+
     /**
      * The current user for this session
      *
@@ -115,6 +123,21 @@ class Session implements SessionInterface
      * @var SignInKeyInterface|null $key
      */
     protected static ?SignInKeyInterface $key = null;
+
+
+    /**
+     * Singleton, ensure to always return the same Log object.
+     *
+     * @return static
+     */
+    public static function getInstance(): static
+    {
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
 
 
     /**
@@ -1091,6 +1114,80 @@ Log::warning('RESTART SESSION');
         }
 
         return false;
+    }
+
+
+    /**
+     * Returns the value for the given key / sub_key
+     *
+     * @param string $key
+     * @param string|null $sub_key
+     * @return mixed
+     */
+    public static function get(string $key, ?string $sub_key = null): mixed
+    {
+        if ($sub_key) {
+            $section = isset_get($_SESSION[$key]);
+
+            if (is_array($section)) {
+                // Key exists and is an array, yay!
+                return isset_get($section[$sub_key]);
+            }
+
+            if ($section === null) {
+                // Key does not exist or was null, either way, nothing to return!
+                return null;
+            }
+
+            // Sub must either not exist or be an array. Here its neither
+            throw new OutOfBoundsException(tr('Cannot read session key ":key" sub key ":sub-key" because session key is not an array', [
+                ':key'     => $key,
+                ':sub-key' => $sub_key,
+            ]));
+        }
+
+        return isset_get($_SESSION[$key]);
+    }
+
+
+    /**
+     * Returns the value for the given key
+     *
+     * @param string $value
+     * @param string $key
+     * @param string|null $sub_key
+     * @return void
+     */
+    public static function set(mixed $value, string $key, ?string $sub_key = null): void
+    {
+        if ($sub_key) {
+            if (array_key_exists($key, $_SESSION)) {
+                $_SESSION[$key] = [];
+            }
+
+            if (!is_array($_SESSION[$key])) {
+                throw new OutOfBoundsException(tr('Cannot write session key ":key" sub key ":sub-key" because session key is not an array', [
+                    ':key'     => $key,
+                    ':sub-key' => $sub_key,
+                ]));
+            }
+
+            $_SESSION[$key][$sub_key] = $value;
+            return;
+        }
+
+        $_SESSION[$key] = $value;
+    }
+
+
+    /**
+     * Returns the session store
+     *
+     * @return array
+     */
+    public static function getSource(): array
+    {
+        return $_SESSION;
     }
 
 
