@@ -13,6 +13,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
@@ -102,7 +103,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function setRights(?array $list, ?string $column = null): static
     {
-        $this->ensureParent('save entries');
+        $this->ensureParent(tr('save entries'));
 
         if (is_array($list)) {
             // Convert the list with whatever is specified (id, seo_name, role object) to seo_names
@@ -136,12 +137,13 @@ class Rights extends DataList implements RightsInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      * @throws OutOfBoundsExceptionInterface
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
-        $this->ensureParent('add Right entry to parent');
+        $this->ensureParent(tr('add Right entry to parent'));
 
         if ($value) {
             if (is_array($value)) {
@@ -211,7 +213,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function delete(RightInterface|Stringable|array|string|float|int $keys): static
     {
-        $this->ensureParent('remove entry from parent');
+        $this->ensureParent(tr('remove entry from parent'));
 
         if (!$keys) {
             // Nothing to do
@@ -307,7 +309,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function clear(): static
     {
-        $this->ensureParent('clear all entries from parent');
+        $this->ensureParent(tr('clear all entries from parent'));
 
         if ($this->parent instanceof UserInterface) {
             Log::action(tr('Removing all rights from user ":user"', [
@@ -394,7 +396,7 @@ class Rights extends DataList implements RightsInterface
     public static function getNotExist(array|string $rights): array
     {
         $rights = Arrays::force($rights);
-        $values = Sql::in($rights);
+        $values = SqlQueries::in($rights);
         $rights = array_flip($rights);
 
         $exist  = sql()->query('SELECT `seo_name` 
@@ -513,7 +515,7 @@ class Rights extends DataList implements RightsInterface
      */
     public function save(): static
     {
-//        $this->ensureParent('save parent entries');
+//        $this->ensureParent(tr('save parent entries'));
 //
 //        if ($this->parent instanceof UserInterface) {
 //            // Delete the current list
@@ -559,9 +561,9 @@ class Rights extends DataList implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order, $joins)
+        return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
             ->setName('rights_id')
             ->setNone(tr('Select a right'))
             ->setObjectEmpty(tr('No rights available'));

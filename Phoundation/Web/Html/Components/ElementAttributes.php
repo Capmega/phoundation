@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\TooltipInterface;
+use Phoundation\Web\Html\Components\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Stringable;
@@ -27,6 +30,12 @@ use Stringable;
  */
 trait ElementAttributes
 {
+    use DataDefinition {
+        setDefinition as protected __setDefinition;
+        getDefinition as protected __getDefinition;
+    }
+
+
     /**
      * The HTML id element attribute
      *
@@ -225,7 +234,7 @@ trait ElementAttributes
     public function getTooltip(): TooltipInterface
     {
         if (empty($this->tooltip)) {
-            $this->tooltip = new Tooltip($this);
+            $this->tooltip = Tooltip::new()->setSourceElement($this);
         }
 
         return $this->tooltip;
@@ -310,7 +319,7 @@ trait ElementAttributes
     public function addClasses(IteratorInterface|array|string|null $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
-            $this->classes->add(true, $class);
+            $this->classes->add(true, $class, exception: false);
         }
 
         return $this;
@@ -325,7 +334,7 @@ trait ElementAttributes
      */
     public function addClass(?string $class): static
     {
-        $this->classes->add(true, $class);
+        $this->classes->add(true, $class, exception: false);
         return $this;
     }
 
@@ -828,7 +837,51 @@ trait ElementAttributes
      */
     public static function canRenderHtml(object|string $class): void
     {
+        // TODO Replace this with a RenderInterface check
         static::ensureElementAttributesTrait($class);
+    }
+
+
+    /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface
+     */
+    public function getDefinition(): DefinitionInterface
+    {
+        if (!$this->definition) {
+            $this->__setDefinition(Definition::new(null, $this->getName())
+                ->setClasses($this->getClasses())
+                ->setDisabled($this->getDisabled())
+                ->setReadOnly($this->getReadonly())
+                ->setAutoFocus($this->getAutoFocus()));
+        }
+
+        return $this->__getDefinition();
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $definition
+     * @return $this
+     */
+    public function setDefinition(?DefinitionInterface $definition): static
+    {
+        if ($definition) {
+            // Apply the definition rules to this element
+            $this->setName($definition->getColumn())
+                ->setRequired($definition->getRequired())
+                ->setClasses($definition->getClasses())
+                ->setDisabled($definition->getDisabled())
+                ->setReadOnly($definition->getReadonly())
+                ->setAutoFocus($definition->getAutoFocus());
+        }
+
+        return $this->__setDefinition($definition);
     }
 
 

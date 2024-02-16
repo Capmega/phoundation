@@ -6,11 +6,13 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Renderer;
 use Phoundation\Web\Page;
 
@@ -30,7 +32,6 @@ abstract class Element implements ElementInterface
     use ElementAttributes;
 
 
-
     /**
      * The element type
      *
@@ -47,13 +48,16 @@ abstract class Element implements ElementInterface
 
 
     /**
-     * Returns the rendered version of this element
+     * ElementAttributes class constructor
      *
-     * @return string
+     * @param string|null $content
      */
-    public function __toString(): string
+    public function __construct(?string $content = null)
     {
-        return (string) $this->render();
+        $this->classes    = new Iterator();
+        $this->attributes = new Iterator();
+
+        $this->setContent($content);
     }
 
 
@@ -62,9 +66,20 @@ abstract class Element implements ElementInterface
      *
      * @return $this
      */
-    public static function new(): static
+    public static function new(?string $content = null): static
     {
-        return new static();
+        return new static($content);
+    }
+
+
+    /**
+     * Returns the rendered version of this element
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return (string) $this->render();
     }
 
 
@@ -143,14 +158,14 @@ abstract class Element implements ElementInterface
             $this->attributes->delete('auto_submit');
             $postfix .= Script::new()
                 ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
-                ->setJavascriptWrapper(JavascriptWrappers::window);
+                ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
         $renderer_class  = Page::getTemplate()->getRendererClass($this);
 
         $render_function = function () use ($postfix) {
             $attributes  = $this->buildAttributes();
-            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Arrays::FILTER_NULL | Arrays::QUOTE_ALWAYS | Arrays::FILTER_NULL);
+            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::FILTER_NULL | Utils::QUOTE_ALWAYS | Utils::FILTER_NULL);
             $attributes .= $this->extra;
 
             if ($attributes) {

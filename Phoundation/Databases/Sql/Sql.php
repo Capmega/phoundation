@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
 
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use PDO;
 use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Timers;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Connector;
@@ -27,13 +24,13 @@ use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
-use Phoundation\Databases\Sql\Exception\SqlDuplicateException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
+use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
@@ -47,13 +44,12 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Throwable;
 
 
 /**
- * Sql class
+ * Class Sql
  *
  * This class is the main SQL database access class
  *
@@ -112,13 +108,6 @@ class Sql implements SqlInterface
      * @var string
      */
     protected string $uniqueid;
-
-    /**
-     * Sets how many times some failures may be retried until an exception is thrown
-     *
-     * @var int $maxretries
-     */
-    protected int $maxretries = 5;
 
     /**
      * Sets if debug is enabled or disabled
@@ -223,34 +212,16 @@ class Sql implements SqlInterface
     }
 
 
-//    /**
-//     * Create an SQL connector in $_CONFIG['db'][$this->instance_name] = $data
-//     *
-//     * @param string $instance_name
-//     * @param array $configuration
-//     * @return array The specified connector data, with all informatinon completed if missing
-//     */
-//    public function makeConfiguration(string $instance_name, array $configuration): array
-//    {
-//        if (empty($configuration['ssh_tunnel'])) {
-//            $configuration['ssh_tunnel'] = array();
-//        }
-//
-//        if ($this->getConfiguration($instance_name)) {
-//            if (empty($configuration['overwrite'])) {
-//                throw new SqlException(tr('The specified connector name ":name" already exists', [':name' => $instance_name]));
-//            }
-//        }
-//
-//        $configuration = $this->ensureConnector($configuration);
-//
-//        if ($configuration['ssh_tunnel']) {
-//            $configuration['ssh_tunnel']['required'] = true;
-//        }
-//
-//        Config::set('database.connectors.' . $instance_name, $configuration);
-//        return $configuration;
-//    }
+    /**
+     * Returns an SqlDataEntry object for this SQL class
+     *
+     * @param DataEntryInterface $data_entry
+     * @return SqlDataEntryInterface
+     */
+    public function getSqlDataEntryObject(DataEntryInterface $data_entry): SqlDataEntryInterface
+    {
+        return new SqlDataEntry($this, $data_entry);
+    }
 
 
     /**
@@ -426,10 +397,10 @@ class Sql implements SqlInterface
                     $log = true;
                 }
 
-                $timer = Timers::new('sql', static::getLogPrefix() . $query->queryString);
+                $timer = Timers::new('sql', static::getConnectorLogPrefix() . $query->queryString);
 
                 // Are we going to write?
-                $this->checkWriteAllowed($query->queryString);
+                SqlQueries::checkWriteAllowed($query->queryString);
                 $query->execute($execute);
 
             } else {
@@ -438,10 +409,10 @@ class Sql implements SqlInterface
                     $log = true;
                 }
 
-                $timer = Timers::new('sql', static::getLogPrefix()  . $query);
+                $timer = Timers::new('sql', static::getConnectorLogPrefix()  . $query);
 
                 // Are we going to write?
-                $this->checkWriteAllowed($query);
+                SqlQueries::checkWriteAllowed($query);
 
                 if (empty($execute)) {
                     // Execute plain SQL query string. Only return ASSOC data.
@@ -460,14 +431,14 @@ class Sql implements SqlInterface
 
             // Log query
             if ($log) {
-                Log::sql(static::getLogPrefix() . '[' . number_format($timer->getTotal() * 1000, 4) . ' ms] ' . $query->queryString, $execute);
+                Log::sql(static::getConnectorLogPrefix() . '[' . number_format($timer->getTotal() * 1000, 4) . ' ms] ' . $query->queryString, $execute);
             }
 
             if ($this->statistics) {
                  // Get current function / file@line. If current function is actually an include then assume this is the
                  // actual script that was executed by route()
                 Debug::addStatistic()
-                    ->setQuery($this->show($query, $execute, true))
+                    ->setQuery(SqlQueries::show($query, $execute, true))
                     ->setTime($timer->getTotal());
             }
 
@@ -499,83 +470,6 @@ class Sql implements SqlInterface
 
 
     /**
-     * Write the specified data row in the specified table
-     *
-     * This is a simplified insert / update method to speed up writing basic insert or update queries. If the
-     * $update_row[id] contains a value, the method will try to update instead of insert
-     *
-     * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param string $table
-     * @param array $insert_row
-     * @param array $update_row
-     * @param string|null $comments
-     * @param string|null $diff
-     * @param bool $meta_enabled
-     * @return int
-     */
-    public function dataEntryWrite(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff, bool $meta_enabled = true): int
-    {
-        if (empty($update_row['id'])) {
-            // New entry, insert
-            $retry = 0;
-
-            while ($retry++ < $this->maxretries) {
-                try {
-                    // Create a random table ID
-                    $id = random_int(1, PHP_INT_MAX);
-
-                } catch (Exception $e) {
-                    throw SqlException::new(tr('Failed to create random table ID'), $e);
-                }
-
-                try {
-                    // Insert the row
-                    $insert_row = Arrays::prepend($insert_row, 'id', $id);
-                    return $this->dataEntryInsert($table, $insert_row, $comments, $diff, $meta_enabled);
-
-                } catch (SqlException $e) {
-                    if ($e->getCode() !== 1062) {
-                        // Some different error, keep throwing
-                        throw $e;
-                    }
-
-                    // Duplicate entry, which?
-                    $column = $e->getMessage();
-                    $column = Strings::until(Strings::fromReverse($column, 'key \''), '\'');
-                    $column = Strings::from($column, '.');
-                    $column = trim($column);
-
-                    if ($column === 'id') {
-                        // Duplicate ID, try with a different random number
-                        Log::warning(static::getLogPrefix() . tr('Wow! Duplicate ID entry ":rowid" encountered for insert in table ":table", retrying', [
-                            ':rowid' => $insert_row['id'],
-                            ':table' => $table
-                        ]));
-
-                        continue;
-                    }
-
-                    // Duplicate other column, continue throwing
-                    throw new SqlDuplicateException(tr('Duplicate entry encountered for column ":column"', [
-                        ':column' => $column
-                    ]), $e);
-                }
-            }
-
-            // If the randomly selected ID already exists, just try again
-            throw new SqlException(tr('Could not find a unique id in ":retries" retries', [
-                ':retries' => $this->maxretries
-            ]));
-        }
-
-        // This is an existing entry, update!
-        $this->dataEntryUpdate($table, $update_row, 'update', $comments, $diff, $meta_enabled);
-        return $update_row['id'];
-    }
-
-
-    /**
      * Insert the specified data row in the specified table, with "on dulplicate update" option
      *
      * This is a simplified insert method to speed up writing basic insert queries
@@ -592,8 +486,8 @@ class Sql implements SqlInterface
     {
         Core::checkReadonly('sql insert');
 
-        $columns = $this->columns($data);
-        $values  = $this->getBoundVariables($data);
+        $columns = SqlQueries::getPrefixedColumns($data);
+        $values  = SqlQueries::getBoundValues($data);
 
         if ($update) {
             // Build bound variables for the query
@@ -601,8 +495,8 @@ class Sql implements SqlInterface
                 $data = array_merge($data, $update);
             }
 
-            $keys   = $this->keys($data);
-            $update = $this->updateColumns($update);
+            $keys   = SqlQueries::getBoundKeys($data);
+            $update = SqlQueries::getUpdateKeyValues($update);
 
             $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
                                 VALUES                                  (' . $keys . ') 
@@ -610,7 +504,7 @@ class Sql implements SqlInterface
 
         } else {
             // Build bound variables for query
-            $keys = $this->keys($data);
+            $keys = SqlQueries::getBoundKeys($data);
 
             $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
         }
@@ -636,133 +530,15 @@ class Sql implements SqlInterface
         Core::checkReadonly('sql update');
 
         // Build bound variables for the query
-        $values = $this->getBoundVariables(array_merge($set, Arrays::force($where)));
-        $update = $this->updateColumns($set);
-        $where  = $this->whereColumns($where);
+        $values = SqlQueries::getBoundValues(array_merge($set, Arrays::force($where)));
+        $update = SqlQueries::getUpdateKeyValues($set);
+        $where  = SqlQueries::whereColumns($where);
 
         $statement = $this->query('UPDATE `' . $table . '`
                                          SET     ' . $update .
                                          $where, $values);
 
         return $statement->rowCount();
-    }
-
-
-    /**
-     * Insert the specified data row in the specified table
-     *
-     * This is a simplified insert method to speed up writing basic insert queries
-     *
-     * @note: PDO::lastInsertId() returns string|false, this method will return int
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param string $table
-     * @param array $row
-     * @param string|null $comments
-     * @param string|null $diff
-     * @param bool $meta_enabled
-     * @return int
-     */
-    public function dataEntryInsert(string $table, array $row, ?string $comments = null, ?string $diff = null, bool $meta_enabled = true): int
-    {
-        Core::checkReadonly('sql data-entry-insert');
-
-        // Set meta fields
-        if (array_key_exists('meta_id', $row)) {
-            $row['meta_id']    = ($meta_enabled ? Meta::init($comments, $diff)->getId() : null);
-            $row['created_by'] = Session::getUser()->getId();
-            $row['meta_state'] = Strings::random(16);
-
-            unset($row['created_on']);
-        }
-
-        // Build bound variables for the query
-        $columns = $this->columns($row);
-        $values  = $this->getBoundVariables($row, null, true);
-        $keys    = $this->keys($row);
-
-        $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
-
-        if (empty($row['id'])) {
-            // No row id specified, get the insert id from SQL driver
-            return (int) $this->pdo->lastInsertId();
-        }
-
-        // Use the given row id
-        return $row['id'];
-    }
-
-
-    /**
-     * Update the specified data row in the specified table
-     *
-     * This is a simplified insert method to speed up writing basic insert queries
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param string $table
-     * @param array $row
-     * @param string $action
-     * @param string|null $comments
-     * @param string|null $diff
-     * @param bool $meta_enabled
-     * @return int
-     */
-    public function dataEntryUpdate(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null, bool $meta_enabled = true): int
-    {
-        Core::checkReadonly('sql data-entry-update');
-
-        // Set meta fields
-        if (array_key_exists('meta_id', $row)) {
-            // Log meta_id action
-            if ($meta_enabled) {
-                Meta::get($row['meta_id'])->action($action, $comments, $diff);
-            }
-
-            $row['meta_state'] = Strings::random(16);
-
-            // Never update the other meta-information
-            unset($row['status']);
-            unset($row['meta_id']);
-            unset($row['created_by']);
-            unset($row['created_on']);
-        }
-
-        // Build bound variables for the query
-        $update = $this->updateColumns($row);
-        $values = $this->getBoundVariables($row);
-
-        $this->query('UPDATE `' . $table . '` 
-                            SET     ' . $update  . '
-                            WHERE  `id` = :id', $values);
-
-        return (int) $this->pdo->lastInsertId();
-    }
-
-
-    /**
-     * Update the status for the data row in the specified table to "deleted"
-     *
-     * This is a simplified insert method to speed up writing basic insert queries
-     *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param string $table
-     * @param array $row
-     * @param string|null $comments
-     * @param bool $meta_enabled
-     * @return int
-     */
-    public function dataEntryDelete(string $table, array $row, ?string $comments = null, bool $meta_enabled = true): int
-    {
-        Core::checkReadonly('sql data-entry-delete');
-
-        // DataEntry table?
-        if (array_key_exists('meta_id', $row)) {
-            return $this->dataEntrySetStatus('deleted', $table, $row, $comments, $meta_enabled);
-        }
-
-        // This table is not a DataEntry table, just delete the entry
-        return $this->erase($table, $row);
     }
 
 
@@ -797,45 +573,6 @@ class Sql implements SqlInterface
 
 
     /**
-     * Update the status for the data row in the specified table to the specified status
-     *
-     * @param string|null $status
-     * @param string $table
-     * @param DataEntryInterface|array $entry
-     * @param string|null $comments
-     * @param bool $meta_enabled
-     * @return int
-     */
-    public function dataEntrySetStatus(?string $status, string $table, DataEntryInterface|array $entry, ?string $comments = null, bool $meta_enabled = true): int
-    {
-        Core::checkReadonly('sql set-status');
-
-        if (is_object($entry)) {
-            $entry = [
-                'id'      => $entry->getId(),
-                'meta_id' => $entry->getMetaId(),
-            ];
-        }
-
-        if (empty($entry['id'])) {
-            throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
-        }
-
-        // Update the meta data
-        if ($meta_enabled) {
-            Meta::get($entry['meta_id'], false)->action(tr('Changed status'), $comments, Json::encode([
-                'status' => $status
-            ]));
-        }
-
-        // Update the row status
-        return $this->query('UPDATE `' . $table . '` 
-                                   SET `status` = :status
-                                   WHERE   `id` = :id', [':status' => $status, ':id' => $entry['id']])->rowCount();
-    }
-
-
-    /**
      * Delete the row in the specified table
      *
      * This is a simplified delete method to speed up writing basic delete queries for DataEntry tables
@@ -852,80 +589,11 @@ class Sql implements SqlInterface
         Core::checkReadonly('sql erase');
 
         // Build bound variables for the query
-        $variables = $this->getBoundVariables($where);
-        $update    = $this->filterColumns($where, ' ' . $separator . ' ');
+        $variables = SqlQueries::getBoundValues($where);
+        $update    = SqlQueries::filterColumns($where, ' ' . $separator . ' ');
 
          return $this->query('DELETE FROM `' . $table . '`
                                     WHERE        ' . $update, $variables)->rowCount();
-    }
-
-
-    /**
-     * Builds and returns a query string from the specified query and execute parameters
-     *
-     * @param string|PDOStatement $query
-     * @param array|null $execute
-     * @param bool $clean
-     * @return string
-     */
-    public static function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = false): string
-    {
-        if (is_object($query)) {
-            if (!($query instanceof PDOStatement)) {
-                throw new SqlException(tr('Object of unknown class ":class" specified where PDOStatement was expected', [':class' => get_class($query)]));
-            }
-
-            // Query to be logged is a PDO statement, extract the query
-            $query = $query->queryString;
-        }
-
-        $query = trim($query);
-
-        if ($clean) {
-            $query = Strings::cleanWhiteSpace($query);
-        }
-
-        // Apply execution variables
-        if (is_array($execute)) {
-            /*
-             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used
-             * incorrectly
-             *
-             * example:
-             *
-             * array(category    => test,
-             *       category_id => 5)
-             *
-             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
-             */
-            krsort($execute);
-
-            foreach ($execute as $key => $value) {
-                if (is_string($value)) {
-                    $value = addslashes($value);
-                    $query = str_replace($key, '"' . Strings::Log($value) . '"', $query);
-
-                } elseif (is_null($value)) {
-                    $query = str_replace($key, ' ' . tr('NULL') . ' ', $query);
-
-                } elseif (is_bool($value)) {
-                    $query = str_replace($key, Strings::fromBoolean($value), $query);
-
-                } else {
-                    if (!is_scalar($value)) {
-                        throw new LogException(tr('Query ":query" $execute key ":key" has non-scalar value ":value"', [
-                            ':key'   => $key,
-                            ':value' => $value,
-                            ':query' => $query
-                        ]));
-                    }
-
-                    $query = str_replace((string) $key, (string) $value, $query);
-                }
-            }
-        }
-
-        return $query;
     }
 
 
@@ -978,7 +646,7 @@ class Sql implements SqlInterface
             case 0:
                 // No results. This is probably okay, but do check if the query was a select or show query, just to
                 // be sure
-                $this->ensureShowSelect($query, $execute);
+                SqlQueries::checkShowSelect($query, $execute);
                 return null;
 
             case 1:
@@ -997,11 +665,11 @@ class Sql implements SqlInterface
 
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
-                $this->ensureShowSelect($query, $execute);
+                SqlQueries::checkShowSelect($query, $execute);
 
                 throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
-                    ':query' => static::buildQueryString($result->queryString, $execute)
+                    ':query' => SqlQueries::buildQueryString($result->queryString, $execute)
                 ]));
         }
     }
@@ -1039,7 +707,7 @@ class Sql implements SqlInterface
             // No column was specified, so we MUST have received only one column!
             if (count($result) > 1) {
                 // The query returned multiple columns
-                throw SqlException::new(tr('The query ":query" returned ":count" columns while $this->getColumn() without $column specification can only select and return one single column', [
+                throw SqlException::new(tr('The query ":query" returned ":count" columns while Sql::getColumn() without $column specification can only select and return one single column', [
                     ':query' => $query,
                     ':count' => count($result)
                 ]))->addData($result);
@@ -1328,272 +996,11 @@ class Sql implements SqlInterface
 
 
     /**
-     * Merge database entry with new posted entry, overwriting the old DB values,
-     * while skipping the values specified in $skip
-     *
-     * @param array|null $database_entry
-     * @param array|null $post
-     * @param array|string|null $skip
-     * @param bool $recurse
-     * @return array|null The specified datab ase entry, updated with all the data from the specified $_POST entry
-     */
-    public static function mergeRecord(?array $database_entry, ?array $post, array|string|null $skip = null, bool $recurse = true): ?array
-    {
-        if (!$post) {
-            if (!is_array($post)) {
-                throw new SqlException(tr('Specified post source data type should be an array but is a ":type"', [':type' => gettype($post)]));
-            }
-
-            // No post was done, there is nothing to merge
-            return $database_entry;
-        }
-
-        if (!is_array($database_entry)) {
-            if ($database_entry !== null) {
-                throw new SqlException(tr('Specified database source data type should be an array or NULL but is a ":type"', [':type' => gettype($database_entry)]));
-            }
-
-            // Database entry is empty
-            $database_entry = [];
-        }
-
-        // By default, do not copy the id, meta_id and status columns
-        if ($skip === null) {
-            $skip = 'id,meta_id,status';
-        }
-
-        $skip = Arrays::force($skip);
-
-        // Copy all POST variables over DB. Skip POST variables that have NULL value
-        foreach ($database_entry as $key => $value) {
-            if (in_array($key, $skip)) {
-                // This can be skipped
-                continue;
-            }
-
-            if (!array_key_exists($key, $post)) {
-                // This key doesn't exist in post, continue to the next
-                continue;
-            }
-
-            if (is_array($value)) {
-                // This entry is an array, do a recursive merge if post was specified too
-                if (!is_array($post[$key])) {
-                    // Whoops, $post format is invalid
-                    throw new OutOfBoundsException(tr('Specified post entry key ":key" is invalid, it should be an array but is a ":type"', [
-                        ':key' => $key,
-                        ':type' => gettype($post[$key])
-                    ]));
-                }
-
-                // Recurse
-                if ($recurse) {
-                    $database_entry[$key] = Sql::merge($value, $post[$key], $skip, $recurse);
-                }
-            } elseif (is_scalar($post[$key]) or ($post[$key] === null)) {
-                if (is_scalar($value) or ($value === null)) {
-                    // Copy post key to database entry
-                    $database_entry[$key] = $post[$key];
-                } else {
-                    // Whoops, $post format is invalid
-                    throw new OutOfBoundsException(tr('Specified post entry key ":key" is invalid, it should be an array but is a ":type"', [
-                        ':key' => $key,
-                        ':type' => gettype($post[$key])
-                    ]));
-                }
-
-            } else {
-                // Invalid datatype
-                throw new OutOfBoundsException(tr('Specified post entry key ":key" has an invalid datatype, it should be one of NULL, string, int, float, or bool but is a ":type"', [
-                    ':key' => $key,
-                    ':type' => gettype($post[$key])
-                ]));
-            }
-        }
-
-        return $database_entry;
-    }
-
-
-    /**
-     * Return a list of the specified $columns from the specified source
-     *
-     * @param array|string|null $source
-     * @param string|null $prefix
-     * @param string $separator
-     * @return string
-     */
-    protected function updateColumns(array|string|null $source, ?string $prefix = null, string $separator = ', '): string
-    {
-        if (is_string($source)) {
-            // Source has already been prepared, return it
-            return $source;
-        }
-
-        $return = [];
-
-        foreach ($source as $key => $value) {
-            switch ($key) {
-                case 'id':
-                    // no-break
-                case 'meta_id':
-                    // NEVER update these!
-                    break;
-
-                default:
-                    $return[] = '`' . $prefix . $key . '` = :' . $key;
-            }
-        }
-
-        return implode($separator, $return);
-    }
-
-
-    /**
-     * Return a list of the specified $columns from the specified source
-     *
-     * @param array|string|null $where
-     * @param string|null $prefix
-     * @param string $separator
-     * @return string
-     */
-    protected function whereColumns(array|string|null $where, ?string $prefix = null, string $separator = ' AND '): string
-    {
-        if (!$where) {
-            return '';
-        }
-
-        if (is_string($where)) {
-            // The Source has already been prepared, return it
-            return $where;
-        }
-
-        $return = [];
-
-        foreach ($where as $key => $value) {
-            switch ($key) {
-                case 'meta_id':
-                    // NEVER update these!
-                    break;
-
-                default:
-                    $return[] = '`' . $prefix . $key . '` = :' . $key;
-            }
-        }
-
-        return ' WHERE ' . implode($separator, $return);
-    }
-
-
-    /**
-     * Return a list of the specified $columns from the specified source
-     *
-     * @param array $source
-     * @param string $separator
-     * @return string
-     */
-    protected function filterColumns(array $source, string $separator = ' AND '): string
-    {
-        $return = [];
-
-        foreach ($source as $key => $value) {
-            if (is_array($value)) {
-                $list = [];
-
-                foreach ($value as $subkey => $subvalue) {
-                    $list[] = ':' . $key . $subkey;
-                }
-
-                $return[] = '`' . $key . '` IN (' . implode(',', $list) . ') ';
-
-            } else {
-                $return[] = '`' . $key . '` = :' . $key;
-            }
-        }
-
-        return implode($separator, $return);
-    }
-
-
-    /**
-     * Return a list of the specified $columns from the specified source
-     *
-     * @param array $source
-     * @param string|null $prefix
-     * @return string
-     */
-    protected function columns(array $source, ?string $prefix = null): string
-    {
-        $return = [];
-
-        foreach ($source as $key => $value) {
-            $return[] = '`' . $prefix . $key . '`';
-        }
-
-        return implode(', ', $return);
-    }
-
-
-    /**
-     * Converts the specified row data into a PDO bound variables compatible key > values array
-     *
-     * @param array|string $source
-     * @param string|null $prefix
-     * @return string
-     */
-    protected function keys(array|string $source, ?string $prefix = null): string
-    {
-        $return  = [];
-
-        foreach ($source as $key => $value) {
-            $return[':' . $prefix . $key] = $value;
-        }
-
-        $return = array_keys($return);
-        $return = implode(', ', $return);
-
-        return $return;
-    }
-
-
-    /**
-     * Converts the specified row data into a PDO bound variables compatible key > values array
-     *
-     * @param array $source
-     * @param string|null $prefix
-     * @param bool $insert
-     * @return array
-     */
-    protected function getBoundVariables(array $source, ?string $prefix = null, bool $insert = false): array
-    {
-        $return  = [];
-
-        foreach ($source as $key => $value) {
-            if (($key === 'meta_id') and !$insert) {
-                // Only process meta_id on insert operations
-                continue;
-            }
-
-            if (is_array($value)) {
-                foreach ($value as $subkey => $subvalue) {
-                    $return[':' . $prefix . $key . $subkey] = $subvalue;
-                }
-
-            } else {
-                $return[':' . $prefix . $key] = $value;
-            }
-        }
-
-        return $return;
-    }
-
-
-    /**
      * Get the current last insert id for this SQL database connector
      *
      * @return ?int
      */
-    public function insertId(): ?int
+    public function getInsertId(): ?int
     {
         $insert_id = $this->pdo->lastInsertId();
 
@@ -1602,122 +1009,6 @@ class Sql implements SqlInterface
         }
 
         return null;
-    }
-
-
-    /**
-     * Use correct SQL in case NULL is used in queries
-     *
-     * @param string $column
-     * @param array|string|int|float|null $values
-     * @param string $label
-     * @param array|null $execute
-     * @param string $glue
-     * @return string
-     */
-    public static function is(string $column, array|string|int|float|null $values, string $label, ?array &$execute = null, string $glue = 'AND'): string
-    {
-        Arrays::ensure($execute);
-
-        $label = Strings::startsWith($label, ':');
-        $return = [];
-
-        if (is_array($values)) {
-            $in = [];
-            $notin = [];
-
-            foreach ($values as $value) {
-                $not = false;
-
-                if (str_starts_with((string) $value, '!')) {
-                    // Make comparison NOT by prefixing ! to $value
-                    $value = substr($value, 1);
-                    $not = true;
-                }
-
-                if (($value === null) or (strtoupper(substr((string) $value, -4, 4)) === 'NULL')) {
-                    $null = ($not ? '!NULL' : 'NULL');
-                    continue;
-                }
-
-                if ($not) {
-                    $notin[] = $value;
-
-                } else {
-                    $in[] = $value;
-                }
-            }
-
-            if ($in) {
-                $in = Sql::in($in);
-                $execute = array_merge((array) $execute, $in);
-                $return[] = ' ' . $column . ' IN (' . implode(', ', array_keys($in)) . ')';
-            }
-
-            if ($notin) {
-                $notin = Sql::in($notin, start: count($execute));
-                $execute = array_merge((array) $execute, $notin);
-
-                if (!isset($null)) {
-                    // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
-                    $return[] = ' (' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ') OR ' . $column . ' IS NULL)';
-                } else {
-                    $return[] = ' ' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ')';
-                }
-            }
-
-            if (isset($null)) {
-                $return[] = static::isSingle($column, $null, $label, $execute);
-            }
-
-            return implode(' ' . $glue . ' ', $return);
-        }
-
-        return static::isSingle($column, $values, $label, $execute);
-    }
-
-
-    /**
-     * Use correct SQL in case NULL is used in queries
-     *
-     * @param string $column
-     * @param string|int|float|null $value
-     * @param string $label
-     * @param array|null $execute
-     * @return string
-     */
-    protected static function isSingle(string $column, string|int|float|null $value, string $label, ?array &$execute = null): string
-    {
-        $not = false;
-
-        if (str_starts_with((string) $value, '!')) {
-            // Make comparison opposite of $not by prepending the value with a ! sign
-            $value = substr($value, 1);
-            $not = true;
-        }
-
-        if (strtoupper(substr((string) $value, -4, 4)) === 'NULL') {
-            $value = null;
-        }
-
-        if ($value === null) {
-            $null = $not;
-        }
-
-        if (isset($null)) {
-            // We have to do a NULL comparison
-            return ' ' . $column . ' IS ' . ($null ? 'NOT ' : '') . 'NULL ';
-        }
-
-        // Add the label
-        $execute[$label] = $value;
-
-        if ($not) {
-            // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
-            return ' (' . $column . ' != ' . Strings::startsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
-        }
-
-        return ' ' . $column . ' = ' . Strings::startsWith($label, ':');
     }
 
 
@@ -1741,29 +1032,8 @@ class Sql implements SqlInterface
 
 
     /**
-     * Simple "Does a row with this value exist in that table" method
+     * Will return a count on the specified table
      *
-     * @param string $table
-     * @param string $column
-     * @param string|int|null $value
-     * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
-     *                     row with this id
-     * @return bool
-     */
-    public function DataEntryExists(string $table, string $column, string|int|null $value, ?int $id = null): bool
-    {
-        if ($id) {
-            return (bool) $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `id` != :id', [
-                ':' . $column => $value,
-                ':id'         => $id
-            ]);
-        }
-
-        return (bool) $this->get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
-    }
-
-
-    /**
      * NOTE: Use only on huge tables (> 1M rows)
      *
      * Return table row count by returning results count for SELECT `id`
@@ -1779,8 +1049,10 @@ class Sql implements SqlInterface
     {
         throw new UnderConstructionException();
         $expires = Config::get('databases.cache.expires');
-        $hash = hash('sha1', $table . $where . $column . json_encode($execute));
-        $count = $this->get('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', array(':hash' => $hash));
+        $hash    = hash('sha1', $table . $where . $column . json_encode($execute));
+        $count   = $this->getColumn('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', [
+            ':hash' => $hash
+        ]);
 
         if ($count) {
             return $count;
@@ -1871,7 +1143,7 @@ class Sql implements SqlInterface
      * @param int $limit
      * @return int
      */
-    public function validLimit(int $limit): int
+    public function getValidLimit(int $limit): int
     {
         $limit = force_natural($limit);
 
@@ -1880,80 +1152,6 @@ class Sql implements SqlInterface
         }
 
         return $limit;
-    }
-
-
-    /**
-     * Return a valid " LIMIT X, Y " string built from the specified parameters
-     *
-     * @param int|null $limit
-     * @param int|null $page
-     * @return string The SQL " LIMIT X, Y " string
-     */
-    public function getLimit(?int $limit = null, ?int $page = null): string
-    {
-        $limit = Paging::getLimit($limit);
-
-        if (!$limit) {
-            // No limits, so show all
-            return '';
-        }
-
-        return ' LIMIT ' . ((Paging::getPage($page) - 1) * $limit) . ', ' . $limit;
-    }
-
-
-    /**
-     * Show the specified SQL query in a debug
-     *
-     * @param string|PDOStatement $query
-     * @param ?array $execute
-     * @param bool $return_only
-     * @return mixed
-     * @throws SqlException
-     */
-    public function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
-    {
-        $query = static::buildQueryString($query, $execute, true);
-
-        if ($return_only) {
-            return $query;
-        }
-
-        if (!Core::readRegister('debug', 'clean')) {
-            $query = str_replace("\n", ' ', $query);
-            $query = Strings::nodouble($query, ' ', '\s');
-        }
-
-        // Debug::enabled() already logs the query, don't log it again
-        if (!Debug::getEnabled()) {
-            Log::debug(static::getLogPrefix() . Strings::endsWith($query, ';'));
-        }
-
-        return Debug::show(Strings::endsWith($query, ';'), 6);
-    }
-
-
-    /**
-     * Ensure that the specified query is either a select query or a show query
-     *
-     * @param string|PDOStatement $query
-     * @param array|null $execute
-     * @return void
-     */
-    protected function ensureShowSelect(string|PDOStatement $query, ?array $execute): void
-    {
-        if (is_object($query)) {
-            $query = $query->queryString;
-        }
-
-        $query = strtolower(substr(trim($query), 0, 10));
-
-        if (!str_starts_with($query, 'select') and !str_starts_with($query, 'show')) {
-            throw new SqlException(tr('Query ":query" is not a SELECT or SHOW query and as such cannot return results', [
-                ':query' => Strings::log(static::getLogPrefix() . Log::sql($query, $execute), 4096)
-            ]));
-        }
     }
 
 
@@ -1987,75 +1185,6 @@ class Sql implements SqlInterface
         }
 
         return Connector::get($connector)->getSource();
-
-//        try {
-//            $configuration = Config::getArray('databases.connectors.' . $connector);
-//
-//        } catch (ConfigPathDoesNotExistsException) {
-//            // Configuration not available in Config. Check if its stored in SQL database
-//            $configuration = $this->readSqlConfiguration($connector);
-//
-//            if (!$configuration) {
-//                // Okay, this instance doesn't exist in Config, nor SQL, maybe it's a dynamically configured instance?
-//                if (!array_key_exists($connector, static::$configurations)) {
-//                    // Yeah, it's not found
-//                    throw new SqlException(tr('The specified SQL connector ":connector" is not configured', [
-//                        ':connector' => $connector
-//                    ]));
-//                }
-//
-//                // This is a dynamically configured instance
-//                $configuration = static::$configurations[$connector];
-//            }
-//        }
-//
-//        // Copy the configuration options over the template
-//        return $this->applyConfigurationTemplate($configuration);
-    }
-
-
-    /**
-     * Load SQL configuration from the database
-     *
-     * @param string $instance
-     * @return array|null
-     */
-    protected function readSqlConfiguration(string $instance): ?array
-    {
-        // TODO Implement an Updates.php file that creates this table first
-        return null;
-
-        return $this->get('SELECT `id`,
-                                         `created_on`,
-                                         `created_by`,
-                                         `meta_id`,
-                                         `status`,
-                                         `name`,
-                                         `seo_name`,
-                                         `servers_id`,
-                                         `hostname`,
-                                         `driver`,
-                                         `database`,
-                                         `user`,
-                                         `password`,
-                                         `auto_increment`,
-                                         `buffered`,
-                                         `charset`,
-                                         `collate`,
-                                         `limit_max`,
-                                         `mode`,
-                                         `ssh_tunnel_required`,
-                                         `ssh_tunnel_source_port`,
-                                         `ssh_tunnel_hostname`,
-                                         `usleep`,
-                                         `pdo_attributes`,
-                                         `timezone`,
-                                         `statistics`,
-                                         `log`
-    
-                                  FROM   `sql_configurations`
-    
-                                  WHERE  `seo_name` = :seo_name', [':seo_name' => $seo_name]);
     }
 
 
@@ -2065,7 +1194,7 @@ class Sql implements SqlInterface
      * @param array $configuration
      * @return array
      */
-    public function applyConfigurationTemplate(array $configuration): array
+    protected function applyConfigurationTemplate(array $configuration): array
     {
         // Copy the configuration options over the template
         $configuration = Arrays::mergeFull(static::getConfigurationTemplate(), $configuration);
@@ -2094,7 +1223,7 @@ class Sql implements SqlInterface
 
             default:
                 // Here be dragons!
-                Log::warning(static::getLogPrefix() . tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED', [
+                Log::warning(static::getConnectorLogPrefix() . tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED', [
                     ':driver' => $configuration['driver']
                 ]));
         }
@@ -2148,7 +1277,7 @@ class Sql implements SqlInterface
      * @param bool $use_database
      * @return static
      */
-    public function connect(bool $use_database = true): static
+    protected function connect(bool $use_database = true): static
     {
         try {
             if (!empty($this->pdo)) {
@@ -2169,7 +1298,7 @@ class Sql implements SqlInterface
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
                     $this->pdo = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
 
-                    Log::success(static::getLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
+                    Log::success(static::getConnectorLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
                         ':connector' => $this->connector,
                         ':string'    => $connect_string
                     ]), 3);
@@ -2178,7 +1307,7 @@ class Sql implements SqlInterface
 
                 } catch (Throwable $e) {
                     if (!$this->configuration['hostname']) {
-                        throw new SqlInvalidConfigurationException(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", the database configuration is invalid', [
+                        throw new SqlInvalidConfigurationException(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", the database configuration is invalid', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username']
@@ -2188,7 +1317,7 @@ class Sql implements SqlInterface
                     switch ($e->getCode()) {
                         case 1045:
                             // Access  denied!
-                            throw SqlAccessDeniedException::new(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
+                            throw SqlAccessDeniedException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username']
@@ -2196,7 +1325,7 @@ class Sql implements SqlInterface
 
                         case 1049:
                             // Database doesn't exist!
-                            throw SqlDatabaseDoesNotExistException::new(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
+                            throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':database'  => $this->configuration['database'],
@@ -2205,7 +1334,7 @@ class Sql implements SqlInterface
 
                         case 2002:
                             // Database service not available, connection refused!
-                            throw SqlServerNotAvailableException::new(static::getLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
+                            throw SqlServerNotAvailableException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
                                     ':connector' => $this->connector,
                                     ':string'    => isset_get($connect_string),
                                     ':database'  => $this->configuration['database'],
@@ -2226,7 +1355,7 @@ class Sql implements SqlInterface
                         ]));
                     }
 
-                    Log::error(static::getLogPrefix() . tr('Failed to connect to instance ":connector" with PDO connect string ":string", error follows below', [
+                    Log::error(static::getConnectorLogPrefix() . tr('Failed to connect to instance ":connector" with PDO connect string ":string", error follows below', [
                         ':connector' => $this->connector,
                         ':string'    => isset_get($connect_string)
                     ]));
@@ -2277,7 +1406,7 @@ class Sql implements SqlInterface
                     $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezones_name'] . '";');
 
                 } catch (Throwable $e) {
-                    Log::warning(static::getLogPrefix() . tr('Failed to set timezone ":timezone" for database connector ":connector" with error ":e"', [
+                    Log::warning(static::getConnectorLogPrefix() . tr('Failed to set timezone ":timezone" for database connector ":connector" with error ":e"', [
                             ':timezone'  => $this->configuration['timezones_name'],
                             ':connector' => $this->connector,
                             ':e'         => $e->getMessage()
@@ -2394,14 +1523,14 @@ class Sql implements SqlInterface
                             throw new SqlException(tr('Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', [':connector' => $this->configuration]));
                         }
 
-                        Log::warning(static::getLogPrefix() . tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                        Log::warning(static::getConnectorLogPrefix() . tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
                         // Now enable TCP forwarding on the server, and retry connection
                         linux_set_ssh_tcp_forwarding($restrictions, true);
-                        Log::warning(static::getLogPrefix() . tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                        Log::warning(static::getConnectorLogPrefix() . tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', [':server' => $this->configuration['ssh_tunnel']['domain']]));
 
                         if ($this->configuration['ssh_tunnel']['pid']) {
-                            Log::warning(static::getLogPrefix() . tr('Closing previously opened SSH tunnel to server ":server"', [':server' => $this->configuration['ssh_tunnel']['domain']]));
+                            Log::warning(static::getConnectorLogPrefix() . tr('Closing previously opened SSH tunnel to server ":server"', [':server' => $this->configuration['ssh_tunnel']['domain']]));
                             Ssh::closeTunnel($this->configuration['ssh_tunnel']['pid']);
                         }
 
@@ -2456,82 +1585,33 @@ class Sql implements SqlInterface
 
 
     /**
-     * Return a sequential array that can be used in $this->in
-     *
-     * @param array|string $source
-     * @param string $column
-     * @param bool $filter_null
-     * @param bool $null_string
-     * @param int $start
-     * @return array
-     */
-    public static function in(array|string $source, string $column = ':value', bool $filter_null = false, bool $null_string = false, int $start = 0): array
-    {
-        if (empty($source)) {
-            throw new OutOfBoundsException(tr('Specified source is empty'));
-        }
-
-        $column = Strings::startsWith($column, ':');
-        $source = Arrays::force($source);
-
-        return Arrays::sequentialKeys($source, $column, $filter_null, $null_string, $start);
-    }
-
-
-    /**
-     * Helper for building $this->in key value pairs
-     *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package sql
-     *
-     * @param array $in
-     * @param string|int|null $column_starts_with
-     * @return string a comma delimited string of columns
-     */
-    public static function inColumns(array $in, string|int|null $column_starts_with = null): string
-    {
-        if ($column_starts_with) {
-            // Only return those columns that start with this string
-            foreach ($in as $key => $column) {
-                if (!Strings::startsWith($key, $column_starts_with)) {
-                    unset($in[$key]);
-                }
-            }
-        }
-
-        return implode(', ', array_keys($in));
-    }
-
-
-    /**
-     * Check if this query is a write query and if the system allows writes
-     *
-     * @param string|PDOStatement $query
-     * @return void
-     */
-    protected function checkWriteAllowed(string|PDOStatement $query): void
-    {
-        $query = trim($query);
-        $query = substr(trim($query), 0, 10);
-        $query = strtolower($query);
-
-        if (str_starts_with($query, 'insert') or str_starts_with($query, 'update')) {
-            // This is a write query, check if we're not in readonly mode
-            Core::checkReadonly('write query');
-        }
-    }
-
-
-    /**
-     * Returns the log prefix
+     * Returns the log prefix for this SQL connector
      *
      * @return string
      */
-    protected function getLogPrefix(): string
+    public function getConnectorLogPrefix(): string
     {
         return '(' . $this->uniqueid . '-' . $this->getDatabase() . '-' . $this->counter . ') ';
+    }
+
+
+    /**
+     * Connects to this database and executes a test query
+     *
+     * @return static
+     */
+    public function test(): static
+    {
+        $result = $this->connect(true)->getColumn('SELECT 1');
+
+        if ($result === 1) {
+            return $this;
+        }
+
+        throw new DatabaseTestException(tr('Database test for connector ":connector" should return "1" but returned ":result" instead', [
+            ':connector' => $this->connector,
+            ':result'    => $result
+        ]));
     }
 
 
@@ -2585,7 +1665,7 @@ class Sql implements SqlInterface
 
                 // Some database operation has failed
                 foreach ($e->getMessages() as $message) {
-                    Log::error(static::getLogPrefix() . $message);
+                    Log::error(static::getConnectorLogPrefix() . $message);
                 }
 
                 exit(1);
@@ -2613,7 +1693,7 @@ class Sql implements SqlInterface
 //                    case 1052:
 //                        // Integrity constraint violation
 //                        throw new SqlException(tr('Query ":query" contains an abiguous column', [
-//                            ':query' => static::buildQueryString($query, $execute, true)
+//                            ':query' => SqlQueries::buildQueryString($query, $execute, true)
 //                        ]), $e);
 //
 //                    case 1054:
@@ -2624,7 +1704,7 @@ class Sql implements SqlInterface
 //
 //                        // Column not found
 //                        throw SqlException::new(tr('Query ":query" refers to non existing column ":column"', [
-//                            ':query'  => static::buildQueryString($query, $execute, true),
+//                            ':query'  => SqlQueries::buildQueryString($query, $execute, true),
 //                            ':column' => $column
 //                        ]), $e)->addData([':column' => $column]);
 //
@@ -2632,19 +1712,19 @@ class Sql implements SqlInterface
 //                        // Syntax error or access violation
 //                        if (str_contains(strtoupper($query), 'DELIMITER')) {
 //                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', [
-//                                ':query' => static::buildQueryString($query, $execute, true)
+//                                ':query' => SqlQueries::buildQueryString($query, $execute, true)
 //                            ]), $e);
 //                        }
 //
 //                        throw SqlException::new(tr('Query ":query" has a syntax error: ":error"', [
-//                            ':query' => static::buildQueryString($query, $execute),
+//                            ':query' => SqlQueries::buildQueryString($query, $execute),
 //                            ':error' => Strings::from($error[2], 'syntax; ')
 //                        ], false), $e)->addData(['query' => $query, 'execute' => $execute]);
 //
 //                    case 1072:
 //                        // Adding index error, index probably does not exist
 //                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [
-//                            ':query'   => static::buildQueryString($query, $execute, true),
+//                            ':query'   => SqlQueries::buildQueryString($query, $execute, true),
 //                            ':message' => isset_get($error[2])
 //                        ]), $e);
 //
@@ -2666,19 +1746,19 @@ class Sql implements SqlInterface
 //
 //                        }catch(Exception $e) {
 //                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
-//                                ':query' => static::buildQueryString($query, $execute, true)
+//                                ':query' => SqlQueries::buildQueryString($query, $execute, true)
 //                            ]), $e);
 //                        }
 //
 //                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message "Foreign key error on :message"', [
-//                            ':query'   => static::buildQueryString($query, $execute, true),
+//                            ':query'   => SqlQueries::buildQueryString($query, $execute, true),
 //                            ':message' => $fk
 //                        ]), $e);
 //
 //                    case 1146:
 //                        // Base table or view not found
 //                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist: :message', [
-//                            ':query'   => static::buildQueryString($query, $execute, true),
+//                            ':query'   => SqlQueries::buildQueryString($query, $execute, true),
 //                            ':message' => $e->getMessage()
 //                        ]), $e);
 //                }
@@ -2694,7 +1774,7 @@ class Sql implements SqlInterface
 //                SQL STATE ERROR : "' . $error[0] . '"
 //                DRIVER ERROR    : "' . $error[1] . '"
 //                ERROR MESSAGE   : "' . $error[2] . '"
-//                query           : "' . Strings::Log(static::buildQueryString($query, $execute, true)) . '"
+//                query           : "' . Strings::Log(SqlQueries::buildQueryString($query, $execute, true)) . '"
 //                date            : "' . date('Y-m-d H:i:s'))
 //            ->setDetails([
 //                '$argv'     => $argv,
@@ -2708,7 +1788,7 @@ class Sql implements SqlInterface
 //            ->send();
 //
 //        throw SqlException::new(static::getLogPrefix() . tr('Query ":query" failed with ":messages"', [
-//            ':query'    => static::buildQueryString($query, $execute),
+//            ':query'    => SqlQueries::buildQueryString($query, $execute),
 //            ':messages' => $e->getMessage(),
 //        ]), $e)->setCode(isset_get($error[1]));
     }
@@ -2803,24 +1883,4 @@ class Sql implements SqlInterface
     //        throw new SqlException(tr('Failed'), $e);
     //    }
     //}
-
-
-    /**
-     * Connects to this database and executes a test query
-     *
-     * @return static
-     */
-    public function test(): static
-    {
-        $result = $this->connect(true)->getColumn('SELECT 1');
-
-        if ($result === 1) {
-            return $this;
-        }
-
-        throw new DatabaseTestException(tr('Database test for connector ":connector" should return "1" but returned ":result" instead', [
-            ':connector' => $this->connector,
-            ':result'    => $result
-        ]));
-    }
 }

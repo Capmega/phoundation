@@ -53,13 +53,6 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      */
     protected ?FormInterface $form = null;
 
-    /**
-     * The data source of this object
-     *
-     * @var array $source
-     */
-    protected array $source;
-
 
     /**
      * Class constructor

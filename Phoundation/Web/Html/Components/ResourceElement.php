@@ -64,6 +64,13 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     protected ?PDOStatement $source_query = null;
 
     /**
+     * The columns to use, in case the query returns more columns than should be used
+     *
+     * @var array|null $use_columns
+     */
+    protected ?array $use_columns = null;
+
+    /**
      * The source for "data-*" attributes where the data key matches the source key
      *
      * @var array $source_data
@@ -78,7 +85,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     protected int $count = 0;
 
     /**
-     * If true, query source data will be stored in array source, so that it can be re-used
+     * If true, query source data will be stored in the array source, so that it can be re-used
      *
      * @var bool $cache
      */
@@ -237,7 +244,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * @param array|string|null $execute
      * @return $this
      */
-    public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static
+    public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null, ?array $use_columns = null): static
     {
         if ($this->source) {
             throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
@@ -249,6 +256,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         }
 
         $this->source_query = $source_query;
+        $this->use_columns  = $use_columns;
         return $this;
      }
 

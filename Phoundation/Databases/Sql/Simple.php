@@ -5,6 +5,7 @@ namespace Phoundation\Databases;
 
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
@@ -261,7 +262,7 @@ class SqlSimple
         }
 
         if (is_array($values)) {
-            $values = Sql::in($values);
+            $values = SqlQueries::in($values);
 
             foreach ($values as $key => $value) {
                 if (($value === null) or ($value === 'null') or ($value === 'NULL')) {
@@ -271,7 +272,7 @@ class SqlSimple
                 }
             }
 
-            return ' WHERE (' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` ' . $not . ' IN (' . Sql::inColumns($values) . ')' . $extra . ') ' . $extra . ' ';
+            return ' WHERE (' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` ' . $not . ' IN (' . SqlQueries::inColumns($values) . ')' . $extra . ') ' . $extra . ' ';
         }
 
         throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [':values' => $values]));
@@ -302,7 +303,7 @@ class SqlSimple
             $values = array(Strings::startsWith($column, ':') => $values);
 
         } elseif (is_array($values)) {
-            $values = Sql::in($values, ':value', true, true);
+            $values = SqlQueries::in($values, ':value', true, true);
 
         } else {
             throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [
@@ -525,8 +526,8 @@ class SqlSimple
 
                     // The $value may be specified as an empty array, which then will be ignored
                     if ($value) {
-                        $value = Sql::in($value);
-                        $filter = ' ' . $column . ' ' . $not_string . 'IN (' . Sql::inColumns($value) . ') ';
+                        $value = SqlQueries::in($value);
+                        $filter = ' ' . $column . ' ' . $not_string . 'IN (' . SqlQueries::inColumns($value) . ') ';
                         $execute = array_merge($execute, $value);
                     }
 

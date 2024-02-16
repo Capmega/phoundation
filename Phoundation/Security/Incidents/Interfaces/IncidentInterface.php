@@ -79,7 +79,7 @@ interface IncidentInterface
     public function setSeverity(SeverityInterface|string $severity): static;
 
     /**
-     * Saves the incident to database
+     * Saves the incident to the database
      *
      * @param bool $force
      * @param string|null $comments

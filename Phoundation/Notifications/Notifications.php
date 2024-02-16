@@ -168,11 +168,11 @@ class Notifications extends DataList implements NotificationsInterface
 //        foreach ($filters as $key => $value){
 //            switch ($key) {
 //                case 'status':
-//                    $builder->addWhere('`status`' . Sql::is($value, ':status'), [':status' => $value]);
+//                    $builder->addWhere('`status`' . SqlQueries::is($value, ':status'), [':status' => $value]);
 //                    break;
 //
 //                case 'users_id':
-//                    $builder->addWhere('`users_id`' . Sql::is($value, ':users_id'), [':users_id' => $value]);
+//                    $builder->addWhere('`users_id`' . SqlQueries::is($value, ':users_id'), [':users_id' => $value]);
 //                    break;
 //            }
 //        }

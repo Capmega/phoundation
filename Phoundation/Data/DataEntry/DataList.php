@@ -13,9 +13,12 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataParent;
 use Phoundation\Data\Traits\DataReadonly;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -26,7 +29,7 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -39,7 +42,7 @@ use Stringable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 abstract class DataList extends Iterator implements DataListInterface
 {
@@ -139,6 +142,40 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string|null
+     */
+    public static function getDefaultConnectorName(): ?string
+    {
+        return 'system';
+    }
+
+
+    /**
+     * Returns the column considered the "id" column
+     *
+     * @return string
+     */
+    public static function getIdColumn(): string
+    {
+        return 'id';
+    }
+
+
+    /**
+     * Returns true if the ID column is the specified column
+     *
+     * @param string $column
+     * @return bool
+     */
+    public static function idColumnIs(string $column): bool
+    {
+        return static::getIdColumn() === $column;
+    }
+
+
+    /**
      * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
@@ -219,17 +256,6 @@ abstract class DataList extends Iterator implements DataListInterface
 
 
     /**
-     * Returns the schema Table object for the table that is the source for this DataList object
-     *
-     * @return \Phoundation\Databases\Sql\Schema\Table
-     */
-    public function getTableSchema(): \Phoundation\Databases\Sql\Schema\Table
-    {
-        return sql()->schema()->table(static::getTable());
-    }
-
-
-    /**
      * Returns the item with the specified identifier
      *
      * @param Stringable|string|float|int $key
@@ -306,17 +332,18 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setId(static::getTable())
                 ->setSource($this->getAllRowsMultipleColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(TableIdColumn::checkbox);
+                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
 
         $this->selectQuery();
 
         // Create and return the table
         return HtmlTable::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(TableIdColumn::checkbox);
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
 
@@ -335,17 +362,18 @@ abstract class DataList extends Iterator implements DataListInterface
                 ->setId(static::getTable())
                 ->setSource($this->getAllRowsMultipleColumns($columns))
                 ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(TableIdColumn::checkbox);
+                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
 
         $this->selectQuery();
 
         // Create and return the table
         return HtmlDataTable::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setId(static::getTable())
             ->setSourceQuery($this->query, $this->execute)
             ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(TableIdColumn::checkbox);
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
 
@@ -353,14 +381,20 @@ abstract class DataList extends Iterator implements DataListInterface
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        $select = InputSelect::new();
+        $select  = InputSelect::new();
+        $execute = [];
+
+        if (!$key_column) {
+            $key_column = static::getIdColumn();
+        }
 
         if ($this->is_loaded or count($this->source)) {
             // Data was either loaded from DB or manually added. $value_column may contain query parts, strip em.
@@ -372,8 +406,17 @@ abstract class DataList extends Iterator implements DataListInterface
         } else {
             $query = 'SELECT ' . $key_column . ', ' . $value_column . ' 
                       FROM   `' . static::getTable() . '` 
-                      ' . Strings::force($joins, ' ') . '
-                      WHERE  `' . static::getTable() . '`.`status` IS NULL';
+                      ' . Strings::force($joins, ' ');
+
+            if ($filters) {
+                $where = [];
+
+                foreach ($filters as $key => $value) {
+                    $where[] = $key . SqlQueries::is($key, $value, 'value', $execute);
+                }
+
+                $query .= ' WHERE ' . implode(' AND ', $where);
+            }
 
             if ($order === null) {
                 // Default order by the value column. Value column may have SQL, make sure its stripped
@@ -386,7 +429,9 @@ abstract class DataList extends Iterator implements DataListInterface
             }
 
             // No data was loaded from DB or manually added
-            $select->setSourceQuery($query);
+            $select
+                ->setConnector(static::getDefaultConnectorName())
+                ->setSourceQuery($query, $execute);
         }
 
         return $select;
@@ -406,7 +451,7 @@ abstract class DataList extends Iterator implements DataListInterface
         // If this list is empty, then load data from a query, else show list contents
         if (empty($this->source)) {
             $this->selectQuery();
-            $this->source = sql()->list($this->query, $this->execute);
+            $this->source = sql(static::getDefaultConnectorName())->list($this->query, $this->execute);
         }
 
         return parent::displayCliTable($columns, $filters, $id_column);
@@ -424,7 +469,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function updateStatusAll(?string $status, ?string $comments = null, bool $meta_enabled = true): int
     {
         foreach ($this->source as $entry) {
-            sql()->dataEntrySetStatus($status, static::getTable(), $entry, $comments, $meta_enabled);
+            sql(static::getDefaultConnectorName())->getSqlDataEntryObject()->setStatus($status, static::getTable(), $entry, $comments, $meta_enabled);
         }
 
         return count($this->source);
@@ -473,7 +518,7 @@ abstract class DataList extends Iterator implements DataListInterface
             if (is_array($entry)) {
                 $meta[] = $entry['meta_id'];
 
-            } elseif ($entry instanceof DataEntry) {
+            } elseif ($entry instanceof DataEntryInterface) {
                 $meta[] = $entry->getMetaId();
             }
         }
@@ -483,7 +528,7 @@ abstract class DataList extends Iterator implements DataListInterface
             Meta::eraseEntries($meta);
 
             // Delete the entries themselves
-            sql()->erase(static::getTable(), ['id' => $ids]);
+            sql(static::getDefaultConnectorName())->erase(static::getTable(), ['id' => $ids]);
         }
 
         return $this;
@@ -512,11 +557,11 @@ abstract class DataList extends Iterator implements DataListInterface
     public function listIds(array $identifiers): array
     {
         if ($identifiers) {
-            $in = Sql::in($identifiers);
+            $in = SqlQueries::in($identifiers);
 
-            return sql()->list('SELECT `id` 
-                                  FROM   `' . static::getTable() . '` 
-                                  WHERE  `' . static::getUniqueColumn() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
+            return sql(static::getDefaultConnectorName())->list('SELECT `id` 
+                                                                   FROM   `' . static::getTable() . '` 
+                                                                   WHERE  `' . static::getUniqueColumn() . '` IN (' . implode(', ', array_keys($in)) . ')', $in);
         }
 
         return [];
@@ -529,9 +574,10 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!$value instanceof DataEntryInterface) {
             // Value might be NULL if we skip NULLs?
@@ -587,7 +633,7 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-        return parent::add($value, $key, $skip_null);
+        return parent::add($value, $key, $skip_null, $exception);
     }
 
 
@@ -750,15 +796,14 @@ abstract class DataList extends Iterator implements DataListInterface
         if (!empty($this->source)) {
             if (!$only_if_empty) {
                 if (!$clear) {
-                    $this->source = array_merge($this->source, sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id'));
+                    $this->source = array_merge($this->source, sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : static::getIdColumn()));
                 }
             }
 
             return $this;
         }
 
-        $this->source = sql()->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : 'id');
-
+        $this->source = sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : static::getIdColumn());
         return $this;
     }
 
@@ -770,8 +815,8 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function loadAll(): static
     {
-        $this->source = sql()->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
-                                                    FROM   `' . static::getTable() . '`');
+        $this->source = sql(static::getDefaultConnectorName())->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+                                                                                 FROM   `' . static::getTable() . '`');
         return $this;
     }
 
@@ -825,10 +870,10 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function autoCompleteFind(?string $word = null): array
     {
-        return sql()->listKeyValue('SELECT `id`, `' . static::getUniqueColumn() . '`
-                                          FROM   `' . static::getTable() . '`'
-                             . ($word ? ' WHERE `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
-                                          LIMIT ' . CliAutoComplete::getLimit(),
+        return sql(static::getDefaultConnectorName())->listKeyValue('SELECT `id`, `' . static::getUniqueColumn() . '`
+                                                                       FROM   `' . static::getTable() . '`'
+                                                          . ($word ? ' WHERE `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
+                                                                       LIMIT ' . CliAutoComplete::getLimit(),
             $word ? [':like' => $word. '%'] : null);
     }
 }

@@ -53,14 +53,14 @@ $query = $roles->getQueryBuilder()
     ->addOrderBy('`accounts_roles`.`name`');
 
 if ($argv['rights']) {
-    $rights = Sql::in($argv['rights']);
+    $rights = SqlQueries::in($argv['rights']);
     $query
         ->addJoin('JOIN `accounts_roles_rights` ON `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`')
         ->addJoin('JOIN `accounts_rights` ON `accounts_rights`.`name` IN (' . implode(', ', array_keys($rights)) . ') AND `accounts_rights`.`id` = `accounts_roles_rights`.`rights_id`', $rights);
 }
 
 if ($argv['status']) {
-    $query->addWhere('`accounts_roles`.`status` ' . Sql::is($argv['status'], 'status'));
+    $query->addWhere('`accounts_roles`.`status` ' . SqlQueries::is($argv['status'], 'status'));
 } else {
     $query->addWhere('`accounts_roles`.`status` IS NULL');
 }

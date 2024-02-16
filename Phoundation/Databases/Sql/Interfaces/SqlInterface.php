@@ -1,23 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Databases\Sql\Interfaces;
 
-use Exception;
 use PDO;
 use PDOStatement;
-use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Throwable;
 
 
 /**
- * Sql class
+ * Class Sql
  *
  * This class is the main SQL database access class
  *
@@ -26,7 +21,7 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Databases
  */
-interface SqlInterface extends DatabaseInterface
+interface SqlInterface
 {
     /**
      * Returns the configuration for this SQL object
@@ -34,6 +29,44 @@ interface SqlInterface extends DatabaseInterface
      * @return array
      */
     public function getConfiguration(): array;
+
+    /**
+     * Returns an SqlDataEntry object for this SQL class
+     *
+     * @param DataEntryInterface $data_entry
+     * @return SqlDataEntryInterface
+     */
+    public function getSqlDataEntryObject(DataEntryInterface $data_entry): SqlDataEntryInterface;
+
+    /**
+     * Returns if query printing is enabled for this instance or not
+     *
+     * @return bool
+     */
+    public function getQueryLogging(): bool;
+
+    /**
+     * Sets if query printing is enabled for this instance or not
+     *
+     * @param bool $log
+     * @return static
+     */
+    public function setQueryLogging(bool $log): static;
+
+    /**
+     * Returns if query statistics are enabled for this instance or not
+     *
+     * @return bool
+     */
+    public function getStatistics(): bool;
+
+    /**
+     * Sets  if query statistics are enabled for this instance or not
+     *
+     * @param bool $statistics
+     * @return static
+     */
+    public function setStatistics(bool $statistics): static;
 
     /**
      * Returns the name of the database that currently is in use by this database object
@@ -71,7 +104,7 @@ interface SqlInterface extends DatabaseInterface
      * @param string|null $database The database to use. If none was specified, the configured system database will be
      *                              used
      * @return static
-     * @throws Throwable
+     * @throws SqlException
      */
     public function use(?string $database = null): static;
 
@@ -81,29 +114,12 @@ interface SqlInterface extends DatabaseInterface
      * @param PDOStatement|SqlQueryInterface|string $query
      * @param array|null $execute
      * @return PDOStatement
+     * @throws SqlException
      */
     public function query(PDOStatement|SqlQueryInterface|string $query, ?array $execute = null): PDOStatement;
 
     /**
-     * Write the specified data row in the specified table
-     *
-     * This is a simplified insert / update method to speed up writing basic insert or update queries. If the
-     * $update_row[id] contains a value, the method will try to update instead of insert
-     *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param string $table
-     * @param array $insert_row
-     * @param array $update_row
-     * @param string|null $comments
-     * @param string|null $diff
-     * @return int
-     * @throws Exception
-     */
-    public function dataEntryWrite(string $table, array $insert_row, array $update_row, ?string $comments, ?string $diff): int;
-
-    /**
-     * Insert the specified data row in the specified table
+     * Insert the specified data row in the specified table, with "on dulplicate update" option
      *
      * This is a simplified insert method to speed up writing basic insert queries
      *
@@ -111,42 +127,37 @@ interface SqlInterface extends DatabaseInterface
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
-     * @param array $row
-     * @param string|null $comments
-     * @param string|null $diff
+     * @param array $data
+     * @param array|string|null $update
      * @return int
-     * @throws Exception
      */
-    public function dataEntryInsert(string $table, array $row, ?string $comments = null, ?string $diff = null): int;
+    public function insert(string $table, array $data, array|string|null $update = null): int;
 
     /**
      * Update the specified data row in the specified table
      *
-     * This is a simplified insert method to speed up writing basic insert queries
+     * This is a simplified update method to speed up writing basic insert queries
+     *
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
-     * @param array $row
-     * @param string $action
-     * @param string|null $comments
-     * @param string|null $diff
-     * @return int
+     * @param array $set
+     * @param array|null $where
+     * @return int The number of rows that were updated
      */
-    public function dataEntryUpdate(string $table, array $row, string $action = 'update', ?string $comments = null, ?string $diff = null): int;
+    public function update(string $table, array $set, array|null $where = null): int;
 
     /**
-     * Update the status for the data row in the specified table to "deleted"
+     * Delete the specified table entry
      *
-     * This is a simplified insert method to speed up writing basic insert queries
+     * This is a simplified delete method to speed up writing basic insert queries
      *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
      * @param string $table
-     * @param array $row
-     * @param string|null $comments
+     * @param string $where
+     * @param array $execute
      * @return int
      */
-    public function dataEntryDelete(string $table, array $row, ?string $comments = null): int;
+    public function delete(string $table, string $where, array $execute): int;
 
     /**
      * Truncates the specified table
@@ -155,17 +166,6 @@ interface SqlInterface extends DatabaseInterface
      * @return void
      */
     public function truncate(string $table): void;
-
-    /**
-     * Update the status for the data row in the specified table to the specified status
-     *
-     * @param string|null $status
-     * @param string $table
-     * @param array $entry
-     * @param string|null $comments
-     * @return int
-     */
-    public function dataEntrySetStatus(?string $status, string $table, array $entry, ?string $comments = null): int;
 
     /**
      * Delete the row in the specified table
@@ -182,18 +182,6 @@ interface SqlInterface extends DatabaseInterface
     public function erase(string $table, array $where, string $separator = 'AND'): int;
 
     /**
-     * Delete the specified table entry
-     *
-     * This is a simplified delete method to speed up writing basic insert queries
-     *
-     * @param string $table
-     * @param string $where
-     * @param array $execute
-     * @return int
-     */
-    public function delete(string $table, string $where, array $execute): int;
-
-    /**
      * Prepare specified query
      *
      * @param string $query
@@ -207,7 +195,6 @@ interface SqlInterface extends DatabaseInterface
      * @param PDOStatement $resource
      * @param int $fetch_style
      * @return array|null
-     * @throws Throwable
      */
     public function fetch(PDOStatement $resource, int $fetch_style = PDO::FETCH_ASSOC): ?array;
 
@@ -216,10 +203,10 @@ interface SqlInterface extends DatabaseInterface
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
+     * @param bool $meta_enabled
      * @return array|null
-     * @throws SqlMultipleResultsException
      */
-    public function get(string|PDOStatement $query, array $execute = null): ?array;
+    public function get(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array;
 
     /**
      * Get the value of a single column from a single row for the specified query
@@ -273,52 +260,56 @@ interface SqlInterface extends DatabaseInterface
     public function getBoolean(string|PDOStatement $query, array $execute = null, ?string $column = null): bool|null;
 
     /**
-     * Execute query and return only the first row
+     * Executes the single column query and returns array with only scalar values.
+     *
+     * Each key will be a numeric index starting from 0
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @return array
-     * @throws Throwable
      */
     public function listScalar(string|PDOStatement $query, ?array $execute = null): array;
 
     /**
-     * Execute query and return only the first row
+     * Executes the query and returns array with each complete row in a subarray
+     *
+     * Each subarray will have a numeric index key starting from 0
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @return array
-     * @throws Throwable
      */
     public function listArray(string|PDOStatement $query, ?array $execute = null): array;
 
     /**
-     * Execute query and return only the first row
+     * Executes the query for two columns and will return the results as a key => static value array
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @return array
-     * @throws Throwable
      */
     public function listKeyValue(string|PDOStatement $query, ?array $execute = null): array;
 
     /**
-     * Execute query and return only the first row
+     * Executes the query for two or more columns and will return the results as a key => values-in-array array
+     *
+     * The key will be the first selected column but will be included in the value array
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @return array
-     * @throws Throwable
      */
-    public function listKeyValues(string|PDOStatement $query, ?array $execute = null): array;
+    public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $column = null): array;
 
     /**
-     * Execute query and return only the first row
+     * Executes the query for two or more columns and will return the results as a key => values-in-array array,
+     * removing the key from the values
+     *
+     * The key will be the first selected column and will be removed from the value array
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
      * @return array
-     * @throws Throwable
      */
     public function list(string|PDOStatement $query, ?array $execute = null): array;
 
@@ -339,11 +330,11 @@ interface SqlInterface extends DatabaseInterface
     public function import(string $file, RestrictionsInterface|array|string|null $restrictions): void;
 
     /**
-     * Get the current last insert id for this SQL database instance
+     * Get the current last insert id for this SQL database connector
      *
      * @return ?int
      */
-    public function insertId(): ?int;
+    public function getInsertId(): ?int;
 
     /**
      * Enable / Disable all query logging on mysql server
@@ -354,18 +345,8 @@ interface SqlInterface extends DatabaseInterface
     public function enableLog(bool $enable): void;
 
     /**
-     * Simple "Does a row with this value exist in that table" method
+     * Will return a count on the specified table
      *
-     * @param string $table
-     * @param string $column
-     * @param string|int|null $value
-     * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
-     *                     row with this id
-     * @return bool
-     */
-    public function DataEntryExists(string $table, string $column, string|int|null $value, ?int $id = null): bool;
-
-    /**
      * NOTE: Use only on huge tables (> 1M rows)
      *
      * Return table row count by returning results count for SELECT `id`
@@ -400,27 +381,7 @@ interface SqlInterface extends DatabaseInterface
      * @param int $limit
      * @return int
      */
-    public function validLimit(int $limit): int;
-
-    /**
-     * Return a valid " LIMIT X, Y " string built from the specified parameters
-     *
-     * @param int|null $limit
-     * @param int|null $page
-     * @return string The SQL " LIMIT X, Y " string
-     */
-    public function getLimit(?int $limit = null, ?int $page = null): string;
-
-    /**
-     * Show the specified SQL query in a debug
-     *
-     * @param string|PDOStatement $query
-     * @param ?array $execute
-     * @param bool $return_only
-     * @return mixed
-     * @throws SqlException
-     */
-    public function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed;
+    public function getValidLimit(int $limit): int;
 
     /**
      * Reads, validates structure and returns the configuration for the specified instance
@@ -431,10 +392,9 @@ interface SqlInterface extends DatabaseInterface
     public function readConfiguration(string $connector): array;
 
     /**
-     * Apply configuration template over the specified configuration array
+     * Connects to this database and executes a test query
      *
-     * @param array $configuration
-     * @return array
+     * @return static
      */
-    public function applyConfigurationTemplate(array $configuration): array;
+    public function test(): static;
 }

@@ -58,13 +58,6 @@ interface DataListInterface extends IteratorInterface
     public function getExecute(): ?array;
 
     /**
-     * Returns the schema Table object for the table that is the source for this DataList object
-     *
-     * @return Table
-     */
-    public function getTableSchema(): Table;
-
-    /**
      * Returns the item with the specified identifier
      *
      * @param Stringable|string|float|int $key

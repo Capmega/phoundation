@@ -9,7 +9,10 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\Exception\IteratorException;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Databases\Sql\Limit;
@@ -301,11 +304,12 @@ class Iterator implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -319,6 +323,13 @@ class Iterator implements IteratorInterface
             $this->source[] = $value;
 
         } else {
+            if (array_key_exists($key, $this->source) and $exception) {
+                throw new IteratorKeyExistsException(tr('Cannot add key ":key to Iterator class ":class" object because the key already exists', [
+                    ':key'   => $key,
+                    ':class' => get_class($this)
+                ]));
+            }
+
             $this->source[$key] = $value;
         }
 
@@ -743,11 +754,11 @@ class Iterator implements IteratorInterface
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function keepKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepKeys($this->source, $needles, $match_mode);
         return $this;
@@ -757,11 +768,11 @@ class Iterator implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function removeKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function removeKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeKeys($this->source, $needles, $match_mode);
         return $this;
@@ -771,12 +782,12 @@ class Iterator implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function keepValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepValues($this->source, $needles, $column, $match_mode);
         return $this;
@@ -786,12 +797,12 @@ class Iterator implements IteratorInterface
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function removeValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function removeValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeValues($this->source, $needles, $column, $match_mode);
         return $this;
@@ -1199,5 +1210,68 @@ class Iterator implements IteratorInterface
     #[ReturnTypeWillChange] public function setSourceValue(mixed $value, Stringable|string|float|int $key): static
     {
         return $this->set($value, $key);
+    }
+
+
+    /**
+     * Same as Arrays::splice() but for this Iterator
+     *
+     * @param int $offset
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param array|null $spliced
+     * @return static
+     */
+    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static
+    {
+        $spliced = Arrays::splice($this->source, $offset, $length, $replacement);
+        return $this;
+    }
+
+
+    /**
+     * Same as Arrays::spliceKey() but for this Iterator
+     *
+     * @param string $key
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param bool $after
+     * @param array|null $spliced
+     * @return static
+     */
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static
+    {
+        $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+        return $this;
+    }
+
+
+    /**
+     * Renames and returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool $exception
+     * @return DefinitionInterface
+     */
+    #[ReturnTypeWillChange] public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed
+    {
+        // First, ensure the target doesn't exist yet!
+        if (array_key_exists($target, $this->source)) {
+            throw new IteratorException(tr('Cannot rename key ":key" to target ":target", the target key already exists', [
+                ':key'    => $key,
+                ':target' => $target,
+            ]));
+        }
+
+        // Then, get the definition
+        $entry = $this->get($key, $exception);
+
+        // Now rename
+        $this->source[$target] = $this->source[$key];
+        unset($this->source[$key]);
+
+        // Done, return!
+        return $entry;
     }
 }
