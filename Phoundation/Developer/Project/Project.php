@@ -577,7 +577,7 @@ class Project implements ProjectInterface
         Log::information('Updating your project from a local Phoundation repository');
 
         // Ensure that the local Phoundation has no changes
-        Phoundation::new()->ensureNoChanges();
+        Phoundation::new($phoundation_path)->ensureNoChanges();
 
         try {
             // Add all files to index to ensure everything will be stashed

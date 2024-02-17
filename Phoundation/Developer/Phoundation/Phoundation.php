@@ -299,7 +299,7 @@ class Phoundation extends Project
         }
 
         // Detect Phoundation installation and ensure its clean and on the right branch
-        //$this->selectPhoundationBranch($branch)->ensureNoChanges();
+        $this->selectPhoundationBranch($branch)->ensureNoChanges();
 
         try {
             // Execute the patching

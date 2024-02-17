@@ -240,7 +240,7 @@ class Plugins extends Project
             ];
 
             if (!in_array($test, $plugins)) {
-                // Any non plugin files should be copied to Phoundation!
+                // Any non-plugin files should be copied to Phoundation!
                 continue;
             }
 
