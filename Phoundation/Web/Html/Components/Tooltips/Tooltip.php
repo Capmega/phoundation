@@ -83,11 +83,12 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Tooltip class constructor
      *
+     * @param string|null $content
      * @note This method does NOT call its parent constructor!
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
 
         $this->data    = new Iterator();
         $this->element = 'tooltip';

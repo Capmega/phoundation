@@ -26,11 +26,13 @@ class MetaModal extends Modal
 {
     /**
      * SignInModal class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->setContent('Hello!');
-        parent::__construct();
+        parent::__construct($content);
     }
 
 

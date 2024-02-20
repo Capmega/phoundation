@@ -19,10 +19,12 @@ class Div extends Element
 {
     /**
      * Form class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->setElement('div');
     }
 }

@@ -38,13 +38,15 @@ class InputMultiButtonText extends ElementsBlock
 
     /**
      * InputMultiButtonText class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->setButton(Button::new()
             ->setMode(EnumDisplayMode::info)
             ->setContent(tr('Action')));
-        return parent::__construct();
+        return parent::__construct($content);
     }
 
 

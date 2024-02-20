@@ -21,10 +21,12 @@ class InputTime extends InputText
 {
     /**
      * InputTime class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->type = EnumInputType::time;
-        parent::__construct();
+        parent::__construct($content);
     }
 }

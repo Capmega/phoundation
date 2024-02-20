@@ -21,10 +21,12 @@ class InputDateTimeLocal extends InputText
 {
     /**
      * InputDateTimeLocal class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->type = EnumInputType::datetime_local;
-        parent::__construct();
+        parent::__construct($content);
     }
 }

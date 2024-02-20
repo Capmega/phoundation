@@ -22,11 +22,13 @@ class InputText extends Input
 {
     /**
      * InputText class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->type = $this->type ?? EnumInputType::text;
-        parent::__construct();
+        parent::__construct($content);
     }
 
 

@@ -21,10 +21,12 @@ class InputPassword extends InputText
 {
     /**
      * InputPassword class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->type = EnumInputType::password;
-        parent::__construct();
+        parent::__construct($content);
     }
 }

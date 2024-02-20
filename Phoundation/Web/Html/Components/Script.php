@@ -74,6 +74,8 @@ class Script extends Element
 
     /**
      * Script class constructor
+     *
+     * @param string|null $content
      */
     public function __construct(?string $content = null)
     {

@@ -98,10 +98,13 @@ class UploadDropZone extends ResourceElement
 
     /**
      * UploadDropZone class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
+
         $this->selector                   = 'document.body';
         $this->total_progress_selector    = '#total-progress';
         $this->progress_bar_selector      = '.progress-bar';

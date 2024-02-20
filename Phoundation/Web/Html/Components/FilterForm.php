@@ -25,10 +25,12 @@ class FilterForm extends DataEntryForm
 {
     /**
      * FilterForm class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->setId('filters');
         $this->useForm(true)->getForm()->setMethod('GET')->setAction(UrlBuilder::getWww());
     }

@@ -2,14 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Input;
-
-use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Traits\UsesAttributeMultiple;
+namespace Phoundation\Web\Html\Components;
 
 
 /**
- * Class InputTel
+ * P class
  *
  *
  *
@@ -18,18 +15,16 @@ use Phoundation\Web\Html\Traits\UsesAttributeMultiple;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputTel extends InputText
+class P extends Div
 {
-    use UsesAttributeMultiple;
-
     /**
-     * InputTel class constructor
+     * Form class constructor
      *
      * @param string|null $content
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::tel;
         parent::__construct($content);
+        $this->setElement('p');
     }
 }

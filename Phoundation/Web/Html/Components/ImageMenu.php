@@ -48,14 +48,16 @@ abstract class ImageMenu extends ElementsBlock
 
     /**
      * ImageMenu class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         if ($this->height === null) {
             $this->height = 25;
         }
 
-        parent::__construct();
+        parent::__construct($content);
     }
 
 

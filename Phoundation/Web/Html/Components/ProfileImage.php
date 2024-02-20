@@ -23,8 +23,10 @@ class ProfileImage extends ImageMenu
 {
     /**
      * ProfileImage class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         // Set up the default image URL
 //        $this->setUrl('sign-in');
@@ -33,11 +35,12 @@ class ProfileImage extends ImageMenu
         if (Session::getUser()->isGuest()) {
             // This is a guest user, make sure that the profile image shows the sign in modal
             $this->setModalSelector('#signinModal');
+
         } else {
             $this->setMenu(Page::getMenus()->getMenu('profile_image'));
         }
 
-        parent::__construct();
+        parent::__construct($content);
     }
 
 

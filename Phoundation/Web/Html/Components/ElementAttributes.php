@@ -186,11 +186,15 @@ trait ElementAttributes
 
     /**
      * Class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->classes    = new Iterator();
         $this->attributes = new Iterator();
+
+        $this->setContent($content);
     }
 
 

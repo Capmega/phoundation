@@ -34,11 +34,13 @@ class Button extends Input
 
     /**
      * Button class constructor
+     *
+     * @param string|null $content
      * @todo Get rid of the web.defaults.elements.classes.button path as this was an idea before the templating system
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
 
         $this->setName('submit');
         $this->setClasses('btn');

@@ -21,10 +21,12 @@ class InputButton extends Input
 {
     /**
      * InputButton class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->type = EnumInputType::button;
-        parent::__construct();
+        parent::__construct($content);
     }
 }
