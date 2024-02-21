@@ -725,16 +725,22 @@ class Debug {
     protected static function displayException(Throwable $e, bool $full_backtrace, int $indent): string
     {
         $prefix  = str_repeat(' ', $indent);
-        $return  = $prefix . tr(':type Exception', [':type' => get_class($e)]) . '<br><br>';
-        $return .= $prefix . tr('Message:') . $e->getMessage() . '<br>';
+        $return  = $prefix . tr('":type" Exception', [':type' => get_class($e)]) . '<br><br>';
+        $return .= $prefix . tr('Message: :message', [':message' => $e->getMessage()]) . '<br>';
         $return .= $prefix . tr('Additional messages:') . '<br>';
 
         if ($e instanceof Exception) {
-            foreach ($e->getMessages() as $message) {
-                $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+            $messages = $e->getMessages();
+
+            if ($messages) {
+                foreach ($messages as $message) {
+                    $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+                }
+            } else {
+                $return .= $prefix . '-<br>';
             }
         }else {
-            $return .= $prefix . htmlspecialchars($e->getMessage()) . '<br>';
+            $return .= $prefix . '-<br>';
         }
 
         $return .= '<br>' . $prefix . tr('Location: ') . htmlspecialchars($e->getFile()) . '@' . $e->getLine() . '<br><br>' . $prefix . tr('Backtrace: ') . '<br>';
@@ -752,7 +758,7 @@ class Debug {
         $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
 
         if ($e instanceof Exception) {
-            $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r($e->getData() ?? '-', true))) . '<br>';
+            $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r(not_empty($e->getData(), '-'), true))) . '<br>';
 
         } else {
             $return .= $prefix . htmlspecialchars('-') . '<br>';
