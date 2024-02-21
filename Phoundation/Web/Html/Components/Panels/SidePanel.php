@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components;
+namespace Phoundation\Web\Html\Components\Panels;
 
 use Phoundation\Web\Html\Components\Modals\SignInModal;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Page;
 
 
 /**
@@ -28,5 +30,26 @@ class SidePanel extends Panel
     {
         parent::__construct($content);
         $this->getModals()->addModal('sign-in', new SignInModal());
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function render(): ?string
+    {
+        $sign_in = new SignInModal();
+        $sign_in
+            ->useForm(true)
+            ->getForm()
+                ->setId('form-sign-in')
+                ->setMethod('post')
+                ->setAction(UrlBuilder::getAjax('sign-in'));
+
+        $this->setMenu(Page::getMenusObject()->getPrimaryMenu())
+             ->getModals()
+                 ->addModal('sign-in', $sign_in);
+
+        return parent::render();
     }
 }

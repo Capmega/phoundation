@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components;
+namespace Phoundation\Web\Html\Components\Menus;
 
 use PDOStatement;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -73,39 +74,5 @@ class Menu extends ElementsBlock implements MenuInterface
 
         unset($entry);
         return $source;
-    }
-
-
-    /**
-     * Append the specified menu to the end of this menu
-     *
-     * @param MenuInterface|array $menu
-     * @return $this
-     */
-    public function appendMenu(MenuInterface|array $menu): static
-    {
-        if (is_object($menu)) {
-            $menu = $menu->__toArray();
-        }
-
-        $this->source = array_merge($this->source, $menu);
-        return $this;
-    }
-
-
-    /**
-     * Append the specified menu to the beginning of this menu
-     *
-     * @param MenuInterface|array $menu
-     * @return $this
-     */
-    public function prependMenu(MenuInterface|array $menu): static
-    {
-        if (is_object($menu)) {
-            $menu = $menu->__toArray();
-        }
-
-        $this->source = array_merge($menu, $this->source);
-        return $this;
     }
 }

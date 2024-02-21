@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Web\Html\Components\Menus\Menu;
 use Phoundation\Web\Page;
 
 
@@ -37,7 +38,7 @@ class ProfileImage extends ImageMenu
             $this->setModalSelector('#signinModal');
 
         } else {
-            $this->setMenu(Page::getMenus()->getMenu('profile_image'));
+            $this->setMenu(Page::getMenusObject()->getMenu('profile_image'));
         }
 
         parent::__construct($content);

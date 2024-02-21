@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components;
+namespace Phoundation\Web\Html\Components\Panels;
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Web\Html\Components\LanguagesDropDown;
+use Phoundation\Web\Html\Components\Menus\Menu;
+use Phoundation\Web\Html\Components\MessagesDropDown;
+use Phoundation\Web\Html\Components\NotificationsDropDown;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -90,7 +94,20 @@ class TopPanel extends Panel
 
 
     /**
-     * Returns the notifications drop down object
+     * Access to the elements object
+     *
+     * @param IteratorInterface|array $elements
+     * @return TopPanel
+     */
+    public function setElementsObject(IteratorInterface|array $elements): static
+    {
+        $this->elements = new Iterator($elements);
+        return $this;
+    }
+
+
+    /**
+     * Returns the notifications drop-down object
      *
      * @return NotificationsDropDown
      */
@@ -105,7 +122,7 @@ class TopPanel extends Panel
 
 
     /**
-     * Sets the notifications drop down object
+     * Sets the notifications drop-down object
      *
      * @param NotificationsDropDown $notifications
      * @return static
@@ -118,7 +135,7 @@ class TopPanel extends Panel
 
 
     /**
-     * Returns the notifications drop down object
+     * Returns the notifications drop-down object
      *
      * @return MessagesDropDown
      */
@@ -132,7 +149,7 @@ class TopPanel extends Panel
 
 
     /**
-     * Sets the notifications drop down object
+     * Sets the notifications drop-down object
      *
      * @param MessagesDropDown $messages
      * @return static
@@ -145,7 +162,7 @@ class TopPanel extends Panel
 
 
     /**
-     * Returns the notifications drop down object
+     * Returns the notifications drop-down object
      *
      * @return LanguagesDropDown
      */
@@ -159,7 +176,7 @@ class TopPanel extends Panel
 
 
     /**
-     * Sets the notifications drop down object
+     * Sets the notifications drop-down object
      *
      * @param LanguagesDropDown $languages
      * @return static
@@ -168,5 +185,28 @@ class TopPanel extends Panel
     {
         $this->languages = $languages;
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function render(): ?string
+    {
+        $this->getNotificationsDropDown()
+            ->setStatus('UNREAD')
+            ->setNotifications(null)
+            ->setNotificationsUrl('/notifications/notification-:ID.html')
+            ->setAllNotificationsUrl('/notifications/unread.html');
+
+        $this->getMessagesDropDown()
+            ->setMessages(null)
+            ->setMessagesUrl('/messages/unread.html');
+
+        $this->getLanguagesDropDown()
+            ->setLanguages(null)
+            ->setSettingsUrl('/settings.html');
+
+        return parent::render();
     }
 }

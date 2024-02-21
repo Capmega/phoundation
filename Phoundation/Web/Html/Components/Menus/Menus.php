@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Menus;
+namespace Phoundation\Web\Html\Components\Menus;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
-use Phoundation\Web\Html\Components\Menu;
+use Phoundation\Web\Html\Components\Menus\Interfaces\MenusInterface;
 
 
 /**
@@ -21,7 +21,7 @@ use Phoundation\Web\Html\Components\Menu;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
-class Menus extends Iterator implements IteratorInterface
+class Menus extends Iterator implements IteratorInterface, MenusInterface
 {
     /**
      * @var array $menus
@@ -140,6 +140,7 @@ class Menus extends Iterator implements IteratorInterface
      * Load the menu contents from the database
      *
      * @param bool $clear
+     * @param bool $only_if_empty
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static

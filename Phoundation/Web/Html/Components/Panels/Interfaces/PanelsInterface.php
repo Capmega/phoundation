@@ -1,22 +1,20 @@
 <?php
 
-declare(strict_types=1);
+namespace Phoundation\Web\Html\Components\Panels\Interfaces;
 
-namespace Phoundation\Web\Html\Components;
+use Phoundation\Data\Interfaces\IteratorInterface;
 
-
-use Phoundation\Web\Html\Components\Menus\Menu;
 
 /**
- * DropDownMenu class
+ * Panels class
  *
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package Phoundation/Web
  */
-class DropDownMenu extends Menu
+interface PanelsInterface extends IteratorInterface
 {
 }

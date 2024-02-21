@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components;
+namespace Phoundation\Web\Html\Components\Panels;
 
 
 /**
- * Footer class
+ * BottomPanel class
  *
  *
  *
@@ -15,6 +15,6 @@ namespace Phoundation\Web\Html\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Footer extends ElementsBlock
+class BottomPanel extends Panel
 {
 }

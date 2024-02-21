@@ -2,11 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components;
+namespace Phoundation\Web\Html\Components\Panels;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\ImageMenu;
+use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Modals\Modals;
+use Phoundation\Web\Html\Components\Mode;
+use Phoundation\Web\Html\Components\Panels\Interfaces\PanelInterface;
+use Phoundation\Web\Html\Components\ProfileImage;
 
 
 /**
@@ -19,7 +25,7 @@ use Phoundation\Web\Html\Components\Modals\Modals;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Panel extends ElementsBlock
+abstract class Panel extends ElementsBlock implements PanelInterface
 {
     use Mode;
 
@@ -35,10 +41,10 @@ abstract class Panel extends ElementsBlock
     /**
      * Sets the panel menu
      *
-     * @param Menu|null $menu
+     * @param MenuInterface|null $menu
      * @return static
      */
-    public function setMenu(?Menu $menu): static
+    public function setMenu(?MenuInterface $menu): static
     {
         $this->source['menu'] = $menu;
         return $this;
@@ -48,9 +54,9 @@ abstract class Panel extends ElementsBlock
     /**
      * Returns the panel menu
      *
-     * @return Menu|null
+     * @return MenuInterface|null
      */
-    public function getMenu(): ?Menu
+    public function getMenu(): ?MenuInterface
     {
         return isset_get($this->source['menu']);
     }

@@ -15,7 +15,7 @@ namespace Plugins\Phoundation\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Menu extends \Phoundation\Web\Html\Components\Menu
+class Menu extends \Phoundation\Web\Html\Components\Menus\Menu
 {
     /**
      * Menu class constructor

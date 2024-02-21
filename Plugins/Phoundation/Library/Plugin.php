@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plugins\Phoundation\Library;
 
-use Phoundation\Web\Html\Components\Menu;
+use Phoundation\Web\Html\Components\Menus\Menu;
 use Phoundation\Web\Page;
 use Plugins\Phoundation\Components\ProfileImageMenu;
 
@@ -38,9 +38,9 @@ class Plugin extends \Phoundation\Core\Plugins\Plugin
     public static function start(): void
     {
         // TODO Use hooks after startup!
-        Page::getMenus()->setMenus([
-            'primary'       => Menu::new()->appendMenu(\Plugins\Phoundation\Components\Menu::new()),
-            'profile_image' => Menu::new()->appendMenu(ProfileImageMenu::new())
+        Page::getMenusObject()->setMenus([
+            'primary'       => Menu::new()->appendIterator(\Plugins\Phoundation\Components\Menu::new()),
+            'profile_image' => Menu::new()->appendIterator(ProfileImageMenu::new())
         ]);
     }
 }

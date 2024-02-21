@@ -28,7 +28,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -49,11 +48,13 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\RedirectException;
-use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
+use Phoundation\Web\Html\Components\Menus\Interfaces\MenusInterface;
+use Phoundation\Web\Html\Components\Menus\Menus;
+use Phoundation\Web\Html\Components\Panels\Interfaces\PanelsInterface;
+use Phoundation\Web\Html\Components\Panels\Panels;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Menus\Menus;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Domains;
@@ -68,9 +69,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
-use Phoundation\Web\Routing\RoutingParameters;
 use Stringable;
-use Symfony\Component\Routing\RouterInterface;
 use Throwable;
 
 
@@ -282,20 +281,6 @@ class Page implements PageInterface
     protected static bool $build_body = true;
 
     /**
-     * Tracks if the body header should be built or not
-     *
-     * @var bool|null $build_body_header
-     */
-    protected static ?bool $build_body_header = true;
-
-    /**
-     * Sets if the page footers should be built or not
-     *
-     * @var bool $build_footers
-     */
-    protected static bool $build_footers = true;
-
-    /**
      * Contains the routing parameters like root url, template, etc
      *
      * @var RoutingParametersInterface $parameters
@@ -305,9 +290,16 @@ class Page implements PageInterface
     /**
      * The menus for this page
      *
-     * @var Menus $menus
+     * @var MenusInterface $menus
      */
-    protected static Menus $menus;
+    protected static MenusInterface $menus;
+
+    /**
+     * The panels for this page
+     *
+     * @var PanelsInterface $panels
+     */
+    protected static PanelsInterface $panels;
 
     /**
      * @var string $language_code
@@ -391,9 +383,9 @@ class Page implements PageInterface
     /**
      * Returns the current tab index and automatically increments it
      *
-     * @return Menus
+     * @return MenusInterface
      */
-    public static function getMenus(): Menus
+    public static function getMenusObject(): MenusInterface
     {
         if (!isset(static::$menus)) {
             // Menus have not yet been initialized, do so now.
@@ -407,12 +399,40 @@ class Page implements PageInterface
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param Menus $menus
+     * @param MenusInterface $menus
      * @return void
      */
-    public static function setMenus(Menus $menus): void
+    public static function setMenusObject(MenusInterface $menus): void
     {
         static::$menus = $menus;
+    }
+
+
+    /**
+     * Returns the current panels configured for this page
+     *
+     * @return PanelsInterface
+     */
+    public static function getPanelsObject(): PanelsInterface
+    {
+        if (!isset(static::$panels)) {
+            // Menus have not yet been initialized, do so now.
+            static::$panels = new Panels();
+        }
+
+        return static::$panels;
+    }
+
+
+    /**
+     * Sets the current panels configured for this page
+     *
+     * @param PanelsInterface $panels
+     * @return void
+     */
+    public static function setPanelsObject(PanelsInterface $panels): void
+    {
+        static::$panels = $panels;
     }
 
 
@@ -581,55 +601,9 @@ class Page implements PageInterface
      *
      * @return bool
      */
-    public static function getBuildBody(): bool
+    public static function getBuildBodyWrapper(): bool
     {
         return static::$build_body;
-    }
-
-
-    /**
-     * Sets if the body header should be built or not
-     *
-     * @param bool|null $build_body_header
-     * @return void
-     */
-    public static function setBuildBodyHeader(?bool $build_body_header): void
-    {
-        static::$build_body_header = $build_body_header;
-    }
-
-
-    /**
-     * Returns if the body header should be built or not
-     *
-     * @return bool|null
-     */
-    public static function getBuildBodyHeader(): ?bool
-    {
-        return static::$build_body_header;
-    }
-
-
-    /**
-     * Sets if the body header should be built or not
-     *
-     * @param bool $build_footers
-     * @return void
-     */
-    public static function setBuildFooters(bool $build_footers): void
-    {
-        static::$build_footers = $build_footers;
-    }
-
-
-    /**
-     * Returns if the body header should be built or not
-     *
-     * @return bool
-     */
-    public static function getBuildFooters(): bool
-    {
-        return static::$build_footers;
     }
 
 
@@ -2079,11 +2053,11 @@ class Page implements PageInterface
 
 
     /**
-     * Build and return the HTML headers
+     * Builds and return the HTML <head> tag
      *
      * @return string|null
      */
-    public static function buildHeaders(): ?string
+    public static function buildHtmlHeadTag(): ?string
     {
         $return = '<!DOCTYPE ' . static::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
@@ -2116,7 +2090,7 @@ class Page implements PageInterface
      * @todo This should be upgraded to using Javascript / Css objects
      * @return string|null
      */
-    public static function buildFooters(): ?string
+    public static function buildHtmlFooters(): ?string
     {
         Log::warning('TODO Reminder: Page::buildFooters() should be upgraded to using Javascript / Css objects');
 
@@ -2783,7 +2757,7 @@ class Page implements PageInterface
             if (!str_starts_with($target, '/')) {
                 // Ensure we have an absolute target
                 try {
-                    $page = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
+                    $target = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
 
                 } catch (FileNotExistException $e) {
                     throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
