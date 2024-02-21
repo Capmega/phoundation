@@ -23,6 +23,7 @@ use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -324,7 +325,7 @@ class Iterator implements IteratorInterface
 
         } else {
             if (array_key_exists($key, $this->source) and $exception) {
-                throw new IteratorKeyExistsException(tr('Cannot add key ":key to Iterator class ":class" object because the key already exists', [
+                throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
                     ':key'   => $key,
                     ':class' => get_class($this)
                 ]));
@@ -354,6 +355,40 @@ class Iterator implements IteratorInterface
             $this->add($value, $key);
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Append the specified Iterator to the end of this Iterator
+     *
+     * @param IteratorInterface|array $menu
+     * @return $this
+     */
+    public function appendIterator(IteratorInterface|array $menu): static
+    {
+        if (is_object($menu)) {
+            $menu = $menu->__toArray();
+        }
+
+        $this->source = array_merge($this->source, $menu);
+        return $this;
+    }
+
+
+    /**
+     * Prepend the specified Iterator at the beginning of this Iterator
+     *
+     * @param IteratorInterface|array $menu
+     * @return $this
+     */
+    public function prependIterator(IteratorInterface|array $menu): static
+    {
+        if (is_object($menu)) {
+            $menu = $menu->__toArray();
+        }
+
+        $this->source = array_merge($menu, $this->source);
         return $this;
     }
 

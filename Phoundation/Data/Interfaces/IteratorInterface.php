@@ -549,4 +549,20 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return mixed
      */
     #[ReturnTypeWillChange] public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed;
+
+    /**
+     * Append the specified Iterator to the end of this Iterator
+     *
+     * @param IteratorInterface|array $menu
+     * @return $this
+     */
+    public function appendIterator(IteratorInterface|array $menu): static;
+
+    /**
+     * Prepend the specified Iterator at the beginning of this Iterator
+     *
+     * @param IteratorInterface|array $menu
+     * @return $this
+     */
+    public function prependIterator(IteratorInterface|array $menu): static;
 }
