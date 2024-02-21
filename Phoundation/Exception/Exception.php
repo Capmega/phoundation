@@ -194,7 +194,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
-     * Return the exception related data
+     * Return the exception-related data
      *
      * @return array
      */
@@ -205,7 +205,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
 
     /**
-     * Return the exception related data
+     * Return the exception-related data
      *
      * @param string|int $key
      * @return mixed

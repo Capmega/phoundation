@@ -25,11 +25,11 @@ use Throwable;
 interface ExceptionInterface extends Throwable
 {
     /**
-     * Return the exception related data
+     * Return the exception-related data
      *
-     * @return mixed
+     * @return array
      */
-    public function getData(): mixed;
+    public function getData(): array;
 
     /**
      * Set the exception data
