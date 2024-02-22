@@ -667,10 +667,12 @@ class Sql implements SqlInterface
                 // Multiple results, this is always bad for a function that should only return one result!
                 SqlQueries::checkShowSelect($query, $execute);
 
-                throw new SqlMultipleResultsException(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
+                throw SqlMultipleResultsException::new(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
                     ':query' => SqlQueries::buildQueryString($result->queryString, $execute)
-                ]));
+                ]))->setData([
+                    'connector' => $this->connector
+                ]);
         }
     }
 
@@ -846,7 +848,7 @@ class Sql implements SqlInterface
         $statement = $this->getPdoStatement($query, $execute);
 
         while ($row = $this->fetch($statement)) {
-            $return[] = array_first($row);
+            $return[] = $row[array_key_first($row)];
         }
 
         return $return;
@@ -888,7 +890,7 @@ class Sql implements SqlInterface
         $statement = $this->getPdoStatement($query, $execute);
 
         while ($row = $this->fetch($statement)) {
-            $return[array_first($row)] = array_last($row);
+            $return[$row[array_key_first($row)]] = $row[array_key_last($row)];
         }
 
         return $return;
@@ -902,6 +904,7 @@ class Sql implements SqlInterface
      *
      * @param string|PDOStatement $query
      * @param array|null $execute
+     * @param string|null $column
      * @return array
      */
     public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $column = null): array
@@ -911,7 +914,8 @@ class Sql implements SqlInterface
 
         while ($row = $this->fetch($statement)) {
             if (!$column) {
-                $key = array_first($row);
+                $key = array_key_first($row);
+
             } else {
                 $key = $row[$column];
             }
