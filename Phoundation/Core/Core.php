@@ -2140,9 +2140,18 @@ die($errfile. $errline);
                         //
                         static::removeShutdownCallback('route_postprocess');
 
-                        Notification::new()
-                            ->setException($e)
-                            ->send();
+                        try {
+                            Notification::new()
+                                ->setException($e)
+                                ->send();
+
+                        } catch (OutOfBoundsException $f) {
+                            Log::error('Failed to generate notification of uncaught exception, see following notification');
+
+                            Notification::new()
+                                ->setException($f)
+                                ->send();
+                        }
 
                         if (static::inStartupState($state)) {
                             /*
