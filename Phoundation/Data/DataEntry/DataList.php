@@ -90,9 +90,9 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Tracks if entries are stored by id or unique column
      *
-     * @var bool $id_is_unique_column
+     * @var bool $keys_are_unique_column
      */
-    protected bool $id_is_unique_column = false;
+    protected bool $keys_are_unique_column = false;
 
 
     /**
@@ -144,9 +144,9 @@ abstract class DataList extends Iterator implements DataListInterface
     /**
      * Returns the default database connector to use for this table
      *
-     * @return string|null
+     * @return string
      */
-    public static function getDefaultConnectorName(): ?string
+    public static function getDefaultConnectorName(): string
     {
         return 'system';
     }
@@ -196,21 +196,21 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return bool
      */
-    public function getIdIsUniqueColumn(): bool
+    public function getKeysareUniqueColumn(): bool
     {
-        return $this->id_is_unique_column;
+        return $this->keys_are_unique_column;
     }
 
 
     /**
      * Sets if the DataEntry entries are stored with ID or key
      *
-     * @param bool $id_is_unique_column
+     * @param bool $keys_are_unique_column
      * @return static
      */
-    public function setIdIsUniqueColumn(bool $id_is_unique_column): static
+    public function setKeysareUniqueColumn(bool $keys_are_unique_column): static
     {
-        $this->id_is_unique_column = $id_is_unique_column;
+        $this->keys_are_unique_column = $keys_are_unique_column;
         return $this;
     }
 
@@ -587,7 +587,7 @@ abstract class DataList extends Iterator implements DataListInterface
             }
         }
 
-        if ($this->id_is_unique_column) {
+        if ($this->keys_are_unique_column) {
             if ($key) {
                 if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
                     // Key must either not be specified or match the id of the DataEntry
@@ -765,7 +765,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     protected function getKeyColumn(): string
     {
-        if ($this->id_is_unique_column) {
+        if ($this->keys_are_unique_column) {
             $column = static::getUniqueColumn();
 
             if (!$column) {
@@ -795,14 +795,14 @@ abstract class DataList extends Iterator implements DataListInterface
         if (!empty($this->source)) {
             if (!$only_if_empty) {
                 if (!$clear) {
-                    $this->source = array_merge($this->source, sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : static::getIdColumn()));
+                    $this->source = array_merge($this->source, sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? static::getUniqueColumn() : static::getIdColumn()));
                 }
             }
 
             return $this;
         }
 
-        $this->source = sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->id_is_unique_column ? static::getUniqueColumn() : static::getIdColumn());
+        $this->source = sql(static::getDefaultConnectorName())->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? static::getUniqueColumn() : static::getIdColumn());
         return $this;
     }
 
