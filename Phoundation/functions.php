@@ -1177,6 +1177,24 @@ function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeIn
 
 
 /**
+ * Retuns getdata() type output, or if object, the class of the specified object
+ *
+ * @param mixed $value
+ * @return string
+ */
+function get_object_class_or_data_type(mixed $value): string
+{
+    $type = gettype($value);
+
+    if ($type === 'object') {
+        return 'object[' . get_class($value) . ']';
+    }
+
+    return $type;
+}
+
+
+/**
  * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed
  */
 if (!function_exists('yaml_emit')) {
