@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data;
 
+use JetBrains\PhpStorm\Internal\ReturnTypeContract;
 use PDOStatement;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -13,6 +14,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
+use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Databases\Sql\Limit;
@@ -339,6 +341,188 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $before
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        // Ensure the before key exists
+        if (!array_key_exists($before, $this->source)) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':before' => $before,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $before, 0, [$key => $value], false);
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $after
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        // Ensure the after key exists
+        if (!array_key_exists($after, $this->source)) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed $before
+     * @param bool $strict
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        // Ensure the before key exists
+        $before_key = array_search($before, $this->source, $strict);
+
+        if ($before_key === false) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed $after
+     * @param bool $strict
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        // Ensure the after value exists
+        $after_key = array_search($after, $this->source, $strict);
+
+        if ($after_key === false) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $after_key, 0, [$key => $value], true);
+        return $this;
+    }
+
+
+    /**
      * Adds the specified source(s) to the internal source
      *
      * @param IteratorInterface|array|string|null $source
@@ -365,7 +549,7 @@ class Iterator implements IteratorInterface
      * @param IteratorInterface|array $menu
      * @return $this
      */
-    public function appendIterator(IteratorInterface|array $menu): static
+    public function append(IteratorInterface|array $menu): static
     {
         if (is_object($menu)) {
             $menu = $menu->__toArray();
@@ -382,7 +566,7 @@ class Iterator implements IteratorInterface
      * @param IteratorInterface|array $menu
      * @return $this
      */
-    public function prependIterator(IteratorInterface|array $menu): static
+    public function prepend(IteratorInterface|array $menu): static
     {
         if (is_object($menu)) {
             $menu = $menu->__toArray();
