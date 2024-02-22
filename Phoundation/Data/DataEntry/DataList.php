@@ -48,7 +48,7 @@ abstract class DataList extends Iterator implements DataListInterface
 {
     use DataReadonly;
     use DataParent {
-        setParent as setParentTrait;
+        setParent as protected __setParent;
     }
 
 
@@ -93,6 +93,13 @@ abstract class DataList extends Iterator implements DataListInterface
      * @var bool $keys_are_unique_column
      */
     protected bool $keys_are_unique_column = false;
+
+    /**
+     * Tracks the class used to generate the select input
+     *
+     * @var string
+     */
+    protected string $input_select_class = InputSelect::class;
 
 
     /**
@@ -188,6 +195,36 @@ abstract class DataList extends Iterator implements DataListInterface
         }
 
         return parent::keyExists($key);
+    }
+
+
+    /**
+     * Returns the class used to generate the select input
+     *
+     * @return string
+     */
+    public function getInputSelectClass(): string
+    {
+        return $this->input_select_class;
+    }
+
+
+    /**
+     * Sets the class used to generate the select input
+     *
+     * @param string $input_select_class
+     * @return DataList
+     */
+    public function setInputSelectClass(string $input_select_class): static
+    {
+        if (is_a($input_select_class, InputSelectInterface::class, true)){
+            $this->input_select_class = $input_select_class;
+            return $this;
+        }
+
+        throw new OutOfBoundsException(tr('Cannot use specified class ":class" to generate input select, the class must be an instance of InputSelectInterface', [
+            ':class' => $input_select_class
+        ]));
     }
 
 
@@ -389,7 +426,7 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        $select  = InputSelect::new();
+        $select  = $this->input_select_class::new();
         $execute = [];
 
         if (!$key_column) {
@@ -857,7 +894,7 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         // Clear the source to avoid having a parent with the wrong children
         $this->source = [];
-        return $this->setParentTrait($parent);
+        return $this->__setParent($parent);
     }
 
 

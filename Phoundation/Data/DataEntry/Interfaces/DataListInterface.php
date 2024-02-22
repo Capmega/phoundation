@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Interfaces;
 
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Schema\Table;
@@ -198,4 +199,19 @@ interface DataListInterface extends IteratorInterface
      * @return ListOperationsInterface
      */
     public static function directOperations(): ListOperationsInterface;
+
+    /**
+     * Returns the class used to generate the select input
+     *
+     * @return string
+     */
+    public function getInputSelectClass(): string;
+
+    /**
+     * Sets the class used to generate the select input
+     *
+     * @param string $input_select_class
+     * @return DataList
+     */
+    public function setInputSelectClass(string $input_select_class): static;
 }
