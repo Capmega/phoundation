@@ -464,11 +464,45 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the remote user for this user
      *
+     * @param string $class
+     * @param string|null $column
      * @return UserInterface|null
      */
-    public function getRemoteUser(): ?UserInterface
+    public function getRemoteUser(string $class, ?string $column = null): ?UserInterface
     {
-        return $this->remote_user->setRemoteUser($this);
+        // Validate
+        if (!class_exists($class)) {
+            throw new OutOfBoundsException(tr('Cannot create remote user object with class ":class", the specified class does not exist (or has not been loaded yet)', [
+                ':class' => $class
+            ]));
+        }
+
+        if (!is_a($class, DataEntryInterface::class)) {
+            throw new OutOfBoundsException(tr('Cannot create remote user object with class ":class", the specified class is not an instance of DataEntryInterface', [
+                ':class' => $class
+            ]));
+        }
+
+        // If the remote user has already been set, verify the class and return it
+        if ($this->remote_user) {
+            if ($this->remote_user instanceof $class) {
+                // Return the remote user, immediately linked to this user
+                return $this->remote_user;
+            }
+
+            throw new OutOfBoundsException(tr('The existing remote user object with class ":class" is not an instance of the requested class ":requested"', [
+                ':class'     => get_class($this->remote_user),
+                ':requested' => $class
+            ]));
+        }
+
+        if ($this->getRemoteId()) {
+            // There is a remote user, it's just not initialized yet. Instantiate the object and link it to this user
+            return $this->remote_user = $class::new($this->getRemoteId(), $column)->setRemoteUser($this);
+        }
+
+        // There is no remote user
+        return null;
     }
 
 
@@ -480,7 +514,8 @@ class User extends DataEntry implements UserInterface
      */
     public function setRemoteUser(?UserInterface $remote_user): static
     {
-        $this->remote_user = $remote_user;
+        // Set the remote user and link it immediately to this user
+        $this->remote_user = $remote_user->setRemoteUser($this);
         return $this;
     }
 

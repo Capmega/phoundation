@@ -637,9 +637,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Returns the remote user for this user
      *
+     * @param string $class
+     * @param string|null $column
      * @return UserInterface|null
      */
-    public function getRemoteUser(): ?UserInterface;
+    public function getRemoteUser(string $class, ?string $column = null): ?UserInterface;
 
     /**
      * Sets the remote user for this user
