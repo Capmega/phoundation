@@ -13,7 +13,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Html\Renderer;
+use Phoundation\Web\Html\TemplateRenderer;
 use Phoundation\Web\Page;
 
 
@@ -186,7 +186,7 @@ abstract class Element implements ElementInterface
         };
 
         if ($renderer_class) {
-            Renderer::ensureClass($renderer_class, $this);
+            TemplateRenderer::ensureClass($renderer_class, $this);
 
             $render = $renderer_class::new($this)
                 ->setParentRenderFunction($render_function)

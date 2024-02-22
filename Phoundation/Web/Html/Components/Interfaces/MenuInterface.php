@@ -36,7 +36,7 @@ interface MenuInterface
      * @param Menu|array $menu
      * @return $this
      */
-    public function appendIterator(Menu|array $menu): static;
+    public function append(Menu|array $menu): static;
 
     /**
      * Append the specified menu to the beginning of this menu
@@ -44,5 +44,5 @@ interface MenuInterface
      * @param Menu|array $menu
      * @return $this
      */
-    public function prependIterator(Menu|array $menu): static;
+    public function prepend(Menu|array $menu): static;
 }

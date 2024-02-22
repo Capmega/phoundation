@@ -7,6 +7,9 @@ namespace Phoundation\Data\Interfaces;
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
+use Phoundation\Data\Exception\IteratorKeyNotExistsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Utils;
@@ -102,6 +105,64 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return static
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $before
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static;
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $after
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static;
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed $before
+     * @param bool $strict
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed $after
+     * @param bool $strict
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Adds the specified source(s) to the internal source
@@ -556,7 +617,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param IteratorInterface|array $menu
      * @return $this
      */
-    public function appendIterator(IteratorInterface|array $menu): static;
+    public function append(IteratorInterface|array $menu): static;
 
     /**
      * Prepend the specified Iterator at the beginning of this Iterator
@@ -564,5 +625,5 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param IteratorInterface|array $menu
      * @return $this
      */
-    public function prependIterator(IteratorInterface|array $menu): static;
+    public function prepend(IteratorInterface|array $menu): static;
 }

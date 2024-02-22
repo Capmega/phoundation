@@ -10,7 +10,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Components\Interfaces\FormInterface;
-use Phoundation\Web\Html\Renderer;
+use Phoundation\Web\Html\TemplateRenderer;
 use Phoundation\Web\Page;
 
 
@@ -191,7 +191,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
         };
 
         if ($renderer_class) {
-            Renderer::ensureClass($renderer_class, $this);
+            TemplateRenderer::ensureClass($renderer_class, $this);
 
             return $renderer_class::new($this)
                 ->setParentRenderFunction($render_function)

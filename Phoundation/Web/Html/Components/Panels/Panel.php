@@ -6,11 +6,16 @@ namespace Phoundation\Web\Html\Components\Panels;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\ImageMenu;
 use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
+use Phoundation\Web\Html\Components\LanguagesDropDown;
+use Phoundation\Web\Html\Components\MessagesDropDown;
 use Phoundation\Web\Html\Components\Modals\Modals;
 use Phoundation\Web\Html\Components\Mode;
+use Phoundation\Web\Html\Components\NotificationsDropDown;
 use Phoundation\Web\Html\Components\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\ProfileImage;
 
@@ -28,6 +33,35 @@ use Phoundation\Web\Html\Components\ProfileImage;
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
     use Mode;
+
+
+    /**
+     * Tracks the elements in this panel
+     *
+     * @var IteratorInterface
+     */
+    protected IteratorInterface $elements;
+
+    /**
+     * The top notifications drop down
+     *
+     * @var NotificationsDropDown $notifications
+     */
+    protected NotificationsDropDown $notifications;
+
+    /**
+     * The top messages drop down
+     *
+     * @var MessagesDropDown $messages
+     */
+    protected MessagesDropDown $messages;
+
+    /**
+     * The top languages drop down
+     *
+     * @var LanguagesDropDown $languages
+     */
+    protected LanguagesDropDown $languages;
 
 
     /**
@@ -126,5 +160,111 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         }
 
         return $this->modals;
+    }
+
+
+    /**
+     * Access to the elements object
+     *
+     * @return IteratorInterface
+     */
+    public function getElementsObject(): IteratorInterface
+    {
+        return $this->elements;
+    }
+
+
+    /**
+     * Access to the elements object
+     *
+     * @param IteratorInterface|array $elements
+     * @return TopPanel
+     */
+    public function setElementsObject(IteratorInterface|array $elements): static
+    {
+        $this->elements = new Iterator($elements);
+        return $this;
+    }
+
+
+    /**
+     * Returns the notifications drop-down object
+     *
+     * @return NotificationsDropDown
+     */
+    public function getNotificationsDropDown(): NotificationsDropDown
+    {
+        if (!isset($this->notifications)) {
+            $this->notifications = NotificationsDropDown::new();
+        }
+
+        return $this->notifications;
+    }
+
+
+    /**
+     * Sets the notifications drop-down object
+     *
+     * @param NotificationsDropDown $notifications
+     * @return static
+     */
+    public function setNotificationsDropDown(NotificationsDropDown $notifications): static
+    {
+        $this->notifications = $notifications;
+        return $this;
+    }
+
+
+    /**
+     * Returns the notifications drop-down object
+     *
+     * @return MessagesDropDown
+     */
+    public function getMessagesDropDown(): MessagesDropDown
+    {
+        if (!isset($this->messages)) {
+            $this->messages = MessagesDropDown::new();
+        }
+        return $this->messages;
+    }
+
+
+    /**
+     * Sets the notifications drop-down object
+     *
+     * @param MessagesDropDown $messages
+     * @return static
+     */
+    public function setMessagesDropDown(MessagesDropDown $messages): static
+    {
+        $this->messages = $messages;
+        return $this;
+    }
+
+
+    /**
+     * Returns the notifications drop-down object
+     *
+     * @return LanguagesDropDown
+     */
+    public function getLanguagesDropDown(): LanguagesDropDown
+    {
+        if (!isset($this->languages)) {
+            $this->languages = LanguagesDropDown::new();
+        }
+        return $this->languages;
+    }
+
+
+    /**
+     * Sets the notifications drop-down object
+     *
+     * @param LanguagesDropDown $languages
+     * @return static
+     */
+    public function setLanguagesDropDown(LanguagesDropDown $languages): static
+    {
+        $this->languages = $languages;
+        return $this;
     }
 }

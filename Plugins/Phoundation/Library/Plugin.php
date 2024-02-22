@@ -39,8 +39,8 @@ class Plugin extends \Phoundation\Core\Plugins\Plugin
     {
         // TODO Use hooks after startup!
         Page::getMenusObject()->setMenus([
-            'primary'       => Menu::new()->appendIterator(\Plugins\Phoundation\Components\Menu::new()),
-            'profile_image' => Menu::new()->appendIterator(ProfileImageMenu::new())
+            'primary'       => Menu::new()->append(\Plugins\Phoundation\Components\Menu::new()),
+            'profile_image' => Menu::new()->append(ProfileImageMenu::new())
         ]);
     }
 }
