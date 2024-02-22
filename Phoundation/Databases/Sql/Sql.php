@@ -913,11 +913,20 @@ class Sql implements SqlInterface
         $statement = $this->getPdoStatement($query, $execute);
 
         while ($row = $this->fetch($statement)) {
-            if (!$column) {
-                $key = array_key_first($row);
+            try {
+                if (!$column) {
+                    $key = array_key_first($row);
 
-            } else {
-                $key = $row[$column];
+                } else {
+                    $key = $row[$column];
+                }
+            } catch (Throwable $e) {
+                throw OutOfBoundsException::new(tr('Specified column ":column" does not exist in result row', [
+                    ':column' => $column,
+                ]), $e)->addData([
+                    'column' => $column,
+                    'row'    => $row
+                ]);
             }
 
             $return[$key] = $row;
@@ -1301,6 +1310,7 @@ class Sql implements SqlInterface
                 try {
                     $connect_string = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
                     $this->pdo = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
+                    $this->pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 
                     Log::success(static::getConnectorLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
                         ':connector' => $this->connector,
