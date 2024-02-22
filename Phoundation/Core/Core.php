@@ -55,6 +55,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
 use Throwable;
@@ -2237,7 +2238,7 @@ die($errfile. $errline);
                                             <tbody>
                                                 <tr>
                                                     <td colspan="2" class="center">
-                                                        ' . tr('An uncaught exception with code ":code" occurred in COMMAND ":command". See the exception core dump below for more information on how to fix this issue', [
+                                                        ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
                                                                 ':code'    => $e->getCode(),
                                                                 ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
                                                             ]) . '
@@ -2257,6 +2258,11 @@ die($errfile. $errline);
                                                     </td>
                                                     <td>
                                                         ' . $e->getLine() . '
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <a href="' . UrlBuilder::getWww('signout') . '">Sign out</a>
                                                     </td>
                                                 </tr>
                                             </tbody>
