@@ -13,6 +13,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -55,6 +56,20 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     protected bool $auto_select = false;
 
+    /**
+     * The data column that will contain the keys. If not specified, the first column will be assumed
+     *
+     * @var string|null
+     */
+    protected ?string $key_column = null;
+
+    /**
+     * The data column that will contain the values. If not specified, the last column will be assumed
+     *
+     * @var string|null
+     */
+    protected ?string $value_column = null;
+
 
     /**
      * Select constructor
@@ -65,6 +80,54 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         parent::__construct($content);
         parent::setElement('select');
+    }
+
+
+    /**
+     * Returns the data column that will contain the keys. If not specified, the first column will be assumed
+     *
+     * @return string|null
+     */
+    public function getKeyColumn(): ?string
+    {
+        return $this->key_column;
+    }
+
+
+    /**
+     * Sets the data column that will contain the keys. If not specified, the first column will be assumed
+     *
+     * @param string|null $key_column
+     * @return static
+     */
+    public function setKeyColumn(?string  $key_column): static
+    {
+        $this->key_column = $key_column;
+        return $this;
+    }
+
+
+    /**
+     * Returns the data column that will contain the values. If not specified, the first column will be assumed
+     *
+     * @return string|null
+     */
+    public function getValueColumn(): ?string
+    {
+        return $this->value_column;
+    }
+
+
+    /**
+     * Sets the data column that will contain the values. If not specified, the first column will be assumed
+     *
+     * @param string|null $value_column
+     * @return static
+     */
+    public function setValueColumn(?string  $value_column): static
+    {
+        $this->value_column = $value_column;
+        return $this;
     }
 
 
@@ -387,7 +450,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         }
 
         if ($this->none) {
-            return '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>' . $return;
+            return '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
         }
 
         return $return;
@@ -434,8 +497,32 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
             if (!is_scalar($value)) {
                 if (!($value instanceof Stringable)) {
-                    throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
-                        ->addData($this->source);
+                    if (!is_array($value)) {
+                        throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
+                            ->addData([
+                                ':first_row_key'   => $key,
+                                ':first_row_value' => $value,
+                                ':value_column'    => $this->value_column,
+                                ':source'          => $this->source,
+                            ]);
+                    }
+
+                    if (!$this->value_column) {
+                        throw OutOfBoundsException::new(tr('The specified select source array contains array values, but no value column was specified'))
+                            ->addData($this->source);
+                    }
+
+                    try {
+                        $value = $value[$this->value_column];
+
+                    } catch (Throwable $e) {
+                        throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
+                            ':column' => $this->value_column
+                        ]))->setData([
+                            'value'        => $value,
+                            'value_column' => $this->value_column
+                        ]);
+                    }
                 }
 
                 // So value is a stringable object. Force value to be a string
@@ -472,9 +559,18 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             $this->source = new Iterator();
         }
 
-        while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
-            $key   = $row[array_key_first($row)];
-            $value = $row[array_key_last($row)];
+        while ($row = $this->source_query->fetch()) {
+            if ($this->key_column) {
+                $key = $row[$this->key_column];
+            } else {
+                $key = $row[array_key_first($row)];
+            }
+
+            if ($this->value_column) {
+                $value = $row[$this->value_column];
+            } else {
+                $value = $row[array_key_last($row)];
+            }
 
             $this->source->add($value, $key);
         }
