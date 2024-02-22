@@ -137,12 +137,16 @@ class UrlBuilder implements UrlBuilderInterface
     /**
      * Returns the URL where to redirect to
      *
-     * @param Stringable|string ...$urls
+     * @param Stringable|string|null ...$urls
      * @return static
      */
-    public static function getRedirect(Stringable|string ...$urls): static
+    public static function getRedirect(Stringable|string|null ...$urls): static
     {
         foreach ($urls as $url) {
+            if (!$url) {
+                continue;
+            }
+
             $url = UrlBuilder::getWww($url);
 
             if ($url->getUrl(true) === static::getCurrent()->getUrl(true)) {
