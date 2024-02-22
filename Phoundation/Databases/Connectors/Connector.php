@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntrySync;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
@@ -459,29 +460,14 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
 
-        return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
-    }
+        try {
+            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
 
-
-    /**
-     * Connects to the database of this connector
-     *
-     * @param bool $use_database
-     * @return $this
-     * @throws UnsupportedException
-     */
-    public function connect(bool $use_database = true): static
-    {
-        switch ($this->getType()) {
-            case 'sql':
-                sql($this->getName())->connect($use_database);
-                break;
-
-            default:
-                throw new UnsupportedException(tr('Non SQL connectors are not yet supported'));
+        } catch (DataEntryNotExistsException $e) {
+            throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
+                ':connector' => $identifier,
+            ]), $e);
         }
-
-        return $this;
     }
 
 

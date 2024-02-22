@@ -207,15 +207,6 @@ interface ConnectorInterface
     public function setStatistics(int|bool|null $statistics): static;
 
     /**
-     * Connects to the database of this connector
-     *
-     * @param bool $use_database
-     * @return $this
-     * @throws UnsupportedException
-     */
-    public function connect(bool $use_database = true): static;
-
-    /**
      * Tests this connector by connecting to the database and executing a test query
      *
      * @return $this
