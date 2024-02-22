@@ -600,7 +600,7 @@ POST variables:
     {
         $definitions
             ->add(Definition::new($this, 'users_id')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
@@ -627,7 +627,7 @@ POST variables:
                     $validator->isDisplayMode();
                 }))
             ->add(Definition::new($this, 'icon')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setOptional(true)
                 ->setInputType(EnumInputType::url))
             ->add(Definition::new($this, 'priority')
@@ -704,7 +704,7 @@ POST variables:
             ->add(Definition::new($this, 'file')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputType::text)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
@@ -712,7 +712,7 @@ POST variables:
             ->add(Definition::new($this, 'line')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputTypeExtended::natural)
                 ->setLabel(tr('Line'))
                 ->setMin(1)
@@ -720,7 +720,7 @@ POST variables:
             ->add(Definition::new($this, 'trace')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)

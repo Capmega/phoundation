@@ -132,8 +132,8 @@ class Emails extends DataList implements EmailsInterface
         $definitions = $email->getDefinitions();
         $definitions->get('email')->setSize(6);
         $definitions->get('account_type')->setSize(6);
-        $definitions->get('verified_on')->setVisible(false);
-        $definitions->get('delete')->setVisible(false);
+        $definitions->get('verified_on')->setRender(false);
+        $definitions->get('delete')->setRender(false);
 
         $content[] = $email->render();
 

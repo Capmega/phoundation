@@ -195,6 +195,6 @@ class Provider extends DataEntry
             ->add(DefinitionFactory::getDescription($this))
             ->add(Definition::new($this, 'picture')
                 ->setVirtual(true)
-                ->setVisible(false));
+                ->setRender(false));
     }
 }

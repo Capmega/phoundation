@@ -2848,7 +2848,7 @@ abstract class DataEntry implements DataEntryInterface
                 case 'meta_id':
                     $definitions->add(Definition::new($this, 'meta_id')
                         ->setDisabled(true)
-                        ->setVisible(false)
+                        ->setRender(false)
                         ->setInputType(EnumInputTypeExtended::dbid)
                         ->setNullInputType(EnumInputType::text)
                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
@@ -2870,7 +2870,7 @@ abstract class DataEntry implements DataEntryInterface
                 case 'meta_state':
                     $definitions->add(Definition::new($this, 'meta_state')
                         ->setDisabled(true)
-                        ->setVisible(false)
+                        ->setRender(false)
                         ->setInputType(EnumInputType::text)
                         ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
                         ->setLabel(tr('Meta state')));

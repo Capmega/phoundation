@@ -458,7 +458,7 @@ class Password extends DataEntry implements PasswordInterface
     {
         $definitions
             ->add(Definition::new($this, 'current')
-                ->setVisible(true)
+                ->setRender(true)
                 ->setVirtual(true)
                 ->setInputType(EnumInputType::password)
                 ->setMaxlength(128)
@@ -468,7 +468,7 @@ class Password extends DataEntry implements PasswordInterface
                     $validator->isStrongPassword();
                 }))
             ->add(Definition::new($this, 'password')
-                ->setVisible(true)
+                ->setRender(true)
                 ->setVirtual(true)
                 ->setInputType(EnumInputType::password)
                 ->setMaxlength(128)
@@ -478,7 +478,7 @@ class Password extends DataEntry implements PasswordInterface
                     $validator->isStrongPassword();
                 }))
             ->add(Definition::new($this, 'passwordv')
-                ->setVisible(true)
+                ->setRender(true)
                 ->setVirtual(true)
                 ->setInputType(EnumInputType::password)
                 ->setMaxlength(128)

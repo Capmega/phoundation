@@ -211,10 +211,10 @@ class Phone extends DataEntry implements PhoneInterface
         $definitions
             ->add(Definition::new($this, 'verification_code')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true))
             ->add(DefinitionFactory::getUsersId($this)
-                ->setVisible(false))
+                ->setRender(false))
             ->add(DefinitionFactory::getPhone($this)
                 ->setSize(4)
                 ->setOptional(false)

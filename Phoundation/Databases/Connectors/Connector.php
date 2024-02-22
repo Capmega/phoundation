@@ -632,7 +632,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 }))
             ->add(DefinitionFactory::getTimezone($this, 'timezones_name')
                 ->setLabel(tr('Timezone'))
-                ->setVisible(false)
+                ->setRender(false)
                 ->setSize(2)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->orColumn('timezones_id')->isName()->isTrue(function ($value) {

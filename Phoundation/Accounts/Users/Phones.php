@@ -132,8 +132,8 @@ class Phones extends DataList implements PhonesInterface
         $definitions = $phone->getDefinitions();
         $definitions->get('phone')->setSize(6);
         $definitions->get('account_type')->setSize(6);
-        $definitions->get('verified_on')->setVisible(false);
-        $definitions->get('delete')->setVisible(false);
+        $definitions->get('verified_on')->setRender(false);
+        $definitions->get('delete')->setRender(false);
 
         $content[] = $phone->render();
 

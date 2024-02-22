@@ -95,7 +95,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('-c,--category CATEGORY-NAME')
             ->setLabel(tr('Category'))
@@ -154,7 +154,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('-c,--server CATEGORY-NAME')
             ->setLabel(tr('Server'))
@@ -200,7 +200,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('-p,--parent PARENT-NAME')
             ->setLabel(tr('Parent'));
@@ -247,7 +247,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('--company COMPANY-NAME')
             ->setLabel(tr('Company'))
@@ -310,7 +310,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setMaxlength(32)
             ->setCliColumn('-l,--language LANGUAGE-CODE')
@@ -491,7 +491,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('-t,--timezone TIMEZONE-NAME')
             ->setLabel(tr('Timezone'))
@@ -552,7 +552,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('--country COUNTRY-NAME')
             ->setLabel(tr('Country'))
@@ -613,7 +613,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('--state STATE-NAME')
             ->setLabel(tr('State'))
@@ -674,7 +674,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setCliColumn('--city CITY-NAME')
             ->setLabel(tr('City'))
@@ -734,7 +734,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setInputType(EnumInputType::email)
             ->setCliColumn('-u,--user EMAIL')
@@ -794,7 +794,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setVirtual(true)
             ->setInputType(EnumInputTypeExtended::name)
             ->setCliColumn('-r,--role EMAIL')
@@ -1179,7 +1179,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setVisible(false)
+            ->setRender(false)
             ->setReadonly(true);
     }
 

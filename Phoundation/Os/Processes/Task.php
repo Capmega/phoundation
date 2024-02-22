@@ -1332,7 +1332,7 @@ class Task extends DataEntry implements TaskInterface
                 }))
             ->add(Definition::new($this, 'send_to_id')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputType::select)
                 ->setDataSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
                 ->setSize(4)
@@ -1352,7 +1352,7 @@ class Task extends DataEntry implements TaskInterface
                 }))
             ->add(Definition::new($this, 'servers_id')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputType::select)
                 ->setDataSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
                 ->addValidationFunction(function(ValidatorInterface $validator) {
