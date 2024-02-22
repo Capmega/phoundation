@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Panels;
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Web\Html\Components\LanguagesDropDown;
 use Phoundation\Web\Html\Components\Menus\Menu;
-use Phoundation\Web\Html\Components\MessagesDropDown;
-use Phoundation\Web\Html\Components\NotificationsDropDown;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -26,35 +22,6 @@ use Phoundation\Web\Http\UrlBuilder;
  */
 class TopPanel extends Panel
 {
-    /**
-     * Tracks the elements in this panel
-     *
-     * @var IteratorInterface
-     */
-    protected IteratorInterface $elements;
-
-    /**
-     * The top notifications drop down
-     *
-     * @var NotificationsDropDown $notifications
-     */
-    protected NotificationsDropDown $notifications;
-
-    /**
-     * The top messages drop down
-     *
-     * @var MessagesDropDown $messages
-     */
-    protected MessagesDropDown $messages;
-
-    /**
-     * The top languages drop down
-     *
-     * @var LanguagesDropDown $languages
-     */
-    protected LanguagesDropDown $languages;
-
-
     /**
      * TopPanel class constructor
      *
@@ -83,129 +50,29 @@ class TopPanel extends Panel
 
 
     /**
-     * Access to the elements object
-     *
-     * @return IteratorInterface
-     */
-    public function getElementsObject(): IteratorInterface
-    {
-        return $this->elements;
-    }
-
-
-    /**
-     * Access to the elements object
-     *
-     * @param IteratorInterface|array $elements
-     * @return TopPanel
-     */
-    public function setElementsObject(IteratorInterface|array $elements): static
-    {
-        $this->elements = new Iterator($elements);
-        return $this;
-    }
-
-
-    /**
-     * Returns the notifications drop-down object
-     *
-     * @return NotificationsDropDown
-     */
-    public function getNotificationsDropDown(): NotificationsDropDown
-    {
-        if (!isset($this->notifications)) {
-            $this->notifications = NotificationsDropDown::new();
-        }
-
-        return $this->notifications;
-    }
-
-
-    /**
-     * Sets the notifications drop-down object
-     *
-     * @param NotificationsDropDown $notifications
-     * @return static
-     */
-    public function setNotificationsDropDown(NotificationsDropDown $notifications): static
-    {
-        $this->notifications = $notifications;
-        return $this;
-    }
-
-
-    /**
-     * Returns the notifications drop-down object
-     *
-     * @return MessagesDropDown
-     */
-    public function getMessagesDropDown(): MessagesDropDown
-    {
-        if (!isset($this->messages)) {
-            $this->messages = MessagesDropDown::new();
-        }
-        return $this->messages;
-    }
-
-
-    /**
-     * Sets the notifications drop-down object
-     *
-     * @param MessagesDropDown $messages
-     * @return static
-     */
-    public function setMessagesDropDown(MessagesDropDown $messages): static
-    {
-        $this->messages = $messages;
-        return $this;
-    }
-
-
-    /**
-     * Returns the notifications drop-down object
-     *
-     * @return LanguagesDropDown
-     */
-    public function getLanguagesDropDown(): LanguagesDropDown
-    {
-        if (!isset($this->languages)) {
-            $this->languages = LanguagesDropDown::new();
-        }
-        return $this->languages;
-    }
-
-
-    /**
-     * Sets the notifications drop-down object
-     *
-     * @param LanguagesDropDown $languages
-     * @return static
-     */
-    public function setLanguagesDropDown(LanguagesDropDown $languages): static
-    {
-        $this->languages = $languages;
-        return $this;
-    }
-
-
-    /**
      * @inheritDoc
      */
     public function render(): ?string
     {
-        $this->getNotificationsDropDown()
-            ->setStatus('UNREAD')
-            ->setNotifications(null)
-            ->setNotificationsUrl('/notifications/notification-:ID.html')
-            ->setAllNotificationsUrl('/notifications/unread.html');
+        if ($this->elements->valueExists('notifications')) {
+            $this->getNotificationsDropDown()
+                ->setStatus('UNREAD')
+                ->setNotifications(null)
+                ->setNotificationsUrl('/notifications/notification-:ID.html')
+                ->setAllNotificationsUrl('/notifications/unread.html');
+        }
 
-        $this->getMessagesDropDown()
-            ->setMessages(null)
-            ->setMessagesUrl('/messages/unread.html');
+        if ($this->elements->valueExists('messages')) {
+            $this->getMessagesDropDown()
+                ->setMessages(null)
+                ->setMessagesUrl('/messages/unread.html');
+        }
 
-        $this->getLanguagesDropDown()
-            ->setLanguages(null)
-            ->setSettingsUrl('/settings.html');
+        if ($this->elements->valueExists('languages')) {
+            $this->getLanguagesDropDown()
+                ->setLanguages(null)
+                ->setSettingsUrl('/settings.html');
+        }
 
         return parent::render();
     }

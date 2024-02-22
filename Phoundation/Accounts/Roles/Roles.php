@@ -38,7 +38,7 @@ class Roles extends DataList implements RolesInterface
      */
     public function __construct()
     {
-        $this->setIdIsUniqueColumn(true)
+        $this->setKeysareUniqueColumn(true)
              ->setQuery('SELECT     `accounts_roles`.`id`, 
                                           CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `role`, 
                                           GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) SEPARATOR ", ") AS `rights`, 

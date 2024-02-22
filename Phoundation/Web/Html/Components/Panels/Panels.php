@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Panels;
 
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Panels\Interfaces\PanelsInterface;
+use Stringable;
 
 
 /**
@@ -23,4 +23,29 @@ use Phoundation\Web\Html\Components\Panels\Interfaces\PanelsInterface;
  */
 class Panels extends Iterator implements PanelsInterface
 {
+    /**
+     * @inheritDoc
+     */
+    public function add(mixed $value, float|Stringable|int|string|null $key = null, bool $skip_null = true, bool $exception = true): static
+    {
+        if (($value === null) or ($value instanceof PanelInterface)) {
+            return parent::add($value, $key, $skip_null, $exception);
+        }
+
+        throw OutOfBoundsException::new(tr('Cannot add specified value type ":value" with key ":key", the value must be a PanelInterface type object', [
+            ':key'   => $key,
+            ':value' => get_object_class_or_data_type($value),
+        ]))->setData([
+            'value' => $value
+        ]);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function get(float|Stringable|int|string $key, bool $exception = true): ?PanelInterface
+    {
+        return parent::get($key, $exception);
+    }
 }

@@ -33,9 +33,9 @@ trait DataEntryIcon
             // Assign default icon
             return match ($this->getMode()) {
                 EnumDisplayMode::warning, EnumDisplayMode::danger => 'exclamation-circle',
-                EnumDisplayMode::success                      => 'check-circle',
+                EnumDisplayMode::success                          => 'check-circle',
                 EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
-                default                                   => 'question-circle',
+                default                                           => 'question-circle',
             };
         }
 

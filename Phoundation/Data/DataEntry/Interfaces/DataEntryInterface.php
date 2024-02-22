@@ -36,9 +36,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Returns the default database connector to use for this table
      *
-     * @return string|null
+     * @return string
      */
-    public static function getDefaultConnectorName(): ?string;
+    public static function getDefaultConnectorName(): string;
 
     /**
      * Returns the column considered the "id" column
