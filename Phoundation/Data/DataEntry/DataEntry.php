@@ -267,15 +267,21 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         $this->columns_filter_on_insert = [static::getIdColumn()];
-        $this->database_connector       = static::getDefaultConnectorName();
-        $column                         = static::getColumn($identifier, $column);
+        $this->database_connector       =  static::getDefaultConnectorName();
+        $column                         =  static::getColumn($identifier, $column);
 
         // Set up the columns for this object
         $this->setMetaDefinitions();
         $this->setDefinitions($this->definitions);
 
         if ($identifier) {
-            $this->load($identifier, $column, $meta_enabled);
+            if ($identifier instanceof DataEntryInterface) {
+                // Copy the source directly
+                $this->source = $identifier->getSource();
+
+            } else {
+                $this->load($identifier, $column, $meta_enabled);
+            }
 
         } else {
             $this->setMetaData();
@@ -376,9 +382,9 @@ abstract class DataEntry implements DataEntryInterface
     /**
      * Returns the default database connector to use for this table
      *
-     * @return string|null
+     * @return string
      */
-    public static function getDefaultConnectorName(): ?string
+    public static function getDefaultConnectorName(): string
     {
         return 'system';
     }
@@ -1381,10 +1387,7 @@ abstract class DataEntry implements DataEntryInterface
         if ($this->getId()) {
             sql($this->database_connector)
                 ->getSqlDataEntryObject($this)
-                    ->setStatus($status, [
-                        'id'      => $this->getId(),
-                        'meta_id' => $this->getMetaId()
-                    ], $comments);
+                    ->setStatus($status, $comments);
         }
 
         $this->source['status'] = $status;
@@ -2718,7 +2721,12 @@ abstract class DataEntry implements DataEntryInterface
 
         // Column is NOT required, try to assign default. Assume `id` for numeric identifiers, or else the unique column
         if (is_numeric($identifier)) {
-            return 'id';
+            return static::getIdColumn();
+        }
+
+        // Specified identifier is actually a data entry, we don't need a column
+        if ($identifier instanceof DataEntryInterface) {
+            return null;
         }
 
         $return = static::getUniqueColumn();
