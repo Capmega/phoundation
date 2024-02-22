@@ -945,12 +945,12 @@ throw new UnderConstructionException();
 
         // Configured page?
         $configured = match (Strings::until($url, '.html')) {
-            'index'    => Config::getString('web.pages.index'   , '/index.html'),
-            'sign-in'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
-            'sign-up'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
-            'sign-out' => Config::getString('web.pages.sign-out', '/sign-out.html'),
-            'sign-key' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
-            default    => Config::getString('web.pages.' . $url , '')
+            'index'               => Config::getString('web.pages.index'   , '/index.html'),
+            'sign-in' , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
+            'sign-up' , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
+            'sign-out', 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
+            'sign-key', 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+            default               => Config::getString('web.pages.' . $url , '')
         };
 
         if ($configured) {
