@@ -9,8 +9,8 @@ use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Buttons;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -31,58 +31,58 @@ $definitions->get('authentication_failures')
     ->setSize(4);
 
 $definitions->get('locked_until')
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('username')
     ->setReadonly(true);
 
 $definitions->get('comments')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('is_leader')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('leaders_id')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('code')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('type')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('priority')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('offset_latitude')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('email')
     ->setReadonly(true);
 
 $definitions->get('offset_longitude')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('domain')
     ->setReadonly(true)
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('verified_on')
-    ->setVisible(false);
+    ->setRender(false);
 
 $definitions->get('keywords')
     ->setSize(3);
 
 $definitions->get('redirect')
-    ->setVisible(false)
+    ->setRender(false)
     ->setReadonly(true);
 
 $definitions->get('url')
@@ -148,7 +148,7 @@ $picture = Card::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/my/password.html') . '">' . tr('Change Your password') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/my/settings.html') . '">' . tr('Manage Your settings') . '</a><br>
@@ -158,7 +158,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -168,7 +168,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

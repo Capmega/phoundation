@@ -181,31 +181,31 @@ class Email extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getUsersEmail($this)
-                ->setVisible(false))
+                ->setRender(false))
             ->add(DefinitionFactory::getUsersId($this)
-                ->setVisible(false))
+                ->setRender(false))
             ->add(Definition::new($this, 'parents_id')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [':id' => '$parents_id']);
                 }))
             ->add(Definition::new($this, 'main')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputType::checkbox))
             ->add(Definition::new($this, 'read')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputType::checkbox))
             ->add(Definition::new($this, 'categories_id')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [':id' => '$categories']);
                 }))
             ->add(Definition::new($this, 'templates_id')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputTypeExtended::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists

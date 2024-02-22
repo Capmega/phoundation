@@ -157,10 +157,10 @@ class Email extends DataEntry implements EmailInterface
         $definitions
             ->add(Definition::new($this, 'verification_code')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true))
             ->add(DefinitionFactory::getUsersId($this)
-                ->setVisible(false))
+                ->setRender(false))
             ->add(DefinitionFactory::getEmail($this)
                 ->setSize(4)
                 ->setOptional(false)

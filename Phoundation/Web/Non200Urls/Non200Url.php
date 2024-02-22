@@ -112,9 +112,9 @@ throw new UnderConstructionException();
     {
         $definitions
             ->add(Definition::new($this, 'ip_address')
-                ->setVisible(false))
+                ->setRender(false))
             ->add(Definition::new($this, 'net_len')
-                ->setVisible(false))
+                ->setRender(false))
             ->add(DefinitionFactory::getIpAddress($this, 'ip_address_human')
                 ->setReadonly(true))
             ->add(Definition::new($this, 'method')

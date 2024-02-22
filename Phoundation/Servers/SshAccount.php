@@ -131,7 +131,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
             ->add(Definition::new($this, 'seo_name')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true))
             ->add(Definition::new($this, 'username')
                 ->setLabel(tr('Username'))

@@ -473,7 +473,7 @@ class Server extends DataEntry implements ServerInterface
                 ->setCliAutoComplete(true))
             ->add(Definition::new($this, 'ssh_accounts_name')
                 ->setVirtual(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputTypeExtended::name)
                 ->setLabel(tr('Account'))
                 ->setCliColumn('-a,--account ACCOUNT-NAME')

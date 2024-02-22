@@ -129,11 +129,11 @@ class EmailAddressLinked extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getDatabaseId($this, 'emails_id')
-                ->setVisible(false))
+                ->setRender(false))
             ->add(DefinitionFactory::getDatabaseId($this, 'address_id')
-                ->setVisible(false))
+                ->setRender(false))
             ->add(Definition::new($this, 'type')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setDataSource([
                     'from' => tr('From'),
                     'to'   => tr('To'),

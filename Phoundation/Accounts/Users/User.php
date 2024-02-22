@@ -477,7 +477,7 @@ class User extends DataEntry implements UserInterface
             ]));
         }
 
-        if (!is_a($class, DataEntryInterface::class, true)) {
+        if (!is_a($class, DataEntryInterface::class)) {
             throw new OutOfBoundsException(tr('Cannot create remote user object with class ":class", the specified class is not an instance of DataEntryInterface', [
                 ':class' => $class
             ]));
@@ -487,7 +487,7 @@ class User extends DataEntry implements UserInterface
         if ($this->remote_user) {
             if ($this->remote_user instanceof $class) {
                 // Return the remote user, immediately linked to this user
-                return $this->remote_user->setRemoteUser($this);
+                return $this->remote_user;
             }
 
             throw new OutOfBoundsException(tr('The existing remote user object with class ":class" is not an instance of the requested class ":requested"', [
@@ -514,7 +514,8 @@ class User extends DataEntry implements UserInterface
      */
     public function setRemoteUser(?UserInterface $remote_user): static
     {
-        $this->remote_user = $remote_user;
+        // Set the remote user and link it immediately to this user
+        $this->remote_user = $remote_user->setRemoteUser($this);
         return $this;
     }
 
@@ -1753,7 +1754,7 @@ class User extends DataEntry implements UserInterface
         $definitions
             ->add(Definition::new($this, 'remote_id')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setInputType(EnumInputType::number))
             ->add(Definition::new($this, 'last_sign_in')
                 ->setOptional(true)
@@ -2095,20 +2096,20 @@ class User extends DataEntry implements UserInterface
                 ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
             ->add(Definition::new($this, 'verification_code')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true))
             ->add(Definition::new($this, 'fingerprint')
                 // TODO Implement
                 ->setOptional(true)
-                ->setVisible(false))
+                ->setRender(false))
             ->add(Definition::new($this, 'notifications_hash')
                 // This hash is set directly so it won't really be touched by DataEntry
                 ->setOptional(true)
                 ->setDirectUpdate(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true))
             ->add(Definition::new($this, 'password')
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setCliAutoComplete(true)
@@ -2122,7 +2123,7 @@ class User extends DataEntry implements UserInterface
             ->add(Definition::new($this, 'picture')
                 // TODO Implement
                 ->setOptional(true)
-                ->setVisible(false))
+                ->setRender(false))
             ->add(DefinitionFactory::getData($this, 'data'));
     }
 }

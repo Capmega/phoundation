@@ -340,9 +340,47 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if this column is rendered as HTML or not
+     *
+     * If false, the column will not be rendered and sent to the client, and typically will be modified through a
+     * virtual column instead.
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see Definition::getVirtual()
+     */
+    public function getRender(): ?bool
+    {
+        return isset_get_typed('bool', $this->source['render'], true);
+    }
+
+
+    /**
+     * Returns if this column is rendered as HTML or not
+     *
+     * If false, the column will not be rendered and sent to the client, and typically will be modified through a
+     * virtual column instead.
+     *
+     * @note Defaults to true
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setRender(?bool $value): static
+    {
+        if ($value === null) {
+            // Default
+            $value = true;
+        }
+
+        return $this->setKey($value, 'render');
+    }
+
+
+    /**
      * Returns if this column is visible in HTML clients
      *
-     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
+     * If false, the column will have the "invisible" class added
      *
      * @note Defaults to true
      * @return bool|null
@@ -357,7 +395,7 @@ class Definition implements DefinitionInterface
     /**
      * Sets if this column is visible in HTML clients
      *
-     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
+     * If false, the column will have the "invisible" class added
      *
      * @note Defaults to true
      * @param bool|null $value
@@ -464,7 +502,7 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @return bool
-     * @see Definition::getVisible()
+     * @see Definition::getRender()
      */
     public function isMeta(): bool
     {
@@ -481,7 +519,7 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     *@see Definition::getVisible()
+     *@see Definition::getRender()
      */
     public function getVirtual(): ?bool
     {
@@ -499,7 +537,7 @@ class Definition implements DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     * @see Definition::setVisible()
+     * @see Definition::setRender()
      */
     public function setVirtual(?bool $value): static
     {
@@ -516,7 +554,7 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     *@see Definition::getVisible()
+     *@see Definition::getRender()
      */
     public function getIgnored(): ?bool
     {
@@ -534,7 +572,7 @@ class Definition implements DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     * @see Definition::setVisible()
+     * @see Definition::setRender()
      */
     public function setIgnored(?bool $value): static
     {
@@ -547,7 +585,7 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     *@see Definition::getVisible()
+     *@see Definition::getRender()
      */
     public function getDirectUpdate(): ?bool
     {
@@ -561,7 +599,7 @@ class Definition implements DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     * @see Definition::setVisible()
+     * @see Definition::setRender()
      */
     public function setDirectUpdate(?bool $value): static
     {
