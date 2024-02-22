@@ -140,6 +140,10 @@ class StatusFiles extends Iterator implements StatusFilesInterface
                 if (str_contains($line, 'patch does not apply')) {
                     $files[] = Strings::cut($line, 'error: ', ': patch does not apply');
                 }
+
+                if (str_ends_with($line, ': No such file or directory')) {
+                    $files[] = Strings::cut($line, 'error: ', ': No such file or directory');
+                }
             }
 
             if (isset($files)) {

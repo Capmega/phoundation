@@ -313,7 +313,7 @@ class Plugins extends Project
                         // All okay!
                         break;
 
-                    } catch (ProcessFailedException $e) {
+                    } catch (GitPatchFailedException $e) {
                         // Fork me, the patch failed on one or multiple files. Stash those files and try again to patch
                         // the rest of the files that do apply
                         $files = $e->getDataKey('files');
@@ -382,15 +382,14 @@ class Plugins extends Project
             if ($stash->getCount()) {
                 $bad_files = clone $stash;
 
-                // Whoopsie, we have shirts in the stash, meaning some file was naughty.
-                foreach ($stash as $key => $file) {
-                    Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
-                    Git::new(DIRECTORY_ROOT)->getStash()->pop();
-                    $stash->delete($key);
-                }
+                // Whoopsie, we have shirts in stash, meaning some file was naughty.
+                Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $files]));
+                Git::new(DIRECTORY_ROOT)->getStash()->pop();
 
-                throw PatchPartiallySuccessfulException::new(tr('Phoundation patch was partially successful, some files failed'))
-                    ->addData(['files' => $bad_files]);
+                throw PatchPartiallySuccessfulException::new(tr('Phoundation plugins patch was partially successful, some files failed'))
+                    ->addData([
+                        'files' => $bad_files
+                    ]);
             }
 
             if ($non_phoundation_stash) {
