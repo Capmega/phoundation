@@ -466,28 +466,22 @@ class SqlDataEntry implements SqlDataEntryInterface
      * Update the status for the data row in the specified table to the specified status
      *
      * @param string|null $status
-     * @param DataEntryInterface|array $entry
      * @param string|null $comments
      * @return int
      */
-    public function setStatus(?string $status, DataEntryInterface|array $entry, ?string $comments = null): int
+    public function setStatus(?string $status, ?string $comments = null): int
     {
         Core::checkReadonly('sql set-status');
 
-        if (is_object($entry)) {
-            $entry = [
-                $this->id_column => $entry->getId(),
-                'meta_id'        => $entry->getMetaId(),
-            ];
-        }
+        $entry = $this->data_entry;
 
-        if (empty($entry[$this->id_column])) {
-            throw new OutOfBoundsException(tr('Cannot set status, no row id specified'));
+        if ($entry->isNew()) {
+            throw new OutOfBoundsException(tr('Cannot set status, the specified data entry is new'));
         }
 
         // Update the meta data
         if ($this->meta_enabled) {
-            Meta::get($entry['meta_id'], false)->action(tr('Changed status'), $comments, Json::encode([
+            Meta::get($entry->getMetaId(), false)->action(tr('Changed status'), $comments, Json::encode([
                 'status' => $status
             ]));
         }
@@ -497,7 +491,7 @@ class SqlDataEntry implements SqlDataEntryInterface
                                    SET     `status`             = :status
                                    WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
             ':status'              => $status,
-            ':' . $this->id_column => $entry[$this->id_column]
+            ':' . $this->id_column => $entry->getId()
         ])->rowCount();
     }
 
