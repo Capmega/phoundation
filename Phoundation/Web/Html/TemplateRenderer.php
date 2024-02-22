@@ -9,20 +9,20 @@ use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Interfaces\RendererInterface;
+use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
 
 
 /**
- * Class Renderer
+ * Class TemplateRenderer
  *
- * This class contains basic template functionalities. All template classes must extend this class!
+ * This class contains basic template render functionalities. All template classes must extend this class!
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Renderer implements RendererInterface
+class TemplateRenderer implements TemplateRendererInterface
 {
     /**
      * The rendered HTML, so far
@@ -126,11 +126,11 @@ class Renderer implements RendererInterface
      */
     public static function ensureClass(string $class, object $object): void
     {
-        if (!is_subclass_of($class, Renderer::class)) {
+        if (!is_subclass_of($class, TemplateRenderer::class)) {
             throw new OutOfBoundsException(tr('Cannot render class ":class", the render class ":render" is not a sub class of ":main"', [
                 ':class'  => get_class($object),
                 ':render' => $class,
-                ':main'   => Renderer::class
+                ':main'   => TemplateRenderer::class
             ]));
         }
     }

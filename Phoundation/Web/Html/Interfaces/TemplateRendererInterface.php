@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface RendererInterface
+interface TemplateRendererInterface
 {
     /**
      * Sets the parent rendering function
