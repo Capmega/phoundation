@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
+use Phoundation\Databases\Connectors\Exception\ConnectorException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Databases\Sql\Exception\SqlConnectorException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\UnderConstructionException;
 
@@ -107,7 +107,7 @@ class Databases
             $connector_name = $connector->getName();
 
             if (!$connector_name) {
-                throw new SqlConnectorException(tr('Specified connector ":connector" has empty name', [
+                throw new ConnectorException(tr('Specified connector ":connector" has empty name', [
                     ':connector' => $connector->getSource()
                 ]));
             }
