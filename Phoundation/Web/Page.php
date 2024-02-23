@@ -2380,10 +2380,10 @@ class Page implements PageInterface
      *
      * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
      * @param string $key
-     * @param array|string $entry
+     * @param array|string|null $entry
      * @return void
      */
-    public static function addToFooter(string $key, array|string $entry): void
+    public static function addToFooter(string $key, array|string|null $entry): void
     {
         static::$footers[$key][] = $entry;
     }
