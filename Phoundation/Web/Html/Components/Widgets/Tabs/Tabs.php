@@ -11,6 +11,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Enums\EnumOrientation;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 use Stringable;
 
@@ -48,7 +49,7 @@ class Tabs extends ElementsBlock implements TabsInterface
     public function __construct(ArrayableInterface|array|null $source = null)
     {
         parent::__construct($source);
-        $this->orientation = 'top';
+        $this->orientation = EnumOrientation::top;
     }
 
 

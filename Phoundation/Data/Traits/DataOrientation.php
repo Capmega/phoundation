@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Enums\Interfaces\EnumOrientationInterface;
 
-use JetBrains\PhpStorm\ExpectedValues;
 
 /**
  * Trait DataOrientation
@@ -20,17 +20,17 @@ use JetBrains\PhpStorm\ExpectedValues;
 trait DataOrientation
 {
     /**
-     * @var string $orientation
+     * @var EnumOrientationInterface|null $orientation
      */
-    #[ExpectedValues('top', 'bottom', 'left', 'right')] protected string $orientation;
+    protected ?EnumOrientationInterface $orientation = null;
 
 
     /**
      * Returns the orientation
      *
-     * @return string
+     * @return EnumOrientationInterface|null
      */
-    public function getOrientation(): string
+    public function getOrientation(): ?EnumOrientationInterface
     {
         return $this->orientation;
     }
@@ -39,10 +39,10 @@ trait DataOrientation
     /**
      * Sets the orientation
      *
-     * @param string $orientation
+     * @param EnumOrientationInterface|null $orientation
      * @return static
      */
-    public function setOrientation(#[ExpectedValues('top', 'bottom', 'left', 'right')]  string $orientation): static
+    public function setOrientation(?EnumOrientationInterface $orientation): static
     {
         $this->orientation = $orientation;
         return $this;

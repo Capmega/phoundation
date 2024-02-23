@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces;
 
-use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Enums\Interfaces\EnumOrientationInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 
@@ -23,15 +23,15 @@ interface TabsInterface extends ElementsBlockInterface
     /**
      * Returns the orientation
      *
-     * @return string
+     * @return EnumOrientationInterface|null
      */
-    public function getOrientation(): string;
+    public function getOrientation(): ?EnumOrientationInterface;
 
     /**
      * Sets the orientation
      *
-     * @param string $orientation
+     * @param EnumOrientationInterface|null $orientation
      * @return static
      */
-    public function setOrientation(#[ExpectedValues('top', 'bottom', 'left', 'right')]  string $orientation): static;
+    public function setOrientation(?EnumOrientationInterface $orientation): static;
 }
