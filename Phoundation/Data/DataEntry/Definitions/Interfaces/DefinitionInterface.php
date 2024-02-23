@@ -153,6 +153,29 @@ interface DefinitionInterface
     public function setVisible(?bool $value): static;
 
     /**
+     * Returns if this column is displayed in HTML clients
+     *
+     * If false, the column will have the "nodisplay" class added
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see Definition::getVirtual()
+     */
+    public function getDisplay(): ?bool;
+
+    /**
+     * Sets if this column is displayed in HTML clients
+     *
+     * If false, the column will have the "nodisplay" class added
+     *
+     * @note Defaults to true
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setDisplay(?bool $value): static;
+
+    /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
      * @param bool $add_prefixless_names

@@ -414,6 +414,42 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns if this column is displayed in HTML clients
+     *
+     * If false, the column will have the "nodisplay" class added
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see Definition::getVirtual()
+     */
+    public function getDisplay(): ?bool
+    {
+        return isset_get_typed('bool', $this->source['display'], true);
+    }
+
+
+    /**
+     * Sets if this column is displayed in HTML clients
+     *
+     * If false, the column will have the "nodisplay" class added
+     *
+     * @note Defaults to true
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setDisplay(?bool $value): static
+    {
+        if ($value === null) {
+            // Default
+            $value = true;
+        }
+
+        return $this->setKey($value, 'display');
+    }
+
+
+    /**
      * Returns the extra HTML classes for this DataEntryForm object
      *
      * @param bool $add_prefixless_names
