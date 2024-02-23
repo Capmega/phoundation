@@ -10,7 +10,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Components\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\TabsInterface;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
 use Stringable;
 

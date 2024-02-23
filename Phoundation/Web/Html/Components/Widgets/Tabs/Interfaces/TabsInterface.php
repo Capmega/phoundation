@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Widgets\Cards\Interfaces;
+namespace Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
