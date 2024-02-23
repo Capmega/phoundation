@@ -173,9 +173,8 @@ abstract class Template
                 return null;
             }
 
-            $class_path = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
-
-            // Find the file to include
+            // Find the template class path and the template file to include
+            $class_path     = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
             $include_file   = str_replace('\\', '/', $class_path);
             $include_file   = $this->getDirectory() . 'Html/' . $include_file . '.php';
 

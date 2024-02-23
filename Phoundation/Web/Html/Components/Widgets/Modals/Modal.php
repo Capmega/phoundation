@@ -44,7 +44,7 @@ abstract class Modal extends ElementsBlock
      *
      * @var string|null $size
      */
-    #[ExpectedValues(values:["sm", "lg", "xl", "fullscreen"])]
+    #[ExpectedValues(values: ["sm", "lg", "xl", "fullscreen"])]
     protected ?string $size = null;
 
     /**
@@ -81,7 +81,7 @@ abstract class Modal extends ElementsBlock
      *
      * @return string|null
      */
-    #[ExpectedValues(values:["sm", "lg", "xl", "fullscreen"])] public function getSize(): ?string
+    #[ExpectedValues(values: ["sm", "lg", "xl", "fullscreen"])] public function getSize(): ?string
     {
         return $this->size;
     }
@@ -93,7 +93,7 @@ abstract class Modal extends ElementsBlock
      * @param string|null $size
      * @return static
      */
-    public function setSize(#[ExpectedValues(values:["sm", "md", "lg", "xl", "fullscreen"])] ?string $size): static
+    public function setSize(#[ExpectedValues(values: ["sm", "md", "lg", "xl", "fullscreen"])] ?string $size): static
     {
         if ($size === 'md') {
             $size = null;
@@ -169,7 +169,7 @@ abstract class Modal extends ElementsBlock
      * @param bool $vertical_center
      * @return static
      */
-    public function setVerticalCenter( $vertical_center): static
+    public function setVerticalCenter($vertical_center): static
     {
         $this->vertical_center = $vertical_center;
         return $this;
