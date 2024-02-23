@@ -259,7 +259,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static
     {
@@ -272,7 +272,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static
     {
@@ -434,8 +434,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -465,8 +465,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     *@see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     *@see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -544,8 +544,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Return the body HTML for a <select> list
      *
      * @return null
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
