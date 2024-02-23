@@ -6,11 +6,11 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
-use Phoundation\Web\Html\Components\Form;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Forms\Form;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -88,7 +88,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
 
     $edit = Button::new()
-        ->setMode(DisplayMode::secondary)
+        ->setMode(EnumDisplayMode::secondary)
         ->setValue(tr('Edit'))
         ->setContent(tr('Edit'))
         ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
@@ -96,7 +96,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
     if ($user->canBeImpersonated()) {
         $impersonate = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::danger)
+            ->setMode(EnumDisplayMode::danger)
             ->setValue(tr('Impersonate'))
             ->setContent(tr('Impersonate'));
     }
@@ -105,14 +105,14 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
         if ($user->isLocked()) {
             $lock = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Unlock'))
                 ->setContent(tr('Unlock'));
 
         } else {
             $lock = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Lock'))
                 ->setContent(tr('Lock'));
         }

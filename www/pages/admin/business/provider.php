@@ -49,7 +49,7 @@ if (Page::isPostRequestMethod()) {
 $buttons = Buttons::new()
     ->addButton('Submit')
     ->addButton(tr('Back'), 'secondary', '/business/providers.html', true)
-    ->addButton(tr('Audit'), 'green', '/audit/meta-' . $provider->getMeta() . '.html', false, true);
+    ->addButton(tr('Audit'), 'green', '/audit/meta-' . $provider->getMetaObject() . '.html', false, true);
 
 // Build the provider form
 $provider_card = Card::new()
