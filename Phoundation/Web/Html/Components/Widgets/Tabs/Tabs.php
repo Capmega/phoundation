@@ -2,17 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Widgets\Cards;
+namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataOrientation;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\TabInterface;
-use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\TabsInterface;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 use Stringable;

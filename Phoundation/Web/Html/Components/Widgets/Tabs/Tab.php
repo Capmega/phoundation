@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Widgets\Cards;
+namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 
 use Phoundation\Data\Traits\DataLabel;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\TabInterface;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 
 
 /**
