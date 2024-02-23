@@ -199,19 +199,4 @@ interface DataListInterface extends IteratorInterface
      * @return ListOperationsInterface
      */
     public static function directOperations(): ListOperationsInterface;
-
-    /**
-     * Returns the class used to generate the select input
-     *
-     * @return string
-     */
-    public function getInputSelectClass(): string;
-
-    /**
-     * Sets the class used to generate the select input
-     *
-     * @param string $input_select_class
-     * @return DataList
-     */
-    public function setInputSelectClass(string $input_select_class): static;
 }

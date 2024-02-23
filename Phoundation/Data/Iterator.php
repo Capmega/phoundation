@@ -10,6 +10,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Exception\IteratorException;
@@ -18,14 +19,23 @@ use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Databases\Sql\Limit;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\HtmlDataTable;
+use Phoundation\Web\Html\Components\HtmlTable;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Interfaces\MenuInterface;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -62,6 +72,13 @@ class Iterator implements IteratorInterface
      * @var array $source
      */
     protected array $source;
+
+    /**
+     * Tracks the class used to generate the select input
+     *
+     * @var string
+     */
+    protected string $input_select_class = InputSelect::class;
 
 
     /**
@@ -172,6 +189,36 @@ class Iterator implements IteratorInterface
 
         // As of here, we have an array. Set it as an Iterator source and return
         return Iterator::new()->setSource($source);
+    }
+
+
+    /**
+     * Returns the class used to generate the select input
+     *
+     * @return string
+     */
+    public function getInputSelectClass(): string
+    {
+        return $this->input_select_class;
+    }
+
+
+    /**
+     * Sets the class used to generate the select input
+     *
+     * @param string $input_select_class
+     * @return DataList
+     */
+    public function setInputSelectClass(string $input_select_class): static
+    {
+        if (is_a($input_select_class, InputSelectInterface::class, true)){
+            $this->input_select_class = $input_select_class;
+            return $this;
+        }
+
+        throw new OutOfBoundsException(tr('Cannot use specified class ":class" to generate input select, the class must be an instance of InputSelectInterface', [
+            ':class' => $input_select_class
+        ]));
     }
 
 
@@ -1492,5 +1539,53 @@ class Iterator implements IteratorInterface
 
         // Done, return!
         return $entry;
+    }
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
+     */
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    {
+        // Source is already loaded, use this instead
+        // Create and return the table
+        return HtmlTable::new()
+            ->setId(static::getTable())
+            ->setSource($this->getAllRowsMultipleColumns($columns))
+            ->setCallbacks($this->callbacks)
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+    }
+
+
+    /**
+     * Creates and returns a fancy HTML data table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
+     */
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
+    {
+        // Source is already loaded, use this instead
+        // Create and return the table
+        return HtmlDataTable::new()
+            ->setId(static::getTable())
+            ->setSource($this->getAllRowsMultipleColumns($columns))
+            ->setCallbacks($this->callbacks)
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+    }
+
+
+    /**
+     * Returns an HTML <select> for the entries in this list
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelect(): InputSelectInterface
+    {
+        return $this->input_select_class::new()
+            ->setSource($this->source);
     }
 }

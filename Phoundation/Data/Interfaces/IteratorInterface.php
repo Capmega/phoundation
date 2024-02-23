@@ -7,12 +7,19 @@ namespace Phoundation\Data\Interfaces;
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\HtmlDataTable;
+use Phoundation\Web\Html\Components\HtmlTable;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -626,4 +633,43 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return $this
      */
     public function prepend(IteratorInterface|array $menu): static;
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
+     */
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
+
+    /**
+     * Creates and returns a fancy HTML data table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
+     */
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
+
+    /**
+     * Returns an HTML <select> for the entries in this list
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelect(): InputSelectInterface;
+
+    /**
+     * Returns the class used to generate the select input
+     *
+     * @return string
+     */
+    public function getInputSelectClass(): string;
+
+    /**
+     * Sets the class used to generate the select input
+     *
+     * @param string $input_select_class
+     * @return DataList
+     */
+    public function setInputSelectClass(string $input_select_class): static;
 }
