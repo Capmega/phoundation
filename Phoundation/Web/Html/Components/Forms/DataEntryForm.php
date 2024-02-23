@@ -603,7 +603,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         ->setValue(Strings::force($source[$field], ' - '))
                         ->render());
 
-
                 } else {
                     $this->rows->add($definition, $definition->getContent()($definition, $field, $field_name, $source));
                 }
@@ -614,8 +613,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         }
 
         // Add one empty element to (if required) close any rows
-        $this->render = $this->rows->add()->render();
         static::$list_count++;
-        return $this->render;
+        return $this->rows->render();
     }
 }
