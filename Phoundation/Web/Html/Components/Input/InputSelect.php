@@ -450,7 +450,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         }
 
         if ($this->none) {
-            return '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
+            return '<option' . $this->renderOptionClassString() . $this->renderSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
         }
 
         return $return;
@@ -529,7 +529,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
                 $value = (string) $value;
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $return .= '<option' . $this->renderOptionClassString() . $this->renderSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
@@ -647,7 +647,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         // No content (other than maybe the "none available" entry) was added
         if ($this->empty) {
-            return '<option' . $this->buildOptionClassString() . ' selected value="">' . $this->empty . '</option>';
+            return '<option' . $this->renderOptionClassString() . ' selected value="">' . $this->empty . '</option>';
         }
 
         return null;
@@ -659,7 +659,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      *
      * @return string|null
      */
-    protected function buildOptionClassString(): ?string
+    protected function renderOptionClassString(): ?string
     {
         $option_class = $this->getOptionClass();
 
@@ -678,7 +678,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * @param string|int|null $value
      * @return string|null
      */
-    protected function buildSelectedString(string|int|null $key, string|int|null $value): ?string
+    protected function renderSelectedString(string|int|null $key, string|int|null $value): ?string
     {
         // Does the key match?
         if (array_key_exists($key, $this->selected)) {
