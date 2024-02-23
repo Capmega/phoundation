@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Meta;
 
-use Phoundation\Databases\Sql\Sql;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Html\Components\HtmlDataTable;
-use Phoundation\Web\Html\Components\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;

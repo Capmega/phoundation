@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace Plugins\Phoundation\Components;
 
-use Phoundation\Web\Html\Components\Menus\Menu;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 
 
 /**

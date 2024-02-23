@@ -7,7 +7,6 @@ namespace Phoundation\Core\Sessions;
 use DateTimeZone;
 use Exception;
 use GeoIP;
-use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
@@ -40,13 +39,12 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
-use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
-use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Random\RandomException;
 use Throwable;
 
 

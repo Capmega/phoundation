@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Html\Components\Modals;
 
-use Phoundation\Web\Html\Components\Modals\LargeModal;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\Modals\LargeModal;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

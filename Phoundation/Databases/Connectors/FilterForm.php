@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
 
-use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
@@ -22,7 +19,7 @@ use Phoundation\Web\Html\Enums\EnumInputElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     /**
      * The different status values to filter on

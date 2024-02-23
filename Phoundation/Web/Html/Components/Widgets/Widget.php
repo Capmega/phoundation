@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Web\Html\Components\Background;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Mode;
+use Phoundation\Web\Html\Traits\Background;
+use Phoundation\Web\Html\Traits\Mode;
 
 
 /**

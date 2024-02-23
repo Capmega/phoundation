@@ -4,30 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use PDO;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\DataSelector;
-use Phoundation\Data\Traits\DataSource;
-use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Data\Traits\DataUrl;
-use Phoundation\Date\DateTime;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\InputCheckbox;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
-use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Html\Enums\EnumTableIdColumn;
-use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Stringable;
 
 
 /**

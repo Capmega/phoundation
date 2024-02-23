@@ -6,8 +6,8 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Element;
-use Phoundation\Web\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Traits\InputElement;
 
 
 /**

@@ -22,7 +22,7 @@ use Phoundation\Web\Html\Enums\EnumInputElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     /**
      * The different status values to filter on

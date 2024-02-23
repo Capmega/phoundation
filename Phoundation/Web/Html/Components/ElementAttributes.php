@@ -12,8 +12,8 @@ use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Tooltips\Interfaces\TooltipInterface;
-use Phoundation\Web\Html\Components\Tooltips\Tooltip;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Stringable;
 

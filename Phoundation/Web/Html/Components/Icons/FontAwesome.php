@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Icons;
 
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Icon;
 
 
 /**

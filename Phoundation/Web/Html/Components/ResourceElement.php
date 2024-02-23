@@ -9,9 +9,9 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataConnector;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
-use Phoundation\Web\Html\Components\Input\Traits\InputElement;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
+use Phoundation\Web\Html\Traits\InputElement;
 
 
 /**

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plugins\Phoundation\Library;
 
-use Phoundation\Web\Html\Components\Menus\Menu;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Page;
 use Plugins\Phoundation\Components\ProfileImageMenu;
 
