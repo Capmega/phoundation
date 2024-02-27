@@ -24,6 +24,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -61,6 +62,13 @@ class Iterator implements IteratorInterface
 {
     use DataCallbacks;
 
+
+    /**
+     * Tracks the datatype required for all elements in this iterator, NULL if none is required
+     *
+     * @var string|null
+     */
+    protected ?string $data_type = null;
 
     /**
      * The list that stores all entries
@@ -364,6 +372,8 @@ class Iterator implements IteratorInterface
             }
         }
 
+        $this->checkDataType($value);
+
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $this->source[] = $value;
@@ -403,6 +413,8 @@ class Iterator implements IteratorInterface
                 return $this;
             }
         }
+
+        $this->checkDataType($value);
 
         // Ensure the before key exists
         if (!array_key_exists($before, $this->source)) {
@@ -448,6 +460,8 @@ class Iterator implements IteratorInterface
             }
         }
 
+        $this->checkDataType($value);
+
         // Ensure the after key exists
         if (!array_key_exists($after, $this->source)) {
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
@@ -492,6 +506,8 @@ class Iterator implements IteratorInterface
                 return $this;
             }
         }
+
+        $this->checkDataType($value);
 
         // Ensure the before key exists
         $before_key = array_search($before, $this->source, $strict);
@@ -539,6 +555,8 @@ class Iterator implements IteratorInterface
                 return $this;
             }
         }
+
+        $this->checkDataType($value);
 
         // Ensure the after value exists
         $after_key = array_search($after, $this->source, $strict);
@@ -637,6 +655,75 @@ class Iterator implements IteratorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @return string|null
+     */
+    public function getDataType(): ?string
+    {
+        return $this->data_type;
+    }
+
+
+    /**
+     * Sets the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @param string|null $data_type
+     * return static
+     */
+    public function setDataType(?string $data_type): static
+    {
+        if ($data_type) {
+            if (!preg_match('/^int|float|array|string|object:\\\?([A-Z][a-z0-9\\\]+)+$/', $data_type)) {
+                throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|float|array|string|object:\CLASS\PATH"', [
+                    ':datatype' => $data_type
+                ]));
+            }
+        } else {
+            // No data type restrictions required
+            $data_type = null;
+        }
+
+        $this->data_type = $data_type;
+        return $this;
+    }
+
+
+    /**
+     * Check if the datatype of the given value or Interface (in case of an object) is allowed
+     *
+     * Throws an OutOfBounds exception if the datatype or Interface is not allowed
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function checkDataType(mixed $value): void
+    {
+        if (!$this->data_type) {
+            return;
+        }
+
+        foreach ($this->data_type as $data_type) {
+            if (str_starts_with($data_type, 'object:')) {
+                if ($value instanceof $data_type) {
+                    return;
+                }
+
+            } else {
+                if (gettype($value) === $value) {
+                    return;
+                }
+            }
+        }
+
+        throw new OutOfBoundsException(tr('Specified value has an invalid datatype or Interface ":type" where the only allowed datatypes or Interfaces are ":allowed"', [
+            ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
+            ':allowed' => Strings::force($this->data_type, ', ')
+        ]));
     }
 
 
