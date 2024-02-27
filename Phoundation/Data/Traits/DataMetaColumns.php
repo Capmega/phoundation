@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-use Phoundation\Data\DataEntry\DataEntry;
-
 /**
  * Trait DataMetaColumns
  *
@@ -22,17 +20,17 @@ trait DataMetaColumns
     /**
      * The meta columns
      *
-     * @var array $meta_columns
+     * @var array|null $meta_columns
      */
-    protected array $meta_columns;
+    protected ?array $meta_columns = null;
 
 
     /**
      * Returns the meta-columns
      *
-     * @return array
+     * @return array|null
      */
-    public function getMetaColumns(): array
+    public function getMetaColumns(): ?array
     {
         return $this->meta_columns;
     }
@@ -41,10 +39,10 @@ trait DataMetaColumns
     /**
      * Sets the meta-columns
      *
-     * @param array $columns
+     * @param array|null $columns
      * @return static
      */
-    public function setMetaColumns(array $columns): static
+    public function setMetaColumns(?array $columns): static
     {
         $this->meta_columns = $columns;
         return $this;
