@@ -203,9 +203,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Returns the meta-columns for this database entry
      *
-     * @return array
+     * @return array|null
      */
-    public function getMetaColumns(): array;
+    public function getMetaColumns(): ?array;
 
     /**
      * Delete the specified entries

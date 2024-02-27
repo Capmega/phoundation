@@ -88,7 +88,9 @@ abstract class DataEntry implements DataEntryInterface
     use DataInsertUpdate;
     use DataMaxIdRetries;
     use DataMetaEnabled;
-    use DataMetaColumns;
+    use DataMetaColumns {
+        setMetaColumns as protected __setMetaColumns;
+    }
     use DataRandomId;
     use DataReadonly;
 
@@ -106,13 +108,6 @@ abstract class DataEntry implements DataEntryInterface
      * @var array|string[]
      */
     protected array $protected_columns = [];
-
-    /**
-     * These keys should not ever be processed
-     *
-     * @var array $meta_columns
-     */
-    protected array $meta_columns;
 
     /**
      * Columns that will NOT be inserted
@@ -1391,30 +1386,6 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         $this->source['status'] = $status;
-        return $this;
-    }
-
-
-    /**
-     * Returns the meta-columns for this database entry
-     *
-     * @return array
-     */
-    public function getMetaColumns(): array
-    {
-        return $this->meta_columns;
-    }
-
-
-    /**
-     * Sets the meta-columns for this database entry
-     *
-     * @param array $columns
-     * @return DataEntry
-     */
-    protected function setMetaColumns(array $columns): static
-    {
-        $this->meta_columns = $columns;
         return $this;
     }
 
