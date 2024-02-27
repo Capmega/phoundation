@@ -70,7 +70,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static;
 
@@ -78,7 +78,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static;
 
@@ -93,17 +93,19 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function setSelected(array|string|int|null $selected = null): static;
+    public function setSelected(array|string|int|null $selected = null, bool $value = false): static;
 
     /**
      * Adds a single or multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function addSelected(array|string|int|null $selected): static;
+    public function addSelected(array|string|int|null $selected, bool $value = false): static;
 
     /**
      * Returns the selected option(s)
@@ -165,8 +167,8 @@ interface InputSelectInterface extends ResourceElementInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */

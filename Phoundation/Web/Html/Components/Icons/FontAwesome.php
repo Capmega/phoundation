@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Icons;
 
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Icon;
 
 
 /**
@@ -22,10 +21,12 @@ class FontAwesome extends Icon
 {
     /**
      * Form class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->addClasses(['far']);
     }
 

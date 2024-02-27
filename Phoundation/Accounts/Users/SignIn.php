@@ -19,8 +19,8 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -119,43 +119,43 @@ class SignIn extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'ip_address')
-                ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'net_len')
-                ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'ip_address_human')
+            ->add(Definition::new($this, 'ip_address')
+                ->setRender(false))
+            ->add(Definition::new($this, 'net_len')
+                ->setRender(false))
+            ->add(Definition::new($this, 'ip_address_human')
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(48)
                 ->setLabel(tr('IP Address')))
-            ->addDefinition(Definition::new($this, 'user_agent')
+            ->add(Definition::new($this, 'user_agent')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setSize(6)
                 ->setMaxlength(2040)
                 ->setLabel(tr('User agent')))
-            ->addDefinition(Definition::new($this, 'latitude')
+            ->add(Definition::new($this, 'latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputType::number)
+                ->setInputType(EnumInputType::number)
                 ->setSize(6)
                 ->setMin(-90)
                 ->setMax(90)
                 ->setStep('any')
                 ->setLabel(tr('Latitude')))
-            ->addDefinition(Definition::new($this, 'longitude')
+            ->add(Definition::new($this, 'longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputType::number)
+                ->setInputType(EnumInputType::number)
                 ->setSize(6)
                 ->setMin(-180)
                 ->setMax(180)
                 ->setStep('any')
                 ->setLabel(tr('Longitude')))
-            ->addDefinition(Definition::new($this, 'countries_id')
+            ->add(Definition::new($this, 'countries_id')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Countries::getHtmlCountriesSelect()
                         ->setDisabled(true)
@@ -168,10 +168,10 @@ class SignIn extends DataEntry
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isQueryResult('SELECT `name` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':id' => '$countries_id']);
                 }))
-            ->addDefinition(Definition::new($this, 'timezones_id')
+            ->add(Definition::new($this, 'timezones_id')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(InputTypeExtended::dbid)
+                ->setInputType(EnumInputTypeExtended::dbid)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Timezones::new()->getHtmlSelect()
                         ->setDisabled(true)

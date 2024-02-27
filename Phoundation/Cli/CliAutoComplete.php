@@ -381,13 +381,19 @@ class CliAutoComplete
                 }
 
                 foreach ($results as $result) {
+                    if (!$result) {
+                        continue;
+                    }
+
                     if (!is_scalar($result)) {
                         if (!$result instanceof DataEntryInterface) {
-                            throw new OutOfBoundsException(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
+                            throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
                                 ':word'    => $word ? 'word' : 'noword',
                                 ':result'  => $result,
                                 ':results' => $results,
-                            ]));
+                            ]))->addData([
+                                'results' => $results
+                            ])->makeWarning();
                         }
 
                         $result = $result->getAutoCompleteValue();

@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.2.1';
+        return '0.2.3';
     }
 
 
@@ -729,6 +729,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setDescription('This right will give the user access to the audit information system of the site')
                 ->save();
 
+            $test = Right::new('Test', 'name')
+                ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
+                ->save();
+
+            $demo = Right::new('Demo', 'name')
+                ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
+                ->save();
+
+            Role::new('Test', 'name')
+                ->setDescription('This role gives the user the test right. See demo right for more information.')
+                ->save()
+                ->getRights()
+                ->add($test);
+
+            Role::new('Demo', 'name')
+                ->setDescription('This role gives the user the demo right. See demo right for more information.')
+                ->save()
+                ->getRights()
+                ->add($demo);
+
             // Define basic roles
             Role::new('God', 'name')
                 ->setName('God')
@@ -832,6 +852,30 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->add('Admin')
                 ->add('Accounts');
 
+        })->addUpdate('0.2.2', function () {
+            // Data is a general storage of JSON data
+            if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('data')) {
+                sql()->schema()->table('accounts_users')->alter()
+                    ->addColumn('`data` mediumtext NULL DEFAULT NULL', 'AFTER `description`');
+            }
+
+            // Remote id is the ID of the user in a different table and or database
+            if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('remote_id')) {
+                sql()->schema()->table('accounts_users')->alter()
+                    ->addColumn('`remote_id` bigint NULL DEFAULT NULL', 'AFTER `meta_state`')
+                    ->addIndex('UNIQUE KEY `remote_id` (`remote_id`)');
+            }
+
+        })->addUpdate('0.2.3', function () {
+            // Codes can be UUID (36 characters) or much larger, so make it 64 characters
+            sql()->schema()->table('accounts_users')->alter()
+                ->modifyColumn('`code`', ' varchar(64) CHARACTER SET latin1 DEFAULT NULL');
+
+            // The default page will send the user to that page right after signing in
+            if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('default_page')) {
+                sql()->schema()->table('accounts_users')->alter()
+                    ->addColumn('`default_page` varchar(2048) DEFAULT NULL', 'AFTER `url`');
+            }
         });
     }
 }

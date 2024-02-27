@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Rights;
 
+use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Exception\RightNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -17,7 +18,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -99,7 +100,7 @@ class Right extends DataEntry implements RightInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);
@@ -114,6 +115,12 @@ class Right extends DataEntry implements RightInterface
      */
     public function getRoles(): RolesInterface
     {
+        if ($this->isNew()) {
+            throw new AccountsException(tr('Cannot access roles for right ":right", the right has not yet been saved', [
+                ':right' => $this->getLogId()
+            ]));
+        }
+
         return Roles::new()->setParent($this)->load();
     }
 
@@ -126,16 +133,16 @@ class Right extends DataEntry implements RightInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
-                ->setInputType(InputTypeExtended::name)
+            ->add(DefinitionFactory::getName($this)
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this right')));
     }
 }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
+use Phoundation\Databases\Connectors\Exception\ConnectorException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Databases\Sql\Exception\SqlConnectorException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\UnderConstructionException;
 
@@ -83,7 +83,7 @@ class Databases
     public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'   => Databases::Sql($connector, $use_database),
+            'sql'   => Databases::sql($connector, $use_database),
             default => throw new UnderConstructionException(),
         };
     }
@@ -96,7 +96,7 @@ class Databases
      * @param bool $use_database
      * @return SqlInterface
      */
-    public static function Sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
+    public static function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
     {
         if (!$connector) {
             // Default to system connector
@@ -107,7 +107,7 @@ class Databases
             $connector_name = $connector->getName();
 
             if (!$connector_name) {
-                throw new SqlConnectorException(tr('Specified connector ":connector" has empty name', [
+                throw new ConnectorException(tr('Specified connector ":connector" has empty name', [
                     ':connector' => $connector->getSource()
                 ]));
             }
@@ -134,7 +134,7 @@ class Databases
      * @return Mc
      * @throws Exception
      */
-    public static function Mc(?string $connector): Mc
+    public static function mc(?string $connector): Mc
     {
         if (!$connector) {
             // Default to system connector
@@ -158,7 +158,7 @@ class Databases
      * @return Redis
      * @throws Exception
      */
-    public static function Redis(?string $connector): Redis
+    public static function redis(?string $connector): Redis
     {
         if (!$connector) {
             // Default to system connector
@@ -182,7 +182,7 @@ class Databases
      * @return Mongo
      * @throws Exception
      */
-    public static function Mongo(?string $connector): Mongo
+    public static function mongo(?string $connector): Mongo
     {
         if (!$connector) {
             // Default to system connector
@@ -206,7 +206,7 @@ class Databases
      * @return NullDb
      * @throws Exception
      */
-    public static function NullDb(?string $connector): NullDb
+    public static function nullDb(?string $connector): NullDb
     {
         if (!$connector) {
             // Default to system connector

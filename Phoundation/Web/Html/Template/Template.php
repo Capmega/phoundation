@@ -9,6 +9,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Plugins\Phoundation\Components\Menu;
 
 
@@ -22,7 +23,7 @@ use Plugins\Phoundation\Components\Menu;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Template
+abstract class Template implements TemplateInterface
 {
     /**
      * The template name
@@ -173,7 +174,8 @@ abstract class Template
                 return null;
             }
 
-            // Find the file to include
+            // Find the template class path and the template file to include
+            $class_path     = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
             $include_file   = str_replace('\\', '/', $class_path);
             $include_file   = $this->getDirectory() . 'Html/' . $include_file . '.php';
 

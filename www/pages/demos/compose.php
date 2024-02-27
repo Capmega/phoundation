@@ -1,8 +1,8 @@
 <?php
 
-use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -32,7 +32,7 @@ Page::loadCss('/adminlte/plugins/summernote/summernote-bs4');
 Page::loadJavascript('/adminlte/plugins/summernote/summernote-bs4');
 
 echo Script::new()
-    ->setJavascriptWrapper(JavascriptWrappers::dom_content)
+    ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
     ->setContent('$("#compose-textarea").summernote()')
     ->render();
 ?>

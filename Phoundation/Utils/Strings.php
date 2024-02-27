@@ -418,7 +418,7 @@ class Strings extends Utils
 
 
     /**
-     * Return a camel cased string
+     * Return a camel-cased string
      *
      * @param Stringable|string $source
      * @param Stringable|string $separator
@@ -1971,7 +1971,7 @@ throw new UnderConstructionException();
                 return tr('3rd');
 
             default:
-                return tr(':countth', [':count' => $count]);
+                return tr(':count th', [':count' => $count]);
         }
     }
 

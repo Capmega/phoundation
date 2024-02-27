@@ -6,8 +6,8 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Element;
-use Phoundation\Web\Html\Components\Input\Traits\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Traits\InputElement;
 
 
 /**
@@ -49,12 +49,14 @@ class InputCheckbox extends Input
 
     /**
      * CheckBox class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->setElement('input');
-        $this->type = InputType::checkbox;
-        parent::__construct();
+        $this->type = EnumInputType::checkbox;
+        parent::__construct($content);
     }
 
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Core\Plugins\FilterForm;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\ButtonType;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -39,9 +39,9 @@ $filters = Card::new()
 
 // Build plugins table
 $buttons = Buttons::new()
-    ->addButton(tr('Add'), DisplayMode::primary, '/phoundation/plugins/plugin.html')
-    ->addButton(tr('Delete'), DisplayMode::danger, ButtonType::submit, true, true)
-    ->addButton(tr('Disable'), DisplayMode::warning, ButtonType::submit, true, true);
+    ->addButton(tr('Add'), EnumDisplayMode::primary, '/phoundation/plugins/plugin.html')
+    ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true, true)
+    ->addButton(tr('Disable'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
 // Build plugins table
@@ -63,22 +63,22 @@ $plugins->getForm()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $plugins, DisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($filters->render() . $plugins, EnumDisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Web\Html\Components\Interfaces\DivInterface;
+
 
 /**
  * Div class
@@ -15,14 +17,16 @@ namespace Phoundation\Web\Html\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Div extends Element
+class Div extends Element implements DivInterface
 {
     /**
      * Form class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->setElement('div');
     }
 }

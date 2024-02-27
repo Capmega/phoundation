@@ -7,7 +7,6 @@ namespace Phoundation\Date;
 use Exception;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Stringable;
 
@@ -17,6 +16,7 @@ use Stringable;
  *
  *
  *
+ * @see https://www.php.net/manual/en/dateinterval.construct.php
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -123,9 +123,9 @@ class DateInterval extends \DateInterval implements Stringable
             }
 
         } elseif (is_int($date_interval)) {
-            // Diff will always give a tiny number of micro/milliseconds difference. Since we're on seconds resolution
-            // here we can round that off
-            $round_up = not_null($round_up, true);
+            // Diff will always give a tiny amount of micro/milliseconds difference. Since we're on seconds resolution
+            // here, we can round that off
+            $round_up      = not_null($round_up, true);
             $date_interval = DateTime::new($date_interval . ' seconds')->diff(DateTime::new());
 
             if ($date_interval->f > 500) {
@@ -157,6 +157,9 @@ class DateInterval extends \DateInterval implements Stringable
         if ($round_up) {
             $this->roundUp();
         }
+
+        // WTF is days here? We have y m >>d<< h i s  etc.. What is days doing, PHP? DON'T USE DAYS!
+        $this->days = null;
     }
 
 
@@ -166,7 +169,7 @@ class DateInterval extends \DateInterval implements Stringable
      * @return string
      */
     public function __toString() {
-        return Json::encode($this->__toArray());
+        return $this->getInterval();
     }
 
 
@@ -239,10 +242,10 @@ class DateInterval extends \DateInterval implements Stringable
     public function getTotalWeeks(bool $round_down = false): int
     {
         if ($round_down) {
-            return (int) floor($this->days / 7);
+            return (int) floor($this->d / 7);
         }
 
-        return (int) round($this->days / 7);
+        return (int) round($this->d / 7);
     }
 
 
@@ -254,7 +257,7 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public function getTotalDays(bool $round_down = false): int
     {
-        $total = $this->days;
+        $total = $this->d;
 
         if (!$round_down and ($this->h > 12)) {
             $total++;
@@ -272,7 +275,7 @@ class DateInterval extends \DateInterval implements Stringable
      */
     public function getTotalHours(bool $round_down = false): int
     {
-        $total = ($this->days * 24) + $this->h;
+        $total = ($this->d * 24) + $this->h;
 
         if (!$round_down and ($this->i > 30)) {
             $total++;
@@ -584,5 +587,55 @@ class DateInterval extends \DateInterval implements Stringable
                 ':limit' => $limit
             ])),
         };
+    }
+
+
+    /**
+     * Returns the interval to generate this DateInterval object
+     *
+     * @return string
+     */
+    public function getInterval(): string
+    {
+        $date = null;
+        $time = null;
+
+        // Create the date interval string
+        if ($this->y) {
+            $date .= $this->y . 'Y';
+        }
+
+        if ($this->m) {
+            $date .= $this->m . 'M';
+        }
+        if ($this->d) {
+            $date .= $this->d . 'D';
+        }
+
+        // Create the time interval string
+        if ($this->h) {
+            $time .= $this->h . 'H';
+        }
+
+        if ($this->i) {
+            $time .= $this->i . 'M';
+        }
+
+        if ($this->s) {
+            $time .= $this->s . 'S';
+        }
+
+        if ($time) {
+            $time = 'T' . $time;
+        }
+
+        $return = 'P' . $date . $time;
+
+        if ($return === 'P') {
+            // Interval is zero
+            return 'PT0S';
+        }
+
+        return $return;
     }
 }

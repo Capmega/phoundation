@@ -69,11 +69,13 @@ class Audio extends Element
 
 
     /**
-     * Audio constructor
+     * Audio class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->setElement('audio');
     }
 
@@ -85,9 +87,9 @@ class Audio extends Element
      */
     public function render(): ?string
     {
-        // For the moment just generate the HTML directly
+        // For the moment generate the HTML directly
         return '<audio class="' . $this->getClass() . '" preload="auto">
-                    <source src="' . UrlBuilder::getCdn(UrlBuilder::getCdn($this->attributes->get('src', false))) . '" type="audio/mpeg">
+                    <source src="' . UrlBuilder::getCdn(UrlBuilder::getCdn($this->attributes->get('src', false) ?? $this->content)) . '" type="audio/mpeg">
                 </audio>';
     }
 }

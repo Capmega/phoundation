@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Tooltips\Enums\Interfaces\TooltipInterface;
-use Phoundation\Web\Html\Components\Tooltips\Tooltip;
+use Phoundation\Web\Html\Components\Interfaces\AInterface;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Stringable;
 
 
@@ -27,6 +32,12 @@ use Stringable;
  */
 trait ElementAttributes
 {
+    use DataDefinition {
+        setDefinition as protected __setDefinition;
+        getDefinition as protected __getDefinition;
+    }
+
+
     /**
      * The HTML id element attribute
      *
@@ -174,14 +185,25 @@ trait ElementAttributes
      */
     protected TooltipInterface $tooltip;
 
+    /**
+     * A possible anchor around this element
+     *
+     * @var AInterface|null $anchor
+     */
+    protected ?AInterface $anchor = null;
+
 
     /**
      * Class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->classes    = new Iterator();
         $this->attributes = new Iterator();
+
+        $this->setContent($content);
     }
 
 
@@ -218,6 +240,38 @@ trait ElementAttributes
 
 
     /**
+     * Returns the (optional) anchor for this element
+     *
+     * @return AInterface
+     */
+    public function getAnchor(): AInterface
+    {
+        if (empty($this->anchor)) {
+            $this->anchor = A::new()->setParent($this);
+        }
+
+        return $this->anchor;
+    }
+
+
+    /**
+     * Sets the anchor for this element
+     *
+     * @param UrlBuilderInterface|AInterface|null $anchor
+     * @return Span
+     */
+    public function setAnchor(UrlBuilderInterface|AInterface|null $anchor): static
+    {
+        if ($anchor instanceof UrlBuilderInterface) {
+            $anchor = A::new()->setHref($anchor);
+        }
+
+        $this->anchor = $anchor->setParent($this);
+        return $this;
+    }
+
+
+    /**
      * Returns the tooltip object for this element
      *
      * @return TooltipInterface
@@ -225,7 +279,7 @@ trait ElementAttributes
     public function getTooltip(): TooltipInterface
     {
         if (empty($this->tooltip)) {
-            $this->tooltip = new Tooltip($this);
+            $this->tooltip = Tooltip::new()->setSourceElement($this);
         }
 
         return $this->tooltip;
@@ -310,7 +364,7 @@ trait ElementAttributes
     public function addClasses(IteratorInterface|array|string|null $classes): static
     {
         foreach (Arrays::force($classes, ' ') as $class) {
-            $this->classes->add(true, $class);
+            $this->classes->add(true, $class, exception: false);
         }
 
         return $this;
@@ -325,7 +379,7 @@ trait ElementAttributes
      */
     public function addClass(?string $class): static
     {
-        $this->classes->add(true, $class);
+        $this->classes->add(true, $class, exception: false);
         return $this;
     }
 
@@ -435,7 +489,7 @@ trait ElementAttributes
             $this->class = implode(' ', $this->classes->getKeys());
         }
 
-        return $this->class;
+        return get_null($this->class);
     }
 
 
@@ -539,7 +593,7 @@ trait ElementAttributes
         } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
-                // Some element has auto focus, is it this one?
+                // Some element has auto-focus, is it this one?
                 if (static::$autofocus === $this->name) {
                     throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
                         ':name' => $this->name
@@ -828,7 +882,51 @@ trait ElementAttributes
      */
     public static function canRenderHtml(object|string $class): void
     {
+        // TODO Replace this with a RenderInterface check
         static::ensureElementAttributesTrait($class);
+    }
+
+
+    /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface
+     */
+    public function getDefinition(): DefinitionInterface
+    {
+        if (!$this->definition) {
+            $this->__setDefinition(Definition::new(null, $this->getName())
+                ->setClasses($this->getClasses())
+                ->setDisabled($this->getDisabled())
+                ->setReadOnly($this->getReadonly())
+                ->setAutoFocus($this->getAutoFocus()));
+        }
+
+        return $this->__getDefinition();
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $definition
+     * @return $this
+     */
+    public function setDefinition(?DefinitionInterface $definition): static
+    {
+        if ($definition) {
+            // Apply the definition rules to this element
+            $this->setName($definition->getColumn())
+                ->setRequired($definition->getRequired())
+                ->setClasses($definition->getClasses())
+                ->setDisabled($definition->getDisabled())
+                ->setReadOnly($definition->getReadonly())
+                ->setAutoFocus($definition->getAutoFocus());
+        }
+
+        return $this->__setDefinition($definition);
     }
 
 

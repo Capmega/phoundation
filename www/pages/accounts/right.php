@@ -3,17 +3,16 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Right;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -80,7 +79,7 @@ if (Page::isPostRequestMethod()) {
 if (!$right->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)
-        ->setMode(DisplayMode::information)
+        ->setMode(EnumDisplayMode::information)
         ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
         ->setFloatRight(true)
         ->setValue(tr('Audit'))
@@ -88,7 +87,7 @@ if (!$right->isNew()) {
 
     $delete = Button::new()
         ->setFloatRight(true)
-        ->setMode(DisplayMode::warning)
+        ->setMode(EnumDisplayMode::warning)
         ->setOutlined(true)
         ->setValue(tr('Delete'))
         ->setContent(tr('Delete'));
@@ -102,14 +101,14 @@ $card  = Card::new()
     ->setContent($form->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Save'))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/rights.html'), true)
+        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/rights.html'), true)
         ->addButton(isset_get($delete))
         ->addButton(isset_get($audit)));
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
@@ -117,15 +116,15 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($card, DisplaySize::nine, true)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($card, EnumDisplaySize::nine, true)
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

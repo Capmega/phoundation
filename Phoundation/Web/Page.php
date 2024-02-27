@@ -10,12 +10,11 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
-use Phoundation\Api\ApiInterface;
+use Phoundation\Api\Api;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
-use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
@@ -29,7 +28,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\Date;
 use Phoundation\Date\Time;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -37,6 +35,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
@@ -49,13 +48,18 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\PageException;
 use Phoundation\Web\Exception\RedirectException;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Menus\Menus;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
+use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
+use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
+use Phoundation\Web\Html\Components\Widgets\Panels\Panels;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -66,8 +70,8 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
-use Phoundation\Web\Routing\RoutingParameters;
 use Stringable;
+use Templates\AdminLte\AdminLte;
 use Throwable;
 
 
@@ -96,16 +100,16 @@ class Page implements PageInterface
     /**
      * Singleton
      *
-     * @var Page $instance
+     * @var PageInterface $instance
      */
-    protected static Page $instance;
+    protected static PageInterface $instance;
 
     /**
      * The server filesystem restrictions
      *
      * @var Restrictions $restrictions
      */
-    protected static Restrictions $restrictions;
+    protected static RestrictionsInterface $restrictions;
 
     /**
      * The TemplatePage class that builds the UI
@@ -117,16 +121,16 @@ class Page implements PageInterface
     /**
      * The template class that builds the UI
      *
-     * @var Template $template
+     * @var TemplateInterface $template
      */
-    protected static Template $template;
+    protected static TemplateInterface $template;
 
     /**
      * The Phoundation API interface
      *
-     * @var ApiInterface $api_interface
+     * @var Api $api_interface
      */
-    protected static ApiInterface $api_interface;
+    protected static Api $api_interface;
 
     /**
      * The flash object for this user
@@ -288,9 +292,16 @@ class Page implements PageInterface
     /**
      * The menus for this page
      *
-     * @var Menus $menus
+     * @var MenusInterface $menus
      */
-    protected static Menus $menus;
+    protected static MenusInterface $menus;
+
+    /**
+     * The panels for this page
+     *
+     * @var PanelsInterface $panels
+     */
+    protected static PanelsInterface $panels;
 
     /**
      * @var string $language_code
@@ -301,6 +312,14 @@ class Page implements PageInterface
      * @var LanguageInterface $language
      */
     protected static LanguageInterface $language;
+
+    /**
+     * The number of page levels that we're recursed in. Typically, this will be 0, but when executing pages from within
+     * pages, recursing down, each time it will go up by one until that page is finished, then it will be lowered again
+     *
+     * @var int $levels
+     */
+    protected static int $levels = 0;
 
 
     /**
@@ -343,9 +362,9 @@ class Page implements PageInterface
     /**
      * Returns the current tab index and automatically increments it
      *
-     * @return Restrictions
+     * @return RestrictionsInterface
      */
-    public static function getRestrictions(): Restrictions
+    public static function getRestrictions(): RestrictionsInterface
     {
         return static::$restrictions;
     }
@@ -354,10 +373,10 @@ class Page implements PageInterface
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param Restrictions $restrictions
+     * @param RestrictionsInterface $restrictions
      * @return void
      */
-    public static function setRestrictions(Restrictions $restrictions): void
+    public static function setRestrictions(RestrictionsInterface $restrictions): void
     {
         static::$restrictions = $restrictions;
     }
@@ -366,9 +385,9 @@ class Page implements PageInterface
     /**
      * Returns the current tab index and automatically increments it
      *
-     * @return Menus
+     * @return MenusInterface
      */
-    public static function getMenus(): Menus
+    public static function getMenusObject(): MenusInterface
     {
         if (!isset(static::$menus)) {
             // Menus have not yet been initialized, do so now.
@@ -382,21 +401,49 @@ class Page implements PageInterface
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param Menus $menus
+     * @param MenusInterface $menus
      * @return void
      */
-    public static function setMenus(Menus $menus): void
+    public static function setMenusObject(MenusInterface $menus): void
     {
         static::$menus = $menus;
     }
 
 
     /**
+     * Returns the current panels configured for this page
+     *
+     * @return PanelsInterface
+     */
+    public static function getPanelsObject(): PanelsInterface
+    {
+        if (!isset(static::$panels)) {
+            // Menus have not yet been initialized, do so now.
+            static::$panels = new Panels();
+        }
+
+        return static::$panels;
+    }
+
+
+    /**
+     * Sets the current panels configured for this page
+     *
+     * @param PanelsInterface $panels
+     * @return void
+     */
+    public static function setPanelsObject(PanelsInterface $panels): void
+    {
+        static::$panels = $panels;
+    }
+
+
+    /**
      * Returns page parameters specified by the router
      *
-     * @return RoutingParameters
+     * @return RoutingParametersInterface
      */
-    public static function getRoutingParameters(): RoutingParameters
+    public static function getRoutingParameters(): RoutingParametersInterface
     {
         if (PLATFORM_CLI) {
             throw new PageException(tr('Cannot return routing parameters, this requires the HTTP platform'));
@@ -556,7 +603,7 @@ class Page implements PageInterface
      *
      * @return bool
      */
-    public static function getBuildBody(): bool
+    public static function getBuildBodyWrapper(): bool
     {
         return static::$build_body;
     }
@@ -670,6 +717,49 @@ class Page implements PageInterface
 
 
     /**
+     * Returns if this page is executed directly from Route, or if its executed by executeReturn() call
+     *
+     * @return bool
+     */
+    public static function isExecutedDirectly(): bool
+    {
+        return !static::$levels;
+    }
+
+
+    /**
+     * Will throw a Http404Exception when this page is executed directly from Route
+     *
+     * @return void
+     */
+    public static function cannotBeExecutedDirectly(?string $message = null): void
+    {
+        if (Page::isExecutedDirectly()) {
+            if (!$message) {
+                $message = tr('The page ":page" cannot be accessed directly', [
+                    ':page' => Strings::untilReverse(static::getExecutedFile(), '.php')
+                ]);
+            }
+
+            throw Http404Exception::new($message)->makeWarning();
+        }
+    }
+
+
+    /**
+     * Returns the number of pages we have recursed into.
+     *
+     * Returns 0 for the first page, 1 for the next, etc.
+     *
+     * @return int
+     */
+    public static function getLevels(): int
+    {
+        return static::$levels;
+    }
+
+
+    /**
      * Return the domain for this page, or the primary domain on CLI
      *
      * @return string
@@ -773,10 +863,15 @@ class Page implements PageInterface
     /**
      * Returns the current Template for this page
      *
-     * @return Template
+     * @return TemplateInterface
      */
-    public static function getTemplate(): Template
+    public static function getTemplate(): TemplateInterface
     {
+        if (empty(static::$template)) {
+            // Default template is AdminLte
+            return new AdminLte();
+        }
+
         return static::$template;
     }
 
@@ -1323,78 +1418,74 @@ class Page implements PageInterface
      * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
      * Route::execute() instead!
      *
-     * @param string $target      The target file that should be executed or sent to the client
+     * @param string $target       The target file that should be executed or sent to the client
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @param bool $system        If true, this is a system page being executed
      * @return never
      *
+     * @todo Make Page::executeFromRoute() use Page::executePage() somehow
      * @see Route::execute()
      * @see Template::execute()
      */
     #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
     {
-        // Ensure we have received routing parameters, can't execute without!
-        if (empty(static::$parameters)) {
-            throw new PageException(tr('Cannot execute target ":target", no routing parameters specified', [
-                ':target' => $target
-            ]));
+        Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+            ':target'   => Strings::from($target, DIRECTORY_ROOT),
+            ':template' => static::$template->getName(),
+            ':language' => LANGUAGE
+        ]));
+
+        // Start the page up
+        static::startup($target, $attachment, $system);
+
+        // Execute the specified target file
+        // Build the headers, cache output and headers together, then send the headers
+        // TODO Work on the HTTP headers, lots of issues here still, like content-length!
+        $output  = static::executeTarget($target, false);
+        $headers = static::buildHttpHeaders($output, $attachment);
+
+        // Merge the flash messages from sessions into page flash messages
+        Page::getFlashMessages()->pullMessagesFrom(Session::getFlashMessages());
+
+        if ($headers) {
+            // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
+            // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
+            Cache::write([
+                'output'  => $output,
+                'headers' => $headers,
+            ], $target,'pages');
+
+            $length = static::sendHttpHeaders($headers);
+            Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
         }
 
-        try {
-            // Start the page up
-            static::startup($target);
+        // All done, send output to the client
+        $output = static::filterOutput($output);
+        static::sendOutputToClient($output, $target, $attachment);
+    }
 
-            if (!$system) {
-                // System pages never have a redirect
-                static::checkForceRedirect();
-            }
 
-            static::tryCache($target, $attachment);
-
-            ob_start();
-
-            // Execute the specified target file
-            // Build the headers, cache output and headers together, then send the headers
-            // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-            $output  = static::executeTarget($target);
-            $headers = static::buildHttpHeaders($output, $attachment);
-
-            if ($headers) {
-                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
-                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                Cache::write([
-                    'output'  => $output,
-                    'headers' => $headers,
-                ], $target,'pages');
-
-                $length = static::sendHttpHeaders($headers);
-                Log::success(tr('Sent ":length" bytes of HTTP to client', [':length' => $length]), 3);
-            }
-
-            // All done, send output to the client
-            $output = static::filterOutput($output);
-            static::sendOutputToClient($output, $target, $attachment);
-
-        } catch (ValidationFailedExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
-
-        } catch (AuthenticationExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 401, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
-
-        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
-
-        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
-            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
-
-        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
-            Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
-
-        } catch (Http409Exception $e) {
-            Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-        }
+    /**
+     * Executes the specified page and returns the output
+     *
+     * Also handles a variety of exceptions and redirects to showing system pages instead, like 400, 401, 404, etc...
+     *
+     * @param string $page The target page that should be executed and returned
+     * @param bool $main_content_only
+     * @return string|null
+     *
+     * @see Route::execute()
+     * @see Template::execute()
+     */
+    public static function executeReturn(string $page, bool $main_content_only = true): ?string
+    {
+        // Execute the specified target file
+        // Get all output buffers and restart buffer
+        static::$levels++;
+        return static::executeTarget($page, $main_content_only);
+        static::$levels--;
     }
 
 
@@ -1418,6 +1509,7 @@ class Page implements PageInterface
 
         // Clear flash messages
         Session::getFlashMessages()->clear();
+        Page::getFlashMessages()->clear();
 
         // Modify POST requests to GET requests and remove all GET and POST data
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -1735,7 +1827,7 @@ class Page implements PageInterface
 
 
     /**
-     * Returns the HTML output buffer for this page
+     * Returns the current HTML output buffer for this page
      *
      * @return string
      */
@@ -1768,7 +1860,7 @@ class Page implements PageInterface
 
 
     /**
-     * Returns the length HTML output buffer for this page
+     * Returns the current length HTML output buffer for this page
      *
      * @return int
      */
@@ -1793,7 +1885,7 @@ class Page implements PageInterface
         ob_flush();
         flush();
 
-        // Headers have been sent, from here we know if its a 200 or something else
+        // Headers have been sent, from here we know if it's a 200 or something else
         if (static::$http_code === 200) {
             Log::success(tr('Sent :http with ":length bytes" for URL ":url"', [
                 ':length' => $length,
@@ -1968,11 +2060,11 @@ class Page implements PageInterface
 
 
     /**
-     * Build and return the HTML headers
+     * Builds and return the HTML <head> tag
      *
      * @return string|null
      */
-    public static function buildHeaders(): ?string
+    public static function buildHtmlHeadTag(): ?string
     {
         $return = '<!DOCTYPE ' . static::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
@@ -2005,7 +2097,7 @@ class Page implements PageInterface
      * @todo This should be upgraded to using Javascript / Css objects
      * @return string|null
      */
-    public static function buildFooters(): ?string
+    public static function buildHtmlFooters(): ?string
     {
         Log::warning('TODO Reminder: Page::buildFooters() should be upgraded to using Javascript / Css objects');
 
@@ -2055,9 +2147,6 @@ class Page implements PageInterface
      * @param string $output
      * @param bool $attachment
      * @return array|null
-     * @todo Refactor and remove $_CONFIG dependancies
-     * @todo Refactor and remove $core dependancies
-     * @todo Refactor and remove $params dependancies
      */
     public static function buildHttpHeaders(string $output, bool $attachment = false): ?array
     {
@@ -2079,7 +2168,7 @@ class Page implements PageInterface
             define('LANGUAGE', Config::get('http.language.default', 'en'));
         }
 
-        // Create ETAG, possibly send out HTTP304 if client sent matching ETAG
+        // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
         static::cacheEtag();
 
         // What to do with the PHP signature?
@@ -2101,7 +2190,9 @@ class Page implements PageInterface
                 break;
 
             case 'full':
-                header(tr('Powered-By: Phoundation version ":version"', [':version' => Core::FRAMEWORKCODEVERSION]));
+                header(tr('Powered-By: Phoundation version ":version"', [
+                    ':version' => Core::FRAMEWORKCODEVERSION
+                ]));
                 break;
 
             case 'none':
@@ -2117,7 +2208,7 @@ class Page implements PageInterface
 
         $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
-        $headers[] = 'Content-Length: ' . (ob_get_length() + strlen($output));
+        $headers[] = 'Content-Length: ' . strlen($output);
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
@@ -2172,12 +2263,14 @@ class Page implements PageInterface
                         break;
 
                     default:
-                        throw new HttpException(tr('Unknown CORS header ":header" specified', [':header' => $key]));
+                        throw new HttpException(tr('Unknown CORS header ":header" specified', [
+                            ':header' => $key
+                        ]));
                 }
             }
         }
 
-        // Add cache headers and store headers in object headers list
+        // Add cache headers and store headers in the object headers list
         return static::addCacheHeaders($headers);
     }
 
@@ -2294,10 +2387,10 @@ class Page implements PageInterface
      *
      * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
      * @param string $key
-     * @param array|string $entry
+     * @param array|string|null $entry
      * @return void
      */
-    public static function addToFooter(string $key, array|string $entry): void
+    public static function addToFooter(string $key, array|string|null $entry): void
     {
         static::$footers[$key][] = $entry;
     }
@@ -2487,11 +2580,19 @@ class Page implements PageInterface
      * an absolute filename, and will check target restrictions.
      *
      * @param string $target
+     * @param bool $attachment
+     * @param bool $system
      * @return void
-     * @throws Exception
      */
-    protected static function startup(string &$target): void
+    protected static function startup(string $target, bool $attachment = false, bool $system = false): void
     {
+        // Ensure we have received routing parameters, can't execute without!
+        if (empty(static::$parameters)) {
+            throw new PageException(tr('Cannot execute target ":target", no routing parameters specified', [
+                ':target' => $target
+            ]));
+        }
+
         // Ensure we have flash messages available
         if (!isset(static::$flash_messages)) {
             static::$flash_messages = FlashMessages::new();
@@ -2499,38 +2600,42 @@ class Page implements PageInterface
 
         // Start the session if Core hasn't failed so far
         if (!Core::getFailed()) {
-            // But not for API's! API's have to handle a different session management
+            // But not for API's! API's have to handle different session management
             if (!Core::isRequestType(EnumRequestTypes::api)) {
                 Session::startup();
             }
         }
 
         if (Strings::fromReverse(dirname($target), '/') === 'system') {
-            // Wait a small random time (0S - 100mS) to avoid timing attacks on system pages
-            usleep(random_int(1, 100000));
-        }
+            // Wait a small random time (Between 0mS and 100mS) to avoid timing attacks on system pages
+            try {
+                usleep(random_int(1, 100000));
 
-        // Ensure we have an absolute target
-        try {
-            $target = static::getAbsoluteTarget($target);
-
-        } catch (FileNotExistException $e) {
-            throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
-                ':target' => $target
-            ]), $e)->addData(['target' => $target]);
+            } catch (Exception $e) {
+                // random_int() crashed for ... reasons? Fall back on mt_rand()
+                usleep(mt_rand(1, 100000));
+            }
         }
 
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
-        static::$target = static::getAbsoluteTarget($target);
-
+        static::$target = $target;
         static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
-        // Check only when in state "script". State "maintentance" for example, requires no rights checking
+        // Check only when in state "script". State "maintenance", for example, requires no rights checking
         if (Core::isState('script')) {
             Page::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target), static::$target);
         }
+
+        // Check if this session should actually be redirected somewhere else.
+        // System pages never have a redirect, though!
+        if (!$system) {
+            static::checkForceRedirect();
+        }
+
+        // Do we have this page in cache, perhaps?
+        static::tryCache($target, $attachment);
     }
 
 
@@ -2602,7 +2707,7 @@ class Page implements PageInterface
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
                     ->setUrl('developer/incidents.html')
-                    ->setMode(DisplayMode::warning)
+                    ->setMode(EnumDisplayMode::warning)
                     ->setCode('unsupported-languages-requested')
                     ->setRoles('developer')
                     ->setTitle(tr('Unsupported language requested by client'))
@@ -2641,49 +2746,77 @@ class Page implements PageInterface
     /**
      * Executes the target with the correct page driver (API or normal web page for now)
      *
-     * @todo Move AccessDeniedException handling to Page::execute()
      * @param string $target
-     * @return string
+     * @param bool $main_content_only
+     * @return string|null
+     * @todo Move AccessDeniedException handling to Page::execute()
      */
-    protected static function executeTarget(string $target): string
+    protected static function executeTarget(string $target, bool $main_content_only = false): ?string
     {
+        Log::information(tr('Executing target ":target"', [
+            ':target' => Strings::from($target, DIRECTORY_ROOT),
+        ]), 4);
+
+        static::addExecutedPath($target);
+
         try {
-            // Execute the file and send the output HTML as a web page
-            Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                ':target'   => Strings::from($target, DIRECTORY_ROOT),
-                ':template' => static::$template->getName(),
-                ':language' => LANGUAGE
-            ]));
+            // Ensure we have an absolute target
+            if (!str_starts_with($target, '/')) {
+                // Ensure we have an absolute target
+                try {
+                    $target = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
 
-            static::addExecutedPath($target);
+                } catch (FileNotExistException $e) {
+                    throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
+                        ':target' => $target
+                    ]), $e)->addData([
+                        'target'  => $target
+                    ]);
+                }
+            }
 
+            // Execute the target
             switch (Core::getRequestType()) {
                 case EnumRequestTypes::api:
                     // no-break
                 case EnumRequestTypes::ajax:
-                    static::$api_interface = new ApiInterface();
+                    static::$api_interface = new Api();
                     $output = static::$api_interface->execute($target);
                     break;
 
                 default:
-                    $output = static::$template_page->execute($target);
+                    $output = static::$template_page->execute($target, $main_content_only);
             }
 
-        } catch (AccessDeniedException $e) {
+        } catch (ValidationFailedExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 400, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+
+        } catch (AuthenticationExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 401, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+
+        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
             $new_target = $e->getNewTarget();
 
-            Log::warning(tr('Access denied to target ":target" for user ":user", executing target ":new" instead', [
-                ':target' => $target,
-                ':user'   => Session::getUser()->getDisplayId(),
-                ':new'    => $new_target
-            ]));
+            if ($new_target) {
+                Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+                    ':target' => $target,
+                    ':user'   => Session::getUser()->getDisplayId(),
+                    ':new'    => $new_target
+                ]));
 
-            static::addExecutedPath($new_target);
+                Page::execute($target);
+            }
 
-            $output = match (Core::getRequestType()) {
-                EnumRequestTypes::api, EnumRequestTypes::ajax => static::$api_interface->execute($new_target),
-                default                                       => static::$template_page->execute($new_target),
-            };
+            Page::executeSystemAfterPageException($e, 403, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
+
+        } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            Page::executeSystemAfterPageException($e, 404, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+
+        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+            Page::executeSystemAfterPageException($e, 405, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
+
+        } catch (Http409Exception $e) {
+            Page::executeSystemAfterPageException($e, 409, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
         }
 
         return $output;

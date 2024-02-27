@@ -19,14 +19,6 @@ namespace Phoundation\Data\Traits;
 trait UsesNew
 {
     /**
-     * Class constructor
-     */
-    public function __construct()
-    {
-    }
-
-
-    /**
      * Returns a new static object
      *
      * @return static

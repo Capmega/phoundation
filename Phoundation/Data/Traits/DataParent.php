@@ -6,6 +6,7 @@ namespace Phoundation\Data\Traits;
 
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use ReturnTypeWillChange;
 
 /**
  * Trait DataParent
@@ -28,9 +29,9 @@ trait DataParent
     /**
      * Returns the parent
      *
-     * @return string
+     * @return DataEntryInterface
      */
-    public function getParent(): DataEntryInterface
+    #[ReturnTypeWillChange] public function getParent(): DataEntryInterface
     {
         return $this->parent;
     }

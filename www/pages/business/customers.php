@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Customers\FilterForm;
-use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -44,7 +44,7 @@ $customers->getForm()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setCollapseSwitch(true)
     ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
@@ -53,7 +53,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setCollapseSwitch(true)
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -61,8 +61,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $customers->render(), DisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($filters->render() . $customers->render(), EnumDisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -128,20 +128,20 @@ class EmailAddressLinked extends DataEntry
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getDatabaseId($this, 'emails_id')
-                ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getDatabaseId($this, 'address_id')
-                ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'type')
-                ->setVisible(false)
-                ->setSource([
+            ->add(DefinitionFactory::getDatabaseId($this, 'emails_id')
+                ->setRender(false))
+            ->add(DefinitionFactory::getDatabaseId($this, 'address_id')
+                ->setRender(false))
+            ->add(Definition::new($this, 'type')
+                ->setRender(false)
+                ->setDataSource([
                     'from' => tr('From'),
                     'to'   => tr('To'),
                     'cc'   => tr('Cc'),
                     'bcc'  => tr('Bcc')
                 ])
                 ->setMaxlength(4))
-            ->addDefinition(DefinitionFactory::getEmail($this))
-            ->addDefinition(DefinitionFactory::getName($this));
+            ->add(DefinitionFactory::getEmail($this))
+            ->add(DefinitionFactory::getName($this));
     }
 }

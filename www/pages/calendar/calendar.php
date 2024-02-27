@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Page;
 
 
@@ -24,7 +24,7 @@ Page::loadJavascript('adminlte/plugins/moment/moment');
 Page::loadJavascript('adminlte/plugins/fullcalendar/main');
 
 Script::new()
-    ->setJavascriptWrapper(JavascriptWrappers::window)
+    ->setJavascriptWrapper(EnumJavascriptWrappers::window)
     ->setContent('
     $(function () {
 

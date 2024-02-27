@@ -14,13 +14,13 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Components\HtmlTable;
-use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\Tables\HtmlTable;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Throwable;
 
@@ -233,8 +233,8 @@ class Meta implements MetaInterface
     {
         // Erase the specified meta-entries, the history will cascade
         if ($ids) {
-            $ids = Sql::in(Arrays::force($ids));
-            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . Sql::inColumns($ids) . ')', $ids);
+            $ids = SqlQueries::in(Arrays::force($ids));
+            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . SqlQueries::inColumns($ids) . ')', $ids);
         }
     }
 

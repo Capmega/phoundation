@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users;
 
 
+use Phoundation\Web\Html\Components\Tables\HtmlTable;
+
 /**
  * Class Table
  *
@@ -15,14 +17,16 @@ namespace Phoundation\Accounts\Users;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class Table extends \Phoundation\Web\Html\Components\HtmlTable
+class Table extends HtmlTable
 {
     /**
      * Table class constructor
      */
     public function __construct()
     {
-        $this->setSourceQuery('SELECT * FROM `accounts_users`');
+        $this->setConnector($this->connector)
+             ->setSourceQuery('SELECT * FROM `accounts_users`');
+
         parent::__construct();
     }
 }

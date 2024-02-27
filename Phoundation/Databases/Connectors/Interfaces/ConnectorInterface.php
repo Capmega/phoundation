@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Databases\Connectors\Interfaces;
 
 use MongoDB\Exception\UnsupportedException;
@@ -203,15 +205,6 @@ interface ConnectorInterface
      * @return static
      */
     public function setStatistics(int|bool|null $statistics): static;
-
-    /**
-     * Connects to the database of this connector
-     *
-     * @param bool $use_database
-     * @return $this
-     * @throws UnsupportedException
-     */
-    public function connect(bool $use_database = true): static;
 
     /**
      * Tests this connector by connecting to the database and executing a test query

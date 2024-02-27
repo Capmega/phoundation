@@ -103,7 +103,7 @@ class Users extends DataList implements UsersInterface
      */
     public function setUsers(?array $list, ?string $column = null): static
     {
-        $this->ensureParent('save entries');
+        $this->ensureParent(tr('save entries'));
 
         if (is_array($list)) {
             // Convert the list to id's
@@ -137,11 +137,12 @@ class Users extends DataList implements UsersInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
-        $this->ensureParent('add User entry to parent');
+        $this->ensureParent(tr('add User entry to parent'));
 
         if ($value) {
             if (is_array($value)) {
@@ -206,7 +207,7 @@ class Users extends DataList implements UsersInterface
      */
     public function delete(UserInterface|Stringable|array|string|float|int $keys): static
     {
-        $this->ensureParent('remove entry from parent');
+        $this->ensureParent(tr('remove entry from parent'));
 
         if (!$keys) {
             // Nothing to do
@@ -297,7 +298,7 @@ class Users extends DataList implements UsersInterface
      */
     public function clear(): static
     {
-        $this->ensureParent('clear all entries from parent');
+        $this->ensureParent(tr('clear all entries from parent'));
 
         if ($this->parent instanceof RoleInterface) {
             Log::action(tr('Removing role ":role" from all users', [
@@ -467,7 +468,7 @@ class Users extends DataList implements UsersInterface
      */
     public function save(): static
     {
-//        $this->ensureParent('save parent entries');
+//        $this->ensureParent(tr('save parent entries'));
 //
 //        if ($this->parent instanceof RoleInterface) {
 //            // Delete the current list
@@ -512,18 +513,20 @@ class Users extends DataList implements UsersInterface
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = '', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         if (!$value_column) {
-            $value_column = 'COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS name';
+            $value_column = 'COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `name`';
         }
 
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT `' . $key_column . '`, ' . $value_column . ' 
                                          FROM  `accounts_users`
                                          WHERE `status` IS NULL ORDER BY `' . Strings::fromReverse($value_column, ' ') . '`')

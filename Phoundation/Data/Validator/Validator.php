@@ -21,8 +21,8 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\DisplayModeInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
 use Phoundation\Web\Http\Url;
 use ReflectionProperty;
 use Stringable;
@@ -38,7 +38,7 @@ use UnitEnum;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 abstract class Validator implements ValidatorInterface
 {
@@ -526,18 +526,19 @@ abstract class Validator implements ValidatorInterface
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
+     * @param int $max_characters
      * @return static
      */
-    public function isCode(?string $until = null): static
+    public function isCode(?string $until = null, int $max_characters = 64): static
     {
-        return $this->validateValues(function(&$value) use ($until) {
+        return $this->validateValues(function(&$value) use ($until, $max_characters) {
             if ($until) {
                 // Truncate the code at one of the specified characters
                 $value = Strings::until($value, $until);
                 $value = trim($value);
             }
 
-            $this->hasMinCharacters(2)->hasMaxCharacters(16);
+            $this->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1562,36 +1563,91 @@ abstract class Validator implements ValidatorInterface
 
 
     /**
+     * Returns the given date sanitized if the specified date matches any of the specified formats, NULL otherwise
+     *
+     * @param string $date
+     * @param array $formats
+     * @return string|null
+     */
+    protected static function dateMatchesFormats(string $date, array $formats): ?string
+    {
+        // We must be able to create a date object using the given formats without failure, and the resulting date
+        // must be the same as the specified date
+        $given = static::normalizeDate($date);
+
+        foreach ($formats as $format) {
+            try {
+                // Create DateTime object
+                $format = static::normalizeDate($format);
+                $value  = DateTime::createFromFormat($format, $given);
+
+                if ($value) {
+                    // DateTime object created successfully! Now get a dateformat, and normalize it
+                    $test = static::normalizeDate($value->format($format));
+
+                    // Test the normalized test DateTime against the specified normalized date time string
+                    if ($test === $given) {
+                        return $given;
+                    }
+                }
+
+                // Yeah, this is not a valid date, try again
+
+            } catch (Throwable) {
+                // Yeah, this is not a valid date, try again
+            }
+        }
+
+        // Nothing matched
+        return null;
+    }
+
+
+    /**
+     * Ensures that the date only uses - as element separators, will replace " ", "-", "_", "/", "\"
+     *
+     * @param string $date
+     * @return string
+     */
+    protected static function normalizeDate(string $date): string
+    {
+        return str_replace([' ', '-', '_', '/', '\\'], '-', $date);
+    }
+
+
+    /**
      * Validates that the selected field is a date
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @param array|string|null $formats
      * @return static
+     * @todo Add locale support instead , see https://www.php.net/manual/en/book.intl.php and https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      */
-    public function isDate(): static
+    public function isDate(array|string|null $formats = null): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+        return $this->validateValues(function(&$value) use ($formats) {
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            // Must match regex
-            if (strtotime($value)) {
-                // Must be able to create date object without failure
-                try {
-                    if (strtotime($value) !== false) {
-                        return;
-                    }
-                    // Yeah, this is not a valid date
-
-                } catch (Throwable) {
-                    // Yeah, this is not a valid date
-                }
+            // Ensure we have formats to work with
+            if (!$formats) {
+                // Default to a number of acceptable formats
+                $formats = Config::get('locale.dates.formats', ['Y-m-d', 'd-m-Y']);
             }
 
-            $this->addFailure(tr('must be a valid date'));
+            $formats = Arrays::force($formats, null);
+
+
+            // We must be able to create a date object using the given formats without failure, and the resulting date
+            // must be the same as the specified date
+            if (!static::dateMatchesFormats($value, $formats)) {
+                $this->addFailure(tr('must be a valid date'));
+            }
         });
     }
 
@@ -1600,11 +1656,12 @@ abstract class Validator implements ValidatorInterface
      * Validates that the selected field is a date
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @param array|string|null $formats
      * @return static
      */
-    public function isTime(): static
+    public function isTime(array|string|null $formats = null): static
     {
-        return $this->validateValues(function(&$value) {
+        return $this->validateValues(function(&$value) use ($formats) {
             $this->hasMaxCharacters(15); // 00:00:00.000000
 
             if ($this->process_value_failed) {
@@ -1612,15 +1669,24 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (!is_object(DateTime::createFromFormat('h:i a', $value))){
-                if (!is_object(DateTime::createFromFormat('H:i', $value))){
-                    if (!is_object(DateTime::createFromFormat('h:i:s a', $value))){
-                        if (!is_object(DateTime::createFromFormat('H:i:s', $value))){
-                            $this->addFailure(tr('must be a valid time'));
-                        }
-                    }
+            // Ensure we have formats to work with
+            if (!$formats) {
+                // Default to a number of acceptable formats
+                $formats = Config::get('locale.dates.formats', ['h:i a', 'H:i', 'h:i:s a', 'H:i:s']);
+            }
+
+            $formats = Arrays::force($formats, null);
+
+
+            // Validate the user time against all allowed formats
+            foreach ($formats as $format) {
+                if (is_object(DateTime::createFromFormat($format, $value))) {
+                    // The specified time matches one of the allowed formats
+                    return;
                 }
             }
+
+            $this->addFailure(tr('must be a valid time'));
         });
     }
 
@@ -1629,33 +1695,35 @@ abstract class Validator implements ValidatorInterface
      * Validates that the selected field is a date time field
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @todo Add locale support, see https://www.php.net/manual/en/book.intl.php and https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
+     * @param array|string|null $formats
      * @return static
      */
-    public function isDateTime(): static
+    public function isDateTime(array|string|null $formats = null): static
     {
-        return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+        return $this->validateValues(function(&$value) use ($formats) {
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return;
             }
 
-            // Must match regex
-            if (strtotime($value)) {
-                // Must be able to create date object without failure
-                try {
-                    if (strtotime($value) !== false) {
-                        return;
-                    }
-                    // Yeah, this is not a valid date
-
-                } catch (Throwable) {
-                    // Yeah, this is not a valid date
-                }
+            // Ensure we have formats to work with
+            if (!$formats) {
+                // Default to a number of acceptable formats
+                $formats = Config::get('locale.dates.formats', ['Y-m-d H:i:s', 'd-m-Y H:i:s']);
             }
 
-            $this->addFailure(tr('must be a valid date time'));
+            $formats = Arrays::force($formats, null);
+
+
+            // We must be able to create a date object using the given formats without failure, and the resulting date
+            // must be the same as the specified date
+            if (!static::dateMatchesFormats($value, $formats)) {
+                $this->addFailure(tr('must be a valid date time'));
+            }
         });
     }
 
@@ -1669,7 +1737,8 @@ abstract class Validator implements ValidatorInterface
     public function isBefore(?DateTime $before = null): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1693,7 +1762,8 @@ abstract class Validator implements ValidatorInterface
     public function isAfter(?DateTime $after = null): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1722,7 +1792,8 @@ abstract class Validator implements ValidatorInterface
     public function isCreditCard(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(32); // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            $this->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1772,10 +1843,10 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (!($value instanceof DisplayModeInterface)) {
+            if (!($value instanceof EnumDisplayModeInterface)) {
                 if (is_string($value)) {
                     // Maybe a string representation of a backed enum?
-                    $test = DisplayMode::tryFrom($value);
+                    $test = EnumDisplayMode::tryFrom($value);
 
                     if ($test) {
                         $value = $test;
@@ -1797,7 +1868,8 @@ abstract class Validator implements ValidatorInterface
     public function isTimezone(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters(64); // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            $this->hasMaxCharacters(64);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2746,7 +2818,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (sql()->DataEntryExists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
+            if (sql()->dataEntryExists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
                 $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
             }
         });
@@ -3374,6 +3446,38 @@ abstract class Validator implements ValidatorInterface
             }
 
             $value = $callback($value, $this->source);
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by executing the specified callback over it, but the results may NOT be NULL
+     *
+     * @note The callback should accept values mixed $value and array $source
+     * @param callback $callback
+     * @return static
+     * @see trim()
+     */
+    public function sanitizeCallbackNoNull(callable $callback): static
+    {
+        return $this->validateValues(function(&$value) use ($callback) {
+            $this->hasMaxCharacters();
+
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            $results = $callback($value, $this->source);
+
+            if ($results === null) {
+                $this->addFailure(tr('is not valid'));
+
+            } else {
+                $value = $results;
+            }
         });
     }
 

@@ -26,7 +26,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 class Tasks extends DataList implements TasksInterface
 {
@@ -54,7 +54,7 @@ class Tasks extends DataList implements TasksInterface
             static::$max_task_workers = Config::getInteger('tasks.workers.maximum', 25);
         }
 
-        $this->id_is_unique_column = true;
+        $this->keys_are_unique_column = true;
 
         parent::__construct($source);
     }
@@ -112,18 +112,20 @@ class Tasks extends DataList implements TasksInterface
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = '', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = '', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         if (!$value_column) {
             $value_column = 'CONCAT(`command`, " [", `status`, "]") AS command';
         }
 
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 

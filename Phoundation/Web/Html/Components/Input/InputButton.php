@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -21,10 +21,12 @@ class InputButton extends Input
 {
     /**
      * InputButton class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        $this->type = InputType::button;
-        parent::__construct();
+        $this->type = EnumInputType::button;
+        parent::__construct($content);
     }
 }

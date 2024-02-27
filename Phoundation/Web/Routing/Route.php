@@ -26,7 +26,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\File;
 use Phoundation\Web\Http\Url;
@@ -140,7 +140,7 @@ class Route
         static::$uri    = Strings::until(static::$uri                   , '?');
 
         if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
-            // By default, increase log threshold on all favicon.ico requests to avoid log clutter
+            // By default, increase logger threshold on all favicon.ico requests to avoid log clutter
             Log::setThreshold(Config::getInteger('log.levels.web.favicon', 10));
         }
 
@@ -169,7 +169,6 @@ class Route
 
         Core::addShutdownCallback('route[postprocess]', ['\Phoundation\Web\Routing\Route', 'postProcess']);
     }
-
 
 
     /**
@@ -780,7 +779,7 @@ class Route
                         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
                         Notification::new()
                             ->setUrl('security/incidents.html')
-                            ->setMode(DisplayMode::exception)
+                            ->setMode(EnumDisplayMode::exception)
                             ->setCode('hack')
                             ->setRoles('security')
                             ->setTitle(tr('*Possible hack attempt detected*'))
@@ -1238,6 +1237,7 @@ class Route
      *
      * @param string $target
      * @param bool $attachment
+     * @param RoutingParametersInterface|null $parameters
      * @param bool $system
      * @return never
      */

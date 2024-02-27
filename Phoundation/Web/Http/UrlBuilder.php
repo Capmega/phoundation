@@ -77,6 +77,18 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public function __toString(): string
     {
+        return $this->getUrl();
+    }
+
+
+    /**
+     * When used as string, will always return the internal URL as available
+     *
+     * @param bool $strip_queries
+     * @return string
+     */
+    public function getUrl(bool $strip_queries = false): string
+    {
         // Auto cloak URL's?
         $domain = static::getDomainFromUrl($this->url);
 
@@ -84,8 +96,13 @@ class UrlBuilder implements UrlBuilderInterface
             if (Domains::getConfigurationKey($domain, 'cloaked')) {
                 $this->cloak();
             }
+
         } catch (ConfigPathDoesNotExistsException) {
             // This domain is not configured, ignore it
+        }
+
+        if ($strip_queries) {
+            return Strings::until($this->url, '?');
         }
 
         return $this->url;
@@ -96,16 +113,21 @@ class UrlBuilder implements UrlBuilderInterface
      * Returns the current URL
      *
      * @param string|int|null $id
+     * @param bool $strip_queries
      * @return static
      */
-    public static function getCurrent(string|int|null $id = null): static
+    public static function getCurrent(string|int|null $id = null, bool $strip_queries = false): static
     {
         $url = static::getCurrentDomainUrl();
 
         if ($id) {
             // Inject the ID in the URL
-            $url = substr((string) $url, 0, -5) . '-' . $id . '.html';
+            $url = substr((string) $url, 0, -5) . '+' . $id . '.html';
             $url = new static($url);
+        }
+
+        if ($strip_queries) {
+            return UrlBuilder::getWww(Strings::until((string) $url, '?'));
         }
 
         return $url;
@@ -113,14 +135,45 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
+     * Returns the URL where to redirect to
+     *
+     * @param Stringable|string|null ...$urls
+     * @return static
+     */
+    public static function getRedirect(Stringable|string|null ...$urls): static
+    {
+        foreach ($urls as $url) {
+            if (!$url) {
+                continue;
+            }
+
+            $url = UrlBuilder::getWww($url);
+
+            if ($url->getUrl(true) === static::getCurrent()->getUrl(true)) {
+                continue;
+            }
+
+            if ((string) $url === (string) static::getWww('index')) {
+                continue;
+            }
+
+            return $url;
+        }
+
+        return static::getWww('index');
+    }
+
+
+    /**
      * Returns true if the specified URL is the same as the current URL
      *
      * @param Stringable|string $url
+     * @param bool $strip_queries
      * @return bool
      */
-    public static function isCurrent(Stringable|string $url): bool
+    public static function isCurrent(Stringable|string $url, bool $strip_queries = false): bool
     {
-        return (string) $url === (string) static::getCurrent();
+        return (string) $url === (string) static::getCurrent(strip_queries: $strip_queries);
     }
 
 
@@ -896,12 +949,12 @@ throw new UnderConstructionException();
 
         // Configured page?
         $configured = match (Strings::until($url, '.html')) {
-            'index'    => Config::getString('web.pages.index'   , '/index.html'),
-            'sign-in'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
-            'sign-up'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
-            'sign-out' => Config::getString('web.pages.sign-out', '/sign-out.html'),
-            'sign-key' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
-            default    => Config::getString('web.pages.' . $url , '')
+            'index'               => Config::getString('web.pages.index'   , '/index.html'),
+            'sign-in' , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in.html'),
+            'sign-up' , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
+            'sign-out', 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
+            'sign-key', 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+            default               => Config::getString('web.pages.' . $url , '')
         };
 
         if ($configured) {

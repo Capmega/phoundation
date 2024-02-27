@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Date\DateTime;
-use Phoundation\Web\Html\Components\Button;
+use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Form;
+use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\InputDate;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Plugins\Medinet\Traits\DataDate;
@@ -61,10 +61,12 @@ class DateNavigator extends ElementsBlock
 
     /**
      * DateNavigator class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
 
         // Create the next button
         $this->next_button = Button::new();
@@ -184,7 +186,7 @@ class DateNavigator extends ElementsBlock
         // Set up the tomorrow button. It may be disabled
         $this->next_button
             ->setName('nav_next')
-            ->setMode(DisplayMode::primary)
+            ->setMode(EnumDisplayMode::primary)
             ->setBlock(true)
             ->setContent(tr('>'))
             ->setAnchorUrl($this->next_link);
@@ -199,7 +201,7 @@ class DateNavigator extends ElementsBlock
                     ->setName('nav_prev')
                     ->setBlock(true)
                     ->setContent(tr('<'))
-                    ->setMode(DisplayMode::primary)
+                    ->setMode(EnumDisplayMode::primary)
                     ->setAnchorUrl($this->prev_link)
                     ->render()))
             ->addColumn(GridColumn::new()

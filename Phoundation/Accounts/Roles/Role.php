@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
+use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Exception\Interfaces\RoleNotExistsExceptionInterface;
@@ -22,9 +23,9 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\DataEntryForm;
-use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Components\Forms\DataEntryForm;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -97,6 +98,12 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getRights(): RightsInterface
     {
+        if ($this->isNew()) {
+            throw new AccountsException(tr('Cannot access rights for role ":role", the role has not yet been saved', [
+                ':role' => $this->getLogId()
+            ]));
+        }
+
         if (!$this->list) {
             $this->list = Rights::new()->setParent($this)->load();
         }
@@ -112,6 +119,12 @@ class Role extends DataEntry implements RoleInterface
      */
     public function getUsers(): UsersInterface
     {
+        if ($this->isNew()) {
+            throw new AccountsException(tr('Cannot access users for role ":role", the role has not yet been saved', [
+                ':role' => $this->getLogId()
+            ]));
+        }
+
         return Users::new()->setParent($this)->load();
     }
 
@@ -157,7 +170,7 @@ class Role extends DataEntry implements RoleInterface
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
     {
         try {
-            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force);
+            return parent::get(static::convertToLowerCaseDash($identifier), $column, $meta_enabled, $force, $no_identifier_exception);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
@@ -209,17 +222,17 @@ class Role extends DataEntry implements RoleInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setOptional(false)
-                ->setInputType(InputTypeExtended::name)
+                ->setInputType(EnumInputTypeExtended::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this role'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this role')));
     }
 }

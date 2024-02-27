@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
-use function Phoundation\Web\Html\Components\Input\ready;
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Page;
 
 
 /**
@@ -22,15 +22,41 @@ class InputSelect2 extends InputSelect
 {
     /**
      * InputSelect2 class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        $this->type = $this->type ?? InputType::text;
+        parent::__construct($content);
+        $this->addClass('select2bs4');
 
-        $(document).ready(function() {
-            $('.js-example-basic-multiple').select2();
-        });
+        Page::loadCss('css/plugins/select2/css/select2');
+        Page::loadCss('css/plugins/select2-bootstrap4-theme/select2-bootstrap4');
+        Page::loadJavascript('js/plugins/select2/js/select2.full');
+    }
 
-        parent::__construct();
+
+    /**
+     * Returns the <select> and required javascript
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        static $rendered = false;
+
+        if (!$rendered) {
+            $rendered   = true;
+            $javascript = Script::new('
+                // Initialize the Select2 Elements
+                $(".select2").select2()
+
+                $(".select2bs4").select2({
+                  theme: "bootstrap4"
+                })
+            ')->render();
+        }
+
+        return parent::render() . isset_get($javascript);
     }
 }

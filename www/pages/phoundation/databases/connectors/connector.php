@@ -3,18 +3,17 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
-use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -131,7 +130,7 @@ if (!$connector->isNew()) {
         if ($connector->isDeleted()) {
             $delete = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setOutlined(true)
                 ->setValue(tr('Undelete'))
                 ->setContent(tr('Undelete'));
@@ -139,7 +138,7 @@ if (!$connector->isNew()) {
         } else {
             $delete = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setOutlined(true)
                 ->setValue(tr('Delete'))
                 ->setContent(tr('Delete'));
@@ -147,14 +146,14 @@ if (!$connector->isNew()) {
             if ($connector->isLocked()) {
                 $lock = Button::new()
                     ->setFloatRight(true)
-                    ->setMode(DisplayMode::warning)
+                    ->setMode(EnumDisplayMode::warning)
                     ->setValue(tr('Unlock'))
                     ->setContent(tr('Unlock'));
 
             } else {
                 $lock = Button::new()
                     ->setFloatRight(true)
-                    ->setMode(DisplayMode::warning)
+                    ->setMode(EnumDisplayMode::warning)
                     ->setValue(tr('Lock'))
                     ->setContent(tr('Lock'));
             }
@@ -162,7 +161,7 @@ if (!$connector->isNew()) {
             // Audit button.
             $audit = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::information)
+                ->setMode(EnumDisplayMode::information)
                 ->setAnchorUrl('/audit/meta+' . $connector->getMetaId() . '.html')
                 ->setValue(tr('Audit'))
                 ->setContent(tr('Audit'));
@@ -172,7 +171,7 @@ if (!$connector->isNew()) {
     // Test button.
     $test = Button::new()
         ->setFloatRight(true)
-        ->setMode(DisplayMode::information)
+        ->setMode(EnumDisplayMode::information)
         ->setValue(tr('Test'))
         ->setContent(tr('Test'));
 }
@@ -186,7 +185,7 @@ $connector_card = Card::new()
     ->setContent($connector->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
+        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
         ->addButton(isset_get($test))
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
@@ -196,14 +195,14 @@ $connector_card = Card::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -217,7 +216,7 @@ $grid = Grid::new()
         ->addContent($connector_card->render())
         ->setSize(9)
         ->useForm(true))
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Web\Non200Urls;
 
 use Phoundation\Data\DataEntry\DataEntry;
@@ -17,8 +19,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryReason;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Phoundation\Web\Routing\Route;
 
 
@@ -109,54 +111,54 @@ throw new UnderConstructionException();
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'ip_address')
-                ->setVisible(false))
-            ->addDefinition(Definition::new($this, 'net_len')
-                ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getIpAddress($this, 'ip_address_human')
+            ->add(Definition::new($this, 'ip_address')
+                ->setRender(false))
+            ->add(Definition::new($this, 'net_len')
+                ->setRender(false))
+            ->add(DefinitionFactory::getIpAddress($this, 'ip_address_human')
                 ->setReadonly(true))
-            ->addDefinition(Definition::new($this, 'method')
+            ->add(Definition::new($this, 'method')
                 ->setReadonly(true)
-                ->setInputType(InputTypeExtended::variable)
+                ->setInputType(EnumInputTypeExtended::variable)
                 ->setSize(4)
                 ->setMaxlength(12)
                 ->setHelpText(tr('The HTTP method used for this request'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->sanitizeLowercase()->isInArray(['get', 'head', 'post', 'put', 'delete', 'connect', 'options', 'trace', 'patch']);
                 }))
-            ->addDefinition(Definition::new($this, 'http_code')
+            ->add(Definition::new($this, 'http_code')
                 ->setReadonly(true)
-                ->setInputType(InputType::number)
+                ->setInputType(EnumInputType::number)
                 ->setSize(4)
                 ->setMin(100)
                 ->setMax(599)
                 ->setHelpText(tr('The HTTP method used for this request')))
-            ->addDefinition(DefinitionFactory::getComments($this, 'reason')
+            ->add(DefinitionFactory::getComments($this, 'reason')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setSize(12)
                 ->setMaxlength(255)
                 ->setHelpText(tr('Reason why this request failed')))
-            ->addDefinition(DefinitionFactory::getUrl($this)
+            ->add(DefinitionFactory::getUrl($this)
                 ->setReadonly(true)
                 ->setSize(12)
                 ->setHelpText(tr('Request URL that failed')))
-            ->addDefinition(DefinitionFactory::getData($this, 'headers')
+            ->add(DefinitionFactory::getData($this, 'headers')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Request headers'))
                 ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
-            ->addDefinition(DefinitionFactory::getData($this, 'cookies')
+            ->add(DefinitionFactory::getData($this, 'cookies')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Request cookies'))
                 ->setHelpText(tr('The cookies that were received from the client for this request')))
-            ->addDefinition(DefinitionFactory::getData($this, 'post')
+            ->add(DefinitionFactory::getData($this, 'post')
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setLabel(tr('Request POST data'))
                 ->setHelpText(tr('The POST data that was  received from the client for this request')))
-            ->addDefinition(DefinitionFactory::getComments($this)
+            ->add(DefinitionFactory::getComments($this)
                 ->setOptional(true)
                 ->setHelpText(tr('Comments on this failed request')));
     }

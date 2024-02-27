@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\UsesAttributeMultiple;
 
 
@@ -24,10 +24,12 @@ class InputTel extends InputText
 
     /**
      * InputTel class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        $this->type = InputType::tel;
-        parent::__construct();
+        $this->type = EnumInputType::tel;
+        parent::__construct($content);
     }
 }

@@ -4,30 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use PDO;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Data\Traits\DataSelector;
-use Phoundation\Data\Traits\DataSource;
-use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Data\Traits\DataUrl;
-use Phoundation\Date\DateTime;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\InputCheckbox;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableIdColumnInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
-use Phoundation\Web\Html\Enums\TableIdColumn;
-use Phoundation\Web\Html\Enums\TableRowType;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Stringable;
 
 
 /**
@@ -98,10 +79,13 @@ class UploadDropZone extends ResourceElement
 
     /**
      * UploadDropZone class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
+
         $this->selector                   = 'document.body';
         $this->total_progress_selector    = '#total-progress';
         $this->progress_bar_selector      = '.progress-bar';
@@ -169,7 +153,7 @@ class UploadDropZone extends ResourceElement
         Page::loadJavascript('plugins/dropzone/min/dropzone');
 
         return Script::new()
-            ->setJavascriptWrapper(JavascriptWrappers::window)
+            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
             ->setContent('
               var myDropzone = new Dropzone(' . $this->selector . ', {
                 url: "' . not_empty($this->url, UrlBuilder::getWww()) . '",

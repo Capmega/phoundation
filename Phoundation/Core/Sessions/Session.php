@@ -39,9 +39,9 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
-use Phoundation\Web\Html\Components\FlashMessages\FlashMessages;
-use Phoundation\Web\Html\Components\FlashMessages\Interfaces\FlashMessagesInterface;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -60,6 +60,13 @@ use Throwable;
  */
 class Session implements SessionInterface
 {
+    /**
+     * Singleton
+     *
+     * @var SessionInterface
+     */
+    protected static SessionInterface $instance;
+
     /**
      * The current user for this session
      *
@@ -115,6 +122,21 @@ class Session implements SessionInterface
      * @var SignInKeyInterface|null $key
      */
     protected static ?SignInKeyInterface $key = null;
+
+
+    /**
+     * Singleton, ensure to always return the same Log object.
+     *
+     * @return static
+     */
+    public static function getInstance(): static
+    {
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
 
 
     /**
@@ -235,12 +257,13 @@ class Session implements SessionInterface
      *
      * @param string $user
      * @param string $password
+     * @param string $user_class
      * @return UserInterface
      */
-    public static function signIn(string $user, string $password): UserInterface
+    public static function signIn(string $user, string $password, string $user_class = User::class): UserInterface
     {
         try {
-            static::$user = User::authenticate($user, $password);
+            static::$user = $user_class::authenticate($user, $password);
             static::clear();
 
             // Initialize session?
@@ -250,9 +273,6 @@ class Session implements SessionInterface
 
             // Update the users sign-in and last sign-in information
             static::updateSignInTracking();
-
-            // Store this sign in
-            Signin::detect()->save();
 
             Incident::new()
                 ->setType(tr('User sign in'))->setSeverity(Severity::notice)
@@ -264,18 +284,27 @@ class Session implements SessionInterface
 
             return static::$user;
 
-        } catch (DataEntryNotExistsException) {
-            Incident::new()
-                ->setType('User does not exist')->setSeverity(Severity::low)
-                ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
-                ->setDetails(['user' => $user])
-                ->notifyRoles('accounts')
-                ->save();
+        } catch (DataEntryNotExistsException $e) {
+            if ($e->getDataKey('class')) {
+                switch (Strings::fromReverse($e->getDataKey('class'), '\\')) {
+                    case '':
+                        // no break
+                    case 'User':
+                        Incident::new()
+                            ->setType('User does not exist')->setSeverity(Severity::low)
+                            ->setTitle(tr('The specified user ":user" does not exist', [':user' => $user]))
+                            ->setDetails(['user' => $user])
+                            ->notifyRoles('accounts')
+                            ->save();
 
-            // The specified user does not exist
-            throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
-                ':user' => $user
-            ]))->makeWarning()->log();
+                        // The specified user does not exist
+                        throw AuthenticationException::new(tr('The specified user ":user" does not exist', [
+                            ':user' => $user
+                        ]))->makeWarning()->log();
+                }
+            }
+
+            throw $e;
         }
     }
 
@@ -700,6 +729,8 @@ Log::warning('RESTART SESSION');
         switch ($method) {
             case 'facebook':
             case 'google':
+            case 'github':
+            case 'twitter':
                 return false;
 
             case 'email':
@@ -708,13 +739,20 @@ Log::warning('RESTART SESSION');
             case 'lost-password':
                 return true;
 
+            case 'signup':
+                // no break
+            case 'sign-up':
+                // no break
             case 'register':
                 // no break
             case 'registration':
                 return false;
 
+            case 'copyright':
+                return true;
+
             default:
-                throw new OutOfBoundsException(tr('Unknown Session method ":method" specified', [
+                throw new OutOfBoundsException(tr('Unknown Session support ":method" specified', [
                     ':method' => $method
                 ]));
         }
@@ -839,7 +877,7 @@ Log::warning('RESTART SESSION');
         // Notify the target user
         Notification::new()
             ->setUrl('profiles/profile+' . $original_user->getId() . '.html')
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setUsersId($_SESSION['user']['impersonate_id'])
             ->setTitle(tr('Your account was impersonated'))
             ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
@@ -889,7 +927,7 @@ Log::warning('RESTART SESSION');
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
                         ->setUrl('security/incidents.html')
-                        ->setMode(DisplayMode::warning)
+                        ->setMode(EnumDisplayMode::warning)
                         ->setCode('configuration')
                         ->setRoles('developer')
                         ->setTitle(tr('Invalid cookie domain'))
@@ -1095,6 +1133,80 @@ Log::warning('RESTART SESSION');
 
 
     /**
+     * Returns the value for the given key / sub_key
+     *
+     * @param string $key
+     * @param string|null $sub_key
+     * @return mixed
+     */
+    public static function get(string $key, ?string $sub_key = null): mixed
+    {
+        if ($sub_key) {
+            $section = isset_get($_SESSION[$key]);
+
+            if (is_array($section)) {
+                // Key exists and is an array, yay!
+                return isset_get($section[$sub_key]);
+            }
+
+            if ($section === null) {
+                // Key does not exist or was null, either way, nothing to return!
+                return null;
+            }
+
+            // Sub must either not exist or be an array. Here its neither
+            throw new OutOfBoundsException(tr('Cannot read session key ":key" sub key ":sub-key" because session key is not an array', [
+                ':key'     => $key,
+                ':sub-key' => $sub_key,
+            ]));
+        }
+
+        return isset_get($_SESSION[$key]);
+    }
+
+
+    /**
+     * Returns the value for the given key
+     *
+     * @param string $value
+     * @param string $key
+     * @param string|null $sub_key
+     * @return void
+     */
+    public static function set(mixed $value, string $key, ?string $sub_key = null): void
+    {
+        if ($sub_key) {
+            if (array_key_exists($key, $_SESSION)) {
+                $_SESSION[$key] = [];
+            }
+
+            if (!is_array($_SESSION[$key])) {
+                throw new OutOfBoundsException(tr('Cannot write session key ":key" sub key ":sub-key" because session key is not an array', [
+                    ':key'     => $key,
+                    ':sub-key' => $sub_key,
+                ]));
+            }
+
+            $_SESSION[$key][$sub_key] = $value;
+            return;
+        }
+
+        $_SESSION[$key] = $value;
+    }
+
+
+    /**
+     * Returns the session store
+     *
+     * @return array
+     */
+    public static function getSource(): array
+    {
+        return $_SESSION;
+    }
+
+
+    /**
      * Create a new session with basic data from the specified sign in key
      *
      * @param SignInKeyInterface $key
@@ -1146,11 +1258,16 @@ Log::warning('RESTART SESSION');
      */
     protected static function updateSignInTracking(): void
     {
-        sql()->query('UPDATE `accounts_users`
-                            SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
-                            WHERE  `id` = :id', [
-            ':id' => static::$user->getId()
-        ]);
+        if (Config::getBoolean('sessions.tracking.enabled', true)) {
+            sql()->query('UPDATE `accounts_users`
+                                SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
+                                WHERE  `id` = :id', [
+                ':id' => static::$user->getId()
+            ]);
+
+            // Store this sign in
+            Signin::detect()->save();
+        }
     }
 
 

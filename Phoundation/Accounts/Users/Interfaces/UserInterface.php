@@ -7,10 +7,11 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
+use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
-use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
 
 
@@ -59,10 +60,10 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the nickname for this user
      *
-     * @param string|null $nickname
+     * @param string|null $remote_id
      * @return static
      */
-    public function setNickname(?string $nickname): static;
+    public function setNickname(?string $remote_id): static;
 
     /**
      * Returns the name for this user
@@ -610,4 +611,43 @@ interface UserInterface extends DataEntryInterface
      * @return string|null
      */
     public function getPasswordString(): ?string;
+
+    /**
+     * Returns the session for this user
+     *
+     * @return SessionInterface
+     */
+    public function getSession(): SessionInterface;
+
+    /**
+     * Returns the remote_id for this user
+     *
+     * @return int|null
+     */
+    public function getRemoteId(): ?int;
+
+    /**
+     * Sets the remote_id for this user
+     *
+     * @param int|null $remote_id
+     * @return static
+     */
+    public function setRemoteId(?int $remote_id): static;
+
+    /**
+     * Returns the remote user for this user
+     *
+     * @param string $class
+     * @param string|null $column
+     * @return UserInterface|null
+     */
+    public function getRemoteUser(string $class, ?string $column = null): ?UserInterface;
+
+    /**
+     * Sets the remote user for this user
+     *
+     * @param UserInterface|null $remote_user
+     * @return static
+     */
+    public function setRemoteUser(?UserInterface $remote_user): static;
 }

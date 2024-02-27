@@ -12,6 +12,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\DateTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
@@ -775,7 +776,7 @@ Class Log {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        return static::write($messages, 'debug', $threshold, echo_screen: $echo_screen);
+        return static::write($messages, 'debug', $threshold, false, echo_screen: $echo_screen);
     }
 
 
@@ -940,7 +941,7 @@ Class Log {
      */
     public static function sql(string|PDOStatement $query, ?array $execute = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
-        $query = Sql::buildQueryString($query, $execute);
+        $query = SqlQueries::buildQueryString($query, $execute);
         $query = Strings::endsWith($query, ';');
 
         return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $newline, $use_prefix, $echo_screen);

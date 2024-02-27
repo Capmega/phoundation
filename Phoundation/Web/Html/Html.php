@@ -100,7 +100,7 @@ Class Html
         }
 
         if ($enabled) {
-            return htmlspecialchars((string) $html);
+            return trim(htmlspecialchars((string) $html));
         }
 
         return (string) $html;

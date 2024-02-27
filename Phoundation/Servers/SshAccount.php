@@ -15,7 +15,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -126,31 +126,31 @@ class SshAccount extends DataEntry implements SshAccountInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setSize(6)
                 ->setHelpGroup(tr('Identification'))
                 ->setHelpText(tr('The name for this account')))
-            ->addDefinition(Definition::new($this, 'seo_name')
-                ->setVisible(false)
+            ->add(Definition::new($this, 'seo_name')
+                ->setRender(false)
                 ->setReadonly(true))
-            ->addDefinition(Definition::new($this, 'username')
+            ->add(Definition::new($this, 'username')
                 ->setLabel(tr('Username'))
-                ->setInputType(InputTypeExtended::username)
+                ->setInputType(EnumInputTypeExtended::username)
                 ->setCliColumn(tr('-u,--username NAME'))
                 ->setCliAutoComplete(true)
                 ->setSize(6)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The username on the server for this account')))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this account')))
-            ->addDefinition(DefinitionFactory::getFile($this)
+            ->add(DefinitionFactory::getFile($this)
                 ->setLabel(tr('SSH key file'))
                 ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                 ->setHelpText(tr('The SSH key file for this account'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isFile('/');
                 }))
-            ->addDefinition(Definition::new($this, 'ssh_key')
+            ->add(Definition::new($this, 'ssh_key')
                 ->setLabel(tr('SSH key'))
                 ->setCliColumn(tr('-k,--ssh-key "KEY"'))
                 ->setCliAutoComplete(true)

@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use Phoundation\Filesystem\Requirements\Requirement;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Filesystem\Requirements\Requirement;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -114,7 +114,7 @@ if (!$requirement->isNew()) {
     if ($requirement->isDeleted()) {
         $delete = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setOutlined(true)
             ->setValue(tr('Undelete'))
             ->setContent(tr('Undelete'));
@@ -122,7 +122,7 @@ if (!$requirement->isNew()) {
     } else {
         $delete = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setOutlined(true)
             ->setValue(tr('Delete'))
             ->setContent(tr('Delete'));
@@ -130,14 +130,14 @@ if (!$requirement->isNew()) {
         if ($requirement->isLocked()) {
             $lock = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Unlock'))
                 ->setContent(tr('Unlock'));
 
         } else {
             $lock = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Lock'))
                 ->setContent(tr('Lock'));
         }
@@ -145,7 +145,7 @@ if (!$requirement->isNew()) {
         // Audit button.
         $audit = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::information)
+            ->setMode(EnumDisplayMode::information)
             ->setAnchorUrl('/audit/meta+' . $requirement->getMetaId() . '.html')
             ->setFloatRight(true)
             ->setValue(tr('Audit'))
@@ -162,7 +162,7 @@ $requirement_card = Card::new()
     ->setContent($requirement->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
+        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($lock))
@@ -181,14 +181,14 @@ $picture = Card::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
 ->setContent('<a href="' . UrlBuilder::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -202,7 +202,7 @@ $grid = Grid::new()
         ->addContent($requirement_card->render())
         ->setSize(9)
         ->useForm(true))
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

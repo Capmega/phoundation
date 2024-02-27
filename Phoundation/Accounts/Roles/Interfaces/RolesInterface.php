@@ -36,9 +36,10 @@ interface RolesInterface extends DataListInterface
      * @param mixed $value
      * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Remove the specified role from the roles list
@@ -74,11 +75,12 @@ interface RolesInterface extends DataListInterface
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
 
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface;
+    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 }

@@ -41,4 +41,7 @@ docker-compose.y*
 config/kubernetes
 data/garbage
 /test
-/Templates
+Templates/*
+!Plugins/
+Plugins/*
+!Plugins/Phoundation/

@@ -519,15 +519,7 @@ interface PathInterface
      * @param int|null $length
      * @return static
      */
-    public function append(string $data, ?int $length = null): static;
-
-    /**
-     * Create the specified file
-     *
-     * @param bool $force
-     * @return static
-     */
-    public function create(bool $force = false): static;
+    public function appendData(string $data, ?int $length = null): static;
 
     /**
      * Sets access and modification time of file

@@ -7,6 +7,7 @@ namespace Phoundation\Web\Routing\Interfaces;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Template;
 
 
@@ -25,9 +26,9 @@ interface RoutingParametersInterface
     /**
      * Returns the template as an object
      *
-     * @return Template
+     * @return TemplateInterface
      */
-    public function getTemplateObject(): Template;
+    public function getTemplateObject(): TemplateInterface;
 
     /**
      * Returns the template to use

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Date\DateTime;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
 
@@ -19,15 +19,17 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class InputDate extends Input
+class InputDate extends InputText
 {
     /**
      * InputDate class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        $this->type = InputType::date;
-        parent::__construct();
+        $this->type = EnumInputType::date;
+        parent::__construct($content);
     }
 
 

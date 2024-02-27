@@ -64,10 +64,12 @@ class InputAutoSuggest extends InputText
 
     /**
      * InputAutoSuggest class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->width = 300;
     }
 

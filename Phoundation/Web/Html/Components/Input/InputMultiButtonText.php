@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Components\Button;
+use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
 /**
@@ -38,13 +38,15 @@ class InputMultiButtonText extends ElementsBlock
 
     /**
      * InputMultiButtonText class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
         $this->setButton(Button::new()
-            ->setMode(DisplayMode::info)
+            ->setMode(EnumDisplayMode::info)
             ->setContent(tr('Action')));
-        return parent::__construct();
+        return parent::__construct($content);
     }
 
 

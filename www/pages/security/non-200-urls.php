@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 
-use Phoundation\Web\Non200Urls\FilterForm;
-use Phoundation\Web\Non200Urls\Non200Urls;
-use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Non200Urls\FilterForm;
+use Phoundation\Web\Non200Urls\Non200Urls;
 use Phoundation\Web\Page;
 
 
@@ -44,22 +44,22 @@ $users->getForm()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $users->render(), DisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($filters->render() . $users->render(), EnumDisplaySize::nine)
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

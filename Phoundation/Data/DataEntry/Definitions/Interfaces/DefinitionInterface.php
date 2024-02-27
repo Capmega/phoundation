@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
-
 use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Web\Html\Components\Interfaces\InputElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\InputTypeExtendedInterface;
-use Phoundation\Web\Html\Components\Interfaces\InputTypeInterface;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
+use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
 /**
@@ -47,7 +47,7 @@ interface DefinitionInterface
      *
      * @return array
      */
-    public function getRules(): array;
+    public function getSource(): array;
 
     /**
      * Sets all the internal definitions for this column in one go
@@ -55,7 +55,7 @@ interface DefinitionInterface
      * @param array $rules
      * @return static
      */
-    public function setRules(array $rules): static;
+    public function setSource(array $rules): static;
 
     /**
      * Returns the prefix that is automatically added to this value, after validation
@@ -105,9 +105,34 @@ interface DefinitionInterface
     public function setKey(mixed $value, string $key): static;
 
     /**
+     * Returns if this column is rendered as HTML or not
+     *
+     * If false, the column will not be rendered and sent to the client, and typically will be modified through a
+     * virtual column instead.
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see Definition::getVirtual()
+     */
+    public function getRender(): ?bool;
+
+    /**
+     * Sets if this column is rendered as HTML or not
+     *
+     * If false, the column will not be rendered and sent to the client, and typically will be modified through a
+     * virtual column instead.
+     *
+     * @note Defaults to true
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setRender(?bool $value): static;
+
+    /**
      * Returns if this column is visible in HTML clients
      *
-     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
+     * If false, the column will have the "invisible" class added
      *
      * @note Defaults to true
      * @return bool|null
@@ -118,7 +143,7 @@ interface DefinitionInterface
     /**
      * Sets if this column is visible in HTML clients
      *
-     * If false, the column will not be displayed and typically will be modified through a virtual column instead.
+     * If false, the column will have the "invisible" class added
      *
      * @note Defaults to true
      * @param bool|null $value
@@ -126,6 +151,29 @@ interface DefinitionInterface
      * @see Definition::setVirtual()
      */
     public function setVisible(?bool $value): static;
+
+    /**
+     * Returns if this column is displayed in HTML clients
+     *
+     * If false, the column will have the "nodisplay" class added
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see Definition::getVirtual()
+     */
+    public function getDisplay(): ?bool;
+
+    /**
+     * Sets if this column is displayed in HTML clients
+     *
+     * If false, the column will have the "nodisplay" class added
+     *
+     * @note Defaults to true
+     * @param bool|null $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setDisplay(?bool $value): static;
 
     /**
      * Returns the extra HTML classes for this DataEntryForm object
@@ -146,6 +194,17 @@ interface DefinitionInterface
      * @see Definition::setVirtual()
      */
     public function addClasses(array|string $value): static;
+
+    /**
+     * Sets specified HTML classes to the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setClasses(array|string $value): static;
 
     /**
      * Returns if this column will not set the DataEntry to "modified" state when changed
@@ -171,7 +230,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool
-     * @see Definition::getVisible()
+     * @see Definition::getRender()
      */
     public function isMeta(): bool;
 
@@ -184,7 +243,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     * @see Definition::getVisible()
+     * @see Definition::getRender()
      */
     public function getVirtual(): ?bool;
 
@@ -198,7 +257,7 @@ interface DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     * @see Definition::setVisible()
+     * @see Definition::setRender()
      */
     public function setVirtual(?bool $value): static;
 
@@ -207,7 +266,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     * @see Definition::getVisible()
+     * @see Definition::getRender()
      */
     public function getDirectUpdate(): ?bool;
 
@@ -217,7 +276,7 @@ interface DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     * @see Definition::setVisible()
+     * @see Definition::setRender()
      */
     public function setDirectUpdate(?bool $value): static;
 
@@ -262,10 +321,10 @@ interface DefinitionInterface
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param InputElementInterface|null $value
+     * @param EnumInputElementInterface|null $value
      * @return static
      */
-    public function setElement(InputElementInterface|null $value): static;
+    public function setElement(EnumInputElementInterface|null $value): static;
 
     /**
      * Returns the HTML client element to be used for this column
@@ -286,17 +345,17 @@ interface DefinitionInterface
     /**
      * Return the type of input element.
      *
-     * @return string|null
+     * @return EnumInputTypeExtendedInterface|EnumInputTypeInterface
      */
-    public function getType(): ?string;
+    public function getInputType(): EnumInputTypeExtendedInterface|EnumInputTypeInterface;
 
     /**
      * Sets the type of input element.
      *
-     * @param InputTypeInterface|InputTypeExtendedInterface|null $value
+     * @param EnumInputTypeInterface|EnumInputTypeExtendedInterface|string $value
      * @return static
      */
-    public function setInputType(InputTypeInterface|InputTypeExtendedInterface|null $value): static;
+    public function setInputType(EnumInputTypeInterface|EnumInputTypeExtendedInterface|string $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
@@ -403,7 +462,7 @@ interface DefinitionInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getSource(): array|PDOStatement|Stringable|string|null;
+    public function getDataSource(): array|PDOStatement|Stringable|string|null;
 
     /**
      * Sets a data source for the HTML client element contents of this column
@@ -413,7 +472,7 @@ interface DefinitionInterface
      * @param array|PDOStatement|Stringable|string|null $value
      * @return static
      */
-    public function setSource(array|PDOStatement|Stringable|string|null $value): static;
+    public function setDataSource(array|PDOStatement|Stringable|string|null $value): static;
 
     /**
      * Returns variables for the component
@@ -755,15 +814,15 @@ interface DefinitionInterface
      *
      * @return string|null
      */
-    public function getNullType(): ?string;
+    public function getNullInputType(): ?string;
 
     /**
      * Sets the type for this element if the value is NULL
      *
-     * @param InputType|null $value
+     * @param EnumInputType|null $value
      * @return static
      */
-    public function setNullInputType(?InputType $value): static;
+    public function setNullInputType(?EnumInputType $value): static;
 
     /**
      * Returns the type for this element if the value is NULL
@@ -818,14 +877,6 @@ interface DefinitionInterface
     public function setHelpGroup(?string $value): static;
 
     /**
-     * Returns true if the specified input type is supported
-     *
-     * @param string $type
-     * @return bool
-     */
-    public function inputTypeSupported(string $type): bool;
-
-    /**
      * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
@@ -843,7 +894,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     *@see Definition::getVisible()
+     *@see Definition::getRender()
      */
     public function getIgnored(): ?bool;
 
@@ -857,7 +908,7 @@ interface DefinitionInterface
      * @note Defaults to false
      * @param bool|null $value
      * @return static
-     * @see Definition::setVisible()
+     * @see Definition::setRender()
      */
     public function setIgnored(?bool $value): static;
 
@@ -875,4 +926,49 @@ interface DefinitionInterface
      * @return static
      */
     public function setAutoSubmit(?bool $value): static;
+
+    /**
+     * Returns the column
+     *
+     * @return string|null
+     */
+    public function getColumn(): ?string;
+
+    /**
+     * Sets the column
+     *
+     * @param string|null $column
+     * @return static
+     */
+    public function setColumn(?string $column): static;
+
+    /**
+     * Returns what element should be displayed if the value of this entry is NULL
+     *
+     * @return EnumInputElementInterface|null
+     */
+    public function getNullElement(): EnumInputElementInterface|null;
+
+    /**
+     * Sets what element should be displayed if the value of this entry is NULL
+     *
+     * @param EnumInputElementInterface|null $value
+     * @return static
+     */
+    public function setNullElement(EnumInputElementInterface|null $value): static;
+
+    /**
+     * Returns the additional content for this component
+     *
+     * @return RenderInterface|callable|string|null
+     */
+    public function getAdditionalContent(): RenderInterface|callable|string|null;
+
+    /**
+     * Sets the additional content for this component
+     *
+     * @param RenderInterface|callable|string|null $prefix
+     * @return static
+     */
+    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static;
 }

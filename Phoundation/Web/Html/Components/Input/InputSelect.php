@@ -13,6 +13,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
 use Stringable;
+use Throwable;
 
 
 /**
@@ -55,14 +56,78 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     protected bool $auto_select = false;
 
+    /**
+     * The data column that will contain the keys. If not specified, the first column will be assumed
+     *
+     * @var string|null
+     */
+    protected ?string $key_column = null;
+
+    /**
+     * The data column that will contain the values. If not specified, the last column will be assumed
+     *
+     * @var string|null
+     */
+    protected ?string $value_column = null;
+
 
     /**
      * Select constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         parent::setElement('select');
+    }
+
+
+    /**
+     * Returns the data column that will contain the keys. If not specified, the first column will be assumed
+     *
+     * @return string|null
+     */
+    public function getKeyColumn(): ?string
+    {
+        return $this->key_column;
+    }
+
+
+    /**
+     * Sets the data column that will contain the keys. If not specified, the first column will be assumed
+     *
+     * @param string|null $key_column
+     * @return static
+     */
+    public function setKeyColumn(?string  $key_column): static
+    {
+        $this->key_column = $key_column;
+        return $this;
+    }
+
+
+    /**
+     * Returns the data column that will contain the values. If not specified, the first column will be assumed
+     *
+     * @return string|null
+     */
+    public function getValueColumn(): ?string
+    {
+        return $this->value_column;
+    }
+
+
+    /**
+     * Sets the data column that will contain the values. If not specified, the first column will be assumed
+     *
+     * @param string|null $value_column
+     * @return static
+     */
+    public function setValueColumn(?string  $value_column): static
+    {
+        $this->value_column = $value_column;
+        return $this;
     }
 
 
@@ -194,7 +259,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Enables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static
     {
@@ -207,7 +272,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Disables auto select
      *
      * @return static
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::setAutoSelect()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static
     {
@@ -232,12 +297,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Sets multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function setSelected(array|string|int|null $selected = null): static
+    public function setSelected(array|string|int|null $selected = null, bool $value = false): static
     {
         $this->selected = [];
-        return $this->addSelected($selected);
+        return $this->addSelected($selected, $value);
     }
 
 
@@ -245,9 +311,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Adds a single or multiple selected options
      *
      * @param array|string|int|null $selected
+     * @param bool $value
      * @return static
      */
-    public function addSelected(array|string|int|null $selected): static
+    public function addSelected(array|string|int|null $selected, bool $value = false): static
     {
         if (is_array($selected)) {
             // Add multiple selected, only supported when multiple is enabled
@@ -257,11 +324,11 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
             // Add each selected to the list
             foreach (Arrays::force($selected) as $selected) {
-                $this->addSelected($selected);
+                $this->addSelected($selected, $value);
             }
         } else {
             // Add each selected to the list
-            $this->selected[$selected] = true;
+            $this->selected[$selected] = $value;
         }
 
         return $this;
@@ -367,8 +434,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -383,7 +450,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         }
 
         if ($this->none) {
-            return '<option' . $this->buildOptionClassString() . $this->buildSelectedString(null) . ' value="">' . $this->none . '</option>' . $return;
+            return '<option' . $this->renderOptionClassString() . $this->renderSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
         }
 
         return $return;
@@ -398,8 +465,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     *@see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     *@see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -430,15 +497,39 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
             if (!is_scalar($value)) {
                 if (!($value instanceof Stringable)) {
-                    throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
-                        ->addData($this->source);
+                    if (!is_array($value)) {
+                        throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
+                            ->addData([
+                                ':first_row_key'   => $key,
+                                ':first_row_value' => $value,
+                                ':value_column'    => $this->value_column,
+                                ':source'          => $this->source,
+                            ]);
+                    }
+
+                    if (!$this->value_column) {
+                        throw OutOfBoundsException::new(tr('The specified select source array contains array values, but no value column was specified'))
+                            ->addData($this->source);
+                    }
+
+                    try {
+                        $value = $value[$this->value_column];
+
+                    } catch (Throwable $e) {
+                        throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
+                            ':column' => $this->value_column
+                        ]))->setData([
+                            'value'        => $value,
+                            'value_column' => $this->value_column
+                        ]);
+                    }
                 }
 
                 // So value is a stringable object. Force value to be a string
                 $value = (string) $value;
             }
 
-            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
+            $return .= '<option' . $this->renderOptionClassString() . $this->renderSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
         }
 
         return $return;
@@ -452,9 +543,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      *
      * Return the body HTML for a <select> list
      *
-     * @return void
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::render()
-     * @see \Templates\AdminLte\Html\Components\Input\InputSelect::renderHeaders()
+     * @return null
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -468,9 +559,18 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             $this->source = new Iterator();
         }
 
-        while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
-            $key   = $row[array_key_first($row)];
-            $value = $row[array_key_last($row)];
+        while ($row = $this->source_query->fetch()) {
+            if ($this->key_column) {
+                $key = $row[$this->key_column];
+            } else {
+                $key = $row[array_key_first($row)];
+            }
+
+            if ($this->value_column) {
+                $value = $row[$this->value_column];
+            } else {
+                $value = $row[array_key_last($row)];
+            }
 
             $this->source->add($value, $key);
         }
@@ -547,7 +647,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     {
         // No content (other than maybe the "none available" entry) was added
         if ($this->empty) {
-            return '<option' . $this->buildOptionClassString() . ' selected value="">' . $this->empty . '</option>';
+            return '<option' . $this->renderOptionClassString() . ' selected value="">' . $this->empty . '</option>';
         }
 
         return null;
@@ -559,7 +659,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      *
      * @return string|null
      */
-    protected function buildOptionClassString(): ?string
+    protected function renderOptionClassString(): ?string
     {
         $option_class = $this->getOptionClass();
 
@@ -574,11 +674,24 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     /**
      * Returns the " selected" string that can be injected into <options> elements if the element value is selected
      *
+     * @param string|int|null $key
      * @param string|int|null $value
      * @return string|null
      */
-    protected function buildSelectedString(string|int|null $value): ?string
+    protected function renderSelectedString(string|int|null $key, string|int|null $value): ?string
     {
-        return (array_key_exists($value, $this->selected) ? ' selected' : null);
+        // Does the key match?
+        if (array_key_exists($key, $this->selected)) {
+            // If $this->selected[$value] is false, it means it's a key
+            return ($this->selected[$value] ? null : ' selected');
+        }
+
+        // Does the value match?
+        if (array_key_exists($value, $this->selected)) {
+            // If $this->selected[$value] is true, it means it's a value
+            return ($this->selected[$value] ? ' selected' : null);
+        }
+
+        return null;
     }
 }

@@ -9,7 +9,12 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
+use Phoundation\Data\Exception\IteratorException;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
+use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\DataCallbacks;
 use Phoundation\Databases\Sql\Limit;
@@ -19,7 +24,15 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
+use Phoundation\Web\Html\Components\Tables\HtmlTable;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -51,11 +64,25 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Tracks the datatype required for all elements in this iterator, NULL if none is required
+     *
+     * @var string|null
+     */
+    protected ?string $data_type = null;
+
+    /**
      * The list that stores all entries
      *
      * @var array $source
      */
     protected array $source;
+
+    /**
+     * Tracks the class used to generate the select input
+     *
+     * @var string
+     */
+    protected string $input_select_class = InputSelect::class;
 
 
     /**
@@ -166,6 +193,36 @@ class Iterator implements IteratorInterface
 
         // As of here, we have an array. Set it as an Iterator source and return
         return Iterator::new()->setSource($source);
+    }
+
+
+    /**
+     * Returns the class used to generate the select input
+     *
+     * @return string
+     */
+    public function getInputSelectClass(): string
+    {
+        return $this->input_select_class;
+    }
+
+
+    /**
+     * Sets the class used to generate the select input
+     *
+     * @param string $input_select_class
+     * @return DataList
+     */
+    public function setInputSelectClass(string $input_select_class): static
+    {
+        if (is_a($input_select_class, InputSelectInterface::class, true)){
+            $this->input_select_class = $input_select_class;
+            return $this;
+        }
+
+        throw new OutOfBoundsException(tr('Cannot use specified class ":class" to generate input select, the class must be an instance of InputSelectInterface', [
+            ':class' => $input_select_class
+        ]));
     }
 
 
@@ -301,11 +358,12 @@ class Iterator implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed $value
-     * @param string|float|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -314,14 +372,213 @@ class Iterator implements IteratorInterface
             }
         }
 
+        $this->checkDataType($value);
+
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
             $this->source[] = $value;
 
         } else {
+            if (array_key_exists($key, $this->source) and $exception) {
+                throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
+                    ':key'   => $key,
+                    ':class' => get_class($this)
+                ]));
+            }
+
             $this->source[$key] = $value;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $before
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        $this->checkDataType($value);
+
+        // Ensure the before key exists
+        if (!array_key_exists($before, $this->source)) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':before' => $before,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $before, 0, [$key => $value], false);
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $after
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        $this->checkDataType($value);
+
+        // Ensure the after key exists
+        if (!array_key_exists($after, $this->source)) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed $before
+     * @param bool $strict
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        $this->checkDataType($value);
+
+        // Ensure the before key exists
+        $before_key = array_search($before, $this->source, $strict);
+
+        if ($before_key === false) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param mixed $after
+     * @param bool $strict
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function addAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        $this->checkDataType($value);
+
+        // Ensure the after value exists
+        $after_key = array_search($after, $this->source, $strict);
+
+        if ($after_key === false) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and $exception) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => get_class($this)
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $after_key, 0, [$key => $value], true);
         return $this;
     }
 
@@ -348,6 +605,40 @@ class Iterator implements IteratorInterface
 
 
     /**
+     * Append the specified Iterator to the end of this Iterator
+     *
+     * @param IteratorInterface|array $menu
+     * @return $this
+     */
+    public function append(IteratorInterface|array $menu): static
+    {
+        if (is_object($menu)) {
+            $menu = $menu->__toArray();
+        }
+
+        $this->source = array_merge($this->source, $menu);
+        return $this;
+    }
+
+
+    /**
+     * Prepend the specified Iterator at the beginning of this Iterator
+     *
+     * @param IteratorInterface|array $menu
+     * @return $this
+     */
+    public function prepend(IteratorInterface|array $menu): static
+    {
+        if (is_object($menu)) {
+            $menu = $menu->__toArray();
+        }
+
+        $this->source = array_merge($menu, $this->source);
+        return $this;
+    }
+
+
+    /**
      * Merge the specified Iterator or array into this Iterator
      *
      * @param IteratorInterface|array ...$sources
@@ -364,6 +655,75 @@ class Iterator implements IteratorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @return string|null
+     */
+    public function getDataType(): ?string
+    {
+        return $this->data_type;
+    }
+
+
+    /**
+     * Sets the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @param string|null $data_type
+     * return static
+     */
+    public function setDataType(?string $data_type): static
+    {
+        if ($data_type) {
+            if (!preg_match('/^int|float|array|string|object:\\\?([A-Z][a-z0-9\\\]+)+$/', $data_type)) {
+                throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|float|array|string|object:\CLASS\PATH"', [
+                    ':datatype' => $data_type
+                ]));
+            }
+        } else {
+            // No data type restrictions required
+            $data_type = null;
+        }
+
+        $this->data_type = $data_type;
+        return $this;
+    }
+
+
+    /**
+     * Check if the datatype of the given value or Interface (in case of an object) is allowed
+     *
+     * Throws an OutOfBounds exception if the datatype or Interface is not allowed
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function checkDataType(mixed $value): void
+    {
+        if (!$this->data_type) {
+            return;
+        }
+
+        foreach ($this->data_type as $data_type) {
+            if (str_starts_with($data_type, 'object:')) {
+                if ($value instanceof $data_type) {
+                    return;
+                }
+
+            } else {
+                if (gettype($value) === $value) {
+                    return;
+                }
+            }
+        }
+
+        throw new OutOfBoundsException(tr('Specified value has an invalid datatype or Interface ":type" where the only allowed datatypes or Interfaces are ":allowed"', [
+            ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
+            ':allowed' => Strings::force($this->data_type, ', ')
+        ]));
     }
 
 
@@ -743,11 +1103,11 @@ class Iterator implements IteratorInterface
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function keepKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepKeys($this->source, $needles, $match_mode);
         return $this;
@@ -757,11 +1117,11 @@ class Iterator implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function removeKeys(string|array $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function removeKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeKeys($this->source, $needles, $match_mode);
         return $this;
@@ -771,12 +1131,12 @@ class Iterator implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function keepValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::keepValues($this->source, $needles, $column, $match_mode);
         return $this;
@@ -786,12 +1146,12 @@ class Iterator implements IteratorInterface
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param string|array $needles
+     * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
      * @return $this
      */
-    public function removeValues(string|array $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
+    public function removeValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static
     {
         $this->source = Arrays::removeValues($this->source, $needles, $column, $match_mode);
         return $this;
@@ -1199,5 +1559,116 @@ class Iterator implements IteratorInterface
     #[ReturnTypeWillChange] public function setSourceValue(mixed $value, Stringable|string|float|int $key): static
     {
         return $this->set($value, $key);
+    }
+
+
+    /**
+     * Same as Arrays::splice() but for this Iterator
+     *
+     * @param int $offset
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param array|null $spliced
+     * @return static
+     */
+    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static
+    {
+        $spliced = Arrays::splice($this->source, $offset, $length, $replacement);
+        return $this;
+    }
+
+
+    /**
+     * Same as Arrays::spliceKey() but for this Iterator
+     *
+     * @param string $key
+     * @param int|null $length
+     * @param IteratorInterface|array $replacement
+     * @param bool $after
+     * @param array|null $spliced
+     * @return static
+     */
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static
+    {
+        $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+        return $this;
+    }
+
+
+    /**
+     * Renames and returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool $exception
+     * @return DefinitionInterface
+     */
+    #[ReturnTypeWillChange] public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed
+    {
+        // First, ensure the target doesn't exist yet!
+        if (array_key_exists($target, $this->source)) {
+            throw new IteratorException(tr('Cannot rename key ":key" to target ":target", the target key already exists', [
+                ':key'    => $key,
+                ':target' => $target,
+            ]));
+        }
+
+        // Then, get the definition
+        $entry = $this->get($key, $exception);
+
+        // Now rename
+        $this->source[$target] = $this->source[$key];
+        unset($this->source[$key]);
+
+        // Done, return!
+        return $entry;
+    }
+
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @return HtmlTableInterface
+     */
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    {
+        // Source is already loaded, use this instead
+        // Create and return the table
+        return HtmlTable::new()
+            ->setId(static::getTable())
+            ->setSource($this->getAllRowsMultipleColumns($columns))
+            ->setCallbacks($this->callbacks)
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+    }
+
+
+    /**
+     * Creates and returns a fancy HTML data table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @return HtmlDataTableInterface
+     */
+    public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
+    {
+        // Source is already loaded, use this instead
+        // Create and return the table
+        return HtmlDataTable::new()
+            ->setId(static::getTable())
+            ->setSource($this->getAllRowsMultipleColumns($columns))
+            ->setCallbacks($this->callbacks)
+            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+    }
+
+
+    /**
+     * Returns an HTML <select> for the entries in this list
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelect(): InputSelectInterface
+    {
+        return $this->input_select_class::new()
+            ->setSource($this->source);
     }
 }

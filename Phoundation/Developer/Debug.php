@@ -6,9 +6,11 @@ namespace Phoundation\Developer;
 
 use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
+use Phoundation\Audio\Audio;
 use Phoundation\Core\Core;
 use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\Exception;
@@ -18,7 +20,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 use Throwable;
@@ -330,7 +332,7 @@ class Debug {
                 // This is not usually something you want to happen!
                 Notification::new()
                     ->setUrl('developer/incidents.html')
-                    ->setMode(DisplayMode::exception)
+                    ->setMode(EnumDisplayMode::exception)
                     ->setTitle('Debug mode enabled on production environment!')
                     ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
                     ->setRoles('developer')
@@ -367,6 +369,8 @@ class Debug {
                             $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
 
+                    $output = get_null(ob_get_clean()) . $output;
+
                     // Show output on web
                     if (!headers_sent()) {
                         Page::setContentType('text/html');
@@ -375,19 +379,23 @@ class Debug {
 
                     echo $output;
 
-                    ob_flush();
-                    flush();
-
                 } else {
                     echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
                         ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
-                    ]) . PHP_EOL;;
-                    print_r($value, true) . PHP_EOL;
-                    flush();
-                    ob_flush();
+                    ]) . PHP_EOL;
+
+                    $output = get_null(ob_get_clean());
+
+                    // Show output on web
+                    if (!headers_sent()) {
+                        Page::setContentType('text/html');
+                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                    }
+
+                    echo $output;
                 }
 
             } else {
@@ -469,6 +477,7 @@ class Debug {
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset)
                     ]));
+                    Audio::new('data/audio/showdie.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $e) {
@@ -520,7 +529,7 @@ class Debug {
         if (empty($style)) {
             $style  = true;
 
-            $return = '<style type="text/css">
+            $return = '<style>
                 table.debug{
                     font-family: sans-serif;
                     width:99%;
@@ -642,6 +651,36 @@ class Debug {
                     <td class="value">' . $value.'</td>
                 </tr>';
 
+            case 'object':
+                if (!($value instanceof ArrayableInterface)) {
+                    // Format exception nicely
+                    if ($value instanceof Throwable) {
+                        $value =  static::displayException($value, $full_backtrace, 0);
+
+                    } else {
+                        $value  = print_r($value, true);
+                        $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
+                        $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
+                    }
+
+                    $return = '<pre>' . $value . '</pre>';
+
+                    return '<tr>
+                            <td>' . $key . '</td>
+                            <td>' . $type.'</td>
+                            <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
+                            <td>' . $return . '</td>
+                        </tr>';
+                }
+
+                // This is an object that has a $value::__toArray() method, convert it to array and display it as such
+                $value = [
+                    ''         => 'Arreable object',
+                    'class'    => get_class($value),
+                    'contents' => $value->__toArray()
+                ];
+                // No break
+
             case 'array':
                 $return = '';
 
@@ -663,45 +702,6 @@ class Debug {
                         </table>
                     </td>
                 </tr>';
-
-            case 'object':
-                // Format exception nicely
-                if ($value instanceof Throwable) {
-                    $value =  static::displayException($value, $full_backtrace, 0);
-
-                } else {
-                    $value  = print_r($value, true);
-                    $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-                    $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-                }
-
-                $return = '<pre>' . $value . '</pre>';
-
-                return '<tr>
-                            <td>' . $key . '</td>
-                            <td>' . $type.'</td>
-                            <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
-                            <td>' . $return . '</td>
-                        </tr>';
-
-//                if ($value instanceof \Exception) {
-//
-//                } elseif ($value instanceof \Exception) {
-//
-//                } else {
-//                    // Clean contents!
-//                    $value  = print_r($value, true);
-//                    $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-//                    $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
-//                    $return = '<pre>' . $value.'</pre>';
-//
-//                    return '<tr>
-//                                <td>' . $key . '</td>
-//                                <td>' . $type.'</td>
-//                                <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
-//                                <td>' . $return.'</td>
-//                            </tr>';
-//                }
 
             default:
                 return '<tr>
@@ -725,15 +725,22 @@ class Debug {
     protected static function displayException(Throwable $e, bool $full_backtrace, int $indent): string
     {
         $prefix  = str_repeat(' ', $indent);
-        $return  = $prefix . tr(':type Exception', [':type' => get_class($e)]) . '<br><br>';
-        $return .= $prefix . tr('Messages:') . '<br>';
+        $return  = $prefix . tr('":type" Exception', [':type' => get_class($e)]) . '<br><br>';
+        $return .= $prefix . tr('Message: :message', [':message' => $e->getMessage()]) . '<br>';
+        $return .= $prefix . tr('Additional messages:') . '<br>';
 
         if ($e instanceof Exception) {
-            foreach ($e->getMessages() as $message) {
-                $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+            $messages = $e->getMessages();
+
+            if ($messages) {
+                foreach ($messages as $message) {
+                    $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+                }
+            } else {
+                $return .= $prefix . '-<br>';
             }
         }else {
-            $return .= $prefix . htmlspecialchars($e->getMessage()) . '<br>';
+            $return .= $prefix . '-<br>';
         }
 
         $return .= '<br>' . $prefix . tr('Location: ') . htmlspecialchars($e->getFile()) . '@' . $e->getLine() . '<br><br>' . $prefix . tr('Backtrace: ') . '<br>';
@@ -751,7 +758,7 @@ class Debug {
         $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
 
         if ($e instanceof Exception) {
-            $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r($e->getData() ?? '-', true))) . '<br>';
+            $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r(not_empty($e->getData(), '-'), true))) . '<br>';
 
         } else {
             $return .= $prefix . htmlspecialchars('-') . '<br>';

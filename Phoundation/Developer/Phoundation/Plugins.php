@@ -11,13 +11,14 @@ use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulExceptio
 use Phoundation\Developer\Phoundation\Exception\PhoundationPluginsNotFoundException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasChangesException;
-use Phoundation\Developer\Versioning\Git\Exception\GitPatchException;
+use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Cp;
@@ -217,26 +218,47 @@ class Plugins extends Project
     /**
      * Copies only the specified file back to Phoundation
      *
-     * @param string $file
+     * @param array|string $files
      * @param string|null $branch
      * @param bool $require_no_changes
      * @return void
      */
-    public function copy(string $file, ?string $branch, bool $require_no_changes = true): void
+    public function copy(array|string $files, ?string $branch, bool $require_no_changes = true): void
     {
         $this->selectPluginsBranch($this->defaultBranch($branch));
         $this->ensureNoChanges(!$require_no_changes);
 
-        $source = Path::getAbsolute($file, DIRECTORY_ROOT);
-        $file = Strings::from($source, DIRECTORY_ROOT);
+        $files = Arrays::force($files);
 
-        if (!file_exists($source)) {
-            throw new FileNotExistException(tr('The specified file ":file" does not exist', [
-                ':file' => $file
-            ]));
+        // Ensure specified source files exist and make files absolute
+        foreach ($files as $id => $file) {
+            $source  = Path::getAbsolute($file, DIRECTORY_ROOT);
+            $test    = Strings::from($source, DIRECTORY_ROOT);
+            $test    = Strings::until($test, '/');
+            $plugins = [
+                'Templates',
+                'Plugins'
+            ];
+
+            if (!in_array($test, $plugins)) {
+                // Any non-plugin files should be copied to Phoundation!
+                continue;
+            }
+
+            if (!file_exists($source)) {
+                throw new FileNotExistException(tr('The specified file ":file" does not exist', [
+                    ':file' => $file
+                ]));
+            }
+
+            $files[$id] = $source;
         }
 
-        Cp::new()->archive($source, Restrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $file, Restrictions::new($this->getDirectory(), true));
+        // Copy files
+        foreach (Arrays::force($files) as $file) {
+            $target = Strings::from($file, DIRECTORY_ROOT);
+            Cp::new()->archive($file, Restrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $target, Restrictions::new($this->getDirectory(), true));
+        }
     }
 
 
@@ -292,58 +314,59 @@ class Plugins extends Project
                         // All okay!
                         break;
 
-                    } catch (ProcessFailedException $e) {
-                        // Fork me, the patch failed! What file? Stash the little forker and retry without, then
-                        // un-stash it after for manual review / copy
-                        $output = $e->getDataKey('output');
-                        $output = Arrays::getMatches($output, 'patch failed', Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE);
-                        $git    = Git::new(DIRECTORY_ROOT);
+                    } catch (GitPatchFailedException $e) {
+                        // Fork me, the patch failed on one or multiple files. Stash those files and try again to patch
+                        // the rest of the files that do apply
+                        $files = $e->getDataKey('files');
+                        $git   = Git::new(DIRECTORY_ROOT);
 
-                        if ($output) {
+                        if ($files) {
                             Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
-                                ':count' => count($output),
-                                ':files' => $output
+                                ':count' => count($files),
+                                ':files' => $files
                             ]));
 
-                            foreach ($output as $file) {
-                                $file = Strings::fromReverse($file, ' ');
-                                $file = Strings::untilReverse($file, ':');
-
+                            // Add all files to index before stashing, except deleted files.
+                            foreach ($files as $file) {
                                 $stash->add($file);
 
-                                Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
-                                // Deleted files cannot be stashed after being added!
+                                // Deleted files cannot be stashed after being added, un-add, and then stash
                                 if (File::new($file)->pathExists()) {
-                                    $git->add($file)->getStash()->stash($file);
+                                    $git->add($file);
 
                                 } else {
-                                    $git->reset('HEAD', $file)->getStash()->stash($file);
+                                    // Ensure it's not added yet
+                                    $git->reset('HEAD', $file);
                                 }
                             }
 
-                        } else {
-                            // There are no problematic files found, look for other issues.
-                            $output = $e->getDataKey('output');
-                            $output = Arrays::getMatches($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE);
+                            // Stash all problematic files (auto un-stash later)
+                            $git->getStash()->stash($files);
 
-                            if ($output) {
-                                // Found already existing files that cannot be merged. Delete on this side
-                                foreach ($output as $file) {
-                                    $file = Strings::untilReverse($file, ':');
-                                    $file = Strings::from($file, ':');
-                                    $file = trim($file);
-                                    $git  = Git::new(DIRECTORY_ROOT);
-
-                                    Log::warning(tr('Stashing already existing and unmergeable file ":file"', [
-                                        ':file' => $file
-                                    ]));
-
-                                    $git->add($file)->getStash()->stash($file);
-                                }
-                            } else {
-                                // Other unknown error
-                                throw new GitPatchException(tr('Encountered unknown patch exception'), $e);
-                            }
+//                        } else {
+//                            // There are no problematic files found, look for other issues.
+//                            $output = $e->getDataKey('output');
+//                            $output = Arrays::getMatches($output, 'already exists in working directory', Utils::MATCH_ALL|Utils::MATCH_ANYWHERE|Utils::MATCH_NO_CASE);
+//
+//                            if ($output) {
+//                                // Found already existing files that cannot be merged. Delete on this side
+//                                foreach ($output as $file) {
+//                                    $file = Strings::untilReverse($file, ':');
+//                                    $file = Strings::from($file, ':');
+//                                    $file = trim($file);
+//                                    $git  = Git::new(DIRECTORY_ROOT);
+//
+//                                    Log::warning(tr('Stashing already existing and unmergeable file ":file"', [
+//                                        ':file' => $file
+//                                    ]));
+//
+//                                    $git->add($file)->getStash()->stash($file);
+//                                }
+//                            } else {
+//                                // Other unknown error
+//                                throw new GitPatchException(tr('Encountered unknown patch exception'), $e);
+//                            }
+//                        }
                         }
                     }
                 }
@@ -360,15 +383,14 @@ class Plugins extends Project
             if ($stash->getCount()) {
                 $bad_files = clone $stash;
 
-                // Whoopsie, we have shirts in the stash, meaning some file was naughty.
-                foreach ($stash as $key => $file) {
-                    Log::warning(tr('Returning problematic file ":file" from stash', [':file' => $file]));
-                    Git::new(DIRECTORY_ROOT)->getStash()->pop();
-                    $stash->delete($key);
-                }
+                // Whoopsie, we have shirts in stash, meaning some file was naughty.
+                Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $files]));
+                Git::new(DIRECTORY_ROOT)->getStash()->pop();
 
-                throw PatchPartiallySuccessfulException::new(tr('Phoundation patch was partially successful, some files failed'))
-                    ->addData(['files' => $bad_files]);
+                throw PatchPartiallySuccessfulException::new(tr('Phoundation plugins patch was partially successful, some files failed'))
+                    ->addData([
+                        'files' => $bad_files
+                    ]);
             }
 
             if ($non_phoundation_stash) {
@@ -413,12 +435,13 @@ class Plugins extends Project
      *
      * @return bool
      */
-    protected function stashNonPhoundationPlugins(): bool
+    public function stashNonPhoundationPlugins(): bool
     {
         $pre_stash_count  = 0;
         $post_stash_count = 0;
 
         $non_phoundation_plugins = $this->getNonPhoundationPlugins();
+        $non_phoundation_plugins = $this->filterNonGitPlugins($non_phoundation_plugins);
         $non_phoundation_plugins = $this->addPluginPaths($non_phoundation_plugins);
 
         if ($non_phoundation_plugins) {
@@ -435,33 +458,60 @@ class Plugins extends Project
 
 
     /**
+     * Filters plugins from the specified list that are not tracked by git
+     *
+     * @param array $phoundation_plugins
+     * @return array
+     */
+    protected function filterNonGitPlugins(array $phoundation_plugins): array
+    {
+        $paths = $this->git->getStatus(DIRECTORY_ROOT . 'Plugins/');
+
+        foreach ($paths as $path => $info) {
+            $path = Strings::from($path, 'Plugins/');
+            $file = Strings::from($path, '/');
+            $path = Strings::until($path, '/');
+
+            // If it's a file within a tracked plugin, that's file
+            if (!$file) {
+                if (!$info->getStatus()->isTracked()) {
+                    // This Plugin isn't tracked yet, ensure its removed!
+                    $phoundation_plugins = Arrays::removeValues($phoundation_plugins, $path);
+                }
+            }
+        }
+
+        return $phoundation_plugins;
+    }
+
+
+    /**
      * Returns a list of Plugins that are not part of the Phoundation repository
      *
      * @return array
      */
-    protected function getNonPhoundationPlugins(): array
+    public function getNonPhoundationPlugins(): array
     {
         $plugins = array_diff($this->getLocalPlugins(), $this->getPhoundationPlugins());
+        $return  = [];
+        $skip    = [
+            'Phoundation',
+            'disabled'
+        ];
 
-        foreach ($plugins as $id => &$plugin) {
+        foreach ($plugins as &$plugin) {
             $plugin = Strings::endsNotWith($plugin, '/');
         }
 
-        $return = [];
         unset($plugin);
-
-        // The "Phoundation" plugin should NEVER be copied to the official repository!
-        if (!in_array('Phoundation', $plugins)) {
-            $plugins[] = 'Phoundation';
-        }
-
-        // The "disabled" directory should NEVER be copied to the official repository!
-        if (!in_array('disabled', $plugins)) {
-            $plugins[] = 'disabled';
-        }
 
         // All the plugins must contain files, or git stash will fail
         foreach ($plugins as $plugin) {
+            if (in_array($plugin, $skip)) {
+                // These are DEFINITELY not non-phoundation plugins
+                continue;
+            }
+
             if (Directory::new(DIRECTORY_ROOT . 'Plugins/' . $plugin)->containFiles()) {
                 $return[] = $plugin;
 
@@ -481,7 +531,7 @@ class Plugins extends Project
      *
      * @return array
      */
-    protected function getLocalPlugins(): array
+    public function getLocalPlugins(): array
     {
         return Directory::new(DIRECTORY_ROOT . 'Plugins/', DIRECTORY_ROOT . 'Plugins/')->scan();
     }
@@ -492,7 +542,7 @@ class Plugins extends Project
      *
      * @return array
      */
-    protected function getPhoundationPlugins(): array
+    public function getPhoundationPlugins(): array
     {
         return Directory::new($this->directory . 'Plugins/', $this->directory)->scan();
     }

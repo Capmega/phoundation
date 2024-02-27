@@ -10,6 +10,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataDataEntry;
 use Phoundation\Data\Traits\DataPrefix;
 use Phoundation\Data\Traits\DataTable;
+use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
 
@@ -42,19 +43,27 @@ class Definitions extends Iterator implements DefinitionsInterface
 
 
     /**
-     * Adds the specified Definition to the columns list
+     * Adds the specified Definition object to the definitions list
      *
-     * @param DefinitionInterface $column
-     * @return static
+     * @param mixed $value
+     * @param float|Stringable|int|string|null $key
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return $this
      */
-    public function addDefinition(DefinitionInterface $column): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
-        if ($this->prefix) {
-            $column->setColumn($this->prefix . $column->getColumn());
+        if (!($value instanceof DefinitionInterface)) {
+            throw new OutOfBoundsException(tr('Cannot add variable ":value" to the DataEntry definitions list, it is not a DefinitionInterface object', [
+                ':value' => $value
+            ]));
         }
 
-        $this->source[$column->getColumn()] = $column;
-        return $this;
+        if ($this->prefix) {
+            $value->setColumn($this->prefix . $value->getColumn());
+        }
+
+        return parent::add($value, $key ?? $value->getColumn(), $skip_null, $exception);
     }
 
 
@@ -78,7 +87,22 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): DefinitionInterface
     {
-        return $this->source[$key];
+        return parent::get($key, $exception);
+    }
+
+
+    /**
+     * Returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool $exception
+     * @return DefinitionInterface
+     */
+    public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
+    {
+        // Rename Definition in Iterator and Definition object itself
+        return parent::rename($key, $target, $exception)->setColumn($target);
     }
 
 
@@ -141,7 +165,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function getFirst(): DefinitionInterface
     {
-        return array_first($this->source);
+        return $this->source[array_key_first($this->source)];
     }
 
 
@@ -152,6 +176,6 @@ class Definitions extends Iterator implements DefinitionsInterface
      */
     public function getLast(): DefinitionInterface
     {
-        return array_last($this->source);
+        return $this->source[array_key_last($this->source)];
     }
 }

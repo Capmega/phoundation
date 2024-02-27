@@ -7,7 +7,7 @@ namespace Phoundation\Core\Plugins;
 
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -20,7 +20,7 @@ use Phoundation\Web\Html\Enums\InputElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     /**
      * FilterForm class constructor
@@ -30,16 +30,16 @@ class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
         parent::__construct();
 
         $this->definitions = Definitions::new()
-            ->addDefinition(Definition::new(null, 'type[]')
+            ->add(Definition::new(null, 'type[]')
                 ->setLabel(tr('Type'))
                 ->setSize(6)
-                ->setElement(InputElement::select)
-                ->setSource([
+                ->setElement(EnumInputElement::select)
+                ->setDataSource([
                     'all'      => tr('All'),
                     'enabled'  => tr('Enabled plugins'),
                     'disabled' => tr('Disabled plugins')
                 ]))
-            ->addDefinition(Definition::new(null, 'filter[]')
+            ->add(Definition::new(null, 'filter[]')
                 ->setLabel(tr('Filter'))
                 ->setSize(6));
     }

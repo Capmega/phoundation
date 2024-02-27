@@ -22,15 +22,15 @@ use Phoundation\Data\DataEntry\Traits\DataEntrySync;
 use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
 use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Enums\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -460,29 +460,14 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
 
-        return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
-    }
+        try {
+            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
 
-
-    /**
-     * Connects to the database of this connector
-     *
-     * @param bool $use_database
-     * @return $this
-     * @throws UnsupportedException
-     */
-    public function connect(bool $use_database = true): static
-    {
-        switch ($this->getType()) {
-            case 'sql':
-                sql($this->getName())->connect($use_database);
-                break;
-
-            default:
-                throw new UnsupportedException(tr('Non SQL connectors are not yet supported'));
+        } catch (DataEntryNotExistsException $e) {
+            throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
+                ':connector' => $identifier,
+            ]), $e);
         }
-
-        return $this;
     }
 
 
@@ -569,86 +554,85 @@ class Connector extends DataEntry implements ConnectorInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this)
                 ->setSize(4)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isUnique();
                 }))
-            ->addDefinition(DefinitionFactory::getSeoName($this))
-            ->addDefinition(Definition::new($this, 'environment')
+            ->add(DefinitionFactory::getSeoName($this))
+            ->add(Definition::new($this, 'environment')
                 ->setSize(4)
                 ->setLabel('Environment')
-                ->setInputType(null)
-                ->setElement(InputElement::select)
-                ->setSource([
+                ->setElement(EnumInputElement::select)
+                ->setDataSource([
                     'production' => tr('Production'),
                     'trial'      => tr('Trial'),
                     'local'      => tr('Local'),
                 ]))
-            ->addDefinition(DefinitionFactory::getVariable($this, 'type')
+            ->add(DefinitionFactory::getVariable($this, 'type')
                 ->setSize(4)
                 ->setLabel('Connector type')
                 ->setInputType(null)
-                ->setElement(InputElement::select)
-                ->setSource([
+                ->setElement(EnumInputElement::select)
+                ->setDataSource([
                     'sql'       => tr('SQL'),
                     'memcached' => tr('Memcached'),
                     'mongodb'   => tr('MongoDB'),
                     'redis'     => tr('Redis'),
                 ]))
-            ->addDefinition(DefinitionFactory::getVariable($this, 'driver')
+            ->add(DefinitionFactory::getVariable($this, 'driver')
                 ->setSize(4)
                 ->setOptional(true)
                 ->setLabel('Driver')
                 ->setInputType(null)
-                ->setElement(InputElement::select)
-                ->setSource([
+                ->setElement(EnumInputElement::select)
+                ->setDataSource([
                     ''        => tr('Not specified'),
                     'mysql'   => tr('MySQL'),
                     'postgre' => tr('PostGRE'),
                     'oracle'  => tr('Oracle'),
                     'mssql'   => tr('MSSQL'),
                 ]))
-            ->addDefinition(DefinitionFactory::getHostname($this, 'hostname')
+            ->add(DefinitionFactory::getHostname($this, 'hostname')
                 ->setLabel(tr('Hostname'))
                 ->setSize(8))
-            ->addDefinition(DefinitionFactory::getNumber($this, 'port')
+            ->add(DefinitionFactory::getNumber($this, 'port')
                 ->setLabel(tr('Port'))
                 ->setSize(4)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger()->isBetween(0, 65535);
                 }))
-            ->addDefinition(DefinitionFactory::getVariable($this, 'username')
+            ->add(DefinitionFactory::getVariable($this, 'username')
                 ->setSize(4)
                 ->setLabel(tr('Username')))
-            ->addDefinition(DefinitionFactory::getPassword($this, 'password')
+            ->add(DefinitionFactory::getPassword($this, 'password')
                 ->setSize(4)
                 ->setLabel(tr('Password')))
-            ->addDefinition(DefinitionFactory::getVariable($this, 'database')
+            ->add(DefinitionFactory::getVariable($this, 'database')
                 ->setSize(4)
                 ->setLabel(tr('Database')))
-            ->addDefinition(Definition::new($this, 'mode')
+            ->add(Definition::new($this, 'mode')
                 ->setLabel(tr('Mode'))
                 ->setSize(3))
-            ->addDefinition(Definition::new($this, 'pdo_attributes')
+            ->add(Definition::new($this, 'pdo_attributes')
                 ->setLabel(tr('PDO attributes'))
                 ->setSize(3))
-            ->addDefinition(Definition::new($this, 'character_set')
+            ->add(Definition::new($this, 'character_set')
                 ->setLabel(tr('Character set'))
                 ->setSize(3))
-            ->addDefinition(Definition::new($this, 'collate')
+            ->add(Definition::new($this, 'collate')
                 ->setLabel(tr('Collate'))
                 ->setSize(3))
-            ->addDefinition(DefinitionFactory::getTimezonesId($this, 'timezones_id')
+            ->add(DefinitionFactory::getTimezonesId($this, 'timezones_id')
                 ->setLabel(tr('Timezone'))
                 ->setVirtual(true)
                 ->setSize(2)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->orColumn('timezones_name')->isDbId()->setColumnFromQuery('timezones_name', 'SELECT `name` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
                 }))
-            ->addDefinition(DefinitionFactory::getTimezone($this, 'timezones_name')
+            ->add(DefinitionFactory::getTimezone($this, 'timezones_name')
                 ->setLabel(tr('Timezone'))
-                ->setVisible(false)
+                ->setRender(false)
                 ->setSize(2)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->orColumn('timezones_id')->isName()->isTrue(function ($value) {
@@ -656,45 +640,45 @@ class Connector extends DataEntry implements ConnectorInterface
                         return Timezone::exists($value, 'name');
                     }, tr('The specified timezone does not exist'));
                 }))
-            ->addDefinition(Definition::new($this, 'ssh_tunnels_id')
+            ->add(Definition::new($this, 'ssh_tunnels_id')
                 ->setLabel(tr('SSL Tunnel'))
                 ->setOptional(true)
-                ->setSource([
+                ->setDataSource([
 
                 ])
-                ->setInputType(InputType::select)
+                ->setInputType(EnumInputType::select)
                 ->setSize(2))
-            ->addDefinition(DefinitionFactory::getNumber($this, 'auto_increment')
+            ->add(DefinitionFactory::getNumber($this, 'auto_increment')
                 ->setLabel(tr('Auto increment'))
-                ->setInputType(InputTypeExtended::positiveInteger)
+                ->setInputType(EnumInputTypeExtended::positiveInteger)
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getNumber($this, 'limit_max')
+            ->add(DefinitionFactory::getNumber($this, 'limit_max')
                 ->setLabel(tr('Maximum row limit'))
                 ->setDefault(1_000_000)
-                ->setInputType(InputTypeExtended::positiveInteger)
+                ->setInputType(EnumInputTypeExtended::positiveInteger)
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'persist')
+            ->add(DefinitionFactory::getBoolean($this, 'persist')
                 ->setLabel(tr('Persist'))
                 ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'sync')
+            ->add(DefinitionFactory::getBoolean($this, 'sync')
                 ->setLabel(tr('Sync'))
                 ->setHelpText(tr('If enabled, Phoundation will sync this database when executing the sync command'))
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'log')
+            ->add(DefinitionFactory::getBoolean($this, 'log')
                 ->setLabel(tr('Log'))
                 ->setHelpText(tr('If enabled, Phoundation will log all queries to this database'))
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'init')
+            ->add(DefinitionFactory::getBoolean($this, 'init')
                 ->setLabel(tr('Initializes'))
                 ->setHelpText(tr('If enabled, Phoundation will try to initialize this database during the init phase'))
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'buffered')
+            ->add(DefinitionFactory::getBoolean($this, 'buffered')
                 ->setLabel(tr('Buffered'))
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getBoolean($this, 'statistics')
+            ->add(DefinitionFactory::getBoolean($this, 'statistics')
                 ->setLabel(tr('Statistics'))
                 ->setSize(1))
-            ->addDefinition(DefinitionFactory::getDescription($this));
+            ->add(DefinitionFactory::getDescription($this));
     }
 }

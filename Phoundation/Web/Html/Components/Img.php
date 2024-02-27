@@ -8,6 +8,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -24,7 +25,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Img extends Element
+class Img extends Span implements ImgInterface
 {
     /**
      * Server object where the image conversion commands will be executed
@@ -71,10 +72,12 @@ class Img extends Element
 
     /**
      * Img constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         parent::setElement('img');
 
         $this->setLazyLoad(Config::get('web.images.lazy-load', true));

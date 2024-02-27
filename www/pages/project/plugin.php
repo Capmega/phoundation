@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -26,7 +26,7 @@ $plugin = Plugin::get($get['id']);
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton('Back', DisplayMode::secondary, '/project/plugins.html', true);
+    ->addButton('Back', EnumDisplayMode::secondary, '/project/plugins.html', true);
 
 
 // Build the plugin form
@@ -46,7 +46,7 @@ $column = GridColumn::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/development/slow-pages.html') . '">' . tr('Slow pages') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/security/security.html') . '">' . tr('Security management') . '</a>');
@@ -54,7 +54,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -64,7 +64,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

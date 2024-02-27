@@ -13,7 +13,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
 
@@ -168,11 +168,11 @@ class Notifications extends DataList implements NotificationsInterface
 //        foreach ($filters as $key => $value){
 //            switch ($key) {
 //                case 'status':
-//                    $builder->addWhere('`status`' . Sql::is($value, ':status'), [':status' => $value]);
+//                    $builder->addWhere('`status`' . SqlQueries::is($value, ':status'), [':status' => $value]);
 //                    break;
 //
 //                case 'users_id':
-//                    $builder->addWhere('`users_id`' . Sql::is($value, ':users_id'), [':users_id' => $value]);
+//                    $builder->addWhere('`users_id`' . SqlQueries::is($value, ':users_id'), [':users_id' => $value]);
 //                    break;
 //            }
 //        }
@@ -185,14 +185,16 @@ class Notifications extends DataList implements NotificationsInterface
      * Returns an HTML <select> for the available object entries
      *
      * @param string $value_column
-     * @param string $key_column
+     * @param string|null $key_column
      * @param string|null $order
      * @param array|null $joins
+     * @param array|null $filters
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', string $key_column = 'id', ?string $order = null, ?array $joins = null): InputSelectInterface
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
+            ->setConnector(static::getDefaultConnectorName())
             ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
@@ -210,7 +212,7 @@ class Notifications extends DataList implements NotificationsInterface
      */
     public function markSeverityColumn(): static
     {
-        return $this->addCallback(function (IteratorInterface|array &$row, TableRowTypeInterface $type, &$params) {
+        return $this->addCallback(function (IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params) {
             if (!array_key_exists('severity', $row)) {
                 return;
             }

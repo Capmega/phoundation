@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;

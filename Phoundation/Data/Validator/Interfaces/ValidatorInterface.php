@@ -21,7 +21,7 @@ use UnitEnum;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 interface ValidatorInterface
 {
@@ -165,9 +165,10 @@ interface ValidatorInterface
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
+     * @param int $max_characters
      * @return static
      */
-    public function isCode(?string $until = null): static;
+    public function isCode(?string $until = null, int $max_characters = 64): static;
 
     /**
      * Validates the datatype for the selected field

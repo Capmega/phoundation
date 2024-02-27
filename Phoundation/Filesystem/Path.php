@@ -2330,7 +2330,7 @@ showdie($path);
      * @param int|null $length
      * @return static
      */
-    public function append(string $data, ?int $length = null): static
+    public function appendData(string $data, ?int $length = null): static
     {
         if ($this->isOpen()) {
             return $this->write($data, $length);
@@ -2373,6 +2373,8 @@ showdie($path);
 
 
     /**
+=======
+>>>>>>> 4.8
      * Sets access and modification time of file
      *
      * @return $this

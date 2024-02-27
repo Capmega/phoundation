@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\Traits\DataStartDate;
+use Phoundation\Data\Traits\DataStopDate;
 use Phoundation\Date\DateRangePickerRanges;
 use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Page;
-use Plugins\Medinet\Traits\DataStartDate;
-use Plugins\Medinet\Traits\DataStopDate;
 
 
 /**
@@ -55,11 +55,13 @@ class InputDateRange extends InputText
 
     /**
      * InputDateRange class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        $this->type = InputType::text;
-        parent::__construct();
+        $this->type = EnumInputType::text;
+        parent::__construct($content);
     }
 
 
@@ -143,7 +145,7 @@ class InputDateRange extends InputText
 
         // Setup & configuration script for daterangepicker
         Script::new()
-            ->setJavascriptWrapper(JavascriptWrappers::window)
+            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
             ->setContent('
                 $("[name=' . $this->getName() . ']").daterangepicker(
                 {

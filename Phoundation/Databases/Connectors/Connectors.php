@@ -8,10 +8,8 @@ use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
-use Phoundation\Databases\Sql\Exception\SqlConnectorException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
-use Throwable;
 
 
 /**

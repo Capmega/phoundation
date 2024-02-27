@@ -20,8 +20,8 @@ use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\InputType;
-use Phoundation\Web\Html\Enums\InputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -353,7 +353,7 @@ class Plugin extends DataEntry implements PluginInterface
         $plugin = parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
         $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
-        $class  = Library::loadClassFile($class);
+        $class  = Library::includeClassFile($class);
 
         return $class::fromSource($plugin->getSource());
     }
@@ -367,20 +367,20 @@ class Plugin extends DataEntry implements PluginInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'disabled')
-                ->setInputType(InputTypeExtended::boolean)
+            ->add(Definition::new($this, 'disabled')
+                ->setInputType(EnumInputTypeExtended::boolean)
                 ->setOptional(true)
                 ->setVirtual(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setCliColumn('-d,--disable'))
-            ->addDefinition(DefinitionFactory::getName($this, 'seo_name')
-                ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getName($this)
+            ->add(DefinitionFactory::getName($this, 'seo_name')
+                ->setRender(false))
+            ->add(DefinitionFactory::getName($this)
                 ->setSize(6)
                 ->setHelpText(tr('The name of this plugin')))
-            ->addDefinition(Definition::new($this, 'priority')
+            ->add(Definition::new($this, 'priority')
                 ->setOptional(true)
-                ->setInputType(InputType::number)
+                ->setInputType(EnumInputType::number)
                 ->setNullDb(false, 50)
                 ->setSize(3)
                 ->setCliColumn('--priority')
@@ -392,9 +392,9 @@ class Plugin extends DataEntry implements PluginInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
-            ->addDefinition(Definition::new($this, 'menu_priority')
+            ->add(Definition::new($this, 'menu_priority')
                 ->setOptional(true)
-                ->setInputType(InputType::number)
+                ->setInputType(EnumInputType::number)
                 ->setNullDb(false, 50)
                 ->setSize(3)
                 ->setCliColumn('--menu-priority')
@@ -406,18 +406,18 @@ class Plugin extends DataEntry implements PluginInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isInteger();
                 }))
-            ->addDefinition(Definition::new($this, 'menu_enabled')
+            ->add(Definition::new($this, 'menu_enabled')
                 ->setOptional(true)
-                ->setInputType(InputType::checkbox)
+                ->setInputType(EnumInputType::checkbox)
                 ->setNullDb(false, 5)
                 ->setSize(2)
                 ->setCliColumn('--menu-enabled')
                 ->setCliAutoComplete(true)
                 ->setLabel(tr('Menu enabled'))
                 ->setHelpText(tr('Sets if the menu of this plugin will be available and visible, or not')))
-            ->addDefinition(Definition::new($this, 'enabled')
+            ->add(Definition::new($this, 'enabled')
                 ->setOptional(true)
-                ->setInputType(InputType::checkbox)
+                ->setInputType(EnumInputType::checkbox)
                 ->setSize(3)
                 ->setCliColumn('-e,--enabled')
                 ->setLabel(tr('Enabled'))
@@ -426,21 +426,21 @@ class Plugin extends DataEntry implements PluginInterface
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isBoolean();
                 }))
-            ->addDefinition(Definition::new($this, 'class')
+            ->add(Definition::new($this, 'class')
                 ->setLabel(tr('Class'))
-                ->setInputType(InputType::text)
+                ->setInputType(EnumInputType::text)
                 ->setMaxlength(255)
                 ->setSize(6)
                 ->setHelpText(tr('The base class path of this plugin'))
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->hasMaxCharacters(1024)->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                 }))
-            ->addDefinition(Definition::new($this, 'path')
+            ->add(Definition::new($this, 'path')
                 ->setLabel(tr('Directory'))
-                ->setInputType(InputTypeExtended::path)
+                ->setInputType(EnumInputTypeExtended::path)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->addDefinition(DefinitionFactory::getDescription($this));
+            ->add(DefinitionFactory::getDescription($this));
     }
 }

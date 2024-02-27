@@ -17,6 +17,6 @@ use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionI
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-class DataEntryDeletedException extends DataEntryException implements DataEntryNotExistsExceptionInterface
+class DataEntryDeletedException extends DataEntryNotExistsException implements DataEntryNotExistsExceptionInterface
 {
 }

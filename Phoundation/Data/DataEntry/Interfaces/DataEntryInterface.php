@@ -7,12 +7,17 @@ namespace Phoundation\Data\DataEntry\Interfaces;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\DateTime;
-use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Utils\Enums\EnumMatchMode;
+use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Stringable;
 
 
@@ -24,10 +29,32 @@ use Stringable;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string
+     */
+    public static function getDefaultConnectorName(): string;
+
+    /**
+     * Returns the column considered the "id" column
+     *
+     * @return string
+     */
+    public static function getIdColumn(): string;
+
+    /**
+     * Returns true if the ID column is the specified column
+     *
+     * @param string $column
+     * @return bool
+     */
+    public static function idColumnIs(string $column): bool;
+
     /**
      * Returns if this DataEntry validates data before saving
      *
@@ -174,6 +201,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getMetaState(): ?string;
 
     /**
+     * Returns the meta-columns for this database entry
+     *
+     * @return array|null
+     */
+    public function getMetaColumns(): ?array;
+
+    /**
      * Delete the specified entries
      *
      * @param string|null $comments
@@ -236,7 +270,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param bool $load
      * @return MetaInterface|null
      */
-    public function getMeta(bool $load = false): ?MetaInterface;
+    public function getMetaObject(bool $load = false): ?MetaInterface;
 
     /**
      * Returns the meta id for this entry
@@ -296,6 +330,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getSource(): array;
 
     /**
+     * Returns a list of all internal source keys
+     *
+     * @return mixed
+     */
+    public function getKeys(bool $filter_meta = false): array;
+
+    /**
      * Returns only the specified key from the source of this DataEntry
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
@@ -314,7 +355,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function addSourceValue(string $column, mixed $value): static;
 
     /**
-     * Will save the data from this data entry to database
+     * Will save the data from this data entry to the database
      *
      * @param bool $force
      * @param string|null $comments
@@ -428,4 +469,119 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return static
      */
     public function setSource(Iterator|array $source): static;
+
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return $this
+     */
+    public function appendDataEntry(DataEntryInterface $data_entry): static;
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param DataEntryInterface $data_entry
+     * @return $this
+     */
+    public function prependDataEntry(DataEntryInterface $data_entry): static;
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param string $at_key
+     * @param DataEntryInterface $data_entry
+     * @param bool $after
+     * @param bool $strip_meta
+     * @return $this
+     */
+    public function injectDataEntry(string $at_key, DataEntryInterface $data_entry, bool $after = true, bool $strip_meta = true): static;
+
+    /**
+     * Add the complete definitions and source from the specified data entry to this data entry
+     *
+     * @param string $at_key
+     * @param ElementInterface|ElementsBlockInterface $value
+     * @param DefinitionInterface|array|null $definition
+     * @param bool $after
+     * @return $this
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
+     */
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static;
+
+    /**
+     * Extracts a DataEntry with the specified columns (in the specified order)
+     *
+     * The extracted data entry will have the source and definitions
+     *
+     * The extracted data entry will have the same class and interface as this
+     *
+     * @param array|string $columns
+     * @param EnumMatchModeInterface $match_mode
+     * @return DataEntryInterface
+     */
+    public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
+
+    /**
+     * Returns whether to use random_id
+     *
+     * @return bool
+     */
+    public function getRandomId(): bool;
+
+    /**
+     * Sets whether to use random_id
+     *
+     * @param bool $random_id
+     * @return static
+     */
+    public function setRandomId(bool $random_id): static;
+
+
+    /**
+     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @return bool
+     */
+    public function getMetaEnabled(): bool;
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param bool $meta_enabled
+     * return static
+     */
+    public function setMetaEnabled(bool $meta_enabled): static;
+
+
+    /**
+     * Returns whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
+     *
+     * @return bool
+     */
+    public function getInsertUpdate(): bool;
+
+    /**
+     * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
+     *
+     * @param bool $insert_update
+     * @return static
+     */
+    public function setInsertUpdate(bool $insert_update): static;
+
+    /**
+     * Returns how many random id retries to perform
+     *
+     * @return int
+     */
+    public function getMaxIdRetries(): int;
+
+    /**
+     * Sets how many random id retries to perform
+     *
+     * @param int $max_id_retries
+     * @return static
+     */
+    public function setMaxIdRetries(int $max_id_retries): static;
 }

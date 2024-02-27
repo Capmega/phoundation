@@ -6,12 +6,12 @@ declare(strict_types=1);
 use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -49,8 +49,8 @@ if (Page::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
     ->addButton('Submit')
-    ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/customers.html'), true)
-    ->addButton(tr('Audit'), DisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
+    ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/customers.html'), true)
+    ->addButton(tr('Audit'), EnumDisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
 
 
 // Build the customer form
@@ -78,7 +78,7 @@ $picture = Card::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
@@ -86,7 +86,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -96,7 +96,7 @@ $documentation = Card::new()
 // Build and render the page grid
 $grid = Grid::new()
     ->addColumn($column)
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

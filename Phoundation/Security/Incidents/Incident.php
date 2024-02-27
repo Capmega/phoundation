@@ -22,8 +22,8 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -241,15 +241,15 @@ class Incident extends DataEntry implements IncidentInterface
                 case 'notice':
                     // no break
                 case 'low':
-                    $notification->setMode(DisplayMode::notice);
+                    $notification->setMode(EnumDisplayMode::notice);
                     break;
 
                 case 'medium':
-                    $notification->setMode(DisplayMode::warning);
+                    $notification->setMode(EnumDisplayMode::warning);
                     break;
 
                 default:
-                    $notification->setMode(DisplayMode::danger);
+                    $notification->setMode(EnumDisplayMode::danger);
                     break;
             }
 
@@ -290,33 +290,33 @@ class Incident extends DataEntry implements IncidentInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'type')
+            ->add(Definition::new($this, 'type')
                 ->setLabel(tr('Incident type'))
                 ->setDisabled(true)
                 ->setDefault(tr('Unknown'))
                 ->setSize(6)
                 ->setMaxlength(6))
-            ->addDefinition(Definition::new($this, 'severity')
-                ->setElement(InputElement::select)
+            ->add(Definition::new($this, 'severity')
+                ->setElement(EnumInputElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
                 ->setSize(6)
                 ->setMaxlength(6)
-                ->setSource([
+                ->setDataSource([
                     Severity::notice->value => tr('Notice'),
                     Severity::low->value    => tr('Low'),
                     Severity::medium->value => tr('Medium'),
                     Severity::high->value   => tr('High'),
                     Severity::severe->value => tr('Severe')
                 ]))
-            ->addDefinition(Definition::new($this, 'title')
+            ->add(Definition::new($this, 'title')
                 ->setLabel(tr('Title'))
                 ->setDisabled(true)
                 ->setSize(12)
                 ->setMaxlength(4)
                 ->setMaxlength(255))
-            ->addDefinition(Definition::new($this, 'details')
-                ->setElement(InputElement::textarea)
+            ->add(Definition::new($this, 'details')
+                ->setElement(EnumInputElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)
                 ->setSize(12)

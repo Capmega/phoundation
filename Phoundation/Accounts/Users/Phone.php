@@ -25,8 +25,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Sanitize;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Enums\InputElement;
-use Phoundation\Web\Html\Enums\InputType;
+use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
 
@@ -209,22 +209,22 @@ class Phone extends DataEntry implements PhoneInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
-            ->addDefinition(Definition::new($this, 'verification_code')
+            ->add(Definition::new($this, 'verification_code')
                 ->setOptional(true)
-                ->setVisible(false)
+                ->setRender(false)
                 ->setReadonly(true))
-            ->addDefinition(DefinitionFactory::getUsersId($this)
-                ->setVisible(false))
-            ->addDefinition(DefinitionFactory::getPhone($this)
+            ->add(DefinitionFactory::getUsersId($this)
+                ->setRender(false))
+            ->add(DefinitionFactory::getPhone($this)
                 ->setSize(4)
                 ->setOptional(false)
                 ->setHelpText(tr('An extra phone for the user')))
-            ->addDefinition(Definition::new($this, 'account_type')
+            ->add(Definition::new($this, 'account_type')
                 ->setOptional(true)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setSize(3)
                 ->setCliColumn('-t,--type')
-                ->setSource([
+                ->setDataSource([
                     'personal' => tr('Personal'),
                     'business' => tr('Business'),
                     'other'    => tr('Other'),
@@ -235,23 +235,23 @@ class Phone extends DataEntry implements PhoneInterface
                 ])
                 ->setLabel(tr('Type'))
                 ->setHelpText(tr('The type of phone')))
-            ->addDefinition(DefinitionFactory::getDateTime($this, 'verified_on')
+            ->add(DefinitionFactory::getDateTime($this, 'verified_on')
                 ->setReadonly(true)
                 ->setSize(3)
-                ->setNullInputType(InputType::text)
+                ->setNullInputType(EnumInputType::text)
                 ->setNullDb(true, tr('Not verified'))
                 ->addClasses('text-center')
                 ->setLabel(tr('Verified on'))
                 ->setHelpGroup(tr('Account information'))
                 ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
-            ->addDefinition(Definition::new($this, 'delete')
+            ->add(Definition::new($this, 'delete')
                 ->setVirtual(true)
-                ->setInputType(InputType::submit)
+                ->setInputType(EnumInputType::submit)
                 ->setSize(2)
                 ->setLabel(tr('Delete'))
                 ->addClasses('btn btn-outline-warning')
                 ->setValue(tr('Delete')))
-            ->addDefinition(DefinitionFactory::getDescription($this)
+            ->add(DefinitionFactory::getDescription($this)
                 ->setHelpText(tr('The description for this phone')));
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Web\Html\Components\Interfaces\SpanInterface;
+
 
 /**
  * Span class
@@ -15,14 +17,16 @@ namespace Phoundation\Web\Html\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Span extends Element
+class Span extends Element implements SpanInterface
 {
     /**
      * Form class constructor
+     *
+     * @param string|null $content
      */
-    public function __construct()
+    public function __construct(?string $content = null)
     {
-        parent::__construct();
+        parent::__construct($content);
         $this->setElement('span');
     }
 }

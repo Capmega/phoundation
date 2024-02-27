@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Enums\Interfaces\DisplaySizeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 
 
 /**
@@ -25,11 +25,11 @@ class Grid extends Container
      * Set the rows for this grid
      *
      * @param array $rows
-     * @param DisplaySizeInterface|null $column_size
+     * @param EnumDisplaySizeInterface|null $column_size
      * @param bool $use_form
      * @return static
      */
-    public function setRows(array $rows, ?DisplaySizeInterface $column_size = null, bool $use_form = false): static
+    public function setRows(array $rows, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         $this->source = [];
         return $this->addRows($rows, $column_size, $use_form);
@@ -40,11 +40,11 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param array $rows
-     * @param DisplaySizeInterface|null $column_size
+     * @param EnumDisplaySizeInterface|null $column_size
      * @param bool $use_form
      * @return static
      */
-    public function addRows(array $rows, ?DisplaySizeInterface $column_size = null, bool $use_form = false): static
+    public function addRows(array $rows, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         // Validate columns
         foreach ($rows as $row) {
@@ -65,11 +65,11 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param GridRow|GridColumn|ElementsBlock|null $row
-     * @param DisplaySizeInterface|null $column_size
+     * @param EnumDisplaySizeInterface|null $column_size
      * @param bool $use_form
      * @return static
      */
-    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?DisplaySizeInterface $column_size = null, bool $use_form = false): static
+    public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
     {
         if (!$row) {
             // Just add an empty row
@@ -98,11 +98,11 @@ class Grid extends Container
      * Set the columns for the current row in this grid
      *
      * @param array $columns
-     * @param DisplaySizeInterface|int|null $size $size
+     * @param EnumDisplaySizeInterface|int|null $size $size
      * @param bool $use_form
      * @return static
      */
-    public function setColumns(array $columns, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function setColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         $this->getCurrentRow()->clear();
         return $this->addColumns($columns, $size, $use_form);
@@ -113,11 +113,11 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param array $columns
-     * @param DisplaySizeInterface|int|null $size $size
+     * @param EnumDisplaySizeInterface|int|null $size $size
      * @param bool $use_form
      * @return static
      */
-    public function addColumns(array $columns, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function addColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         foreach ($columns as $column) {
             $this->addColumn($column, $size, $use_form);
@@ -131,11 +131,11 @@ class Grid extends Container
      * Add the specified column to the current row in this grid
      *
      * @param object|string|null $column
-     * @param DisplaySizeInterface|int|null $size $size
+     * @param EnumDisplaySizeInterface|int|null $size $size
      * @param bool $use_form
      * @return static
      */
-    public function addColumn(object|string|null $column, DisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    public function addColumn(object|string|null $column, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
     {
         // Get a row
         if ($this->source) {

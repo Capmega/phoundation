@@ -1,10 +1,10 @@
 <?php
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -159,7 +159,7 @@ Page::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-boot
 Page::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 
 Script::new()
-    ->setJavascriptWrapper(JavascriptWrappers::window)
+    ->setJavascriptWrapper(EnumJavascriptWrappers::window)
     ->setContent(' 
           $("#calendar").datetimepicker({
             format: "L",

@@ -6,7 +6,7 @@ namespace Phoundation\Data\Traits;
 
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Html\Enums\Interfaces\TableRowTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 
 /**
  * Trait DataCallbacks
@@ -86,11 +86,11 @@ trait DataCallbacks
      * @note $params does NOT have a datatype specified as that would cause a crash when sending a non initialized
      *       variable there that would be assigned within this function
      * @param IteratorInterface|array $row
-     * @param TableRowTypeInterface $type
+     * @param EnumTableRowTypeInterface $type
      * @param $params
      * @return $this
      */
-    protected function executeCallbacks(IteratorInterface|array &$row, TableRowTypeInterface $type, &$params): static
+    protected function executeCallbacks(IteratorInterface|array &$row, EnumTableRowTypeInterface $type, &$params): static
     {
         $params = [
             'htmlentities'     => $this->process_entities,

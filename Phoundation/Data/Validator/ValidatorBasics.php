@@ -8,6 +8,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\DataDataEntryClass;
 use Phoundation\Data\Traits\DataIntId;
 use Phoundation\Data\Traits\DataMaxStringSize;
+use Phoundation\Data\Traits\DataMetaColumns;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -27,12 +28,13 @@ use ReflectionProperty;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Company\Data
+ * @package Phoundation\Data
  */
 trait ValidatorBasics
 {
     use DataIntId;
     use DataMaxStringSize;
+    use DataMetaColumns;
     use DataDataEntryClass;
 
 
@@ -520,9 +522,13 @@ trait ValidatorBasics
             // Unprocessed fields
             if ($clean_source) {
                 if (!in_array($field, $this->selected_fields)) {
-                    $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
-                    unset($this->source[$field]);
-                    continue;
+                    // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
+                    // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
+                    if ($this->meta_columns and !in_array($field, $this->meta_columns)) {
+                        $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
+                        unset($this->source[$field]);
+                        continue;
+                    }
                 }
             }
 
@@ -623,7 +629,7 @@ trait ValidatorBasics
 
 
     /**
-     * Add the specified failure message to the failures list
+     * Add the specified failure message to the failure list
      *
      * @param string $failure
      * @param string|null $field
@@ -660,15 +666,14 @@ trait ValidatorBasics
         }
 
         $failure = trim($failure);
-
         if (Debug::getEnabled()) {
-            Log::warning(tr('Validation failed for field ":field" with value ":value" because it :failure', [
+            Log::write(tr('Validation failed for field ":field" with value ":value" because it :failure', [
                 ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                 ':failure' => $failure,
                 ':value'   => $this->source[$selected_field],
-            ]), 3);
+            ]), 'debug', 5);
 
-            Log::backtrace(threshold: 3);
+            Log::backtrace(threshold: 4);
         }
 
         // Build up the failure string

@@ -8,9 +8,12 @@ use Phoundation\Data\Traits\DataDescription;
 use Phoundation\Data\Traits\DataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
+use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
+use Stringable;
 
 
 /**
@@ -62,7 +65,7 @@ class Card extends Widget
      *
      * @var bool $outline
      */
-    protected bool $outline = true;
+    protected bool $outline = false;
 
     /**
      * Extra content for the card header
@@ -84,6 +87,13 @@ class Card extends Widget
      * @var Buttons|null $buttons
      */
     protected ?Buttons $buttons = null;
+
+    /**
+     * The Tabs object
+     *
+     * @var TabsInterface
+     */
+    protected TabsInterface $tabs;
 
 
     /**
@@ -363,5 +373,54 @@ class Card extends Widget
     {
         $this->outline = $outline;
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function setContent(float|Stringable|int|string|null $content, bool $make_safe = false): static
+    {
+        if ($content !== null) {
+            if (!empty($this->tabs)) {
+                throw new OutOfBoundsException(tr('Cannot add content to card, tabs have already been specified and card can only display either content or tabs'));
+            }
+        }
+
+        return parent::setContent($content, $make_safe);
+    }
+
+
+    /**
+     * Returns true if this card uses tabs
+     *
+     * @return bool
+     */
+    public function usesTabs(): bool
+    {
+        return !empty($this->tabs);
+    }
+
+    /**
+     * Returns the Tabs object
+     *
+     * @param bool $create
+     * @return TabsInterface|null
+     */
+    public function getTabsObject(bool $create = true): ?TabsInterface
+    {
+        if (empty($this->tabs)) {
+            if (!$create) {
+                return null;
+            }
+
+            if ($this->content !== null) {
+                throw new OutOfBoundsException(tr('Cannot access card tabs, content has already been specified and card can only display either content or tabs'));
+            }
+
+            $this->tabs = new Tabs();
+        }
+
+        return $this->tabs;
     }
 }

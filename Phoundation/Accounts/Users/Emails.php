@@ -8,17 +8,15 @@ use Phoundation\Accounts\Users\Interfaces\EmailInterface;
 use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\DataEntryForm;
-use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Forms\DataEntryForm;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
 
 
@@ -132,8 +130,8 @@ class Emails extends DataList implements EmailsInterface
         $definitions = $email->getDefinitions();
         $definitions->get('email')->setSize(6);
         $definitions->get('account_type')->setSize(6);
-        $definitions->get('verified_on')->setVisible(false);
-        $definitions->get('delete')->setVisible(false);
+        $definitions->get('verified_on')->setRender(false);
+        $definitions->get('delete')->setRender(false);
 
         $content[] = $email->render();
 
@@ -154,12 +152,13 @@ class Emails extends DataList implements EmailsInterface
     /**
      * Add the specified email to the iterator array
      *
-     * @param Stringable|string|float|int|null $key
      * @param mixed $value
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!$value instanceof EmailInterface) {
             if (!is_string($value)) {
@@ -191,7 +190,7 @@ class Emails extends DataList implements EmailsInterface
             $value->setUsersId($this->parent->getId())->save();
         }
 
-        return parent::add($value, $key);
+        return parent::add($value, $key, $skip_null, $exception);
     }
 
 
@@ -283,7 +282,6 @@ class Emails extends DataList implements EmailsInterface
      * @param bool $force
      * @param string|null $comments
      * @return static
-     * @throws OutOfBoundsException|DataEntryReadonlyException
      */
     public function save(bool $force = false, ?string $comments = null): static
     {

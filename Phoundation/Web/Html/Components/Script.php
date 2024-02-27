@@ -7,9 +7,9 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Data\Traits\DataMinify;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Input\InputSelect;
-use Phoundation\Web\Html\Enums\AttachJavascript;
-use Phoundation\Web\Html\Enums\Interfaces\JavascriptWrappersInterface;
-use Phoundation\Web\Html\Enums\JavascriptWrappers;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
+use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Page;
 
 
@@ -32,9 +32,9 @@ class Script extends Element
     /**
      * Keeps track on where this script will be attached to
      *
-     * @var AttachJavascript $attach
+     * @var EnumAttachJavascript $attach
      */
-    protected AttachJavascript $attach = AttachJavascript::footer;
+    protected EnumAttachJavascript $attach = EnumAttachJavascript::footer;
 
     /**
      * Async script load
@@ -67,11 +67,25 @@ class Script extends Element
     /**
      * What event to wrap this script into
      *
-     * @var JavascriptWrappersInterface|null $javascript_wrapper
+     * @var EnumJavascriptWrappersInterface|null $javascript_wrapper
      */
-    protected ?JavascriptWrappersInterface $javascript_wrapper = null;
+    protected ?EnumJavascriptWrappersInterface $javascript_wrapper = null;
 
 
+    /**
+     * Script class constructor
+     *
+     * @param string|null $content
+     */
+    public function __construct(?string $content = null)
+    {
+        parent::__construct($content);
+
+        // Default the javascript wrapper
+        $this->javascript_wrapper = EnumJavascriptWrappers::dom_content;
+    }
+
+    
     /**
      * Returns if this script is loaded async
      *
@@ -147,9 +161,9 @@ class Script extends Element
     /**
      * Returns where this script is attached to the document
      *
-     * @return AttachJavascript
+     * @return EnumAttachJavascript
      */
-    public function getAttach(): AttachJavascript
+    public function getAttach(): EnumAttachJavascript
     {
         return $this->attach;
     }
@@ -158,10 +172,10 @@ class Script extends Element
     /**
      * Sets where this script is attached to the document
      *
-     * @param AttachJavascript $attach
+     * @param EnumAttachJavascript $attach
      * @return static
      */
-    public function setAttach(AttachJavascript $attach): static
+    public function setAttach(EnumAttachJavascript $attach): static
     {
         $this->attach = $attach;
         return $this;
@@ -195,9 +209,9 @@ class Script extends Element
     /**
      * Returns the event wrapper code for this script
      *
-     * @return JavascriptWrappersInterface|null
+     * @return EnumJavascriptWrappersInterface|null
      */
-    public function getJavascriptWrapper(): ?JavascriptWrappersInterface
+    public function getJavascriptWrapper(): ?EnumJavascriptWrappersInterface
     {
         return $this->javascript_wrapper;
     }
@@ -206,10 +220,10 @@ class Script extends Element
     /**
      * Sets the event wrapper code for this script
      *
-     * @param JavascriptWrappersInterface|null $javascript_wrapper
+     * @param EnumJavascriptWrappersInterface|null $javascript_wrapper
      * @return static
      */
-    public function setJavascriptWrapper(?JavascriptWrappersInterface $javascript_wrapper): static
+    public function setJavascriptWrapper(?EnumJavascriptWrappersInterface $javascript_wrapper): static
     {
         $this->javascript_wrapper = $javascript_wrapper;
         return $this;
@@ -230,19 +244,19 @@ class Script extends Element
         if ($this->content) {
             // Apply event wrapper
             switch ($this->javascript_wrapper) {
-                case JavascriptWrappers::dom_content:
+                case EnumJavascriptWrappers::dom_content:
                     $render = 'document.addEventListener("DOMContentLoaded", function(e) {
                               ' . $this->content . '
                            });' . PHP_EOL;
                     break;
 
-                case JavascriptWrappers::window:
+                case EnumJavascriptWrappers::window:
                     $render = 'window.addEventListener("load", function(e) {
                               ' . $this->content . '
                            });' . PHP_EOL;
                     break;
 
-                case JavascriptWrappers::function:
+                case EnumJavascriptWrappers::function:
                     $render = '$(function() {
                               ' . $this->content . '
                            });' . PHP_EOL;
@@ -264,10 +278,10 @@ class Script extends Element
 
         // Where should this script be attached?
         switch ($this->attach) {
-            case AttachJavascript::here:
+            case EnumAttachJavascript::here:
                 return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>' . PHP_EOL;
 
-            case AttachJavascript::header:
+            case EnumAttachJavascript::header:
                 Page::addToHeader('javascript', [
                     'type'    => 'text/javascript',
                     'content' => $render
@@ -275,7 +289,7 @@ class Script extends Element
 
                 return null;
 
-            case AttachJavascript::footer:
+            case EnumAttachJavascript::footer:
                 Page::addToFooter('javascript', [
                     'type'    => 'text/javascript',
                     'content' => $render

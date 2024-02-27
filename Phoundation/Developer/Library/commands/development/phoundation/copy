@@ -6,6 +6,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
+use Phoundation\Developer\Phoundation\Plugins;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 
@@ -47,5 +48,7 @@ $argv = ArgvValidator::new()
     ->selectAll('files')->each()->isPath(Directory::default(DIRECTORY_ROOT), Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source path')))
     ->validate();
 
-// Copy the file
+
+// Copy the file to either Phoundation install or Phoundation plugins install
 Phoundation::new()->copy($argv['files'], $argv['branch'], !$argv['allow_changes']);
+Plugins::new()->copy($argv['files'], $argv['branch'], !$argv['allow_changes']);

@@ -7,7 +7,7 @@ namespace Phoundation\Accounts\Roles\Interfaces;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 
 
 /**

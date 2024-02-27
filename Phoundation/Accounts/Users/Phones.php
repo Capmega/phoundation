@@ -14,11 +14,10 @@ use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\DataEntryForm;
-use Phoundation\Web\Html\Components\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Forms\DataEntryForm;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
 
 
@@ -132,8 +131,8 @@ class Phones extends DataList implements PhonesInterface
         $definitions = $phone->getDefinitions();
         $definitions->get('phone')->setSize(6);
         $definitions->get('account_type')->setSize(6);
-        $definitions->get('verified_on')->setVisible(false);
-        $definitions->get('delete')->setVisible(false);
+        $definitions->get('verified_on')->setRender(false);
+        $definitions->get('delete')->setRender(false);
 
         $content[] = $phone->render();
 
@@ -154,12 +153,13 @@ class Phones extends DataList implements PhonesInterface
     /**
      * Add the specified phone to the iterator array
      *
-     * @param Stringable|string|float|int|null $key
      * @param mixed $value
+     * @param Stringable|string|float|int|null $key
      * @param bool $skip_null
+     * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!$value instanceof PhoneInterface) {
             if (!is_string($value)) {
@@ -193,7 +193,7 @@ class Phones extends DataList implements PhonesInterface
             $value->setUsersId($this->parent->getId())->save();
         }
 
-        return parent::add($value, $key, $skip_null);
+        return parent::add($value, $key, $skip_null, $exception);
     }
 
 

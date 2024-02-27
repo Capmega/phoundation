@@ -9,7 +9,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Web\Html\Enums\InputElement;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -22,7 +22,7 @@ use Phoundation\Web\Html\Enums\InputElement;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Accounts
  */
-class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
+class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
     /**
      * The different status values to filter on
@@ -47,15 +47,15 @@ class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
         ];
 
         $this->definitions = Definitions::new()
-            ->addDefinition(Definition::new(null, 'entry_status')
+            ->add(Definition::new(null, 'entry_status')
                 ->setLabel(tr('Status'))
                 ->setSize(4)
                 ->setOptional(true)
-                ->setElement(InputElement::select)
+                ->setElement(EnumInputElement::select)
                 ->setValue(isset_get($this->source['entry_status']))
                 ->setKey(true, 'auto_submit')
-                ->setSource($this->states))
-            ->addDefinition(Definition::new(null, 'roles_id')
+                ->setDataSource($this->states))
+            ->add(Definition::new(null, 'roles_id')
                 ->setLabel(tr('Role'))
                 ->setSize(4)
                 ->setOptional(true)
@@ -67,7 +67,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\FilterForm
                         ->setSelected(isset_get($this->source[$key]))
                         ->render();
                 }))
-            ->addDefinition(Definition::new(null, 'rights_id')
+            ->add(Definition::new(null, 'rights_id')
                 ->setLabel(tr('Right'))
                 ->setSize(4)
                 ->setOptional(true)
