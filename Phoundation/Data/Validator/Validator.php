@@ -7,7 +7,6 @@ namespace Phoundation\Data\Validator;
 use DateTime;
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
-use Phoundation\Core\Sessions\Config;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -15,8 +14,6 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
@@ -2228,12 +2225,12 @@ abstract class Validator implements ValidatorInterface
         $restrictions = Restrictions::ensure($restrictions);
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
-            $test = Filesystem::absolute($value, $exists_in_directory, false);
+            $test = Path::getAbsolute($value, $exists_in_directory, false);
             $test = Path::new($test, $restrictions)->checkRestrictions(false);
 
             if (empty($does_exist)) {
                 // We found the file itself, we're done
-                $does_exist = $test->exists();
+                $does_exist = $test->pathExists();
 
                 if ($does_exist) {
                     break;
@@ -2244,7 +2241,7 @@ abstract class Validator implements ValidatorInterface
             if (empty($parent_exists)) {
                 $parent = $test->getParentDirectory();
 
-                if ($parent->exists()) {
+                if ($parent->pathExists()) {
                     $parent_exists = $parent;
                 }
             }

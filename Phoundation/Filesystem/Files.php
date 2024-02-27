@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Traits\DataBufferSize;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Utils\Arrays;
 use Stringable;
 
 
@@ -23,35 +21,18 @@ use Stringable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Files extends Iterator implements FilesInterface
+class Files extends Directory implements FilesInterface
 {
-    use DataRestrictions;
-    use DataBufferSize;
-
-
     /**
      * Files class constructor
      *
-     * @param mixed $paths
-     * @param array|string|Restrictions|null $restrictions
-     */
-    public function __construct(mixed $paths = null, array|string|Restrictions|null $restrictions = null)
-    {
-        parent::__construct($paths);
-        $this->setRestrictions($restrictions);
-    }
-
-
-    /**
-     * Returns a new File object with the specified restrictions
-     *
-     * @param mixed $paths
+     * @param mixed $files
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
      */
-    public static function new(mixed $paths = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public function __construct(mixed $files = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
-        return new static($paths, $restrictions);
+        $this->source = Arrays::force($files, null);
+        parent::__construct(null, $restrictions);
     }
 
 
@@ -71,7 +52,7 @@ class Files extends Iterator implements FilesInterface
         Directory::new($target, $restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            File::new($file)->move($target, $restrictions);
+            File::new($file)->movePath($target, $restrictions);
         }
 
         return $this;
@@ -79,7 +60,7 @@ class Files extends Iterator implements FilesInterface
 
 
     /**
-     * Move all files to the specified target
+     * Copy all files to the specified target
      *
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically

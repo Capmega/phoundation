@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 
 
 /**
@@ -89,7 +89,7 @@ trait Git
      */
     public function setDirectory(string $directory): static
     {
-        $this->directory = Filesystem::absolute($directory);
+        $this->directory = Path::getAbsolute($directory);
         $this->git  = \Phoundation\Developer\Versioning\Git\Git::new($this->directory);
 
         if (!$this->directory) {

@@ -55,7 +55,7 @@ class Cache
         }
 
         Libraries::clearCommandsCache();
-        Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->delete();
+        Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->deletePath();
         static::driver()?->clear();
 
         Log::success(tr('Cleared cache'));

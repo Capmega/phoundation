@@ -529,7 +529,7 @@ class Libraries
     public static function clearCommandsCache(): void
     {
         Log::action(tr('Clearing commands cache'), 3);
-        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->delete();
+        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->deletePath();
         static::$cache_has_been_cleared = true;
     }
 
@@ -543,7 +543,7 @@ class Libraries
     {
         Log::action(tr('Rebuilding command cache'), 4, echo_screen: false);
 
-        $temporary = Directory::newTemporary();
+        $temporary = Directory::getTemporary();
         $commands  = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS));
 
         foreach (static::listLibraries() as $library) {
@@ -559,37 +559,32 @@ class Libraries
 
 
     /**
-     * Deletes the web cache
-     *
-     * @return void
-     */
-    public static function clearWebCache(): void
-    {
-        Log::action(tr('Clearing web cache'), 3);
-        Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))->delete();
-    }
-
-
-    /**
      * Rebuilds the web cache
      *
      * @return void
      */
     public static function rebuildWebCache(): void
     {
-        Log::action(tr('Rebuilding web cache'), 4, echo_screen: false);
+        Log::action(tr('Rebuilding web cache'), 4);
 
-        $temporary = Directory::newTemporary();
+        $temporary = Directory::getTemporary();
         $web       = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB));
 
         foreach (static::listLibraries() as $library) {
             $library->cacheWeb($temporary);
         }
 
-        // Move the old out of the way, push the new in
-        $web->replaceWithPath($temporary);
+        if ($web->pathExists()) {
+            // Move the old web away, push the temp to web, delete the old web
+            $old = $web->movePath(Directory::getTemporary());
+            $web->replaceWithPath($temporary);
+            $old->deletePath();
 
-        Log::success(tr('Finished rebuilding web cache'), 5, echo_screen: false);
+        } else {
+            $web->replaceWithPath($temporary);
+        }
+
+        Log::success(tr('Finished rebuilding web cache'), 5);
     }
 
 

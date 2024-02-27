@@ -274,7 +274,7 @@ class Plugins extends DataList implements PluginsInterface
         // Delete all plugins from disk
         $directory = DIRECTORY_ROOT . 'Plugins/';
 
-        File::new($directory)->delete();
+        File::new($directory)->deletePath();
         Directory::new($directory)->ensure();
 
         return $this;

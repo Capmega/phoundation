@@ -126,7 +126,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
 
-            File::new(DIRECTORY_ROOT . 'config/project')->delete();
+            File::new(DIRECTORY_ROOT . 'config/project')->deletePath();
         }
 
         static::$name = $project;
@@ -277,7 +277,7 @@ class Project implements ProjectInterface
 
         // Remove the project file
         Log::warning(tr('Removing project file "config/project"'));
-        File::new(DIRECTORY_ROOT . 'config/project', Restrictions::new(DIRECTORY_ROOT . 'config/project', true))->delete();
+        File::new(DIRECTORY_ROOT . 'config/project', Restrictions::new(DIRECTORY_ROOT . 'config/project', true))->deletePath();
     }
 
 
@@ -819,7 +819,7 @@ $skip = false;
 
         // Move /Phoundation and /scripts out of the way
         try {
-            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
+            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->deletePath();
 
 //            $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
 //            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
@@ -908,7 +908,7 @@ $skip = false;
 
         // Move /Phoundation and /scripts out of the way
         try {
-            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
+            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->deletePath();
 
             // Copy new plugin libraries
             Log::action('Updating Phoundation plugins');

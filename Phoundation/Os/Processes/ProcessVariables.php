@@ -749,7 +749,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        $directory               = Directory::newTemporary($public);
+        $directory               = Directory::getTemporary($public);
         $this->restrictions = $directory->getRestrictions();
 
         $this->setExecutionDirectory($directory, $directory->getRestrictions());
@@ -1763,7 +1763,7 @@ trait ProcessVariables
         $pid  = trim($pid);
 
         // Delete the run file, don't clean up as that is not needed. When the process terminates, cleanup will happen
-        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))->delete(false);
+        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))->deletePath(false);
         $this->run_file = null;
 
         if (!$pid) {

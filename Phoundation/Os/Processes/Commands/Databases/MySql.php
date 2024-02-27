@@ -14,8 +14,8 @@ use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
@@ -95,7 +95,7 @@ class MySql extends Command
     public function import(string $file, RestrictionsInterface $restrictions): void
     {
         // Get file and database information
-        $file         = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/');
+        $file         = Path::getAbsolute($file, DIRECTORY_DATA . 'sources/');
         $restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_DATA . 'sources/', false, 'Mysql importer'));
         $threshold    = Log::setThreshold(3);
 

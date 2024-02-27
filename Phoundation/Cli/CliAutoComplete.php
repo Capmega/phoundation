@@ -14,7 +14,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Os\Processes\Commands\Grep;
@@ -448,7 +448,7 @@ class CliAutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = Filesystem::absolute('~/.bash_completion', must_exist: false);
+        $file = Path::getAbsolute('~/.bash_completion', must_exist: false);
 
         if (file_exists($file)) {
             // Check if it contains the setup for Phoundation

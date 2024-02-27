@@ -10,7 +10,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Os\Processes\Process;
@@ -87,7 +87,7 @@ class Git extends Versioning implements GitInterface
      */
     public function setDirectory(DirectoryInterface|string $directory): static
     {
-        $this->directory = Filesystem::absolute($directory);
+        $this->directory = Path::getAbsolute($directory);
         $this->git       = Process::new('git')
             ->setExecutionDirectory($this->directory)
             ->setTimeout(300);
@@ -366,7 +366,7 @@ class Git extends Versioning implements GitInterface
         $diff = $this->getDiff($files, $cached);
 
         if ($diff) {
-            return File::newTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
+            return File::getTemporary(false, sha1(Strings::force($files, '-')) . '.patch', false)
                 ->putContents($diff . PHP_EOL)
                 ->getPath();
 

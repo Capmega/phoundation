@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 
 use Phoundation\Data\Traits\NewSource;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Process;
 
 
@@ -59,7 +59,7 @@ trait GitProcess
      */
     public function setDirectory(string $directory): static
     {
-        $this->directory   = Filesystem::absolute($directory);
+        $this->directory   = Path::getAbsolute($directory);
         $this->git_process = Process::new('git')->setExecutionDirectory($this->directory);
 
         if (!$this->directory) {

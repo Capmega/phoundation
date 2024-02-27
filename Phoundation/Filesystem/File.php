@@ -47,7 +47,7 @@ class File extends Path implements FileInterface
      * @param bool $public
      * @return static
      */
-    public static function newTemporary(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
+    public static function getTemporary(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
         if ($persist) {
             $directory    = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP);
@@ -186,27 +186,118 @@ class File extends Path implements FileInterface
     }
 
 
+    /**
+     * Return true if the specified mimetype is for a compressed file, false if not
+     *
+     * This function will check the primary and secondary sections of the mimetype and depending on their values,
+     * determine if the file format is compressed or not
+     *
+     * @return boolean True if the specified mimetype is for a compressed file, false if not
+     */
     public function isCompressed(): bool
     {
-        $mime = $this->getMimetype();
-        $mime = Strings::from($mime, '/');
+// :TODO: IMPROVE THIS! Loads of files that may be mis detected
+        $this->primarySecondaryMimeType($primary, $secondary);
 
-        return match ($mime) {
-            'zip', 'x-7z-compressed', 'rar', 'x-bzip', 'x-bzip2', 'gzip' => true,
-            default => false,
+        switch ($primary) {
+            case 'zip':
+            case 'x-7z-compressed':
+            case 'rar':
+            case 'gzip':
+            case 'x-bzip':
+            case 'x-bzip2':
+            case 'audio':
+            case 'image':
+            case 'video':
+                // These are all compressed
+                return true;
         };
+
+        switch ($secondary) {
+            case 'jpeg':
+            case 'mpeg':
+            case 'ogg':
+                return true;
+        }
+
+        // Check the mimetype data
+        if (str_contains($secondary, 'compressed')) {
+            // This file is already compressed
+            return true;
+
+        }
+
+        if (str_contains($secondary, 'zip')) {
+            // This file is already compressed
+            return true;
+        }
+
+        return false;
     }
 
 
     /**
-     * Returns true or false if file is ASCII or not
+     * Return true if the specified mimetype is for a binary file or false if it is for a text file
      *
      * @return bool True if the file is a text file, false if not
      */
     public function isBinary(): bool
     {
+        $this->primarySecondaryMimeType($primary, $secondary);
+
+        // Check the mimetype data
+        switch ($primary) {
+            case 'text':
+                // Plain text
+                return false;
+
+            default:
+                switch ($secondary) {
+                    case 'json':
+                        // no-break
+                    case 'ld+json':
+                        // no-break
+                    case 'svg+xml':
+                        // no-break
+                    case 'x-csh':
+                        // no-break
+                    case 'x-sh':
+                        // no-break
+                    case 'xhtml+xml':
+                        // no-break
+                    case 'xml':
+                        // no-break
+                    case 'vnd.mozilla.xul+xml':
+                        // This is all text
+                        return false;
+                }
+        }
+
+        // This is binary
+        return true;
+    }
+
+
+    /**
+     * Sets primary and secondary mime types variables with mime data for this file
+     *
+     * @param $primary
+     * @param $secondary
+     * @return void
+     * @throws Exception
+     */
+    protected function primarySecondaryMimeType(&$primary, &$secondary): void
+    {
         $mimetype = $this->getMimetype();
-        return Filesystem::isBinary(Strings::until($mimetype, '/'), Strings::from($mimetype, '/'));
+
+        if (!str_contains($mimetype, '/')) {
+            throw new FilesystemException(tr('Invalid primary mimetype data ":primary" encountered. It should be in primary/secondary format', [
+                ':primary' => $mimetype
+            ]));
+        }
+
+        $primary   = Strings::until($mimetype, '/');
+        $secondary = Strings::from($mimetype , '/');
     }
 
 
@@ -637,7 +728,7 @@ class File extends Path implements FileInterface
         }
 
         if (!$extension) {
-            $extension = Filesystem::getExtension($this->filename);
+            $extension = $this->getExtension();
         }
 
         if ($length) {
@@ -682,7 +773,7 @@ class File extends Path implements FileInterface
 
                 } else {
                     rename($target);
-                    Directory::new(dirname($this->path))->clear();
+                    Directory::new(dirname($this->path))->clearDirectory();
                 }
             }
         }
@@ -1169,17 +1260,6 @@ class File extends Path implements FileInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * Returns the extension of the object filename
-     *
-     * @return string
-     */
-    public function getExtension(): string
-    {
-        return Strings::fromReverse($this->path, '.');
     }
 
 

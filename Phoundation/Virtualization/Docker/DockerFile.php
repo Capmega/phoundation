@@ -99,8 +99,8 @@ class DockerFile
     public function writeConfig(): static
     {
         // Delete old docker configuration files
-        File::new($this->directory . '.docker')->setRestrictions($this->restrictions->getChild('.docker'))->delete();
-        File::new($this->directory . 'docker-compose.yml')->setRestrictions($this->restrictions->getChild('docker-compose.yml'))->delete();
+        File::new($this->directory . '.docker')->setRestrictions($this->restrictions->getChild('.docker'))->deletePath();
+        File::new($this->directory . 'docker-compose.yml')->setRestrictions($this->restrictions->getChild('docker-compose.yml'))->deletePath();
 
         File::new($this->directory . '.docker/Dockerfile')
             ->setRestrictions($this->restrictions->getChild('.docker/Dockerfile'))

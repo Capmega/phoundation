@@ -1313,7 +1313,7 @@ class User extends DataEntry implements UserInterface
     public function erase(bool $secure = false): static
     {
         // Delete the users data directory, then erase the user from the database
-        Directory::new(DIRECTORY_DATA . 'home/' . $this->getId(), Restrictions::new(DIRECTORY_DATA . 'home/', true))->delete(DIRECTORY_DATA . 'home/');
+        Directory::new(DIRECTORY_DATA . 'home/' . $this->getId(), Restrictions::new(DIRECTORY_DATA . 'home/', true))->deletePath(DIRECTORY_DATA . 'home/');
         return parent::erase();
     }
 

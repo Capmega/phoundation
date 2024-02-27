@@ -315,8 +315,8 @@ class CliRunFile implements CliRunFileInterface
 
                 if ($cmd !== $command) {
                     // The PID exists, but its a different command. Remove the runfile and all PID files
-                    File::new($runfile, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
-                    File::new(static::$directory . 'pids/' . $pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/pids/');
+                    File::new($runfile, static::$restrictions)->deletePath(DIRECTORY_DATA . 'run/');
+                    File::new(static::$directory . 'pids/' . $pid, static::$restrictions)->deletePath(DIRECTORY_DATA . 'run/pids/');
                 }
         });
 
@@ -339,8 +339,8 @@ class CliRunFile implements CliRunFileInterface
     {
         // Delete the runfile and delete all possible PID files associated with this PID
         // Don't use runfiles here because we're deleting the runfile directories...
-        File::new(DIRECTORY_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
-        Directory::new(DIRECTORY_DATA . 'run/pids/' . $this->pid, static::$restrictions)->delete(DIRECTORY_DATA . 'run/', use_run_file: false);
+        File::new(DIRECTORY_DATA . 'run/' . $this->command . '/' . $this->pid, static::$restrictions)->deletePath(DIRECTORY_DATA . 'run/', use_run_file: false);
+        Directory::new(DIRECTORY_DATA . 'run/pids/' . $this->pid, static::$restrictions)->deletePath(DIRECTORY_DATA . 'run/', use_run_file: false);
         return $this;
     }
 
@@ -363,7 +363,7 @@ class CliRunFile implements CliRunFileInterface
             ':pid' => $pid
         ]));
 
-        File::new($file, static::$restrictions)->delete(DIRECTORY_DATA . 'run/');
+        File::new($file, static::$restrictions)->deletePath(DIRECTORY_DATA . 'run/');
         return false;
     }
 

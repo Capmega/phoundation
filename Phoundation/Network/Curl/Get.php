@@ -12,7 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
 use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Curl\Exception\CurlNon200Exception;
@@ -139,7 +139,7 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                File::new($this->cookie_file, DIRECTORY_DATA . 'curl/')->delete();
+                File::new($this->cookie_file, DIRECTORY_DATA . 'curl/')->deletePath();
             }
 
             unset($this->cookie_file);
@@ -246,7 +246,7 @@ class Get extends Curl
         // Use cookies?
         if (isset_get($this->cookies)) {
             if (!isset_get($this->cookie_file)) {
-                $this->cookie_file = Filesystem::createTempFile()->getPath();
+                $this->cookie_file = File::getTemporary()->getPath();
             }
 
             // Make sure the specified cookie path exists

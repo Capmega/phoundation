@@ -1480,7 +1480,7 @@ Class Html
 
                         File::new(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
                             File::new($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->chmod();
-                            File::new($file.'.js,'.$file.'.min.js', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->delete();
+                            File::new($file.'.js,'.$file.'.min.js', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->deletePath();
                         });
 
                     } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
@@ -2273,7 +2273,7 @@ Class Html
                         $directory = cli_unzip($file);
 
                         File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
-                            File::delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
+                            File::deletePath(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($directory.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
 

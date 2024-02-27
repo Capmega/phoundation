@@ -21,7 +21,7 @@ use Phoundation\Exception\PhpException;
 use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -1248,7 +1248,7 @@ class Route
             $parameters = static::getParameters()->select(static::$uri);
         }
 
-        $target = Filesystem::absolute($parameters->getRootDirectory() . Strings::unslash($target));
+        $target = Path::getAbsolute($parameters->getRootDirectory() . Strings::unslash($target));
 
         // Check if configured page exists
         if ($target === 'index.php') {

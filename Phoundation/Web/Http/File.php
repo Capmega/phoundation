@@ -9,11 +9,12 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Page;
 
 
 /**
@@ -28,11 +29,9 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class File
+throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
+class File extends \Phoundation\Filesystem\File
 {
-    use DataRestrictions;
-
-
     /**
      * If true, files will be transferred using compression
      *
@@ -350,7 +349,7 @@ Log::checkpoint();
             $this->mimetype = mime_content_type($this->file);
 
             // What file mode will we use?
-            if (Filesystem::isBinary($this->mimetype)) {
+            if ($this->isBinary()) {
                 $mode = 'rb';
 
             } else {
@@ -381,7 +380,6 @@ Log::checkpoint();
      * If the path is not specified then by default the function will download to the DIRECTORY_TMP directory;
      * DIRECTORY_ROOT/data/tmp
      *
-     * @see \Phoundation\Filesystem\Filesystem::createTempFile()
      * @param string $url             The URL of the file to be downloaded
      * @param callable|null $callback If specified, download will execute this callback with either the filename or file
      *                                contents (depending on $section)
@@ -390,7 +388,7 @@ Log::checkpoint();
     public function download(string $url, callable $callback = null): FileInterface|null
     {
         // Set temp file and download data
-        $file = Filesystem::createTempFile()->getPath();
+        $file = File::getTemporary()->getPath();
         $data = file_get_contents($url);
 
         // Write data to the temp file
@@ -402,7 +400,7 @@ Log::checkpoint();
 
         // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
-        \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
+        \Phoundation\Filesystem\File::new($file, $this->restrictions)->deletePath();
 
         return $file;
     }
@@ -469,7 +467,7 @@ Log::checkpoint();
 
     /**
      * Checks data and configures compression setting if needed
-     * 
+     *
      * @return void
      */
     protected function configureCompression(): void
@@ -478,7 +476,7 @@ Log::checkpoint();
         if ($this->compression === 'auto') {
             // Detect if the file is already compressed. If so, we don't need the server to try to compress the data
             // stream too because it won't do anything (possibly make it even worse)
-            $this->compression = !Filesystem::isCompressed($this->mimetype);
+            $this->compression = !$this->isCompressed();
         }
 
         if ($this->compression) {
@@ -498,9 +496,9 @@ Log::checkpoint();
             ini_set('zlib.output_compression', 'Off');
         }
     }
-    
-    
-    
+
+
+
     /**
      * Sends HTTP headers before transferring the file
      *

@@ -64,7 +64,7 @@ use Throwable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Path implements Stringable, PathInterface
+class Path extends Iterator implements Stringable, PathInterface
 {
     use DataRestrictions;
     use DataBufferSize;
@@ -72,12 +72,8 @@ class Path implements Stringable, PathInterface
     use DataServer;
 
 
-    /**
-     * The real path to this file
-     *
-     * @var string|false|null $real_path
-     */
-    protected string|false|null $real_path = null;
+    const DIRECTORY_SEPARATOR = '/';
+
 
     /**
      * The target file name in case operations creates copies of this file
@@ -108,13 +104,6 @@ class Path implements Stringable, PathInterface
     protected int $type;
 
     /**
-     * Tracks if the current path is relative or absolute
-     *
-     * @var bool $is_relative
-     */
-    protected bool $is_relative = false;
-
-    /**
      * If the file is opened, specifies how it was opened
      *
      * @var EnumFileOpenModeInterface|null $open_mode
@@ -132,32 +121,34 @@ class Path implements Stringable, PathInterface
     /**
      * File class constructor
      *
-     * @param mixed $file
+     * @param mixed $path
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool $is_relative
+     * @param bool $make_absolute
      */
-    public function __construct(mixed $file = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $is_relative = null)
+    public function __construct(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false)
     {
-        if (is_null($file) or is_string($file) or ($file instanceof Stringable)) {
+        parent::__construct();
+
+        if (is_null($path) or is_string($path) or ($path instanceof Stringable)) {
             // The Specified file was actually a File or Directory object, get the file from there
-            if ($file instanceof PathInterface) {
-                $this->setPath($file->getPath(), is_relative: $is_relative ?? $file->getIsRelative());
-                $this->setTarget($file->getTarget());
-                $this->setRestrictions($restrictions ?? $file->getRestrictions());
+            if ($path instanceof PathInterface) {
+                $this->setPath($path, make_absolute: $make_absolute);
+                $this->setTarget($path->getTarget());
+                $this->setRestrictions($restrictions ?? $path->getRestrictions());
 
             } else {
-                $this->setPath((string) $file, is_relative: $is_relative);
+                $this->setPath($path, make_absolute: $make_absolute);
                 $this->setRestrictions($restrictions);
             }
 
-        } elseif (is_resource($file)) {
+        } elseif (is_resource($path)) {
             // This is an input stream resource
-            $this->stream = $file;
+            $this->stream = $path;
             $this->path   = '?';
 
         } else {
-            throw new OutOfBoundsException(tr('Invalid file ":file" specified. Must be one if PathInterface, Stringable, string, null, or resource', [
-                ':file' => $file
+            throw new OutOfBoundsException(tr('Invalid path ":path" specified. Must be one if PathInterface, Stringable, string, null, or resource', [
+                ':path' => $path
             ]));
         }
     }
@@ -179,12 +170,12 @@ class Path implements Stringable, PathInterface
      *
      * @param mixed $path
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool|null $is_relative
+     * @param bool $make_absolute
      * @return static
      */
-    public static function new(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null, ?bool $is_relative = null): static
+    public static function new(mixed $path = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false): static
     {
-        return new static($path, $restrictions, $is_relative);
+        return new static($path, $restrictions, $make_absolute);
     }
 
 
@@ -220,43 +211,141 @@ class Path implements Stringable, PathInterface
      * ~ is the current shell's user home directory
      *
      * @param Path|Stringable|string|null $file
-     * @param RestrictionsInterface|array|string|null $restrictions
      * @return static
      */
-    public static function default(Path|Stringable|string|null $file = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    public static function getAbsolute(Stringable|string|null $directory = null, Stringable|string|null $prefix = null, bool $must_exist = true): string
     {
-        // Determine what path to choose from the specified file
-        if ($file) {
-            $file = trim((string)$file);
+        $directory = trim((string) $directory);
 
-            switch ($file[0]) {
-                case '/':
-                    // This is an absolute path already
-                    break;
-
-                case '.':
-                    // This is a path starting at DIRECTORY_ROOT
-                    $file = DIRECTORY_ROOT . Strings::startsNotWith(substr($file, 1), '/');
-                    break;
-
-                case '~':
-                    // This starts at the users home directory
-                    if (empty($_SERVER['HOME'])) {
-                        throw new OutOfBoundsException(tr('Cannot determine this users home directory'));
-                    }
-
-                    $file = Strings::endsWith($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($file, 1), '/');
-                    break;
-            }
+        if (!$directory) {
+            return DIRECTORY_ROOT;
         }
 
-        Log::warning($file, echo_screen: false);
-        return new static($file, $restrictions);
+        static::validateFilename($directory);
+
+        if (str_starts_with($directory, '/')) {
+            // This is already an absolute directory
+            $return = $directory;
+
+        } elseif (str_starts_with($directory, '~')) {
+            // This is a user home directory
+            $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($directory, 1), '/');
+
+        } elseif (str_starts_with($directory, './')) {
+            // This is a user home directory
+            $return = STARTDIR . substr($directory, 2);
+
+        } elseif (str_starts_with($directory, '~')) {
+            // This starts at the process users home directory
+            if (empty($_SERVER['HOME'])) {
+                throw new OutOfBoundsException(tr('Cannot determine this users home directory'));
+            }
+
+            $file = Strings::endsWith($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($file, 1), '/');
+
+        } else {
+             // This is not an absolute directory, make it an absolute directory
+            $prefix = trim((string) $prefix);
+
+            if (!$prefix) {
+                $prefix = DIRECTORY_ROOT;
+            } else {
+                switch ($prefix) {
+                    case 'css':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
+                        break;
+
+                    case 'js':
+                        // no-break
+                    case 'javascript':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
+                        break;
+
+                    case 'img':
+                        // no-break
+                    case 'image':
+                        // no-break
+                    case 'images':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
+                        break;
+
+                    case 'font':
+                        // no-break
+                    case 'fonts':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
+                        break;
+
+                    case 'video':
+                        // no-break
+                    case 'videos':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
+                        break;
+                }
+            }
+
+            $return = Strings::slash($prefix) . Strings::unslash($directory);
+        }
+
+        // If this is a directory, make sure it has a slash suffix
+        if (file_exists($return)) {
+            if (is_dir($return)) {
+                $return = Strings::slash($return);
+            }
+        } else {
+            if ($must_exist) {
+                throw new FileNotExistException(tr('The resolved path ":resolved" for the specified path ":directory" with prefix ":prefix" does not exist', [
+                    ':prefix'    => $prefix,
+                    ':directory' => $directory,
+                    ':resolved'  => $return
+                ]));
+            }
+
+            // The path doesn't exist, but apparently that's okay! Continue!
+        }
+
+        return $return;
     }
 
 
     /**
-     * Returns the stream for this file if its opened. Will return NULL if closed
+     * Ensures that the object file name is valid
+     *
+     * @param string|null $file
+     * @return void
+     */
+    public static function validateFilename(?string $file = null): void
+    {
+        if ($file === null) {
+            return;
+        }
+
+        $file = trim($file);
+
+        if (!$file) {
+            throw new OutOfBoundsException(tr('No file specified'));
+        }
+
+        if (strlen($file) > 4096) {
+            throw new OutOfBoundsException(tr('The object filename is too large with ":size" bytes', [
+                ':size' => strlen($file)
+            ]));
+        }
+    }
+
+
+    /**
+     * Returns the extension of the objects path
+     *
+     * @return string
+     */
+    public function getExtension(): string
+    {
+        return Strings::fromReverse($this->path, '.');
+    }
+
+
+    /**
+     * Returns the stream for this file if it's opened. Will return NULL if closed
      *
      * @return mixed
      */
@@ -283,26 +372,22 @@ class Path implements Stringable, PathInterface
      * @param Stringable|string|null $path
      * @param string|null $prefix
      * @param bool $must_exist
-     * @param bool|null $is_relative
+     * @param bool $make_absolute
      * @return static
      */
-    public function setPath(Stringable|string|null $path, string $prefix = null, bool $must_exist = false, ?bool $is_relative = null): static
+    public function setPath(Stringable|string|null $path, string $prefix = null, bool $must_exist = false, bool $make_absolute = false): static
     {
         if ($this->isOpen()) {
             $this->close();
         }
 
-        if ($is_relative) {
-            // Realpath does not make sense with relative paths that may not even exist
-            $this->path        = $path;
-            $this->real_path   = null;
-            $this->is_relative = true;
+        if ($make_absolute) {
+            // Ensure absolute paths are absolute
+            $this->path = static::getAbsolute($path, $prefix, $must_exist);
 
         } else {
-            // Ensure absolute paths are absolute
-            $this->path        = Filesystem::absolute($path, $prefix, $must_exist);
-            $this->real_path   = realpath($this->path);
-            $this->is_relative = false;
+            // Realpath does not make sense with relative paths that may not even exist
+            $this->path = (string)$path;
         }
 
         return $this;
@@ -317,7 +402,7 @@ class Path implements Stringable, PathInterface
      */
     public function setTarget(Stringable|string $target): static
     {
-        $this->target = Filesystem::absolute($target, null, false);
+        $this->target = Path::getAbsolute($target, null, false);
         return $this;
     }
 
@@ -345,7 +430,7 @@ class Path implements Stringable, PathInterface
      * @param bool $check_dead_symlink
      * @return bool
      */
-    public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool
+    public function pathExists(bool $check_dead_symlink = false, bool $auto_mount = true): bool
     {
         if (file_exists($this->path)) {
             return true;
@@ -367,7 +452,7 @@ class Path implements Stringable, PathInterface
         if ($auto_mount) {
             if ($this->attemptAutoMount()) {
                 // The path was auto mounted, so try again!
-                return $this->exists($check_dead_symlink, false);
+                return $this->pathExists($check_dead_symlink, false);
             }
         }
 
@@ -404,7 +489,7 @@ class Path implements Stringable, PathInterface
      */
     public function checkExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static
     {
-        if (!$this->exists($check_dead_symlink, $auto_mount)) {
+        if (!$this->pathExists($check_dead_symlink, $auto_mount)) {
             if (!$force) {
                 throw new FileNotExistException(tr('Specified file ":file" does not exist', [
                     ':file' => $this->path
@@ -430,7 +515,7 @@ class Path implements Stringable, PathInterface
      */
     public function checkNotExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static
     {
-        if ($this->exists($check_dead_symlink, $auto_mount)) {
+        if ($this->pathExists($check_dead_symlink, $auto_mount)) {
             if (!$force) {
                 throw new FileExistsException(tr('Specified file ":file" already exist', [
                     ':file' => $this->path
@@ -438,7 +523,7 @@ class Path implements Stringable, PathInterface
             }
 
             // Delete the file
-            $this->delete();
+            $this->deletePath();
         }
 
         return $this;
@@ -562,25 +647,25 @@ class Path implements Stringable, PathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        if (!$this->exists()) {
+        if (!$this->pathExists()) {
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FilesystemException(tr('The:type file ":file" cannot be read because the directory ":directory" does not exist', [
-                    ':type'      => ($type ? '' : ' ' . $type),
+                throw new FilesystemException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
+                    ':type'      => ($type ? ' ' . $type : ''),
                     ':file'      => $this->path,
                     ':directory' => dirname($this->path)
                 ]), $previous_e);
             }
 
-            throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [
-                ':type' => ($type ? '' : ' ' . $type),
+            throw new FilesystemException(tr('The ":type" type file ":file" cannot be read because it does not exist', [
+                ':type' => ($type ? ' ' . $type : ''),
                 ':file' => $this->path
             ]), $previous_e);
         }
 
         if (!is_readable($this->path)) {
-            throw new FilesystemException(tr('The:type file ":file" cannot be read', [
-                ':type' => ($type ? '' : ' ' . $type),
+            throw new FilesystemException(tr('The ":type" type file ":file" cannot be read', [
+                ':type' => ($type ? ' ' . $type : ''),
                 ':file' => $this->path
             ]), $previous_e);
         }
@@ -596,6 +681,17 @@ class Path implements Stringable, PathInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the path for this Path object is absolute (and as such, starts with /)
+     *
+     * @return bool
+     */
+    public function isRelative(): bool
+    {
+        return str_starts_with($this->path, '/');
     }
 
 
@@ -645,7 +741,7 @@ class Path implements Stringable, PathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true);
 
-        if (!$this->exists()) {
+        if (!$this->pathExists()) {
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
@@ -674,13 +770,13 @@ class Path implements Stringable, PathInterface
      *
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      *
-     * @return array
+     * @return string
      */
-    public function getHumanReadableFileType(): array
+    public function getHumanReadableFileType(): string
     {
         // Check filesystem restrictions
         $this->checkRestrictions(true);
-        $this->exists();
+        $this->pathExists();
 
         $return = [];
         $perms = fileperms($this->path);
@@ -740,7 +836,7 @@ class Path implements Stringable, PathInterface
     {
         // Check filesystem restrictions
         $this->checkRestrictions(false);
-        $this->exists();
+        $this->pathExists();
 
         $perms = fileperms($this->path);
         $return = [];
@@ -855,31 +951,34 @@ class Path implements Stringable, PathInterface
     public function getMimetype(): string
     {
         // TODO Make this an object property
-        static $finfo = null;
+        static $mime = null;
 
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        try {
+        if (empty($mime)) {
             if (is_dir($this->path)) {
-                return 'directory';
+                $mime = 'directory/directory';
+
+            } else {
+                try {
+                    $r = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
+                    $mime = finfo_file($r, $this->path);
+                    finfo_close($r);
+
+                } catch (Exception $e) {
+                    // We failed to get mimetype data. Find out why and throw exception
+                    $this->checkReadable('', new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
+                        ':file' => $this->path
+                    ]), previous: $e));
+
+                    // static::checkReadable() will have thrown an exception, but throw this anyway just to be sure
+                    throw $e;
+                }
             }
-
-            if (!$finfo) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-            }
-
-            return finfo_file($finfo, $this->path);
-
-        } catch (Exception $e) {
-            // We failed to get mimetype data. Find out why and throw exception
-            $this->checkReadable('', new FilesystemException(tr('Failed to get mimetype information for file ":file"', [
-                ':file' => $this->path
-            ]), previous: $e));
-
-            // static::checkReadable() will have thrown an exception, but throw this anyway just to be sure
-            throw $e;
         }
+
+        return $mime;
     }
 
 
@@ -922,7 +1021,7 @@ class Path implements Stringable, PathInterface
                 $clean_path = null;
             }
 
-            Directory::new(dirname($this->path))->clear($clean_path, $sudo);
+            Directory::new(dirname($this->path))->clearDirectory($clean_path, $sudo);
         }
 
         return $this;
@@ -942,7 +1041,7 @@ class Path implements Stringable, PathInterface
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
      */
-    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
+    public function deletePath(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 2);
 
@@ -966,7 +1065,7 @@ class Path implements Stringable, PathInterface
                 $clean_path = null;
             }
 
-            Directory::new(dirname($this->path), $this->restrictions->getParent())->clear($clean_path, $sudo, use_run_file: $use_run_file);
+            Directory::new(dirname($this->path), $this->restrictions->getParent())->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
         return $this;
@@ -980,12 +1079,12 @@ class Path implements Stringable, PathInterface
      * @param Restrictions|null $restrictions
      * @return $this
      */
-    public function move(Stringable|string $target, ?Restrictions $restrictions = null): static
+    public function movePath(Stringable|string $target, ?Restrictions $restrictions = null): static
     {
         // Ensure restrictions and ensure target is absolute
         // Restrictions are either specified, included in the target, or this object's restrictions
         $restrictions = Restrictions::default($restrictions, ($target instanceof PathInterface ? $target->getRestrictions() : null), $this->getRestrictions());
-        $target = Filesystem::absolute($target, must_exist: false);
+        $target       = Path::getAbsolute($target, must_exist: false);
 
         // Ensure the target directory exists
         if (file_exists($target)) {
@@ -1053,6 +1152,48 @@ class Path implements Stringable, PathInterface
     public function getMode(): string|int|null
     {
         return $this->getStat()['mode'];
+    }
+
+
+    /**
+     * Returns the path octal filemode into a text readable filemode (rwxrwxrwx)
+     *
+     * @return string
+     */
+    public function getModeHumanReadable(): string
+    {
+        $return = '';
+        $mode   = $this->getmode();
+        $mode   = substr(decoct($mode), -3, 3);
+
+        for($i = 0; $i < 3; $i++) {
+            $number = (integer) substr($mode, $i, 1);
+
+            if (($number - 4) >= 0) {
+                $return .= 'r';
+                $number -= 4;
+
+            } else {
+                $return .= '-';
+            }
+
+            if (($number - 2) >= 0) {
+                $return .= 'w';
+                $number -= 2;
+
+            } else {
+                $return .= '-';
+            }
+
+            if (($number - 1) >= 0) {
+                $return .= 'x';
+
+            } else {
+                $return .= '-';
+            }
+        }
+
+        return $return;
     }
 
 
@@ -1267,17 +1408,57 @@ class Path implements Stringable, PathInterface
 
 
     /**
+     * realpath() wrapper that won't crash with an exception if the specified string is not a real directory
+     *
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                 specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     *
+     */
+    public function getRealPath(): ?string
+    {
+        try {
+            return realpath($this->path);
+
+        }catch(Throwable $e) {
+            // If PHP threw an error for the directory not being a directory at all, just return null
+            $message = $e->getMessage();
+
+            if (str_contains($message, 'expects parameter 1 to be a valid directory')) {
+                return null;
+            }
+
+            // This is some other error, keep throwing
+            throw new FilesystemException(tr('Failed realpath() call for ":path"', [
+                ':path' => $path
+            ]), $e);
+        }
+    }
+
+
+    /**
      * Returns a "Real directory ":directory" string if the internal path does not match the internal real_path
      *
      * @return string|null
      */
     protected function getRealPathLogString(): ?string
     {
-        if ($this->path === $this->real_path) {
+        if ($this->path === $this->getRealPath()) {
             return null;
         }
 
-        return tr('(Real path ":directory") ', [':directory' => $this->real_path]);
+        return tr('(Real path ":directory") ', [':directory' => $this->getRealPath()]);
     }
 
 
@@ -1337,7 +1518,7 @@ class Path implements Stringable, PathInterface
     public function getSize(bool $recursive = true): int
     {
         if ($this instanceof FileInterface) {
-            if ($this->exists()) {
+            if ($this->pathExists()) {
                 // This is a single file!
                 return filesize($this->path);
             }
@@ -1446,14 +1627,8 @@ class Path implements Stringable, PathInterface
     public function isLink(): bool
     {
         try {
-            $link = linkinfo($this->path);
+            return linkinfo($this->path) > -1;
 
-            if (!$link) {
-                return false;
-            }
-
-            // Whether the target exists or not, this IS a link
-            return true;
         } catch (PhpException $e) {
             if ($e->messageContains('linkinfo(): No such file or directory')) {
                 // This is not a link because the file itself (not just the target if it were a link) does not exist
@@ -1468,30 +1643,61 @@ class Path implements Stringable, PathInterface
     /**
      * Returns the path that this link points to
      *
+     * @param PathInterface|string|bool $absolute
      * @return PathInterface
      */
-    public function readlink(): PathInterface
+    public function readlink(PathInterface|string|bool $absolute = false): PathInterface
     {
-        $path = readlink($this->path);
+        if (!$this->isLink()) {
+            throw new FilesystemException(tr('Cannot readlink path ":path", it is not a symlink', [
+                ':path' => $this->path
+            ]));
+        }
 
+        $path = readlink($this->path);
+        show($this->path);
+        showdie($path);
+        if ($absolute and !str_starts_with($path, '/')) {
+            // Links are relative, make them absolute
+            if (is_bool($absolute)) {
+                $absolute = $this->path;
+
+            } else {
+                $absolute = Strings::slash(Strings::untilReverse($this->path, '/')) . $absolute;
+            }
+
+            $path = Strings::slash($absolute) . $path;
+
+show($this->path);
+show((string) $absolute);
+showdie($path);
+// /home/sven/Projects/medinet/mediweb.medinet.ca/data/web/ajax/../Phoundation/Accounts/Library/web/ajax/
+// /home/sven/Projects/medinet/mediweb.medinet.ca/Phoundation/Accounts/Library/web/ajax/
+// /home/sven/Projects/medinet/mediweb.medinet.ca/data/tmp/3f370175-ed05-4dd3-aa4a-aa84013486db/74d328a6-b500-4171-ba93-036e9421e6c6//home/sven/Projects/medinet/mediweb.medinet.ca/../../../../web/../Phoundation/Accounts/Library/web/ajax/
+        }
+
+        // Return (possibly) relative links
         if (is_dir($path)) {
-            return new Directory($path, $this->restrictions);
+            return new Directory($path, $this->restrictions, true);
         }
 
         if (file_exists($path)) {
-            return new File($path, $this->restrictions);
+            return new File($path, $this->restrictions, true);
         }
 
-        return new static($path, $this->restrictions);
+        return new static($path, $this->restrictions, true);
     }
 
 
     /**
+     * Wrapper for Path::readlink()
+     *
+     * @param PathInterface|string|bool $absolute
      * @return PathInterface
      */
-    public function getLinkTarget(): PathInterface
+    public function getLinkTarget(PathInterface|string|bool $absolute = false): PathInterface
     {
-        return $this->readlink();
+        return $this->readlink($absolute);
     }
 
 
@@ -1639,8 +1845,8 @@ class Path implements Stringable, PathInterface
         }
 
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
-        if ($target->exists()) {
-            throw new FileExistsException(tr('Cannot symlink ":source" to ":target", the file already exists as a ":type"', [
+        if ($target->pathExists()) {
+            throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists as a ":type"', [
                 ':target' => $target,
                 ':source' => $this->path,
                 ':type'   => $target->isDir() ? tr('directory') : tr('file')
@@ -1710,7 +1916,7 @@ class Path implements Stringable, PathInterface
         }
 
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
-        if ($this->exists()) {
+        if ($this->pathExists()) {
             throw new FileExistsException(tr('Cannot symlink ":source" to ":target", the file already exists as a ":type"', [
                 ':target' => $calculated_target,
                 ':source' => $this->path,
@@ -1848,14 +2054,14 @@ class Path implements Stringable, PathInterface
      * @return static
      * @throws FileNotOpenException|FileActionFailedException
      */
-    public function rewind(): static
+    public function rewindFilepointer(): static
     {
         $this->checkOpen('rewind');
 
         $result = rewind($this->stream);
 
         if ($result === false) {
-            // ftell() failed
+            // rewind() failed
             throw new FileActionFailedException(tr('Failed to rewind file ":file"', [
                 ':file' => $this->path
             ]));
@@ -2142,7 +2348,7 @@ class Path implements Stringable, PathInterface
      */
     public function create(bool $force = false): static
     {
-        if ($this->exists()) {
+        if ($this->pathExists()) {
             if (!$force) {
                 throw new FileExistsException(tr('Cannot create file ":file", it already exists', [
                     ':file' => $this->path
@@ -2173,7 +2379,7 @@ class Path implements Stringable, PathInterface
      */
     public function touch(): static
     {
-        if ($this->exists()) {
+        if ($this->pathExists()) {
             // Just touch it, I dare you.
             touch($this->path);
 
@@ -2223,7 +2429,7 @@ class Path implements Stringable, PathInterface
 
             } catch (Throwable $e) {
                 // Failed to open one of the sources, get rid of the partial target file
-                $this->close()->delete();
+                $this->close()->deletePath();
                 $source->checkReadable('source', $e);
             }
         }
@@ -2329,7 +2535,7 @@ class Path implements Stringable, PathInterface
                 ->execute(EnumExecuteMethod::noReturn);
         }
 
-        return $this->delete();
+        return $this->deletePath();
     }
 
 
@@ -2466,7 +2672,7 @@ class Path implements Stringable, PathInterface
         $count       = static::countDirectories(substr($object_path, $position));
         $prefix      = str_repeat('../', $count);
 
-        return Path::new($prefix . substr($this->path, $position), $path->getRestrictions(), true);
+        return Path::new($prefix . substr($this->path, $position), $path->getRestrictions());
     }
 
 
@@ -2498,7 +2704,7 @@ class Path implements Stringable, PathInterface
      */
     public function checkRestrictions(bool $write): static
     {
-        if ($this->is_relative) {
+        if ($this->isRelative()) {
             // TODO Find a way to check restrictions anyway
             Log::warning(tr('Not checking restrictions for ":path" as it is a relative path with unknown directory prefix', [
                 ':path' => $this->path
@@ -2524,11 +2730,11 @@ class Path implements Stringable, PathInterface
         $target = Path::new($target);
 
         // Move the old out of the way, push the new in, delete the current
-        if ($this->exists()) {
+        if ($this->pathExists()) {
             $new = clone $this;
-            $this->rename(Directory::newTemporary());
+            $this->rename(Directory::getTemporary());
             $target->rename($new);
-            $this->delete();
+            $this->deletePath();
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterwards
@@ -2556,7 +2762,7 @@ class Path implements Stringable, PathInterface
         $path = Path::new($path)->appendPath($extension);
         $path->getParentDirectory()->ensure();
 
-        while ($path->exists()) {
+        while ($path->pathExists()) {
             if (++$version >= 123) {
                 $prefix .= 'z';
                 $version = 97;
@@ -2603,6 +2809,32 @@ class Path implements Stringable, PathInterface
 
 
     /**
+     * Copies all files as symlinks in the tree starting at this objects path to the specified target,
+     *
+     * Directories will remain directories, all files will be symlinks
+     *
+     * @param PathInterface $target
+     * @return $this
+     */
+    public function symlinkTree(PathInterface $target): PathInterface
+    {
+
+        foreach ($this->scanFiles() as $path) {
+            $section = Strings::from($path->getPath(), $this->path);
+            show($path);
+            showdie($section);
+            if (is_dir($path)) {
+
+            } else {
+
+            }
+        }
+
+        return $target;
+    }
+
+
+    /**
      * Checks if the current path obeys the requirements
      *
      * @return void
@@ -2621,12 +2853,13 @@ class Path implements Stringable, PathInterface
      * Returns a PathInterface object with the specified path appended to this path
      *
      * @param PathInterface|string $path
+     * @param bool $make_absolute
      * @return FileInterface
      */
-    public function appendPath(PathInterface|string $path): PathInterface
+    public function appendPath(PathInterface|string $path, bool $make_absolute = false): PathInterface
     {
         $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
-        return Path::new($path, $this->restrictions);
+        return Path::new($path, $this->restrictions, $make_absolute);
     }
 
 
@@ -2634,11 +2867,114 @@ class Path implements Stringable, PathInterface
      * Returns a PathInterface object with the specified path prepended to this path
      *
      * @param PathInterface|string $path
+     * @param bool $make_absolute
      * @return FileInterface
      */
-    public function prependPath(PathInterface|string $path): PathInterface
+    public function prependPath(PathInterface|string $path, bool $make_absolute = false): PathInterface
     {
         $path = Strings::EndsWith((string) $path, '/') . $this->getPath();
-        return Path::new($path, $this->restrictions);
+        return Path::new($path, $this->restrictions, $make_absolute);
+    }
+
+
+    /**
+     * Fills the source with all files that are in the current path
+     *
+     * @param bool $reload
+     * @param bool $exception
+     * @return $this
+     */
+    public function scanFiles(bool $reload = false, bool $exception = true): static
+    {
+        if (empty($this->source) or $reload) {
+            $this->checkReadable('directory');
+            $this->source = scandir($this->path);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the current entry
+     *
+     * @return PathInterface
+     */
+    #[ReturnTypeWillChange] public function current(): PathInterface
+    {
+        $this->scanFiles();
+        $path = parent::current();
+
+        if (is_dir($path)) {
+            return new Directory($path, $this->restrictions);
+        }
+
+        if (file_exists($path)) {
+            return new File($path, $this->restrictions);
+        }
+
+        return new Path($path, $this->restrictions);
+    }
+
+
+    /**
+     * Progresses the internal pointer to the next entry
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function next(): static
+    {
+        $this->scanFiles();
+        return parent::next();
+    }
+
+
+    /**
+     * Progresses the internal pointer to the previous entry
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function previous(): static
+    {
+        $this->scanFiles();
+        return parent::previous();
+    }
+
+
+
+    /**
+     * Returns the current key for the current button
+     *
+     * @return string|float|int|null
+     */
+    #[ReturnTypeWillChange] public function key(): string|float|int|null
+    {
+        $this->scanFiles();
+        return parent::key();
+    }
+
+
+    /**
+     * Returns if the current pointer is valid or not
+     *
+     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
+     * @return bool
+     */
+    public function valid(): bool
+    {
+        $this->scanFiles();
+        return parent::valid();
+    }
+
+
+    /**
+     * Rewinds the internal pointer
+     *
+     * @return static
+     */
+    #[ReturnTypeWillChange] public function rewind(): static
+    {
+        $this->scanFiles();
+        return parent::rewind();
     }
 }

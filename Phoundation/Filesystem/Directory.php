@@ -83,14 +83,46 @@ class Directory extends Path implements DirectoryInterface
 
 
     /**
+     * realpath() wrapper that won't crash with an exception if the specified string is not a real directory
+     *
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                 specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     *
+     */
+    public function getRealPath(): ?string
+    {
+        $path = parent::getRealPath();
+
+        if ($path) {
+            return Strings::slash($path);
+        }
+
+        return null;
+    }
+
+
+    /**
      * Directory class constructor
      *
-     * @param Path|string|null $path
+     * @param mixed $path
      * @param array|string|Restrictions|null $restrictions
+     * @param bool $make_absolute
      */
-    public function __construct(Path|string|null $path = null, array|string|Restrictions|null $restrictions = null)
+    public function __construct(mixed $path = null, array|string|Restrictions|null $restrictions = null, bool $make_absolute = false)
     {
-        parent::__construct($path, $restrictions);
+        parent::__construct($path, $restrictions, $make_absolute);
 
         $this->path = Strings::slash($this->path);
 
@@ -101,10 +133,6 @@ class Directory extends Path implements DirectoryInterface
                     ':path' => $path
                 ]));
             }
-        }
-
-        if ($this->real_path) {
-            $this->real_path = Strings::slash($this->real_path);
         }
     }
 
@@ -209,13 +237,13 @@ class Directory extends Path implements DirectoryInterface
     public function ensure(?string $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
         $this->path = Strings::slash($this->path);
-        Filesystem::validateFilename($this->path);
+        static::validateFilename($this->path);
 
         $mode = Config::get('filesystem.mode.directories', 0750, $mode);
 
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
-            File::new($this->path, $this->restrictions)->delete(false, $sudo);
+            File::new($this->path, $this->restrictions)->deletePath(false, $sudo);
         }
 
         if (!file_exists(Strings::unslash($this->path))) {
@@ -230,7 +258,7 @@ class Directory extends Path implements DirectoryInterface
                 if (file_exists($this->path)) {
                     if (!is_dir($this->path)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        File::new($this->path, $this->restrictions)->delete(false, $sudo);
+                        File::new($this->path, $this->restrictions)->deletePath(false, $sudo);
                         return $this->ensure($mode, $clear, $sudo);
                     }
 
@@ -238,7 +266,7 @@ class Directory extends Path implements DirectoryInterface
 
                 } elseif (is_link($this->path)) {
                     // This is a dead symlink, delete it
-                    File::new($this->path, $this->restrictions)->delete(false, $sudo);
+                    File::new($this->path, $this->restrictions)->deletePath(false, $sudo);
                 }
 
                 try {
@@ -268,7 +296,7 @@ class Directory extends Path implements DirectoryInterface
         } elseif (!is_dir($this->path)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::new(Strings::endsNotWith($this->path, '/'), $this->restrictions)->delete(false, $sudo);
+            File::new(Strings::endsNotWith($this->path, '/'), $this->restrictions)->deletePath(false, $sudo);
             return $this->ensure($mode, $clear, $sudo);
         }
 
@@ -284,7 +312,7 @@ class Directory extends Path implements DirectoryInterface
     public function isEmpty(): bool
     {
         $this->path = Strings::slash($this->path);
-        $this->exists();
+        $this->pathExists();
 
         if (!is_dir($this->path)) {
             $this->checkReadable();
@@ -327,7 +355,7 @@ class Directory extends Path implements DirectoryInterface
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
      */
-    public function clear(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void
+    public function clearDirectory(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void
     {
         $this->path = Strings::slash($this->path);
 
@@ -361,7 +389,7 @@ class Directory extends Path implements DirectoryInterface
 
                 // Remove this entry and continue;
                 try {
-                    $this->delete(false, $sudo, use_run_file: $use_run_file);
+                    $this->deletePath(false, $sudo, use_run_file: $use_run_file);
 
                 }catch(Exception $e) {
                     // The directory WAS empty, but cannot be removed
@@ -397,7 +425,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, true);
-        $this->exists();
+        $this->pathExists();
 
         // Check configuration
         if (!$length) {
@@ -456,7 +484,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->exists();
+        $this->pathExists();
 
         $return = [];
         $fh     = opendir($this->path);
@@ -510,7 +538,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->exists();
+        $this->pathExists();
 
         $this->path = Arrays::getRandomValue($this->path);
         $files      = scandir($this->path);
@@ -542,7 +570,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->exists();
+        $this->pathExists();
 
         while (strlen($this->path) > 1) {
             $this->path = Strings::slash($this->path);
@@ -573,7 +601,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->exists();
+        $this->pathExists();
 
         return file_exists($this->path . Strings::startsNotWith($filename, '/'));
     }
@@ -589,7 +617,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->exists();
+        $this->pathExists();
 
         $return = 0;
 
@@ -619,7 +647,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->exists();
+        $this->pathExists();
 
         $return = 0;
 
@@ -796,7 +824,7 @@ class Directory extends Path implements DirectoryInterface
                 // Initialize public temp directory first
                 $path = DIRECTORY_PUBTMP . Session::getUUID();
                 static::$temp_directory_public = static::new($path, Restrictions::writable($path, 'public temporary directory'))
-                    ->delete()
+                    ->deletePath()
                     ->ensure();
 
                 // Put lock file to avoid delete directory auto cleanup removing this session directory
@@ -811,7 +839,7 @@ class Directory extends Path implements DirectoryInterface
             // Initialize private temp directory first
             $path = DIRECTORY_TMP . Session::getUUID();
             static::$temp_directory_private = static::new($path, Restrictions::writable($path, 'private temporary directory'))
-                ->delete()
+                ->deletePath()
                 ->ensure();
 
             // Put lock file to avoid delete directory auto cleanup removing this session directory
@@ -832,7 +860,7 @@ class Directory extends Path implements DirectoryInterface
      *                      terminates
      * @return DirectoryInterface
      */
-    public static function newTemporary(bool $public = false, bool $persist = false): DirectoryInterface
+    public static function getTemporary(bool $public = false, bool $persist = false): DirectoryInterface
     {
         if (!$persist) {
             // Return a non-persistent temporary directory that will be deleted once this process terminates
@@ -859,12 +887,12 @@ class Directory extends Path implements DirectoryInterface
             $action = false;
 
             if (static::$temp_directory_private) {
-                File::new(static::$temp_directory_private, Restrictions::new(DIRECTORY_TMP, true))->delete();
+                File::new(static::$temp_directory_private, Restrictions::new(DIRECTORY_TMP, true))->deletePath();
                 $action = true;
             }
 
             if (static::$temp_directory_public) {
-                File::new(static::$temp_directory_public, Restrictions::new(DIRECTORY_PUBTMP, true))->delete();
+                File::new(static::$temp_directory_public, Restrictions::new(DIRECTORY_PUBTMP, true))->deletePath();
                 $action = true;
             }
 
@@ -874,6 +902,32 @@ class Directory extends Path implements DirectoryInterface
             ':private' => Strings::from(static::$temp_directory_private, DIRECTORY_ROOT),
             ':public'  => Strings::from(static::$temp_directory_public, DIRECTORY_ROOT)
         ]));
+    }
+
+
+    /**
+     * Return a system directory for the specified type
+     *
+     * @param string $type
+     * @param string $directory
+     * @return string
+     */
+    public static function getSystem(string $type, string $directory = ''): string
+    {
+        switch ($type) {
+            case 'img':
+                // no-break
+            case 'image':
+                return '/pub/img/' . $directory;
+
+            case 'css':
+                // no-break
+            case 'style':
+                return '/pub/css/' . $directory;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown system directory type ":type" specified', [':type' => $type]));
+        }
     }
 
 
@@ -1000,7 +1054,7 @@ class Directory extends Path implements DirectoryInterface
     public function getCount(bool $recursive = true): int
     {
         if ($this instanceof FileInterface) {
-            if ($this->exists()) {
+            if ($this->pathExists()) {
                 // This is a single file!
                 return 1;
             }

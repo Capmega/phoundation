@@ -10,7 +10,7 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Wget;
@@ -73,7 +73,7 @@ class Import extends \Phoundation\Developer\Project\Import
         // Ensure target path can be written and is non-existent
         $directory = Directory::new($directory, $restrictions)
             ->ensureWritable()
-            ->delete();
+            ->deletePath();
 
         $wget     = Wget::new();
         $tmp_path = $wget->setExecutionDirectoryToTemp()->getExecutionDirectory();
@@ -92,7 +92,7 @@ class Import extends \Phoundation\Developer\Project\Import
         }
 
         Log::action(tr('Moving Geo files to target directory ":directory"', [':directory' => $directory]));
-        $tmp_path->move($directory);
+        $tmp_path->movePath($directory);
 
         return $directory;
     }
@@ -110,15 +110,15 @@ class Import extends \Phoundation\Developer\Project\Import
         // Determine what target path to use
         $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
-        $target_path  = Filesystem::absolute($target_path, DIRECTORY_ROOT, false);
+        $target_path  = Path::getAbsolute($target_path, DIRECTORY_ROOT, false);
 
         Directory::new($target_path, $restrictions)->ensure();
         Log::action(tr('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))->delete();
-            $previous = Directory::new($target_path, $restrictions)->move(DIRECTORY_DATA . 'garbage/');
+            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))->deletePath();
+            $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
 
             // Prepare and import each file
             foreach (static::getGeoNamesFiles() as $file => $data) {
@@ -127,7 +127,7 @@ class Import extends \Phoundation\Developer\Project\Import
                 if (str_ends_with($file, '.zip')) {
                     foreach ($data['files'] as $target_file) {
                         // Ensure the target files are gone so that we can unzip over them
-                        File::new($source_path . $target_file, $restrictions)->delete();
+                        File::new($source_path . $target_file, $restrictions)->deletePath();
                     }
 
                     // Unzip the files so that we have usable target files
@@ -136,18 +136,18 @@ class Import extends \Phoundation\Developer\Project\Import
 
                 // Move all target files to the target path
                 foreach ($data['files'] as $target_file) {
-                    File::new($source_path . $target_file, $restrictions)->checkReadable()->move($target_path);
+                    File::new($source_path . $target_file, $restrictions)->checkReadable()->movePath($target_path);
                 }
             }
 
             // Delete the previous data files from garbage
-            $previous->delete();
+            $previous->deletePath();
 
         } catch (Throwable $e) {
             // Something borked. Move the previous data files back from the garbage to their original path so the system
             // will remain functional
             if (isset($previous)) {
-                $previous->move($target_path);
+                $previous->movePath($target_path);
             }
 
             throw $e;

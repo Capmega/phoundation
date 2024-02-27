@@ -9,10 +9,9 @@ use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Mpg123;
-use Phoundation\Os\Processes\Commands\Mplayer;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Web\Page;
 
@@ -39,7 +38,7 @@ class Audio extends File
         if (!defined('NOAUDIO') or !NOAUDIO) {
             try {
                 Mpg123::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
-                    ->setFile(Filesystem::absolute($this->path, DIRECTORY_DATA . 'audio'))
+                    ->setFile(Path::getAbsolute($this->path, DIRECTORY_DATA . 'audio'))
                     ->play($background);
 
             } catch (FileNotExistException|ProcessesException $e) {

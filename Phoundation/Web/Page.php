@@ -36,7 +36,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
@@ -1863,7 +1863,7 @@ class Page implements PageInterface
             if (!$url) {
                 $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
-                $file = Filesystem::absolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
+                $file = Path::getAbsolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
                 static::$headers['link'][$url] = [
                     'rel'  => 'icon',
@@ -2724,7 +2724,7 @@ class Page implements PageInterface
      */
     protected static function getAbsoluteTarget(string $target): string
     {
-        return Filesystem::absolute($target, DIRECTORY_WEB . 'pages/');
+        return Path::getAbsolute($target, DIRECTORY_WEB . 'pages/');
     }
 
 

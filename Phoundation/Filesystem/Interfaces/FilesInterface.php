@@ -20,7 +20,7 @@ use Stringable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FilesInterface
+interface FilesInterface extends DirectoryInterface
 {
     /**
      * Move all files to the specified target

@@ -34,12 +34,12 @@ class Tmp
 
         // Delete all private temporary files
         Directory::new(DIRECTORY_TMP   , Restrictions::writable(DIRECTORY_TMP, tr('Clear tmp directories')))
-            ->delete()
+            ->deletePath()
             ->ensure();
 
         // Delete all public temporary files
         Directory::new(DIRECTORY_PUBTMP, Restrictions::writable(DIRECTORY_PUBTMP, tr('Clear tmp directories')))
-            ->delete()
+            ->deletePath()
             ->ensure();
 
         Log::success(tr('Cleared all temporary files'), 4);

@@ -46,4 +46,4 @@ $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP
 
 
 // Clear the specified temporary directory and we're done
-File::new(($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'], Restrictions::writable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP))->delete();
+File::new(($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'], Restrictions::writable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP))->deletePath();

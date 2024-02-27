@@ -18,7 +18,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -104,7 +104,7 @@ class Plugins extends Project
         // Scan for phoundation installation location.
         foreach ($directories as $directory) {
             try {
-                $directory = Filesystem::absolute($directory);
+                $directory = Path::getAbsolute($directory);
 
             } catch (FileNotExistException) {
                 // Okay, that was easy, doesn't exist. NEXT!
@@ -227,7 +227,7 @@ class Plugins extends Project
         $this->selectPluginsBranch($this->defaultBranch($branch));
         $this->ensureNoChanges(!$require_no_changes);
 
-        $source = Filesystem::absolute($file, DIRECTORY_ROOT);
+        $source = Path::getAbsolute($file, DIRECTORY_ROOT);
         $file = Strings::from($source, DIRECTORY_ROOT);
 
         if (!file_exists($source)) {
@@ -313,7 +313,7 @@ class Plugins extends Project
 
                                 Log::warning(tr('Stashing problematic file ":file"', [':file' => $file]));
                                 // Deleted files cannot be stashed after being added!
-                                if (File::new($file)->exists()) {
+                                if (File::new($file)->pathExists()) {
                                     $git->add($file)->getStash()->stash($file);
 
                                 } else {

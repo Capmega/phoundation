@@ -277,7 +277,7 @@ class Core implements CoreInterface
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
         define('REQUEST'           , substr(uniqid(), 7));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
-        define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'www/');
+        define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'web/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
         define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
         define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
@@ -625,7 +625,7 @@ class Core implements CoreInterface
             return;
         }
 
-        File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
         Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
     }
 
@@ -692,7 +692,7 @@ class Core implements CoreInterface
         if (!$enabled) {
             Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
         } else {
-            File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
+            File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
             Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
     }
@@ -705,8 +705,8 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->delete();
-        File::new(DIRECTORY_DATA . 'system/readonly'  , Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
+        File::new(DIRECTORY_DATA . 'system/readonly'  , Restrictions::new(DIRECTORY_DATA, true))->deletePath();
 
         Log::warning(tr('System has been relieved from readonly mode. All web requests will now again be answered, all commands are available'), 10);
     }
@@ -1860,7 +1860,7 @@ die($errfile. $errline);
         // Ensure the exception is a Phoundation exception and register it
         $e = Exception::ensurePhoundationException($e);
 
-        if (Debug::getEnabled()) {
+        if (Core::isProductionEnvironment()) {
             // In debug mode we can assume the developer is looking at the system
             try {
                 $e->registerDeveloperIncident();

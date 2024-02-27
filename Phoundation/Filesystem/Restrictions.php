@@ -308,7 +308,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function addDirectory(Stringable|string $directory, bool $write = false): static
     {
-        $this->source[Filesystem::absolute($directory, null, false)] = $write;
+        $this->source[Path::getAbsolute($directory, null, false)] = $write;
         return $this;
     }
 
@@ -380,8 +380,8 @@ class Restrictions implements RestrictionsInterface
         // Check each specified directory pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as &$pattern) {
             foreach ($this->source as $directory => $restrict_write) {
-                $directory    = Filesystem::absolute($directory   , null, false);
-                $pattern = Filesystem::absolute($pattern, null, false);
+                $directory    = Path::getAbsolute($directory   , null, false);
+                $pattern = Path::getAbsolute($pattern, null, false);
 
                 if (str_starts_with($pattern, $directory)) {
                     if ($write and !$restrict_write) {

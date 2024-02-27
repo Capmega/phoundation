@@ -17,4 +17,4 @@ declare(strict_types=1);
 
 use Phoundation\Filesystem\File;
 
-show(File::new('data/mounts/l/pins.log')->exists());
+show(File::new('data/mounts/l/pins.log')->pathExists());

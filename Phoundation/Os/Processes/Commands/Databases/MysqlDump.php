@@ -11,7 +11,7 @@ use Phoundation\Data\Traits\DataDebug;
 use Phoundation\Data\Traits\DataFile;
 use Phoundation\Date\DateTime;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -386,7 +386,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
             $file = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName() . DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
         }
 
-        $file = Filesystem::absolute($file, DIRECTORY_DATA . 'sources/', false);
+        $file = Path::getAbsolute($file, DIRECTORY_DATA . 'sources/', false);
         $file = File::new($file, $this->restrictions);
         $file->getParentDirectory()->ensure();
 

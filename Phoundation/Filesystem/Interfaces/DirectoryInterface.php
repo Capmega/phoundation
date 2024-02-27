@@ -103,7 +103,7 @@ interface DirectoryInterface extends PathInterface
      * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
      */
-    public function clear(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void;
+    public function clearDirectory(?string $until_directory = null, bool $sudo = false, bool $use_run_file = true): void;
 
     /**
      * Creates a random directory in specified base directory (If it does not exist yet), and returns that directory

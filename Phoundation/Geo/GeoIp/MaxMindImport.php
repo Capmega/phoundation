@@ -7,7 +7,7 @@ namespace Phoundation\Geo\GeoIp;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Wget;
@@ -88,17 +88,17 @@ class MaxMindImport extends GeoIpImport
         // Determine what target path to use
         $restrictions = $restrictions ?? Restrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/', $target_path);
-        $target_path  = Filesystem::absolute($target_path, DIRECTORY_ROOT, false);
+        $target_path  = Path::getAbsolute($target_path, DIRECTORY_ROOT, false);
 
         Directory::new($target_path, $restrictions)->ensure();
         Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [':directory' => $target_path]));
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))->delete();
-            File::new($source_path . 'GeoLite2-*', $restrictions)->delete(false, false, false);
+            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))->deletePath();
+            File::new($source_path . 'GeoLite2-*', $restrictions)->deletePath(false, false, false);
 
-            $previous = Directory::new($target_path, $restrictions)->move(DIRECTORY_DATA . 'garbage/');
+            $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
             $shas     = [];
 
             // Perform sha256 check on all files
@@ -123,18 +123,18 @@ class MaxMindImport extends GeoIpImport
                     ->getSingleDirectory('/GeoLite2.+?/i');
 
                 // Move the file to the target path and delete the source path
-                $directory->getSingleFile('/.+?.mmdb/i')->move($target_path);
-                $directory->delete();
+                $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_path);
+                $directory->deletePath();
             }
 
             // Delete the previous data files from garbage
-            $previous->delete();
+            $previous->deletePath();
 
         } catch (Throwable $e) {
             // Something borked. Move the previous data files back from the garbage to their original path so the system
             // will remain functional
             if (isset($previous)) {
-                $previous->move($target_path);
+                $previous->movePath($target_path);
             }
 
             throw $e;

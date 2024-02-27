@@ -680,7 +680,7 @@ class Sync
         $this->executeHook('pre-copy-connectors');
 
         if (empty($this->target_temp_path)) {
-            $this->target_temp_path = Directory::newTemporary()->getPath();
+            $this->target_temp_path = Directory::getTemporary()->getPath();
         }
 
         foreach ($this->dump_files as $file) {

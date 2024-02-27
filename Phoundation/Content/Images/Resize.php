@@ -113,7 +113,7 @@ class Resize extends Path
      * @param int $height
      * @return void
      */
-    public function absolute(int $width, int $height): void
+    public function getAbsolute(int $width, int $height): void
     {
         $process = $this->convert()
             ->addArgument($this->path)

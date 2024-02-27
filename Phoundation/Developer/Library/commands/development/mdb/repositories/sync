@@ -71,7 +71,7 @@ foreach ($repositories as $repository) {
     $file = Strings::until($file, '.');
     $path = $target->addDirectory($file);
 
-    if ($path->exists()) {
+    if ($path->pathExists()) {
         Log::action(tr('Fetching all for MDB repository ":repository"', [
             ':repository' => $repository
         ]));

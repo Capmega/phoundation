@@ -55,10 +55,10 @@ interface PathInterface
      * @param Stringable|string|null $path
      * @param string|null $prefix
      * @param bool $must_exist
-     * @param bool $is_relative
+     * @param bool $make_absolute
      * @return static
      */
-    public function setPath(Stringable|string|null $path, string $prefix = null, bool $must_exist = false, bool $is_relative = false): static;
+    public function setPath(Stringable|string|null $path, string $prefix = null, bool $must_exist = false, bool $make_absolute = false): static;
 
     /**
      * Sets the target file name in case operations create copies of this file
@@ -82,7 +82,7 @@ interface PathInterface
      * @param bool $auto_mount
      * @return bool
      */
-    public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
+    public function pathExists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
 
     /**
      * Checks if the specified file exists, throws exception if it doesn't
@@ -167,9 +167,9 @@ interface PathInterface
      *
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      *
-     * @return array
+     * @return string
      */
-    public function getHumanReadableFileType(): array;
+    public function getHumanReadableFileType(): string;
 
     /**
      * Returns array with all permission information about the object files.
@@ -213,7 +213,7 @@ interface PathInterface
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
      */
-    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
+    public function deletePath(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
 
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
@@ -222,7 +222,7 @@ interface PathInterface
      * @param Restrictions|null $restrictions
      * @return $this
      */
-    public function move(Stringable|string $target, ?Restrictions $restrictions = null): static;
+    public function movePath(Stringable|string $target, ?Restrictions $restrictions = null): static;
 
     /**
      * Switches file mode to the new value and returns the previous value

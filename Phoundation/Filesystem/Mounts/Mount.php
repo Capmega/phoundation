@@ -19,7 +19,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTimeout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Interfaces\MountInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\MountsException;
@@ -104,7 +103,7 @@ class Mount extends DataEntry implements MountInterface
                                  ORDER BY LENGTH(`target_path`)');
 
             while($mount_path = $paths->fetch()) {
-                $mount_path['target_path'] = Filesystem::absolute($mount_path['target_path'], must_exist: false);
+                $mount_path['target_path'] = Path::getAbsolute($mount_path['target_path'], must_exist: false);
 
                 if (str_starts_with($path, $mount_path['target_path'])) {
                     return static::new($mount_path['id'], 'id')->setRestrictions($restrictions);
@@ -235,7 +234,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAbsoluteSourcePath(): ?string
     {
-        return Filesystem::absolute($this->getSourcePath(), must_exist: false);
+        return Path::getAbsolute($this->getSourcePath(), must_exist: false);
     }
 
 
@@ -269,7 +268,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAbsoluteTargetPath(): ?string
     {
-        return Filesystem::absolute($this->getTargetPath(), must_exist: false);
+        return Path::getAbsolute($this->getTargetPath(), must_exist: false);
     }
 
 

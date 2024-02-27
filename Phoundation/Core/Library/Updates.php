@@ -73,9 +73,9 @@ class Updates extends Libraries\Updates
                     KEY `created_by` (`created_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
-                    INDEX `library` (`library`),
-                    INDEX `version` (`version`),
-                    UNIQUE `library_version` (`library`, `version`),
+                    KEY `library` (`library`),
+                    KEY `version` (`version`),
+                    UNIQUE KEY `library_version` (`library`, `version`),
                 ')->create();
 
         })->addUpdate('0.0.2', function () {
@@ -336,6 +336,15 @@ class Updates extends Libraries\Updates
                 CONSTRAINT `fk_meta_users_histories_id` FOREIGN KEY (`histories_id`) REFERENCES `meta_history` (`id`) ON DELETE CASCADE,
                 CONSTRAINT `fk_meta_users_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
             ')->create();
+
+        })->addUpdate('0.2.5', function () {
+            sql()->schema()->table('core_plugins')->alter()
+                ->addColumn('`menu_priority` int NOT NULL DEFAULT 50', 'AFTER `priority`')
+                ->addColumn('`menu_enabled` tinyint NOT NULL', 'AFTER `menu_priority`');
+
+        })->addUpdate('0.2.6', function () {
+            sql()->schema()->table('core_plugins')->alter()
+                ->addColumn('`commands_enabled` tinyint NOT NULL', 'AFTER `menu_enabled`');
         });
     }
 }

@@ -246,7 +246,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
-        $output_file = File::newTemporary(false)->getPath();
+        $output_file = File::getTemporary(false)->getPath();
         $commands    = $this->getFullCommandLine();
         $commands    = Strings::endsNotWith($commands, ';');
 

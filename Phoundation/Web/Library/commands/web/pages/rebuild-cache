@@ -8,7 +8,7 @@ use Phoundation\Web\Web;
 
 
 /**
- * Script web pages rebuild-cache
+ * Script web pages web/pages/rebuild-cache
  *
  * Rebuilds the web cache
  *

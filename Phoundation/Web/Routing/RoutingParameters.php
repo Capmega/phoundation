@@ -8,7 +8,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Arrays;
@@ -214,7 +214,7 @@ class RoutingParameters implements RoutingParametersInterface
                 // Current directory, there is no directory
                 $directory = [];
             } else {
-                $directory = explode(Filesystem::DIRECTORY_SEPARATOR, $directory);
+                $directory = explode(Path::DIRECTORY_SEPARATOR, $directory);
             }
 
             // Merge with the already specified rights

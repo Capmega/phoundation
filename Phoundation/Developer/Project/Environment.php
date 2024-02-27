@@ -210,7 +210,7 @@ class Environment
         }
 
         // delete the environment configuration file
-        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))->delete();
+        File::new(static::getConfigurationFile($this->name), Restrictions::new(DIRECTORY_ROOT . 'config/', true))->deletePath();
 
         return true;
     }

@@ -16,6 +16,8 @@ use Phoundation\Web\Html\Enums\InputTypeExtended;
 /**
  * Class Requirement
  *
+ * This class can check if the specified path conforms to specific requirements like "must be a directory" or "must be
+ * filesystem type X"
  *
  * @note On Ubuntu requires packages nfs-utils cifs-utils psmisc
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

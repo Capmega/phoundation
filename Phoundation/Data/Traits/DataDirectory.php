@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Filesystem\Filesystem;
+use Phoundation\Filesystem\Path;
 use Phoundation\Utils\Strings;
 
 
@@ -50,7 +50,7 @@ trait DataDirectory
     public function setDirectory(?string $directory, string $prefix = null, bool $must_exist = true): static
     {
         if ($directory) {
-            $this->directory = Strings::slash(Filesystem::absolute($directory, $prefix, $must_exist));
+            $this->directory = Strings::slash(Path::getAbsolute($directory, $prefix, $must_exist));
 
         } else {
             $this->directory = null;
