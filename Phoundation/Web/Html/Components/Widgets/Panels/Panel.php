@@ -8,16 +8,24 @@ use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Web\Html\Components\Avatar;
+use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Icons\Icon;
+use Phoundation\Web\Html\Components\Logo;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\ImageMenu;
 use Phoundation\Web\Html\Components\Widgets\LanguagesDropDown;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Html\Components\Widgets\MessagesDropDown;
 use Phoundation\Web\Html\Components\Widgets\Modals\Modals;
 use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Widgets\ProfileImage;
+use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 use Phoundation\Web\Html\Traits\Mode;
+use Phoundation\Web\Html\Traits\TraitBootstrapColor;
 
 
 /**
@@ -33,6 +41,7 @@ use Phoundation\Web\Html\Traits\Mode;
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
     use Mode;
+    use TraitBootstrapColor;
 
 
     /**
@@ -63,6 +72,54 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     protected LanguagesDropDown $languages;
 
+    /**
+     *
+     *
+     * @var IteratorInterface $logos
+     */
+    protected IteratorInterface $logos;
+
+    /**
+     *
+     *
+     * @var IteratorInterface $menus
+     */
+    protected IteratorInterface $menus;
+
+    /**
+     *
+     *
+     * @var IteratorInterface $buttons
+     */
+    protected IteratorInterface $buttons;
+
+    /**
+     *
+     *
+     * @var IteratorInterface $breadcrumbs
+     */
+    protected IteratorInterface $breadcrumbs;
+
+    /**
+     *
+     *
+     * @var IteratorInterface $texts
+     */
+    protected IteratorInterface $texts;
+
+    /**
+     *
+     *
+     * @var IteratorInterface $avatars
+     */
+    protected IteratorInterface $avatars;
+
+    /**
+     *
+     *
+     * @var IteratorInterface $icons
+     */
+    protected IteratorInterface $icons;
 
     /**
      * Modals for this panel
@@ -70,6 +127,123 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * @var Modals $modals
      */
     protected Modals $modals;
+
+
+    /**
+     * Returns the logos iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getLogos(): IteratorInterface
+    {
+        if (empty($this->logos)) {
+            $this->logos = Iterator::new()->setDataType('object:' . Logo::class);
+        }
+
+        return $this->texts;
+    }
+
+
+    /**
+     * Returns the menus iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getMenus(): IteratorInterface
+    {
+        if (empty($this->menus)) {
+            $this->menus = Iterator::new()->setDataType('object:' . Menu::class);
+        }
+
+        return $this->menus;
+    }
+
+
+    /**
+     * Returns the buttons iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getButtons(): IteratorInterface
+    {
+        if (empty($this->buttons)) {
+            $this->buttons = Iterator::new()->setDataType('object:' . Button::class);
+        }
+
+        return $this->buttons;
+    }
+
+
+    /**
+     * Returns the breadcrumbs iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getBreadcrumbs(): IteratorInterface
+    {
+        if (empty($this->breadcrumbs)) {
+            $this->breadcrumbs = Iterator::new()->setDataType('object:' . BreadCrumbs::class);
+        }
+
+        return $this->breadcrumbs;
+    }
+
+
+    /**
+     * Returns the texts iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getTexts(): IteratorInterface
+    {
+        if (empty($this->texts)) {
+            $this->texts = Iterator::new()->setDataType('string');
+        }
+
+        return $this->texts;
+    }
+
+
+    /**
+     * Returns the avatars iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getAvatars(): IteratorInterface
+    {
+        if (empty($this->avatars)) {
+            $this->avatars = Iterator::new()->setDataType('object:' . Avatar::class);
+        }
+
+        return $this->avatars;
+    }
+
+
+    /**
+     * Returns the icons iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getIcons(): IteratorInterface
+    {
+        if (empty($this->icons)) {
+            $this->icons = Iterator::new()->setDataType('object:' . Icon::class);
+        }
+
+        return $this->icons;
+    }
+
+
+    /**
+     * Panel class constructor
+     *
+     * @param string|null $content
+     */
+    public function __construct(?string $content = null)
+    {
+        parent::__construct($content);
+        $this->background_color = EnumBootstrapColor::primary;
+    }
 
 
     /**
