@@ -524,7 +524,7 @@ trait ValidatorBasics
                 if (!in_array($field, $this->selected_fields)) {
                     // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
                     // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
-                    if (!in_array($field, $this->meta_columns)) {
+                    if ($this->meta_columns and !in_array($field, $this->meta_columns)) {
                         $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
                         unset($this->source[$field]);
                         continue;
