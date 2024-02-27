@@ -55,6 +55,7 @@ use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
 use Phoundation\Web\Html\Components\Widgets\Panels\Panels;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Html\Template\TemplatePage;
 use Phoundation\Web\Http\Domains;
@@ -70,6 +71,7 @@ use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
 use Stringable;
+use Templates\AdminLte\AdminLte;
 use Throwable;
 
 
@@ -119,9 +121,9 @@ class Page implements PageInterface
     /**
      * The template class that builds the UI
      *
-     * @var Template $template
+     * @var TemplateInterface $template
      */
-    protected static Template $template;
+    protected static TemplateInterface $template;
 
     /**
      * The Phoundation API interface
@@ -861,10 +863,15 @@ class Page implements PageInterface
     /**
      * Returns the current Template for this page
      *
-     * @return Template
+     * @return TemplateInterface
      */
-    public static function getTemplate(): Template
+    public static function getTemplate(): TemplateInterface
     {
+        if (empty(static::$template)) {
+            // Default template is AdminLte
+            return new AdminLte();
+        }
+
         return static::$template;
     }
 

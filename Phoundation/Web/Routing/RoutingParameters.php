@@ -13,6 +13,7 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Template;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
@@ -136,9 +137,9 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Returns the template as an object
      *
-     * @return Template
+     * @return TemplateInterface
      */
-    public function getTemplateObject(): Template
+    public function getTemplateObject(): TemplateInterface
     {
         return $this->template::new();
     }
@@ -168,9 +169,10 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function setTemplate(string $template): static
     {
-        if (!is_subclass_of($template, 'Phoundation\Web\Html\Template\Template')) {
-            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of "Phoundation\Web\Html\Template\Template"', [
-                ':class' => $template
+        if (!is_subclass_of($template, TemplateInterface::class)) {
+            throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of ":interface"', [
+                ':class'     => $template,
+                ':interface' => TemplateInterface::class
             ]));
         }
 

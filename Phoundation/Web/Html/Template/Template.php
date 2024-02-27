@@ -9,6 +9,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
+use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Plugins\Phoundation\Components\Menu;
 
 
@@ -22,7 +23,7 @@ use Plugins\Phoundation\Components\Menu;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class Template
+abstract class Template implements TemplateInterface
 {
     /**
      * The template name
