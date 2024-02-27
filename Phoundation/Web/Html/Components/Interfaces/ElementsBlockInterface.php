@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Span;
 
 
 /**
@@ -81,4 +82,19 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * @return static
      */
     public function setDefinition(DefinitionInterface|null $definition): static;
+
+    /**
+     * Returns the (optional) anchor for this element
+     *
+     * @return AInterface
+     */
+    public function getAnchor(): AInterface;
+
+    /**
+     * Sets the anchor for this element
+     *
+     * @param AInterface|null $anchor
+     * @return Span
+     */
+    public function setAnchor(?AInterface $anchor): static;
 }

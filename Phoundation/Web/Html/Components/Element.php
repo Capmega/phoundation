@@ -11,6 +11,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
@@ -132,6 +133,14 @@ abstract class Element implements ElementInterface
      */
     public function render(): ?string
     {
+        if ($this->anchor) {
+            // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
+            $anchor = $this->anchor;
+            $this->anchor = null;
+
+            return $anchor->render();
+        }
+
         if (isset($this->tooltip)) {
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
@@ -241,7 +250,7 @@ abstract class Element implements ElementInterface
             'class'     => $this->getClass(),
             'height'    => $this->height,
             'width'     => $this->width,
-            'autofocus' => ((static::$autofocus === $this->id) ? 'autofocus' : null),
+            'autofocus' => ((static::$autofocus and (static::$autofocus === $this->id)) ? 'autofocus' : null),
             'readonly'  => ($this->readonly ? 'readonly' : null),
             'disabled'  => ($this->disabled ? 'disabled' : null),
         ];

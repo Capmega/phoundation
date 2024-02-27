@@ -111,28 +111,13 @@ class DataEntryFormColumn implements DataEntryFormColumnInterface
         }
 
         $render .= match ($definition->getInputType()?->value) {
-            'checkbox' => '    <div class="col-sm-' . Html::safe($definition->getSize() ?? 12) . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . '">
-                                   <div class="form-group">
-                                       <div class="form-horizontal">
-                                           <label for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
-                                           ' . $this->renderTooltip($definition) . '
-                                       </div>
-                                       <div class="form-check">
-                                           ' . $this->component . '
-                                           <label class="form-check-label" for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
-                                       </div>
-                                   </div>
-                               </div>',
-
-            default    => '    <div class="col-sm-' . Html::safe($definition->getSize() ?? 12) . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . '">
-                                   <div class="form-group">
-                                       <div class="form-horizontal">
-                                           <label for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
-                                           ' . $this->renderTooltip($definition) . '
-                                       </div>
-                                       ' . $this->component . '
-                                   </div>
-                                </div>',
+            default    => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . '">
+                                 <div data-mdb-input-init class="form-outline">
+                                     ' . $this->component . '
+                                     <label class="form-label" for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
+                                 </div>
+                             </div>',
+//            ' . $this->renderTooltip($definition) . '
         };
 
         return $render;

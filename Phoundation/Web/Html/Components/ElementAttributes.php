@@ -12,9 +12,11 @@ use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Stringable;
 
 
@@ -183,6 +185,13 @@ trait ElementAttributes
      */
     protected TooltipInterface $tooltip;
 
+    /**
+     * A possible anchor around this element
+     *
+     * @var AInterface|null $anchor
+     */
+    protected ?AInterface $anchor = null;
+
 
     /**
      * Class constructor
@@ -227,6 +236,38 @@ trait ElementAttributes
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+
+    /**
+     * Returns the (optional) anchor for this element
+     *
+     * @return AInterface
+     */
+    public function getAnchor(): AInterface
+    {
+        if (empty($this->anchor)) {
+            $this->anchor = A::new()->setParent($this);
+        }
+
+        return $this->anchor;
+    }
+
+
+    /**
+     * Sets the anchor for this element
+     *
+     * @param UrlBuilderInterface|AInterface|null $anchor
+     * @return Span
+     */
+    public function setAnchor(UrlBuilderInterface|AInterface|null $anchor): static
+    {
+        if ($anchor instanceof UrlBuilderInterface) {
+            $anchor = A::new()->setHref($anchor);
+        }
+
+        $this->anchor = $anchor->setParent($this);
+        return $this;
     }
 
 
@@ -448,7 +489,7 @@ trait ElementAttributes
             $this->class = implode(' ', $this->classes->getKeys());
         }
 
-        return $this->class;
+        return get_null($this->class);
     }
 
 

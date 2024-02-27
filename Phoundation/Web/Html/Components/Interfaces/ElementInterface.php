@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Web\Html\Components\A;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Span;
 use Stringable;
 
 
@@ -68,4 +70,19 @@ interface ElementInterface extends RenderInterface
      * @return static
      */
     public function setDefinition(DefinitionInterface|null $definition): static;
+
+    /**
+     * Returns the (optional) anchor for this element
+     *
+     * @return AInterface
+     */
+    public function getAnchor(): AInterface;
+
+    /**
+     * Sets the anchor for this element
+     *
+     * @param AInterface|null $anchor
+     * @return Span
+     */
+    public function setAnchor(?AInterface $anchor): static;
 }
