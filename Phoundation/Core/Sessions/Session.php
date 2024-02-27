@@ -729,6 +729,8 @@ Log::warning('RESTART SESSION');
         switch ($method) {
             case 'facebook':
             case 'google':
+            case 'github':
+            case 'twitter':
                 return false;
 
             case 'email':
@@ -737,13 +739,20 @@ Log::warning('RESTART SESSION');
             case 'lost-password':
                 return true;
 
+            case 'signup':
+                // no break
+            case 'sign-up':
+                // no break
             case 'register':
                 // no break
             case 'registration':
                 return false;
 
+            case 'copyright':
+                return true;
+
             default:
-                throw new OutOfBoundsException(tr('Unknown Session method ":method" specified', [
+                throw new OutOfBoundsException(tr('Unknown Session support ":method" specified', [
                     ':method' => $method
                 ]));
         }
