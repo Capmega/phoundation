@@ -615,7 +615,7 @@ class Library implements LibraryInterface
         $library_path_o        = Directory::new($library_path, $library_restrictions);
         $commands_restrictions = $commands_directory->getRestrictions();
 
-        if (!$library_path_o->pathExists()) {
+        if (!$library_path_o->exists()) {
             // This library does not have a commands/ directory, we're fine
             return;
         }
@@ -623,7 +623,7 @@ class Library implements LibraryInterface
         foreach ($library_path_o->list() as $file => $path) {
             $command_file = $commands_directory->appendPath($file);
 
-            if ($command_file->pathExists(true)) {
+            if ($command_file->exists(true)) {
                 Log::warning(tr('Not adding commands symlink for ":path", the command already exists', [
                     ':path' => $command_file
                 ]));
@@ -641,7 +641,7 @@ class Library implements LibraryInterface
             // path will change from a temp directory to data/cache/system/commands
             Path::new($path, $commands_restrictions, true)
                 ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
-                ->symlinkToThis($command_file);
+                ->symlinkFromTarget($command_file);
         }
     }
 
@@ -661,7 +661,7 @@ class Library implements LibraryInterface
         $web_restrictions     = $tmp_directory->getRestrictions();
         $tmp_to_web           = Path::new(DIRECTORY_WEB)->getRelativePathTo($tmp_directory);
 
-        if (!$library_path->pathExists()) {
+        if (!$library_path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
         }
@@ -670,7 +670,7 @@ class Library implements LibraryInterface
             $target = Path::new(DIRECTORY_WEB . $file, );
             $link   = $tmp_directory->appendPath($file);
 
-            if ($link->pathExists(true)) {
+            if ($link->exists(true)) {
                 $this->convertSymlinkToDirectory($tmp_to_web, $link, $target);
 
             } else {
@@ -683,7 +683,7 @@ class Library implements LibraryInterface
                 // path will change from a temp directory to data/cache/system/web
                 Path::new($path, $web_restrictions)
                     ->getRelativePathTo($target)
-                    ->symlinkToThis($link);
+                    ->symlinkFromTarget($link);
             }
         }
     }

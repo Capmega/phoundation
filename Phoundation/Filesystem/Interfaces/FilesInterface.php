@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Files;
 use Phoundation\Filesystem\Restrictions;
 use Stringable;
@@ -20,7 +21,7 @@ use Stringable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-interface FilesInterface extends DirectoryInterface
+interface FilesInterface extends IteratorInterface
 {
     /**
      * Move all files to the specified target

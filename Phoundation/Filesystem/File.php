@@ -50,7 +50,7 @@ class File extends Path implements FileInterface
      */
     public static function getTemporary(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
-        $directory = Directory::newTemporary($public, $persist);
+        $directory = Directory::getTemporary($public, $persist);
         $name      = ($name ?? Strings::generateUuid());
         $file      = static::new($directory->getPath() . $name, Restrictions::writable($directory->getPath() . $name, tr('persistent temporary file')));
 

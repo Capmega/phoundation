@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Utils\Arrays;
@@ -21,17 +22,17 @@ use Stringable;
  * @category Function reference
  * @package Phoundation\Filesystem
  */
-class Files extends Directory implements FilesInterface
+class Files extends Iterator implements FilesInterface
 {
     /**
      * Files class constructor
      *
-     * @param mixed $files
+     * @param mixed $source
      * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(mixed $files = null, RestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
-        $this->source = Arrays::force($files, null);
+        $this->source = Arrays::force($source, null);
         parent::__construct(null, $restrictions);
     }
 

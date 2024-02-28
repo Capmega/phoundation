@@ -83,23 +83,7 @@ class Directory extends Path implements DirectoryInterface
 
 
     /**
-     * realpath() wrapper that won't crash with an exception if the specified string is not a real directory
-     *
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
-     *                 specified does not exist.
-     *
-     * @example
-     * code
-     * show(File::new()->getRealPath());
-     * showdie(File::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
-     *
+     * @inheritDoc
      */
     public function getRealPath(): ?string
     {
@@ -116,13 +100,13 @@ class Directory extends Path implements DirectoryInterface
     /**
      * Directory class constructor
      *
-     * @param mixed $path
+     * @param mixed $source
      * @param array|string|Restrictions|null $restrictions
      * @param bool $make_absolute
      */
-    public function __construct(mixed $path = null, array|string|Restrictions|null $restrictions = null, bool $make_absolute = false)
+    public function __construct(mixed $source = null, array|string|Restrictions|null $restrictions = null, bool $make_absolute = false)
     {
-        parent::__construct($path, $restrictions, $make_absolute);
+        parent::__construct($source, $restrictions, $make_absolute);
 
         $this->path = Strings::slash($this->path);
 
@@ -130,7 +114,7 @@ class Directory extends Path implements DirectoryInterface
             // This exists, it must be a directory!
             if (!is_dir($this->path)) {
                 throw new DirectoryNotDirectoryException(tr('The specified path ":path" is not a directory', [
-                    ':path' => $path
+                    ':path' => $source
                 ]));
             }
         }
@@ -312,7 +296,7 @@ class Directory extends Path implements DirectoryInterface
     public function isEmpty(): bool
     {
         $this->path = Strings::slash($this->path);
-        $this->pathExists();
+        $this->exists();
 
         if (!is_dir($this->path)) {
             $this->checkReadable();
@@ -425,7 +409,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, true);
-        $this->pathExists();
+        $this->exists();
 
         // Check configuration
         if (!$length) {
@@ -484,7 +468,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->pathExists();
+        $this->exists();
 
         $return = [];
         $fh     = opendir($this->path);
@@ -538,7 +522,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->pathExists();
+        $this->exists();
 
         $this->path = Arrays::getRandomValue($this->path);
         $files      = scandir($this->path);
@@ -570,7 +554,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->pathExists();
+        $this->exists();
 
         while (strlen($this->path) > 1) {
             $this->path = Strings::slash($this->path);
@@ -601,7 +585,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->pathExists();
+        $this->exists();
 
         return file_exists($this->path . Strings::startsNotWith($filename, '/'));
     }
@@ -617,7 +601,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->pathExists();
+        $this->exists();
 
         $return = 0;
 
@@ -647,7 +631,7 @@ class Directory extends Path implements DirectoryInterface
         // Check filesystem restrictions
         $this->path = Strings::slash($this->path);
         $this->restrictions->check($this->path, false);
-        $this->pathExists();
+        $this->exists();
 
         $return = 0;
 
@@ -1020,8 +1004,8 @@ class Directory extends Path implements DirectoryInterface
             }
         }
 
-        // Ensure we have only 1 file. zero is less than one and shall not be accepted, as is two, which is more than
-        // one and as such not equal an the same as one and therefor shall not be accepted.
+        // Ensure we have only 1 file. Zero is less than one and shall not be accepted, as is two, which is more than
+        // one and as such not equal or the same as one, and therefore shall not be accepted.
         switch (count($files)) {
             case 0:
                 throw new FilesystemException(tr('Cannot return a single file, the directory ":directory" matches no files', [
@@ -1054,7 +1038,7 @@ class Directory extends Path implements DirectoryInterface
     public function getCount(bool $recursive = true): int
     {
         if ($this instanceof FileInterface) {
-            if ($this->pathExists()) {
+            if ($this->exists()) {
                 // This is a single file!
                 return 1;
             }
@@ -1080,7 +1064,7 @@ class Directory extends Path implements DirectoryInterface
 
                 if (is_dir($file)) {
                     // Count all files in this sub directory, minus the directory itself
-                    $count += FileBsics::newExisting($file, $this->restrictions)->getCount($recursive) - 1;
+                    $count += static::new($file, $this->restrictions)->getCount($recursive) - 1;
                 }
             }
         }
@@ -1171,7 +1155,7 @@ class Directory extends Path implements DirectoryInterface
             foreach ($file_patterns as $file_pattern) {
                 $file_pattern = $base_pattern . $file_pattern;
 
-                $file = Strings::from($file, $this->real_path);
+                $file = Strings::from($file, $this->getRealPath());
                 $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
                 if ($file_pattern){
@@ -1221,7 +1205,7 @@ class Directory extends Path implements DirectoryInterface
 
         // Check file patterns
         foreach ($glob as $file) {
-            $file = Strings::from($file, $this->real_path);
+            $file = Strings::from($file, $this->path);
             $test = Strings::fromReverse(Strings::endsNotWith($file, '/'), '/');
 
             if ($file_pattern){
@@ -1252,7 +1236,6 @@ class Directory extends Path implements DirectoryInterface
      */
     public function isMounted(array|Stringable|string|null $sources): ?bool
     {
-        $is_mounted  = false;
         $mounted     = $this->hasFile('.ismounted');
         $not_mounted = $this->hasFile('.isnotmounted');
 
@@ -1295,23 +1278,20 @@ class Directory extends Path implements DirectoryInterface
         $status = $this->isMounted($sources);
 
         if ($status === false) {
-            throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has mount status ":status"', [
+            throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from any of the sources ":source" but it is not mounted', [
                 ':directory' => $this->getPath(),
-                ':source' => Directory::new($source)->getPath(),
-                ':status' => gettype($status)
+                ':source'    => $sources,
             ]));
         }
 
         if (!$status) {
-            throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has mount status ":status"', [
-                ':directory'   => $this->getPath(),
-                ':source' => Directory::new($source)->getPath(),
-                ':status' => gettype($status)
+            throw new DirectoryNotMountedException(tr('The directory ":directory" should be mounted from ":source" but has an unknown mount state', [
+                ':directory' => $this->getPath(),
+                ':source'    => $sources,
             ]));
         }
 
         // We're mounted and from the right source, yay!
-
         return $this;
     }
 

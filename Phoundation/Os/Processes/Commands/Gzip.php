@@ -86,7 +86,7 @@ class Gzip extends Command
                 ]));
             }
 
-            if ($target->pathExists()) {
+            if ($target->exists()) {
                 throw new FileExistsException(tr('Cannot gunzip file ":file", the target version ":gzip" already exists', [
                     ':file' => $file->getPath(),
                     ':gzip' => $target

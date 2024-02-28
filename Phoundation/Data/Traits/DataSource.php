@@ -6,7 +6,7 @@ namespace Phoundation\Data\Traits;
 
 
 /**
- * Trait Source
+ * Trait DataSource
  *
  *
  *

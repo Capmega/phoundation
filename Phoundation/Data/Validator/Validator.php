@@ -2302,7 +2302,7 @@ abstract class Validator implements ValidatorInterface
 
             if (empty($does_exist)) {
                 // We found the file itself, we're done
-                $does_exist = $test->pathExists();
+                $does_exist = $test->exists();
 
                 if ($does_exist) {
                     break;
@@ -2313,7 +2313,7 @@ abstract class Validator implements ValidatorInterface
             if (empty($parent_exists)) {
                 $parent = $test->getParentDirectory();
 
-                if ($parent->pathExists()) {
+                if ($parent->exists()) {
                     $parent_exists = $parent;
                 }
             }

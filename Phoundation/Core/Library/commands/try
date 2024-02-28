@@ -15,6 +15,15 @@ declare(strict_types=1);
  * @package Phoundation\Scripts
  */
 
-use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Restrictions;
 
-show(File::new('data/mounts/l/pins.log')->pathExists());
+$root         = Path::new(DIRECTORY_ROOT, Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$test         = Path::new(DIRECTORY_DATA . 'test', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$target       = Path::new(DIRECTORY_DATA . 'target', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$phoundation  = Path::new(DIRECTORY_ROOT . '../../phoundation/phoundation', Restrictions::readonly('/', tr('test!')));
+$phoundation2 = Path::new(DIRECTORY_ROOT . '../../phoundation/phoundation/README.md', Restrictions::readonly('/', tr('test!')));
+
+$yolo = $phoundation->symlinkFromTarget($target);
+$yolo = $target->symlinkToTarget($test);
+

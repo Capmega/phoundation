@@ -9,6 +9,7 @@ use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Restrictions;
 use Stringable;
 use Throwable;
@@ -50,6 +51,47 @@ interface PathInterface
     public function getPath(): ?string;
 
     /**
+     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     *
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                 specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     */
+    public function getRealPath(): ?string;
+
+    /**
+     * Returns a normalized path that has all ./ and ../ resolved
+     *
+     * @param Stringable|string|bool|null $make_absolute
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                 specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     */
+    public function getNormalizedPath(Stringable|string|bool|null $make_absolute = null): ?string;
+
+    /**
      * Sets the file for this Path object
      *
      * @param Stringable|string|null $path
@@ -82,7 +124,7 @@ interface PathInterface
      * @param bool $auto_mount
      * @return bool
      */
-    public function pathExists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
+    public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
 
     /**
      * Checks if the specified file exists, throws exception if it doesn't
@@ -392,11 +434,21 @@ interface PathInterface
      * Creates a symlink $target that points to this file.
      *
      * @note Will return a NEW Path object (File or Directory, basically) for the specified target
-     * @param PathInterface $target
-     * @param bool $make_relative
+     * @param PathInterface|string $target
+     * @param PathInterface|string|bool $make_relative
      * @return PathInterface
      */
-    public function symlinkToThis(PathInterface $target, bool $make_relative = false): PathInterface;
+    public function symlinkFromTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface;
+
+    /**
+     * Makes this path a symlink that points to the specified target.
+     *
+     * @note Will return a NEW Path object (File or Directory, basically) for the specified target
+     * @param PathInterface|string $target
+     * @param PathInterface|string|bool $make_relative
+     * @return PathInterface
+     */
+    public function symlinkToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface;
 
     /**
      * Returns true if the file pointer is at EOF
@@ -569,10 +621,10 @@ interface PathInterface
     /**
      * Returns the relative path between the specified path and this objects path
      *
-     * @param PathInterface $path
+     * @param PathInterface|string $target
      * @return PathInterface
      */
-    public function getRelativePathTo(PathInterface $path): PathInterface;
+    public function getRelativePathTo(PathInterface|string $target): PathInterface;
 
     /**
      * Returns the number of directories counted in the specified path
@@ -656,4 +708,15 @@ interface PathInterface
      * @return FileInterface
      */
     public function prependPath(PathInterface|string $path): PathInterface;
+
+    /**
+     * Copies all files as symlinks in the tree starting at this objects path to the specified target,
+     *
+     * Directories will remain directories, all files will be symlinks
+     *
+     * @param PathInterface|string $target
+     * @param bool $make_relative
+     * @return $this
+     */
+    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface;
 }

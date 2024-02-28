@@ -38,7 +38,7 @@ class Restrictions implements RestrictionsInterface
      *
      * @var string $label
      */
-    protected string $label = 'system';
+    protected string $label;
 
 
     /**
@@ -52,6 +52,8 @@ class Restrictions implements RestrictionsInterface
     {
         if ($label) {
             $this->label = $label;
+        } else {
+            $this->label = tr('Unspecified');
         }
 
         if ($directories) {
@@ -332,7 +334,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function setLabel(?string $label): static
     {
-        $this->label = ($label ?? 'system');
+        $this->label = (get_null($label) ?? tr('Unspecified'));
         return $this;
     }
 
@@ -345,7 +347,7 @@ class Restrictions implements RestrictionsInterface
      */
     public function ensureLabel(?string $label): static
     {
-        if ($label and (empty($this->label) or $this->label === 'system')) {
+        if ($label and (empty($this->label) or ($this->label === tr('Unspecified')))) {
             return $this->setLabel($label);
         }
 
@@ -423,7 +425,7 @@ class Restrictions implements RestrictionsInterface
         static $restrictions;
 
         if (empty($restrictions)) {
-            $restrictions = Restrictions::new(DIRECTORY_DATA, false, 'System');
+            $restrictions = Restrictions::new(DIRECTORY_DATA, false, tr('System'));
         }
 
         return $restrictions;

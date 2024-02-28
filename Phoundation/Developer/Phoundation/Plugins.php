@@ -331,7 +331,7 @@ class Plugins extends Project
                                 $stash->add($file);
 
                                 // Deleted files cannot be stashed after being added, un-add, and then stash
-                                if (File::new($file)->pathExists()) {
+                                if (File::new($file)->exists()) {
                                     $git->add($file);
 
                                 } else {

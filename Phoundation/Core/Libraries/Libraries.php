@@ -573,7 +573,7 @@ class Libraries
             $library->cacheWeb($temporary);
         }
 
-        if ($web->pathExists()) {
+        if ($web->exists()) {
             // Move the old web away, push the temp to web, delete the old web
             $old = $web->movePath(Directory::getTemporary());
             $web->replaceWithPath($temporary);
