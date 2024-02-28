@@ -272,10 +272,12 @@ class Core implements CoreInterface
         // Define a unique process request ID
         // Define project paths.
 
+        // DIRECTORY_START  is the CWD from the moment this process started
         // DIRECTORY_ROOT   is the root directory of this project, and should be used as the root for all other paths
         // DIRECTORY_TMP    is a private temporary directory
         // DIRECTORY_PUBTMP is a public (accessible by web server) temporary directory
         define('REQUEST'           , substr(uniqid(), 7));
+        define('DIRECTORY_START'   , Strings::slash(getcwd()));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
         define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'web/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
@@ -746,7 +748,6 @@ class Core implements CoreInterface
         // Define basic platform constants
         define('ADMIN'     , '');
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
-        define('STARTDIR'  , Strings::slash(getcwd()));
         define('PAGE'      , $_GET['page'] ?? 1);
         define('ALL'       , (getenv('ALL')                                   ? 'ALL'        : false));
         define('DELETED'   , (getenv('DELETED')                               ? 'DELETED'    : false));
@@ -944,7 +945,6 @@ class Core implements CoreInterface
         // Define basic platform constants
         define('ADMIN'     , '');
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
-        define('STARTDIR'  , Strings::slash(getcwd()));
         define('QUIET'     , ($argv['very_quiet'] or $argv['quiet']));
         define('VERY_QUIET', $argv['very_quiet']);
         define('VERBOSE'   , $argv['verbose']);
@@ -1850,14 +1850,14 @@ die($errfile. $errline);
             try {
                 if ($e instanceof Exception) {
                     if ($e->isWarning()) {
-                        Audio::new('data/audio/warning.mp3')->playLocal(true);
+                        Audio::new('warning.mp3')->playLocal(true);
 
                     } else {
-                        Audio::new('data/audio/critical.mp3')->playLocal(true);
+                        Audio::new('critical.mp3')->playLocal(true);
                     }
 
                 } else {
-                    Audio::new('data/audio/critical.mp3')->playLocal(true);
+                    Audio::new('critical.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $f) {
@@ -1926,7 +1926,6 @@ die($errfile. $errline);
         $defines = [
             'ADMIN'      => '',
             'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
-            'STARTDIR'   => Strings::slash(getcwd()),
             'FORCE'      => (getenv('FORCE')      ? 'FORCE'      : null),
             'TEST'       => (getenv('TEST')       ? 'TEST'       : null),
             'QUIET'      => (getenv('QUIET')      ? 'QUIET'      : null),

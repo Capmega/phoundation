@@ -13,6 +13,7 @@ use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
+use Phoundation\Utils\Config;
 use Phoundation\Web\Page;
 
 
@@ -42,8 +43,14 @@ class Audio extends File
                     ->play($background);
 
             } catch (FileNotExistException|ProcessesException $e) {
-                Log::warning(tr('Failed to play the requested audio file because of the following exception'));
-                Log::warning($e->getMessage());
+                if ((defined('NOWARNINGS') and NOWARNINGS) or !Config::getBoolean('debug.exceptions.warnings', true)) {
+                    Log::error(tr('Failed to play the requested audio file because of the following exception'));
+                    Log::error($e);
+
+                } else {
+                    Log::warning(tr('Failed to play the requested audio file because of the following exception'));
+                    Log::warning($e->getMessage());
+                }
             }
         }
 

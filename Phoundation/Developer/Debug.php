@@ -477,7 +477,7 @@ class Debug {
                     Log::warning(tr('Reached showdie() call at :location', [
                         ':location' => static::currentLocation($trace_offset)
                     ]));
-                    Audio::new('data/audio/showdie.mp3')->playLocal(true);
+                    Audio::new('showdie.mp3')->playLocal(true);
                 }
 
             } catch (Throwable $e) {
