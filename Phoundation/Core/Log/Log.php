@@ -208,9 +208,9 @@ Class Log {
     /**
      * Singleton, ensure to always return the same Log object.
      *
-     * @return Log
+     * @return void
      */
-    public static function getInstance(): static
+    protected static function ensureInstance(): void
     {
         try {
             if (!isset(static::$instance)) {
@@ -231,9 +231,6 @@ Class Log {
             static::errorLog('Log constructor failed with the following message. Until the following issue has been resolved, all log entries will be written to the PHP system log only');
             static::errorLog($e->getMessage());
         }
-
-        // TODO static::$instance might not be assigned at this point, if there was an exception. What then?
-        return static::$instance;
     }
 
 
@@ -999,7 +996,7 @@ Class Log {
 
         // TODO Delete static::$lock as it looks like its not needed anymore
         static::$lock = true;
-        static::getInstance();
+        static::ensureInstance();
 
         try {
             // Do we have a log file setup?
