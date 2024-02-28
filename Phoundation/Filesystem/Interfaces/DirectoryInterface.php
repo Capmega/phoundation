@@ -1,21 +1,19 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Filesystem\Interfaces;
 
-use Phoundation\Filesystem\File;
-use Phoundation\Utils\Strings;
+use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
+use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Stringable;
 use Throwable;
 
 
 /**
- * interface DirectoryInterface
+ * Interface DirectoryInterface
  *
  * This class represents a single directory and contains various methods to manipulate directories.
  *
- *  It can rename, copy, traverse, mount, and much more
+ * It can rename, copy, traverse, mount, and much more
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -25,6 +23,19 @@ use Throwable;
  */
 interface DirectoryInterface extends PathInterface
 {
+    /**
+     * Returns the path
+     *
+     * @param bool $remove_terminating_slash
+     * @return string|null
+     */
+    public function getPath(bool $remove_terminating_slash = false): ?string;
+
+    /**
+     * @inheritDoc
+     */
+    public function getRealPath(): ?string;
+
     /**
      * Returns an Execute object to execute callbacks on each file in specified directories
      *
@@ -67,7 +78,7 @@ interface DirectoryInterface extends PathInterface
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
 
     /**
-     * Ensures existence of the specified directories
+     * Ensures existence of the specified directory
      *
      * @param string|null $mode octal $mode If the specified $this->directory does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @param boolean $clear If set to true, and the specified directory already exists, it will be deleted and then re-created
@@ -115,6 +126,13 @@ interface DirectoryInterface extends PathInterface
     public function createTarget(?bool $single = null, int $length = 0): string;
 
     /**
+     * Return all files in this directory
+     *
+     * @return FilesInterface The files
+     */
+    public function list(): FilesInterface;
+
+    /**
      * Return all files in a directory that match the specified pattern with optional recursion.
      *
      * @param array|string|null $filters One or multiple regex filters
@@ -142,6 +160,17 @@ interface DirectoryInterface extends PathInterface
      * @return string|null
      */
     public function scanUpwardsForFile(string $filename): ?string;
+
+    /**
+     * Returns true if the specified file exists in this directory
+     *
+     * If the object file doesn't exist in the specified directory, go one dir up,
+     * all the way to root /
+     *
+     * @param string $filename
+     * @return bool
+     */
+    public function hasFile(string $filename): bool;
 
     /**
      * Returns the total size in bytes of the tree under the specified directory
@@ -229,6 +258,70 @@ interface DirectoryInterface extends PathInterface
     public function scanRegex(?string $file_pattern = null, int $glob_flags = GLOB_MARK): array;
 
     /**
+     * Returns true if this specific directory is mounted from somewhere, false if not mounted, NULL if mounted, but
+     * with issues
+     *
+     * Issues can be either that the .isnotmounted file is visible (which it should NOT be if mounted) or (if specified)
+     * $source does not match the mounted source
+     *
+     * @param array|Stringable|string|null $sources
+     * @return bool|null
+     */
+    public function isMounted(array|Stringable|string|null $sources): ?bool;
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param array|Stringable|string|null $sources
+     * @return static
+     * @throws DirectoryNotMountedException
+     */
+    public function checkMounted(array|Stringable|string|null $sources): static;
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param array|Stringable|string|null $sources
+     * @param array|null $options
+     * @param string|null $filesystem
+     * @return static
+     */
+    public function ensureMounted(array|Stringable|string|null $sources, ?array $options = null, ?string $filesystem = null): static;
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param Stringable|string|null $source
+     * @param string|null $filesystem
+     * @param array|null $options
+     * @return static
+     */
+    public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static;
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @return static
+     */
+    public function unmount(): static;
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @param Stringable|string|null $source
+     * @param array|null $options
+     * @return static
+     */
+    public function bind(Stringable|string|null $source, ?array $options = null): static;
+
+    /**
+     * Returns true if this specific directory is mounted from somewhere, false otherwise
+     *
+     * @return static
+     */
+    public function unbind(): static;
+
+    /**
      * Copy this directory with progress notification
      *
      * @param Stringable|string $target
@@ -245,18 +338,24 @@ interface DirectoryInterface extends PathInterface
     public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
 
     /**
-     * Returns the path
+     * Returns a new Find object
      *
-     * @param bool $remove_terminating_slash
-     * @return string|null
+     * @return FindInterface
      */
-    public function getPath(bool $remove_terminating_slash = false): ?string;
+    public function find(): FindInterface;
 
     /**
      * Returns the specified directory added to this directory
      *
      * @param PathInterface|string $directory
-     * @return DirectoryInterface
+     * @return \Phoundation\Filesystem\Interfaces\DirectoryInterface
      */
     public function addDirectory(PathInterface|string $directory): DirectoryInterface;
+
+    /**
+     * Returns true if this path contains any files
+     *
+     * @return bool
+     */
+    public function containFiles(): bool;
 }

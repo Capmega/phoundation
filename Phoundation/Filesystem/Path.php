@@ -383,6 +383,10 @@ class Path implements Stringable, PathInterface
      */
     public function getPath(): ?string
     {
+        if ($this->isDir()) {
+            return Strings::slash($this->path);
+        }
+
         return $this->path;
     }
 
@@ -1863,7 +1867,7 @@ class Path implements Stringable, PathInterface
      * @param PathInterface|string|bool $make_relative
      * @return PathInterface
      */
-    public function symlinkFromTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
+    public function symlinkTargetFromThis(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
     {
         $target = new Path($target, $this->restrictions);
 
@@ -1936,7 +1940,7 @@ class Path implements Stringable, PathInterface
      * @param PathInterface|string|bool $make_relative
      * @return PathInterface
      */
-    public function symlinkToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
+    public function symlinkThisToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
     {
         $target = new Path($target, $this->restrictions);
 
@@ -2719,21 +2723,49 @@ class Path implements Stringable, PathInterface
      */
     public function getRelativePathTo(PathInterface|string $target, bool $from_directory = true): PathInterface
     {
-        $from_directory = ($from_directory ? 0 : 1);
-        $target         = static::new($target, $this->restrictions);
-        $target_path    = Strings::endsNotWith($target->getNormalizedPath(), '/');
-        $source_path    = Strings::endsNotWith($this->getNormalizedPath(), '/');
-        $forth_position = strspn($source_path ^ $target_path, "\0");
-        $back_position  = strspn($target_path ^ $source_path, "\0");
-        $forth          = Strings::startsNotWith(substr($target_path, $forth_position), '/');
-        $back           = Strings::startsNotWith(substr($source_path, $back_position), '/');
-        $back           = ($back ? substr(str_repeat('../', substr_count($back, '/') + $from_directory), 0, -1) : '');
+        $target      = static::new($target, $this->restrictions);
+        $target_path = Strings::endsNotWith($target->getNormalizedPath(), '/');
+        $source_path = Strings::endsNotWith($this->getNormalizedPath(), '/');
+        $source_path = explode('/', $source_path);
+        $target_path = explode('/', $target_path);
+        $return      = [];
 
-        if ($back and $forth) {
-            $back .= '/';
+        // Compare each directory, as long as its matches the path is the same and we can drop it
+        foreach ($source_path as $id => $section) {
+            if (!array_key_exists($id, $target_path)) {
+                // Target path has nothing more!
+                $return[] = '..';
+                break;
+            }
+
+            if ($section !== $target_path[$id]) {
+                // From this part source and target start differing
+                break;
+            }
+
+            unset($source_path[$id]);
+            unset($target_path[$id]);
         }
 
-        return Path::new($back . $forth, $target->getRestrictions());
+        if (empty($source_path)) {
+            if (empty($target_path)) {
+                // The specified target is the same as this path
+                return new Path('.');
+            }
+
+        } else {
+            array_pop($source_path);
+
+            foreach ($source_path as $section) {
+                $return[] = '..';
+            }
+        }
+
+        foreach ($target_path as $section) {
+            $return[] = $section;
+        }
+
+        return Path::new(implode('/', $return), $target->getRestrictions());
     }
 
 
@@ -2922,7 +2954,15 @@ class Path implements Stringable, PathInterface
     {
         if (empty($this->source) or $reload) {
             $this->checkReadable('directory');
-            $this->files = Files::new(scandir($this->path));
+
+            if ($this->isDir()) {
+                // Load all files in this directory
+                $this->files = Files::new(scandir($this->path), $this->restrictions)->setParent($this);
+
+            } else {
+                // This is a file, so there are no files beyound THIS file.
+                $this->files = Files::new([], $this->restrictions)->setParent($this);
+            }
         }
 
         return $this->files;
@@ -2930,7 +2970,8 @@ class Path implements Stringable, PathInterface
 
 
     /**
-     * Copies all files as symlinks in the tree starting at this objects path to the specified target,
+     * Copies all directories as directories and all files as symlinks in the tree starting at this objects path to the
+     * specified target,
      *
      * Directories will remain directories, all files will be symlinks
      *
@@ -2942,9 +2983,9 @@ class Path implements Stringable, PathInterface
     {
         if ($this->isDir()) {
             foreach ($this->getFilesObject() as $path) {
+showdie($path->getPath());
                 $section = Strings::from($path->getPath(), $this->path);
-                show($path);
-                showdie($section);
+showdie($section);
                 if (is_dir($path)) {
 
                 } else {
@@ -2953,7 +2994,7 @@ class Path implements Stringable, PathInterface
             }
         } else {
             // Symlink just the one
-            return $this->symlinkToTarget($target, $make_relative);
+            return $this->symlinkThisToTarget($target, $make_relative);
         }
 
         return $target;

@@ -4,9 +4,9 @@
 declare(strict_types=1);
 
 /**
- * Script test
+ * Script try
  *
- * General quick test script. Just scribble any test code that you want to execute here and execute it with
+ * General quick try and test script. Scribble any test code that you want to execute here and execute it with
  * ./pho test
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -18,12 +18,11 @@ declare(strict_types=1);
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 
-$root         = Path::new(DIRECTORY_ROOT, Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$test         = Path::new(DIRECTORY_DATA . 'test', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$target       = Path::new(DIRECTORY_DATA . 'target', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
-$phoundation  = Path::new(DIRECTORY_ROOT . '../../phoundation/phoundation', Restrictions::readonly('/', tr('test!')));
-$phoundation2 = Path::new(DIRECTORY_ROOT . '../../phoundation/phoundation/README.md', Restrictions::readonly('/', tr('test!')));
+$root        = Path::new(DIRECTORY_ROOT, Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$test        = Path::new(DIRECTORY_DATA . 'test', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$data        = Path::new(DIRECTORY_DATA, Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$target      = Path::new(DIRECTORY_DATA . 'target', Restrictions::writable(DIRECTORY_DATA, tr('test!')));
+$phoundation = Path::new('~/Downloads/firefox', Restrictions::readonly('~', tr('test!')));
 
-$yolo = $phoundation->symlinkFromTarget($target);
-$yolo = $target->symlinkToTarget($test);
+$yolo = $test->symlinkTreeToTarget($target);
 

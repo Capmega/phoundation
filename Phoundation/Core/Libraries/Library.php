@@ -641,7 +641,7 @@ class Library implements LibraryInterface
             // path will change from a temp directory to data/cache/system/commands
             Path::new($path, $commands_restrictions, true)
                 ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
-                ->symlinkFromTarget($command_file);
+                ->symlinkTargetFromThis($command_file);
         }
     }
 
@@ -683,7 +683,7 @@ class Library implements LibraryInterface
                 // path will change from a temp directory to data/cache/system/web
                 Path::new($path, $web_restrictions)
                     ->getRelativePathTo($target)
-                    ->symlinkFromTarget($link);
+                    ->symlinkTargetFromThis($link);
             }
         }
     }

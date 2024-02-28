@@ -6,7 +6,9 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
@@ -24,6 +26,17 @@ use Stringable;
  */
 class Files extends Iterator implements FilesInterface
 {
+    use DataRestrictions;
+
+
+    /**
+     * The parent directory containing these files
+     *
+     * @var PathInterface|null
+     */
+    protected ?PathInterface $parent = null;
+
+
     /**
      * Files class constructor
      *
@@ -32,8 +45,48 @@ class Files extends Iterator implements FilesInterface
      */
     public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
-        $this->source = Arrays::force($source, null);
-        parent::__construct(null, $restrictions);
+        $this->data_type    = Path::class;
+        $this->source       = Arrays::force($source, null);
+        $this->restrictions = $restrictions;
+
+        parent::__construct();
+    }
+
+
+    /**
+     * Returns a new Files object
+     *
+     * @param mixed|null $source
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @return static
+     */
+    public static function new(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null): static
+    {
+        return new static($source, $restrictions);
+    }
+
+
+    /**
+     * Returns the parent Path (if available) that contains these files
+     *
+     * @return PathInterface|null
+     */
+    public function getParent(): ?PathInterface
+    {
+        return $this->parent;
+    }
+
+
+    /**
+     * Returns the parent Path (if available) that contains these files
+     *
+     * @param PathInterface|null $parent
+     * @return Files
+     */
+    public function setParent(?PathInterface $parent): static
+    {
+        $this->parent = $parent;
+        return $this;
     }
 
 
@@ -81,5 +134,40 @@ class Files extends Iterator implements FilesInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns the current file
+     *
+     * @return PathInterface
+     */
+    #[ReturnTypeWillChange] public function current(): PathInterface
+    {
+        $current = current($this->source);
+
+        while (true) {
+            switch ($current) {
+                case '.':
+                    // no break
+                case '..':
+                    // Skip the . and .. directories
+                    $this->next();
+                    $current = current($this->source);
+                    break;
+
+                default:
+                    break 2;
+            }
+        }
+
+        if ($this->parent?->isDir()) {
+            $current = $this->parent->getPath() . $current;
+            return Path::new($current);
+
+        }
+
+        // The parent is not a directory, we can only return the parent.
+        return $this->parent;
     }
 }
