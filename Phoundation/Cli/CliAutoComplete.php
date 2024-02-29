@@ -200,7 +200,8 @@ class CliAutoComplete
                 ':position' => static::$position,
                 ':count'    => count($cli_commands)
             ]), echo_screen: false);
-            exit('Invalid-auto-complete-arguments' . PHP_EOL);
+            echo 'Invalid-auto-complete-arguments' . PHP_EOL;
+            exit(1);
 
         } elseif ($data['position'] > static::$position) {
             // The findCommand() method already found this particular word, so we know it exists! However, there may be
@@ -226,7 +227,7 @@ class CliAutoComplete
             $argument_command = isset_get($cli_commands[static::$position], '');
 
             if (!$argument_command) {
-                // There are no commands, are there modifier arguments, perhaps?
+                // There are no commands; Are there modifier arguments, perhaps?
                 $arguments = ArgvValidator::getArguments();
 
                 if ($arguments) {
