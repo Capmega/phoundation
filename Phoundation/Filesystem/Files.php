@@ -161,8 +161,8 @@ class Files extends Iterator implements FilesInterface
             }
         }
 
-        $current = $this->parent->getPath() . $current;
-        return Path::new($current);
+        $current = $this->parent?->getPath() . $current;
+        return Path::new($current, $this->restrictions);
     }
 
 
