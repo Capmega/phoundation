@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
@@ -133,7 +134,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
         $message = Strings::force($message);
         $message = trim($message);
 
-        Log::warning('Exception: ' . $message, 2);
+        Log::warning('Exception: ' . $message, 2, echo_screen: !CliAutoComplete::isActive());
 
         // Remove the first message from $messages as this is stored in static::getMessage()
         array_shift($messages);
