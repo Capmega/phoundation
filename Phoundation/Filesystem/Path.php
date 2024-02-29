@@ -264,7 +264,7 @@ class Path implements Stringable, PathInterface
             $return = Strings::endsWith($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($path, 1), '/');
 
         } else {
-             // This is not an absolute directory, make it an absolute directory
+            // This is not an absolute directory, make it an absolute directory
             $prefix = trim((string) $prefix);
 
             switch ($prefix) {
@@ -1492,11 +1492,15 @@ class Path implements Stringable, PathInterface
     {
         // Get the absolute path if requested (default yes, NULL will make an absolute path, only FALSE will skip that)
         // Then resolve all path parts that have ../ or ./
+
+        // Reverse parts to first add to return before removing to avoid immediately passing through root with
+        // paths like ../../../this/is/a/test
         $path   = static::getAbsolute($this->path, $make_absolute, false);
         $path   = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
         $parts  = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
         $return = [];
         $root   = (str_starts_with($path, '/') ? '/' : '');
+        $parts  = array_reverse($parts);
 
         foreach ($parts as $part) {
             if ($part === '.') {
@@ -1517,6 +1521,7 @@ class Path implements Stringable, PathInterface
             }
         }
 
+        $return = array_reverse($return);
         $return = implode(DIRECTORY_SEPARATOR, $return);
 
         if (!$return) {
@@ -1708,7 +1713,7 @@ class Path implements Stringable, PathInterface
      */
     public function isLink(): bool
     {
-        return is_link($this->path);
+        return is_link(Strings::endsNotWith($this->path, '/'));
     }
 
 
@@ -1726,7 +1731,7 @@ class Path implements Stringable, PathInterface
             ]));
         }
 
-        $path = readlink($this->path);
+        $path = readlink(Strings::endsNotWith($this->path, '/'));
 
         if ($make_absolute and !str_starts_with($path, '/')) {
             // Links are relative, make them absolute
@@ -1895,24 +1900,24 @@ class Path implements Stringable, PathInterface
         if ($target->isLink()) {
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
-            if ($target->readLink(true)->getNormalizedPath() === $this->getNormalizedPath()) {
+            if (Strings::endsNotWith($target->readLink(true)->getPath(), '/') === Strings::endsNotWith($this->getPath(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $target->getNormalizedPath(),
-                ':link'    => $calculated_target->getPath(),
+                ':link'    => Strings::endsNotWith($calculated_target->getPath(), '/'),
                 ':current' => $target->readLink(true)->getNormalizedPath()
             ]));
         }
 
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
         if ($target->exists()) {
-            throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists as a ":type"', [
-                ':target' => $calculated_target->getNormalizedPath(),
-                ':source' => $this->getNormalizedPath(),
-                ':type'   => $this->getTypeName()
+            throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists as a ":type"', [
+                ':target' => $target->getPath(),
+                ':link'   => Strings::endsNotWith($calculated_target->getPath(), '/'),
+                ':type'   => $target->getTypeName()
             ]));
         }
 
@@ -1922,7 +1927,7 @@ class Path implements Stringable, PathInterface
 
         // Symlink!
         try {
-            symlink($calculated_target->getPath(), $target->getPath());
+            symlink(Strings::endsNotWith($calculated_target->getPath(), '/'), $target->getPath());
 
         } catch (PhpException $e) {
             // Crap, what happened?
@@ -1968,7 +1973,7 @@ class Path implements Stringable, PathInterface
         if ($this->isLink()) {
             // The target itself exists and is a link. Whether that link target exists or not does not matter here, just
             // that its target matches our target
-            if ($this->readLink(true)->getNormalizedPath() === $target->getNormalizedPath()) {
+            if (Strings::endsNotWith($this->readLink(true)->getPath(), '/') === Strings::endsNotWith($target->getPath(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
             }
@@ -1995,8 +2000,7 @@ class Path implements Stringable, PathInterface
 
         // Symlink!
         try {
-show($this->getPath());
-            symlink($calculated_target->getPath(), $this->getPath());
+            symlink(Strings::endsNotWith($calculated_target->getPath(), '/'), $this->getPath());
 
         } catch (PhpException $e) {
             // Crap, what happened?
@@ -2267,7 +2271,7 @@ show($this->getPath());
     protected function save(string $data, EnumFileOpenModeInterface $write_mode = EnumFileOpenMode::writeOnly): static
     {
         $this->checkRestrictions(true)
-             ->checkWriteMode($write_mode);
+            ->checkWriteMode($write_mode);
 
         // Make sure the file path exists. NOTE: Restrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
@@ -2439,8 +2443,6 @@ show($this->getPath());
 
 
     /**
-=======
->>>>>>> 4.8
      * Sets access and modification time of file
      *
      * @return $this
@@ -2964,6 +2966,8 @@ show($this->getPath());
      */
     public function getFilesObject(bool $reload = false): FilesInterface
     {
+        $this->checkRestrictions(false);
+
         if (empty($this->source) or $reload) {
             $this->checkReadable('directory');
 
@@ -2990,9 +2994,10 @@ show($this->getPath());
      * @param PathInterface|string $target
      * @param PathInterface|string|null $alternate_path
      * @param RestrictionsInterface|null $restrictions
+     * @param bool $rename
      * @return $this
      */
-    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|null $alternate_path = null, ?RestrictionsInterface $restrictions = null): PathInterface
+    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|null $alternate_path = null, ?RestrictionsInterface $restrictions = null, bool $rename = false): PathInterface
     {
         // Ensure target is a Path object with restrictions
         $target = Path::new($target, $restrictions ?? $this->restrictions);
@@ -3018,12 +3023,27 @@ show($this->getPath());
                 $section = Strings::startsNotWith(Strings::from($path->getPath(), $this->path), '/');
 
                 if ($path->isDir()) {
-                    $path->symlinkTreeToTarget($dir_target->addDirectory($section), $dir_alternate_path->addDirectory($section));
+                    $path->symlinkTreeToTarget($dir_target->addDirectory($section), $dir_alternate_path->addDirectory($section), rename: $rename);
 
                 } else {
-                    // Create symlink for only this file
-                    $link = $dir_target->addFile($section)->getRelativePathTo($path);
-                    $dir_alternate_path->addFile($section)->symlinkThisToTarget($link);
+                    $number = null;
+
+                    while (true) {
+                        try {
+                            // Create symlink for only this file
+                            $link = $dir_target->addFile($section)->getRelativePathTo($path);
+                            $dir_alternate_path->addFile($section . $number)->symlinkThisToTarget($link);
+                            break;
+
+                        } catch (FileExistsException $e) {
+                            if (!$rename) {
+                                throw $e;
+                            }
+
+                            // The target already exists, rename and retry!
+                            $number++;
+                        }
+                    }
                 }
             }
 
@@ -3033,5 +3053,24 @@ show($this->getPath());
         // Source is a file, create symlink for only this file
         $link = $target->getRelativePathTo($this);
         return $alternate_path->symlinkThisToTarget($link);
+    }
+
+
+    /**
+     * Will scan this path for symlinks and delete all of them one by one
+     *
+     * @return $this
+     */
+    public function clearTreeSymlinks(bool $clean): static
+    {
+        Find::new($this)
+            ->setExecutionDirectory($this)
+            ->setType('l')
+            ->setCallback(function ($file) use ($clean) {
+                show($file);
+            })
+            ->executeNoReturn();
+
+        return $this;
     }
 }
