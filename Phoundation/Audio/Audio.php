@@ -36,20 +36,22 @@ class Audio extends File
      */
     public function playLocal(bool $background): static
     {
-        if (!defined('NOAUDIO') or !NOAUDIO) {
-            try {
-                Mpg123::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
-                    ->setFile(Path::getAbsolute($this->path, DIRECTORY_DATA . 'audio'))
-                    ->play($background);
+        if (Config::getBoolean('audio.local.enabled', true)) {
+            if (!defined('NOAUDIO') or !NOAUDIO) {
+                try {
+                    Mpg123::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
+                        ->setFile(Path::getAbsolute($this->path, DIRECTORY_DATA . 'audio'))
+                        ->play($background);
 
-            } catch (FileNotExistException|ProcessesException $e) {
-                if ((defined('NOWARNINGS') and NOWARNINGS) or !Config::getBoolean('debug.exceptions.warnings', true)) {
-                    Log::error(tr('Failed to play the requested audio file because of the following exception'));
-                    Log::error($e);
+                } catch (FileNotExistException|ProcessesException $e) {
+                    if ((defined('NOWARNINGS') and NOWARNINGS) or !Config::getBoolean('debug.exceptions.warnings', true)) {
+                        Log::error(tr('Failed to play the requested audio file because of the following exception'));
+                        Log::error($e);
 
-                } else {
-                    Log::warning(tr('Failed to play the requested audio file because of the following exception'));
-                    Log::warning($e->getMessage());
+                    } else {
+                        Log::warning(tr('Failed to play the requested audio file because of the following exception'));
+                        Log::warning($e->getMessage());
+                    }
                 }
             }
         }
@@ -68,18 +70,20 @@ class Audio extends File
      */
     public function playRemote(?string $class = null): static
     {
-        switch (Core::getRequestType()) {
-            case EnumRequestTypes::html:
-                // no break
-            case EnumRequestTypes::admin:
-                Page::addToFooter('html', \Phoundation\Web\Html\Components\Audio::new()
-                    ->addClass($class)
-                    ->setFile($this->path)
-                    ->render());
-                break;
+        if (Config::getBoolean('audio.remote.enabled', true)) {
+            switch (Core::getRequestType()) {
+                case EnumRequestTypes::html:
+                    // no break
+                case EnumRequestTypes::admin:
+                    Page::addToFooter('html', \Phoundation\Web\Html\Components\Audio::new()
+                        ->addClass($class)
+                        ->setFile($this->path)
+                        ->render());
+                    break;
 
-            default:
-                // Ignore this request
+                default:
+                    // Ignore this request
+            }
         }
 
         return $this;
