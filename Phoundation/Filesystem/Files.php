@@ -149,9 +149,9 @@ class Files extends Iterator implements FilesInterface
         while (true) {
             switch ($current) {
                 case '.':
-                    // no break
+                    // No break
                 case '..':
-                    // Skip the . and .. directories
+                    // Skip the "." and ".." directories
                     $this->next();
                     $current = current($this->source);
                     break;
@@ -161,13 +161,45 @@ class Files extends Iterator implements FilesInterface
             }
         }
 
-        if ($this->parent?->isDir()) {
-            $current = $this->parent->getPath() . $current;
-            return Path::new($current);
+        $current = $this->parent->getPath() . $current;
+        return Path::new($current);
+    }
+
+
+    /**
+     * Returns if the current pointer is valid or not
+     *
+     * Since Files classes skip the "." and ".." directories, valid will ensure these get skipped too
+     *
+     * @return bool
+     */
+    public function valid(): bool
+    {
+        $valid = parent::valid();
+
+        if ($valid) {
+            $current = current($this->source);
+
+            while (true) {
+                switch ($current) {
+                    case '':
+                        return false;
+
+                    case '.':
+                        // No break
+                    case '..':
+                        // Skip the "." and ".." directories
+                        parent::next();
+                        $current = current($this->source);
+                        break;
+
+                    default:
+                        break 2;
+                }
+            }
 
         }
 
-        // The parent is not a directory, we can only return the parent.
-        return $this->parent;
+        return $valid;
     }
 }
