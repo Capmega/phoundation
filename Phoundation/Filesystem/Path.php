@@ -710,13 +710,24 @@ class Path implements Stringable, PathInterface
 
 
     /**
-     * Returns true if the path for this Path object is absolute (and as such, starts with /)
+     * Returns true if the path for this Path object is relative (and as such, starts NOT with /)
      *
      * @return bool
      */
     public function isRelative(): bool
     {
         return !str_starts_with($this->path, '/');
+    }
+
+
+    /**
+     * Returns true if the path for this Path object is absolute (and as such, starts with /)
+     *
+     * @return bool
+     */
+    public function isAbsolute(): bool
+    {
+        return str_starts_with($this->path, '/');
     }
 
 
@@ -1872,12 +1883,12 @@ class Path implements Stringable, PathInterface
         $target = new Path($target, $this->restrictions);
 
         // Calculate absolute or relative path
-        if ($make_relative) {
+        if ($make_relative and $this->isAbsolute()) {
             // Convert this symlink in a relative link
-            $calculated_target = $target->getRelativePathTo($this);
+            $calculated_target = $target->getRelativePathTo($this, $make_relative);
 
         } else {
-            $calculated_target = $this->path;
+            $calculated_target = $this;
         }
 
         // Check if target exists as a link
@@ -1891,7 +1902,7 @@ class Path implements Stringable, PathInterface
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $target->getNormalizedPath(),
-                ':link'    => $calculated_target,
+                ':link'    => $calculated_target->getPath(),
                 ':current' => $target->readLink(true)->getNormalizedPath()
             ]));
         }
@@ -1899,7 +1910,7 @@ class Path implements Stringable, PathInterface
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
         if ($target->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":target" that points to ":source", the file already exists as a ":type"', [
-                ':target' => $target->getNormalizedPath(),
+                ':target' => $calculated_target->getNormalizedPath(),
                 ':source' => $this->getNormalizedPath(),
                 ':type'   => $this->getTypeName()
             ]));
@@ -1945,12 +1956,12 @@ class Path implements Stringable, PathInterface
         $target = new Path($target, $this->restrictions);
 
         // Calculate absolute or relative path
-        if ($make_relative) {
+        if ($make_relative and $target->isAbsolute()) {
             // Convert this symlink in a relative link
-            $calculated_target = $this->getRelativePathTo($target);
+            $calculated_target = $this->getRelativePathTo($target, $make_relative);
 
         } else {
-            $calculated_target = $target->getPath();
+            $calculated_target = $target;
         }
 
         // Check if target exists as a link
@@ -1964,15 +1975,15 @@ class Path implements Stringable, PathInterface
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
                 ':target'  => $this->getNormalizedPath(),
-                ':link'    => $calculated_target,
+                ':link'    => $calculated_target->getPath(),
                 ':current' => $this->readLink(true)->getNormalizedPath()
             ]));
         }
 
         // The target exists NOT as a link, but perhaps it might exist as a normal file or directory?
         if ($this->exists()) {
-            throw new FileExistsException(tr('Cannot symlink ":source" to target ":target", the file already exists as a ":type"', [
-                ':target' => $calculated_target,
+            throw new FileExistsException(tr('Cannot create symlink ":source" that points to ":target", the file already exists as a ":type"', [
+                ':target' => $calculated_target->getPath(),
                 ':source' => $this->getNormalizedPath(),
                 ':type'   => $this->getTypeName()
             ]));
@@ -1984,6 +1995,7 @@ class Path implements Stringable, PathInterface
 
         // Symlink!
         try {
+show($this->getPath());
             symlink($calculated_target->getPath(), $this->getPath());
 
         } catch (PhpException $e) {
@@ -2718,14 +2730,14 @@ class Path implements Stringable, PathInterface
      * Returns the relative path between the specified path and this object's path
      *
      * @param PathInterface|string $target
-     * @param bool $from_directory
+     * @param PathInterface|string|bool $make_absolute
      * @return PathInterface
      */
-    public function getRelativePathTo(PathInterface|string $target, bool $from_directory = true): PathInterface
+    public function getRelativePathTo(PathInterface|string $target, PathInterface|string|bool $make_absolute = null): PathInterface
     {
         $target      = static::new($target, $this->restrictions);
-        $target_path = Strings::endsNotWith($target->getNormalizedPath(), '/');
-        $source_path = Strings::endsNotWith($this->getNormalizedPath(), '/');
+        $target_path = Strings::endsNotWith($target->getNormalizedPath($make_absolute), '/');
+        $source_path = Strings::endsNotWith($this->getNormalizedPath($make_absolute), '/');
         $source_path = explode('/', $source_path);
         $target_path = explode('/', $target_path);
         $return      = [];
@@ -2960,8 +2972,8 @@ class Path implements Stringable, PathInterface
                 $this->files = Files::new(scandir($this->path), $this->restrictions)->setParent($this);
 
             } else {
-                // This is a file, so there are no files beyound THIS file.
-                $this->files = Files::new([], $this->restrictions)->setParent($this);
+                // This is a file, so there are no files beyond THIS file.
+                $this->files = Files::new([$this->path], $this->restrictions)->setParent($this);
             }
         }
 
@@ -2976,27 +2988,50 @@ class Path implements Stringable, PathInterface
      * Directories will remain directories, all files will be symlinks
      *
      * @param PathInterface|string $target
-     * @param bool $make_relative
+     * @param PathInterface|string|null $alternate_path
+     * @param RestrictionsInterface|null $restrictions
      * @return $this
      */
-    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
+    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|null $alternate_path = null, ?RestrictionsInterface $restrictions = null): PathInterface
     {
-        if ($this->isDir()) {
-            foreach ($this->getFilesObject() as $path) {
-showdie($path->getPath());
-                $section = Strings::from($path->getPath(), $this->path);
-showdie($section);
-                if (is_dir($path)) {
+        // Ensure target is a Path object with restrictions
+        $target = Path::new($target, $restrictions ?? $this->restrictions);
 
-                } else {
+        if (empty($alternate_path)) {
+            // We'll create the symlinks in the same directory as where we're linking from. Use Target object
+            $alternate_path = clone $target;
 
-                }
-            }
         } else {
-            // Symlink just the one
-            return $this->symlinkThisToTarget($target, $make_relative);
+            // We'll create the symlink in a different directory than where we're linking from. Ensure alternate path is
+            // a Path object
+            $alternate_path = Path::new($alternate_path, $target->restrictions);
         }
 
-        return $target;
+        if ($this->isDir()) {
+            // Source is a directory, target must be a directory too, process all files in this directory
+            $dir_target         = Directory::new($target);
+            $dir_alternate_path = Directory::new($alternate_path)->ensure();
+
+            // Go over each file in this directory. If directory, create it in target, if file, make it a symlink
+            foreach ($this->getFilesObject() as $path) {
+                // Get the section that we'll be working with
+                $section = Strings::startsNotWith(Strings::from($path->getPath(), $this->path), '/');
+
+                if ($path->isDir()) {
+                    $path->symlinkTreeToTarget($dir_target->addDirectory($section), $dir_alternate_path->addDirectory($section));
+
+                } else {
+                    // Create symlink for only this file
+                    $link = $dir_target->addFile($section)->getRelativePathTo($path);
+                    $dir_alternate_path->addFile($section)->symlinkThisToTarget($link);
+                }
+            }
+
+            return $alternate_path;
+        }
+
+        // Source is a file, create symlink for only this file
+        $link = $target->getRelativePathTo($this);
+        return $alternate_path->symlinkThisToTarget($link);
     }
 }
