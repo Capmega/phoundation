@@ -358,4 +358,12 @@ interface DirectoryInterface extends PathInterface
      * @return bool
      */
     public function containFiles(): bool;
+
+    /**
+     * Returns the specified directory added to this directory
+     *
+     * @param PathInterface|string $file
+     * @return FileInterface
+     */
+    public function addFile(PathInterface|string $file): FileInterface;
 }
