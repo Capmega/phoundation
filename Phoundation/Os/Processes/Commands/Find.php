@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\DataName;
 use Phoundation\Data\Traits\DataPath;
 use Phoundation\Exception\OutOfBoundsException;
@@ -107,6 +108,7 @@ class Find extends Command implements FindInterface
      *
      * @var string|null $type
      */
+    #[ExpectedValues(['b', 'c', 'd', 'p', 'f', 'l', 's'])]
     protected ?string $type = null;
 
     /**
@@ -620,6 +622,7 @@ class Find extends Command implements FindInterface
      *
      * @return string
      */
+    #[ExpectedValues(['b', 'c', 'd', 'p', 'f', 'l', 's'])]
     public function getType(): string
     {
         return $this->type;
@@ -643,7 +646,7 @@ class Find extends Command implements FindInterface
      * @param string $type
      * @return $this
      */
-    public function setType(string $type): static
+    public function setType(#[ExpectedValues(['b', 'c', 'd', 'p', 'f', 'l', 's'])] string $type): static
     {
         $types = ['b', 'c', 'd', 'p', 'f', 'l', 's'];
 
