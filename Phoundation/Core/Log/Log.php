@@ -9,6 +9,7 @@ use PDOStatement;
 use Phoundation\Cli\CliColor;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Databases\Sql\Sql;
@@ -28,6 +29,8 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
+use Stringable;
 use Throwable;
 
 
@@ -605,16 +608,163 @@ Class Log {
 
 
     /**
-     * Dump an exception object in the log file
+     * Logs an object in the log file
      *
-     * @param Throwable $messages
+     * @param object $object
+     * @param string|null $class
      * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
+     * @param string|bool $use_prefix
      * @param bool $echo_screen
      * @return bool
      */
-    public static function exception(Throwable $messages, int $threshold = 10, bool $echo_screen = true): bool
+    public static function object(object $object, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'error', $threshold, false, echo_screen: $echo_screen);
+        if ($object instanceof Throwable) {
+            // Log exception
+            return static::exception($object, $threshold, $clean, $newline, $use_prefix, $echo_screen);
+        }
+
+        if ($object instanceof ArrayableInterface) {
+            // Convert to array
+            $message = $object->__toArray();
+
+        } elseif ($object instanceof Stringable) {
+            // Convert to string
+            $message = (string) $object;
+
+        } else {
+            // No idea what to do with this object, so log the class name
+            $message = 'Object {' . get_class($object) . '}';
+        }
+
+        return static::write($message, $class, $threshold, $clean, $newline, $use_prefix, $echo_screen);
+    }
+
+
+    /**
+     * Logs an exception object in the log file
+     *
+     * @param Throwable $exception
+     * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
+     * @param string|bool $use_prefix
+     * @param bool $echo_screen
+     * @return bool
+     */
+    public static function exception(Throwable $exception, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): bool
+    {
+        // This is an exception object, log the warning or error  message data. PHP exceptions have
+        // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
+
+        // Redetermine the log class
+        if ($exception instanceof Exception) {
+            if ($exception->isWarning()) {
+                // This is a warning exception, which can be displayed to user (usually this is caused by user
+                // data validation issues, etc.
+                $class = 'warning';
+            } else {
+                // This is an error exception, which is more severe
+                $class = 'error';
+            }
+
+        } else {
+            // This is a PHP error, which is always a hard error
+            $class = 'error';
+        }
+
+        // Log the initial exception message
+        static::write(tr('Main script: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false, $echo_screen);
+        static::write(tr('Exception class: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
+        static::write(tr('Exception location: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
+        static::write(tr('Exception message: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write('[' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
+
+        // Log the exception data and trace
+        static::logExceptionData($exception, $threshold, $clean, $newline, $use_prefix, $echo_screen);
+        static::logExceptionTrace($exception, $class, $threshold, $clean, $newline, $use_prefix, $echo_screen);
+
+        return true;
+    }
+
+
+    /**
+     * Logs the data section of an exception
+     *
+     * @param Throwable $exception
+     * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
+     * @param string|bool $use_prefix
+     * @param bool $echo_screen
+     * @return void
+     */
+    protected static function logExceptionData(Throwable $exception, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): void
+    {
+        if ($exception instanceof Exception) {
+            $data = $exception->getData();
+
+            static::write(tr('Exception data: '), 'information', $threshold, echo_screen: $echo_screen);
+
+            if ($data) {
+                if ($exception->isWarning()) {
+                    // Log warning data as individual lines for easier read
+                    foreach (Arrays::force($data, null) as $line) {
+                        static::write(print_r($line, true), 'warning', $threshold, false, $newline, $use_prefix, $echo_screen);
+                    }
+
+                } else {
+                    static::write(print_r($data, true), 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
+                }
+
+            } else {
+                static::write('-', 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
+            }
+        }
+    }
+
+
+    /**
+     * Logs the trace section of an exception
+     *
+     * @param Throwable $exception
+     * @param string|null $class
+     * @param int $threshold
+     * @param bool $clean
+     * @param bool $newline
+     * @param string|bool $use_prefix
+     * @param bool $echo_screen
+     * @return void
+     */
+    protected static function logExceptionTrace(Throwable $exception, ?string $class = null, int $threshold = 10, bool $clean = true, bool $newline = true, string|bool $use_prefix = true, bool $echo_screen = true): void
+    {
+        // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
+        if ($class == 'error') {
+            // Log the backtrace
+            static::write(tr('Backtrace:'), 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
+
+            if ($exception->getTrace()) {
+                static::writeTrace($exception->getTrace(), $threshold, class: $class,  echo_screen: $echo_screen);
+
+            } else {
+                static::write('-', 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
+            }
+
+            // Log all previous exceptions as well
+            $previous = $exception->getPrevious();
+
+            while ($previous) {
+                static::write('Previous exception: ', 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
+                static::exception($previous, $threshold, $clean, $newline, $use_prefix, $echo_screen);
+
+                $previous = $previous->getPrevious();
+            }
+        }
     }
 
 
@@ -907,7 +1057,7 @@ Class Log {
             static::logDebugHeader('BACKTRACE', 1, $threshold, echo_screen: $echo_screen, use_prefix: $use_prefix);
         }
 
-        static::dumpTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, use_prefix: $use_prefix);
+        static::writeTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, use_prefix: $use_prefix);
     }
 
 
@@ -1039,86 +1189,9 @@ Class Log {
                 }
             }
 
-            // If the message to be logged is an exception, then extract the log information from there
-            if (is_object($messages) and $messages instanceof Throwable) {
-                // This is an exception object, log the warning or error  message data. PHP exceptions have
-                // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
-
-                // Redetermine the log class
-                if ($messages instanceof Exception) {
-                    if ($messages->isWarning()) {
-                        // This is a warning exception, which can be displayed to user (usually this is caused by user
-                        // data validation issues, etc.
-                        $class = 'warning';
-                    } else {
-                        // This is an error exception, which is more severe
-                        $class = 'error';
-                    }
-
-                } else {
-                    // This is a PHP error, which is always a hard error
-                    $class = 'error';
-                }
-
-                // Log the initial exception message
-                static::write(tr('Main script: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
-                static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false, $echo_screen);
-                static::write(tr('Exception class: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
-                static::write(get_class($messages), $class, $threshold, true, true, false, $echo_screen);
-                static::write(tr('Exception location: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
-                static::write($messages->getFile() . '@' . $messages->getLine(), $class, $threshold, true, true, false, $echo_screen);
-                static::write(tr('Exception message: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
-                static::write('[' . ($messages->getCode() ?? 'N/A') . '] ' . $messages->getMessage(), $class, $threshold, false, true, false, $echo_screen);
-
-                // Log the exception data
-                if ($messages instanceof Exception) {
-                    $data = $messages->getData();
-
-                    if ($data) {
-                        static::write(tr('Exception data: '), 'information', $threshold, echo_screen: $echo_screen);
-
-                        if ($messages->isWarning()) {
-                            // Log warning data as individual lines for easier read
-                            foreach (Arrays::force($data, null) as $line) {
-                                static::write(print_r($line, true), 'warning', $threshold, false, $newline, $use_prefix, $echo_screen);
-                            }
-
-                            return true;
-
-                        } else {
-                            // Dump the error data completely
-                            static::write(print_r($messages->getData(), true), 'debug', $threshold, false, $newline, $use_prefix, $echo_screen);
-                        }
-
-                    } else {
-                        static::write(tr('Exception data: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
-                        static::write(tr('No data attached to exception'), 'warning', $threshold, false, $newline, false, $echo_screen);
-                    }
-                }
-
-                // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
-                if ($class == 'error') {
-                    // Log the backtrace
-                    $trace = $messages->getTrace();
-
-                    if ($trace) {
-                        static::write(tr('Backtrace:'), 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
-                        static::dumpTrace($messages->getTrace(), class: $class, echo_screen: $echo_screen);
-                    }
-
-                    // Log all previous exceptions as well
-                    $previous = $messages->getPrevious();
-
-                    while ($previous) {
-                        static::write('Previous exception: ', 'information', $threshold, $clean, $newline, $use_prefix, $echo_screen);
-                        static::write($previous, $class, $threshold, $clean, $newline, $use_prefix, $echo_screen);
-
-                        $previous = $previous->getPrevious();
-                    }
-                }
-
-                static::$lock = false;
-                return true;
+            // If the message to be logged is an object, then extract the log information from there
+            if (is_object($messages)) {
+                return static::object($messages, $class, $threshold, $clean, $newline, $use_prefix, $echo_screen);
             }
 
             // Make sure the log message is clean and readable.
@@ -1276,14 +1349,14 @@ Class Log {
      * @param string|bool $use_prefix
      * @return int The number of lines that were logged. -1 in case of an exception while trying to log the backtrace.
      */
-    protected static function dumpTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true, bool $from_script = true, string|bool $use_prefix = true): int
+    protected static function writeTrace(array $backtrace, int $threshold = 9, ?int $display = null, string $class = 'debug', bool $echo_screen = true, bool $from_script = true, string|bool $use_prefix = true): int
     {
         try {
             $lines = Debug::formatBackTrace($backtrace);
 
             if ($from_script) {
                 // Filter out all entries before the script start
-                $copy = $lines;
+                $copy  = $lines;
                 $lines = [];
 
                 foreach ($copy as $line) {
@@ -1303,7 +1376,10 @@ Class Log {
 
         } catch (Throwable $e) {
             // Don't crash the process because of this, log it and return -1 to indicate an exception
-            static::error(tr('Failed to log backtrace because of exception ":e"', [':e' => $e->getMessage()]));
+            static::error(tr('Failed to write backtrace to log because of exception ":e"', [
+                ':e' => $e->getMessage()
+            ]));
+
             return -1;
         }
     }
