@@ -275,7 +275,6 @@ class Iterator implements IteratorInterface
     /**
      * Returns if the current pointer is valid or not
      *
-     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
      * @return bool
      */
     public function valid(): bool
