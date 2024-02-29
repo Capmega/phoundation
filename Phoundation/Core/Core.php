@@ -279,11 +279,11 @@ class Core implements CoreInterface
         define('REQUEST'           , substr(uniqid(), 7));
         define('DIRECTORY_START'   , Strings::slash(getcwd()));
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
-        define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'web/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
         define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
         define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
         define('DIRECTORY_PUBTMP'  , DIRECTORY_DATA . 'content/cdn/tmp/');
+        define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'cache/system/web/');
         define('DIRECTORY_COMMANDS', DIRECTORY_DATA . 'cache/system/commands/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
@@ -1861,8 +1861,16 @@ die($errfile. $errline);
                 }
 
             } catch (Throwable $f) {
-                Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
+                if (!CliAutoComplete::isActive()) {
+                    Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
+                }
             }
+        }
+
+        if (CliAutoComplete::isActive()) {
+            Log::error($e, echo_screen: false);
+            echo 'auto-complete-failed-see-system-log';
+            exit(1);
         }
 
         // Ensure the exception is a Phoundation exception and register it
@@ -2421,8 +2429,8 @@ die($errfile. $errline);
                     $language = Config::get('languages.default', 'en');
 
                     Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                            ':language' => $language]
-                    ));
+                        ':language' => $language
+                    ]));
                 }
 
             } else {

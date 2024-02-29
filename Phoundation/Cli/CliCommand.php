@@ -279,16 +279,6 @@ class CliCommand
             }
 
             Mysql::new()->importTimezones($password);
-
-        } catch (Throwable $e) {
-            // In auto complete mode, do not dump the exception on screen; it will fubar everything
-            if (CliAutoComplete::isActive()) {
-                Log::error($e, echo_screen: false);
-                exit('autocomplete-failed-see-system-log');
-            }
-
-            // Continue throwing
-            throw $e;
         }
 
         CliAutoComplete::ensureAvailable();
