@@ -554,7 +554,7 @@ class Page implements PageInterface
             return Config::getInteger('web.domains.primary.port');
         }
 
-        if (substr($config['www'], 4, 1) === 's') {
+        if (substr($config['web'], 4, 1) === 's') {
             // Return default HTTPS port
             return 443;
         }
@@ -781,7 +781,7 @@ class Page implements PageInterface
             return $_SERVER['REQUEST_SCHEME'];
         }
 
-        return Strings::until(Config::getString('web.domains.primary.www'), '://');
+        return Strings::until(Config::getString('web.domains.primary.web'), '://');
     }
 
 
@@ -816,7 +816,7 @@ class Page implements PageInterface
      * @param string $type
      * @return string
      */
-    public static function getRootUrl(string $type = 'www'): string
+    public static function getRootUrl(string $type = 'web'): string
     {
         return static::$parameters->getRootUrl($type);
     }

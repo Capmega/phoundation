@@ -97,7 +97,7 @@ class Domains {
         if (!static::$primary_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['www']));
+            static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
 
             if (!static::$primary_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
@@ -128,7 +128,7 @@ class Domains {
         }
 
         // Ensure $domain doesn't end with . (which IS valid, but would mess up
-        $domain = Strings::from(Config::getString('web.domains.primary.www'), '//');
+        $domain = Strings::from(Config::getString('web.domains.primary.web'), '//');
         $domain = Strings::until($domain, '/');
         $domain = Strings::endsNotWith($domain, '.');
 
@@ -235,12 +235,12 @@ class Domains {
 
         // Validate configuration
         try {
-            Arrays::requiredKeys($domain_config, 'www,cdn', ConfigPathDoesNotExistsException::class);
+            Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
             Arrays::default($domain_config, 'index'  , '/');
             Arrays::default($domain_config, 'cloaked', false);
         } catch (ConfigPathDoesNotExistsException $e) {
             if (!Core::isState('setup')) {
-                // In setup mode we won't have any configuration but we will be able to continue
+                // In setup mode, we won't have any configuration, but we will be able to continue
                 throw $e;
             }
         }
@@ -265,7 +265,7 @@ class Domains {
 
 
     /**
-     * Returns the base URL for the specified domain and its type (www or cdn)
+     * Returns the base URL for the specified domain and its type (web or cdn)
      *
      * @param string|null $domain
      * @param string $type
@@ -274,7 +274,7 @@ class Domains {
      * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
 
-    public static function getRootUri(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
+    public static function getRootUri(?string $domain = null, #[ExpectedValues('web', 'cdn')] string $type = 'web', ?string $language = null): string
     {
         // Get the root URL for the specified domain and strip the protocol and domain parts
         $uri = static::getRootUrl($domain, $type, $language);
@@ -286,7 +286,7 @@ class Domains {
 
 
     /**
-     * Returns the base URL for the specified domain and its type (www or cdn)
+     * Returns the base URL for the specified domain and its type (web or cdn)
      *
      * @param string|null $domain
      * @param string $type
@@ -295,7 +295,7 @@ class Domains {
      * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
 
-    public static function getRootUrl(?string $domain = null, #[ExpectedValues('www', 'cdn')] string $type = 'www', ?string $language = null): string
+    public static function getRootUrl(?string $domain = null, #[ExpectedValues('web', 'cdn')] string $type = 'web', ?string $language = null): string
     {
         try {
             if (!$domain) {

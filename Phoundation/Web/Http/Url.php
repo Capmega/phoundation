@@ -60,7 +60,7 @@ class Url {
      *
      * @param string $url
      * @param bool $check_sub_domains
-     * @return string|null www in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it's on an external
+     * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it's on an external
      */
     public static function getDomainType(string $url, bool $check_sub_domains = true): ?string
     {
@@ -70,7 +70,7 @@ class Url {
 
         foreach ($domains as $domain) {
             // Get CDN and WWW domains
-            $names = ['www' => Strings::cut($domain['www'], '//', '/')];
+            $names = ['web' => Strings::cut($domain['web'], '//', '/')];
 
             if (array_key_exists('cdn', $domain)) {
                 // CDN domain is configured, use it

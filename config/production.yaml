@@ -15,13 +15,13 @@ web:
     cookies:
   domains:
     primary:
-      www: "http://phoundation.org/:LANGUAGE/"
+      web: "http://phoundation.org/:LANGUAGE/"
       cdn: "http://cdn.phoundation.org/:LANGUAGE/"
     test.phoundation.org.local:
-      www: "https://test.phoundation.org.local/:LANGUAGE/"
+      web: "https://test.phoundation.org.local/:LANGUAGE/"
       cdn: "https://cdn.test.phoundation.org.local/:LANGUAGE/"
     trial.phoundation.local:
-      www: "https://trial.phoundation.org.local/:LANGUAGE/"
+      web: "https://trial.phoundation.org.local/:LANGUAGE/"
       cdn: "https://cdn.trial.phoundation.org.local/:LANGUAGE/"
   route:
     known-hacks:

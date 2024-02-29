@@ -18,7 +18,7 @@ use Throwable;
 /**
  * Class RouteSystem
  *
- * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_ROOT/www/LANGUAGE_CODE/ path
+ * Core routing class that will route URL request queries to PHP scripts in the DIRECTORY_WEB path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

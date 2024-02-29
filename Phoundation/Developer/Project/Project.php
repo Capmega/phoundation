@@ -246,7 +246,6 @@ class Project implements ProjectInterface
             'Phoundation',
             'Plugins',
             'tests',
-            'www',
             'pho',
         ];
 

@@ -358,7 +358,7 @@ class RoutingParameters implements RoutingParametersInterface
             }
         }
 
-        return 'www/' . $directory;
+        return 'web/' . $directory;
     }
 
 
@@ -382,7 +382,7 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function getRestrictions(): RestrictionsInterface
     {
-        return Restrictions::default($this->restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Route'));
+        return Restrictions::default($this->restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Routing parameter'));
     }
 
 
@@ -394,7 +394,7 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Route'));
+        $this->restrictions = Restrictions::default($restrictions, Restrictions::new(DIRECTORY_WEB, false, 'Routing parameter'));
         return $this;
     }
 

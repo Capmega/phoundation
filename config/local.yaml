@@ -35,7 +35,7 @@ web:
       domain: auto
   domains:
     primary:
-      www: http://phoundation.org.local/:LANGUAGE/
+      web: http://phoundation.org.local/:LANGUAGE/
       cdn: http://cdn.phoundation.org.local/:LANGUAGE/
   route:
     known-hacks: []

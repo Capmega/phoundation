@@ -178,7 +178,7 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
-     * Returns a complete www URL
+     * Returns a complete web URL
      *
      * @param UrlBuilder|string|null $url The URL to build
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
@@ -196,7 +196,7 @@ class UrlBuilder implements UrlBuilderInterface
 
 
     /**
-     * Returns a complete www URL for the previous page, or the specified URL
+     * Returns a complete web URL for the previous page, or the specified URL
      *
      * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
      * or if they are the current page, then the specified URL will be sent instead.
