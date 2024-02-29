@@ -528,7 +528,7 @@ class Library implements LibraryInterface
                 ->replace([
                     ':type' => $type,
                     ':name' => $name
-            ]);
+                ]);
         }
 
         // Done, return the library as an object
@@ -575,7 +575,7 @@ class Library implements LibraryInterface
                 ->log()
                 ->registerDeveloperIncident()
                 ->getNotificationObject()
-                    ->send();
+                ->send();
 
             $this->updates = null;
         }
@@ -604,87 +604,59 @@ class Library implements LibraryInterface
     /**
      * Ensure that the Library/commands is symlinked
      *
-     * @param DirectoryInterface $commands_directory
+     * @param DirectoryInterface $cache
+     * @param DirectoryInterface $tmp
      * @return void
      * @todo Add support for command sharing!
      */
-    public function cacheCommands(DirectoryInterface $commands_directory): void
+    public function cacheCommands(DirectoryInterface $cache, DirectoryInterface $tmp): void
     {
-        $library_path          = Strings::slash($this->directory) . 'Library/commands/';
-        $library_restrictions  = Restrictions::readonly($library_path, tr('Library command symlink validation'));
-        $library_path_o        = Directory::new($library_path, $library_restrictions);
-        $commands_restrictions = $commands_directory->getRestrictions();
+        Log::action(tr('Rebuilding command cache for library ":library"', [
+            ':library' => $this->getName()
+        ]), 3, echo_screen: false);
 
-        if (!$library_path_o->exists()) {
-            // This library does not have a commands/ directory, we're fine
+        $path         = Strings::slash($this->directory) . 'Library/commands/';
+        $restrictions = Restrictions::readonly($path, tr('Commands cache rebuild for ":library"', [
+            ':library' => $this->getName()
+        ]));
+
+        $path = Directory::new($path, $restrictions);
+
+        if (!$path->exists()) {
+            // This library does not have a web/ directory, we're fine
             return;
         }
 
-        foreach ($library_path_o->list() as $file => $path) {
-            $command_file = $commands_directory->appendPath($file);
-
-            if ($command_file->exists(true)) {
-                Log::warning(tr('Not adding commands symlink for ":path", the command already exists', [
-                    ':path' => $command_file
-                ]));
-                continue;
-            }
-
-            // TODO Check first if a symlink with this name already exists! If so, make a directory instead and put all sub commands as symlinks in that shared directory
-
-            // Symlink doesn't exist yet, place it now
-            Log::action(tr('Adding commands symlink for ":path"', [
-                ':path' => $file
-            ]), 2);
-
-            // Get the correct relative target link, don't let Path::symlink() resolve this automatically as the source
-            // path will change from a temp directory to data/cache/system/commands
-            Path::new($path, $commands_restrictions, true)
-                ->getRelativePathTo(Path::new(DIRECTORY_COMMANDS . $file))
-                ->symlinkTargetFromThis($command_file);
-        }
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
     }
 
 
     /**
      * Ensures that the Library/web directory contents are symlinked in DIRECTORY_WEB
      *
-     * @param DirectoryInterface $tmp_directory
+     * @param DirectoryInterface $cache
+     * @param DirectoryInterface $tmp
      * @return void
      * @todo Add support for command sharing!
      */
-    public function cacheWeb(DirectoryInterface $tmp_directory): void
+    public function cacheWeb(DirectoryInterface $cache, DirectoryInterface $tmp): void
     {
-        $library_path         = Strings::slash($this->directory) . 'Library/web/';
-        $library_restrictions = Restrictions::readonly($library_path, tr('Library web symlink validation'));
-        $library_path         = Directory::new($library_path, $library_restrictions);
-        $web_restrictions     = $tmp_directory->getRestrictions();
-        $tmp_to_web           = Path::new(DIRECTORY_WEB)->getRelativePathTo($tmp_directory);
+        Log::action(tr('Rebuilding web page cache for library ":library"', [
+            ':library' => $this->getName()
+        ]), 3, echo_screen: false);
 
-        if (!$library_path->exists()) {
+        $path         = Strings::slash($this->directory) . 'Library/web/';
+        $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
+            ':library' => $this->getName()
+        ]));
+
+        $path = Directory::new($path, $restrictions);
+
+        if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
             return;
         }
 
-        foreach ($library_path->list() as $file => $path) {
-            $target = Path::new(DIRECTORY_WEB . $file, );
-            $link   = $tmp_directory->appendPath($file);
-
-            if ($link->exists(true)) {
-                $this->convertSymlinkToDirectory($tmp_to_web, $link, $target);
-
-            } else {
-                // Symlink doesn't exist yet, place it now
-                Log::action(tr('Adding web symlink for ":path"', [
-                    ':path' => $file
-                ]));
-
-                // Get the correct relative target link, don't let Path::symlink() resolve this automatically as the source
-                // path will change from a temp directory to data/cache/system/web
-                Path::new($path, $web_restrictions)
-                    ->getRelativePathTo($target)
-                    ->symlinkTargetFromThis($link);
-            }
-        }
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
     }
 }

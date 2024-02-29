@@ -13,6 +13,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
@@ -543,14 +544,14 @@ class Libraries
         Log::action(tr('Rebuilding command cache'), 4, echo_screen: false);
 
         $temporary = Directory::getTemporary();
-        $commands  = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS));
+        $cache     = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Commands cache rebuild')));
 
         foreach (static::listLibraries() as $library) {
-            $library->cacheCommands($temporary);
+            $library->cacheCommands($cache, $temporary);
         }
 
-        // Move the old out of the way, push the new in
-        $commands->replaceWithPath($temporary);
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $cache->replaceWithPath($temporary)->symlinkTargetFromThis(DIRECTORY_ROOT . 'commands');
 
         static::$cache_has_been_rebuilt = true;
         Log::success(tr('Finished rebuilding command cache'), 5, echo_screen: false);
@@ -564,26 +565,22 @@ class Libraries
      */
     public static function rebuildWebCache(): void
     {
-        Log::action(tr('Rebuilding web cache'), 4);
+        Log::action(tr('Rebuilding web cache'), 4, echo_screen: false);
 
         $temporary = Directory::getTemporary();
-        $web       = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB));
+        $cache     = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, tr('Commands web rebuild')));
 
         foreach (static::listLibraries() as $library) {
-            $library->cacheWeb($temporary);
+            $library->cacheWeb($cache, $temporary);
         }
 
-        if ($web->exists()) {
-            // Move the old web away, push the temp to web, delete the old web
-            $old = $web->movePath(Directory::getTemporary());
-            $web->replaceWithPath($temporary);
-            $old->deletePath();
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $cache
+            ->replaceWithPath($temporary)
+                ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT . 'web', tr('Commands web rebuild'))));
 
-        } else {
-            $web->replaceWithPath($temporary);
-        }
-
-        Log::success(tr('Finished rebuilding web cache'), 5);
+        static::$cache_has_been_rebuilt = true;
+        Log::success(tr('Finished rebuilding web cache'), 5, echo_screen: false);
     }
 
 
