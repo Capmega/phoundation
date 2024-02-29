@@ -3,7 +3,7 @@
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Html\Components\ProfileImage;
+use Phoundation\Web\Html\Components\Widgets\ProfileImage;
 use Plugins\Phoundation\Components\Menu;
 
 

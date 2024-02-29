@@ -6,12 +6,12 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -72,13 +72,13 @@ $notification_card = Card::new()
     ->setContent($notification->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(tr('Mark unread'))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
+        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/notifications/notifications.html'), true)
         ->addButton(isset_get($go)));
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent('<a href="' . UrlBuilder::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
                           <a href="' . UrlBuilder::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
@@ -89,7 +89,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -98,8 +98,8 @@ $documentation = Card::new()
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($notification_card, DisplaySize::nine, true)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($notification_card, EnumDisplaySize::nine, true)
+    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 

@@ -2,7 +2,7 @@
 
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Web\Html\Components\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
@@ -52,7 +52,7 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                                 ->setSrc(UrlBuilder::getImg("img/profiles/default.png"))
                                 ->setClass("img-circle img-fluid")
                                 ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUser()->getDisplayName())]))
-                                ->render() . '
+                                ->render() . '                          
                         </div>
                       </div>
                     </div>

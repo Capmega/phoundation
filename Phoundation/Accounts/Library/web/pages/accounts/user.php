@@ -7,14 +7,14 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\BreadCrumbs;
-use Phoundation\Web\Html\Components\Button;
-use Phoundation\Web\Html\Components\Buttons;
+use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\DisplayMode;
-use Phoundation\Web\Html\Enums\DisplaySize;
-use Phoundation\Web\Html\Enums\TableIdColumn;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
@@ -129,7 +129,7 @@ if (!$user->getReadonly()) {
 if ($user->canBeImpersonated()) {
     $impersonate = Button::new()
         ->setFloatRight(true)
-        ->setMode(DisplayMode::danger)
+        ->setMode(EnumDisplayMode::danger)
         ->setValue(tr('Impersonate'))
         ->setContent(tr('Impersonate'));
 }
@@ -140,7 +140,7 @@ if ($user->canBeStatusChanged()) {
     if ($user->isDeleted()) {
         $delete = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setOutlined(true)
             ->setValue(tr('Undelete'))
             ->setContent(tr('Undelete'));
@@ -148,7 +148,7 @@ if ($user->canBeStatusChanged()) {
     } else {
         $delete = Button::new()
             ->setFloatRight(true)
-            ->setMode(DisplayMode::warning)
+            ->setMode(EnumDisplayMode::warning)
             ->setOutlined(true)
             ->setValue(tr('Delete'))
             ->setContent(tr('Delete'));
@@ -156,14 +156,14 @@ if ($user->canBeStatusChanged()) {
         if ($user->isLocked()) {
             $lock = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Unlock'))
                 ->setContent(tr('Unlock'));
 
         } else {
             $lock = Button::new()
                 ->setFloatRight(true)
-                ->setMode(DisplayMode::warning)
+                ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Lock'))
                 ->setContent(tr('Lock'));
         }
@@ -175,7 +175,7 @@ if ($user->canBeStatusChanged()) {
 if (!$user->isNew()) {
     $audit = Button::new()
         ->setFloatRight(true)
-        ->setMode(DisplayMode::information)
+        ->setMode(EnumDisplayMode::information)
         ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
         ->setFloatRight(true)
         ->setValue(tr('Audit'))
@@ -191,7 +191,7 @@ $user_card = Card::new()
     ->setContent($user->getHtmlDataEntryForm()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
-        ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
+        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true)
         ->addButton(isset_get($audit))
         ->addButton(isset_get($delete))
         ->addButton(isset_get($lock))
@@ -207,7 +207,7 @@ if ($user->getId()) {
         ->setContent($user->getRolesHtmlDataEntryForm()->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 
     $rights_card = Card::new()
         ->setCollapseSwitch(true)
@@ -223,7 +223,7 @@ if ($user->getId()) {
                                 ->setOrder([0 => 'asc'])
                                 ->setColumnsOrderable([0 => true, 1 => false])
                                 ->setInfoEnabled(false)
-                                ->setCheckboxSelectors(TableIdColumn::hidden)
+                                ->setCheckboxSelectors(EnumTableIdColumn::hidden)
                                 ->render());
 
     $emails_card = Card::new()
@@ -233,7 +233,7 @@ if ($user->getId()) {
         ->setContent($user->getEmails()->getHtmlDataEntryForm()->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 
     $phones_card = Card::new()
         ->setCollapseSwitch(true)
@@ -242,7 +242,7 @@ if ($user->getId()) {
         ->setContent($user->getPhones()->getHtmlDataEntryForm()->render())
         ->setButtons(Buttons::new()
             ->addButton(tr('Save'))
-            ->addButton(tr('Back'), DisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
+            ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/users.html'), true));
 }
 
 
@@ -258,7 +258,7 @@ $picture = Card::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
     ->setContent(($user->isNew() ? '' : '<a href="' . UrlBuilder::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>') . '
                         <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
@@ -267,7 +267,7 @@ $relevant = Card::new()
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
+    ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
@@ -285,7 +285,7 @@ $grid = Grid::new()
             isset_get($phones_card)?->render())
         ->setSize(9)
         ->useForm(true))
-    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), DisplaySize::three);
+    ->addColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
