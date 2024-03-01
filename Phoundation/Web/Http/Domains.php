@@ -8,6 +8,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
@@ -305,6 +306,13 @@ class Domains {
 
             $language = $language ?? Session::getLanguage();
             $url      = static::getConfigurationKey($domain, $type);
+
+            if (!$url) {
+                throw new OutOfBoundsException(tr('No configured URL found for ":type" type domain ":domain"', [
+                    ':type'   => $type,
+                    ':domain' => $domain,
+                ]));
+            }
 
             return str_replace(':LANGUAGE', $language, $url);
 
