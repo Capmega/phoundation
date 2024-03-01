@@ -281,10 +281,10 @@ class Core implements CoreInterface
         define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
         define('DIRECTORY_CDN'     , DIRECTORY_DATA . 'content/cdn/');
-        define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
+        define('DIRECTORY_COMMANDS', DIRECTORY_DATA . 'system/cache/commands/');
         define('DIRECTORY_PUBTMP'  , DIRECTORY_DATA . 'content/cdn/tmp/');
-        define('DIRECTORY_WEB'     , DIRECTORY_ROOT . 'cache/system/web/');
-        define('DIRECTORY_COMMANDS', DIRECTORY_DATA . 'cache/system/commands/');
+        define('DIRECTORY_TMP'     , DIRECTORY_DATA . 'tmp/');
+        define('DIRECTORY_WEB'     , DIRECTORY_DATA . 'system/cache/web/');
 
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
@@ -627,7 +627,7 @@ class Core implements CoreInterface
             return;
         }
 
-        File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
+        File::new(DIRECTORY_DATA . 'system/maintenance', Restrictions::new(DIRECTORY_DATA, true))->delete();
         Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
     }
 
@@ -694,7 +694,7 @@ class Core implements CoreInterface
         if (!$enabled) {
             Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
         } else {
-            File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
+            File::new(DIRECTORY_DATA . 'system/readonly', Restrictions::new(DIRECTORY_DATA, true))->delete();
             Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
     }
@@ -707,8 +707,8 @@ class Core implements CoreInterface
      */
     public static function resetModes(): void
     {
-        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
-        File::new(DIRECTORY_DATA . 'system/readonly'  , Restrictions::new(DIRECTORY_DATA, true))->deletePath();
+        File::new(DIRECTORY_DATA . 'system/maintenace', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'system/readonly'  , Restrictions::new(DIRECTORY_DATA, true))->delete();
 
         Log::warning(tr('System has been relieved from readonly mode. All web requests will now again be answered, all commands are available'), 10);
     }
