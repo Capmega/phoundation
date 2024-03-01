@@ -253,6 +253,25 @@ class Session implements SessionInterface
 
 
     /**
+     * Validate sign up data
+     *
+     * @param ValidatorInterface|null $validator
+     * @return array
+     */
+    public static function validateSignUp(ValidatorInterface $validator = null): array
+    {
+        if (!$validator) {
+            $validator = PostValidator::new();
+        }
+
+        return $validator
+            ->select('email')->isEmail()
+            ->select('password')->isPassword()
+            ->validate();
+    }
+
+
+    /**
      * Authenticate a user with the specified password
      *
      * @param string $user
