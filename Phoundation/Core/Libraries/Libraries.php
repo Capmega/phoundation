@@ -528,8 +528,21 @@ class Libraries
      */
     public static function clearCommandsCache(): void
     {
-        Log::action(tr('Clearing commands cache'), 3);
-        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->deletePath();
+        Log::action(tr('Clearing commands caches'), 3);
+        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->clearTreeSymlinks(true);
+        static::$cache_has_been_cleared = true;
+    }
+
+
+    /**
+     * Deletes the PHO commands cache
+     *
+     * @return void
+     */
+    public static function clearWebCache(): void
+    {
+        Log::action(tr('Clearing web caches'), 3);
+        Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))->clearTreeSymlinks(true);
         static::$cache_has_been_cleared = true;
     }
 
@@ -541,20 +554,29 @@ class Libraries
      */
     public static function rebuildCommandCache(): void
     {
-        Log::action(tr('Rebuilding command cache'), 4, echo_screen: false);
+        static::clearCommandsCache();
 
+        Log::action(tr('Building command cache'), 4, echo_screen: false);
+
+        // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
         $cache     = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Commands cache rebuild')));
+
+        if ($cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $temporary = $temporary->delete();
+            $cache->copy($temporary);
+        }
 
         foreach (static::listLibraries() as $library) {
             $library->cacheCommands($cache, $temporary);
         }
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)->symlinkTargetFromThis(DIRECTORY_ROOT . 'commands');
+        $cache->replaceWithPath($temporary)->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'commands', Restrictions::writable(DIRECTORY_ROOT . 'commands', tr('Commands cache rebuild')))->delete());
 
         static::$cache_has_been_rebuilt = true;
-        Log::success(tr('Finished rebuilding command cache'), 5, echo_screen: false);
+        Log::success(tr('Finished building command cache'), 5, echo_screen: false);
     }
 
 
@@ -565,10 +587,19 @@ class Libraries
      */
     public static function rebuildWebCache(): void
     {
-        Log::action(tr('Rebuilding web cache'), 4, echo_screen: false);
+        static::clearWebCache();
 
+        Log::action(tr('Building web cache'), 4, echo_screen: false);
+
+        // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
         $cache     = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, tr('Commands web rebuild')));
+
+        if ($cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $temporary = $temporary->delete();
+            $cache->copy($temporary);
+        }
 
         foreach (static::listLibraries() as $library) {
             $library->cacheWeb($cache, $temporary);
@@ -577,10 +608,10 @@ class Libraries
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache
             ->replaceWithPath($temporary)
-                ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT . 'web', tr('Commands web rebuild'))));
+                ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT . 'web', tr('Web cache rebuild')))->delete());
 
         static::$cache_has_been_rebuilt = true;
-        Log::success(tr('Finished rebuilding web cache'), 5, echo_screen: false);
+        Log::success(tr('Finished building web cache'), 5, echo_screen: false);
     }
 
 

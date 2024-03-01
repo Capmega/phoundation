@@ -366,6 +366,17 @@ class Path implements Stringable, PathInterface
 
 
     /**
+     * Returns the basename of this path
+     *
+     * @return string
+     */
+    public function getBasename(): string
+    {
+        return basename($this->path);
+    }
+
+
+    /**
      * Returns the stream for this file if it's opened. Will return NULL if closed
      *
      * @return mixed
@@ -548,7 +559,7 @@ class Path implements Stringable, PathInterface
             }
 
             // Delete the file
-            $this->deletePath();
+            $this->delete();
         }
 
         return $this;
@@ -1077,7 +1088,7 @@ class Path implements Stringable, PathInterface
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
      */
-    public function deletePath(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         Log::action(tr('Deleting file ":file"', [':file' => $this->path]), 2);
 
@@ -2499,7 +2510,7 @@ class Path implements Stringable, PathInterface
 
             } catch (Throwable $e) {
                 // Failed to open one of the sources, get rid of the partial target file
-                $this->close()->deletePath();
+                $this->close()->delete();
                 $source->checkReadable('source', $e);
             }
         }
@@ -2605,7 +2616,7 @@ class Path implements Stringable, PathInterface
                 ->execute(EnumExecuteMethod::noReturn);
         }
 
-        return $this->deletePath();
+        return $this->delete();
     }
 
 
@@ -2841,7 +2852,7 @@ class Path implements Stringable, PathInterface
             $new = clone $this;
             $this->rename(Directory::getTemporary());
             $target->rename($new);
-            $this->deletePath();
+            $this->delete();
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterwards
@@ -3061,15 +3072,22 @@ class Path implements Stringable, PathInterface
      *
      * @return $this
      */
-    public function clearTreeSymlinks(bool $clean): static
+    public function clearTreeSymlinks(bool $clean = false): static
     {
-        Find::new($this)
-            ->setExecutionDirectory($this)
-            ->setType('l')
-            ->setCallback(function ($file) use ($clean) {
-                show($file);
-            })
-            ->executeNoReturn();
+        if ($this->exists()) {
+            $list = Find::new($this->restrictions)
+                ->setExecutionDirectory($this)
+                ->setPath($this)
+                ->setType('l')
+                ->setCallback(function ($file) use ($clean) {
+                    show($file);
+                })
+                ->executeReturnFiles();
+
+            foreach ($list as $file) {
+                $file->delete(true);
+            }
+        }
 
         return $this;
     }

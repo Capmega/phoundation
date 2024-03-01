@@ -73,9 +73,9 @@ if ($argv['date']) {
         File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->shred();
 
     } else {
-        File::new(DIRECTORY_DATA . 'tmp', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
-        File::new(DIRECTORY_DATA . 'content/cdn/tmp', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
-        File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->deletePath();
+        File::new(DIRECTORY_DATA . 'tmp', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'content/cdn/tmp', Restrictions::new(DIRECTORY_DATA, true))->delete();
+        File::new(DIRECTORY_DATA . 'cache', Restrictions::new(DIRECTORY_DATA, true))->delete();
     }
 }
 

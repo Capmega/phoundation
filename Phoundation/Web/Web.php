@@ -37,7 +37,7 @@ class Web
      */
     public static function rebuildCache(): void
     {
-        Libraries::rebuildWebCache();;
+        Libraries::rebuildWebCache();
     }
 
 

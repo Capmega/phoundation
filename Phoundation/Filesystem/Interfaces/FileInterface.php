@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phoundation\Filesystem\Interfaces;
 
 use Exception;
@@ -10,9 +12,9 @@ use Throwable;
 
 
 /**
- * Interface FileInterface
+ * interface FileInterface
  *
- * This library contains various filesystem file-related functions
+ * This library contains various filesystem file related functions
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,28 +25,20 @@ use Throwable;
 interface FileInterface extends PathInterface
 {
     /**
-     * Create the specified file
-     *
-     * @param bool $force
-     * @return static
-     */
-    public function create(bool $force = false): static;
-
-    /**
      * Move uploaded image to correct target
      *
      * @param array|string $source The source file to process
-     * @return string The new file directory
+     * @return string The new file path
      * @throws CoreException
      */
     public function getUploaded(array|string $source): string;
 
     /**
-     * Ensure that the object file exists and is not a directory
+     * Ensure that the object file exists in the specified path
      *
      * @note Will log to the console in case the file was created
      * @param null $mode If the specified $this->file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
-     * @param null $pattern_mode If parts of the directory for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+     * @param null $pattern_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
      * @return void
      * @version 2.4.16: Added documentation, improved log output
      *
@@ -60,17 +54,7 @@ interface FileInterface extends PathInterface
     public function isText(): bool;
 
     /**
-     * Return true if the specified mimetype is for a compressed file, false if not
-     *
-     * This function will check the primary and secondary sections of the mimetype and depending on their values,
-     * determine if the file format is compressed or not
-     *
-     * @return boolean True if the specified mimetype is for a compressed file, false if not
-     */
-    public function isCompressed(): bool;
-
-    /**
-     * Return true if the specified mimetype is for a binary file or false if it is for a text file
+     * Returns true or false if file is ASCII or not
      *
      * @return bool True if the file is a text file, false if not
      */
@@ -87,8 +71,9 @@ interface FileInterface extends PathInterface
      * Copy a file with progress notification
      *
      * @param Stringable|string $target
-     * @param callable $callback
-     * @param RestrictionsInterface $restrictions
+     * @param RestrictionsInterface|null $restrictions
+     * @param callable|null $callback
+     * @param mixed|null $context
      * @return static
      * @example:
      * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
@@ -97,7 +82,7 @@ interface FileInterface extends PathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
+    public function copy(Stringable|string $target, ?RestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown
@@ -146,20 +131,13 @@ interface FileInterface extends PathInterface
     /**
      * Return line count for the specified text file
      *
-     * @note files < $buffer (default 1MB) will be loaded completely in memory, anything bigger than that will read
-     *       line by line
-     *
      * @param string $source
-     * @param int $buffer
      * @return int
      */
     public function getLineCount(string $source, int $buffer = 1048576): int;
 
     /**
      * Return word count for the specified text file
-     *
-     * @note files < $buffer (default 1MB) will be loaded completely in memory, anything bigger than that will read
-     *        line by line
      *
      * @param int $format
      * @param string|null $characters
@@ -178,7 +156,7 @@ interface FileInterface extends PathInterface
     public function getWordFrequency(?string $characters = null, int $buffer = 1048576): array;
 
     /**
-     * Returns true if any part of the object file directory is a symlink
+     * Returns true if any part of the object file path is a symlink
      *
      * @param string|null $prefix
      * @return boolean True if the specified $pattern (optionally prefixed by $prefix) contains a symlink, false if not
@@ -226,7 +204,7 @@ interface FileInterface extends PathInterface
      * IMPORTANT! Extension here is just "the rest of the filename", which may be _small.jpg, or just the extension, .jpg
      * If only an extension is desired, it is VERY important that its specified as ".jpg" and not "jpg"!!
      *
-     * $pattern sets the base directory for where the file should be stored
+     * $pattern sets the base path for where the file should be stored
      * If $extension is false, the files original extension will be retained. If set to a value, the extension will be that value
      * If $singledir is set to false, the resulting file will be in a/b/c/d/e/, if its set to true, it will be in abcde
      * $length specifies howmany characters the subdir should have (4 will make a/b/c/d/ or abcd/)
@@ -298,6 +276,13 @@ interface FileInterface extends PathInterface
     public function ensureWritable(?int $mode = null): static;
 
     /**
+     * Returns the extension of the object filename
+     *
+     * @return string
+     */
+    public function getExtension(): string;
+
+    /**
      * Ensure that this file has the specified sha256 hash
      *
      * @param string $sha256
@@ -350,10 +335,10 @@ interface FileInterface extends PathInterface
     public function ensureLineEndings(string $line_endings = PHP_EOL): static;
 
     /**
-     * Returns the last # amount of lines from this file
+     * Create the specified file
      *
-     * @param int|null $lines
-     * @return array
+     * @param bool $force
+     * @return static
      */
-    public function tail(?int $lines = null): array;
+    public function create(bool $force = false): static;
 }

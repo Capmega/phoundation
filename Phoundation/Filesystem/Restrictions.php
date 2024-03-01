@@ -381,11 +381,11 @@ class Restrictions implements RestrictionsInterface
 
         // Check each specified directory pattern to see if its allowed or restricted
         foreach (Arrays::force($patterns) as &$pattern) {
-            foreach ($this->source as $directory => $restrict_write) {
-                $directory    = Path::getAbsolute($directory   , null, false);
+            foreach ($this->source as $path => $restrict_write) {
+                $path    = Path::getAbsolute($path   , null, false);
                 $pattern = Path::getAbsolute($pattern, null, false);
 
-                if (str_starts_with($pattern, $directory)) {
+                if (str_starts_with($pattern, Strings::endsNotWith($path, '/'))) {
                     if ($write and !$restrict_write) {
                         throw RestrictionsException::new(tr('Write access to directory patterns ":patterns" denied by ":label" restrictions', [
                             ':patterns' => $pattern,
@@ -393,7 +393,7 @@ class Restrictions implements RestrictionsInterface
                         ]))->addData([
                             'label'    => $this->label,
                             'patterns' => $patterns,
-                            'directories'    => $this->source
+                            'paths'    => $this->source
                         ]);
                     }
 
@@ -407,9 +407,9 @@ class Restrictions implements RestrictionsInterface
                 ':patterns' => $pattern,
                 ':label'    => $this->label
             ]))->addData([
-                'label'       => $this->label,
-                'patterns'    => $patterns,
-                'directories' => $this->source
+                'label'    => $this->label,
+                'patterns' => $patterns,
+                'paths'    => $this->source
             ]);
         }
     }

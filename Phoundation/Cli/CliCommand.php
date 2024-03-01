@@ -575,13 +575,6 @@ class CliCommand
             }
         }
 
-        if (!static::cacheHasBeenRebuilt()) {
-            // Command was not found, try rebuilding the cache and try at least once more.
-            static::rebuildCache();
-            ArgvValidator::recoverBackupSource();
-            return static::findCommand();
-        }
-
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
         throw CommandNotFoundException::new(tr('The specified command file ":file" was not found', [

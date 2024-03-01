@@ -1763,7 +1763,7 @@ trait ProcessVariables
         $pid  = trim($pid);
 
         // Delete the run file, don't clean up as that is not needed. When the process terminates, cleanup will happen
-        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))->deletePath(false);
+        File::new($this->run_file, Restrictions::new(DIRECTORY_DATA . 'run/pids/', true))->delete(false);
         $this->run_file = null;
 
         if (!$pid) {

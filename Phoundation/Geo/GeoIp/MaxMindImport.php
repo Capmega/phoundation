@@ -95,8 +95,8 @@ class MaxMindImport extends GeoIpImport
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))->deletePath();
-            File::new($source_path . 'GeoLite2-*', $restrictions)->deletePath(false, false, false);
+            File::new(DIRECTORY_DATA . 'garbage/maxmind', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/'))->delete();
+            File::new($source_path . 'GeoLite2-*', $restrictions)->delete(false, false, false);
 
             $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
             $shas     = [];
@@ -124,11 +124,11 @@ class MaxMindImport extends GeoIpImport
 
                 // Move the file to the target path and delete the source path
                 $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_path);
-                $directory->deletePath();
+                $directory->delete();
             }
 
             // Delete the previous data files from garbage
-            $previous->deletePath();
+            $previous->delete();
 
         } catch (Throwable $e) {
             // Something borked. Move the previous data files back from the garbage to their original path so the system

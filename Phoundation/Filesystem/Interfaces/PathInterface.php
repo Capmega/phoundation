@@ -255,7 +255,7 @@ interface PathInterface
      * @return static
      * @see Restrictions::check() This function uses file location restrictions
      */
-    public function deletePath(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
 
     /**
      * Moves this file to the specified target, will try to ensure target directory exists

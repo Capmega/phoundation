@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Filesystem\Interfaces\PathInterface;
+
 /**
  * Trait DataPath
  *
@@ -39,12 +41,12 @@ trait DataPath
     /**
      * Sets the path
      *
-     * @param string|null $path
+     * @param PathInterface|string|null $path
      * @return static
      */
-    public function setPath(?string $path): static
+    public function setPath(PathInterface|string|null $path): static
     {
-        $this->path = $path;
+        $this->path = get_null((string)$path);
         return $this;
     }
 }

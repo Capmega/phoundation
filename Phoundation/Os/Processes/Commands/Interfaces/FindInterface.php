@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FilesInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
 use Stringable;
 
 
@@ -21,19 +22,19 @@ use Stringable;
 interface FindInterface
 {
     /**
-     * Returns the path in which to find
+     * Returns the path
      *
-     * @return string
+     * @return string|null
      */
-    public function getFindPath(): string;
+    public function getPath(): ?string;
 
     /**
      * Sets the path in which to find
      *
-     * @param Stringable|string $find_path
+     * @param PathInterface|string|null $path
      * @return $this
      */
-    public function setFindPath(Stringable|string $find_path): static;
+    public function setPath(PathInterface|string|null $path): static;
 
     /**
      * Sets if find should descend into other filesystems

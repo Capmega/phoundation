@@ -347,19 +347,20 @@ class File extends Path implements FileInterface
      * Copy a file with progress notification
      *
      * @param Stringable|string $target
-     * @param callable $callback
-     * @param RestrictionsInterface $restrictions
+     * @param RestrictionsInterface|null $restrictions
+     * @param callable|null $callback
+     * @param mixed|null $context
      * @return static
      * @example:
-     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     * File::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
      *      if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static
+    public function copy(Stringable|string $target, ?RestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
-        $context      = stream_context_create();
+        $context      = $context ?? stream_context_create();
         $restrictions = $this->ensureRestrictions($restrictions);
 
         $this->restrictions->check($this->path, true);

@@ -10,7 +10,10 @@ use Phoundation\Data\Traits\DataPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Files;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
+use Phoundation\Filesystem\Interfaces\PathInterface;
+use Phoundation\Filesystem\Path;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -29,15 +32,10 @@ use Stringable;
 class Find extends Command implements FindInterface
 {
     use DataName;
-    use DataPath;
+    use DataPath {
+        setPath as protected __setPath;
+    }
 
-
-    /**
-     * The path in which to find
-     *
-     * @var string $find_path
-     */
-    protected string $find_path;
 
     /**
      * Tracks to follow symlinks or not
@@ -162,32 +160,49 @@ class Find extends Command implements FindInterface
      */
     protected ?string $action_command = null;
 
-
     /**
-     * Returns the path in which to find
+     * Find the specified path
      *
-     * @return string
+     * @var string|null $find_path
      */
-    public function getFindPath(): string
-    {
-        if (!isset($this->find_path)) {
-            throw new OutOfBoundsException(tr('Cannot return path, no path has been specified yet'));
-        }
-
-        return $this->find_path;
-    }
+    protected ?string $find_path = null;
 
 
     /**
      * Sets the path in which to find
      *
-     * @param Stringable|string $find_path
+     * @param PathInterface|string|null $path
      * @return $this
      */
-    public function setFindPath(Stringable|string $find_path): static
+    public function setPath(PathInterface|string|null $path): static
     {
-        $this->find_path = (string) $find_path;
-        return $this->setExecutionDirectory($find_path);
+        $this->__setPath($path);
+        return $this->setExecutionDirectory($this->path);
+    }
+
+
+    /**
+     * Sets if find should descend into other filesystems
+     *
+     * @note This is true by default for security to avoid searching on remote filesystems by accident
+     * @param string|null $find_path
+     * @return static
+     */
+    public function setFindPath(?string $find_path): static
+    {
+        $this->find_path = $find_path;
+        return $this;
+    }
+
+
+    /**
+     * Returns if find should find empty files
+     *
+     * @return string|null
+     */
+    public function getFindPath(): ?string
+    {
+        return $this->find_path;
     }
 
 
@@ -680,37 +695,53 @@ class Find extends Command implements FindInterface
 
 
     /**
-     * Returns a Files-object containing the found files
+     * Returns an array containing the found files
      *
      * @return array
      */
     public function executeReturnArray(): array
     {
-        if (!isset($this->find_path)) {
+        if (!$this->path) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
 
-        $this->setCommand('find')
-            ->setTimeout($this->timeout)
-            ->addArgument($this->find_path)
-            ->addArguments($this->mount           ? '-mount'                        : null)
-            ->addArguments($this->empty           ? '-empty'                        : null)
-            ->addArguments($this->follow_symlinks ? '-L'                            : null)
-            ->addArguments($this->name            ? ['-name'    , $this->name]      : null)
-            ->addArguments($this->iname           ? ['-iname'   , $this->iname]     : null)
-            ->addArguments($this->path            ? ['-path'    , $this->path]      : null)
-            ->addArguments($this->atime           ? ['-amin'    , $this->atime]     : null)
-            ->addArguments($this->ctime           ? ['-cmin'    , $this->ctime]     : null)
-            ->addArguments($this->mtime           ? ['-mmin'    , $this->mtime]     : null)
-            ->addArguments($this->type            ? ['-type'    , $this->type]      : null)
-            ->addArguments($this->regex           ? ['-regex'   , $this->regex]     : null)
-            ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
-            ->addArguments($this->depth           ? ['-depth'   , $this->depth]     : null)
-            ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth] : null)
-            ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth] : null)
-            ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
-            ->addArguments($this->exec            ? ['-exec'    , $this->exec]      : null);
+        try {
+            $this->setCommand('find')
+                ->setTimeout($this->timeout)
+                ->addArgument($this->path)
+                ->addArguments($this->mount           ? '-mount'                        : null)
+                ->addArguments($this->empty           ? '-empty'                        : null)
+                ->addArguments($this->follow_symlinks ? '-L'                            : null)
+                ->addArguments($this->name            ? ['-name'    , $this->name]      : null)
+                ->addArguments($this->iname           ? ['-iname'   , $this->iname]     : null)
+                ->addArguments($this->find_path       ? ['-path'    , $this->find_path] : null)
+                ->addArguments($this->atime           ? ['-amin'    , $this->atime]     : null)
+                ->addArguments($this->ctime           ? ['-cmin'    , $this->ctime]     : null)
+                ->addArguments($this->mtime           ? ['-mmin'    , $this->mtime]     : null)
+                ->addArguments($this->type            ? ['-type'    , $this->type]      : null)
+                ->addArguments($this->regex           ? ['-regex'   , $this->regex]     : null)
+                ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
+                ->addArguments($this->depth           ? ['-depth'   , $this->depth]     : null)
+                ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth] : null)
+                ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth] : null)
+                ->addArguments($this->size            ? ['-size'    , $this->size]      : null)
+                ->addArguments($this->exec            ? ['-exec'    , $this->exec]      : null);
+
+        } catch (ProcessFailedException $e) {
+            Path::new($this->path)->checkReadable('find', $e);
+        }
 
         return parent::executeReturnArray();
+    }
+
+
+    /**
+     * Returns a Files-object containing the found files
+     *
+     * @return FilesInterface
+     */
+    public function executeReturnFiles(): FilesInterface
+    {
+        return Files::new($this->executeReturnArray(), $this->restrictions);
     }
 }

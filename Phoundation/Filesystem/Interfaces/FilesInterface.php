@@ -89,11 +89,11 @@ interface FilesInterface extends IteratorInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      * @param Stringable|string $target
-     * @param callable $callback
      * @param RestrictionsInterface|null $restrictions
+     * @param callable|null $callback
      * @return $this
      */
-    public function copy(Stringable|string $target, callable $callback, ?RestrictionsInterface $restrictions = null): static;
+    public function copy(Stringable|string $target, ?RestrictionsInterface $restrictions = null, ?callable $callback = null): static;
 
     /**
      * Returns the current file

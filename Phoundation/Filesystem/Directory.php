@@ -227,7 +227,7 @@ class Directory extends Path implements DirectoryInterface
 
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
-            File::new($this->path, $this->restrictions)->deletePath(false, $sudo);
+            File::new($this->path, $this->restrictions)->delete(false, $sudo);
         }
 
         if (!file_exists(Strings::unslash($this->path))) {
@@ -242,7 +242,7 @@ class Directory extends Path implements DirectoryInterface
                 if (file_exists($this->path)) {
                     if (!is_dir($this->path)) {
                         // Some normal file is in the way. Delete the file, and retry
-                        File::new($this->path, $this->restrictions)->deletePath(false, $sudo);
+                        File::new($this->path, $this->restrictions)->delete(false, $sudo);
                         return $this->ensure($mode, $clear, $sudo);
                     }
 
@@ -250,7 +250,7 @@ class Directory extends Path implements DirectoryInterface
 
                 } elseif (is_link($this->path)) {
                     // This is a dead symlink, delete it
-                    File::new($this->path, $this->restrictions)->deletePath(false, $sudo);
+                    File::new($this->path, $this->restrictions)->delete(false, $sudo);
                 }
 
                 try {
@@ -280,7 +280,7 @@ class Directory extends Path implements DirectoryInterface
         } elseif (!is_dir($this->path)) {
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
-            File::new(Strings::endsNotWith($this->path, '/'), $this->restrictions)->deletePath(false, $sudo);
+            File::new(Strings::endsNotWith($this->path, '/'), $this->restrictions)->delete(false, $sudo);
             return $this->ensure($mode, $clear, $sudo);
         }
 
@@ -373,7 +373,7 @@ class Directory extends Path implements DirectoryInterface
 
                 // Remove this entry and continue;
                 try {
-                    $this->deletePath(false, $sudo, use_run_file: $use_run_file);
+                    $this->delete(false, $sudo, use_run_file: $use_run_file);
 
                 }catch(Exception $e) {
                     // The directory WAS empty, but cannot be removed
@@ -808,7 +808,7 @@ class Directory extends Path implements DirectoryInterface
                 // Initialize public temp directory first
                 $path = DIRECTORY_PUBTMP . Session::getUUID();
                 static::$temp_directory_public = static::new($path, Restrictions::writable($path, 'public temporary directory'))
-                    ->deletePath()
+                    ->delete()
                     ->ensure();
 
                 // Put lock file to avoid delete directory auto cleanup removing this session directory
@@ -823,7 +823,7 @@ class Directory extends Path implements DirectoryInterface
             // Initialize private temp directory first
             $path = DIRECTORY_TMP . Session::getUUID();
             static::$temp_directory_private = static::new($path, Restrictions::writable($path, 'private temporary directory'))
-                ->deletePath()
+                ->delete()
                 ->ensure();
 
             // Put lock file to avoid delete directory auto cleanup removing this session directory
@@ -871,12 +871,12 @@ class Directory extends Path implements DirectoryInterface
             $action = false;
 
             if (static::$temp_directory_private) {
-                File::new(static::$temp_directory_private, Restrictions::new(DIRECTORY_TMP, true))->deletePath();
+                File::new(static::$temp_directory_private, Restrictions::new(DIRECTORY_TMP, true))->delete();
                 $action = true;
             }
 
             if (static::$temp_directory_public) {
-                File::new(static::$temp_directory_public, Restrictions::new(DIRECTORY_PUBTMP, true))->deletePath();
+                File::new(static::$temp_directory_public, Restrictions::new(DIRECTORY_PUBTMP, true))->delete();
                 $action = true;
             }
 
@@ -1373,31 +1373,45 @@ class Directory extends Path implements DirectoryInterface
      * Copy this directory with progress notification
      *
      * @param Stringable|string $target
-     * @param callable $callback
-     * @param RestrictionsInterface $restrictions
+     * @param RestrictionsInterface|null $restrictions
+     * @param callable|null $callback
+     * @param mixed|null $context
+     * @param bool $recursive
      * @return static
      * @example:
-     * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
+     * File::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
      *      if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static
+    public function copy(Stringable|string $target, ?RestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static
     {
-        throw new UnderConstructionException();
-
-        $context      = stream_context_create();
+        $context      = $context ?? stream_context_create();
         $restrictions = $this->ensureRestrictions($restrictions);
+        $target       = Directory::new($target, $restrictions)->ensure();
 
-        $this->restrictions->check($this->path, true);
-        $restrictions->check($target, false);
+        $this->checkRestrictions(false);
+        $target->checkRestrictions(true);
 
         stream_context_set_params($context, [
             'notification' => $callback
         ]);
 
-        copy($this->path, $target, $context);
+        // Copy the contents
+        foreach ($this->getFilesObject() as $path) {
+            $basename = $path->getBasename();
+
+            if ($path->isDir()) {
+                if ($recursive) {
+                    $path->copy($target->addDirectory($basename), $target->getRestrictions(), $callback, $context, $recursive);
+                }
+
+            } else {
+                copy($this->addFile($basename)->getPath(), $target->addFile($basename)->getPath(), $context);
+            }
+        }
+
         return new static($target, $this->restrictions);
     }
 

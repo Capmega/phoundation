@@ -73,7 +73,7 @@ class Import extends \Phoundation\Developer\Project\Import
         // Ensure target path can be written and is non-existent
         $directory = Directory::new($directory, $restrictions)
             ->ensureWritable()
-            ->deletePath();
+            ->delete();
 
         $wget     = Wget::new();
         $tmp_path = $wget->setExecutionDirectoryToTemp()->getExecutionDirectory();
@@ -117,7 +117,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))->deletePath();
+            File::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))->delete();
             $previous = Directory::new($target_path, $restrictions)->movePath(DIRECTORY_DATA . 'garbage/');
 
             // Prepare and import each file
@@ -127,7 +127,7 @@ class Import extends \Phoundation\Developer\Project\Import
                 if (str_ends_with($file, '.zip')) {
                     foreach ($data['files'] as $target_file) {
                         // Ensure the target files are gone so that we can unzip over them
-                        File::new($source_path . $target_file, $restrictions)->deletePath();
+                        File::new($source_path . $target_file, $restrictions)->delete();
                     }
 
                     // Unzip the files so that we have usable target files
@@ -141,7 +141,7 @@ class Import extends \Phoundation\Developer\Project\Import
             }
 
             // Delete the previous data files from garbage
-            $previous->deletePath();
+            $previous->delete();
 
         } catch (Throwable $e) {
             // Something borked. Move the previous data files back from the garbage to their original path so the system

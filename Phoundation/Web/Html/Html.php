@@ -1466,7 +1466,7 @@ Class Html
             try {
                 // Create the cached file names
                 $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
-                $file = DIRECTORY_WEB . LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
+                $file = DIRECTORY_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 
                 log_file(tr('Creating externally cached javascript file ":file"', array(':file' => $file.'.js')), 'html-script', 'VERYVERBOSE/cyan');
 
@@ -1478,9 +1478,9 @@ Class Html
                         // The javascript file is empty
                         log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                        File::new(DIRECTORY_WEB . LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
-                            File::new($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_WEB . LANGUAGE.'/pub/js')->chmod();
-                            File::new($file.'.js,'.$file.'.min.js', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->deletePath();
+                        File::new(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
+                            File::new($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->chmod();
+                            File::new($file.'.js,'.$file.'.min.js', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->delete();
                         });
 
                     } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
@@ -2273,7 +2273,7 @@ Class Html
                         $directory = cli_unzip($file);
 
                         File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
-                            File::deletePath(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
+                            File::delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
                             rename($directory.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                         });
 

@@ -325,8 +325,10 @@ interface DirectoryInterface extends PathInterface
      * Copy this directory with progress notification
      *
      * @param Stringable|string $target
+     * @param RestrictionsInterface|null $restrictions
      * @param callable $callback
-     * @param RestrictionsInterface $restrictions
+     * @param mixed|null $context
+     * @param bool $recursive
      * @return static
      * @example:
      * File::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
@@ -335,7 +337,7 @@ interface DirectoryInterface extends PathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, callable $callback, RestrictionsInterface $restrictions): static;
+    public function copy(Stringable|string $target, ?RestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static;
 
     /**
      * Returns a new Find object

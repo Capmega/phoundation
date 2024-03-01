@@ -400,7 +400,7 @@ Log::checkpoint();
 
         // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
-        \Phoundation\Filesystem\File::new($file, $this->restrictions)->deletePath();
+        \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
 
         return $file;
     }

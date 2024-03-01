@@ -116,7 +116,7 @@ class StatusFiles extends Iterator implements StatusFilesInterface
 
             if ($patch_file) {
                 Git::new($target_path)->apply($patch_file);
-                File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->deletePath();
+                File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
             }
 
             return $this;
@@ -132,7 +132,7 @@ class StatusFiles extends Iterator implements StatusFilesInterface
             if (isset($patch_file)) {
                 // Delete the temporary patch file
                 Core::ExecuteNotInTestMode(function() use ($patch_file) {
-                    File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->deletePath();
+                    File::new($patch_file, Restrictions::new(DIRECTORY_TMP, true))->delete();
                 }, tr('Removing git patch files'));
             }
 
