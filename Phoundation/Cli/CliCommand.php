@@ -510,13 +510,6 @@ class CliCommand
             ArgvValidator::removeCommand($command);
 
             if (!file_exists($file)) {
-                if (!static::cacheHasBeenRebuilt()) {
-                    // Command was not found, try rebuilding the cache and try at least once more.
-                    static::rebuildCache();
-                    ArgvValidator::recoverBackupSource();
-                    return static::findCommand();
-                }
-
                 // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
                 try {
                     $files = Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex);
@@ -524,6 +517,17 @@ class CliCommand
 
                 } catch (Throwable $e) {
                     $files = [];
+                }
+
+                if (!$files) {
+                    // No files were found at all. Try a cache rebuild, because maybe the file exists as a new command
+                    // in a library somewhere?
+                    if (!static::cacheHasBeenRebuilt()) {
+                        // Command was not found, try rebuilding the cache and try at least once more.
+                        static::rebuildCache();
+                        ArgvValidator::recoverBackupSource();
+                        return static::findCommand();
+                    }
                 }
 
                 throw CommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
