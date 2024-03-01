@@ -6,6 +6,7 @@ namespace Phoundation\Core\Log;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
+use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliColor;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
@@ -1247,7 +1248,7 @@ Class Log {
             }
 
             // In Command Line mode, if requested, always log to the screen too but not during PHPUnit test!
-            if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest()) {
+            if ($echo_screen and (PHP_SAPI === 'cli') and !Core::isPhpUnitTest() and !CliAutoComplete::isActive()) {
                 echo $messages;
             }
 
