@@ -10,7 +10,7 @@ use Phoundation\Developer\Project\Project;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
-
+throw new \Phoundation\Exception\UnderConstructionException();
 // ONLY HERE do we allow disabling password validation in web
 $get = GetValidator::new()
     ->select('no_password_validation')->isOptional(false)->isBoolean()
