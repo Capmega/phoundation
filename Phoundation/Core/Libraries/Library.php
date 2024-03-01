@@ -609,7 +609,7 @@ class Library implements LibraryInterface
      * @return void
      * @todo Add support for command sharing!
      */
-    public function cacheCommands(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    public function rebuildCommandCache(DirectoryInterface $cache, DirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName()
@@ -639,7 +639,7 @@ class Library implements LibraryInterface
      * @return void
      * @todo Add support for command sharing!
      */
-    public function cacheWeb(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    public function rebuildWebCache(DirectoryInterface $cache, DirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName()
@@ -669,7 +669,7 @@ class Library implements LibraryInterface
      * @return void
      * @todo Add support for command sharing!
      */
-    public function cacheTests(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    public function rebuildTestsCache(DirectoryInterface $cache, DirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName()

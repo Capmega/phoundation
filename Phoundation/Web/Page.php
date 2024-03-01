@@ -2764,7 +2764,7 @@ class Page implements PageInterface
             if (!str_starts_with($target, '/')) {
                 // Ensure we have an absolute target
                 try {
-                    $target = Filesystem::absolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
+                    $target = Path::getAbsolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
 
                 } catch (FileNotExistException $e) {
                     throw FileNotExistException::new(tr('The specified target ":target" does not exist', [

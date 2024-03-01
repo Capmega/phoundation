@@ -593,7 +593,7 @@ class Libraries
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->cacheCommands($cache, $temporary);
+            $library->rebuildCommandCache($cache, $temporary);
         }
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
@@ -626,7 +626,7 @@ class Libraries
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->cacheWeb($cache, $temporary);
+            $library->rebuildWebCache($cache, $temporary);
         }
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
@@ -660,7 +660,7 @@ class Libraries
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->cacheTests($cache, $temporary);
+            $library->rebuildTestsCache($cache, $temporary);
         }
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
