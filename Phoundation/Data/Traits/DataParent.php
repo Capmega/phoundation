@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use ReturnTypeWillChange;
+
 
 /**
  * Trait DataParent
