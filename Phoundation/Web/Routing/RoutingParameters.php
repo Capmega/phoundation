@@ -358,7 +358,7 @@ class RoutingParameters implements RoutingParametersInterface
             }
         }
 
-        return 'web/' . $directory;
+        return DIRECTORY_WEB . $directory;
     }
 
 
