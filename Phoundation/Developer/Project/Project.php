@@ -796,7 +796,7 @@ $skip = false;
             Log::action(tr('Caching all Phoundation libraries'));
 
             Find::new()
-                ->setFindPath(DIRECTORY_ROOT . 'Phoundation/')
+                ->setPath(DIRECTORY_ROOT . 'Phoundation/')
                 ->setFilenameFilter('*.php')
                 ->setExecuteOnEach(function(string $file) {
                     Log::dot(25);

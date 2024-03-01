@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Tests;
 
 
+use Phoundation\Core\Libraries\Libraries;
+
 /**
  * Class Tests
  *
@@ -17,8 +19,29 @@ namespace Phoundation\Tests;
  */
 class Tests
 {
+    /**
+     * @return void
+     */
     public static function unit(): void
     {
 
+    }
+
+
+    /**
+     * Clears the test cache
+     */
+    public static function clearCache(): void
+    {
+        Libraries::clearTestsCache();
+    }
+
+
+    /**
+     * Rebuilds the test cache
+     */
+    public static function rebuildCache(): void
+    {
+        Libraries::rebuildTestsCache();
     }
 }

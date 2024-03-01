@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\FilesInterface;
@@ -10,7 +8,7 @@ use Stringable;
 
 
 /**
- * Class Find
+ * interface FindInterface
  *
  * This class manages the "find" command
  *
@@ -22,19 +20,28 @@ use Stringable;
 interface FindInterface
 {
     /**
-     * Returns the path
-     *
-     * @return string|null
-     */
-    public function getPath(): ?string;
-
-    /**
      * Sets the path in which to find
      *
      * @param PathInterface|string|null $path
      * @return $this
      */
     public function setPath(PathInterface|string|null $path): static;
+
+    /**
+     * Sets if find should descend into other filesystems
+     *
+     * @note This is true by default for security to avoid searching on remote filesystems by accident
+     * @param PathInterface|string|null $find_path
+     * @return static
+     */
+    public function setFindPath(PathInterface|string|null $find_path): static;
+
+    /**
+     * Returns if find should find empty files
+     *
+     * @return string|null
+     */
+    public function getFindPath(): ?string;
 
     /**
      * Sets if find should descend into other filesystems
@@ -298,9 +305,16 @@ interface FindInterface
     public function getFoundFiles(): FilesInterface;
 
     /**
-     * Returns a Files-object containing the found files
+     * Returns an array containing the found files
      *
      * @return array
      */
     public function executeReturnArray(): array;
+
+    /**
+     * Returns a Files-object containing the found files
+     *
+     * @return FilesInterface
+     */
+    public function executeReturnFiles(): FilesInterface;
 }

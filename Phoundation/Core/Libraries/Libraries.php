@@ -529,21 +529,45 @@ class Libraries
     public static function clearCommandsCache(): void
     {
         Log::action(tr('Clearing commands caches'), 3);
-        Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->clearTreeSymlinks(true);
+        $cache = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            Path::new(DIRECTORY_ROOT . '/commands', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))->delete();
+        }
+
         static::$cache_has_been_cleared = true;
     }
 
 
     /**
-     * Deletes the PHO commands cache
+     * Deletes the web pages cache
      *
      * @return void
      */
     public static function clearWebCache(): void
     {
         Log::action(tr('Clearing web caches'), 3);
-        Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))->clearTreeSymlinks(true);
-        static::$cache_has_been_cleared = true;
+        $cache = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))->delete();
+        }
+    }
+
+
+    /**
+     * Deletes the tests cache
+     *
+     * @return void
+     */
+    public static function clearTestsCache(): void
+    {
+        Log::action(tr('Clearing test caches'), 3);
+        $cache = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache()'))->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            Path::new(DIRECTORY_ROOT . '/tests', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))->delete();
+        }
     }
 
 
@@ -556,7 +580,7 @@ class Libraries
     {
         static::clearCommandsCache();
 
-        Log::action(tr('Building command cache'), 4, echo_screen: false);
+        Log::action(tr('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
@@ -576,12 +600,12 @@ class Libraries
         $cache->replaceWithPath($temporary)->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'commands', Restrictions::writable(DIRECTORY_ROOT . 'commands', tr('Commands cache rebuild')))->delete());
 
         static::$cache_has_been_rebuilt = true;
-        Log::success(tr('Finished building command cache'), 5, echo_screen: false);
+        Log::success(tr('Finished rebuilding command cache'));
     }
 
 
     /**
-     * Rebuilds the web cache
+     * Rebuilds the web pages cache
      *
      * @return void
      */
@@ -589,7 +613,7 @@ class Libraries
     {
         static::clearWebCache();
 
-        Log::action(tr('Building web cache'), 4, echo_screen: false);
+        Log::action(tr('Rebuilding web cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
@@ -610,8 +634,41 @@ class Libraries
             ->replaceWithPath($temporary)
                 ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT . 'web', tr('Web cache rebuild')))->delete());
 
-        static::$cache_has_been_rebuilt = true;
-        Log::success(tr('Finished building web cache'), 5, echo_screen: false);
+        Log::success(tr('Finished rebuilding web cache'));
+    }
+
+
+    /**
+     * Rebuilds the tests cache
+     *
+     * @return void
+     */
+    public static function rebuildTestsCache(): void
+    {
+        static::clearTestsCache();
+
+        Log::action(tr('Rebuilding tests cache'), 4);
+
+        // Get temporary directory to build cache and the current cache directory
+        $temporary = Directory::getTemporary();
+        $cache     = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', tr('Commands tests rebuild')));
+
+        if ($cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $temporary = $temporary->delete();
+            $cache->copy($temporary);
+        }
+
+        foreach (static::listLibraries() as $library) {
+            $library->cacheTests($cache, $temporary);
+        }
+
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $cache
+            ->replaceWithPath($temporary)
+            ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'tests', Restrictions::writable(DIRECTORY_ROOT . 'tests', tr('Tests cache rebuild')))->delete());
+
+        Log::success(tr('Finished rebuilding tests cache'));
     }
 
 

@@ -1507,7 +1507,8 @@ class Path implements Stringable, PathInterface
         // Reverse parts to first add to return before removing to avoid immediately passing through root with
         // paths like ../../../this/is/a/test
         $path   = static::getAbsolute($this->path, $make_absolute, false);
-        $path   = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+        $path   = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);                                          // \ and / will both be single slash
+        $path   = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $path);     // Remove double slashes
         $parts  = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
         $return = [];
         $root   = (str_starts_with($path, '/') ? '/' : '');
@@ -2735,7 +2736,7 @@ class Path implements Stringable, PathInterface
     public function find(): FindInterface
     {
         return Find::new($this->restrictions)
-            ->setFindPath($this->path);
+            ->setPath($this->path);
     }
 
 

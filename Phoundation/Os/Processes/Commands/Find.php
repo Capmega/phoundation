@@ -185,10 +185,10 @@ class Find extends Command implements FindInterface
      * Sets if find should descend into other filesystems
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
-     * @param string|null $find_path
+     * @param PathInterface|string|null $find_path
      * @return static
      */
-    public function setFindPath(?string $find_path): static
+    public function setFindPath(PathInterface|string|null $find_path): static
     {
         $this->find_path = $find_path;
         return $this;

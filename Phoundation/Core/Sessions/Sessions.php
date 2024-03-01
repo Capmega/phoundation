@@ -96,7 +96,7 @@ throw new UnderConstructionException();
         ]));
 
         Find::new()
-            ->setFindPath(DIRECTORY_DATA . 'tmp/')
+            ->setPath(DIRECTORY_DATA . 'tmp/')
             ->setOlderThan($age_in_minutes)
             ->setExecute('rf {} -rf')
             ->executeNoReturn();

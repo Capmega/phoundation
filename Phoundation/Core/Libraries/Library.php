@@ -613,7 +613,7 @@ class Library implements LibraryInterface
     {
         Log::action(tr('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName()
-        ]), 3, echo_screen: false);
+        ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/commands/';
         $restrictions = Restrictions::readonly($path, tr('Commands cache rebuild for ":library"', [
@@ -643,9 +643,39 @@ class Library implements LibraryInterface
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName()
-        ]), 3, echo_screen: false);
+        ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/web/';
+        $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
+            ':library' => $this->getName()
+        ]));
+
+        $path = Directory::new($path, $restrictions);
+
+        if (!$path->exists()) {
+            // This library does not have a web/ directory, we're fine
+            return;
+        }
+
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
+    }
+
+
+    /**
+     * Ensures that the Library/tests directory contents are symlinked in DIRECTORY_DATA/cache/system/tests
+     *
+     * @param DirectoryInterface $cache
+     * @param DirectoryInterface $tmp
+     * @return void
+     * @todo Add support for command sharing!
+     */
+    public function cacheTests(DirectoryInterface $cache, DirectoryInterface $tmp): void
+    {
+        Log::action(tr('Rebuilding web page cache for library ":library"', [
+            ':library' => $this->getName()
+        ]), 3);
+
+        $path         = Strings::slash($this->directory) . 'Library/tests/';
         $restrictions = Restrictions::readonly($path, tr('Web page cache rebuild for ":library"', [
             ':library' => $this->getName()
         ]));
