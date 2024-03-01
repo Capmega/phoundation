@@ -48,17 +48,20 @@ class Cache
      */
     public static function clear(bool $force = false): bool
     {
-        Log::action(tr('Clearing cache'), 3);
+        Log::action(tr('Clearing all caches'), 3);
 
         if (static::$has_been_cleared and !$force) {
             return false;
         }
 
         Libraries::clearCommandsCache();
-        Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->deletePath();
+        Libraries::clearWebCache();
+
+        Log::action(tr('Clearing file caches'), 3);
+        Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->delete();
         static::driver()?->clear();
 
-        Log::success(tr('Cleared cache'));
+        Log::success(tr('Cleared all caches'));
         static::$has_been_cleared = true;
         return true;
     }
