@@ -8,6 +8,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -63,57 +64,11 @@ if (Page::isPostRequestMethod()) {
 }
 
 
-// This page will build its own body
-Page::setBuildBody(false);
-?>
-<?= Page::getFlashMessages()->render() ?>
-    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
-    <div class="login-box">
-        <!-- /.login-logo -->
-        <div class="card card-outline card-info">
-            <div class="card-header text-center">
-              <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
-            </div>
-            <div class="card-body">
-                <p class="login-box-msg"><?= tr('Please update your account to have a new and secure password password before continuing...') ?></p>
-                <p class="login-box-msg"><?= tr('Please ensure that your password has at least 10 characters, is secure, and is known only to you.') ?></p>
-
-                <form action="<?= UrlBuilder::getWww() ?>" method="post">
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" id="password" class="form-control" placeholder="<?= tr('Password') ?>">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="passwordv" id="passwordv" class="form-control" placeholder="<?= tr('Verify password') ?>">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block"><?= tr('Update and continue') ?></button>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <a href="<?= UrlBuilder::getWww('/sign-out.html') ?>" class="btn btn-outline-secondary btn-block"><?= tr('Sign out') ?></a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <!-- /.card-body -->
-        </div>
-        <!-- /.card -->
-    </div>
-    </body>
-<?php
-
-
 // Set page meta data
 Page::setPageTitle(tr('Please update your password before continuing...'));
+
+
+// Render the page
+echo ForcePasswordUpdatePage::new()
+    ->setEmail(Session::getUser()->getEmail())
+    ->render();

@@ -12,7 +12,6 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
-use Plugins\Ident\User\UserRec;
 
 
 /**
@@ -43,23 +42,11 @@ $get = GetValidator::new()
 // Validate sign in data and sign in
 if (Page::isPostRequestMethod()) {
     // Try to authenticate against UserRec first. If that fails, authenticate against User.
-    foreach ([UserRec::class, User::class] as $user_class) {
+    foreach ([User::class] as $user_class) {
         try {
             $redirect = $get['redirect'];
             $post     = Session::validateSignIn();
             $user     = Session::signIn($post['email'], $post['password'], $user_class);
-
-            if ($user->getRemoteId()) {
-                // Initialize session data
-                try {
-                    $user->getRemoteUser(UserRec::class)->initMedinetSession();
-
-                } catch (Throwable $e) {
-                    // Medinet session initialization failed, cancel the sign-in
-                    Session::signOut();
-                    throw $e;
-                }
-            }
 
             Page::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
 
@@ -71,13 +58,10 @@ if (Page::isPostRequestMethod()) {
             break;
 
         } catch (ValidationFailedException $e) {
-showdie($e);
             Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
             break;
 
         } catch (AuthenticationException $e) {
-show($user_class);
-showdie($e);
             Page::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
         }
     }

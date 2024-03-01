@@ -10,6 +10,8 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
+use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 
@@ -84,86 +86,22 @@ if (Page::isPostRequestMethod()) {
 // This page will build its own body
 Page::setBuildBody(false);
 if (isset($updated)) {
-    ?>
-    <?= Page::getFlashMessages()->render() ?>
-    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
-    <div class="login-box">
-        <!-- /.login-logo -->
-        <div class="card card-outline card-info">
-            <div class="card-header text-center">
-                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
-            </div>
-            <div class="card-body">
-                <p class="login-box-msg"><?= tr('Your password has been updated. Please return to the sign-in page to continue...') ?></p>
-
-                <form action="<?= UrlBuilder::getWww() ?>" method="post">
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <a href="<?= UrlBuilder::getWww('/sign-out.html') ?>" class="btn btn-outline-secondary btn-block"><?= tr('Go to sign-in page') ?></a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <!-- /.card-body -->
-        </div>
-        <!-- /.card -->
-    </div>
-    </body>
-    <?php
-
     // Set page meta data
     Page::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
+
+    // Render the page
+    LostPasswordUpdatedPage::new()
+        ->setEmail(Session::getUser()->getEmail())
+        ->render();
+
 } else {
-    ?>
-    <?= Page::getFlashMessages()->render() ?>
-    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
-    <div class="login-box">
-        <!-- /.login-logo -->
-        <div class="card card-outline card-info">
-            <div class="card-header text-center">
-                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
-            </div>
-            <div class="card-body">
-                <p class="login-box-msg"><?= tr('Please enter a new password for your account to continue...') ?></p>
-
-                <form action="<?= UrlBuilder::getWww() ?>" method="post">
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" id="password" class="form-control" placeholder="<?= tr('Password') ?>">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="passwordv" id="passwordv" class="form-control" placeholder="<?= tr('Verify password') ?>">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block"><?= tr('Update and continue') ?></button>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <a href="<?= UrlBuilder::getWww('/sign-out.html') ?>" class="btn btn-outline-secondary btn-block"><?= tr('Sign out') ?></a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <!-- /.card-body -->
-        </div>
-        <!-- /.card -->
-    </div>
-    </body>
-    <?php
-
-
     // Set page meta data
     Page::setPageTitle(tr('Please update your password before continuing...'));
+
+
+    // Render the page
+    UpdateLostPasswordPage::new()
+        ->setEmail(Session::getUser()->getEmail())
+        ->render();
 }

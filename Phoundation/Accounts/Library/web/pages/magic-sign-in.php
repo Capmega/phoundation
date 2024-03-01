@@ -13,6 +13,7 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
 use PHPMailer\PHPMailer\PHPMailer;
 
+throw new \Phoundation\Exception\UnderConstructionException();
 
 /**
  * Page magic-sign-in
