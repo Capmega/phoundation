@@ -3052,6 +3052,12 @@ class Path implements Stringable, PathInterface
                                 throw $e;
                             }
 
+                            if (!$dir_alternate_path->addFile($section . $number)->isLink()) {
+                                // Only retry if the existing target is a symlink too. If the existing target is a
+                                // normal file, then assume that this normal file was there to replace this link
+                                break;
+                            }
+
                             // The target already exists, rename and retry!
                             $number++;
                         }
