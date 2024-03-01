@@ -36,11 +36,10 @@ use Templates\AdminLte\AdminLte;
  * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to DIRECTORY_ROOT . 'Www,' . DIRECTORY_ROOT . 'Data/content/downloads'
  *
  * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The mapped_domain() function use this table as well when generating URL's. See mapped_domain() for more information
- * @author Sven Olaf Oostenbrink <sven@medinet.ca>
- * @license This routing file is developed by, and may only exclusively be used by Medinet or customers with explicit
- *          written authorization to do so
- * @copyright Copyright (c) 2024 Medinet <copyright@medinet.ca> * @category Function reference
- * @package route
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
  * @see Route::404()
  * @see Route::mappedDomain()
  * @table: `route`
@@ -85,7 +84,7 @@ use Templates\AdminLte\AdminLte;
  * @category Function reference
  * @package route
  */
-require('../vendor/autoload.php');
+require('../../../../vendor/autoload.php');
 
 
 // Setup URL translations map
