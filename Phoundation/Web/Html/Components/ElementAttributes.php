@@ -892,9 +892,9 @@ trait ElementAttributes
      *
      * If no Definition object was set, one will be created using the data in this object
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getDefinition(): DefinitionInterface
+    public function getDefinition(): ?DefinitionInterface
     {
         if (!$this->definition) {
             $this->__setDefinition(Definition::new(null, $this->getName())

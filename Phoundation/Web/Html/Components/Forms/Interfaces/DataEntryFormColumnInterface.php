@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 
 /**
@@ -17,7 +18,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface DataEntryFormColumnInterface
+interface DataEntryFormColumnInterface extends ElementsBlockInterface
 {
     /**
      * Returns the component

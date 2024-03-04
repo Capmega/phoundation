@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Components\Forms;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Traits\DataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
@@ -23,40 +24,14 @@ use Phoundation\Web\Html\Html;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class DataEntryFormColumn implements DataEntryFormColumnInterface
+class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnInterface
 {
-    use DataDefinition;
-
-
     /**
      * The component (html or object) that needs to be rendered inside a form div
      *
      * @var RenderInterface|string|null $component
      */
     protected RenderInterface|string|null $component;
-
-
-    /**
-     * DataEntryFormColumn class constructor
-     *
-     * @param DefinitionInterface|null $definition
-     */
-    public function __construct(DefinitionInterface|null $definition = null)
-    {
-        $this->definition = $definition;
-    }
-
-
-    /**
-     * Returns the component
-     *
-     * @param DefinitionInterface|null $definition
-     * @return static
-     */
-    public static function new(DefinitionInterface|null $definition = null): static
-    {
-        return new static($definition);
-    }
 
 
     /**
@@ -98,7 +73,6 @@ class DataEntryFormColumn implements DataEntryFormColumnInterface
             throw new OutOfBoundsException(tr('Cannot render form component, no component specified'));
         }
 
-        $render     = '';
         $definition = $this->definition;
 
         if (is_object($this->component)) {
@@ -110,7 +84,7 @@ class DataEntryFormColumn implements DataEntryFormColumnInterface
             return $this->component;
         }
 
-        $render .= match ($definition->getInputType()?->value) {
+        $this->render .= match ($definition->getInputType()?->value) {
             default    => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . '">
                                  <div data-mdb-input-init class="form-outline">
                                      ' . $this->component . '
@@ -120,7 +94,7 @@ class DataEntryFormColumn implements DataEntryFormColumnInterface
 //            ' . $this->renderTooltip($definition) . '
         };
 
-        return $render;
+        return parent::render();
     }
 
 
