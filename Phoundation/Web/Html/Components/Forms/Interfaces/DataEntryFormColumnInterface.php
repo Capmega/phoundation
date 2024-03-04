@@ -25,7 +25,7 @@ interface DataEntryFormColumnInterface extends ElementsBlockInterface
      *
      * @return RenderInterface|string|null
      */
-    public function getComponent(): RenderInterface|string|null;
+    public function getColumnComponent(): RenderInterface|string|null;
 
     /**
      * Sets the component
@@ -33,7 +33,7 @@ interface DataEntryFormColumnInterface extends ElementsBlockInterface
      * @param RenderInterface|string|null $component
      * @return static
      */
-    public function setComponent(RenderInterface|string|null $component): static;
+    public function setColumnComponent(RenderInterface|string|null $component): static;
 
     /**
      * Renders and returns the HTML for this component

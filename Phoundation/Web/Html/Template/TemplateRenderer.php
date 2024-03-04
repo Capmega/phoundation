@@ -7,6 +7,7 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
@@ -34,9 +35,9 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * The object to render
      *
-     * @var ElementsBlockInterface|ElementInterface $render_object
+     * @var RenderInterface $component
      */
-    protected ElementsBlockInterface|ElementInterface $render_object;
+    protected RenderInterface $component;
 
     /**
      * The parent render function
@@ -49,23 +50,23 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Renderer class element
      *
-     * @param ElementsBlockInterface|ElementInterface $render_object
+     * @param RenderInterface $component
      */
-    public function __construct(ElementsBlockInterface|ElementInterface $render_object)
+    public function __construct(RenderInterface $component)
     {
-        $this->render_object = $render_object;
+        $this->component = $component;
     }
 
 
     /**
-     * Returns new renderer object
+     * Returns a new renderer object
      *
-     * @param ElementsBlock|Element $element
+     * @param RenderInterface $component
      * @return $this
      */
-    public static function new(ElementsBlock|Element $element): static
+    public static function new(RenderInterface $component): static
     {
-        return new static($element);
+        return new static($component);
     }
 
 
@@ -94,26 +95,26 @@ class TemplateRenderer implements TemplateRendererInterface
 
 
     /**
-     * Sets the element to be rendered
+     * Sets the component to be rendered
      *
-     * @param ElementsBlockInterface|ElementInterface $render_object
+     * @param RenderInterface $component
      * @return static
      */
-    public function setRenderobject(ElementsBlockInterface|ElementInterface $render_object): static
+    public function setComponent(RenderInterface $component): static
     {
-        $this->render_object = $render_object;
+        $this->component = $component;
         return $this;
     }
 
 
     /**
-     * Returns the element to be rendered
+     * Returns the component to be rendered
      *
-     * @return ElementsBlockInterface|ElementInterface
+     * @return RenderInterface
      */
-    public function getRenderobject(): ElementsBlockInterface|ElementInterface
+    public function getComponent(): RenderInterface
     {
-        return $this->render_object;
+        return $this->component;
     }
 
 

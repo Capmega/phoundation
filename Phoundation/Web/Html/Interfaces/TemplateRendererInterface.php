@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Interfaces;
 
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
@@ -38,17 +39,17 @@ interface TemplateRendererInterface
     /**
      * Sets the element to be rendered
      *
-     * @param ElementsBlockInterface|ElementInterface $render_object
+     * @param RenderInterface $component
      * @return static
      */
-    public function setRenderobject(ElementsBlockInterface|ElementInterface $render_object): static;
+    public function setComponent(RenderInterface $component): static;
 
     /**
      * Returns the element to be rendered
      *
-     * @return ElementsBlockInterface|ElementInterface
+     * @return RenderInterface
      */
-    public function getRenderobject(): ElementsBlockInterface|ElementInterface;
+    public function getComponent(): RenderInterface;
 
     /**
      * Render and return the HTML for this object

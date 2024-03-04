@@ -29,9 +29,9 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
     /**
      * The component (html or object) that needs to be rendered inside a form div
      *
-     * @var RenderInterface|string|null $component
+     * @var RenderInterface|string|null $column_component
      */
-    protected RenderInterface|string|null $component;
+    protected RenderInterface|string|null $column_component;
 
 
     /**
@@ -39,21 +39,21 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
      *
      * @return RenderInterface|string|null
      */
-    public function getComponent(): RenderInterface|string|null
+    public function getColumnComponent(): RenderInterface|string|null
     {
-        return $this->component;
+        return $this->column_component;
     }
 
 
     /**
      * Sets the component
      *
-     * @param RenderInterface|string|null $component
+     * @param RenderInterface|string|null $column_component
      * @return static
      */
-    public function setComponent(RenderInterface|string|null $component): static
+    public function setColumnComponent(RenderInterface|string|null $column_component): static
     {
-        $this->component = $component;
+        $this->column_component = $column_component;
         return $this;
     }
 
@@ -69,25 +69,25 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
             throw new OutOfBoundsException(tr('Cannot render form component, no definition specified'));
         }
 
-        if (!$this->component) {
+        if (!$this->column_component) {
             throw new OutOfBoundsException(tr('Cannot render form component, no component specified'));
         }
 
         $definition = $this->definition;
 
-        if (is_object($this->component)) {
-            $this->component = $this->component->render();
+        if (is_object($this->column_component)) {
+            $this->column_component = $this->column_component->render();
         }
 
         if ($definition->getHidden()) {
             // Hidden elements don't display anything beyond the hidden <input>
-            return $this->component;
+            return $this->column_component;
         }
 
         $this->render .= match ($definition->getInputType()?->value) {
             default    => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . '">
                                  <div data-mdb-input-init class="form-outline">
-                                     ' . $this->component . '
+                                     ' . $this->column_component . '
                                      <label class="form-label" for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
                                  </div>
                              </div>',
