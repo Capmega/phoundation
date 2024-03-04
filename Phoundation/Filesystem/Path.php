@@ -243,68 +243,72 @@ class Path implements Stringable, PathInterface
         // Validate the specified path, it must be an actual path
         static::validateFilename($path);
 
-        if (str_starts_with($path, '/')) {
-            // This is already an absolute directory
-            $return = $path;
+        switch (substr($path, 0, 1)) {
+            case '/':
+                // This is already an absolute directory
+                $return = $path;
+                break;
 
-        } elseif (str_starts_with($path, '~')) {
-            // This is a user home directory
-            $return = Strings::unslash($_SERVER['HOME']) . Strings::startsWith(substr($path, 1), '/');
+            case '~':
+                // This starts at the process users home directory
+                if (empty($_SERVER['HOME'])) {
+                    throw new OutOfBoundsException(tr('Cannot use "~" paths, cannot determine this users home directory'));
+                }
 
-        } elseif (str_starts_with($path, './')) {
-            // This is the CWD (Take from DIRECTORY_START as getcwd() output might change during processing)
-            $return = DIRECTORY_START . substr($path, 2);
+                $return = Strings::slash($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($path, 1), '/');
+                break;
 
-        } elseif (str_starts_with($path, '~')) {
-            // This starts at the process users home directory
-            if (empty($_SERVER['HOME'])) {
-                throw new OutOfBoundsException(tr('Cannot determine this users home directory'));
-            }
-
-            $return = Strings::endsWith($_SERVER['HOME'], '/') . Strings::startsNotWith(substr($path, 1), '/');
-
-        } else {
-            // This is not an absolute directory, make it an absolute directory
-            $prefix = trim((string) $prefix);
-
-            switch ($prefix) {
-                case '':
-                    $prefix = DIRECTORY_ROOT;
+            case '.':
+                if (str_starts_with($path, './')) {
+                    // This is the CWD (Take from DIRECTORY_START as getcwd() output might change during processing)
+                    $return = DIRECTORY_START . substr($path, 2);
                     break;
+                }
 
-                case 'css':
-                    $prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
-                    break;
+                // no break
 
-                case 'js':
-                    // no-break
-                case 'javascript':
-                    $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
-                    break;
+            default:
+                // This is not an absolute directory, make it an absolute directory
+                $prefix = trim((string) $prefix);
 
-                case 'img':
-                    // no-break
-                case 'image':
-                    // no-break
-                case 'images':
-                    $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
-                    break;
+                switch ($prefix) {
+                    case '':
+                        $prefix = DIRECTORY_ROOT;
+                        break;
 
-                case 'font':
-                    // no-break
-                case 'fonts':
-                    $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
-                    break;
+                    case 'css':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/css/';
+                        break;
 
-                case 'video':
-                    // no-break
-                case 'videos':
-                    $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
-                    break;
-            }
+                    case 'js':
+                        // no-break
+                    case 'javascript':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/js/';
+                        break;
 
-            // Prefix $path with $prefix
-            $return = Strings::slash($prefix) . Strings::unslash($path);
+                    case 'img':
+                        // no-break
+                    case 'image':
+                        // no-break
+                    case 'images':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/img/';
+                        break;
+
+                    case 'font':
+                        // no-break
+                    case 'fonts':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/fonts/';
+                        break;
+
+                    case 'video':
+                        // no-break
+                    case 'videos':
+                        $prefix = DIRECTORY_CDN . LANGUAGE . '/video/';
+                        break;
+                }
+
+                // Prefix $path with $prefix
+                $return = Strings::slash($prefix) . Strings::unslash($path);
         }
 
         // If this is a directory, make sure it has a slash suffix
