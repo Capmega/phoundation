@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Icons;
 
-
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Element;
+use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
+use Phoundation\Web\Html\Traits\Mode;
+
 
 /**
  * Icon class
@@ -17,14 +20,33 @@ use Phoundation\Web\Html\Components\Element;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Icon extends Element
+class Icon extends Element implements IconInterface
 {
+    use Mode;
+
+
     /**
-     * The icoin being displayed
+     * Icon class constructor
      *
-     * @var string|null $icon
+     * @param string|null $content
      */
-    protected ?string $icon = null;
+    public function __construct(?string $content = null)
+    {
+        if ($content) {
+            $content = trim($content);
+
+            if (!preg_match('/[a-z0-9-_ ]+/i', $content)) {
+                // Icon names should only have letters, numbers and dashes and underscores. Multiple names may be
+                // needed, so also allow spaces
+                throw new OutOfBoundsException(tr('Invalid icon name ":icon" specified', [
+                    ':icon' => $content
+                ]));
+            }
+        }
+
+        parent::__construct(get_null($content));
+        $this->setElement('i');
+    }
 
 
     /**
@@ -34,7 +56,7 @@ class Icon extends Element
      */
     public function getIcon(): ?string
     {
-        return $this->icon;
+        return $this->content;
     }
 
 
@@ -47,30 +69,18 @@ class Icon extends Element
      */
     public function setIcon(?string $icon, string $subclass = ''): static
     {
-        $this->addClass($subclass);
-        $this->icon = $icon;
+        $this->content = $icon;
         return $this;
     }
 
 
     /**
-     * Form class constructor
-     *
-     * @param string|null $content
-     */
-    public function __construct(?string $content = null)
-    {
-        parent::__construct($content);
-        $this->setElement('i');
-    }
-
-
-    /**
-     * @inheritDoc
+     * @return string|null
      */
     public function render(): ?string
     {
-        $this->addClass($this->icon);
+        $this->addClass($this->getContent());
+        $this->setContent(null);
         return parent::render();
     }
 }

@@ -262,11 +262,16 @@ trait ElementAttributes
      */
     public function setAnchor(UrlBuilderInterface|AInterface|null $anchor): static
     {
-        if ($anchor instanceof UrlBuilderInterface) {
-            $anchor = A::new()->setHref($anchor);
+        if ($anchor) {
+            if ($anchor instanceof UrlBuilderInterface) {
+                $anchor = A::new()->setHref($anchor);
+            }
+
+            $this->anchor = $anchor->setParent($this);
+        } else {
+            $this->anchor = null;
         }
 
-        $this->anchor = $anchor->setParent($this);
         return $this;
     }
 
@@ -380,6 +385,20 @@ trait ElementAttributes
     public function addClass(?string $class): static
     {
         $this->classes->add(true, $class, exception: false);
+        return $this;
+    }
+
+
+    /**
+     * Adds a data-KEY=VALUE attribute
+     *
+     * @param string|float|int|null $value
+     * @param string $key
+     * @return static
+     */
+    public function addData(string|float|int|null $value, string $key): static
+    {
+        $this->getData()->add($value, $key);
         return $this;
     }
 

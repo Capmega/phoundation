@@ -133,14 +133,6 @@ abstract class Element implements ElementInterface
      */
     public function render(): ?string
     {
-        if ($this->anchor) {
-            // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
-            $anchor = $this->anchor;
-            $this->anchor = null;
-
-            return $anchor->render();
-        }
-
         if (isset($this->tooltip)) {
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
@@ -212,6 +204,11 @@ abstract class Element implements ElementInterface
 
         if (isset($this->tooltip)) {
             $render = $this->tooltip->render($render);
+        }
+
+        if ($this->anchor) {
+            // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
+            return $this->anchor->setContent($render)->setParent(null)->render();
         }
 
         return $render;

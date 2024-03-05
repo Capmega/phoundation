@@ -7,11 +7,7 @@ namespace Phoundation\Notifications;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Cli\CliCommand;
-use Phoundation\Core\Core;
-use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -29,19 +25,14 @@ use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\DataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
-use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -49,8 +40,6 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
-use Phoundation\Web\Routing\Route;
-use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
 
 
@@ -59,7 +48,7 @@ use Throwable;
  *
  *
  * @todo Change the Notification::roles to a Data\Iterator class instead of a plain array
- * @see \Phoundation\Data\DataEntry\DataEntry
+ * @see DataEntry
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -124,6 +113,11 @@ class Notification extends DataEntry implements NotificationInterface
         $this->source['mode']     = 'notice';
         $this->source['priority'] = 1;
 
+//                EnumDisplayMode::warning, EnumDisplayMode::danger => 'exclamation-circle',
+//                EnumDisplayMode::success                          => 'check-circle',
+//                EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
+//                default                                           => 'question-circle',
+
         parent::__construct($identifier, $column, $meta_enabled);
     }
 
@@ -172,6 +166,7 @@ class Notification extends DataEntry implements NotificationInterface
         if ($e instanceof Exception) {
             if ($e->isWarning()) {
                 $mode = EnumDisplayMode::warning;
+
             } else {
                 $mode = EnumDisplayMode::exception;
             }

@@ -40,7 +40,7 @@ class TopPanel extends Panel
 
         parent::__construct($content);
 
-        $this->elements = Iterator::new()->setSource([
+        $this->elements = Iterator::new([
             'search',
             'notifications',
             'full-screen',
