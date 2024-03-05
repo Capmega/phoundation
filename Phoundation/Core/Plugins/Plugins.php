@@ -146,7 +146,7 @@ class Plugins extends DataList implements PluginsInterface
 
             } catch (Throwable $e) {
                 Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
-                    ':plugin'=> $plugin['name']
+                    ':plugin' => $plugin['name']
                 ]));
 
                 Log::error($e);
