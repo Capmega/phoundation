@@ -66,9 +66,9 @@ class Iterator implements IteratorInterface
     /**
      * Tracks the datatype required for all elements in this iterator, NULL if none is required
      *
-     * @var string|null
+     * @var array|null
      */
-    protected ?string $data_type = null;
+    protected ?array $data_types = null;
 
     /**
      * The list that stores all entries
@@ -660,34 +660,38 @@ class Iterator implements IteratorInterface
     /**
      * Returns the datatype restrictions for all elements in this iterator, NULL if none
      *
-     * @return string|null
+     * @return array|null
      */
-    public function getDataType(): ?string
+    public function getDataTypes(): ?array
     {
-        return $this->data_type;
+        return $this->data_types;
     }
 
 
     /**
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
-     * @param string|null $data_type
+     * @param array|string|null $data_types
      * return static
      */
-    public function setDataType(?string $data_type): static
+    public function setDataTypes(array|string|null $data_types): static
     {
-        if ($data_type) {
-            if (!preg_match('/^int|float|array|string|object:\\\?([A-Z][a-z0-9\\\]+)+$/', $data_type)) {
-                throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|float|array|string|object:\CLASS\PATH"', [
-                    ':datatype' => $data_type
-                ]));
+        $data_types = Arrays::force($data_types, ',');
+
+        foreach ($data_types as $data_type) {
+            if ($data_type) {
+                if (!preg_match('/^int|float|array|string|object:\\\?([A-Z][a-z0-9\\\]+)+$/', $data_type)) {
+                    throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|float|array|string|object:\CLASS\PATH"', [
+                        ':datatype' => $data_type
+                    ]));
+                }
+            } else {
+                // No data type restrictions required
+                $data_type = null;
             }
-        } else {
-            // No data type restrictions required
-            $data_type = null;
         }
 
-        $this->data_type = $data_type;
+        $this->data_types = $data_types;
         return $this;
     }
 
@@ -702,18 +706,18 @@ class Iterator implements IteratorInterface
      */
     protected function checkDataType(mixed $value): void
     {
-        if (!$this->data_type) {
+        if (!$this->data_types) {
             return;
         }
 
-        foreach ($this->data_type as $data_type) {
+        foreach ($this->data_types as $data_type) {
             if (str_starts_with($data_type, 'object:')) {
                 if ($value instanceof $data_type) {
                     return;
                 }
 
             } else {
-                if (gettype($value) === $value) {
+                if (gettype($value) === $data_type) {
                     return;
                 }
             }
@@ -721,7 +725,7 @@ class Iterator implements IteratorInterface
 
         throw new OutOfBoundsException(tr('Specified value has an invalid datatype or Interface ":type" where the only allowed datatypes or Interfaces are ":allowed"', [
             ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
-            ':allowed' => Strings::force($this->data_type, ', ')
+            ':allowed' => Strings::force($this->data_types, ', ')
         ]));
     }
 
