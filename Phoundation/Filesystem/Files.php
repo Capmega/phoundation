@@ -45,7 +45,7 @@ class Files extends Iterator implements FilesInterface
      */
     public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null)
     {
-        $this->data_types   = Path::class;
+        $this->data_types   = [Path::class];
         $this->source       = Arrays::force($source, null);
         $this->restrictions = $restrictions;
 
