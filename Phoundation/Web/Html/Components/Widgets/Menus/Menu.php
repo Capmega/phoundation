@@ -75,4 +75,37 @@ class Menu extends ElementsBlock implements MenuInterface
         unset($entry);
         return $source;
     }
+
+
+    /**
+     * Renders and returns the HTML for this Menu object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        // Filter out labels without menu data
+        $filter = null;
+
+        foreach ($this->source as $label => $entry) {
+            if (empty($entry['url']) and empty($entry['menu'])) {
+                if ($filter) {
+                    // Previous entry was a label too, remove the previous entry
+                    unset($this->source[$filter]);
+                }
+
+                $filter = $label;
+                continue;
+            }
+
+            $filter = null;
+        }
+
+        if ($filter) {
+            // The last entry is also a label without content, remove it too
+            unset($this->source[$filter]);
+        }
+
+        return parent::render();
+    }
 }
