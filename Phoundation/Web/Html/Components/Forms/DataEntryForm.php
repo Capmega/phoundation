@@ -608,6 +608,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 }
 
             } else {
+                // Content has already been rendered, display it
                 $this->rows->add($definition, $definition->getContent());
             }
         }
