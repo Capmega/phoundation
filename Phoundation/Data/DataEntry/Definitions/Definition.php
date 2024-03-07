@@ -334,6 +334,11 @@ class Definition implements DefinitionInterface
      */
     public function setKey(mixed $value, string $key): static
     {
+        if (is_string($value)) {
+            // Auto trim all string values
+            $value = trim($value);
+        }
+
         $this->source[$key] = $value;
         return $this;
     }
