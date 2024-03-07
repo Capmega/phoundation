@@ -152,37 +152,47 @@ abstract class Template implements TemplateInterface
                 $class = get_class($class);
             }
 
+            $class      = Strings::startsNotWith($class, '\\');
             $class_path = Strings::from($class, 'Html\\', needle_required: true);
 
-            if (!$class_path) {
-                // This class is not an HTML class. Maybe its an object that extends an HTML class, so check the parent
-                // class and see if that one works
-                $parent = get_parent_class($class);
+            if (str_starts_with($class, 'Plugins\\')) {
+                // First search for a template driver in the library itself
+                $class_path    = Strings::until($class, 'Html\\', needle_required: true) . 'Templates\\' . static::getName() . '\\Html\\' . $class_path;
+                $include_class = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
+                $include_file  = str_replace('\\', '/', $include_class);
+                $include_file  = DIRECTORY_ROOT . $include_file . '.php';
 
-                if (!$parent) {
-                    throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
-                        ':class' => $class
-                    ]));
+            } else {
+                if (!$class_path) {
+                    // This class is not an HTML class. Maybe it's an object that extends an HTML class, so check the parent
+                    // class and see if that one works
+                    $parent = get_parent_class($class);
+
+                    if (!$parent) {
+                        throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
+                            ':class' => $class
+                        ]));
+                    }
+
+                    $class = $parent;
+                    continue;
                 }
 
-                $class = $parent;
-                continue;
+                if (($class_path === 'Components\\Element') or ($class_path === 'Components\\ElementsBlock')) {
+                    // These are the lowest element types, from here there are no renderers available
+                    return null;
+                }
+
+                // Find the template class path and the template file to include
+                $class_path   = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
+                $include_file = str_replace('\\', '/', $class_path);
+                $include_file = $this->getDirectory() . 'Html/' . $include_file . '.php';
+
+                // Find the class path in the file, we will return this as the class that should be used for
+                // rendering
+                $include_class  = Strings::untilReverse(get_class($this), '\\');
+                $include_class .= '\\Html\\' . $class_path;
             }
-
-            if (($class_path === 'Components\Element') or ($class_path === 'Components\ElementsBlock')) {
-                // These are the lowest element types, from here there are no renderers available
-                return null;
-            }
-
-            // Find the template class path and the template file to include
-            $class_path     = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
-            $include_file   = str_replace('\\', '/', $class_path);
-            $include_file   = $this->getDirectory() . 'Html/' . $include_file . '.php';
-
-            // Find the class path that is in the file, we will return this as the class that should be used for
-            // rendering
-            $include_class  = Strings::untilReverse(get_class($this), '\\');
-            $include_class .= '\\Html\\' . $class_path;
 
             if (file_exists($include_file)) {
                 // Include the file and return the class path

@@ -27,7 +27,7 @@ abstract class TemplatePage
      * @param bool $main_content_only
      * @return string|null
      */
-    abstract public function execute(string $target, bool $main_content_only = false): ?string;
+    abstract public function execute(string $target, bool $main_content_only): ?string;
 
 
     /**
@@ -37,7 +37,7 @@ abstract class TemplatePage
      * @param bool $main_content_only
      * @return string|null
      */
-    public function buildBody(string $target, bool $main_content_only = false): ?string
+    public function buildBody(string $target, bool $main_content_only): ?string
     {
         return execute_page($target);
     }
