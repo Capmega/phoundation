@@ -1091,9 +1091,10 @@ trait ProcessVariables
      *
      * @param string|null $command
      * @param bool $which_command
+     * @param bool $clear_arguments
      * @return static This process so that multiple methods can be chained
      */
-    public function setCommand(?string $command, bool $which_command = true): static
+    public function setCommand(?string $command, bool $which_command = true, bool $clear_arguments = true): static
     {
         if ($command) {
             // Make sure we have a clean command
@@ -1162,7 +1163,13 @@ trait ProcessVariables
         $this->command      = escapeshellcmd($command);
         $this->real_command = escapeshellcmd($real_command);
 
-        return $this->setIdentifier()->clearArguments();
+        $this->setIdentifier();
+
+        if ($clear_arguments) {
+            $this->clearArguments();
+        }
+
+        return $this;
     }
 
 
