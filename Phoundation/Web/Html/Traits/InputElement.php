@@ -7,6 +7,8 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\DataDescription;
+use Phoundation\Data\Traits\DataIcon;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
@@ -25,6 +27,8 @@ use Stringable;
  */
 trait InputElement
 {
+    use DataDescription;
+    use DataIcon;
     use Mode;
 
 
@@ -34,6 +38,14 @@ trait InputElement
      * @var EnumInputTypeInterface|null $type
      */
     protected ?EnumInputTypeInterface $type = null;
+
+
+    /**
+     * Sets if this control should have a clear button
+     *
+     * @var bool $clear_button
+     */
+    protected bool $clear_button = false;
 
     /**
      * Input hidden or not
@@ -48,6 +60,30 @@ trait InputElement
      * @var string|null $value
      */
     protected ?string $value = null;
+
+
+    /**
+     * Returns if the input element has a clear button or not
+     *
+     * @return bool
+     */
+    public function getClearButton(): bool
+    {
+        return $this->clear_button;
+    }
+
+
+    /**
+     * Sets if the input element has a clear button or not
+     *
+     * @param bool $clear_button
+     * @return static
+     */
+    public function setClearButton(bool $clear_button): static
+    {
+        $this->clear_button = $clear_button;
+        return $this;
+    }
 
 
     /**
