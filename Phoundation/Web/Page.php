@@ -730,6 +730,7 @@ class Page implements PageInterface
     /**
      * Will throw a Http404Exception when this page is executed directly from Route
      *
+     * @param string|null $message
      * @return void
      */
     public static function cannotBeExecutedDirectly(?string $message = null): void
@@ -1484,8 +1485,10 @@ class Page implements PageInterface
         // Execute the specified target file
         // Get all output buffers and restart buffer
         static::$levels++;
-        return static::executeTarget($page, $main_content_only);
+        $return = static::executeTarget($page, $main_content_only);
+
         static::$levels--;
+        return $return;
     }
 
 
@@ -2751,7 +2754,7 @@ class Page implements PageInterface
      * @return string|null
      * @todo Move AccessDeniedException handling to Page::execute()
      */
-    protected static function executeTarget(string $target, bool $main_content_only = false): ?string
+    protected static function executeTarget(string $target, bool $main_content_only): ?string
     {
         Log::information(tr('Executing target ":target"', [
             ':target' => Strings::from($target, DIRECTORY_ROOT),
