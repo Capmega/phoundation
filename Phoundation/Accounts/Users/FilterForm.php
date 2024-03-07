@@ -59,6 +59,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                 ->setLabel(tr('Role'))
                 ->setSize(4)
                 ->setOptional(true)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Roles::new()->getHtmlSelect()
                         ->setAutoSubmit(true)
@@ -71,6 +72,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                 ->setLabel(tr('Right'))
                 ->setSize(4)
                 ->setOptional(true)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Rights::new()->getHtmlSelect()
                         ->setAutoSubmit(true)

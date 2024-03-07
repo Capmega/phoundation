@@ -14,6 +14,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -139,6 +140,7 @@ class Category extends DataEntry implements CategoryInterface
         $definitions
             ->add(Definition::new($this, 'parents_id')
                 ->setOptional(true)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)

@@ -17,6 +17,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryName;
 use Phoundation\Data\DataEntry\Traits\DataEntryParent;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Storage\Interfaces\PageInterface;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 
 
 /**
@@ -141,6 +142,7 @@ class Page extends DataEntry implements PageInterface
 
         $definitions
             ->add(DefinitionFactory::getParentsId($this)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Pages::new()->getHtmlSelect()
                         ->setName($key)

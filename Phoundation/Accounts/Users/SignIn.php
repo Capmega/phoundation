@@ -19,6 +19,7 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
@@ -156,6 +157,7 @@ class SignIn extends DataEntry
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(EnumInputTypeExtended::dbid)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Countries::getHtmlCountriesSelect()
                         ->setDisabled(true)
@@ -172,6 +174,7 @@ class SignIn extends DataEntry
                 ->setOptional(true)
                 ->setReadonly(true)
                 ->setInputType(EnumInputTypeExtended::dbid)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Timezones::new()->getHtmlSelect()
                         ->setDisabled(true)

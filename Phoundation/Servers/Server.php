@@ -31,6 +31,7 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Exception\SshException;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
@@ -564,6 +565,7 @@ showdie('fuck!');
                 ->setCliColumn('--categories-id CATEGORIES-ID')
                 ->setInputType(EnumInputTypeExtended::dbid)
                 ->setHelpText(tr('The category for this server'))
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
@@ -576,8 +578,9 @@ showdie('fuck!');
             ->add(Definition::new($this, 'providers_id')
                 ->setOptional(true)
                 ->setCliColumn('--providers-id PROVIDERS-ID')
-                ->setInputType(EnumInputTypeExtended::dbid)
                 ->setHelpText(tr('The service provider where this server is hosted'))
+                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
@@ -592,6 +595,7 @@ showdie('fuck!');
                 ->setCliColumn('--customers-id CUSTOMERS-ID')
                 ->setInputType(EnumInputTypeExtended::dbid)
                 ->setHelpText(tr('The client using this server'))
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
@@ -605,6 +609,7 @@ showdie('fuck!');
                 ->setOptional(true)
                 ->setCliColumn('--countries-id COUNTRIES-ID')
                 ->setInputType(EnumInputTypeExtended::dbid)
+                ->setElement(EnumInputElement::select)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The country where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -620,6 +625,7 @@ showdie('fuck!');
                 ->setOptional(true)
                 ->setCliColumn('--states-id STATES-ID')
                 ->setInputType(EnumInputTypeExtended::dbid)
+                ->setElement(EnumInputElement::select)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The state where this server is hosted'))
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -635,6 +641,7 @@ showdie('fuck!');
                 ->setOptional(true)
                 ->setCliColumn('--cities-id CITIES-ID')
                 ->setInputType(EnumInputTypeExtended::dbid)
+                ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
