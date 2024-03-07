@@ -714,17 +714,6 @@ class Definition implements DefinitionInterface
      */
     public function setElement(EnumInputElementInterface|null $value): static
     {
-        // If (input) type exists and is not null, then we can ONLY use element "input"
-        if (!empty($this->source['type'])) {
-            if ($value !== EnumInputElement::input) {
-                throw new OutOfBoundsException(tr('Cannot set element ":value" for column ":column" as the input type has already been set to ":type" and typed columns can only have the element "input"', [
-                    ':value'  => $value?->value,
-                    ':column' => $this->getCcolumn(),
-                    ':type'   => $this->source['type']
-                ]));
-            }
-        }
-
         return $this->setKey($value?->value, 'element');
     }
 
@@ -1003,7 +992,10 @@ class Definition implements DefinitionInterface
                 $this->setMaxlength(24);
         }
 
-        $this->validateType('type', $value->value);
+        if (empty($this->source['element'])) {
+            $this->source['element'] = 'input';
+        }
+
         return $this->setKey($value->value, 'type');
     }
 
@@ -1835,7 +1827,10 @@ class Definition implements DefinitionInterface
      */
     public function setNullInputType(?EnumInputType $value): static
     {
-        $this->validateType('null_input_type', $value->value);
+        if (empty($this->source['element'])) {
+            $this->source['element'] = 'input';
+        }
+
         return $this->setKey($value->value, 'type');
     }
 
@@ -2210,29 +2205,6 @@ class Definition implements DefinitionInterface
                     ':type'      => $this->source['type'] ?? 'text',
                     ':value'     => $value
                 ]));
-        }
-    }
-
-
-    /**
-     * Verifies if the specified type is valid or not
-     *
-     * @param string $key
-     * @param string|null $value
-     * @return void
-     */
-    protected function validateType(string $key, ?string $value): void
-    {
-        if (empty($this->source['element'])) {
-            $this->source['element'] = 'input';
-
-        } elseif ($this->source['element'] !== 'input') {
-            throw new OutOfBoundsException(tr('Cannot set ":key" ":value" for column ":column" as the element must be input (or empty, default) but is ":element"', [
-                ':key'     => $key,
-                ':value'   => $value,
-                ':column'  => $this->getColumn(),
-                ':element' => $this->source['element']
-            ]));
         }
     }
 }
