@@ -25,9 +25,10 @@ interface ProcessInterface extends ProcessCoreInterface
      *
      * @param string|null $command
      * @param bool $which_command
+     * @param bool $clear_arguments
      * @return static This process so that multiple methods can be chained
      */
-    public function setCommand(?string $command, bool $which_command = true): static;
+    public function setCommand(?string $command, bool $which_command = true, bool $clear_arguments = true): static;
 
     /**
      * Create a new process factory

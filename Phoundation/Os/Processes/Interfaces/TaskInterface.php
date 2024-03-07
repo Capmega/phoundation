@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
 
@@ -18,7 +19,7 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface TaskInterface
+interface TaskInterface extends DataEntryInterface
 {
     /**
      * Returns the parents_id for this object
