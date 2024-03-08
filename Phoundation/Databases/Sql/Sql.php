@@ -709,7 +709,7 @@ class Sql implements SqlInterface
             // No column was specified, so we MUST have received only one column!
             if (count($result) > 1) {
                 // The query returned multiple columns
-                throw SqlException::new(tr('The query ":query" returned ":count" columns while Sql::getColumn() without $column specification can only select and return one single column', [
+                throw SqlException::new(tr('The query ":query" returned ":count" columns while Sql::\getColumn() without $column specification can only select and return one single column', [
                     ':query' => $query,
                     ':count' => count($result)
                 ]))->addData($result);
@@ -915,7 +915,7 @@ class Sql implements SqlInterface
         while ($row = $this->fetch($statement)) {
             try {
                 if (!$column) {
-                    $key = array_key_first($row);
+                    $key = $row[array_key_first($row)];
 
                 } else {
                     $key = $row[$column];
