@@ -257,7 +257,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
      */
     public function setData(mixed $data): static
     {
-        $this->data = Arrays::force($data);
+        $this->data = Arrays::force($data, null);
         return $this;
     }
 
