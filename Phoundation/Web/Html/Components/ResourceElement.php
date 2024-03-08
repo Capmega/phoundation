@@ -319,9 +319,9 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function buildAttributes(): IteratorInterface
+    protected function renderAttributes(): IteratorInterface
     {
-        return parent::buildAttributes();
+        return parent::renderAttributes();
     }
 
 

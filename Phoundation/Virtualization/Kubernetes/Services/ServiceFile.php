@@ -60,9 +60,9 @@ class ServiceFile extends ObjectFile
      * @param array|null $configuration
      * @return array
      */
-    protected function buildConfiguration(?array $configuration = null): array
+    protected function renderConfiguration(?array $configuration = null): array
     {
-        return parent::buildConfiguration([
+        return parent::renderConfiguration([
             'spec' => [
                 'selector' => $this->object->getSelectors(),
                 'ports' => [

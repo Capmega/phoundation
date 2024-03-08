@@ -56,7 +56,7 @@ abstract class ObjectFile
             ]));
         }
 
-        $data = $this->buildConfiguration();
+        $data = $this->renderConfiguration();
         $data = yaml_emit($data);
 
         File::new($this->file)
@@ -73,7 +73,7 @@ abstract class ObjectFile
      * @param array|null $configuration
      * @return array
      */
-    protected function buildConfiguration(array $configuration = null): array
+    protected function renderConfiguration(array $configuration = null): array
     {
         $return = array_merge([
             'apiVersion' => $this->object->getApiVersion(),

@@ -46,7 +46,7 @@ abstract class KubernetesFile
      */
     public function save(): static
     {
-        $data = $this->buildConfiguration();
+        $data = $this->renderConfiguration();
         $data = yaml_emit($data);
 //        $data = Strings::from($data, PHP_EOL);
 //        $data = Strings::untilReverse($data, PHP_EOL);
@@ -65,7 +65,7 @@ abstract class KubernetesFile
      * @param array|null $configuration
      * @return array
      */
-    protected function buildConfiguration(array $configuration = null): array
+    protected function renderConfiguration(array $configuration = null): array
     {
         if (!isset($this->kind)) {
             throw new OutOfBoundsException(tr('No Kubernetes file kind specified'));

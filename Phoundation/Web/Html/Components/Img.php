@@ -230,9 +230,9 @@ class Img extends Span implements ImgInterface
      *
      * @return IteratorInterface
      */
-    protected function buildAttributes(): IteratorInterface
+    protected function renderAttributes(): IteratorInterface
     {
-        return parent::buildAttributes()->merge([
+        return parent::renderAttributes()->merge([
             'src' => $this->src,
             'alt' => $this->alt,
         ]);

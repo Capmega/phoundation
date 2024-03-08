@@ -165,7 +165,7 @@ abstract class Element implements ElementInterface
         $renderer_class  = Page::getTemplate()->getRendererClass($this);
 
         $render_function = function () use ($postfix) {
-            $attributes  = $this->buildAttributes();
+            $attributes  = $this->renderAttributes();
             $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::FILTER_NULL | Utils::QUOTE_ALWAYS | Utils::FILTER_NULL);
             $attributes .= $this->extra;
 
@@ -220,7 +220,7 @@ abstract class Element implements ElementInterface
      *
      * @return string|null
      */
-    protected function buildClassString(): ?string
+    protected function renderClassString(): ?string
     {
         $class = $this->getClass();
 
@@ -239,7 +239,7 @@ abstract class Element implements ElementInterface
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function buildAttributes(): IteratorInterface
+    protected function renderAttributes(): IteratorInterface
     {
         $return = [
             'id'        => $this->id,

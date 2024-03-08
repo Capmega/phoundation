@@ -669,7 +669,7 @@ class Sql implements SqlInterface
 
                 throw SqlMultipleResultsException::new(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
-                    ':query' => SqlQueries::buildQueryString($result->queryString, $execute)
+                    ':query' => SqlQueries::renderQueryString($result->queryString, $execute)
                 ]))->setData([
                     'connector' => $this->connector
                 ]);

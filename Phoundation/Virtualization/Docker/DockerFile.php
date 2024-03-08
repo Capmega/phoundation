@@ -144,7 +144,7 @@ services:
      * @param bool $passthru
      * @return array|null
      */
-    public function build(bool $passthru = true): ?array
+    public function render(bool $passthru = true): ?array
     {
         // Execute the docker build process
         $process = Process::new('docker')

@@ -160,7 +160,7 @@ class InputCheckbox extends Input
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function buildAttributes(): IteratorInterface
+    protected function renderAttributes(): IteratorInterface
     {
         $return = [];
 
@@ -169,6 +169,6 @@ class InputCheckbox extends Input
         }
 
         // Merge the system values over the set attributes
-        return parent::buildAttributes()->merge($this->buildInputAttributes(), $return);
+        return parent::renderAttributes()->merge($this->renderInputAttributes(), $return);
     }
 }

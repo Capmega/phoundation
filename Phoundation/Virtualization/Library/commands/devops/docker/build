@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
 DockerFile::new($argv['image'], $argv['path'])
     ->setRestrictions(DIRECTORY_ROOT, true)
     ->writeConfig()
-    ->build();
+    ->render();

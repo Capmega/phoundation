@@ -67,7 +67,7 @@ class Json
         }
 
         Page::setContentType('application/json');
-        Page::sendHttpHeaders(Page::buildHttpHeaders($data));
+        Page::sendHttpHeaders(Page::renderHttpHeaders($data));
 
         echo $data;
 

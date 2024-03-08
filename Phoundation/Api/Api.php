@@ -51,7 +51,7 @@ class Api
      * @param string $output
      * @return void
      */
-    public function buildHttpHeaders(string $output): void
+    public function renderHttpHeaders(string $output): void
     {
         Page::setContentType('application/json');
     }

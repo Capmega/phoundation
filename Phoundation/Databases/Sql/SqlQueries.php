@@ -35,7 +35,7 @@ class SqlQueries
      * @param bool $clean
      * @return string
      */
-    public static function buildQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = false): string
+    public static function renderQueryString(string|PDOStatement $query, ?array $execute = null, bool $clean = false): string
     {
         if (is_object($query)) {
             if (!($query instanceof PDOStatement)) {
@@ -422,7 +422,7 @@ class SqlQueries
      */
     public static function show(string|PDOStatement $query, ?array $execute = null, bool $return_only = false): mixed
     {
-        $query = static::buildQueryString($query, $execute, true);
+        $query = static::renderQueryString($query, $execute, true);
 
         if ($return_only) {
             return $query;

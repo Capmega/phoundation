@@ -67,10 +67,10 @@ class IngressFile extends ObjectFile
      * @param array|null $configuration
      * @return array
      */
-    protected function buildConfiguration(?array $configuration = null): array
+    protected function renderConfiguration(?array $configuration = null): array
     {
 throw new UnderConstructionException();
-        return parent::buildConfiguration([
+        return parent::renderConfiguration([
             'spec' => [
                 'selector' => [
                     'matchLabels' => [

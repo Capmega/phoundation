@@ -59,7 +59,7 @@ class SecretFile extends ObjectFile
      * @param array|null $configuration
      * @return array
      */
-    protected function buildConfiguration(?array $configuration = null): array
+    protected function renderConfiguration(?array $configuration = null): array
     {
         // Encode all data values in base64
         $data        = [];
@@ -73,7 +73,7 @@ class SecretFile extends ObjectFile
             unset($value);
         }
 
-        return parent::buildConfiguration([
+        return parent::renderConfiguration([
             'type' => 'Opaque',
             'data' => $data
         ]);

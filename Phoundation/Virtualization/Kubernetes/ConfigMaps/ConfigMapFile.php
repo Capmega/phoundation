@@ -65,9 +65,9 @@ class ConfigMapFile extends ObjectFile
      * @param array|null $configuration
      * @return array
      */
-    protected function buildConfiguration(?array $configuration = null): array
+    protected function renderConfiguration(?array $configuration = null): array
     {
-        return parent::buildConfiguration([
+        return parent::renderConfiguration([
             'data' => $this->object->getData()
         ]);
     }

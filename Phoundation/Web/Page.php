@@ -1446,7 +1446,7 @@ class Page implements PageInterface
         // Build the headers, cache output and headers together, then send the headers
         // TODO Work on the HTTP headers, lots of issues here still, like content-length!
         $output  = static::executeTarget($target, $data, false);
-        $headers = static::buildHttpHeaders($output, $attachment);
+        $headers = static::renderHttpHeaders($output, $attachment);
 
         // Merge the flash messages from sessions into page flash messages
         Page::getFlashMessages()->pullMessagesFrom(Session::getFlashMessages());
@@ -2068,7 +2068,7 @@ class Page implements PageInterface
      *
      * @return string|null
      */
-    public static function buildHtmlHeadTag(): ?string
+    public static function renderHtmlHeadTag(): ?string
     {
         $return = '<!DOCTYPE ' . static::$doctype . '>
         <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
@@ -2101,7 +2101,7 @@ class Page implements PageInterface
      * @todo This should be upgraded to using Javascript / Css objects
      * @return string|null
      */
-    public static function buildHtmlFooters(): ?string
+    public static function renderHtmlFooters(): ?string
     {
         Log::warning('TODO Reminder: Page::buildFooters() should be upgraded to using Javascript / Css objects');
 
@@ -2152,7 +2152,7 @@ class Page implements PageInterface
      * @param bool $attachment
      * @return array|null
      */
-    public static function buildHttpHeaders(string $output, bool $attachment = false): ?array
+    public static function renderHttpHeaders(string $output, bool $attachment = false): ?array
     {
         if (static::httpHeadersSent()) {
             return null;

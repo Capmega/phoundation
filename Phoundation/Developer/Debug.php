@@ -359,7 +359,7 @@ class Debug {
 
                             if (!headers_sent()) {
                                 Page::setContentType('text/html');
-                                Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                                Page::sendHttpHeaders(Page::renderHttpHeaders($output));
                             }
 
                             break;
@@ -374,7 +374,7 @@ class Debug {
                     // Show output on web
                     if (!headers_sent()) {
                         Page::setContentType('text/html');
-                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                        Page::sendHttpHeaders(Page::renderHttpHeaders($output));
                     }
 
                     echo $output;
@@ -392,7 +392,7 @@ class Debug {
                     // Show output on web
                     if (!headers_sent()) {
                         Page::setContentType('text/html');
-                        Page::sendHttpHeaders(Page::buildHttpHeaders($output));
+                        Page::sendHttpHeaders(Page::renderHttpHeaders($output));
                     }
 
                     echo $output;
@@ -1088,7 +1088,7 @@ class Debug {
      */
     public static function formatBackTrace(array $backtrace): array
     {
-        $lines   = static::buildBackTrace($backtrace);
+        $lines   = static::renderBackTrace($backtrace);
         $longest = Arrays::getLongestValueLength($lines, 'call');
         $return  = [];
 
@@ -1112,7 +1112,7 @@ class Debug {
      * @param array $backtrace The backtrace data
      * @return array The backtrace lines
      */
-    protected static function buildBackTrace(array $backtrace, ?int $display = null): array
+    protected static function renderBackTrace(array $backtrace, ?int $display = null): array
     {
         $lines = [];
 

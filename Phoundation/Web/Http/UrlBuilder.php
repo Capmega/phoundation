@@ -191,7 +191,7 @@ class UrlBuilder implements UrlBuilderInterface
             $url = UrlBuilder::getCurrent();
         }
 
-        return static::buildUrl($url, null, $use_configured_root);
+        return static::renderUrl($url, null, $use_configured_root);
     }
 
 
@@ -253,7 +253,7 @@ class UrlBuilder implements UrlBuilderInterface
             return new static($url);
         }
 
-        return static::buildCdn($url, $extension);
+        return static::renderCdn($url, $extension);
     }
 
 
@@ -426,7 +426,7 @@ class UrlBuilder implements UrlBuilderInterface
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        return static::buildUrl($url, 'ajax/', $use_configured_root);
+        return static::renderUrl($url, 'ajax/', $use_configured_root);
     }
 
 
@@ -446,7 +446,7 @@ class UrlBuilder implements UrlBuilderInterface
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        return static::buildUrl($url, 'api/', $use_configured_root);
+        return static::renderUrl($url, 'api/', $use_configured_root);
     }
 
 
@@ -464,7 +464,7 @@ class UrlBuilder implements UrlBuilderInterface
             return new static($url);
         }
 
-        return static::buildCdn($url, 'css');
+        return static::renderCdn($url, 'css');
     }
 
 
@@ -482,7 +482,7 @@ class UrlBuilder implements UrlBuilderInterface
             return new static($url);
         }
 
-        return static::buildCdn($url, 'js');
+        return static::renderCdn($url, 'js');
     }
 
 
@@ -517,7 +517,7 @@ class UrlBuilder implements UrlBuilderInterface
 //            return $directory;
 //        }
 
-        return static::buildCdn($url);
+        return static::renderCdn($url);
     }
 
 
@@ -844,7 +844,7 @@ throw new UnderConstructionException();
      *                                  from the static configuration
      * @return static
      */
-    protected static function buildUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
+    protected static function renderUrl(Stringable|string $url, ?string $prefix, bool $use_configured_root): static
     {
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
@@ -883,7 +883,7 @@ throw new UnderConstructionException();
      * @return static
      * @throws OutOfBoundsException If no URL was specified
      */
-    protected static function buildCdn(Stringable|string $url, ?string $extension = null): static
+    protected static function renderCdn(Stringable|string $url, ?string $extension = null): static
     {
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);

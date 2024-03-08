@@ -39,7 +39,7 @@ abstract class TemplatePage
      * @param bool $main_content_only
      * @return string|null
      */
-    public function buildBody(string $target, ?array $data, bool $main_content_only): ?string
+    public function renderBody(string $target, ?array $data, bool $main_content_only): ?string
     {
         return execute_page($target, $data);
     }
@@ -50,9 +50,9 @@ abstract class TemplatePage
      *
      * @return string|null
      */
-    public function buildHtmlFooters(): ?string
+    public function renderHtmlFooters(): ?string
     {
-        $footers = Page::buildHtmlFooters();
+        $footers = Page::renderHtmlFooters();
 
         if (Page::getBuildBodyWrapper()) {
             return        $footers . '
@@ -71,5 +71,5 @@ abstract class TemplatePage
      * @param string $output
      * @return void
      */
-    abstract public function buildHttpHeaders(string $output): void;
+    abstract public function renderHttpHeaders(string $output): void;
 }

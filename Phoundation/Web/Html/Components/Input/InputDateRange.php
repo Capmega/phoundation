@@ -153,7 +153,7 @@ class InputDateRange extends InputText
                         return $(this).trigger("change");
                     },
                     parentEl: "' . $this->parent_selector . '",
-                    ' . $this->buildRanges() . '
+                    ' . $this->renderRanges() . '
 //                    startDate: moment().subtract(29, "days"),
 //                    endDate  : moment()
                 },
@@ -171,7 +171,7 @@ class InputDateRange extends InputText
      *
      * @return string|null
      */
-    protected function buildRanges(): ?string
+    protected function renderRanges(): ?string
     {
         if (empty($this->ranges) or $this->ranges->isEmpty()) {
             return null;

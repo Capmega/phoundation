@@ -58,7 +58,7 @@ class Web
 //     * @see get_domain()
 //     * @see mapped_domain()
 //     */
-//    public static function buildUrl(?string $url = null, ?string $query = null, ?string $prefix = null, ?string $domain = null, ?string $language = null, ?string $from_language = null, bool $allow_cloak = true): string
+//    public static function renderUrl(?string $url = null, ?string $query = null, ?string $prefix = null, ?string $domain = null, ?string $language = null, ?string $from_language = null, bool $allow_cloak = true): string
 //    {
 //        $url = (string) $url;
 //

@@ -241,7 +241,7 @@ trait InputElement
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function buildInputAttributes(): IteratorInterface
+    protected function renderInputAttributes(): IteratorInterface
     {
         return Iterator::new()->setSource([
             'type'  => $this->type?->value,
