@@ -8,7 +8,7 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
 
 
 /**
- * Enum EventWrappers
+ * Enum EnumJavascriptWrappers
  *
  * The different options to wrap javascript snippets
  *

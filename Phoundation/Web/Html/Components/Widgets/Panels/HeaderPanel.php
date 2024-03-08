@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Config;
 
 /**
@@ -28,9 +30,9 @@ class HeaderPanel extends Panel
     /**
      * HeaderPanel class constructor
      *
-     * @param array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(?array $source = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         parent::__construct($source);
         $this->mini = Config::getBoolean('web.panels.header.mini', false);

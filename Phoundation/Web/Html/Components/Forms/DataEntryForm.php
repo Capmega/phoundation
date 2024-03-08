@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
+use PDOStatement;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
@@ -70,9 +72,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
 
     /**
-     * @param array|null $source
+     * DataEntryForm class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(?array $source = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         parent::__construct($source);
         $this->rows = new DataEntryFormRows($this);

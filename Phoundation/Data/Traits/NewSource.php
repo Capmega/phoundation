@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+
 /**
  * Trait NewSource
  *
@@ -19,11 +22,11 @@ namespace Phoundation\Data\Traits;
 trait NewSource
 {
     /**
-     * Class constructor
+     * NewSource class constructor
      *
-     * @param array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(?array $source = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
     }
 
@@ -31,10 +34,10 @@ trait NewSource
     /**
      * Returns a new static object
      *
-     * @param array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      * @return static
      */
-    public static function new(?array $source = null): static
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null): static
     {
         return new static($source);
     }

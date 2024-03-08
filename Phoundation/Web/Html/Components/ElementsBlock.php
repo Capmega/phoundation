@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -56,9 +57,11 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
 
 
     /**
-     * Class constructor
+     * ElementsBlock class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(?array $source = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         parent::__construct($source);
         $this->___construct();

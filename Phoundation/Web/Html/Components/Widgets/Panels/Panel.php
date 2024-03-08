@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
+use PDOStatement;
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -237,9 +238,9 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     /**
      * Panel class constructor
      *
-     * @param string|null $content
+     * @param IteratorInterface|PDOStatement|array|string|null $content
      */
-    public function __construct(?string $content = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $content = null)
     {
         parent::__construct($content);
         $this->background_color = EnumBootstrapColor::primary;

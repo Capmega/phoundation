@@ -88,14 +88,14 @@ class Iterator implements IteratorInterface
     /**
      * Iterator class constructor
      *
-     * @param ArrayableInterface|array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(ArrayableInterface|array|null $source = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         if ($source) {
-            $this->source = (array) $source;
+            $this->setSource($source);
 
-        } elseif (empty($this->source)) {
+        } else {
             $this->source = [];
         }
     }
@@ -104,10 +104,10 @@ class Iterator implements IteratorInterface
     /**
      * Returns a new static object
      *
-     * @param array|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      * @return static
      */
-    public static function new(?array $source = null): static
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null): static
     {
         return new static($source);
     }
@@ -606,16 +606,16 @@ class Iterator implements IteratorInterface
     /**
      * Append the specified Iterator to the end of this Iterator
      *
-     * @param IteratorInterface|array $menu
+     * @param IteratorInterface|array $source
      * @return $this
      */
-    public function append(IteratorInterface|array $menu): static
+    public function append(IteratorInterface|array $source): static
     {
-        if (is_object($menu)) {
-            $menu = $menu->__toArray();
+        if (is_object($source)) {
+            $source = $source->__toArray();
         }
 
-        $this->source = array_merge($this->source, $menu);
+        $this->source = array_merge($this->source, $source);
         return $this;
     }
 
@@ -623,16 +623,16 @@ class Iterator implements IteratorInterface
     /**
      * Prepend the specified Iterator at the beginning of this Iterator
      *
-     * @param IteratorInterface|array $menu
+     * @param IteratorInterface|array $source
      * @return $this
      */
-    public function prepend(IteratorInterface|array $menu): static
+    public function prepend(IteratorInterface|array $source): static
     {
-        if (is_object($menu)) {
-            $menu = $menu->__toArray();
+        if (is_object($source)) {
+            $source = $source->__toArray();
         }
 
-        $this->source = array_merge($menu, $this->source);
+        $this->source = array_merge($source, $this->source);
         return $this;
     }
 
@@ -676,7 +676,7 @@ class Iterator implements IteratorInterface
      */
     public function setDataTypes(array|string|null $data_types): static
     {
-        $data_types = Arrays::force($data_types, ',');
+        $data_types = Arrays::force($data_types, '|');
 
         foreach ($data_types as $data_type) {
             if ($data_type) {
