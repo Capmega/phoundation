@@ -93,7 +93,7 @@ class Plugins extends DataList implements PluginsInterface
     public static function setup(): void
     {
         static::new()
-            ->eraseAll()
+            ->erase()
             ->scan();
     }
 

@@ -154,7 +154,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
             $this->disabled = true;
 
         } else {
-            $this->classes->delete('readonly');
+            $this->classes->removeKeys('readonly');
             $this->readonly = false;
         }
 
@@ -176,7 +176,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
         } else {
             if (!$this->readonly) {
-                $this->classes->delete('disabled');
+                $this->classes->removeKeys('disabled');
                 $this->disabled = false;
             }
         }

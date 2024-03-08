@@ -354,7 +354,7 @@ class Debug {
                                 ':type' => gettype($value),
                                 ':file' => static::currentFile($trace_offset - 1),
                                 ':line' => static::currentLine($trace_offset - 1),
-                                ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                                ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string)$value) : count((array) $value)))
                             ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
 
                             if (!headers_sent()) {
@@ -384,7 +384,7 @@ class Debug {
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
-                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string) $value) : count((array) $value)))
+                        ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string)$value) : count((array) $value)))
                     ]) . PHP_EOL;
 
                     $output = get_null(ob_get_clean());
@@ -412,7 +412,7 @@ class Debug {
                         ':type' => gettype($value),
                         ':file' => static::currentFile($trace_offset),
                         ':line' => static::currentLine($trace_offset),
-                        ':size' => strlen((string) $value)
+                        ':size' => strlen((string)$value)
                         ])) . $value . PHP_EOL;
 
                 } else {
@@ -559,9 +559,9 @@ class Debug {
         }
 
         return $return . '  <table class="debug">
-                              <thead class="debug-header"><td colspan="4">'.static::currentFile(1 + $trace_offset) . '@'.static::currentLine(1 + $trace_offset) . '</td></thead>
-                              <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>
-                              '.static::showHtmlRow($value, $key, $sort, $full_backtrace) . '
+                              <thead class="debug-header"><td colspan="4">' . static::currentFile(1 + $trace_offset) . '@' . static::currentLine(1 + $trace_offset) . '</td></thead>
+                              <thead class="debug-columns"><td>' . tr('Key') . '</td><td>' . tr('Type') . '</td><td>' . tr('Size') . '</td><td>' . tr('Value') . '</td></thead>
+                              ' . static::showHtmlRow($value, $key, $sort, $full_backtrace) . '
                             </table>';
     }
 
@@ -599,7 +599,7 @@ class Debug {
                         $type = tr('unknown');
                     }
 
-                    $type .= ' ' . tr('(numeric)');
+                    $type .= ' ' . tr(' (numeric)');
 
                 } else {
                     $type = tr('string');
@@ -612,44 +612,46 @@ class Debug {
 
             case 'double':
                 return '<tr>
-                    <td>'.htmlspecialchars((string) $key) . '</td>
-                    <td>' . $type.'</td>
-                    <td>'.strlen((string) $value) . '</td>
-                    <td class="value">'.nl2br(htmlspecialchars((string) $value)) . '</td>
-                </tr>';
+                            <td>' . htmlspecialchars((string)$key) . '</td>
+                            <td>' . $type . '</td>
+                            <td>' . strlen((string)$value) . '</td>
+                            <td class="value">'.nl2br(htmlspecialchars((string)$value)) . '</td>
+                        </tr>';
 
             case 'boolean':
                 return '<tr>
-                    <td>'.htmlspecialchars((string) $key) . '</td>
-                    <td>' . $type.'</td>
-                    <td>1</td>
-                    <td class="value">'.($value ? tr('true') : tr('false')) . '</td>
-                </tr>';
+                            <td>' . htmlspecialchars((string)$key) . '</td>
+                            <td>' . $type . '</td>
+                            <td>1</td>
+                            <td class="value">'.($value ? tr('true') : tr('false')) . '</td>
+                        </tr>';
 
             case 'NULL':
                 return '<tr>
-                    <td>'.$key . '</td>
-                    <td>' . $type.'</td>
-                    <td>0</td>
-                    <td class="value">'.$value . '</td>
-                </tr>';
+                            <td>' . $key . '</td>
+                            <td>' . $type . '</td>
+                            <td>0</td>
+                            <td class="value">' . $value . '</td>
+                        </tr>';
 
             case 'resource':
-                return '<tr><td>'.htmlspecialchars((string) $key) . '</td>
-                    <td>' . $type.'</td>
-                    <td>?</td>
-                    <td class="value">' . $value.'</td>
-                </tr>';
+                return '<tr>
+                            <td>' . htmlspecialchars((string)$key) . '</td>
+                            <td>' . $type . '</td>
+                            <td>?</td>
+                            <td class="value">' . $value . '</td>
+                        </tr>';
 
             case 'method':
                 // no-break
 
             case 'property':
-                return '<tr><td>'.htmlspecialchars((string) $key) . '</td>
-                    <td>' . $type.'</td>
-                    <td>'.strlen((string) $value) . '</td>
-                    <td class="value">' . $value.'</td>
-                </tr>';
+                return '<tr>
+                            <td>' . htmlspecialchars((string)$key) . '</td>
+                            <td>' . $type . '</td>
+                            <td>' . strlen((string)$value) . '</td>
+                            <td class="value">' . $value . '</td>
+                        </tr>';
 
             case 'object':
                 if (!($value instanceof ArrayableInterface)) {
@@ -666,11 +668,11 @@ class Debug {
                     $return = '<pre>' . $value . '</pre>';
 
                     return '<tr>
-                            <td>' . $key . '</td>
-                            <td>' . $type.'</td>
-                            <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
-                            <td>' . $return . '</td>
-                        </tr>';
+                                <td>' . $key . '</td>
+                                <td>' . $type . '</td>
+                                <td>(' . tr('Dump size') . ')<br> ' . strlen($return) . '</td>
+                                <td>' . $return . '</td>
+                            </tr>';
                 }
 
                 // This is an object that has a $value::__toArray() method, convert it to array and display it as such
@@ -689,26 +691,31 @@ class Debug {
                 }
 
                 foreach ($value as $subkey => $subvalue) {
-                    $return .= static::showHtmlRow($subvalue, (string) $subkey, $sort, $full_backtrace);
+                    $return .= static::showHtmlRow($subvalue, (string)$subkey, $sort, $full_backtrace);
                 }
 
                 return '<tr>
-                    <td>'.htmlspecialchars($key) . '</td>
-                    <td>' . $type.'</td>
-                    <td>'.count($value) . '</td>
-                    <td style="padding:0">
-                        <table class="debug">
-                            <thead><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>' . $return.'
-                        </table>
-                    </td>
-                </tr>';
+                            <td>'.htmlspecialchars($key) . '</td>
+                            <td>' . $type . '</td>
+                            <td>' . count($value) . '</td>
+                            <td style="padding:0">
+                                <table class="debug">
+                                    <thead>
+                                        <td>' . tr('Key') . '</td>
+                                        <td>' . tr('Type') . '</td>
+                                        <td>' . tr('Size') . '</td>
+                                        <td>' . tr('Value') . '</td>
+                                    </thead>' . $return . '
+                                </table>
+                            </td>
+                        </tr>';
 
             default:
                 return '<tr>
                     <td>' . $key . '</td>
                     <td>' . tr('Unknown') . '</td>
                     <td>???</td>
-                    <td class="value">' . htmlspecialchars((string) $value) . '</td>
+                    <td class="value">' . htmlspecialchars((string)$value) . '</td>
                 </tr>';
         }
     }
@@ -734,7 +741,7 @@ class Debug {
 
             if ($messages) {
                 foreach ($messages as $message) {
-                    $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
+                    $return .= $prefix . htmlspecialchars((string)$message) . '<br>';
                 }
             } else {
                 $return .= $prefix . '-<br>';
@@ -752,7 +759,7 @@ class Debug {
                 }
             }
 
-            $return .= $prefix . htmlspecialchars((string) $line) . '<br>';
+            $return .= $prefix . htmlspecialchars((string)$line) . '<br>';
         }
 
         $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
@@ -809,13 +816,13 @@ class Debug {
             foreach ($execute as $key => $value) {
                 if (is_string($value)) {
                     $value = addslashes($value);
-                    $query = str_replace((string) $key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '') . Strings::Log($value) . '"', $query);
+                    $query = str_replace((string)$key, '"'.(!is_scalar($value) ? ' [' . tr('NOT SCALAR') . '] ' : '') . Strings::Log($value) . '"', $query);
 
                 } elseif (is_null($value)) {
-                    $query = str_replace((string) $key, ' '.tr('NULL').' ', $query);
+                    $query = str_replace((string)$key, ' ' . tr('NULL') . ' ', $query);
 
                 } elseif (is_bool($value)) {
-                    $query = str_replace((string) $key, Strings::fromBoolean($value), $query);
+                    $query = str_replace((string)$key, Strings::fromBoolean($value), $query);
 
                 } else {
                     if (!is_scalar($value)) {
@@ -924,20 +931,20 @@ class Debug {
 
         // Build HTML
         $html = '<div class="debug" id="debug-bar">
-                '.($_CONFIG['cache']['method'] ? '(CACHE=' . $_CONFIG['cache']['method'].') ' : '').count(Core::readRegister('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
+                '.($_CONFIG['cache']['method'] ? '(CACHE=' . $_CONFIG['cache']['method'] . ') ' : '').count(Core::readRegister('debug_queries')) . ' / '.number_format(microtime(true) - STARTTIME, 6) . '
                 <div class="hidden list">
                     <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
-                        '.tr('Debug report').'
+                        ' . tr('Debug report') . '
                     </div>
                     <table style="width:100%">
                         <thead>
                             <tr>
-                                <th colspan="3">'.tr('Query information (Ordered by slowest first, fastest last)').'</th>
+                                <th colspan="3">' . tr('Query information (Ordered by slowest first, fastest last)') . '</th>
                             </tr>
                             <tr>
-                                <th>'.tr('Time').'</th>
-                                <th>'.tr('Function').'</th>
-                                <th>'.tr('Query').'</th>
+                                <th>' . tr('Time') . '</th>
+                                <th>' . tr('Function') . '</th>
+                                <th>' . tr('Query') . '</th>
                             </tr>
                         </thead>
                         <tbody>';
@@ -945,9 +952,9 @@ class Debug {
         // Add query statistical data ordered by slowest queries first
         foreach ($core->register['debug_queries'] as $query) {
             $html .= '      <tr>
-                            <td>'.number_format($query['time'], 6).'</td>
-                            <td>' . $query['function'].'</td>
-                            <td>' . $query['query'].'</td>
+                            <td>'.number_format($query['time'], 6) . '</td>
+                            <td>' . $query['function'] . '</td>
+                            <td>' . $query['query'] . '</td>
                         </tr>';
         }
 
@@ -958,25 +965,25 @@ class Debug {
         $html .= '      <table style="width:100%">
                         <thead>
                             <tr>
-                                <th colspan="2">'.tr('General information').'</th>
+                                <th colspan="2">' . tr('General information') . '</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>'.tr('Peak memory usage').'</td>
-                                <td>'.human_readable(memory_get_peak_usage()).'</td>
+                                <td>' . tr('Peak memory usage') . '</td>
+                                <td>'.human_readable(memory_get_peak_usage()) . '</td>
                             </tr>
                             <tr>
-                                <td>'.tr('Execution time').'</td>
-                                <td>'.tr(':time milliseconds', array(':time' => number_format((microtime(true) - STARTTIME) * 1000, 2))).'</td>
+                                <td>' . tr('Execution time') . '</td>
+                                <td>' . tr(':time milliseconds', array(':time' => number_format((microtime(true) - STARTTIME) * 1000, 2))) . '</td>
                             </tr>
                             <tr>
-                                <td>'.tr('CPU usage system').'</td>
-                                <td>'.tr(':time microseconds', array(':time' => number_format($usage['ru_stime.tv_usec'], 0, '.', ','))).'</td>
+                                <td>' . tr('CPU usage system') . '</td>
+                                <td>' . tr(':time microseconds', array(':time' => number_format($usage['ru_stime.tv_usec'], 0, ' . ', ','))) . '</td>
                             </tr>
                             <tr>
-                                <td>'.tr('Included files count').'</td>
-                                <td>'.count($files).'</td>
+                                <td>' . tr('Included files count') . '</td>
+                                <td>'.count($files) . '</td>
                             </tr>
                         </tbody>
                     </table>';
@@ -985,21 +992,21 @@ class Debug {
         $html .= '      <table style="width:100%">
                         <thead>
                             <tr>
-                                <th colspan="2">'.tr('Included files (In loaded order)').'</th>
+                                <th colspan="2">' . tr('Included files (In loaded order)') . '</th>
                             </tr>
                         </thead>
                         <thead>
                             <tr>
-                                <th>'.tr('Number').'</th>
-                                <th>'.tr('File').'</th>
+                                <th>' . tr('Number') . '</th>
+                                <th>' . tr('File') . '</th>
                             </tr>
                         </thead>
                         <tbody>';
 
         foreach ($files as $id => $file) {
             $html .= '      <tr>
-                            <td>'.($id + 1).'</td>
-                            <td>' . $file.'</td>
+                            <td>'.($id + 1) . '</td>
+                            <td>' . $file . '</td>
                         </tr>';
         }
 
@@ -1009,7 +1016,7 @@ class Debug {
         $html .= '  </div>
              </div>';
 
-        $html = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))                    , $html);
+        $html = str_replace(':query_count'   , count(Core::readRegister('debug_queries'))                   , $html);
         $html = str_replace(':execution_time', number_format(microtime(true) - STARTTIME, 6), $html);
 
         return $html;

@@ -313,6 +313,6 @@ class Form extends Element implements FormInterface
         }
 
         // Merge the system values over the set attributes
-        return parent::renderAttributes()->merge($this->attributes, $return);
+        return parent::renderAttributes()->appendSource($this->attributes, $return);
     }
 }

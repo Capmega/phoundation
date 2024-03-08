@@ -328,7 +328,7 @@ class User extends DataEntry implements UserInterface
      */
     public function removeRole(RoleInterface|Stringable|array|string|float|int $keys): static
     {
-        $this->getRoles()->delete($keys);
+        $this->getRoles()->deleteKeys($keys);
         return $this;
     }
 

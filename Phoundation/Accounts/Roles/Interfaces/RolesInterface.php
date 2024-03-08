@@ -47,7 +47,7 @@ interface RolesInterface extends DataListInterface
      * @param RoleInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RoleInterface|Stringable|array|string|float|int $keys): static;
+    public function deleteKeys(RoleInterface|Stringable|array|string|float|int $keys): static;
 
     /**
      * Remove all rights for this right

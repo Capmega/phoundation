@@ -469,7 +469,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string|null $comments
      * @return int
      */
-    public function updateStatusAll(?string $status, ?string $comments = null): int
+    public function setStatus(?string $status, ?string $comments = null): int
     {
         foreach ($this->source as $entry) {
             $entry->setStatus($status, $comments);
@@ -485,9 +485,9 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string|null $comments
      * @return int
      */
-    public function deleteAll(?string $comments = null): int
+    public function delete(?string $comments = null): int
     {
-        return $this->updateStatusAll('deleted', $comments);
+        return $this->setStatus('deleted', $comments);
     }
 
 
@@ -507,7 +507,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return static
      */
-    public function eraseAll(): static
+    public function erase(): static
     {
         $ids  = [];
         $meta = [];
@@ -545,9 +545,9 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string|null $comments
      * @return int
      */
-    public function undeleteAll(?string $comments = null): int
+    public function undelete(?string $comments = null): int
     {
-        return $this->updateStatusAll(null, $comments);
+        return $this->setStatus(null, $comments);
     }
 
 
@@ -656,7 +656,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function getFirst(): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function getFirstValue(): ?DataEntryInterface
     {
         return $this->ensureDataEntry(array_key_first($this->source));
     }
@@ -667,7 +667,7 @@ abstract class DataList extends Iterator implements DataListInterface
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function getLast(): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function getLastValue(): ?DataEntryInterface
     {
         return $this->ensureDataEntry(array_key_last($this->source));
     }
@@ -679,7 +679,7 @@ abstract class DataList extends Iterator implements DataListInterface
      * @param string|float|int $key
      * @return DataEntryInterface
      */
-    protected function ensureDataEntry(string|float|int $key): DataEntryInterface
+    #[ReturnTypeWillChange] protected function ensureDataEntry(string|float|int $key): DataEntryInterface
     {
         // Ensure the source key is of DataEntryInterface
         if (!$this->source[$key] instanceof DataEntryInterface) {
@@ -819,7 +819,7 @@ abstract class DataList extends Iterator implements DataListInterface
     public function loadAll(): static
     {
         $this->source = sql(static::getDefaultConnectorName())->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
-                                                                                 FROM   `' . static::getTable() . '`');
+                                                                                     FROM  `' . static::getTable() . '`');
         return $this;
     }
 
@@ -834,21 +834,6 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return parent::addSources($source);
     }
-
-
-//    /**
-//     * Returns the total amounts for all columns together
-//     *
-//     * @note This specific method will just return a row with empty values. Its up to the classes implementing DataList
-//     *       to override this method and return meaningful totals.
-//     *
-//     * @param array|string $columns
-//     * @return array
-//     */
-//    public function getTotals(array|string $columns): array
-//    {
-//        return array_combine($columns, array_fill(0, count($columns), null));
-//    }
 
 
     /**
@@ -874,9 +859,9 @@ abstract class DataList extends Iterator implements DataListInterface
     public function autoCompleteFind(?string $word = null): array
     {
         return sql(static::getDefaultConnectorName())->listKeyValue('SELECT `id`, `' . static::getUniqueColumn() . '`
-                                                                       FROM   `' . static::getTable() . '`'
-                                                          . ($word ? ' WHERE `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
-                                                                       LIMIT ' . CliAutoComplete::getLimit(),
+                                                                           FROM   `' . static::getTable() . '`'
+                                                              . ($word ? ' WHERE  `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
+                                                                           LIMIT   ' . CliAutoComplete::getLimit(),
             $word ? [':like' => $word. '%'] : null);
     }
 }

@@ -482,7 +482,8 @@ abstract class DataEntry implements DataEntryInterface
     {
         $data_entry   = clone $data_entry;
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
-        $this->definitions->merge($data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
+
+        $this->definitions->appendSource($data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
         return $this;
     }
 
@@ -499,7 +500,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         $data_entry   = clone $data_entry;
         $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()), $this->source);
-        $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)->merge($this->definitions)->setDataEntry($this);
+        $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)->appendSource($this->definitions)->setDataEntry($this);
         return $this;
     }
 
@@ -790,7 +791,7 @@ abstract class DataEntry implements DataEntryInterface
         // Get the required columns and gather a list of available help groups
         foreach ($columns as $id => $definitions) {
             if (!$definitions->getOptional()) {
-                $columns->delete($id);
+                $columns->removeKeys($id);
                 $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
             }
 
@@ -809,7 +810,7 @@ abstract class DataEntry implements DataEntryInterface
 
             foreach ($columns as $id => $definitions) {
                 if ($definitions->getHelpGroup() === $group) {
-                    $columns->delete($id);
+                    $columns->removeKeys($id);
                     $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
                 }
             }

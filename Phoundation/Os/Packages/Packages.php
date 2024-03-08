@@ -49,7 +49,7 @@ class Packages extends Iterator implements PackagesInterface
             ]));
         }
 
-        $os = $this->default($operating_system, new Iterator());
+        $os = $this->getValueOrDefault($operating_system, new Iterator());
         $os->addSources($packages);
 
         return $this;

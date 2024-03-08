@@ -50,7 +50,7 @@ $argv = ArgvValidator::new()
 
 // Clear the plugin registration?
 if ($argv['clear']) {
-    Plugins::new()->eraseAll();
+    Plugins::new()->erase();
 }
 
 

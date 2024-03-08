@@ -687,7 +687,7 @@ trait ElementAttributes
             $this->classes->add(true, 'disabled');
 
         } else {
-            $this->classes->delete('disabled');
+            $this->classes->removeKeys('disabled');
         }
 
         $this->disabled = $disabled;
@@ -718,7 +718,7 @@ trait ElementAttributes
             $this->classes->add(true, 'readonly');
 
         } else {
-            $this->classes->delete('readonly');
+            $this->classes->removeKeys('readonly');
         }
 
         $this->readonly = $readonly;
@@ -872,7 +872,7 @@ trait ElementAttributes
         if ($right) {
             $this->classes->add(true, 'float-right');
         } else {
-            $this->classes->delete('float-right');
+            $this->classes->removeKeys('float-right');
         }
 
         return $this;

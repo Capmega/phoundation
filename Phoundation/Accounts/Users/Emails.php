@@ -246,7 +246,7 @@ class Emails extends DataList implements EmailsInterface
 
             foreach ($diff['delete'] as $id => $email) {
                 Email::get($id, 'id')->setEmail(null)->save()->erase();
-                $this->delete($id);
+                $this->removeKeys($id);
             }
 
             foreach ($diff['add'] as $email) {

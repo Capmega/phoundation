@@ -123,7 +123,7 @@ class Rights extends DataList implements RightsInterface
             }
 
             foreach ($diff['delete'] as $right) {
-                $this->delete($right);
+                $this->deleteKeys($right);
             }
         }
 
@@ -211,7 +211,7 @@ class Rights extends DataList implements RightsInterface
      * @param RightInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RightInterface|Stringable|array|string|float|int $keys): static
+    public function deleteKeys(RightInterface|Stringable|array|string|float|int $keys): static
     {
         $this->ensureParent(tr('remove entry from parent'));
 
@@ -223,7 +223,7 @@ class Rights extends DataList implements RightsInterface
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
-                $this->delete($key);
+                $this->deleteKeys($key);
             }
 
         } else {
@@ -242,7 +242,7 @@ class Rights extends DataList implements RightsInterface
                 ]);
                 show($right->getId());
                 // Delete right from the internal list
-                parent::delete($right->getId());
+                $this->removeKeys($right->getId());
 
             } elseif ($this->parent instanceof RoleInterface) {
                 Log::action(tr('Removing right ":right" from role ":role"', [
@@ -257,11 +257,11 @@ class Rights extends DataList implements RightsInterface
 
                 // Update all users with this role to get the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
-                    User::get($user,  null)->getRights()->delete($right);
+                    User::get($user,  null)->getRights()->deleteKeys($right);
                 }
 
                 // Delete right from the internal list
-                parent::delete($right->getId());
+                $this->removeKeys($right->getId());
             }
         }
 

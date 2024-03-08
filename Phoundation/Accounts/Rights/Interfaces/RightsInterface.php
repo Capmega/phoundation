@@ -48,7 +48,7 @@ interface RightsInterface extends DataListInterface
      * @param RightInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RightInterface|Stringable|array|string|float|int $keys): static;
+    public function deleteKeys(RightInterface|Stringable|array|string|float|int $keys): static;
 
     /**
      * Remove all rights for this role

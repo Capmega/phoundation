@@ -90,7 +90,7 @@ $builder = $users->getQueryBuilder()
     ->addWhere('`accounts_users`.`email` != "guest"')
     ->addGroupBy('`accounts_users`.`id`');
 
-switch ($filters->getSourceValue('entry_status')) {
+switch ($filters->get('entry_status')) {
     case '__all':
         break;
 
@@ -100,19 +100,19 @@ switch ($filters->getSourceValue('entry_status')) {
 
     default:
         $builder->addWhere('`accounts_users`.`status` = :status', [
-            ':status' => $filters->getSourceValue('entry_status')
+            ':status' => $filters->get('entry_status')
         ]);
 }
 
-if ($filters->getSourceValue('roles_id')) {
+if ($filters->get('roles_id')) {
     $builder->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [
-        ':roles_id' => $filters->getSourceValue('roles_id')
+        ':roles_id' => $filters->get('roles_id')
     ]);
 }
 
-if ($filters->getSourceValue('rights_id')) {
+if ($filters->get('rights_id')) {
     $builder->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`rights_id` :rights_id AND `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
-        ':rights_id' => $filters->getSourceValue('rights_id')
+        ':rights_id' => $filters->get('rights_id')
     ]);
 }
 

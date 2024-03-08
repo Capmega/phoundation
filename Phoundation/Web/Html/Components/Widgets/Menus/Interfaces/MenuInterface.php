@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 
 
 /**
@@ -29,20 +28,4 @@ interface MenuInterface
      * @return $this
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
-
-    /**
-     * Append the specified menu to the end of this menu
-     *
-     * @param Menu|array $menu
-     * @return $this
-     */
-    public function append(Menu|array $menu): static;
-
-    /**
-     * Append the specified menu to the beginning of this menu
-     *
-     * @param Menu|array $menu
-     * @return $this
-     */
-    public function prepend(Menu|array $menu): static;
 }

@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Data\Interfaces;
 
 use Iterator;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Utils;
@@ -19,7 +18,7 @@ use Stringable;
 
 
 /**
- * Class Iterator
+ * interface IteratorInterface
  *
  * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
  * methods:
@@ -39,8 +38,23 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
+interface IteratorInterface extends Iterator, ArrayableInterface
 {
+    /**
+     * Returns the class used to generate the select input
+     *
+     * @return string
+     */
+    public function getInputSelectClass(): string;
+
+    /**
+     * Sets the class used to generate the select input
+     *
+     * @param string $input_select_class
+     * @return DataList
+     */
+    public function setInputSelectClass(string $input_select_class): static;
+
     /**
      * Returns the current entry
      *
@@ -51,28 +65,27 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Progresses the internal pointer to the next entry
      *
-     * @return static
+     * @return void
      */
-    #[ReturnTypeWillChange] public function next(): static;
+    public function next(): void;
 
     /**
      * Progresses the internal pointer to the previous entry
      *
-     * @return static
+     * @return void
      */
-    #[ReturnTypeWillChange] public function previous(): static;
+    public function previous(): void;
 
     /**
      * Returns the current key for the current button
      *
-     * @return string|float|int|null
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function key(): string|float|int|null;
+    public function key(): mixed;
 
     /**
      * Returns if the current pointer is valid or not
      *
-     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
      * @return bool
      */
     public function valid(): bool;
@@ -80,9 +93,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Rewinds the internal pointer
      *
-     * @return static
+     * @return void
      */
-    #[ReturnTypeWillChange] public function rewind(): static;
+    public function rewind(): void;
 
     /**
      * Sets the value for the specified key
@@ -119,7 +132,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return static
      */
-    public function addBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static;
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
@@ -133,7 +146,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return static
      */
-    public function addAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static;
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
@@ -148,7 +161,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return static
      */
-    public function addBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
@@ -163,23 +176,46 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param bool $exception
      * @return static
      */
-    public function addAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null = true, bool $exception = true): static;
 
     /**
      * Adds the specified source(s) to the internal source
      *
      * @param IteratorInterface|array|string|null $source
-     * @return $this
+     * @return IteratorInterface
      */
     public function addSources(IteratorInterface|array|string|null $source): static;
 
     /**
-     * Merge the specified Iterator or array into this Iterator
+     * Append the specified source to the end of this Iterator
      *
      * @param IteratorInterface|array ...$sources
-     * @return static
+     * @return IteratorInterface
      */
-    public function merge(IteratorInterface|array ...$sources): static;
+    public function appendSource(IteratorInterface|array ...$sources): static;
+
+    /**
+     * Prepend the specified source at the beginning of this Iterator
+     *
+     * @param IteratorInterface|array ...$sources
+     * @return IteratorInterface
+     */
+    public function prependSource(IteratorInterface|array ...$sources): static;
+
+    /**
+     * Returns the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @return array|null
+     */
+    public function getDataTypes(): ?array;
+
+    /**
+     * Sets the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @param array|string|null $data_types
+     * return static
+     */
+    public function setDataTypes(array|string|null $data_types): static;
 
     /**
      * Returns a list of all internal values with their keys
@@ -227,7 +263,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param mixed $value
      * @return mixed
      */
-    public function default(Stringable|string|float|int $key, mixed $value): mixed;
+    public function getValueOrDefault(Stringable|string|float|int $key, mixed $value): mixed;
 
     /**
      * Returns the number of items contained in this object
@@ -241,14 +277,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @return mixed
      */
-    public function getFirst(): mixed;
+    public function getFirstValue(): mixed;
 
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
      * @return mixed
      */
-    public function getLast(): mixed;
+    public function getLastValue(): mixed;
 
     /**
      * Clears all the internal content for this object
@@ -273,14 +309,6 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return bool
      */
     public function valueExists(mixed $value): bool;
-
-    /**
-     * Returns if the specified value exists in this Iterator or not
-     *
-     * @param mixed $value
-     * @return bool
-     */
-    public function exists(mixed $value): bool;
 
     /**
      * Returns if the list is empty
@@ -329,21 +357,32 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function getShortestValueLength(?string $key = null, bool $exception = false): int;
 
     /**
-     * Deletes the specified key(s)
+     * Remove source keys on the specified needles with the specified match mode
      *
      * @param Stringable|array|string|float|int $keys
-     * @return static
+     * @param EnumMatchModeInterface $match_mode
+     * @return IteratorInterface
      */
-    public function delete(Stringable|array|string|float|int $keys): static;
+    public function removeKeys(Stringable|array|string|float|int $keys, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
 
     /**
-     * Deletes the specified value(s)
+     * Keep source keys on the specified needles with the specified match mode
+     *
+     * @param array|string|null $needles
+     * @param EnumMatchModeInterface $match_mode
+     * @return IteratorInterface
+     */
+    public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+
+    /**
+     * Remove source values on the specified needles with the specified match mode
      *
      * @param Stringable|array|string|float|int $values
-     * @param bool $strict
-     * @return static
+     * @param string|null $column
+     * @param EnumMatchModeInterface $match_mode
+     * @return IteratorInterface
      */
-    public function deleteByValues(Stringable|array|string|float|int $values, bool $strict = true): static;
+    public function removeValues(Stringable|array|string|float|int $values, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
 
     /**
      * Deletes the entries that have columns with the specified value(s)
@@ -352,25 +391,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param string $column
      * @return static
      */
-    public function deleteByColumnValues(Stringable|array|string|float|int $values, string $column): static;
-
-    /**
-     * Keep source keys on the specified needles with the specified match mode
-     *
-     * @param string|array $needles
-     * @param EnumMatchModeInterface $match_mode
-     * @return $this
-     */
-    public function keepKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
-
-    /**
-     * Remove source keys on the specified needles with the specified match mode
-     *
-     * @param array|string|null $needles
-     * @param EnumMatchModeInterface $match_mode
-     * @return $this
-     */
-    public function removeKeys(array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
+    public function removeValuesByColumn(Stringable|array|string|float|int $values, string $column): static;
 
     /**
      * Keep source values on the specified needles with the specified match mode
@@ -378,19 +399,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param array|string|null $needles
      * @param string|null $column
      * @param EnumMatchModeInterface $match_mode
-     * @return $this
+     * @return IteratorInterface
      */
     public function keepValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
-
-    /**
-     * Remove source values on the specified needles with the specified match mode
-     *
-     * @param array|string|null $needles
-     * @param string|null $column
-     * @param EnumMatchModeInterface $match_mode
-     * @return $this
-     */
-    public function removeValues(array|string|null $needles, ?string $column = null, EnumMatchModeInterface $match_mode = EnumMatchMode::full): static;
 
     /**
      * Returns the total amounts for all columns together
@@ -405,7 +416,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param string|null $message
      * @param bool $header
-     * @return $this
+     * @return IteratorInterface
      */
     public function displayCliMessage(?string $message = null, bool $header = false): static;
 
@@ -422,61 +433,51 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     /**
      * Sorts the Iterator source in ascending order
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function sort(): static;
 
     /**
      * Sorts the Iterator source in descending order
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function rsort(): static;
 
     /**
      * Sorts the Iterator source keys in ascending order
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function ksort(): static;
 
     /**
      * Sorts the Iterator source keys in descending order
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function krsort(): static;
 
     /**
      * Sorts the Iterator source using the specified callback
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function uasort(callable $callback): static;
 
     /**
      * Sorts the Iterator source keys using the specified callback
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function uksort(callable $callback): static;
 
     /**
      * Will limit the amount of entries in the source of this DataList to the
      *
-     * @return $this
+     * @return IteratorInterface
      */
     public function limitAutoComplete(): static;
-
-    /**
-     * Returns a list of items that are specified, but not available in this Iterator
-     *
-     * @param IteratorInterface|array|string $list
-     * @param string|null $always_match
-     * @return array
-     * @todo Redo this with array_diff()
-     */
-    public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array;
 
     /**
      * Returns if all (or optionally any) of the specified entries are in this list
@@ -489,11 +490,21 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function containsKeys(IteratorInterface|array|string $list, bool $all = true, string $always_match = null): bool;
 
     /**
+     * Returns a list of items that are specified, but not available in this Iterator
+     *
+     * @param IteratorInterface|array|string $list
+     * @param string|null $always_match
+     * @return array
+     * @todo Redo this with array_diff()
+     */
+    public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array;
+
+    /**
      * Returns a list with all the keys that match the specified key
      *
      * @param array|string $needles
      * @param int $options
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getMatchingKeys(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
@@ -502,19 +513,19 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *
      * @param array|string $needles
      * @param int $options
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getMatchingValues(array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
     /**
      * Returns a list with all the values that have a sub value in the specified key that match the specified value
      *
-     * @param string $key
+     * @param string $column
      * @param array|string $needles
      * @param int $options
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
-    public function getMatchingSubValues(string $key, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
+    public function getMatchingColumnValues(string $column, array|string $needles, int $options = Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN | Utils::MATCH_RECURSE): IteratorInterface;
 
     /**
      * Returns multiple column values for a single entry
@@ -522,7 +533,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @param Stringable|string|float|int $key
      * @param array|string $columns
      * @param bool $exception
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getSingleRowMultipleColumns(Stringable|string|float|int $key, array|string $columns, bool $exception = true): IteratorInterface;
 
@@ -545,7 +556,7 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @note If no columns were specified, then all columns will be assumed and the complete source will be returned
      *
      * @param array|string|null $columns
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getAllRowsMultipleColumns(array|string|null $columns): IteratorInterface;
 
@@ -556,28 +567,9 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      *       OutOfBoundsException
      *
      * @param string $column
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public function getAllRowsSingleColumn(string $column): IteratorInterface;
-
-    /**
-     * Returns value for the specified key
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool $exception
-     * @return mixed
-     */
-    public function getSourceValue(Stringable|string|float|int $key, bool $exception = true): mixed;
-
-    /**
-     * Sets the value for the specified key
-     *
-     * @param mixed $value
-     * @param Stringable|string|float|int $key
-     * @param bool $exception
-     * @return static
-     */
-    public function setSourceValue(mixed $value, Stringable|string|float|int $key): static;
 
     /**
      * Same as Arrays::splice() but for this Iterator
@@ -603,31 +595,14 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
     public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static;
 
     /**
-     * Renames and returns the specified column
+     * Renames and returns the specified value
      *
      * @param Stringable|string|float|int $key
      * @param Stringable|string|float|int $target
      * @param bool $exception
-     * @return mixed
+     * @return DefinitionInterface
      */
-    #[ReturnTypeWillChange] public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed;
-
-    /**
-     * Append the specified Iterator to the end of this Iterator
-     *
-     * @param IteratorInterface|array $menu
-     * @return $this
-     */
-    public function append(IteratorInterface|array $menu): static;
-
-    /**
-     * Prepend the specified Iterator at the beginning of this Iterator
-     *
-     * @param IteratorInterface|array $menu
-     * @return $this
-     */
-    public function prepend(IteratorInterface|array $menu): static;
-
+    public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): mixed;
 
     /**
      * Creates and returns an HTML table for the data in this list
@@ -651,19 +626,4 @@ interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
      * @return InputSelectInterface
      */
     public function getHtmlSelect(): InputSelectInterface;
-
-    /**
-     * Returns the class used to generate the select input
-     *
-     * @return string
-     */
-    public function getInputSelectClass(): string;
-
-    /**
-     * Sets the class used to generate the select input
-     *
-     * @param string $input_select_class
-     * @return DataList
-     */
-    public function setInputSelectClass(string $input_select_class): static;
 }

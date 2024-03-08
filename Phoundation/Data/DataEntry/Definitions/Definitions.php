@@ -99,10 +99,10 @@ class Definitions extends Iterator implements DefinitionsInterface
      * @param bool $exception
      * @return DefinitionInterface
      */
-    public function rename(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
+    public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
     {
         // Rename Definition in Iterator and Definition object itself
-        return parent::rename($key, $target, $exception)->setColumn($target);
+        return parent::renameKey($key, $target, $exception)->setColumn($target);
     }
 
 
@@ -163,7 +163,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      *
      * @return DefinitionInterface
      */
-    public function getFirst(): DefinitionInterface
+    public function getFirstValue(): DefinitionInterface
     {
         return $this->source[array_key_first($this->source)];
     }
@@ -174,7 +174,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      *
      * @return DefinitionInterface
      */
-    public function getLast(): DefinitionInterface
+    public function getLastValue(): DefinitionInterface
     {
         return $this->source[array_key_last($this->source)];
     }

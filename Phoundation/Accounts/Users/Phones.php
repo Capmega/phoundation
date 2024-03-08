@@ -256,8 +256,8 @@ class Phones extends DataList implements PhonesInterface
             $diff = Arrays::deleteDiff($diff, $phones);
 
             foreach ($diff['delete'] as $id => $phone) {
-                Phone::get($id, 'id')->setPhone(null)->save()->delete();
-                $this->delete($id);
+                Phone::get($id, 'id')->setPhone(null)->save()->erase();
+                $this->removeKeys($id);
             }
 
             foreach ($diff['add'] as $phone) {

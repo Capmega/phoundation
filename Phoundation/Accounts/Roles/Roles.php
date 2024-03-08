@@ -119,7 +119,7 @@ class Roles extends DataList implements RolesInterface
             }
 
             foreach ($diff['delete'] as $role) {
-                $this->delete($role);
+                $this->deleteKeys($role);
             }
         }
 
@@ -210,7 +210,7 @@ class Roles extends DataList implements RolesInterface
      * @param RoleInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(RoleInterface|Stringable|array|string|float|int $keys): static
+    public function deleteKeys(RoleInterface|Stringable|array|string|float|int $keys): static
     {
         $this->ensureParent(tr('remove entry from parent'));
 
@@ -222,7 +222,7 @@ class Roles extends DataList implements RolesInterface
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
-                $this->delete($key);
+                $this->deleteKeys($key);
             }
 
         } else {
@@ -241,7 +241,7 @@ class Roles extends DataList implements RolesInterface
                 ]);
 
                 // Delete this role from the internal list
-                parent::delete($right->getId());
+                $this->removeKeys($right->getId());
 
                 // Remove the rights related to this role
                 foreach ($right->getRights() as $right) {
@@ -253,7 +253,7 @@ class Roles extends DataList implements RolesInterface
                         }
                     }
 
-                    $this->parent->getRights()->delete($right);
+                    $this->parent->getRights()->deleteKeys($right);
                 }
 
             } elseif ($this->parent instanceof RightInterface) {
@@ -268,11 +268,11 @@ class Roles extends DataList implements RolesInterface
                 ]);
 
                 // Remove right from the internal list
-                parent::delete($right->getId());
+                $this->removeKeys($right->getId());
 
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsers() as $user) {
-                    User::get($user,  null)->getRights()->delete($this->parent);
+                    User::get($user,  null)->getRights()->deleteKeys($this->parent);
                 }
             }
         }

@@ -127,7 +127,7 @@ class Button extends Input
         // Remove the current button mode
         foreach ($this->classes as $class => $value) {
             if (str_starts_with($class, 'btn-')) {
-                $this->classes->delete($class);
+                $this->classes->removeKeys($class);
             }
         }
 
@@ -177,7 +177,7 @@ class Button extends Input
         $this->attributes->set($this->type?->value, 'type');
 
         if ($this->anchor_url) {
-            $this->attributes->delete('type');
+            $this->attributes->removeKeys('type');
             $this->attributes->set($this->anchor_url, 'href');
         }
 

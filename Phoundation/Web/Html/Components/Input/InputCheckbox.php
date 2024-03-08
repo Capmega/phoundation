@@ -169,6 +169,6 @@ class InputCheckbox extends Input
         }
 
         // Merge the system values over the set attributes
-        return parent::renderAttributes()->merge($this->renderInputAttributes(), $return);
+        return parent::renderAttributes()->appendSource($this->renderInputAttributes(), $return);
     }
 }

@@ -123,7 +123,7 @@ class Users extends DataList implements UsersInterface
             }
 
             foreach ($diff['delete'] as $user) {
-                $this->delete($user);
+                $this->deleteKeys($user);
             }
         }
 
@@ -205,7 +205,7 @@ class Users extends DataList implements UsersInterface
      * @param UserInterface|Stringable|array|string|float|int $keys
      * @return static
      */
-    public function delete(UserInterface|Stringable|array|string|float|int $keys): static
+    public function deleteKeys(UserInterface|Stringable|array|string|float|int $keys): static
     {
         $this->ensureParent(tr('remove entry from parent'));
 
@@ -217,7 +217,7 @@ class Users extends DataList implements UsersInterface
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
-                $this->delete($key);
+                $this->deleteKeys($key);
             }
 
         } else {
@@ -236,7 +236,7 @@ class Users extends DataList implements UsersInterface
                 ]);
 
                 // Remove user from the internal list
-                parent::delete($user->getId());
+                $this::removeKeys($user->getId());
 
             } elseif ($this->parent instanceof RightInterface) {
                 Log::action(tr('Removing user ":user" from right ":right"', [
@@ -250,7 +250,7 @@ class Users extends DataList implements UsersInterface
                 ]);
 
                 // Remove user from the internal list
-                parent::delete($user->getId());
+                $this->removeKeys($user->getId());
             }
         }
 

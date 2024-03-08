@@ -743,16 +743,16 @@ class Arrays extends Utils
     /**
      * Return the source array with the specified keys removed.
      *
-     * @param DataListInterface|array $source
+     * @param IteratorInterface|array $source
      * @param array|string|null $needles
      * @param EnumMatchModeInterface $match_mode
      * @return array
      */
-    public static function removeKeys(DataListInterface|array $source, array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
+    public static function removeKeys(IteratorInterface|array $source, array|string|null $needles, EnumMatchModeInterface $match_mode = EnumMatchMode::full): array
     {
         $needles = Arrays::force($needles);
 
-        if ($source instanceof DataListInterface) {
+        if ($source instanceof IteratorInterface) {
             $source = $source->getSource();
         }
 

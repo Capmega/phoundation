@@ -156,7 +156,7 @@ abstract class Element implements ElementInterface
 
         if ($this->attributes->get('auto_submit', false)) {
             // Add javascript to automatically submit on change
-            $this->attributes->delete('auto_submit');
+            $this->attributes->removeKeys('auto_submit');
             $postfix .= Script::new()
                 ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
                 ->setJavascriptWrapper(EnumJavascriptWrappers::window);
@@ -274,6 +274,6 @@ abstract class Element implements ElementInterface
         }
 
         // Merge the system values over the set attributes
-        return $this->attributes->merge($return);
+        return $this->attributes->appendSource($return);
     }
 }

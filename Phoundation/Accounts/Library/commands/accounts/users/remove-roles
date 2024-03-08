@@ -62,7 +62,7 @@ try {
     $roles = $user->getRoles();
 
     foreach ($argv['roles'] as $role) {
-        $roles->delete(Role::get($role));
+        $roles->removeKeys(Role::get($role));
     }
 
     if ($roles->save()) {

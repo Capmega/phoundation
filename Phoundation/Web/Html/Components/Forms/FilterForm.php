@@ -45,9 +45,9 @@ class FilterForm extends DataEntryForm
      * @param bool $exception
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function getSourceValue(Stringable|string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
-        return parent::getSourceValue($key, $exception);
+        return parent::get($key, $exception);
     }
 
 

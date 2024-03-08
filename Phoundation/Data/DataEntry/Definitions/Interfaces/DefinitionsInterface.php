@@ -59,13 +59,6 @@ interface DefinitionsInterface extends IteratorInterface
     public function current(): DefinitionInterface;
 
     /**
-     * Returns the current key for the current button
-     *
-     * @return string|float|int|null
-     */
-    public function key(): string|float|int|null;
-
-    /**
      * Returns the specified column
      *
      * @param Stringable|string|float|int $key
@@ -79,14 +72,14 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return DefinitionInterface
      */
-    public function getFirst(): DefinitionInterface;
+    public function getFirstValue(): DefinitionInterface;
 
     /**
      * Returns the last Definition entry
      *
      * @return DefinitionInterface
      */
-    public function getLast(): DefinitionInterface;
+    public function getLastValue(): DefinitionInterface;
 
     /**
      * Direct method to hide entries

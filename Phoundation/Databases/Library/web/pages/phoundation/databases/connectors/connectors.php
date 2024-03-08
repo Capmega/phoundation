@@ -84,7 +84,7 @@ $builder    = $connectors->getQueryBuilder()->setDebug(true)
                  `databases_connectors`.`status`, 
                  `databases_connectors`.`created_on`');
 
-switch ($filters->getSourceValue('entry_status')) {
+switch ($filters->get('entry_status')) {
     case '__all':
         break;
 
@@ -93,7 +93,7 @@ switch ($filters->getSourceValue('entry_status')) {
         break;
 
     default:
-        $builder->addWhere('`databases_connectors`.`status` = :status', [':status' => $filters->getSourceValue('entry_status')]);
+        $builder->addWhere('`databases_connectors`.`status` = :status', [':status' => $filters->get('entry_status')]);
 }
 
 // Build SQL connectors table

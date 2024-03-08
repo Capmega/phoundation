@@ -37,4 +37,4 @@ $argv = ArgvValidator::new()->validate();
 
 
 // Clear the plugin registration
-Plugins::new()->eraseAll();
+Plugins::new()->erase();

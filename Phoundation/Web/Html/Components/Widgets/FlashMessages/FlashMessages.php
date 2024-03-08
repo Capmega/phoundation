@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
@@ -253,7 +254,8 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     public function export(): array
     {
         $return = [];
-
+        Log::backtrace();
+        Log::printr($this->source);
         foreach ($this->source as $message) {
             $return[] = $message->export();
         }

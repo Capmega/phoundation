@@ -242,7 +242,7 @@ class InputAutoSuggest extends InputText
               }
             });');
 
-        $this->attributes = $this->renderInputAttributes()->merge($this->attributes);
+        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
         return $script->render() . parent::render();
     }
 }

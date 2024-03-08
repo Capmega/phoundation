@@ -50,7 +50,7 @@ trait DataEntryHostnamePort
      */
     public function setHostname(?string $hostname): static
     {
-        if ($this->definitions->exists('seo_hostname')) {
+        if ($this->definitions->valueExists('seo_hostname')) {
             if ($hostname === null) {
                 $this->setSourceValue('seo_hostname', null);
             } else {
