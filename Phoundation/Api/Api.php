@@ -36,11 +36,12 @@ class Api
      * Execute the specified API page
      *
      * @param string $target
+     * @param array|null $data
      * @return string|null
      */
-    public function execute(string $target): ?string
+    public function execute(string $target, ?array $data): ?string
     {
-        return execute_page($target);
+        return execute_page($target, $data);
     }
 
 

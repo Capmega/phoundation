@@ -944,9 +944,10 @@ function execute_script(string $__file): void
  * Execute the page and return the contents
  *
  * @param string $__file
+ * @param array|null $data
  * @return string|null
  */
-function execute_page(string $__file): ?string
+function execute_page(string $__file, ?array $data): ?string
 {
     ob_start(chunk_size: 0);
     include($__file);

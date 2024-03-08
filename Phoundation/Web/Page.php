@@ -1419,18 +1419,19 @@ class Page implements PageInterface
      * @note Since this method required a RoutingParameters object do NOT execute this directly to execute a page, use
      * Route::execute() instead!
      *
-     * @param string $target       The target file that should be executed or sent to the client
+     * @param string $target      The target file that should be executed or sent to the client
      * @param boolean $attachment If specified as true, will send the file as a downloadable attachment, to be written
      *                            to disk instead of displayed on the browser. If set to false, the file will be sent as
      *                            a file to be displayed in the browser itself.
      * @param bool $system        If true, this is a system page being executed
+     * @param array|null $data    If specified, variables to pass to the page that is going to be executed.
      * @return never
      *
-     * @todo Make Page::executeFromRoute() use Page::executePage() somehow
      * @see Route::execute()
      * @see Template::execute()
+     * @todo Make Page::executeFromRoute() use Page::executePage() somehow
      */
-    #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false): never
+    #[NoReturn] public static function execute(string $target, bool $attachment = false, bool $system = false, ?array $data = null): never
     {
         Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
             ':target'   => Strings::from($target, DIRECTORY_ROOT),
@@ -1444,7 +1445,7 @@ class Page implements PageInterface
         // Execute the specified target file
         // Build the headers, cache output and headers together, then send the headers
         // TODO Work on the HTTP headers, lots of issues here still, like content-length!
-        $output  = static::executeTarget($target, false);
+        $output  = static::executeTarget($target, $data, false);
         $headers = static::buildHttpHeaders($output, $attachment);
 
         // Merge the flash messages from sessions into page flash messages
@@ -2005,7 +2006,7 @@ class Page implements PageInterface
 
         $scripts = [];
 
-        // Convert the given URL (parts) to real URLs
+        // Convert the given URL (parts) to real URLs and add it to the scripts list
         foreach (Arrays::force($urls, ',') as $url) {
             $url = static::versionFile($url, 'js');
 
@@ -2750,11 +2751,12 @@ class Page implements PageInterface
      * Executes the target with the correct page driver (API or normal web page for now)
      *
      * @param string $target
+     * @param array|null $data
      * @param bool $main_content_only
      * @return string|null
      * @todo Move AccessDeniedException handling to Page::execute()
      */
-    protected static function executeTarget(string $target, bool $main_content_only): ?string
+    protected static function executeTarget(string $target, ?array $data, bool $main_content_only): ?string
     {
         Log::information(tr('Executing target ":target"', [
             ':target' => Strings::from($target, DIRECTORY_ROOT),
@@ -2784,11 +2786,11 @@ class Page implements PageInterface
                     // no-break
                 case EnumRequestTypes::ajax:
                     static::$api_interface = new Api();
-                    $output = static::$api_interface->execute($target);
+                    $output = static::$api_interface->execute($target, $data);
                     break;
 
                 default:
-                    $output = static::$template_page->execute($target, $main_content_only);
+                    $output = static::$template_page->execute($target, $data, $main_content_only);
             }
 
         } catch (ValidationFailedExceptionInterface $e) {
@@ -2880,9 +2882,15 @@ class Page implements PageInterface
     {
         static $minified;
 
-        if (!isset($minified)) {
-            // All files are minified or none are
-            $minified = (Config::get('web.minified', true) ? '.min' : '');
+        // Ensure the extension is stripped
+        $url = Strings::until($url, '.' . $url);
+
+        // Should we load the minified version? This is optional as long as the file itself does not have .min specified
+        if (str_ends_with($url, '.min')) {
+            if (!isset($minified)) {
+                // All files are minified or none are
+                $minified = (Config::get('web.minified', true) ? '.min' : '');
+            }
         }
 
         if (Config::getBoolean('cache.version-files', true)) {
