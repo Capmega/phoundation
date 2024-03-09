@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli\Exception;
 
+use Throwable;
+
 
 /**
  * Class ArgumentsException
@@ -17,4 +19,15 @@ namespace Phoundation\Cli\Exception;
  */
 class ArgumentsException extends CliException
 {
+    /**
+     * ArgumentsException class constructor
+     *
+     * @param Throwable|array|string|null $messages
+     * @param Throwable|null $previous
+     */
+    public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
+    {
+        parent::__construct($messages, $previous);
+        $this->makeWarning();
+    }
 }
