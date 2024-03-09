@@ -2403,7 +2403,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             try {
-                $value = Password::testSecurity($value);
+                $value = Password::testSecurity((string)$value);
 
             } catch (ValidationFailedException $e) {
                 $this->addFailure(tr('failed because ":e"', [':e' => $e->getMessage()]));
