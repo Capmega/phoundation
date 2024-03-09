@@ -176,6 +176,7 @@ class Notification extends DataEntry implements NotificationInterface
         }
 
         $details = $e->generateDetails();
+
         $this->setUrl('/development/incidents.html')
              ->setMode($mode)
              ->setFile($e->getFile())
