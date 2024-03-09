@@ -124,6 +124,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     /**
      * Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
      *
+     * The command ./pho --force -QZL 1, for example, will be expanded to ./pho --force -Q -Z -L 1
+     *
      * @param array $argv
      * @return array
      */
@@ -193,6 +195,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * Initializes a select() request
      *
      * @param string|int $fields
+     * @param string|bool $next
      * @return string
      */
     protected function initSelect(string|int $fields, string|bool $next = false): string
@@ -523,7 +526,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         if ($this->selected_field === $field) {
-            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
+            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [
+                ':field' => $field
+            ]));
         }
 
         if (isset_get($this->source[$this->selected_field])) {
