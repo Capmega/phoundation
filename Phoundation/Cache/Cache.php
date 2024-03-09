@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache;
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
@@ -17,6 +18,7 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Web\Web;
 
 
 /**
@@ -54,8 +56,9 @@ class Cache
             return false;
         }
 
-        Libraries::clearCommandsCache();
-        Libraries::clearWebCache();
+        // Clear web cache, but rebuild (clear & build) command cache as we will ALWAYS need commands available
+        Web::clearCache();
+        CliCommand::rebuildCache();
 
         Log::action(tr('Clearing file caches'), 3);
         Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->delete();
