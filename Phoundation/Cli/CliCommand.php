@@ -530,8 +530,8 @@ class CliCommand
                     }
                 }
 
-                throw CommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
-                    ':file' => $file
+                throw CommandNotExistsException::new(tr('The specified command ":command" does not exist', [
+                    ':command' => Strings::force($commands, ' ')
                 ]))->makeWarning()
                     ->addData([
                         'position'          => $position,
@@ -581,8 +581,8 @@ class CliCommand
 
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
-        throw CommandNotFoundException::new(tr('The specified command file ":file" was not found', [
-            ':file' => $file
+        throw CommandNotFoundException::new(tr('The specified command ":command" was not found', [
+            ':command' => Strings::force($commands, ' ')
         ]))->makeWarning()
            ->addData([
                 'position'          => $position + 1,
@@ -981,8 +981,8 @@ class CliCommand
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case we actually have to expand the command, NOT yet the command parameters!
             if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
-                throw CommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
-                    ':file' => $command
+                throw CommandNotExistsException::new(tr('The specified command ":command" does exist but requires auto complete extension', [
+                    ':command' => $command
                 ]))->makeWarning()
                     ->addData([
                         'position' => CliAutoComplete::getPosition(),
