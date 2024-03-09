@@ -11,6 +11,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CommandNotFoundException;
 use Phoundation\Cli\Exception\NoCommandSpecifiedException;
 use Phoundation\Core\Enums\EnumRequestTypes;
@@ -43,6 +44,7 @@ use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
@@ -54,6 +56,7 @@ use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -366,7 +369,7 @@ class Core implements CoreInterface
                 }
             }
 
-            if ($e instanceof ValidationFailedException) {
+            if (($e instanceof ValidationFailedException) or ($e instanceof ArgumentsException)) {
                 throw $e;
             }
 
@@ -1568,7 +1571,7 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns true if the system is still starting up
+     * Returns true if the system state (or the specified state) is "startup"
      *
      * @param string|null $state If specified will return the startup state for the specified state instead of the
      *                           internal Core state
@@ -1791,7 +1794,6 @@ class Core implements CoreInterface
         if (static::inStartupState()) {
             // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
-die($errfile. $errline);
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
                 ->setCode($errno)
                 ->setFile($errfile)
@@ -1876,22 +1878,28 @@ die($errfile. $errline);
         // Ensure the exception is a Phoundation exception and register it
         $e = Exception::ensurePhoundationException($e);
 
-        if (Core::isProductionEnvironment()) {
-            // In debug mode we can assume the developer is looking at the system
-            try {
-                $e->registerDeveloperIncident();
+        // Don't register warning exceptions
+        if (!$e->isWarning()) {
+            // Only notify and register developer incident if we're on production
+            if (Core::isProductionEnvironment()) {
+                // We CAN only notify after startup!
+                if (!static::inStartupState()) {
+                    try {
+                        $e->registerDeveloperIncident();
 
-            } catch (Throwable $e) {
-                Log::error(tr('Failed to register uncaught exception because of the following exception'));
-                Log::error($e);
-            }
+                    } catch (Throwable $f) {
+                        Log::error(tr('Failed to register uncaught exception because of the following exception'));
+                        Log::error($f);
+                    }
 
-            try {
-                $e->getNotificationObject()->send(false);
+                    try {
+                        $e->getNotificationObject()->send(false);
 
-            } catch (Throwable $e) {
-                Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
-                Log::error($e);
+                    } catch (Throwable $f) {
+                        Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
+                        Log::error($f);
+                    }
+                }
             }
         }
 
