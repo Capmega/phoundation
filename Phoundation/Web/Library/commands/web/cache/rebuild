@@ -19,7 +19,9 @@ use Phoundation\Web\Web;
  */
 
 
+// This command accepts no arguments
 ArgvValidator::new()->validate();
 
 
+// Rebuild web cache
 Web::rebuildCache();
