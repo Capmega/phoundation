@@ -3033,7 +3033,8 @@ class Path implements Stringable, PathInterface
             $dir_target         = Directory::new($target);
             $dir_alternate_path = Directory::new($alternate_path)->ensure();
 
-            // Go over each file in this directory. If directory, create it in target, if file, make it a symlink
+            // Go over each file in this directory.
+            // If the file is a directory then create it in the target, if it is a normal file, then create a symlink
             foreach ($this->getFilesObject() as $path) {
                 // Get the section that we'll be working with
                 $section = Strings::startsNotWith(Strings::from($path->getPath(), $this->path), '/');
