@@ -698,11 +698,21 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             $e = static::ensurePhoundationException($e);
 
             return [
-                'oops'               => 'Failed to generate exception details, see section "generate_exception"',
-                'project'            => PROJECT,
-                'project_version'    => Core::getProjectVersion(),
-                'environment'        => ENVIRONMENT,
-                'platform'           => PLATFORM,
+                'oops'                  => 'Failed to generate exception details, see section "generate_exception"',
+                'project'               => (defined('PROJECT')     ? PROJECT     : null),
+                'project_version'       => Core::getProjectVersion(),
+                'database_version'      => null,
+                'environment'           => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
+                'platform'              => (defined('PLATFORM')    ? PLATFORM    : null),
+                'session'               => null,
+                'user'                  => null,
+                'command'               => null,
+                'url'                   => null,
+                'method'                => null,
+                'environment_variables' => $_ENV,
+                'argv'                  => null,
+                'get'                   => null,
+                'post'                  => null,
                 'generate_exception' => [
                     'message'  => $e->getMessage(),
                     'messages' => $e->getMessages(),
