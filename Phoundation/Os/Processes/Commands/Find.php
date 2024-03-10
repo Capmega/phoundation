@@ -38,6 +38,13 @@ class Find extends Command implements FindInterface
 
 
     /**
+     * Result files cache
+     *
+     * @var FilesInterface|null
+     */
+    protected ?FilesInterface $files;
+
+    /**
      * Tracks to follow symlinks or not
      *
      * @var bool $follow_symlinks
@@ -45,7 +52,7 @@ class Find extends Command implements FindInterface
     protected bool $follow_symlinks = false;
 
     /**
-     * The callback to execute on each found file
+     * The fck to execute on each found file
      *
      * @var mixed $callback
      */
@@ -684,12 +691,6 @@ class Find extends Command implements FindInterface
     public function getFoundFiles(): FilesInterface
     {
         $files = Files::new()->setSource($this->output);
-
-        if ($this->callback) {
-            $callback = $this->callback;
-            $callback($files);
-        }
-
         return $files;
     }
 
@@ -731,7 +732,20 @@ class Find extends Command implements FindInterface
             Path::new($this->path)->checkReadable('find', $e);
         }
 
-        return parent::executeReturnArray();
+        // Clear files cache and execute the find command
+        unset($this->files);
+        parent::executeReturnArray();
+
+        // Execute callbacks?
+        if ($this->callback) {
+            $callback = $this->callback;
+
+            foreach ($this->output as $file) {
+                $callback($file);
+            }
+        }
+
+        return $this->output;
     }
 
 
@@ -740,8 +754,12 @@ class Find extends Command implements FindInterface
      *
      * @return FilesInterface
      */
-    public function executeReturnFiles(): FilesInterface
+    public function getFiles(): FilesInterface
     {
-        return Files::new($this->executeReturnArray(), $this->restrictions);
+        if (empty($this->files)) {
+            $this->files = Files::new($this->executeReturnArray(), $this->restrictions)
+        }
+
+        return $this->files;
     }
 }

@@ -316,5 +316,5 @@ interface FindInterface
      *
      * @return FilesInterface
      */
-    public function executeReturnFiles(): FilesInterface;
+    public function getFiles(): FilesInterface;
 }
