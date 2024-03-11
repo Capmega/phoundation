@@ -17,7 +17,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Os
  */
-interface FindInterface
+interface FindInterface extends CommandInterface
 {
     /**
      * Sets the path in which to find

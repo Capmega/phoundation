@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Page;
 
@@ -73,7 +74,7 @@ class ProfileImage extends ImageMenu
      * @param Menu|null $menu
      * @return static
      */
-    public function setMenu(Menu|null $menu): static
+    public function setMenu(?MenuInterface $menu): static
     {
         if (Session::getUser()->isGuest()) {
             // Don't show menu

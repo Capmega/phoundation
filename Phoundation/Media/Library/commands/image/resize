@@ -70,6 +70,6 @@ $backup->view();
 $image->convert()
     ->resize()
     ->setMethod($argv['method'])
-    ->getAbsolute($argv['width'], $argv['height']);
+    ->getAbsoluteSize($argv['width'], $argv['height']);
 
 $image->view();

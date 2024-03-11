@@ -757,7 +757,7 @@ class Find extends Command implements FindInterface
     public function getFiles(): FilesInterface
     {
         if (empty($this->files)) {
-            $this->files = Files::new($this->executeReturnArray(), $this->restrictions)
+            $this->files = Files::new($this->executeReturnArray(), $this->restrictions);
         }
 
         return $this->files;

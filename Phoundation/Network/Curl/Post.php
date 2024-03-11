@@ -94,9 +94,9 @@ class Post extends Get
     /**
      * Returns if the POST data will be URL encoded or not
      *
-     * @return string|null
+     * @return bool
      */
-    public function getPostUrlEncoded(): ?string
+    public function getPostUrlEncoded(): bool
     {
         return $this->post_url_encoded;
     }
@@ -105,10 +105,10 @@ class Post extends Get
     /**
      * Sets if the POST data will be URL encoded or not
      *
-     * @param string|null $post_url_encoded
+     * @param bool $post_url_encoded
      * @return static
      */
-    public function setPostUrlEncoded(?string $post_url_encoded): static
+    public function setPostUrlEncoded(bool $post_url_encoded): static
     {
         $this->post_url_encoded = $post_url_encoded;
         return $this;

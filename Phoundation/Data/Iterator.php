@@ -43,15 +43,15 @@ use Stringable;
  * This is a slightly extended interface to the default PHP iterator class. This class also requires the following
  * methods:
  *
- * - getCount() Returns the number of elements contained in this object
+ * - Iterator::getCount() Returns the number of elements contained in this object
  *
- * - getFirst() Returns the first element contained in this object without changing the internal pointer
+ * - Iterator::getFirst() Returns the first element contained in this object without changing the internal pointer
  *
- * - getLast() Returns the last element contained in this object without changing the internal pointer
+ * - Iterator::getLast() Returns the last element contained in this object without changing the internal pointer
  *
- * - clear() Clears all the internal content for this object
+ * - Iterator::clear() Clears all the internal content for this object
  *
- * - delete() Deletes the specified key
+ * - Iterator::delete() Deletes the specified key
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

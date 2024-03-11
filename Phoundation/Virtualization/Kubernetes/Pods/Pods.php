@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Pods;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Virtualization\Kubernetes\KubernetesObjects;
 
 
@@ -22,10 +24,11 @@ class Pods extends KubernetesObjects
     /**
      * Pods class constructor
      */
-    public function __construct()
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         $this->kind        = 'Pod';
         $this->get_command = 'pods';
-        parent::__construct();
+
+        parent::__construct($source);
     }
 }

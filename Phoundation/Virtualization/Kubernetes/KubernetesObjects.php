@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\UsesNew;
 use Phoundation\Os\Processes\Process;
@@ -25,17 +27,19 @@ use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
 class KubernetesObjects extends Iterator
 {
     use UsesKubeCtl;
-    use UsesNew;
+
 
     /**
      * KubernetesObjects class constructor
      *
      * Gets the object list from kubectl right away and stores it in the internal list
      */
-    public function __construct()
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
+        $this->__construct($source);
+
         $format            = [];
-        $this->source        = [];
+        $this->source      = [];
         $this->kind        = Strings::fromReverse(get_class($this), '\\');
         $this->get_command = strtolower($this->kind);
 

@@ -791,12 +791,7 @@ class Libraries
                     return;
                 }
 
-                // Don't load interface files
-                if (str_contains($test, '/interface/') or str_ends_with($test, 'interface.php')) {
-                    return;
-                }
-
-                // Don't load specific files
+                // Don't load the following specific files
                 if (str_ends_with($test, 'tests/bootstrap.php')) {
                     return;
                 }

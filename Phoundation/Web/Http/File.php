@@ -9,10 +9,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\FileInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Page;
 
@@ -30,6 +28,7 @@ use Phoundation\Web\Page;
  * @package Phoundation\Web
  */
 throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
+
 class File extends \Phoundation\Filesystem\File
 {
     /**
@@ -96,22 +95,10 @@ class File extends \Phoundation\Filesystem\File
      *
      * @param RestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(mixed $source = null, RestrictionsInterface|array|string|null $restrictions = null, bool $make_absolute = false)
     {
-        $this->setRestrictions($restrictions);
+        parent::__construct($source, $restrictions, $make_absolute);
         $this->compression = Config::get('web.http.download.compression', 'auto');
-    }
-
-
-    /**
-     * Returns a new File object with the specified restrictions
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @return static
-     */
-    public static function new(RestrictionsInterface|array|string|null $restrictions = null): static
-    {
-        return new static($restrictions);
     }
 
 
@@ -293,30 +280,6 @@ class File extends \Phoundation\Filesystem\File
     {
         $this->mimetype = $mimetype;
         return $this;
-    }
-
-
-    /**
-     * Returns the mimetype for the file to be sent
-     *
-     * @note If no mimetype was set BEFORE executing the ->send() method then this mimetype was detected automatically
-     * @return string|null
-     */
-    public function getMimetype(): ?string
-    {
-        return $this->mimetype;
-    }
-
-
-    /**
-     * Returns the size of the file (or data) to be sent in bytes
-     *
-     * @note If no file or data was specified yet, this method will return null
-     * @return int|null
-     */
-    public function getSize(): ?int
-    {
-        return $this->size;
     }
 
 

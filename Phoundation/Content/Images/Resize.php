@@ -6,7 +6,7 @@ namespace Phoundation\Content\Images;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\File;
 use Phoundation\Os\Processes\Process;
 
 
@@ -20,7 +20,7 @@ use Phoundation\Os\Processes\Process;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Content
  */
-class Resize extends Path
+class Resize extends File
 {
     /**
      * If the resize command should be executed in the background or not
@@ -113,7 +113,7 @@ class Resize extends Path
      * @param int $height
      * @return void
      */
-    public function getAbsolute(int $width, int $height): void
+    public function getAbsoluteSize(int $width, int $height): void
     {
         $process = $this->convert()
             ->addArgument($this->path)

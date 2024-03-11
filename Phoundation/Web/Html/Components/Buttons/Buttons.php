@@ -184,12 +184,11 @@ class Buttons extends ElementsBlock implements Iterator
     /**
      * Progresses the internal pointer to the next button
      *
-     * @return static
+     * @return void
      */
-    #[ReturnTypeWillChange] public function next(): static
+    #[ReturnTypeWillChange] public function next(): void
     {
         next($this->source);
-        return $this;
     }
 
 
@@ -219,12 +218,10 @@ class Buttons extends ElementsBlock implements Iterator
     /**
      * Rewinds the internal pointer
      *
-     * @return static
+     * @return void
      */
-    #[ReturnTypeWillChange] public function rewind(): static
+    #[ReturnTypeWillChange] public function rewind(): void
     {
         reset($this->source);
-        return $this;
-
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Captcha;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Captcha\Interfaces\CaptchaInterface;
@@ -25,13 +27,14 @@ abstract class Captcha extends ElementsBlock implements CaptchaInterface
     /**
      * Returns a new Captcha for the configured provider
      *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
      * @return static
      */
-    public static function new(): static
+    public static function new(IteratorInterface|array|string|PDOStatement|null $source = null): static
     {
         switch (Config::getString('security.web.captcha.provider', 'recaptcha')) {
             case 'recaptcha':
-                return new ReCaptcha2();
+                return new ReCaptcha2($source);
 
             case '':
                 throw new OutOfBoundsException(tr('No captcha provider specified'));
