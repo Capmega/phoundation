@@ -60,11 +60,12 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
      * Returns the difference between two DateTime objects
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
-     * @param DateTimeInterface $targetObject
+     * @param \DateTimeInterface $targetObject
      * @param bool $absolute
+     * @param bool $roundup
      * @return DateInterval
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false): DateInterval
+    public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval
     {
         return new DateInterval(parent::diff($targetObject, $absolute));
     }
