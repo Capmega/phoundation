@@ -70,6 +70,13 @@ class Status implements StatusInterface
     protected bool $flag_deleted = false;
 
     /**
+     * If true, then this file has a git conflict
+     *
+     * @var bool $is_conflict
+     */
+    protected bool $is_conflict = false;
+
+    /**
      * The human-readable explanation for the current status
      *
      * @var string $flag_readable
@@ -189,6 +196,17 @@ class Status implements StatusInterface
 
 
     /**
+     * Returns true if this status is a conflict
+     *
+     * @return bool
+     */
+    public function isConflict(): bool
+    {
+        return $this->is_conflict;
+    }
+
+
+    /**
      * Returns if this file is tracked or not
      *
      * @return bool
@@ -279,6 +297,24 @@ class Status implements StatusInterface
 
             case '  ':
                 $this->readable      = tr('No changes');
+                break;
+
+            case 'both modified':
+                $this->readable      = tr('Both modified');
+                $this->is_conflict   = true;
+                $this->flag_modified = true;
+                break;
+
+            case 'UD':
+                $this->readable      = tr('Deleted by them');
+                $this->is_conflict   = true;
+                $this->flag_modified = true;
+                break;
+
+            case 'DU':
+                $this->readable      = tr('Deleted by us');
+                $this->is_conflict   = true;
+                $this->flag_modified = true;
                 break;
 
             default:

@@ -106,6 +106,17 @@ class StatusFile
 
 
     /**
+     * Returns true if this file has a git conflict
+     *
+     * @return bool
+     */
+    public function hasConflict(): bool
+    {
+        return $this->status->isConflict();
+    }
+
+
+    /**
      * Generates a diff patch file for this file and returns the file name for the patch file
      *
      * @return string|null
