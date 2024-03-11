@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Template;
 
+use Phoundation\Web\Interfaces\WebRequestInterface;
+use Phoundation\Web\Interfaces\WebResponseInterface;
 use Phoundation\Web\Page;
 
 
@@ -23,25 +25,24 @@ abstract class TemplatePage
      * Returns the page instead of sending it to the client
      *
      * This WILL send the HTTP headers, but will return the HTML instead of sending it to the browser
-     * @param string $target
-     * @param array|null $data
-     * @param bool $main_content_only
+     *
+     * @param WebRequestInterface $request
+     * @param WebResponseInterface $response
      * @return string|null
      */
-    abstract public function execute(string $target, ?array $data, bool $main_content_only): ?string;
+    abstract public function execute(WebRequestInterface $request, WebResponseInterface $response): ?string;
 
 
     /**
      * Build the page body
      *
-     * @param string $target
-     * @param array|null $data
-     * @param bool $main_content_only
+     * @param WebRequestInterface $request
+     * @param WebResponseInterface $response
      * @return string|null
      */
-    public function renderBody(string $target, ?array $data, bool $main_content_only): ?string
+    public function renderBody(WebRequestInterface $request, WebResponseInterface $response): ?string
     {
-        return execute_page($target, $data);
+        return execute_web_script($request, $response);
     }
 
 

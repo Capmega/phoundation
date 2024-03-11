@@ -7,7 +7,6 @@ namespace Phoundation\Accounts\Users;
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
-use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;

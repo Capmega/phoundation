@@ -166,7 +166,7 @@ abstract class Element implements ElementInterface
 
         $render_function = function () use ($postfix) {
             $attributes  = $this->renderAttributes();
-            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::FILTER_NULL | Utils::QUOTE_ALWAYS | Utils::FILTER_NULL);
+            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
             $attributes .= $this->extra;
 
             if ($attributes) {
@@ -262,7 +262,12 @@ abstract class Element implements ElementInterface
         // Add data-* entries
         if (isset($this->data)) {
             foreach ($this->data as $key => $value) {
-                $return['data-' . $key] = Strings::force($value, ' ');
+                if ($value === null) {
+                    $return['data-' . $key] = null;
+
+                } else {
+                    $return['data-' . $key] = Strings::force($value, ' ');
+                }
             }
         }
 

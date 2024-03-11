@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Library;
 
-use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Libraries;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;

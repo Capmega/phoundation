@@ -10,7 +10,7 @@ use Phoundation\Audio\Audio;
 use Phoundation\Cache\Cache;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Command;
 use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CommandNotFoundException;
 use Phoundation\Cli\Exception\NoCommandSpecifiedException;
@@ -44,7 +44,6 @@ use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
@@ -56,7 +55,6 @@ use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -822,7 +820,7 @@ class Core implements CoreInterface
     {
         static::$request_type = EnumRequestTypes::cli;
 
-        if (!CliCommand::getPhoUidMatch()) {
+        if (!Command::getPhoUidMatch()) {
             // Do NOT startup CLI because we'll restart soon
             return;
         }
@@ -1034,7 +1032,7 @@ class Core implements CoreInterface
         // Something failed?
         if (isset($e)) {
             echo "startup-cli: Command line parser failed with \"" . $e->getMessage() . "\"\n";
-            CliCommand::setExitCode(1);
+            Command::setExitCode(1);
             exit(1);
         }
 
@@ -1818,7 +1816,7 @@ class Core implements CoreInterface
             return Page::getExecutedPath();
         }
 
-        return CliCommand::getExecutedPath();
+        return Command::getExecutedPath();
     }
 
 
@@ -1833,7 +1831,7 @@ class Core implements CoreInterface
             return Page::getExecutedFile();
         }
 
-        return CliCommand::getExecutedFile();
+        return Command::getExecutedFile();
     }
 
 
@@ -2740,7 +2738,7 @@ class Core implements CoreInterface
         }
 
         // Kill a CLI command
-        CliCommand::exit($exit_code, $exit_message, $sig_kill);
+        Command::exit($exit_code, $exit_message, $sig_kill);
     }
 
 

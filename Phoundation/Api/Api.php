@@ -6,6 +6,8 @@ namespace Phoundation\Api;
 
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Web\Interfaces\WebRequestInterface;
+use Phoundation\Web\Interfaces\WebResponseInterface;
 use Phoundation\Web\Page;
 
 
@@ -35,13 +37,13 @@ class Api
     /**
      * Execute the specified API page
      *
-     * @param string $target
-     * @param array|null $data
+     * @param WebRequestInterface $request
+     * @param WebResponseInterface $response
      * @return string|null
      */
-    public function execute(string $target, ?array $data): ?string
+    public function execute(WebRequestInterface $request, WebResponseInterface $response): ?string
     {
-        return execute_page($target, $data);
+        return execute_web_script($request, $response);
     }
 
 

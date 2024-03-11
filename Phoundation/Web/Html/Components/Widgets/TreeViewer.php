@@ -14,8 +14,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Div;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Enums\EnumRenderMethods;
-use Phoundation\Web\Html\Enums\Interfaces\EnumRenderMethodsInterface;
+use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
+use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Page;
 
@@ -90,7 +90,7 @@ class TreeViewer extends Widget
 
         Page::loadJavascript('mdb/plugins/js/treeview.min');
 
-        if ($this->render_method === EnumRenderMethods::html) {
+        if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML
             return Div::new()
                 ->setId($this->getId())
@@ -98,19 +98,18 @@ class TreeViewer extends Widget
                 ->addClass('treeview')
                 ->addData(null, 'mdb-treeview-init')
                 ->render() .
-            Script::new('$("#' . $this->getId() . '").treeview()')->render();
-
+                Script::new('$("#' . $this->getId() . '").treeview()')->render();
         }
 
+        // Render the tree-view using javascript data
         return Div::new()->setId($this->getId())->addClass('treeview')->render() .
-            // Render the tree-view using javascript data
-               Script::new('
-                 const jsTreeview = document.getElementById("' . $this->getId() . '");
-                 const jsInstance = new Treeview(jsTreeview, {
-                   structure: ' . Tree::new($this->source)->getJson(true) . ',
-                 });
-                 // Fix issue where sub trees are missing the "collapse" class at first load
-                 $("div.tree-view li[role=\'tree-item\'] ul:not(.collapse)").addClass("collapse")')->render();
+           Script::new('
+             const jsTreeview = document.getElementById("' . $this->getId() . '");
+             const jsInstance = new Treeview(jsTreeview, {
+               structure: ' . Tree::new($this->source)->getJson(true) . ',
+             });
+             // Fix issue where sub trees are missing the "collapse" class at first load
+             $("div.tree-view li[role=\'tree-item\'] ul:not(.collapse)").addClass("collapse")')->render();
     }
 
 
@@ -120,17 +119,17 @@ class TreeViewer extends Widget
      * @param array $source
      * @return string
      */
-    protected function renderHtml(array $source): string
+    protected function renderHtml(array $source, bool $child = false): string
     {
-        $return = '<ul>';
+        $return = '<ul' . ($child ? ' class="collapse"' : '') . '>';
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                $return .= '<a>' . $key . '</a>' . $this->renderHtml($value);
+                $return .= '<li><a class="not-a-link">' . $key . '</a>' . $this->renderHtml($value, true) . '</li>';
 
             } else {
                 if ($this->url) {
-                    $url     = str_replace(':ID', $key, $this->url);
+                    $url     = str_replace(':ID', (string)$key, $this->url);
                     $return .= '<li><a href="' . $url . '">' . Html::safe($value) . '</a></li>';
                 } else {
                     $return .= '<li>' . $value . '</li>';

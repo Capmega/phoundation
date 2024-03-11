@@ -390,7 +390,7 @@ trait ElementAttributes
 
 
     /**
-     * Adds a data-KEY=VALUE attribute
+     * Adds a data-KEY(=VALUE) attribute
      *
      * @param string|float|int|null $value
      * @param string $key
@@ -398,7 +398,7 @@ trait ElementAttributes
      */
     public function addData(string|float|int|null $value, string $key): static
     {
-        $this->getData()->add($value, $key);
+        $this->getData()->add($value, $key, skip_null: false);
         return $this;
     }
 
@@ -483,6 +483,20 @@ trait ElementAttributes
         }
 
         return $this->aria;
+    }
+
+
+    /**
+     * Adds an aria-KEY(=VALUE) attribute
+     *
+     * @param string|float|int|null $value
+     * @param string $key
+     * @return static
+     */
+    public function addAria(string|float|int|null $value, string $key): static
+    {
+        $this->getAria()->add($value, $key, skip_null: false);
+        return $this;
     }
 
 

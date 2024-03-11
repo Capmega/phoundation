@@ -8,7 +8,7 @@ use JetBrains\PhpStorm\NoReturn;
 use PDO;
 use PDOStatement;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Command;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
@@ -1383,7 +1383,7 @@ class Sql implements SqlInterface
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 // The tunneling server has "AllowTcpForwarding" set to "no" in the sshd_config, attempt
                                 // auto fix
-                                CliCommand::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
+                                Command::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }
@@ -1448,7 +1448,7 @@ class Sql implements SqlInterface
 
         } catch (Throwable $e) {
             if (PLATFORM_CLI) {
-                switch (CliCommand::getExecutedPath()) {
+                switch (Command::getExecutedPath()) {
                     case 'system/init/drop':
                         // no break
                     case 'system/init/init':

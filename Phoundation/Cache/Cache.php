@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache;
 
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Command;
 use Phoundation\Core\Core;
-use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
@@ -58,7 +57,7 @@ class Cache
 
         // Clear web cache, but rebuild (clear & build) command cache as we will ALWAYS need commands available
         Web::clearCache();
-        CliCommand::rebuildCache();
+        Command::rebuildCache();
 
         Log::action(tr('Clearing file caches'), 3);
         Path::new(DIRECTORY_DATA . 'cache/', Restrictions::writable(DIRECTORY_DATA . 'cache/'))->delete();

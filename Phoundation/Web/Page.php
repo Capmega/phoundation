@@ -67,6 +67,7 @@ use Phoundation\Web\Http\Flash;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Interfaces\PageInterface;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Interfaces\WebResponseInterface;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Routing\Route;
@@ -320,6 +321,8 @@ class Page implements PageInterface
      * @var int $levels
      */
     protected static int $levels = 0;
+
+    protected static WebResponseInterface $response;
 
 
     /**
@@ -953,6 +956,15 @@ class Page implements PageInterface
 
 
     /**
+     * @return WebResponseInterface
+     */
+    public function getResponse(): WebResponseInterface
+    {
+        return $this->response;
+    }
+
+
+    /**
      * Returns the status code that will be sent to the client
      *
      * @return int
@@ -1475,18 +1487,21 @@ class Page implements PageInterface
      * Also handles a variety of exceptions and redirects to showing system pages instead, like 400, 401, 404, etc...
      *
      * @param string $page The target page that should be executed and returned
+     * @param array|null $data
      * @param bool $main_content_only
      * @return string|null
      *
      * @see Route::execute()
      * @see Template::execute()
      */
-    public static function executeReturn(string $page, bool $main_content_only = true): ?string
+    public static function executeReturn(string $page, ?array $data = null, bool $main_content_only = true): ?string
     {
         // Execute the specified target file
         // Get all output buffers and restart buffer
         static::$levels++;
-        $return = static::executeTarget($page, $main_content_only);
+
+        $page   = static::makeTargetAbsolute($page);
+        $return = static::executeTarget($page, $data, $main_content_only);
 
         static::$levels--;
         return $return;
@@ -1891,15 +1906,15 @@ class Page implements PageInterface
 
         // Headers have been sent, from here we know if it's a 200 or something else
         if (static::$http_code === 200) {
-            Log::success(tr('Sent :http with ":length bytes" for URL ":url"', [
-                ':length' => $length,
+            Log::success(tr('Sent :http with ":length" bytes for URL ":url"', [
+                ':length' => number_format($length),
                 ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                 ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
             ]), 4);
 
         } else {
-            Log::warning(tr('Sent ":http" with ":length bytes" for URL ":url"', [
-                ':length' => $length,
+            Log::warning(tr('Sent ":http" with ":length" bytes for URL ":url"', [
+                ':length' => number_format($length),
                 ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                 ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
             ]));
@@ -2623,7 +2638,7 @@ class Page implements PageInterface
 
         // Set the page hash and check if we have access to this page?
         static::$hash   = sha1($_SERVER['REQUEST_URI']);
-        static::$target = $target;
+        static::$target = static::makeTargetAbsolute($target);
         static::$restrictions->check(static::$target, false);
 
         // Check user access rights. Routing parameters should be able to tell us what rights are required now
@@ -2638,8 +2653,11 @@ class Page implements PageInterface
             static::checkForceRedirect();
         }
 
+        // Create a response object
+        static::$response = new WebResponse();
+
         // Do we have this page in cache, perhaps?
-        static::tryCache($target, $attachment);
+        static::tryCache(static::$target, $attachment);
     }
 
 
@@ -2748,6 +2766,33 @@ class Page implements PageInterface
 
 
     /**
+     * Returns the target file to execute
+     *
+     * @param string $target
+     * @return string
+     */
+    protected static function makeTargetAbsolute(string $target): string
+    {
+        if (str_starts_with($target, '/')) {
+            // This target is already absolute
+            return $target;
+        }
+
+        // Ensure we have an absolute target
+        try {
+            return Path::getAbsolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
+
+        } catch (FileNotExistException $e) {
+            throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
+                ':target' => $target
+            ]), $e)->addData([
+                'target'  => $target
+            ]);
+        }
+    }
+
+
+    /**
      * Executes the target with the correct page driver (API or normal web page for now)
      *
      * @param string $target
@@ -2762,23 +2807,11 @@ class Page implements PageInterface
             ':target' => Strings::from($target, DIRECTORY_ROOT),
         ]), 4);
 
-        static::addExecutedPath($target);
-
         try {
-            // Ensure we have an absolute target
-            if (!str_starts_with($target, '/')) {
-                // Ensure we have an absolute target
-                try {
-                    $target = Path::getAbsolute(static::$parameters->getRootDirectory() . Strings::unslash($target));
+            static::addExecutedPath($target);
 
-                } catch (FileNotExistException $e) {
-                    throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
-                        ':target' => $target
-                    ]), $e)->addData([
-                        'target'  => $target
-                    ]);
-                }
-            }
+            $request  = new WebRequest($target, $data, $main_content_only);
+            $response = new WebResponse();
 
             // Execute the target
             switch (Core::getRequestType()) {
@@ -2786,11 +2819,11 @@ class Page implements PageInterface
                     // no-break
                 case EnumRequestTypes::ajax:
                     static::$api_interface = new Api();
-                    $output = static::$api_interface->execute($target, $data);
+                    $output = static::$api_interface->execute($request, $response);
                     break;
 
                 default:
-                    $output = static::$template_page->execute($target, $data, $main_content_only);
+                    $output = static::$template_page->execute($request, $response);
             }
 
         } catch (ValidationFailedExceptionInterface $e) {

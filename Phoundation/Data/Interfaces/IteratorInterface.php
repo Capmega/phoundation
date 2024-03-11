@@ -626,4 +626,11 @@ interface IteratorInterface extends Iterator, ArrayableInterface
      * @return InputSelectInterface
      */
     public function getHtmlSelect(): InputSelectInterface;
+
+    /**
+     * Executes the specified callback function on each
+     *
+     * @return $this
+     */
+    public function each(callable $callback): static;
 }

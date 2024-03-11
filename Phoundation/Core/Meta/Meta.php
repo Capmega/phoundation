@@ -6,7 +6,7 @@ namespace Phoundation\Core\Meta;
 
 use DateTime;
 use Exception;
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Command;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
@@ -330,7 +330,7 @@ throw new UnderConstructionException();
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
                     ':created_by_' . static::$pointer => Session::getUser()->getId(),
-                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : Command::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
                     ':data_' . static::$pointer       => $data
@@ -341,7 +341,7 @@ throw new UnderConstructionException();
                                     VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
                     ':created_by' => Session::getUser()->getId(),
-                    ':source'     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source'     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : Command::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,
                     ':data'       => $data

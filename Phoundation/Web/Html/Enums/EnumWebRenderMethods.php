@@ -1,10 +1,14 @@
 <?php
 
-namespace Phoundation\Web\Html\Enums\Interfaces;
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
 
 
 /**
- * interface EnumRenderMethodsInterface
+ * Enum EnumRenderMethods
  *
  * The different ways to render certain components, like TreeView
  *
@@ -13,6 +17,8 @@ namespace Phoundation\Web\Html\Enums\Interfaces;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface EnumRenderMethodsInterface
+enum EnumWebRenderMethods: string implements EnumWebRenderMethodsInterface
 {
+    case javascript = 'javascript';
+    case html       = 'html';
 }

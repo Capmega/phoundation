@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Command;
 use Phoundation\Cli\Exception\ArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
@@ -124,8 +124,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     /**
      * Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
      *
-     * The command ./pho --force -QZL 1, for example, will be expanded to ./pho --force -Q -Z -L 1
-     *
      * @param array $argv
      * @return array
      */
@@ -195,7 +193,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * Initializes a select() request
      *
      * @param string|int $fields
-     * @param string|bool $next
      * @return string
      */
     protected function initSelect(string|int $fields, string|bool $next = false): string
@@ -526,9 +523,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         if ($this->selected_field === $field) {
-            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [
-                ':field' => $field
-            ]));
+            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
         }
 
         if (isset_get($this->source[$this->selected_field])) {
@@ -653,7 +648,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function addStdInStreamAsKey(string $key): static
     {
-        if (CliCommand::hasStdInStream()) {
+        if (Command::hasStdInStream()) {
             if (in_array($key, static::$argv)) {
                 throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key already exists', [
                     ':key' => $key
@@ -661,7 +656,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             static::$argv[] = $key;
-            static::$argv[] = CliCommand::readStdInStream();
+            static::$argv[] = Command::readStdInStream();
         }
 
         return $this;
@@ -681,7 +676,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *                             of the output
      *
      * @see cli_arguments()
-     * @see CliCommand::argument()
+     * @see Command::argument()
      */
     protected static function method(?int $index = null, ?string $default = null): string
     {

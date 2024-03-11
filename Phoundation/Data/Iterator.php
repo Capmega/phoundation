@@ -1576,4 +1576,19 @@ class Iterator implements IteratorInterface
         return $this->input_select_class::new()
             ->setSource($this->source);
     }
+
+
+    /**
+     * Executes the specified callback function on each
+     *
+     * @return $this
+     */
+    public function each(callable $callback): static
+    {
+        foreach ($this->source as $key => $value) {
+            $callback($key, $value);
+        }
+
+        return $this;
+    }
 }

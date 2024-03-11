@@ -4,6 +4,7 @@ use Phoundation\Web\Routing\Map;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Templates\AdminLte\AdminLte;
+use Templates\Mdb\Mdb;
 
 
 /**
@@ -102,14 +103,14 @@ Route::getMapping()->add('/^(\w{2})\//',
 // Set routing parameters to be applied for the various page types
 Route::getParameters()
     ->add(RoutingParameters::new('/^\w{2}\//') // Routing parameters for most pages
-    ->setTemplate(AdminLte::class)
+    ->setTemplate(Mdb::class)
         ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')
         ->setRightsExceptions('sign-in.php,sign-out.php')
         ->setRights('mmb'))
 
     ->add(RoutingParameters::new() // Routing parameters for default english system pages
     ->setSystemPagesOnly(true)
-        ->setTemplate(AdminLte::class)
+        ->setTemplate(Mdb::class)
         ->setRootDirectory('pages/'));
 
 

@@ -2,10 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Cli;
+namespace Phoundation\Cli\Commands;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
+use Phoundation\Cli\Cli;
+use Phoundation\Cli\CliAutoComplete;
+use Phoundation\Cli\CliColor;
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Cli\CliRunFile;
+use Phoundation\Cli\Commands\Interfaces\CommandResponseInterface;
 use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\CommandNotExistsException;
@@ -56,7 +62,7 @@ use Throwable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Cli
  */
-class CliCommand
+class Command
 {
     use DataStaticExecuted;
 
@@ -130,6 +136,13 @@ class CliCommand
      * @var int $pho_uid
      */
     protected static int $pho_uid;
+
+    /**
+     * The CLI response
+     *
+     * @var CommandResponseInterface $response
+     */
+    protected static CommandResponseInterface $response;
 
 
     /**
@@ -224,7 +237,7 @@ class CliCommand
         }
 
         // Define the readline completion function
-        readline_completion_function(['\Phoundation\Cli\CliCommand', 'completeReadline']);
+        readline_completion_function(['\Phoundation\Cli\Commands\Command', 'completeReadline']);
 
         // Only allow this to be run by the command line interface
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
@@ -263,7 +276,8 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            execute_script(static::$command);
+            static::$response = new CommandResponse();
+            execute_command_script(new CommandRequest(static::$command), static::$response);
 
         } catch (SqlNoTimezonesException) {
             Log::warning('MySQL does not yet have the required timezones loaded. Attempting to load them now');
@@ -302,7 +316,15 @@ class CliCommand
      */
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
-        static::$pho_uid = fileowner(__DIR__ . '/../../pho');
+        $owner = @fileowner(__DIR__ . '/../../../pho');
+
+        if ($owner === false) {
+            // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
+            echo 'Failed to get file owner information of "PROJECT_ROOT/pho" command file' . PHP_EOL;
+            exit();
+        }
+
+        static::$pho_uid = $owner;
 
         Core::getInstance();
 
@@ -348,7 +370,7 @@ class CliCommand
 
         if (!$auto_switch) {
             throw new CliException(tr('The user ":puser" is not allowed to execute these commands, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
-                ':puser' => CliCommand::getProcessUser(),
+                ':puser' => Command::getProcessUser(),
                 ':fuser' => get_current_user()
             ]));
         }
@@ -530,8 +552,8 @@ class CliCommand
                     }
                 }
 
-                throw CommandNotExistsException::new(tr('The specified command ":command" does not exist', [
-                    ':command' => Strings::force($commands, ' ')
+                throw CommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
+                    ':file' => $file
                 ]))->makeWarning()
                     ->addData([
                         'position'          => $position,
@@ -581,8 +603,8 @@ class CliCommand
 
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
-        throw CommandNotFoundException::new(tr('The specified command ":command" was not found', [
-            ':command' => Strings::force($commands, ' ')
+        throw CommandNotFoundException::new(tr('The specified command file ":file" was not found', [
+            ':file' => $file
         ]))->makeWarning()
            ->addData([
                 'position'          => $position + 1,
@@ -981,8 +1003,8 @@ class CliCommand
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case we actually have to expand the command, NOT yet the command parameters!
             if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
-                throw CommandNotExistsException::new(tr('The specified command ":command" does exist but requires auto complete extension', [
-                    ':command' => $command
+                throw CommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
+                    ':file' => $command
                 ]))->makeWarning()
                     ->addData([
                         'position' => CliAutoComplete::getPosition(),

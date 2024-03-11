@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Exception;
 
 use Phoundation\Cli\CliAutoComplete;
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Command;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Version;
@@ -24,7 +24,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Page;
 use Phoundation\Web\Routing\Route;
 use RuntimeException;
 use Throwable;
@@ -509,7 +508,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
     {
         Incident::new()
             ->setException($this)
-            ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
+            ->setUrl(PLATFORM_WEB ? Route::getRequest() : Command::getRequest())
             ->setType('exception')
             ->setData($this->generateDetails())
             ->save();
@@ -686,7 +685,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 'platform'              => PLATFORM,
                 'session'               => Session::getUUID(),
                 'user'                  => Session::getUser()->getLogId(),
-                'command'               => PLATFORM_CLI ? CliCommand::getCommandsString() : null,
+                'command'               => PLATFORM_CLI ? Command::getCommandsString() : null,
                 'url'                   => PLATFORM_WEB ? Route::getRequest()             : null,
                 'method'                => PLATFORM_WEB ? Route::getMethod()              : null,
                 'environment_variables' => $_ENV,

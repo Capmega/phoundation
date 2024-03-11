@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cache\Cache;
-use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Commands\Interfaces\CommandRequestInterface;
+use Phoundation\Cli\Commands\Interfaces\CommandResponseInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
@@ -18,17 +15,16 @@ use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis;
-use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Page;
+use Phoundation\Web\Interfaces\WebRequestInterface;
+use Phoundation\Web\Interfaces\WebResponseInterface;
 
 
 /**
@@ -917,41 +913,30 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  *
  * @note This function is used to execute commands and web pages to give them their own empty function scope
  *
- * @param string $__file
- * @return void
- * @throws Throwable
+ * @param WebRequestInterface $request
+ * @param WebResponseInterface $response
+ * @return string|null
  */
-function execute_script(string $__file): void
+function execute_web_script(WebRequestInterface $request, WebResponseInterface $response): ?string
 {
-    include($__file);
-//    try {
-//        include($__file);
-//
-//    } catch (Throwable $e) {
-//        // Did this fail because the specified command is not readable? First check if the command cache has already
-//        // been rebuilt. If not, rebuild it now so that we can chbeck
-//        if (PLATFORM_CLI) {
-//            // First rebuild the command cache before checking if the command perhaps does not exist
-//            CliCommand::rebuildCache();
-//        }
-//
-//        File::new($__file, DIRECTORY_COMMANDS)->checkReadable('script', $e);
-//    }
+    ob_start(chunk_size: 0);
+    include($request->getExecutedFile());
+    return get_null(ob_get_clean());
 }
 
 
 /**
- * Execute the page and return the contents
+ * Execute the specified script file
  *
- * @param string $__file
- * @param array|null $data
- * @return string|null
+ * @note This function is used to execute commands and web pages to give them their own empty function scope
+ *
+ * @param CommandRequestInterface $request
+ * @param CommandResponseInterface $response
+ * @return void
  */
-function execute_page(string $__file, ?array $data): ?string
+function execute_command_script(CommandRequestInterface $request, CommandResponseInterface $response): void
 {
-    ob_start(chunk_size: 0);
-    include($__file);
-    return get_null(ob_get_clean());
+    include($request->getExecutedFile());
 }
 
 
