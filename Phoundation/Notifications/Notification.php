@@ -39,7 +39,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Throwable;
 
 
@@ -597,7 +596,7 @@ POST variables:
         $definitions
             ->add(Definition::new($this, 'users_id')
                 ->setRender(false)
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                 }))
@@ -628,7 +627,7 @@ POST variables:
                 ->setInputType(EnumInputType::url))
             ->add(Definition::new($this, 'priority')
                 ->setReadonly(true)
-                ->setInputType(EnumInputTypeExtended::integer)
+                ->setInputType(EnumInputType::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
                 ->addClasses('text-center')
@@ -709,7 +708,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setRender(false)
-                ->setInputType(EnumInputTypeExtended::natural)
+                ->setInputType(EnumInputType::natural)
                 ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Interfaces;
+namespace Phoundation\Web\Html\Enums\Interfaces;
 
 
 /**
- * Interface InputElementInterface
+ * Interface EnumInputElementInterface
  *
  * The different available HTML button types
  *

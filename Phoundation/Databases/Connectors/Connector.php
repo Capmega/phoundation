@@ -30,7 +30,6 @@ use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -650,12 +649,12 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSize(2))
             ->add(DefinitionFactory::getNumber($this, 'auto_increment')
                 ->setLabel(tr('Auto increment'))
-                ->setInputType(EnumInputTypeExtended::positiveInteger)
+                ->setInputType(EnumInputType::positiveInteger)
                 ->setSize(1))
             ->add(DefinitionFactory::getNumber($this, 'limit_max')
                 ->setLabel(tr('Maximum row limit'))
                 ->setDefault(1_000_000)
-                ->setInputType(EnumInputTypeExtended::positiveInteger)
+                ->setInputType(EnumInputType::positiveInteger)
                 ->setSize(1))
             ->add(DefinitionFactory::getBoolean($this, 'persist')
                 ->setLabel(tr('Persist'))

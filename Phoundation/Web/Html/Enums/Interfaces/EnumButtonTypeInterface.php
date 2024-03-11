@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums\Interfaces;
 
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
-
 
 /**
  * Interface ButtonTypeInterface

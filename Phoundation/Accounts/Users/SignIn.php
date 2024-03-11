@@ -21,7 +21,6 @@ use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -156,7 +155,7 @@ class SignIn extends DataEntry
             ->add(Definition::new($this, 'countries_id')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Countries::getHtmlCountriesSelect()
@@ -173,7 +172,7 @@ class SignIn extends DataEntry
             ->add(Definition::new($this, 'timezones_id')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Timezones::new()->getHtmlSelect()

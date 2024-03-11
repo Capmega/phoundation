@@ -8,9 +8,9 @@ use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use ReturnTypeWillChange;
 use Stringable;
 

@@ -33,7 +33,6 @@ use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Traits\DataEntrySshAccount;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -455,7 +454,7 @@ class Server extends DataEntry implements ServerInterface
                 }))
             ->add(DefinitionFactory::getName($this)
                 ->setOptional(false)
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this role'))
@@ -475,7 +474,7 @@ class Server extends DataEntry implements ServerInterface
             ->add(Definition::new($this, 'ssh_accounts_name')
                 ->setVirtual(true)
                 ->setRender(false)
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setLabel(tr('Account'))
                 ->setCliColumn('-a,--account ACCOUNT-NAME')
                 ->setHelpGroup(tr('Identification and network'))
@@ -489,7 +488,7 @@ showdie('fuck!');
                     $validator->xorColumn('ssh_accounts_id')->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                 }))
             ->add(Definition::new($this, 'ssh_accounts_id')
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setSize(4)
                 ->setLabel(tr('Account'))
                 ->setHelpText(tr('The unique hostname for this server'))
@@ -502,7 +501,7 @@ showdie('fuck!');
                 }))
             ->add(Definition::new($this, 'port')
                 ->setOptional(true, 22)
-                ->setInputType(EnumInputTypeExtended::integer)
+                ->setInputType(EnumInputType::integer)
                 ->setMin(1)
                 ->setMax(65535)
                 ->setSize(2)
@@ -524,7 +523,7 @@ showdie('fuck!');
                 }))
             ->add(Definition::new($this, 'code')
                 ->setOptional(true)
-                ->setInputType(EnumInputTypeExtended::float)
+                ->setInputType(EnumInputType::float)
                 ->setMin(0)
                 ->setStep('any')
                 ->setSize(4)
@@ -563,7 +562,7 @@ showdie('fuck!');
             ->add(Definition::new($this, 'categories_id')
                 ->setOptional(true)
                 ->setCliColumn('--categories-id CATEGORIES-ID')
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setHelpText(tr('The category for this server'))
                 ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -579,7 +578,7 @@ showdie('fuck!');
                 ->setOptional(true)
                 ->setCliColumn('--providers-id PROVIDERS-ID')
                 ->setHelpText(tr('The service provider where this server is hosted'))
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
@@ -593,7 +592,7 @@ showdie('fuck!');
             ->add(Definition::new($this, 'customers_id')
                 ->setOptional(true)
                 ->setCliColumn('--customers-id CUSTOMERS-ID')
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setHelpText(tr('The client using this server'))
                 ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -608,7 +607,7 @@ showdie('fuck!');
             ->add(Definition::new($this, 'countries_id')
                 ->setOptional(true)
                 ->setCliColumn('--countries-id COUNTRIES-ID')
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setElement(EnumInputElement::select)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The country where this server is hosted'))
@@ -624,7 +623,7 @@ showdie('fuck!');
             ->add(Definition::new($this, 'states_id')
                 ->setOptional(true)
                 ->setCliColumn('--states-id STATES-ID')
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setElement(EnumInputElement::select)
                 ->setHelpGroup(tr('Location'))
                 ->setHelpText(tr('The state where this server is hosted'))
@@ -640,7 +639,7 @@ showdie('fuck!');
             ->add(Definition::new($this, 'cities_id')
                 ->setOptional(true)
                 ->setCliColumn('--cities-id CITIES-ID')
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->setElement(EnumInputElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()

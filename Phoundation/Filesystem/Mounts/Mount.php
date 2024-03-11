@@ -25,7 +25,7 @@ use Phoundation\Filesystem\Mounts\Exception\MountsException;
 use Phoundation\Filesystem\Traits\DataRestrictions;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
+use Phoundation\Web\Html\Enums\EnumInputType;
 
 
 /**
@@ -438,7 +438,7 @@ class Mount extends DataEntry implements MountInterface
     {
         $definitions
             ->add(DefinitionFactory::getName($this)
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setLabel(tr('Name'))
@@ -448,7 +448,7 @@ class Mount extends DataEntry implements MountInterface
                 }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(Definition::new($this, 'source_path')
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setSize(4)
                 ->setMaxlength(255)
                 ->setLabel(tr('Source'))
@@ -457,7 +457,7 @@ class Mount extends DataEntry implements MountInterface
                     $validator->isFile();
                 }))
             ->add(Definition::new($this, 'target_path')
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setSize(4)
                 ->setMaxlength(255)
                 ->setLabel(tr('Target'))

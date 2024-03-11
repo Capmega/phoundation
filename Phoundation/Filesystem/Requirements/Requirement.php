@@ -12,7 +12,6 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\DataEntryPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -79,7 +78,7 @@ class Requirement extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getName($this)
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setSize(12)
                 ->setMaxlength(128)
                 ->setLabel(tr('Name'))
@@ -89,7 +88,7 @@ class Requirement extends DataEntry
                 }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(Definition::new($this, 'path')
-                ->setInputType(EnumInputTypeExtended::name)
+                ->setInputType(EnumInputType::name)
                 ->setSize(6)
                 ->setMaxlength(255)
                 ->setLabel(tr('Path'))

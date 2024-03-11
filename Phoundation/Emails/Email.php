@@ -13,7 +13,6 @@ use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Templates\Template;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
@@ -186,7 +185,7 @@ class Email extends DataEntry
                 ->setRender(false))
             ->add(Definition::new($this, 'parents_id')
                 ->setRender(false)
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [':id' => '$parents_id']);
@@ -199,14 +198,14 @@ class Email extends DataEntry
                 ->setInputType(EnumInputType::checkbox))
             ->add(Definition::new($this, 'categories_id')
                 ->setRender(false)
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [':id' => '$categories']);
                 }))
             ->add(Definition::new($this, 'templates_id')
                 ->setRender(false)
-                ->setInputType(EnumInputTypeExtended::dbid)
+                ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [':id' => '$templates_id']);

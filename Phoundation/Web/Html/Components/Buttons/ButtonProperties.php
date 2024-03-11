@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Buttons;
 
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Traits\Mode;
 use Phoundation\Web\Html\Traits\UsesSize;
 use Phoundation\Web\Http\UrlBuilder;

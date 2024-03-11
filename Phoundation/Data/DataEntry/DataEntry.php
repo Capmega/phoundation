@@ -63,7 +63,6 @@ use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Stringable;
 use Throwable;
 
@@ -2765,7 +2764,7 @@ abstract class DataEntry implements DataEntryInterface
                 case 'id':
                     $definitions->add(Definition::new($this, 'id')
                         ->setDisabled(true)
-                        ->setInputType(EnumInputTypeExtended::dbid)
+                        ->setInputType(EnumInputType::dbid)
                         ->addClasses('text-center')
                         ->setSize(3)
                         ->setCliAutoComplete(true)
@@ -2821,7 +2820,7 @@ abstract class DataEntry implements DataEntryInterface
                     $definitions->add(Definition::new($this, 'meta_id')
                         ->setDisabled(true)
                         ->setRender(false)
-                        ->setInputType(EnumInputTypeExtended::dbid)
+                        ->setInputType(EnumInputType::dbid)
                         ->setNullInputType(EnumInputType::text)
                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
                         ->setLabel(tr('Meta ID')));

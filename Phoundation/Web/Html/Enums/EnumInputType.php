@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Enums;
 
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 
 
 /**
@@ -19,6 +19,7 @@ use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
  */
 enum EnumInputType: string implements EnumInputTypeInterface
 {
+    // HTML input types
     case button         = 'button';
     case checkbox       = 'checkbox';
     case color          = 'color';
@@ -42,4 +43,24 @@ enum EnumInputType: string implements EnumInputTypeInterface
     case url            = 'url';
     case week           = 'week';
     case select         = 'select';
+
+    // Extended options
+    case dbid             = 'dbid';
+    case float            = 'float';
+    case boolean          = 'boolean';
+    case integer          = 'integer';
+    case natural          = 'natural';
+    case code             = 'code';
+    case path             = 'path';
+    case name             = 'name';
+    case phone            = 'phone';
+    case phones           = 'phones';
+    case username         = 'username';
+    case variable         = 'variable';
+    case description      = 'description';
+    case array_json       = 'array_json';
+    case array_serialized = 'array_serialized';
+    case positiveInteger  = 'positive_integer';
+    case negativeInteger  = 'negative_integer';
+    case auto_suggest     = 'auto-suggest';
 }

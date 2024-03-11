@@ -10,7 +10,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\DataDescription;
 use Phoundation\Data\Traits\DataIcon;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
 use Stringable;
 

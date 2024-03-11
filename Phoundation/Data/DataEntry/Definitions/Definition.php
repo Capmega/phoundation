@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -15,12 +14,10 @@ use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputElementInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
 use Stringable;
 use Throwable;
@@ -771,9 +768,9 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @return EnumInputTypeExtendedInterface|EnumInputTypeInterface
+     * @return EnumInputTypeInterface
      */
-    public function getInputType(): EnumInputTypeExtendedInterface|EnumInputTypeInterface
+    public function getInputType(): EnumInputTypeInterface
     {
         $return = $this->getKey('type');
 
@@ -787,7 +784,7 @@ class Definition implements DefinitionInterface
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'is not a valid backing value for enum')) {
                 // So the input type is not from InputTypeInterface, it must be from InputTypeExtendedInterface
-                return EnumInputTypeExtended::from($return);
+                return EnumInputType::from($return);
             }
 
             // WTF else could possibly have happened?
@@ -799,10 +796,10 @@ class Definition implements DefinitionInterface
     /**
      * Sets the type of input element.
      *
-     * @param EnumInputTypeInterface|EnumInputTypeExtendedInterface|string|null $value
+     * @param EnumInputTypeInterface|string|null $value
      * @return static
      */
-    public function setInputType(EnumInputTypeInterface|EnumInputTypeExtendedInterface|string|null $value): static
+    public function setInputType(EnumInputTypeInterface|string|null $value): static
     {
         if (is_string($value)) {
             // Convert the string input type to the correct InputType or InputTypeExtended enums
@@ -811,7 +808,7 @@ class Definition implements DefinitionInterface
 
             } catch (ValueError) {
                 try {
-                    $value = EnumInputTypeExtended::from($value);
+                    $value = EnumInputType::from($value);
 
                 } catch (ValueError) {
                     throw new OutOfBoundsException(tr('Invalid input type ":type" specified', [
@@ -826,10 +823,10 @@ class Definition implements DefinitionInterface
             return $this->setKey(null, 'type');
         }
 
-        if ($value instanceof EnumInputTypeExtendedInterface) {
+        if ($value instanceof EnumInputTypeInterface) {
             // This is an extended virtual input type, adjust it to an existing input type.
             switch ($value) {
-                case EnumInputTypeExtended::dbid:
+                case EnumInputType::dbid:
                     $value = EnumInputType::number;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -838,7 +835,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::natural:
+                case EnumInputType::natural:
                     $value = EnumInputType::number;
 
                     $this->setKey($value->value, 'type');
@@ -849,7 +846,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::integer:
+                case EnumInputType::integer:
                     $value = EnumInputType::number;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -858,7 +855,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::positiveInteger:
+                case EnumInputType::positiveInteger:
                     $value = EnumInputType::number;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -867,7 +864,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::negativeInteger:
+                case EnumInputType::negativeInteger:
                     $value = EnumInputType::number;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -876,7 +873,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::float:
+                case EnumInputType::float:
                     $value = EnumInputType::number;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -885,7 +882,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::name:
+                case EnumInputType::name:
                     $value = EnumInputType::text;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -894,7 +891,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::variable:
+                case EnumInputType::variable:
                     $value = EnumInputType::text;
                     break;
 
@@ -905,7 +902,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::url:
+                case EnumInputType::url:
                     $value = EnumInputType::text;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -914,7 +911,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::phone:
+                case EnumInputType::phone:
                     $value = EnumInputType::tel;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -932,7 +929,7 @@ class Definition implements DefinitionInterface
 //
 //                        break;
 
-                case EnumInputTypeExtended::username:
+                case EnumInputType::username:
                     $value = EnumInputType::text;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -941,7 +938,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::path:
+                case EnumInputType::path:
                     $value = EnumInputType::text;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -950,7 +947,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::file:
+                case EnumInputType::file:
                     $value = EnumInputType::text;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -959,7 +956,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::code:
+                case EnumInputType::code:
                     $value = EnumInputType::text;
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -968,7 +965,7 @@ class Definition implements DefinitionInterface
 
                     break;
 
-                case EnumInputTypeExtended::description:
+                case EnumInputType::description:
                     $this->setElement(EnumInputElement::textarea);
 
                     $this->addValidationFunction(function (ValidatorInterface $validator) {
@@ -978,7 +975,7 @@ class Definition implements DefinitionInterface
                     // Don't set the value, textarea does not have an input type
                     return $this;
 
-                case EnumInputTypeExtended::boolean:
+                case EnumInputType::boolean:
                     $this->setElement(EnumInputElement::input);
                     $this->setInputType(EnumInputType::checkbox);
 

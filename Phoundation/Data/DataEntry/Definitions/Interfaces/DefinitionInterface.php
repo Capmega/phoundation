@@ -9,10 +9,9 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeExtendedInterface;
-use Phoundation\Web\Html\Components\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputElementInterface;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Stringable;
 
 /**
@@ -345,17 +344,17 @@ interface DefinitionInterface
     /**
      * Return the type of input element.
      *
-     * @return EnumInputTypeExtendedInterface|EnumInputTypeInterface
+     * @return EnumInputTypeInterface
      */
-    public function getInputType(): EnumInputTypeExtendedInterface|EnumInputTypeInterface;
+    public function getInputType(): EnumInputTypeInterface;
 
     /**
      * Sets the type of input element.
      *
-     * @param EnumInputTypeInterface|EnumInputTypeExtendedInterface|string $value
+     * @param EnumInputTypeInterface|string $value
      * @return static
      */
-    public function setInputType(EnumInputTypeInterface|EnumInputTypeExtendedInterface|string $value): static;
+    public function setInputType(EnumInputTypeInterface|string $value): static;
 
     /**
      * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients

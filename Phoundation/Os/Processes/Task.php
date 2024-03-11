@@ -37,7 +37,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -1314,7 +1313,7 @@ class Task extends DataEntry implements TaskInterface
             ->add(Definition::new($this, 'spent')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputTypeExtended::float)
+                ->setInputType(EnumInputType::float)
                 ->setLabel('Time spent on task execution')
                 ->setSize(4)
                 ->setMin(0)
@@ -1391,19 +1390,19 @@ class Task extends DataEntry implements TaskInterface
                 ->setSize(4))
             ->add(Definition::new($this, 'arguments')
                 ->setOptional(true)
-                ->setInputType(EnumInputTypeExtended::array_json)
+                ->setInputType(EnumInputType::array_json)
                 ->setLabel('Arguments')
                 ->setCliColumn('[-a,--arguments ARGUMENTS]')
                 ->setSize(4))
             ->add(Definition::new($this, 'variables')
                 ->setOptional(true)
-                ->setInputType(EnumInputTypeExtended::array_json)
+                ->setInputType(EnumInputType::array_json)
                 ->setLabel('Argument variables')
                 ->setCliColumn('[-v,--variables VARIABLES]')
                 ->setSize(4))
             ->add(Definition::new($this, 'environment_variables')
                 ->setOptional(true)
-                ->setInputType(EnumInputTypeExtended::array_json)
+                ->setInputType(EnumInputType::array_json)
                 ->setLabel('Environment variables')
                 ->setCliColumn('[-e,--environment-variables VARIABLES]')
                 ->setSize(4))
@@ -1546,7 +1545,7 @@ class Task extends DataEntry implements TaskInterface
             ->add(Definition::new($this, 'accepted_exit_codes')
                 ->setOptional(true, [0])
                 ->setLabel('Accepted Exit Codes')
-                ->setInputType(EnumInputTypeExtended::array_json)
+                ->setInputType(EnumInputType::array_json)
                 ->setSize(6)
                 ->setMaxlength(64))
             ->add(Definition::new($this, 'results')

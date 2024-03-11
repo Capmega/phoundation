@@ -21,7 +21,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 
 
 /**
@@ -368,7 +367,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         $definitions
             ->add(Definition::new($this, 'disabled')
-                ->setInputType(EnumInputTypeExtended::boolean)
+                ->setInputType(EnumInputType::boolean)
                 ->setOptional(true)
                 ->setVirtual(true)
                 ->setRender(false)
@@ -437,7 +436,7 @@ class Plugin extends DataEntry implements PluginInterface
                 }))
             ->add(Definition::new($this, 'path')
                 ->setLabel(tr('Directory'))
-                ->setInputType(EnumInputTypeExtended::path)
+                ->setInputType(EnumInputType::path)
                 ->setMaxlength(128)
                 ->setSize(6)
                 ->setHelpText(tr('The filesystem path where this plugin is located')))

@@ -71,7 +71,6 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
@@ -2067,7 +2066,7 @@ class User extends DataEntry implements UserInterface
             ->add(DefinitionFactory::getUrl($this, 'redirect')
                 ->setSize(3)
                 ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
-                ->setInputType(EnumInputTypeExtended::auto_suggest)
+                ->setInputType(EnumInputType::auto_suggest)
                 ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
                 ->setLabel(tr('Redirect URL'))
                 ->setHelpGroup(tr('Account information'))
@@ -2075,7 +2074,7 @@ class User extends DataEntry implements UserInterface
             ->add(DefinitionFactory::getUrl($this, 'default_page')
                 ->setSize(3)
                 ->setDataSource(UrlBuilder::getAjax('system/accounts/users/redirect/autosuggest.json'))
-                ->setInputType(EnumInputTypeExtended::auto_suggest)
+                ->setInputType(EnumInputType::auto_suggest)
                 ->setLabel(tr('Default page'))
                 ->setHelpGroup(tr('Preferences'))
                 ->setHelpText(tr('The user configurable default page where this user will be redirected to upon sign in')))

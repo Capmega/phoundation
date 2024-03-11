@@ -19,7 +19,6 @@ use Phoundation\Web\Html\Components\Input\InputHidden;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\EnumInputTypeExtended;
 use Stringable;
 
 
@@ -449,7 +448,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setValue($source[$field]);
                                 break;
 
-                            case EnumInputTypeExtended::auto_suggest:
+                            case EnumInputType::auto_suggest:
                                 // Render the HTML for this element
                                 $component = $element_class::new()
                                     ->setDefinition($definition)
