@@ -737,10 +737,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                         break;
 
                     case EnumTableIdColumn::checkbox:
-                        $return .= '<th>' . InputCheckbox::new()
-                            ->setName($column . '[]')
-                            ->setValue(1)
-                            ->render() . '</th>';
+                        $return .= '<th>' .
+                                        InputCheckbox::new()
+                                            ->setName($column . '[]')
+                                            ->setValue(1)
+                                            ->render() . '
+                                    </th>';
                         break;
 
                     case EnumTableIdColumn::visible:
@@ -841,6 +843,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             // Auto set headers from the column names
             $this->getHeaders()->setSource(array_keys($row_values));
 
+            // Update the headers to look pretty for humans
             foreach ($this->headers as $key => $column_header) {
                 $column_header = str_replace(['-', '_'], ' ', $column_header);
                 $column_header = Strings::capitalize($column_header);
@@ -871,7 +874,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
                 $first = false;
 
-                $params['no_url'] = ($made_checkbox or !$value);
+                $params['htmlentities'] = !$made_checkbox;
+                $params['no_url']       = ($made_checkbox or !$value);
 
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
@@ -879,7 +883,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 }
 
             } else {
-                $params['no_url'] = $made_checkbox;
+                $params['no_url'] = false;
                 $return .= $this->renderCell($row_id, $column, $value, $params);
             }
         }
@@ -978,6 +982,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
             default:
                 $made_checkbox = true;
+
                 return InputCheckbox::new()
                     ->setName($column . '[]')
                     ->setValue($value)
