@@ -3094,7 +3094,7 @@ class Path implements Stringable, PathInterface
                 ->setCallback(function ($file) use ($clean) {
                     show($file);
                 })
-                ->executeReturnFiles();
+                ->getFiles();
 
             foreach ($list as $file) {
                 $file->delete(true);
