@@ -16,6 +16,7 @@ use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
@@ -23,6 +24,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Throwable;
 
 
 /**
@@ -758,5 +760,61 @@ class Libraries
     public static function getMaximumVersion(): int
     {
         return sql()->getColumn('SELECT MAX(`version`) AS `max` FROM `core_versions`');
+    }
+
+
+    /**
+     * Loads all Phoundation classes into memory
+     *
+     * This is useful, for example, when executing an upgrade and you want to avoid a class from a newer version being
+     * needed AFTER the update, where that class could be of a different -newer and incompatible- version that would
+     * cause the update method to crash
+     *
+     * @return void
+     */
+    public static function loadAllPhoundationClassesIntoMemory(): void
+    {
+        $path = DIRECTORY_ROOT . 'Phoundation/';
+
+        Find::new(Restrictions::readonly($path))
+            ->setPath($path)
+            ->setType('f')
+            ->setName('*.php')
+            ->setCallback(function($file) {
+                $test  = strtolower($file);
+                $tests = [
+                    'Tests/bootstrap.php'
+                ];
+
+                // Don't loads file in the LIBRARY/Library path
+                if (str_contains($test, '/library/')) {
+                    return;
+                }
+
+                // Don't load interface files
+                if (str_contains($test, '/interface/') or str_ends_with($test, 'interface.php')) {
+                    return;
+                }
+
+                // Don't load specific files
+                if (str_ends_with($test, 'tests/bootstrap.php')) {
+                    return;
+                }
+
+                try {
+                    Log::action(tr('Attempting to pre-loading library file ":file"', [
+                        ':file' => Strings::from($file, DIRECTORY_ROOT)
+                    ]), 2);
+
+                    require_once($file);
+
+                } catch (Throwable $e) {
+                    Log::warning(tr('Pre-loading library file ":file" caused exception ":message", ignoring', [
+                        ':file'    => Strings::from($file, DIRECTORY_ROOT),
+                        ':message' => $e->getMessage()
+                    ]));
+                }
+            })
+            ->executeNoReturn();
     }
 }
