@@ -26,8 +26,9 @@ class Tests
      */
     public static function startPhpUnitTests(): void
     {
-        // First try loading all libraries to see if there are any syntax errors
+        // First try loading all classes, plugins, and templates to see if there are any syntax errors
         Libraries::loadAllPhoundationClassesIntoMemory();
+        Libraries::loadAllPluginClassesIntoMemory();
 
         // No update unit tests cache
         static::rebuildCache();
