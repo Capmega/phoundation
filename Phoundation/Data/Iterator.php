@@ -343,7 +343,7 @@ class Iterator implements IteratorInterface
      */
     public function set(mixed $value, Stringable|string|float|int $key): static
     {
-        return $this->add($value, $key, false);
+        return $this->add($value, $key, false, false);
     }
 
 
