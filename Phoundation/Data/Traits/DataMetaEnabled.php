@@ -47,6 +47,4 @@ trait DataMetaEnabled
         $this->meta_enabled = $meta_enabled;
         return $this;
     }
-
-
 }

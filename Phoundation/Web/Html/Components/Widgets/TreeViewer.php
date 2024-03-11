@@ -117,6 +117,7 @@ class TreeViewer extends Widget
      * Renders and returns tree-view content HTML for the given source
      *
      * @param array $source
+     * @param bool $child
      * @return string
      */
     protected function renderHtml(array $source, bool $child = false): string
