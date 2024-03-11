@@ -143,7 +143,7 @@ class Phoundation extends Project
                     Log::warning(tr('Ignoring directory ":directory", it has the name ":name" but is not a Phoundation project', [
                         ':directory' => $test_path,
                         ':name' => $name
-                    ]));
+                    ]), 4);
 
                     continue;
                 }
@@ -153,7 +153,7 @@ class Phoundation extends Project
                     Log::warning(tr('Ignoring directory ":directory", it has the name ":name" and is a Phoundation project but is not a Phoundation core project', [
                         ':directory' => $test_path,
                         ':name' => $name
-                    ]));
+                    ]), 4);
 
                     continue;
                 }
