@@ -776,6 +776,8 @@ class Libraries
     {
         $path = DIRECTORY_ROOT . 'Phoundation/';
 
+        Log::action(tr('Pre-loading all library classes into memory for compatibility'), 5);
+
         Find::new(Restrictions::readonly($path))
             ->setPath($path)
             ->setType('f')
@@ -807,7 +809,7 @@ class Libraries
                     Log::warning(tr('Pre-loading library file ":file" caused exception ":message", ignoring', [
                         ':file'    => Strings::from($file, DIRECTORY_ROOT),
                         ':message' => $e->getMessage()
-                    ]));
+                    ]), 4);
                 }
             })
             ->executeNoReturn();
