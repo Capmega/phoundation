@@ -776,7 +776,7 @@ class Libraries
     {
         $path = DIRECTORY_ROOT . 'Phoundation/';
 
-        Log::action(tr('Pre-loading all library classes into memory for compatibility'), 5);
+        Log::action(tr('Pre-loading all library classes into memory'));
 
         Find::new(Restrictions::readonly($path))
             ->setPath($path)
@@ -813,5 +813,61 @@ class Libraries
                 }
             })
             ->executeNoReturn();
+    }
+
+
+    /**
+     * Loads all Phoundation Plugins and Templates classes into memory
+     *
+     * @return void
+     */
+    public static function loadAllPluginClassesIntoMemory(): void
+    {
+        $paths = [
+            DIRECTORY_ROOT . 'Plugins/'   => tr('Plugins'),
+            DIRECTORY_ROOT . 'Templates/' => tr('Templates')
+        ];
+
+        foreach ($paths as $path => $type) {
+            Log::action(tr('Pre-loading all ":type" classes into memory', [
+                ':type' => $type
+            ]));
+
+            Find::new(Restrictions::readonly($path))
+                ->setPath($path)
+                ->setType('f')
+                ->setName('*.php')
+                ->setCallback(function($file) {
+                    $test  = strtolower($file);
+                    $tests = [
+                        'Tests/bootstrap.php'
+                    ];
+
+                    // Don't loads file in the LIBRARY/Library path
+                    if (str_contains($test, '/library/')) {
+                        return;
+                    }
+
+                    // Don't load the following specific files
+                    if (str_ends_with($test, 'tests/bootstrap.php')) {
+                        return;
+                    }
+
+                    try {
+                        Log::action(tr('Attempting to pre-loading library file ":file"', [
+                            ':file' => Strings::from($file, DIRECTORY_ROOT)
+                        ]), 2);
+
+                        require_once($file);
+
+                    } catch (Throwable $e) {
+                        Log::warning(tr('Pre-loading library file ":file" caused exception ":message", ignoring', [
+                            ':file'    => Strings::from($file, DIRECTORY_ROOT),
+                            ':message' => $e->getMessage()
+                        ]), 4);
+                    }
+                })
+                ->executeNoReturn();
+        }
     }
 }
