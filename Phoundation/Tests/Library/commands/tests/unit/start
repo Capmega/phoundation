@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Os\Processes\Process;
+use Phoundation\Tests\Tests;
 
 
 /**
@@ -19,7 +19,9 @@ use Phoundation\Os\Processes\Process;
  */
 
 
+// Validate arguments, there should be none.
 ArgvValidator::new()->validate();
 
 
-Process::new('phpunit')->executePassthru();
+// Execute the PHP unit tests
+Tests::startPhpUnitTests();

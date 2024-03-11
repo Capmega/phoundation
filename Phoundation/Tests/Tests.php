@@ -6,6 +6,8 @@ namespace Phoundation\Tests;
 
 
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
+use Phoundation\Os\Processes\Process;
 
 /**
  * Class Tests
@@ -22,9 +24,17 @@ class Tests
     /**
      * @return void
      */
-    public static function unit(): void
+    public static function startPhpUnitTests(): void
     {
+        // First try loading all libraries to see if there are any syntax errors
+        Libraries::loadAllPhoundationClassesIntoMemory();
 
+        // No update unit tests cache
+        static::rebuildCache();
+
+        // Now run unit tests
+        Log::action(tr('Executing unit tests'));
+        Process::new('phpunit')->executePassthru();
     }
 
 
