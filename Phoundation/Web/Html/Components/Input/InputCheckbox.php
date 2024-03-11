@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\DataInline;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\InputElement;
@@ -23,6 +24,7 @@ use Phoundation\Web\Html\Traits\InputElement;
 class InputCheckbox extends Input
 {
     use InputElement;
+    use DataInline;
 
 
     /**
@@ -45,6 +47,13 @@ class InputCheckbox extends Input
      * @var string|null $label_class
      */
     protected ?string $label_class = null;
+
+    /**
+     * Labels may be hidden and only visible with aria
+     *
+     * @var bool $label_hidden
+     */
+    protected bool $label_hidden = false;
 
 
     /**
@@ -132,12 +141,42 @@ class InputCheckbox extends Input
 
 
     /**
+     * Returns the label_hidden for the checkbox
+     *
+     * @return bool
+     */
+    public function getLabelHidden(): bool
+    {
+        return $this->label_hidden;
+    }
+
+
+    /**
+     * Sets the label_hidden for the checkbox
+     *
+     * @param bool $label_hidden
+     * @return static
+     */
+    public function setLabelHidden(bool $label_hidden): static
+    {
+        $this->label_hidden = $label_hidden;
+        return $this;
+    }
+
+
+    /**
      * Render the HTML for this checkbox
      *
      * @return string|null
      */
     public function render(): ?string
     {
+        if ($this->label_hidden) {
+            // Hide the label, put it in aria instead
+            $this->getAria()->add($this->label, 'label');
+            $this->label = null;
+        }
+
         if ($this->label) {
             $element = Element::new()
                 ->setElement('label')
