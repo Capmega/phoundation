@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMaps;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes configmap get');
-CliDocumentation::help('This command returns the available kubernetes configmap');
+CliDocumentation::setUsage('./pho devops kubernetes configmap get');
+CliDocumentation::setHelp('This command returns the available kubernetes configmap');
 
 
 // Validate arguments

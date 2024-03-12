@@ -23,12 +23,12 @@ use Phoundation\Utils\Strings;
  * @category Function reference
  * @package Phoundation\Core
  */
-CliDocumentation::usage('./pho system init [OPTIONS]
+CliDocumentation::setUsage('./pho system init [OPTIONS]
 ./pho system init --drop
 ./pho system init --import
 ./pho system init --version "core/0.0.5,"');
 
-CliDocumentation::help('This command allows you to setup a new project
+CliDocumentation::setHelp('This command allows you to setup a new project
 
 
 

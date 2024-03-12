@@ -24,7 +24,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Development
  */
-CliDocumentation::help('The development/mdb/repositories/sync script synchronizes all MDB repositories
+CliDocumentation::setHelp('The development/mdb/repositories/sync script synchronizes all MDB repositories
 
 If the repositories do not exist, they will be cloned.
 
@@ -36,7 +36,7 @@ ARGUMENTS
 
 [-t,--target DIRECTORY]                The target directory where to checkout or ');
 
-CliDocumentation::usage('./pho development mdb repositories sync
+CliDocumentation::setUsage('./pho development mdb repositories sync
 ./pho development mdb repositories sync --source mdb/repositories
 ./pho development mdb repositories sync --path ~/projects/mdb
 ./pho development mdb repositories sync --path ~/projects/mdb --source mdb/repositories

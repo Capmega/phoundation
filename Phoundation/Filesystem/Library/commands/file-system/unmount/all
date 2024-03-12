@@ -20,9 +20,9 @@ use Phoundation\Filesystem\Mounts\Mounts;
  */
 
 
-CliDocumentation::usage('./pho filesystem mount all');
+CliDocumentation::setUsage('./pho filesystem mount all');
 
-CliDocumentation::help('This command will try to mount all configured filesystem mounts');
+CliDocumentation::setHelp('This command will try to mount all configured filesystem mounts');
 
 
 // Get no arguments

@@ -20,9 +20,9 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho project fix');
+CliDocumentation::setUsage('./pho project fix');
 
-CliDocumentation::help('This command will fix project issues. For the moment it can only fix filesystem mode and
+CliDocumentation::setHelp('This command will fix project issues. For the moment it can only fix filesystem mode and
 ownership issues.
 
 NOTE: This script requires root access to the "chown" command

@@ -22,7 +22,7 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::help('The bom script can search for and clear the BOM (Byte Order Mark) from all PHP files found in the specified path.
+CliDocumentation::setHelp('The bom script can search for and clear the BOM (Byte Order Mark) from all PHP files found in the specified path.
 
 The bom script uses the cache file ROOT/data/system/mtime to store the minimum file mtime for files to be checked.
 If files have an mtime older than the mtime of that cache file, they will not be scanned to speed up the BOM check.
@@ -40,7 +40,7 @@ ARGUMENTS
 
 -c --cache-mtime                       Set the mtime of the cache for subsequent scans');
 
-CliDocumentation::usage('./pho dev bom PATH
+CliDocumentation::setUsage('./pho dev bom PATH
 ./pho dev bom --nomtime PATH
 ./pho dev bom --cachemtime DATE PATH
 ');

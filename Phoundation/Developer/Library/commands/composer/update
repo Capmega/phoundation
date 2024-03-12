@@ -25,7 +25,7 @@ use Phoundation\Utils\Strings;
  */
 
 
-CliDocumentation::help('This command will execute "composer update" passing on the given arguments to the composer
+CliDocumentation::setHelp('This command will execute "composer update" passing on the given arguments to the composer
 command
 
 
@@ -33,7 +33,7 @@ ARGUMENTS
 
 ' . Strings::from(Composer::new()->addArguments(['help', 'update'])->executeReturnString(), 'Arguments:'));
 
-CliDocumentation::usage('./pho composer update
+CliDocumentation::setUsage('./pho composer update
 ./pho composer update vendor/package1
 ./pho composer update vendor/package:1.0.*
 ');

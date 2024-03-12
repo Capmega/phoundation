@@ -26,8 +26,8 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho intro');
-CliDocumentation::help('This introduction script will print a help text to help you familiarize yourself with Phoundation
+CliDocumentation::setUsage('./pho intro');
+CliDocumentation::setHelp('This introduction script will print a help text to help you familiarize yourself with Phoundation
 
 
 ARGUMENTS

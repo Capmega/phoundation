@@ -20,12 +20,12 @@ use Phoundation\Servers\SshAccount;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete(SshAccount::getAutoComplete());
+CliDocumentation::setAutoComplete(SshAccount::getAutoComplete());
 
-CliDocumentation::usage('./pho servers accounts create [OPTIONS]
+CliDocumentation::setUsage('./pho servers accounts create [OPTIONS]
 ./pho system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
-CliDocumentation::help('This command allows you to create SSH accounts.
+CliDocumentation::setHelp('This command allows you to create SSH accounts.
 ' . SshAccount::getHelpText());
 
 

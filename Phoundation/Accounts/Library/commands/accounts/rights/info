@@ -20,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts rights info USER');
+CliDocumentation::setUsage('./pho accounts rights info USER');
 
-CliDocumentation::help('This script displays information about the specified user.  
+CliDocumentation::setHelp('This script displays information about the specified user.  
 
 
 

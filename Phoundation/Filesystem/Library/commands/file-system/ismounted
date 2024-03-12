@@ -22,7 +22,7 @@ use Phoundation\Filesystem\Mounts\Mounts;
  */
 
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) { return Mounts::new()->load()->getMatchingValues($word)->limitAutoComplete(); },
@@ -31,9 +31,9 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho filesystem ismounted MOUNTNAME');
+CliDocumentation::setUsage('./pho filesystem ismounted MOUNTNAME');
 
-CliDocumentation::help('This command will echo 1 if the specified mount name is mounted, 0 if not');
+CliDocumentation::setHelp('This command will echo 1 if the specified mount name is mounted, 0 if not');
 
 
 // Get the arguments

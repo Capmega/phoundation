@@ -20,9 +20,9 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho system maintenance disable');
+CliDocumentation::setUsage('./pho system maintenance disable');
 
-CliDocumentation::help('This command will disable maintenance mode
+CliDocumentation::setHelp('This command will disable maintenance mode
 
 When maintenance mode is enabled, all web requests will immediately be blocked until maintenance mode has been disabled.
 Most CLI commands will too be blocked. The only commands available will be commands under ./pho system

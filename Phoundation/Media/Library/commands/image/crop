@@ -20,9 +20,9 @@ use Phoundation\Filesystem\Restrictions;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho image convert IMAGE');
+CliDocumentation::setUsage('./pho image convert IMAGE');
 
-CliDocumentation::help('This command can apply various conversions to the specified image');
+CliDocumentation::setHelp('This command can apply various conversions to the specified image');
 
 
 

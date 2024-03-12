@@ -24,9 +24,9 @@ use Phoundation\Os\Processes\Tasks;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::usage('./pho workers execute');
+CliDocumentation::setUsage('./pho workers execute');
 
-CliDocumentation::help('This command executes either a specific task (if specified) or will try to execute all 
+CliDocumentation::setHelp('This command executes either a specific task (if specified) or will try to execute all 
 pending tasks that should be executed
 
 
@@ -35,7 +35,7 @@ ARGUMENTS
 
 [-t,--task TASK]                        The specific task code to execute');
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-t,--task' => [
             'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },

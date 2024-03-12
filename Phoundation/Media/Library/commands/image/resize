@@ -19,9 +19,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale');
+CliDocumentation::setUsage('./pho image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale');
 
-CliDocumentation::help('This command can apply various conversions to the specified image
+CliDocumentation::setHelp('This command can apply various conversions to the specified image
 
 
 

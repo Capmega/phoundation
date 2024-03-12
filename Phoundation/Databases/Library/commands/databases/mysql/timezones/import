@@ -22,9 +22,9 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho databases mysql timezones import');
+CliDocumentation::setUsage('./pho databases mysql timezones import');
 
-CliDocumentation::help('This command will import the mysql timezones
+CliDocumentation::setHelp('This command will import the mysql timezones
 
 
 ARGUMENTS

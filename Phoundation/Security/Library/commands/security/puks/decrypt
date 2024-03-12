@@ -18,11 +18,11 @@ use Phoundation\Security\Puks\Puks;
  * @package Phoundation\Puks
  */
 
-CliDocumentation::autoComplete();
+CliDocumentation::setAutoComplete();
 
-CliDocumentation::usage('./pho puks encrypt DATA');
+CliDocumentation::setUsage('./pho puks encrypt DATA');
 
-CliDocumentation::help(Puks::getHelp('This script will encrypt the specified data and print the result out on the command line
+CliDocumentation::setHelp(Puks::getHelp('This script will encrypt the specified data and print the result out on the command line
 
 
 

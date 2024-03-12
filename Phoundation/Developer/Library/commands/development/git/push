@@ -20,9 +20,9 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-CliDocumentation::usage('./pho development git push REPOSITORY BRANCH
+CliDocumentation::setUsage('./pho development git push REPOSITORY BRANCH
 ./pho system dev git branch');
-CliDocumentation::help('This command is an interface to the git command through Phoundation. Its not really needed -nor
+CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');
 
 

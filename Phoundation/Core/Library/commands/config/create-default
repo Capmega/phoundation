@@ -20,9 +20,9 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho config create-default');
+CliDocumentation::setUsage('./pho config create-default');
 
-CliDocumentation::help('This command will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values
+CliDocumentation::setHelp('This command will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration paths and their default values
 
 
 ARGUMENTS

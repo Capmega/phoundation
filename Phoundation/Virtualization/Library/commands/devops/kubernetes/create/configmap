@@ -19,8 +19,8 @@ use Phoundation\Virtualization\Kubernetes\ConfigMaps\ConfigMap;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes create deployments');
-CliDocumentation::help('This command creates a Kubernetes deployment using a deployment file');
+CliDocumentation::setUsage('./pho devops kubernetes create deployments');
+CliDocumentation::setHelp('This command creates a Kubernetes deployment using a deployment file');
 
 
 // Validate arguments

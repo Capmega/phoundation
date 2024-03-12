@@ -20,9 +20,9 @@ use Phoundation\Geo\GeoIp\Import;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho geo ip import');
+CliDocumentation::setUsage('./pho geo ip import');
 
-CliDocumentation::help('This command will download and import the MaxMind geoip data files
+CliDocumentation::setHelp('This command will download and import the MaxMind geoip data files
 
 
 

@@ -27,9 +27,9 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho monitor service PROCESS_NAME');
+CliDocumentation::setUsage('./pho monitor service PROCESS_NAME');
 
-CliDocumentation::help('This command will monitor the specified service (by name) and alert and restart it when it stops');
+CliDocumentation::setHelp('This command will monitor the specified service (by name) and alert and restart it when it stops');
 
 
 // Get the arguments

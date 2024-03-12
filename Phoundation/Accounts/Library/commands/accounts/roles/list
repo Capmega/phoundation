@@ -19,10 +19,10 @@ use Phoundation\Databases\Sql\Sql;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts roles list [OPTIONS]
+CliDocumentation::setUsage('./pho accounts roles list [OPTIONS]
 ./pho system accounts roles list -d -r god');
 
-CliDocumentation::help('This command will list the available roles on this system
+CliDocumentation::setHelp('This command will list the available roles on this system
 
 
 

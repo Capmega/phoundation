@@ -41,7 +41,7 @@ class CliDocumentation
      * @param bool $exit
      * @return void
      */
-    public static function help(string $help, bool $exit = true): void
+    public static function setHelp(string $help, bool $exit = true): void
     {
         global $argv;
 
@@ -63,7 +63,7 @@ class CliDocumentation
      * @param bool $exit
      * @return void
      */
-    public static function usage(string $usage, bool $exit = true): void
+    public static function setUsage(string $usage, bool $exit = true): void
     {
         global $argv;
 
@@ -84,7 +84,7 @@ class CliDocumentation
      * @param array|null $definitions
      * @return void
      */
-    public static function autoComplete(?array $definitions = null): void
+    public static function setAutoComplete(?array $definitions = null): void
     {
         try {
             if (CliAutoComplete::isActive()) {

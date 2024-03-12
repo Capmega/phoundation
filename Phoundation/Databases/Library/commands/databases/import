@@ -27,9 +27,9 @@ use Phoundation\Utils\Enums\EnumMatchMode;
  */
 $restrictions = Restrictions::readonly([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP],  tr('Import'));
 
-CliDocumentation::usage('./pho system databases import -d mysql -b system -f system.sql');
+CliDocumentation::setUsage('./pho system databases import -d mysql -b system -f system.sql');
 
-CliDocumentation::help('This command will import the specified database file into the specified database
+CliDocumentation::setHelp('This command will import the specified database file into the specified database
 
 
 ARGUMENTS
@@ -54,7 +54,7 @@ ARGUMENTS
 [-t / --timeout TIMEOUT]                Timeout in integer seconds before the process will be terminated due to timeout
                                         (defaults to 3600)');
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-f,--file' => [
             'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },

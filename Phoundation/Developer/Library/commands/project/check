@@ -20,11 +20,11 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho project check
+CliDocumentation::setUsage('./pho project check
 ./pho system project check --repair
 ');
 
-CliDocumentation::help('This command will check - and report - (and optionally fix) the project and its systems
+CliDocumentation::setHelp('This command will check - and report - (and optionally fix) the project and its systems
 
 
 

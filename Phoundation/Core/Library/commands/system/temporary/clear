@@ -21,11 +21,11 @@ use Phoundation\Utils\Strings;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::usage('./pho system temporary clear PATH [OPTIONS]
+CliDocumentation::setUsage('./pho system temporary clear PATH [OPTIONS]
 ./pho system temporary clear PATH --public
 ./pho system temporary clear PATH ');
 
-CliDocumentation::help('This command will clear the specified temporary directory
+CliDocumentation::setHelp('This command will clear the specified temporary directory
 
 
 ARGUMENTS

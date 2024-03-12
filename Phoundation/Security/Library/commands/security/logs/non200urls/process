@@ -19,15 +19,15 @@ use Phoundation\Web\Non200Urls\Non200Urls;
  * @package Phoundation\Security
  */
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-a,--amount' => true
     ]
 ]);
 
-CliDocumentation::usage('./pho security logs non200urls process');
+CliDocumentation::setUsage('./pho security logs non200urls process');
 
-CliDocumentation::help('This command will process Non HTTP-200 URL\'s and check for any illicit activities'));
+CliDocumentation::setHelp('This command will process Non HTTP-200 URL\'s and check for any illicit activities'));
 
 
 // Validate arguments

@@ -18,11 +18,11 @@ use Phoundation\Os\Processes\Task;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete(Task::getAutoComplete());
+CliDocumentation::setAutoComplete(Task::getAutoComplete());
 
-CliDocumentation::usage('./pho tasks execute');
+CliDocumentation::setUsage('./pho tasks execute');
 
-CliDocumentation::help(Task::getHelpText());
+CliDocumentation::setHelp(Task::getHelpText());
 
 
 // Create the new task

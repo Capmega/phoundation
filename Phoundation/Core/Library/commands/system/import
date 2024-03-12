@@ -24,9 +24,9 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho system import');
+CliDocumentation::setUsage('./pho system import');
 
-CliDocumentation::help('This command allows you to import all project data with one command
+CliDocumentation::setHelp('This command allows you to import all project data with one command
 
 Currently this script will import:
  * languages

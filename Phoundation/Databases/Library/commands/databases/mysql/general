@@ -6,7 +6,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Exception\UnderConstructionException;
 
-CliDocumentation::usage('./pho databases mysql method [OPTIONS]
+CliDocumentation::setUsage('./pho databases mysql method [OPTIONS]
 
 ./pho databases mysql list databases [OPTIONS]
 ./pho databases mysql list tables [OPTIONS]
@@ -14,7 +14,7 @@ CliDocumentation::usage('./pho databases mysql method [OPTIONS]
 ./pho databases mysql change default-charset [OPTIONS]
 ./pho databases mysql scan SERVER');
 
-CliDocumentation::help('This command contains various methods to assist with various mysql operations
+CliDocumentation::setHelp('This command contains various methods to assist with various mysql operations
 
 
 

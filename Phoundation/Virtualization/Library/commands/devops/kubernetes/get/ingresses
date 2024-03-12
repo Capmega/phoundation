@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\Ingresses\Ingresses;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes get ingresses');
-CliDocumentation::help('This command returns the available kubernetes ingresses');
+CliDocumentation::setUsage('./pho devops kubernetes get ingresses');
+CliDocumentation::setHelp('This command returns the available kubernetes ingresses');
 
 
 // Validate arguments

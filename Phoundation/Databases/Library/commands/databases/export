@@ -25,9 +25,9 @@ use Phoundation\Utils\Enums\EnumMatchMode;
  */
 $restrictions = Restrictions::writable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP],  tr('Export'));
 
-CliDocumentation::usage('./pho system databases export -d mysql -b system -f system.sql');
+CliDocumentation::setUsage('./pho system databases export -d mysql -b system -f system.sql');
 
-CliDocumentation::help('This command will export the specified database to the specified database dump file
+CliDocumentation::setHelp('This command will export the specified database to the specified database dump file
 
 
 ARGUMENTS
@@ -46,7 +46,7 @@ ARGUMENTS
 [-t / --timeout TIMEOUT]                Timeout in integer seconds before the process will be terminated due to timeout
                                         (defaults to 3600)');
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-t,--timeout' => true,
         '-g,--gzip'    => false,

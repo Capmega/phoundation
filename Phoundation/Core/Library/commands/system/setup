@@ -26,11 +26,11 @@ use Phoundation\Exception\OutOfBoundsException;
  * @package Phoundation\Core
  */
 
-CliDocumentation::usage('./pho system setup [OPTIONS]
+CliDocumentation::setUsage('./pho system setup [OPTIONS]
 ./pho system setup --no-password-validation
 ./pho system setup --force');
 
-CliDocumentation::help('This command allows you to setup a new project
+CliDocumentation::setHelp('This command allows you to setup a new project
 
 
 

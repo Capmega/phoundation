@@ -20,9 +20,9 @@ use Phoundation\Filesystem\Mounts\Mounts;
  */
 
 
-CliDocumentation::usage('./pho filesystem mounts list');
+CliDocumentation::setUsage('./pho filesystem mounts list');
 
-CliDocumentation::help('This command will list all configured mount points');
+CliDocumentation::setHelp('This command will list all configured mount points');
 
 
 // Get the arguments

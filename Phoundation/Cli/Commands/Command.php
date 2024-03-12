@@ -1040,7 +1040,7 @@ class Command
      */
     protected static function documentation(): void
     {
-        CliDocumentation::usage('./pho METHODS [ARGUMENTS]
+        CliDocumentation::setUsage('./pho METHODS [ARGUMENTS]
 ./pho intro
 ./pho info
 ./pho accounts users create --help
@@ -1049,7 +1049,7 @@ class Command
 ./pho system maintenance disable
 ./pho system <TAB>', false);
 
-        CliDocumentation::help(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
+        CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
 '), false);
     }
 
@@ -1163,7 +1163,7 @@ class Command
         global $argv;
 
         if ($argv['help']) {
-            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::help('], 100))) {
+            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::setHelp('], 100))) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
                     ':command' => static::getExecutedPath(true)
                 ]))->makeWarning();
@@ -1182,7 +1182,7 @@ class Command
         global $argv;
 
         if ($argv['usage']) {
-            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::usage('], 100))) {
+            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::setUsage('], 100))) {
                 throw CliCommandException::new(tr('The command ":command" has no usage information available', [
                     ':command' => static::getExecutedPath(true)
                 ]))->makeWarning();

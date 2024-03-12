@@ -19,8 +19,8 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes service unpause');
-CliDocumentation::help('This command will unpause the kubernetes cluster service');
+CliDocumentation::setUsage('./pho devops kubernetes service unpause');
+CliDocumentation::setHelp('This command will unpause the kubernetes cluster service');
 
 
 // Validate arguments

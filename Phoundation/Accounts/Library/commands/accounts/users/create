@@ -25,12 +25,12 @@ use Phoundation\Data\Validator\ArgvValidator;
  */
 
 // Documentation
-CliDocumentation::autoComplete(User::getAutoComplete());
+CliDocumentation::setAutoComplete(User::getAutoComplete());
 
-CliDocumentation::usage(tr('./pho accounts users create -e EMAIL [OPTIONS]
+CliDocumentation::setUsage(tr('./pho accounts users create -e EMAIL [OPTIONS]
 ./pho users create user@example.com -d "This is a test user"'));
 
-CliDocumentation::help(User::getHelpText('This command allows you to create new users.
+CliDocumentation::setHelp(User::getHelpText('This command allows you to create new users.
 
 NOTE: This script is interactive as it asks the password for the user on the command line! ') . '
 

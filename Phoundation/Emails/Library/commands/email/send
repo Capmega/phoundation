@@ -27,7 +27,7 @@ use PHPMailer\PHPMailer\PHPMailer;
  */
 
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-f,--from'  => [
             'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
@@ -43,9 +43,9 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho email send');
+CliDocumentation::setUsage('./pho email send');
 
-CliDocumentation::help('This command can send out emails
+CliDocumentation::setHelp('This command can send out emails
 
 
 ARGUMENTS

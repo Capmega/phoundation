@@ -22,11 +22,11 @@ use Phoundation\Filesystem\Restrictions;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::usage('./pho system temporary get PATH [OPTIONS]
+CliDocumentation::setUsage('./pho system temporary get PATH [OPTIONS]
 ./pho system temporary get PATH --public
 ./pho system temporary get PATH ');
 
-CliDocumentation::help('This command will create and a private temporary path
+CliDocumentation::setHelp('This command will create and a private temporary path
 
 
 ARGUMENTS

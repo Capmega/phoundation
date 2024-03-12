@@ -18,10 +18,10 @@ use Phoundation\Servers\SshAccounts;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho servers accounts list [OPTIONS]
+CliDocumentation::setUsage('./pho servers accounts list [OPTIONS]
 ./pho system servers accounts list -D');
 
-CliDocumentation::help('This command will list the configured SSH accounts on this system
+CliDocumentation::setHelp('This command will list the configured SSH accounts on this system
 
 
 

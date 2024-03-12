@@ -30,11 +30,11 @@ use Phoundation\Utils\Strings;
  * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
  *
  * The class supports autocompletion of commands, global system arguments, command arguments and command values.
- * Commands must use Documentation::autoComplete() for this
+ * Commands must use Documentation::setAutoComplete() for this
  *
  * @example
  *
- * Documentation::autoComplete([
+ * Documentation::setAutoComplete([
  *     'positions' => [
  *         0 => [
  *             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
@@ -444,7 +444,7 @@ class CliAutoComplete
 
         static::$position = static::$position - count($command);
 
-        return !empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['Documentation::autoComplete('], 100));
+        return !empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['Documentation::setAutoComplete('], 100));
     }
 
 

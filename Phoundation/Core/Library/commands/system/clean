@@ -22,10 +22,10 @@ use Phoundation\Filesystem\Restrictions;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::usage('./pho system clean [OPTIONS]
+CliDocumentation::setUsage('./pho system clean [OPTIONS]
 ');
 
-CliDocumentation::help('This command will clean old and stale files from caches, temporary directories, sessions
+CliDocumentation::setHelp('This command will clean old and stale files from caches, temporary directories, sessions
 and logs.
 
 Deleting temporary and cache files should normally not be necessary as the system cleans up its temporary files and

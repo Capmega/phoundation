@@ -18,8 +18,8 @@ use Phoundation\Virtualization\Kubernetes\Services\Service;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes delete service');
-CliDocumentation::help('This command deletes the specified Kubernetes service');
+CliDocumentation::setUsage('./pho devops kubernetes delete service');
+CliDocumentation::setHelp('This command deletes the specified Kubernetes service');
 
 
 // Validate arguments

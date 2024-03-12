@@ -24,7 +24,7 @@ use Phoundation\Utils\Arrays;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL',
@@ -33,9 +33,9 @@ CliDocumentation::autoComplete([
     ],
 ]);
 
-CliDocumentation::usage('./pho accounts roles info USER');
+CliDocumentation::setUsage('./pho accounts roles info USER');
 
-CliDocumentation::help('This script displays information about the specified role.  
+CliDocumentation::setHelp('This script displays information about the specified role.  
 
 
 

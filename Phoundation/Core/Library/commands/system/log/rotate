@@ -24,10 +24,10 @@ use Phoundation\Filesystem\Restrictions;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::usage('./pho system log rotate
+CliDocumentation::setUsage('./pho system log rotate
 ');
 
-CliDocumentation::help('This command will rotate the current log file to a zipped backup file
+CliDocumentation::setHelp('This command will rotate the current log file to a zipped backup file
 
 
 ARGUMENTS

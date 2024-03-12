@@ -21,7 +21,7 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete(User::getAutoComplete([
+CliDocumentation::setAutoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
@@ -30,9 +30,9 @@ CliDocumentation::autoComplete(User::getAutoComplete([
     ],
 ]));
 
-CliDocumentation::usage('./pho accounts users show USER');
+CliDocumentation::setUsage('./pho accounts users show USER');
 
-CliDocumentation::help(User::getHelpText('This script displays information about the specified user.  
+CliDocumentation::setHelp(User::getHelpText('This script displays information about the specified user.  
 
 ARGUMENTS
 

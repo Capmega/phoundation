@@ -21,15 +21,15 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @category Function reference
  * @package Phoundation\Core
  */
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-c,--clear' => false
     ]
 ]);
 
-CliDocumentation::usage('./pho system plugins scan');
+CliDocumentation::setUsage('./pho system plugins scan');
 
-CliDocumentation::help('This command allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new
+CliDocumentation::setHelp('This command allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new
 plugins and update the core_plugins database table accordingly
 
 

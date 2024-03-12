@@ -20,9 +20,9 @@ use Phoundation\Geo\Import;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho geo import');
+CliDocumentation::setUsage('./pho geo import');
 
-CliDocumentation::help('This command will download and import the geonames data files
+CliDocumentation::setHelp('This command will download and import the geonames data files
 
 The entire import consists of the following steps (which may be skipped using the specified arguments)
 

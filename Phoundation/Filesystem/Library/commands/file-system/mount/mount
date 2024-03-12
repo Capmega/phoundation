@@ -21,7 +21,7 @@ use Phoundation\Filesystem\Mounts\Mounts;
  */
 
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) { return Mounts::new()->load()->getMatchingValues($word)->limitAutoComplete(); },
@@ -30,9 +30,9 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho filesystem mount MOUNTNAME');
+CliDocumentation::setUsage('./pho filesystem mount MOUNTNAME');
 
-CliDocumentation::help('This command will attempt to mount the specified configured mount point');
+CliDocumentation::setHelp('This command will attempt to mount the specified configured mount point');
 
 
 // Get the arguments

@@ -23,7 +23,7 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete(SshAccount::getAutoComplete([
+CliDocumentation::setAutoComplete(SshAccount::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
@@ -32,10 +32,10 @@ CliDocumentation::autoComplete(SshAccount::getAutoComplete([
     ]
 ]));
 
-CliDocumentation::usage('./pho servers accounts modify IDENTIFIER [OPTIONS]
+CliDocumentation::setUsage('./pho servers accounts modify IDENTIFIER [OPTIONS]
 ./pho system servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
 
-CliDocumentation::help(SshAccount::getHelpText('This script allows you to modify existing SSH accounts.
+CliDocumentation::setHelp(SshAccount::getHelpText('This script allows you to modify existing SSH accounts.
 
 ARGUMENTS
 

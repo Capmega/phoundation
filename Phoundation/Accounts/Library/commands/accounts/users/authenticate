@@ -21,9 +21,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts users authenticate USER');
+CliDocumentation::setUsage('./pho accounts users authenticate USER');
 
-CliDocumentation::help('This command can be used to test the authentication for the specified user
+CliDocumentation::setHelp('This command can be used to test the authentication for the specified user
 
 
 ARGUMENTS

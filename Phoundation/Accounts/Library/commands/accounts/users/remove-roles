@@ -21,10 +21,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
+CliDocumentation::setUsage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./pho system accounts roles add-right -n test -d "This is a test role!"');
 
-CliDocumentation::help('This command allows you to add rights to the specified role
+CliDocumentation::setHelp('This command allows you to add rights to the specified role
 
 
 

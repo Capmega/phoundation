@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\Services\Services;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes get services');
-CliDocumentation::help('This command returns the available kubernetes services');
+CliDocumentation::setUsage('./pho devops kubernetes get services');
+CliDocumentation::setHelp('This command returns the available kubernetes services');
 
 
 // Validate arguments

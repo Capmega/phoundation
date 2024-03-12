@@ -23,7 +23,7 @@ use Phoundation\Filesystem\Restrictions;
  */
 $restrictions = Restrictions::readonly([DIRECTORY_ROOT . 'config/deploy/'],  tr('Deploy'));
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
@@ -57,11 +57,11 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho system deploy TARGET
+CliDocumentation::setUsage('./pho system deploy TARGET
 ./pho system deploy TARGET --no-init
 ');
 
-CliDocumentation::help('This command will deploy your project from this machine to the target environment
+CliDocumentation::setHelp('This command will deploy your project from this machine to the target environment
 
 Most options are configured in a per-target basis and can be specified on the command line to override this
 configuration in a do or do not way. For example, the "production" environment can have "execute-hooks" enabled with

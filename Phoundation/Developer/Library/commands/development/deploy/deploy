@@ -22,11 +22,11 @@ use Phoundation\Developer\Project\Project;
  * @package Phoundation\Development
  */
 
-CliDocumentation::usage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
+CliDocumentation::setUsage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
 ./pho system development deploy TARGET_ENVIRONMENT
 ');
 
-CliDocumentation::help('This command will update your Phoundation libraries and list
+CliDocumentation::setHelp('This command will update your Phoundation libraries and list
 
 
 

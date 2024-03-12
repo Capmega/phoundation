@@ -20,10 +20,10 @@ use Phoundation\Databases\Sql\SqlQueries;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts users list [OPTIONS]
+CliDocumentation::setUsage('./pho accounts users list [OPTIONS]
 ./pho system accounts users list -d -r god');
 
-CliDocumentation::help('This command will list the available users on this system
+CliDocumentation::setHelp('This command will list the available users on this system
 
 
 

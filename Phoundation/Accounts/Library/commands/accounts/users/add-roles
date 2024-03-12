@@ -23,7 +23,7 @@ use Phoundation\Utils\Config;
  * @copyrole Copyrole (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
@@ -36,10 +36,10 @@ CliDocumentation::autoComplete([
     ],
 ]);
 
-CliDocumentation::usage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
+CliDocumentation::setUsage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
 ./pho system accounts users add-roles -n test -d "This is a test role!"');
 
-CliDocumentation::help('This command allows you to add roles to the specified user
+CliDocumentation::setHelp('This command allows you to add roles to the specified user
 
 ARGUMENTS
 

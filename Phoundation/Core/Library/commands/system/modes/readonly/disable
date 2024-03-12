@@ -20,9 +20,9 @@ use Phoundation\Developer\Project\Project;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho system modes readonly disable');
+CliDocumentation::setUsage('./pho system modes readonly disable');
 
-CliDocumentation::help('This command will disable readonly mode
+CliDocumentation::setHelp('This command will disable readonly mode
 
 When readonly mode is enabled, all POST requests will ignore all POST data until readonly mode has been disabled.
 Database requests will refuse to write, as will Filesystem commands.

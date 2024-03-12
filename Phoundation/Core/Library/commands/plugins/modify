@@ -23,7 +23,7 @@ use Phoundation\Databases\Sql\Limit;
  * @category Function reference
  * @package Phoundation\Core
  */
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
@@ -35,9 +35,9 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho system plugins modify PLUGIN [OPTIONS]');
+CliDocumentation::setUsage('./pho system plugins modify PLUGIN [OPTIONS]');
 
-CliDocumentation::help('This command allows you to modify your registered plugins
+CliDocumentation::setHelp('This command allows you to modify your registered plugins
 
 
 ARGUMENTS

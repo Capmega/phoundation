@@ -20,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts users encryption');
+CliDocumentation::setUsage('./pho accounts users encryption');
 
-CliDocumentation::help('This command determines the best encryption cost value for your machine so you can configure 
+CliDocumentation::setHelp('This command determines the best encryption cost value for your machine so you can configure 
 "security.passwords.cost" with the best value  
 
 

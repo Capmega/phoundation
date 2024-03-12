@@ -24,7 +24,7 @@ use Phoundation\Filesystem\Mounts\Mounts;
  */
 
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) { return Mounts::new()->load()->getMatchingValues($word)->limitAutoComplete(); },
@@ -33,9 +33,9 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho filesystem unmount MOUNTNAME');
+CliDocumentation::setUsage('./pho filesystem unmount MOUNTNAME');
 
-CliDocumentation::help('This command will try to unmount the specified registered MOUNTNAME');
+CliDocumentation::setHelp('This command will try to unmount the specified registered MOUNTNAME');
 
 
 // Get the arguments

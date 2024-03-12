@@ -20,8 +20,8 @@ use Phoundation\Virtualization\Kubernetes\MiniKube;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho devops kubernetes service status');
-CliDocumentation::help('This command will status the kubernetes cluster service');
+CliDocumentation::setUsage('./pho devops kubernetes service status');
+CliDocumentation::setHelp('This command will status the kubernetes cluster service');
 
 
 // Validate arguments

@@ -21,7 +21,7 @@ use Phoundation\Utils\Config;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete(Server::getAutoComplete([
+CliDocumentation::setAutoComplete(Server::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT `hostname` FROM `servers` WHERE `hostname` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
@@ -30,10 +30,10 @@ CliDocumentation::autoComplete(Server::getAutoComplete([
     ]
 ]));
 
-CliDocumentation::usage('./pho servers modify HOSTNAME [OPTIONS]
+CliDocumentation::setUsage('./pho servers modify HOSTNAME [OPTIONS]
 ./pho system servers modify HOSTNAME -l -i --to ENVIRONMENT');
 
-CliDocumentation::help(Server::getHelpText('This script allows you to modify servers
+CliDocumentation::setHelp(Server::getHelpText('This script allows you to modify servers
 
 ARGUMENTS
 

@@ -19,9 +19,9 @@ use Phoundation\Os\Processes\Exception\MonitorException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho monitor process PROCESS_NAME');
+CliDocumentation::setUsage('./pho monitor process PROCESS_NAME');
 
-CliDocumentation::help('This command will monitor the specified process (by name) and alert and restart it when it stops');
+CliDocumentation::setHelp('This command will monitor the specified process (by name) and alert and restart it when it stops');
 
 
 // Get the arguments

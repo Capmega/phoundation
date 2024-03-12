@@ -25,9 +25,9 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho libraries info LIBRARY_NAME');
+CliDocumentation::setUsage('./pho libraries info LIBRARY_NAME');
 
-CliDocumentation::help('The libraries info script will show detailed information about the specified library');
+CliDocumentation::setHelp('The libraries info script will show detailed information about the specified library');
 
 
 

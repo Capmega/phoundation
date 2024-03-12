@@ -20,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho image info IMAGE_FILE_NAME');
+CliDocumentation::setUsage('./pho image info IMAGE_FILE_NAME');
 
-CliDocumentation::help('This command will display basic information about the specified image');
+CliDocumentation::setHelp('This command will display basic information about the specified image');
 
 
 

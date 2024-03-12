@@ -20,9 +20,9 @@ use Phoundation\Developer\Versioning\Git\Git;
  * @category Function reference
  * @package Phoundation\Development
  */
-CliDocumentation::usage('./pho development git clone URL
+CliDocumentation::setUsage('./pho development git clone URL
 ./pho system dev git clone URL');
-CliDocumentation::help('This command is an interface to the git command through Phoundation. Its not really needed -nor
+CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');
 
 

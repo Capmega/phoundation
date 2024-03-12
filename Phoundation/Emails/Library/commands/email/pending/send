@@ -21,7 +21,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-l,--limit'        => true,
         '-r,--auto-restart' => false,
@@ -29,9 +29,9 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho email send');
+CliDocumentation::setUsage('./pho email send');
 
-CliDocumentation::help('This command will send out emails that are pending sending
+CliDocumentation::setHelp('This command will send out emails that are pending sending
 
 
 ARGUMENTS

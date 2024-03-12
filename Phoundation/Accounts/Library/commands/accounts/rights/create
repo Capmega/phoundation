@@ -20,10 +20,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Scripts
  */
-CliDocumentation::usage('./pho accounts right create NAME [OPTIONS]
+CliDocumentation::setUsage('./pho accounts right create NAME [OPTIONS]
 ./pho system accounts right create test -d "This is a test right!"');
 
-CliDocumentation::help('This command allows you to create user rights
+CliDocumentation::setHelp('This command allows you to create user rights
 
 
 ARGUMENTS

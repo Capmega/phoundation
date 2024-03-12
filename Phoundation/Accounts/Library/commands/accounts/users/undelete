@@ -20,7 +20,7 @@ use Phoundation\Databases\Sql\Limit;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::autoComplete(User::getAutoComplete([
+CliDocumentation::setAutoComplete(User::getAutoComplete([
     'positions' => [
         0 => [
             'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
@@ -29,9 +29,9 @@ CliDocumentation::autoComplete(User::getAutoComplete([
     ]
 ]));
 
-CliDocumentation::usage('./pho accounts users undelete USER_EMAIL');
+CliDocumentation::setUsage('./pho accounts users undelete USER_EMAIL');
 
-CliDocumentation::help('This command will undelete the specified user. Note that undeleted users will have the
+CliDocumentation::setHelp('This command will undelete the specified user. Note that undeleted users will have the
 status updated to NULL
 
 ARGUMENTS
