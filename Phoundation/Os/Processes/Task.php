@@ -10,15 +10,15 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryKey;
-use Phoundation\Data\DataEntry\Traits\DataEntryName;
-use Phoundation\Data\DataEntry\Traits\DataEntryResults;
-use Phoundation\Data\DataEntry\Traits\DataEntryRole;
-use Phoundation\Data\DataEntry\Traits\DataEntrySpent;
-use Phoundation\Data\DataEntry\Traits\DataEntryStart;
-use Phoundation\Data\DataEntry\Traits\DataEntryStop;
-use Phoundation\Data\DataEntry\Traits\DataEntryValues;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryKey;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryName;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryResults;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryRole;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntrySpent;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryStart;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryStop;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryValues;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Date\Interfaces\DateTimeInterface;
@@ -29,9 +29,9 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
 use Phoundation\Os\Processes\Exception\TasksException;
 use Phoundation\Os\Processes\Interfaces\TaskInterface;
-use Phoundation\Os\Processes\Traits\DataEntryTask;
-use Phoundation\Os\Processes\Traits\DataEntryWorkers;
-use Phoundation\Servers\Traits\DataEntryServer;
+use Phoundation\Os\Processes\Traits\TraitDataEntryTask;
+use Phoundation\Os\Processes\Traits\TraitDataEntryWorkers;
+use Phoundation\Servers\Traits\TraitDataEntryServer;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -51,18 +51,18 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Task extends DataEntry implements TaskInterface
 {
-    use DataEntryDescription;
-    use DataEntryKey;
-    use DataEntryName;
-    use DataEntryResults;
-    use DataEntryRole;
-    use DataEntryServer;
-    use DataEntrySpent;
-    use DataEntryStart;
-    use DataEntryStop;
-    use DataEntryTask;
-    use DataEntryValues;
-    use DataEntryWorkers;
+    use TraitDataEntryDescription;
+    use TraitDataEntryKey;
+    use TraitDataEntryName;
+    use TraitDataEntryResults;
+    use TraitDataEntryRole;
+    use TraitDataEntryServer;
+    use TraitDataEntrySpent;
+    use TraitDataEntryStart;
+    use TraitDataEntryStop;
+    use TraitDataEntryTask;
+    use TraitDataEntryValues;
+    use TraitDataEntryWorkers;
 
 
     /**

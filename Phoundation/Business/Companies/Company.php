@@ -13,7 +13,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
 
 /**
@@ -29,7 +29,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
  */
 class Company extends DataEntry implements CompanyInterface
 {
-    use DataEntryNameDescription;
+    use TraitDataEntryNameDescription;
 
 
     /**

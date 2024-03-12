@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
+
 
 /**
  * Trait TraitDataIteratorSource

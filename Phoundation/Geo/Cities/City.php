@@ -7,7 +7,7 @@ namespace Phoundation\Geo\Cities;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Counties\County;
 use Phoundation\Geo\Countries\Country;
@@ -28,7 +28,7 @@ use Phoundation\Geo\Timezones\Timezone;
  */
 class City extends DataEntry
 {
-    use DataEntryNameDescription;
+    use TraitDataEntryNameDescription;
 
 
     /**

@@ -22,7 +22,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\NoProjectException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataStaticExecuted;
+use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
@@ -64,7 +64,7 @@ use Throwable;
  */
 class Command
 {
-    use DataStaticExecuted;
+    use TraitDataStaticExecuted;
 
 
     /**

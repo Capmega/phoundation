@@ -8,7 +8,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\FilesInterface;
 use Phoundation\Filesystem\Interfaces\PathInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
 use Stringable;
 
@@ -26,7 +26,7 @@ use Stringable;
  */
 class Files extends Iterator implements FilesInterface
 {
-    use DataRestrictions;
+    use TraitDataRestrictions;
 
 
     /**

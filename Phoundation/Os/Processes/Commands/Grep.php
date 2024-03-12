@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Data\Traits\DataFile;
-use Phoundation\Data\Traits\DataDirectory;
-use Phoundation\Data\Traits\DataValue;
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Data\Traits\TraitDataValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
@@ -23,9 +23,9 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  */
 class Grep extends Command
 {
-    use DataFile;
-    use DataDirectory;
-    use DataValue;
+    use TraitDataFile;
+    use TraitDataDirectory;
+    use TraitDataValue;
 
 
     /**

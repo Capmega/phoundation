@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataBatch;
+use Phoundation\Data\Traits\TraitDataBatch;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Utils\Arrays;
@@ -26,7 +26,7 @@ use Plugins\Scanners\Exception\ScannersException;
  */
 class ScanImage extends Command
 {
-    use DataBatch;
+    use TraitDataBatch;
 
 
     /**

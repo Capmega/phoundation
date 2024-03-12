@@ -9,7 +9,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Html\Traits\Mode;
+use Phoundation\Web\Html\Traits\TraitMode;
 use Stringable;
 
 
@@ -25,7 +25,7 @@ use Stringable;
  */
 trait InputElement
 {
-    use Mode;
+    use TraitMode;
 
 
     /**

@@ -7,9 +7,9 @@ namespace Phoundation\Data\DataEntry\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataDataEntry;
-use Phoundation\Data\Traits\DataPrefix;
-use Phoundation\Data\Traits\DataTable;
+use Phoundation\Data\Traits\TraitDataDataEntry;
+use Phoundation\Data\Traits\TraitDataPrefix;
+use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
@@ -26,9 +26,9 @@ use Stringable;
  */
 class Definitions extends Iterator implements DefinitionsInterface
 {
-    use DataDataEntry;
-    use DataTable;
-    use DataPrefix {
+    use TraitDataDataEntry;
+    use TraitDataTable;
+    use TraitDataPrefix {
         getPrefix as getColumnPrefix;
         setPrefix as setColumnPrefix;
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Hooks\Hook;
-use Phoundation\Data\Traits\DataForce;
+use Phoundation\Data\Traits\TraitDataForce;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
@@ -26,7 +26,7 @@ use Stringable;
  */
 class UnMount extends Command
 {
-    use DataForce;
+    use TraitDataForce;
 
 
     /**

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataDataEntryClass;
-use Phoundation\Data\Traits\DataIntId;
-use Phoundation\Data\Traits\DataMaxStringSize;
-use Phoundation\Data\Traits\DataMetaColumns;
+use Phoundation\Data\Traits\TraitDataDataEntryClass;
+use Phoundation\Data\Traits\TraitDataIntId;
+use Phoundation\Data\Traits\TraitDataMaxStringSize;
+use Phoundation\Data\Traits\TraitDataMetaColumns;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -32,10 +32,10 @@ use ReflectionProperty;
  */
 trait ValidatorBasics
 {
-    use DataIntId;
-    use DataMaxStringSize;
-    use DataMetaColumns;
-    use DataDataEntryClass;
+    use TraitDataIntId;
+    use TraitDataMaxStringSize;
+    use TraitDataMetaColumns;
+    use TraitDataDataEntryClass;
 
 
     /**

@@ -8,15 +8,15 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryComments;
-use Phoundation\Data\DataEntry\Traits\DataEntryCookies;
-use Phoundation\Data\DataEntry\Traits\DataEntryHeaders;
-use Phoundation\Data\DataEntry\Traits\DataEntryHttpCode;
-use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
-use Phoundation\Data\DataEntry\Traits\DataEntryMethod;
-use Phoundation\Data\DataEntry\Traits\DataEntryPost;
-use Phoundation\Data\DataEntry\Traits\DataEntryReason;
-use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryComments;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCookies;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryHeaders;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryHttpCode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryIpAddress;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryMethod;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPost;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryReason;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -35,15 +35,15 @@ use Phoundation\Web\Routing\Route;
  */
 class Non200Url extends DataEntry
 {
-    use DataEntryComments;
-    use DataEntryIpAddress;
-    use DataEntryHttpCode;
-    use DataEntryMethod;
-    use DataEntryReason;
-    use DataEntryUrl;
-    use DataEntryHeaders;
-    use DataEntryCookies;
-    use DataEntryPost;
+    use TraitDataEntryComments;
+    use TraitDataEntryIpAddress;
+    use TraitDataEntryHttpCode;
+    use TraitDataEntryMethod;
+    use TraitDataEntryReason;
+    use TraitDataEntryUrl;
+    use TraitDataEntryHeaders;
+    use TraitDataEntryCookies;
+    use TraitDataEntryPost;
 
 
     /**

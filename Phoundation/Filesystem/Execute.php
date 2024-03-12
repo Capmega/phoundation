@@ -8,7 +8,7 @@ use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\ExecuteInterface;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
 use Throwable;
 
@@ -26,7 +26,7 @@ use Throwable;
  */
 class Execute extends Directory implements ExecuteInterface
 {
-    use DataRestrictions;
+    use TraitDataRestrictions;
 
 
     /**

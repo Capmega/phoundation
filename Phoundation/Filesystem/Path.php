@@ -38,15 +38,15 @@ use Phoundation\Filesystem\Mounts\Mount;
 use Phoundation\Filesystem\Mounts\Mounts;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Phoundation\Filesystem\Requirements\Requirements;
-use Phoundation\Filesystem\Traits\DataBufferSize;
-use Phoundation\Filesystem\Traits\DataIsRelative;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataBufferSize;
+use Phoundation\Filesystem\Traits\TraitDataIsRelative;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Process;
-use Phoundation\Servers\Traits\DataServer;
+use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -67,10 +67,10 @@ use Throwable;
  */
 class Path implements Stringable, PathInterface
 {
-    use DataRestrictions;
-    use DataBufferSize;
-    use DataIsRelative;
-    use DataServer;
+    use TraitDataRestrictions;
+    use TraitDataBufferSize;
+    use TraitDataIsRelative;
+    use TraitDataServer;
 
 
     const DIRECTORY_SEPARATOR = '/';

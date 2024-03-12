@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\DataInline;
+use Phoundation\Data\Traits\TraitDataInline;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Traits\InputElement;
+use Phoundation\Web\Html\Traits\TraitInputElement;
 
 
 /**
@@ -23,8 +23,8 @@ use Phoundation\Web\Html\Traits\InputElement;
  */
 class InputCheckbox extends Input
 {
-    use InputElement;
-    use DataInline;
+    use TraitInputElement;
+    use TraitDataInline;
 
 
     /**

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Buttons;
 
 use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
-use Phoundation\Web\Html\Traits\Mode;
-use Phoundation\Web\Html\Traits\UsesSize;
+use Phoundation\Web\Html\Traits\TraitMode;
+use Phoundation\Web\Html\Traits\TraitUsesSize;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
@@ -23,8 +23,8 @@ use Stringable;
  */
 trait ButtonProperties
 {
-    use Mode;
-    use UsesSize;
+    use TraitMode;
+    use TraitUsesSize;
 
 
     /**

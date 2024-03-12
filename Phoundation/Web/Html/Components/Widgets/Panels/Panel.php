@@ -25,7 +25,7 @@ use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Widgets\ProfileImage;
 use Phoundation\Web\Html\Enums\EnumBootstrapColor;
-use Phoundation\Web\Html\Traits\Mode;
+use Phoundation\Web\Html\Traits\TraitMode;
 use Phoundation\Web\Html\Traits\TraitBootstrapColor;
 
 
@@ -41,7 +41,7 @@ use Phoundation\Web\Html\Traits\TraitBootstrapColor;
  */
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
-    use Mode;
+    use TraitMode;
     use TraitBootstrapColor;
 
 

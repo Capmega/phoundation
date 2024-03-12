@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Data\Traits\DataSelector;
-use Phoundation\Data\Traits\DataUrl;
+use Phoundation\Data\Traits\TraitDataSelector;
+use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -23,8 +23,8 @@ use Phoundation\Web\Page;
  */
 class UploadDropZone extends ResourceElement
 {
-    use DataSelector;
-    use DataUrl;
+    use TraitDataSelector;
+    use TraitDataUrl;
 
 
     /**

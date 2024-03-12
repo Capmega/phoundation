@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\KubernetesNamespaces;
 
-use Phoundation\Data\Traits\DataName;
+use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
-use Phoundation\Virtualization\Kubernetes\Traits\DataReplicas;
-use Phoundation\Virtualization\Traits\DataImage;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitDataReplicas;
+use Phoundation\Virtualization\Traits\TraitDataImage;
 
 
 /**
@@ -22,9 +22,9 @@ use Phoundation\Virtualization\Traits\DataImage;
  */
 class KubernetesNamespace extends KubernetesObject
 {
-    use DataName;
-    use DataImage;
-    use DataReplicas;
+    use TraitDataName;
+    use TraitDataImage;
+    use TraitDataReplicas;
 
     /**
      * Namespace class constructor

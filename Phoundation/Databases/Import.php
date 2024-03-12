@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataConnector;
-use Phoundation\Data\Traits\DataDebug;
-use Phoundation\Data\Traits\DataDriver;
-use Phoundation\Data\Traits\DataFile;
-use Phoundation\Data\Traits\DataHost;
-use Phoundation\Data\Traits\DataPort;
-use Phoundation\Data\Traits\DataTimeout;
-use Phoundation\Data\Traits\DataUserPass;
+use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataDriver;
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Data\Traits\TraitDataHost;
+use Phoundation\Data\Traits\TraitDataPort;
+use Phoundation\Data\Traits\TraitDataTimeout;
+use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
@@ -36,17 +36,17 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  */
 class Import
 {
-    use DataTimeout;
-    use DataDriver;
-    use DataPort;
-    use DataHost;
-    use DataUserPass;
-    use DataDebug;
-    use DataFile;
-    use DataConnector {
+    use TraitDataTimeout;
+    use TraitDataDriver;
+    use TraitDataPort;
+    use TraitDataHost;
+    use TraitDataUserPass;
+    use TraitDataDebug;
+    use TraitDataFile;
+    use TraitDataConnector {
         setConnector as __setConnector;
     }
-    use DataRestrictions;
+    use TraitDataRestrictions;
 
 
     /**

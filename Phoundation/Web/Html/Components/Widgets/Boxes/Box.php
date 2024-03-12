@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Boxes;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Traits\DataTitle;
+use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Widgets\Widget;
 use Phoundation\Web\Html\Html;
@@ -23,7 +23,7 @@ use Phoundation\Web\Html\Html;
  */
 abstract class Box extends Widget
 {
-    use DataTitle;
+    use TraitDataTitle;
 
 
     /**

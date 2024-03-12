@@ -11,8 +11,8 @@ use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataParent;
-use Phoundation\Data\Traits\DataReadonly;
+use Phoundation\Data\Traits\TraitDataParent;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -43,8 +43,8 @@ use Stringable;
  */
 abstract class DataList extends Iterator implements DataListInterface
 {
-    use DataReadonly;
-    use DataParent {
+    use TraitDataReadonly;
+    use TraitDataParent {
         setParent as protected __setParent;
     }
 

@@ -15,8 +15,8 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -34,8 +34,8 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Right extends DataEntry implements RightInterface
 {
-    use DataEntryNameLowercaseDash;
-    use DataEntryDescription;
+    use TraitDataEntryNameLowercaseDash;
+    use TraitDataEntryDescription;
 
 
     /**

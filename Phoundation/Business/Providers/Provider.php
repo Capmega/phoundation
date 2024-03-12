@@ -9,17 +9,17 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryAddress;
-use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
-use Phoundation\Data\DataEntry\Traits\DataEntryCode;
-use Phoundation\Data\DataEntry\Traits\DataEntryCompany;
-use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\DataEntryGeo;
-use Phoundation\Data\DataEntry\Traits\DataEntryLanguage;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryPhones;
-use Phoundation\Data\DataEntry\Traits\DataEntryPicture;
-use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCategory;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCompany;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryLanguage;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPhones;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPicture;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 
@@ -36,17 +36,17 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
  */
 class Provider extends DataEntry
 {
-    use DataEntryGeo;
-    use DataEntryUrl;
-    use DataEntryCode;
-    use DataEntryEmail;
-    use DataEntryPhones;
-    use DataEntryAddress;
-    use DataEntryCompany;
-    use DataEntryPicture;
-    use DataEntryCategory;
-    use DataEntryLanguage;
-    use DataEntryNameDescription;
+    use TraitDataEntryGeo;
+    use TraitDataEntryUrl;
+    use TraitDataEntryCode;
+    use TraitDataEntryEmail;
+    use TraitDataEntryPhones;
+    use TraitDataEntryAddress;
+    use TraitDataEntryCompany;
+    use TraitDataEntryPicture;
+    use TraitDataEntryCategory;
+    use TraitDataEntryLanguage;
+    use TraitDataEntryNameDescription;
 
 
     /**

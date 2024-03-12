@@ -14,12 +14,12 @@ use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryAccountType;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryPhone;
-use Phoundation\Data\DataEntry\Traits\DataEntryUser;
-use Phoundation\Data\DataEntry\Traits\DataEntryVerificationCode;
-use Phoundation\Data\DataEntry\Traits\DataEntryVerifiedOn;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryAccountType;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPhone;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerificationCode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Sanitize;
@@ -43,12 +43,12 @@ use Stringable;
  */
 class Phone extends DataEntry implements PhoneInterface
 {
-    use DataEntryUser;
-    use DataEntryPhone;
-    use DataEntryVerifiedOn;
-    use DataEntryAccountType;
-    use DataEntryDescription;
-    use DataEntryVerificationCode;
+    use TraitDataEntryUser;
+    use TraitDataEntryPhone;
+    use TraitDataEntryVerifiedOn;
+    use TraitDataEntryAccountType;
+    use TraitDataEntryDescription;
+    use TraitDataEntryVerificationCode;
 
 
     /**

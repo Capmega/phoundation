@@ -10,13 +10,13 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Traits\DataDataEntry;
-use Phoundation\Data\Traits\DataIdColumn;
-use Phoundation\Data\Traits\DataInsertUpdate;
-use Phoundation\Data\Traits\DataMaxIdRetries;
-use Phoundation\Data\Traits\DataMetaEnabled;
-use Phoundation\Data\Traits\DataRandomId;
-use Phoundation\Data\Traits\DataTable;
+use Phoundation\Data\Traits\TraitDataDataEntry;
+use Phoundation\Data\Traits\TraitDataIdColumn;
+use Phoundation\Data\Traits\TraitDataInsertUpdate;
+use Phoundation\Data\Traits\TraitDataMaxIdRetries;
+use Phoundation\Data\Traits\TraitDataMetaEnabled;
+use Phoundation\Data\Traits\TraitDataRandomId;
+use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Databases\Sql\Exception\SqlDuplicateException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
@@ -39,15 +39,15 @@ use Phoundation\Utils\Strings;
  */
 class SqlDataEntry implements SqlDataEntryInterface
 {
-    use DataDataEntry {
+    use TraitDataDataEntry {
         setDataEntry as protected __setDataEntry;
     }
-    use DataIdColumn;
-    use DataInsertUpdate;
-    use DataMaxIdRetries;
-    use DataMetaEnabled;
-    use DataRandomId;
-    use DataTable;
+    use TraitDataIdColumn;
+    use TraitDataInsertUpdate;
+    use TraitDataMaxIdRetries;
+    use TraitDataMetaEnabled;
+    use TraitDataRandomId;
+    use TraitDataTable;
 
 
     /**

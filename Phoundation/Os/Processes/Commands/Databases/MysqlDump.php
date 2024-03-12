@@ -6,9 +6,9 @@ namespace Phoundation\Os\Processes\Commands\Databases;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataConnector;
-use Phoundation\Data\Traits\DataDebug;
-use Phoundation\Data\Traits\DataFile;
+use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Date\DateTime;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Path;
@@ -32,8 +32,8 @@ use Phoundation\Utils\Strings;
  */
 class MysqlDump extends Command implements MysqlDumpInterface
 {
-    use DataDebug;
-    use DataConnector;
+    use TraitDataDebug;
+    use TraitDataConnector;
 
 
     /**

@@ -13,7 +13,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
-use Plugins\Medinet\Traits\DataDate;
+use Plugins\Medinet\Traits\TraitDataDate;
 use Stringable;
 
 
@@ -29,7 +29,7 @@ use Stringable;
  */
 class DateNavigator extends ElementsBlock
 {
-    use DataDate;
+    use TraitDataDate;
 
 
     /**

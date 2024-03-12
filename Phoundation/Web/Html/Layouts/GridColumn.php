@@ -8,8 +8,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Bootstrap;
 use Phoundation\Web\Html\Enums\EnumContainerTier;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
-use Phoundation\Web\Html\Traits\UsesSize;
-use Phoundation\Web\Html\Traits\UsesTier;
+use Phoundation\Web\Html\Traits\TraitUsesSize;
+use Phoundation\Web\Html\Traits\TraitUsesTier;
 use Stringable;
 
 
@@ -25,8 +25,8 @@ use Stringable;
  */
 class GridColumn extends Layout
 {
-    use UsesSize;
-    use UsesTier;
+    use TraitUsesSize;
+    use TraitUsesTier;
 
 
     /**

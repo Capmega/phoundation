@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Layouts;
 
-use Phoundation\Web\Html\Traits\UsesTier;
+use Phoundation\Web\Html\Traits\TraitUsesTier;
 
 
 /**
@@ -19,5 +19,5 @@ use Phoundation\Web\Html\Traits\UsesTier;
  */
 class Container extends Layout
 {
-    use UsesTier;
+    use TraitUsesTier;
 }

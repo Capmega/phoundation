@@ -6,13 +6,13 @@ namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
 use Phoundation\Content\Images\Image;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
-use Phoundation\Data\Traits\DataTitle;
+use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
-use Phoundation\Web\Html\Traits\Mode;
+use Phoundation\Web\Html\Traits\TraitMode;
 
 
 /**
@@ -27,8 +27,8 @@ use Phoundation\Web\Html\Traits\Mode;
  */
 class FlashMessage extends ElementsBlock implements FlashMessageInterface
 {
-    use Mode;
-    use DataTitle;
+    use TraitMode;
+    use TraitDataTitle;
 
 
     /**

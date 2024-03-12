@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Data\Traits\DataMinify;
+use Phoundation\Data\Traits\TraitDataMinify;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
@@ -26,7 +26,7 @@ use Phoundation\Web\Page;
  */
 class Script extends Element
 {
-    use DataMinify;
+    use TraitDataMinify;
 
 
     /**

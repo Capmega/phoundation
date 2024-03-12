@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Docker;
 
-use Phoundation\Data\Traits\DataDirectory;
-use Phoundation\Data\Traits\DataPort;
+use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
-use Phoundation\Virtualization\Traits\DataImage;
+use Phoundation\Virtualization\Traits\TraitDataImage;
 
 
 /**
@@ -25,10 +25,10 @@ use Phoundation\Virtualization\Traits\DataImage;
  */
 class DockerFile
 {
-    use DataDirectory;
-    use DataPort;
-    use DataImage;
-    use DataRestrictions;
+    use TraitDataDirectory;
+    use TraitDataPort;
+    use TraitDataImage;
+    use TraitDataRestrictions;
 
     /**
      * Docker file FROM variable

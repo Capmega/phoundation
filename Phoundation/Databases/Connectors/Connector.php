@@ -12,15 +12,15 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryCharacterSet;
-use Phoundation\Data\DataEntry\Traits\DataEntryCollate;
-use Phoundation\Data\DataEntry\Traits\DataEntryDatabase;
-use Phoundation\Data\DataEntry\Traits\DataEntryPassword;
-use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntrySync;
-use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
-use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCharacterSet;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCollate;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDatabase;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPassword;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryHostnamePort;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntrySync;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimezone;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -44,15 +44,15 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Connector extends DataEntry implements ConnectorInterface
 {
-    use DataEntryNameDescription;
-    use DataEntryHostnamePort;
-    use DataEntryUsername;
-    use DataEntryPassword;
-    use DataEntryDatabase;
-    use DataEntryTimezone;
-    use DataEntryCharacterSet;
-    use DataEntryCollate;
-    use DataEntrySync;
+    use TraitDataEntryNameDescription;
+    use TraitDataEntryHostnamePort;
+    use TraitDataEntryUsername;
+    use TraitDataEntryPassword;
+    use TraitDataEntryDatabase;
+    use TraitDataEntryTimezone;
+    use TraitDataEntryCharacterSet;
+    use TraitDataEntryCollate;
+    use TraitDataEntrySync;
 
 
     /**

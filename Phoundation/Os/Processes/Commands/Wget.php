@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Data\Traits\DataBindAddress;
-use Phoundation\Data\Traits\DataSource;
-use Phoundation\Data\Traits\DataTarget;
+use Phoundation\Data\Traits\TraitDataBindAddress;
+use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 
@@ -23,9 +23,9 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  */
 class Wget extends Command
 {
-    use DataSource;
-    use DataTarget;
-    use DataBindAddress;
+    use TraitDataSourceString;
+    use TraitDataTarget;
+    use TraitDataBindAddress;
 
 
     /**

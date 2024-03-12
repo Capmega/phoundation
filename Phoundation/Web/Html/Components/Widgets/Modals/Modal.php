@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Modals;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Traits\DataTitle;
+use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Web\Html\Components\Buttons\Buttons;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
@@ -22,7 +22,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
  */
 abstract class Modal extends ElementsBlock
 {
-    use DataTitle;
+    use TraitDataTitle;
 
 
     /**

@@ -8,7 +8,7 @@ use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Config;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\DataMaxStringSize;
+use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Utils\Strings;
 
@@ -25,7 +25,7 @@ use Phoundation\Utils\Strings;
  */
 class Sanitize
 {
-    use DataMaxStringSize;
+    use TraitDataMaxStringSize;
 
 
     /**

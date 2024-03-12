@@ -14,15 +14,15 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
-use Phoundation\Data\DataEntry\Traits\DataEntryCity;
-use Phoundation\Data\DataEntry\Traits\DataEntryCode;
-use Phoundation\Data\DataEntry\Traits\DataEntryCountry;
-use Phoundation\Data\DataEntry\Traits\DataEntryCustomer;
-use Phoundation\Data\DataEntry\Traits\DataEntryHostnamePort;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryProvider;
-use Phoundation\Data\DataEntry\Traits\DataEntryState;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCategory;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCity;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCountry;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCustomer;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryHostnamePort;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryProvider;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryState;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Cities\Cities;
 use Phoundation\Geo\Countries\Countries;
@@ -30,7 +30,7 @@ use Phoundation\Geo\States\States;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Exception\SshException;
 use Phoundation\Servers\Interfaces\ServerInterface;
-use Phoundation\Servers\Traits\DataEntrySshAccount;
+use Phoundation\Servers\Traits\TraitDataEntrySshAccount;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -48,16 +48,16 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Server extends DataEntry implements ServerInterface
 {
-    use DataEntryCountry;
-    use DataEntryState;
-    use DataEntryCity;
-    use DataEntryCategory;
-    use DataEntryCode;
-    use DataEntryHostnamePort;
-    use DataEntryNameDescription;
-    use DataEntryCustomer;
-    use DataEntryProvider;
-    use DataEntrySshAccount;
+    use TraitDataEntryCountry;
+    use TraitDataEntryState;
+    use TraitDataEntryCity;
+    use TraitDataEntryCategory;
+    use TraitDataEntryCode;
+    use TraitDataEntryHostnamePort;
+    use TraitDataEntryNameDescription;
+    use TraitDataEntryCustomer;
+    use TraitDataEntryProvider;
+    use TraitDataEntrySshAccount;
 
 
     /**

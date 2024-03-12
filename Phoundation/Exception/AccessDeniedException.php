@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-use Phoundation\Data\Traits\DataNewTarget;
+use Phoundation\Data\Traits\TraitDataNewTarget;
 use Phoundation\Exception\Interfaces\AccessDeniedExceptionInterface;
 use Throwable;
 
@@ -18,7 +18,7 @@ use Throwable;
  */
 class AccessDeniedException extends Exception implements AccessDeniedExceptionInterface
 {
-    use DataNewTarget;
+    use TraitDataNewTarget;
 
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataLabel;
+use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Ps;
@@ -27,7 +27,7 @@ use Phoundation\Utils\Strings;
  */
 class WorkersCore extends ProcessCore implements WorkersCoreInterface
 {
-    use DataLabel;
+    use TraitDataLabel;
 
 
     /**

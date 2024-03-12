@@ -6,7 +6,7 @@ namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
@@ -25,7 +25,7 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
  */
 class Country extends DataEntry
 {
-    use DataEntryNameDescription;
+    use TraitDataEntryNameDescription;
 
 
     /**

@@ -7,7 +7,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\DataMaxStringSize;
+use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
 
@@ -23,7 +23,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
  */
 class Validate
 {
-    use DataMaxStringSize;
+    use TraitDataMaxStringSize;
 
 
     /**

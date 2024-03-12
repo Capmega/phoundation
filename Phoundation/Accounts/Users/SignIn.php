@@ -10,10 +10,10 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryIpAddress;
-use Phoundation\Data\DataEntry\Traits\DataEntryTimezone;
-use Phoundation\Data\DataEntry\Traits\DataEntryUserAgent;
-use Phoundation\Data\Traits\DataGeoIp;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryIpAddress;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimezone;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUserAgent;
+use Phoundation\Data\Traits\TraitDataGeoIp;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
@@ -36,10 +36,10 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class SignIn extends DataEntry
 {
-    use DataEntryUserAgent;
-    use DataEntryIpAddress;
-    use DataEntryTimezone;
-    use DataGeoIp;
+    use TraitDataEntryUserAgent;
+    use TraitDataEntryIpAddress;
+    use TraitDataEntryTimezone;
+    use TraitDataGeoIp;
 
 
     /**

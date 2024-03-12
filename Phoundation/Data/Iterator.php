@@ -16,7 +16,7 @@ use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\DataCallbacks;
+use Phoundation\Data\Traits\TraitDataCallbacks;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -60,7 +60,7 @@ use Stringable;
  */
 class Iterator implements IteratorInterface
 {
-    use DataCallbacks;
+    use TraitDataCallbacks;
 
 
     /**

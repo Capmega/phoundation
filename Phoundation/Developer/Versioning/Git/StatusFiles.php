@@ -9,11 +9,10 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
-use Phoundation\Developer\Versioning\Git\Exception\GitConflictException;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Developer\Versioning\Git\Traits\GitProcess;
+use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -32,7 +31,7 @@ use Phoundation\Utils\Strings;
  */
 class StatusFiles extends Iterator implements StatusFilesInterface
 {
-    use GitProcess;
+    use TraitGitProcess;
 
 
     /**
@@ -187,30 +186,5 @@ class StatusFiles extends Iterator implements StatusFilesInterface
         }
 
         return $this->git;
-    }
-
-
-    /**
-     * Throws a GitConflictException if the current path contains git conflicts
-     *
-     * @return $this
-     */
-    public function checkConflict(): static
-    {
-        $files = [];
-
-        foreach ($this->source as $file => $status) {
-            if ($status->hasConflict()) {
-                $files[] = $file;
-            }
-        }
-
-        if (count($files)) {
-            throw GitConflictException::new(tr('Git conflicts encountered in the files ":files"', [
-                ':files' => $files
-            ]))->setData(['files' => $files]);
-        }
-
-        return $this;
     }
 }

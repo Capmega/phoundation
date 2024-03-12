@@ -8,7 +8,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataDefinition;
+use Phoundation\Data\Traits\TraitDataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -32,7 +32,7 @@ use Stringable;
  */
 trait ElementAttributes
 {
-    use DataDefinition {
+    use TraitDataDefinition {
         setDefinition as protected __setDefinition;
         getDefinition as protected __getDefinition;
     }

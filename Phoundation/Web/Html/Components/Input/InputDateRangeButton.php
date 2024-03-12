@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Data\Traits\DataStartDate;
-use Phoundation\Data\Traits\DataStopDate;
+use Phoundation\Data\Traits\TraitDataStartDate;
+use Phoundation\Data\Traits\TraitDataStopDate;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -21,8 +21,8 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class InputDateRangeButton extends InputText
 {
-    use DataStartDate;
-    use DataStopDate;
+    use TraitDataStartDate;
+    use TraitDataStopDate;
 
 
     /**

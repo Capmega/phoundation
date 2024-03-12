@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Data\Traits\DataStartDate;
-use Phoundation\Data\Traits\DataStopDate;
+use Phoundation\Data\Traits\TraitDataStartDate;
+use Phoundation\Data\Traits\TraitDataStopDate;
 use Phoundation\Date\DateRangePickerRanges;
 use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -27,8 +27,8 @@ use Phoundation\Web\Page;
  */
 class InputDateRange extends InputText
 {
-    use DataStartDate;
-    use DataStopDate;
+    use TraitDataStartDate;
+    use TraitDataStopDate;
 
 
     /**

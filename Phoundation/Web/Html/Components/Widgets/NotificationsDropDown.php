@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Traits\DataStatus;
+use Phoundation\Data\Traits\TraitDataStatus;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Notifications\Notifications;
@@ -29,7 +29,7 @@ use Stringable;
  */
 class NotificationsDropDown extends ElementsBlock
 {
-    use DataStatus {
+    use TraitDataStatus {
         setStatus as setStatusTrait;
     }
 

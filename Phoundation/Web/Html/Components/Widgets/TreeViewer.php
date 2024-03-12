@@ -7,8 +7,8 @@ namespace Phoundation\Web\Html\Components\Widgets;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Interfaces\TreeInterface;
-use Phoundation\Data\Traits\DataRenderMethod;
-use Phoundation\Data\Traits\DataUrl;
+use Phoundation\Data\Traits\TraitDataRenderMethod;
+use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Data\Tree;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -32,8 +32,8 @@ use Phoundation\Web\Page;
  */
 class TreeViewer extends Widget
 {
-    use DataUrl;
-    use DataRenderMethod;
+    use TraitDataUrl;
+    use TraitDataRenderMethod;
 
 
     /**

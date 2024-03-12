@@ -7,7 +7,7 @@ namespace Phoundation\Developer;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataTimeout;
+use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
@@ -39,7 +39,7 @@ use Phoundation\Utils\Strings;
  */
 class Sync
 {
-    use DataTimeout;
+    use TraitDataTimeout;
 
 
     /**

@@ -8,8 +8,8 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryPath;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -28,8 +28,8 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Requirement extends DataEntry
 {
-    use DataEntryNameDescription;
-    use DataEntryPath;
+    use TraitDataEntryNameDescription;
+    use TraitDataEntryPath;
 
 
     /**

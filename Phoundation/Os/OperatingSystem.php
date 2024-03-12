@@ -7,8 +7,8 @@ namespace Phoundation\Os;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryVersion;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryVersion;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Os\Interfaces\OperatingSystemInterface;
 
@@ -25,8 +25,8 @@ use Phoundation\Os\Interfaces\OperatingSystemInterface;
  */
 class OperatingSystem extends DataEntry implements OperatingSystemInterface
 {
-    use DataEntryNameDescription;
-    use DataEntryVersion;
+    use TraitDataEntryNameDescription;
+    use TraitDataEntryVersion;
 
 
     /**

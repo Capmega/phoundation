@@ -7,7 +7,7 @@ namespace Phoundation\Web\Html\Components\Icons;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
-use Phoundation\Web\Html\Traits\Mode;
+use Phoundation\Web\Html\Traits\TraitMode;
 
 
 /**
@@ -22,7 +22,7 @@ use Phoundation\Web\Html\Traits\Mode;
  */
 class Icon extends Element implements IconInterface
 {
-    use Mode;
+    use TraitMode;
 
 
     /**

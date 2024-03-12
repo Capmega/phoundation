@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
-use Phoundation\Data\Traits\DataEmail;
+use Phoundation\Data\Traits\TraitDataEmail;
 use Phoundation\Web\Html\Components\ElementsBlock;
 
 throw new \Phoundation\Exception\UnderConstructionException();
@@ -21,7 +21,7 @@ throw new \Phoundation\Exception\UnderConstructionException();
  */
 class MagicSignInPage extends ElementsBlock
 {
-    use DataEmail;
+    use TraitDataEmail;
 
 
     /**

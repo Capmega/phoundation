@@ -12,18 +12,18 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryCode;
-use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
-use Phoundation\Data\DataEntry\Traits\DataEntryFile;
-use Phoundation\Data\DataEntry\Traits\DataEntryIcon;
-use Phoundation\Data\DataEntry\Traits\DataEntryLine;
-use Phoundation\Data\DataEntry\Traits\DataEntryMessage;
-use Phoundation\Data\DataEntry\Traits\DataEntryMode;
-use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
-use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
-use Phoundation\Data\DataEntry\Traits\DataEntryTrace;
-use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
-use Phoundation\Data\DataEntry\Traits\DataEntryUser;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDetails;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryIcon;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryLine;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryMessage;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryMode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryTrace;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Exception;
@@ -55,18 +55,18 @@ use Throwable;
  */
 class Notification extends DataEntry implements NotificationInterface
 {
-    use DataEntryUrl;
-    use DataEntryCode;
-    use DataEntryIcon;
-    use DataEntryMode;
-    use DataEntryFile;
-    use DataEntryLine;
-    use DataEntryPriority;
-    use DataEntryUser;
-    use DataEntryTitle;
-    use DataEntryMessage;
-    use DataEntryDetails;
-    use DataEntryTrace;
+    use TraitDataEntryUrl;
+    use TraitDataEntryCode;
+    use TraitDataEntryIcon;
+    use TraitDataEntryMode;
+    use TraitDataEntryFile;
+    use TraitDataEntryLine;
+    use TraitDataEntryPriority;
+    use TraitDataEntryUser;
+    use TraitDataEntryTitle;
+    use TraitDataEntryMessage;
+    use TraitDataEntryDetails;
+    use TraitDataEntryTrace;
 
 
     /**

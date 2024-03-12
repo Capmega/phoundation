@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users\Exception;
 
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
-use Phoundation\Data\Traits\DataNewTarget;
+use Phoundation\Data\Traits\TraitDataNewTarget;
 use Throwable;
 
 
@@ -21,7 +21,7 @@ use Throwable;
  */
 class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
-    use DataNewTarget;
+    use TraitDataNewTarget;
 
 
     /**

@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataArrayData;
-use Phoundation\Data\Traits\DataArrayOutput;
-use Phoundation\Data\Traits\DataName;
-use Phoundation\Data\Traits\UsesNewName;
+use Phoundation\Data\Traits\TraitDataArrayData;
+use Phoundation\Data\Traits\TraitDataArrayOutput;
+use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitUsesNewName;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
-use Phoundation\Virtualization\Kubernetes\Traits\DataAnnotations;
-use Phoundation\Virtualization\Kubernetes\Traits\DataLabels;
-use Phoundation\Virtualization\Kubernetes\Traits\DataNamespace;
-use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitDataAnnotations;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitDataLabels;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitDataNamespace;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitUsesKubeCtl;
 
 
 /**
@@ -30,14 +30,14 @@ use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
  */
 class KubernetesObject
 {
-    use DataArrayOutput;
-    use DataAnnotations;
-    use DataArrayData;
-    use DataLabels;
-    use DataName;
-    use DataNamespace;
-    use UsesKubeCtl;
-    use UsesNewName;
+    use TraitDataArrayOutput;
+    use TraitDataAnnotations;
+    use TraitDataArrayData;
+    use TraitDataLabels;
+    use TraitDataName;
+    use TraitDataNamespace;
+    use TraitUsesKubeCtl;
+    use TraitUsesNewName;
 
     /**
      * The configuration file for this object

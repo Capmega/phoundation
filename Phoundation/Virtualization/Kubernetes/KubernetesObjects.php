@@ -7,11 +7,11 @@ namespace Phoundation\Virtualization\Kubernetes;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\UsesNew;
+use Phoundation\Data\Traits\TraitUsesNew;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
+use Phoundation\Virtualization\Kubernetes\Traits\TraitUsesKubeCtl;
 
 
 /**
@@ -26,7 +26,7 @@ use Phoundation\Virtualization\Kubernetes\Traits\UsesKubeCtl;
  */
 class KubernetesObjects extends Iterator
 {
-    use UsesKubeCtl;
+    use TraitUsesKubeCtl;
 
 
     /**

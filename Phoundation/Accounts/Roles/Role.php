@@ -18,8 +18,8 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameLowercaseDash;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -41,8 +41,8 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Role extends DataEntry implements RoleInterface
 {
-    use DataEntryNameLowercaseDash;
-    use DataEntryDescription;
+    use TraitDataEntryNameLowercaseDash;
+    use TraitDataEntryDescription;
 
 
     /**

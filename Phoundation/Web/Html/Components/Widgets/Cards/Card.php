@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
-use Phoundation\Data\Traits\DataDescription;
-use Phoundation\Data\Traits\DataTitle;
+use Phoundation\Data\Traits\TraitDataDescription;
+use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Buttons\Button;
@@ -28,8 +28,8 @@ use Stringable;
  */
 class Card extends Widget
 {
-    use DataTitle;
-    use DataDescription;
+    use TraitDataTitle;
+    use TraitDataDescription;
 
 
     /**

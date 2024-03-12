@@ -6,7 +6,7 @@ namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Data\Traits\DataDebug;
+use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
@@ -24,7 +24,7 @@ use Phoundation\Utils\Strings;
  */
 class QueryObject implements QueryObjectInterface
 {
-    use DataDebug;
+    use TraitDataDebug;
 
 
     /**

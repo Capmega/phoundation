@@ -7,7 +7,7 @@ namespace Phoundation\Geo\Continents;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Geo\Timezones\Timezone;
 
 
@@ -24,7 +24,7 @@ use Phoundation\Geo\Timezones\Timezone;
  */
 class Continent extends DataEntry
 {
-    use DataEntryNameDescription;
+    use TraitDataEntryNameDescription;
 
 
     /**

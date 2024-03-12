@@ -29,8 +29,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
-use Phoundation\Data\Traits\DataStaticIsExecutedPath;
-use Phoundation\Data\Traits\DataStaticReadonly;
+use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
+use Phoundation\Data\Traits\TraitDataStaticReadonly;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
@@ -74,8 +74,8 @@ use Throwable;
  */
 class Core implements CoreInterface
 {
-    use DataStaticReadonly;
-    use DataStaticIsExecutedPath;
+    use TraitDataStaticReadonly;
+    use TraitDataStaticIsExecutedPath;
 
 
     /**

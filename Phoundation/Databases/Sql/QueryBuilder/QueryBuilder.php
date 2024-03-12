@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use PDOStatement;
-use Phoundation\Data\Traits\DataDatabaseConnector;
-use Phoundation\Data\Traits\DataMetaEnabled;
+use Phoundation\Data\Traits\TraitDataDatabaseConnector;
+use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
 
@@ -23,8 +23,8 @@ use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
  */
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
 {
-    use DataMetaEnabled;
-    use DataDatabaseConnector;
+    use TraitDataMetaEnabled;
+    use TraitDataDatabaseConnector;
 
 
     /**

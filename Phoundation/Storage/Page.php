@@ -9,12 +9,12 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryCategory;
-use Phoundation\Data\DataEntry\Traits\DataEntryCode;
-use Phoundation\Data\DataEntry\Traits\DataEntryContent;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryName;
-use Phoundation\Data\DataEntry\Traits\DataEntryParent;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCategory;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryContent;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryName;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryParent;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Storage\Interfaces\PageInterface;
 use Phoundation\Web\Html\Enums\EnumInputElement;
@@ -32,12 +32,12 @@ use Phoundation\Web\Html\Enums\EnumInputElement;
  */
 class Page extends DataEntry implements PageInterface
 {
-    use DataEntryName;
-    use DataEntryCode;
-    use DataEntryParent;
-    use DataEntryCategory;
-    use DataEntryContent;
-    use DataEntryDescription;
+    use TraitDataEntryName;
+    use TraitDataEntryCode;
+    use TraitDataEntryParent;
+    use TraitDataEntryCategory;
+    use TraitDataEntryContent;
+    use TraitDataEntryDescription;
 
 
     /**

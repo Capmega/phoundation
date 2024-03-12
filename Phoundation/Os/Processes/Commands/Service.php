@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataServiceName;
+use Phoundation\Data\Traits\TraitDataServiceName;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 
 
@@ -21,7 +21,7 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
  */
 class Service extends Command
 {
-    use DataServiceName;
+    use TraitDataServiceName;
 
 
     /**

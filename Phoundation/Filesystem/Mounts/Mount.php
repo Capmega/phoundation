@@ -13,16 +13,16 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryOptions;
-use Phoundation\Data\DataEntry\Traits\DataEntryTimeout;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryOptions;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimeout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\MountInterface;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\MountsException;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\UnMount;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -40,10 +40,10 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Mount extends DataEntry implements MountInterface
 {
-    use DataEntryNameDescription;
-    use DataRestrictions;
-    use DataEntryOptions;
-    use DataEntryTimeout;
+    use TraitDataEntryNameDescription;
+    use TraitDataRestrictions;
+    use TraitDataEntryOptions;
+    use TraitDataEntryTimeout;
 
 
     /**

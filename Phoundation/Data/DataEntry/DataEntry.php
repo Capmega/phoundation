@@ -20,7 +20,7 @@ use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Enums\EnunmStateMismatchHandling;
-use Phoundation\Data\DataEntry\Exception\BadDataEntryException;
+use Phoundation\Data\DataEntry\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
@@ -28,18 +28,18 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryDefinitions;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDefinitions;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataConfigPath;
-use Phoundation\Data\Traits\DataDatabaseConnector;
-use Phoundation\Data\Traits\DataDebug;
-use Phoundation\Data\Traits\DataDisabled;
-use Phoundation\Data\Traits\DataInsertUpdate;
-use Phoundation\Data\Traits\DataMaxIdRetries;
-use Phoundation\Data\Traits\DataMetaColumns;
-use Phoundation\Data\Traits\DataMetaEnabled;
-use Phoundation\Data\Traits\DataRandomId;
-use Phoundation\Data\Traits\DataReadonly;
+use Phoundation\Data\Traits\TraitDataConfigPath;
+use Phoundation\Data\Traits\TraitDataDatabaseConnector;
+use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataDisabled;
+use Phoundation\Data\Traits\TraitDataInsertUpdate;
+use Phoundation\Data\Traits\TraitDataMaxIdRetries;
+use Phoundation\Data\Traits\TraitDataMetaColumns;
+use Phoundation\Data\Traits\TraitDataMetaEnabled;
+use Phoundation\Data\Traits\TraitDataRandomId;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -79,19 +79,19 @@ use Throwable;
  */
 abstract class DataEntry implements DataEntryInterface
 {
-    use DataConfigPath;
-    use DataDatabaseConnector;
-    use DataDebug;
-    use DataDisabled;
-    use DataEntryDefinitions;
-    use DataInsertUpdate;
-    use DataMaxIdRetries;
-    use DataMetaEnabled;
-    use DataMetaColumns {
+    use TraitDataConfigPath;
+    use TraitDataDatabaseConnector;
+    use TraitDataDebug;
+    use TraitDataDisabled;
+    use TraitDataEntryDefinitions;
+    use TraitDataInsertUpdate;
+    use TraitDataMaxIdRetries;
+    use TraitDataMetaEnabled;
+    use TraitDataMetaColumns {
         setMetaColumns as protected __setMetaColumns;
     }
-    use DataRandomId;
-    use DataReadonly;
+    use TraitDataRandomId;
+    use TraitDataReadonly;
 
 
     /**
@@ -311,7 +311,7 @@ abstract class DataEntry implements DataEntryInterface
                 return clone $source;
             }
 
-            throw new BadDataEntryException(tr('The specified source ":source" must be either an array or an instance of ":static"', [
+            throw new DataEntryBadException(tr('The specified source ":source" must be either an array or an instance of ":static"', [
                 ':static' => static::class,
                 ':source' => get_class($source)
             ]));

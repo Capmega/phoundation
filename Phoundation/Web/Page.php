@@ -22,7 +22,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
-use Phoundation\Data\Traits\DataStaticExecuted;
+use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -88,7 +88,7 @@ use Throwable;
  */
 class Page implements PageInterface
 {
-    use DataStaticExecuted;
+    use TraitDataStaticExecuted;
 
 
     /**

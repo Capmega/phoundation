@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Data\Traits\DataFile;
-use Phoundation\Data\Traits\DataStringData;
+use Phoundation\Data\Traits\TraitDataFile;
+use Phoundation\Data\Traits\TraitDataStringData;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
@@ -22,8 +22,8 @@ use Phoundation\Filesystem\File;
  */
 abstract class ObjectFile
 {
-    use DataFile;
-    use DataStringData;
+    use TraitDataFile;
+    use TraitDataStringData;
 
     /**
      * The kubernetes object for this configuration file

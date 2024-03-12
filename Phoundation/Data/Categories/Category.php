@@ -11,7 +11,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumInputElement;
@@ -30,7 +30,7 @@ use Phoundation\Web\Html\Enums\EnumInputElement;
  */
 class Category extends DataEntry implements CategoryInterface
 {
-    use DataEntryNameDescription;
+    use TraitDataEntryNameDescription;
 
 
     /**

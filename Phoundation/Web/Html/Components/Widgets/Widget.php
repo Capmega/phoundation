@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Traits\Background;
-use Phoundation\Web\Html\Traits\Mode;
+use Phoundation\Web\Html\Traits\TraitBackground;
+use Phoundation\Web\Html\Traits\TraitMode;
 
 
 /**
@@ -21,8 +21,8 @@ use Phoundation\Web\Html\Traits\Mode;
  */
 abstract class Widget extends ElementsBlock
 {
-    use Mode;
-    use Background;
+    use TraitMode;
+    use TraitBackground;
 
 
     /**

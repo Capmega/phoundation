@@ -6,10 +6,10 @@ namespace Phoundation\Os\Processes\Commands\Databases;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataConnector;
-use Phoundation\Data\Traits\DataHostnamePort;
-use Phoundation\Data\Traits\DataSource;
-use Phoundation\Data\Traits\DataUserPass;
+use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataHostnamePort;
+use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
@@ -41,10 +41,10 @@ use Throwable;
  */
 class MySql extends Command
 {
-    use DataHostnamePort;
-    use DataUserPass;
-    use DataSource;
-    use DataConnector;
+    use TraitDataHostnamePort;
+    use TraitDataUserPass;
+    use TraitDataSourceString;
+    use TraitDataConnector;
 
 
     /**

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataDebug;
-use Phoundation\Data\Traits\DataNetworkConnection;
-use Phoundation\Data\Traits\DataSource;
-use Phoundation\Data\Traits\DataSourceServer;
-use Phoundation\Data\Traits\DataTarget;
-use Phoundation\Data\Traits\DataTargetServer;
+use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataNetworkConnection;
+use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataSourceServer;
+use Phoundation\Data\Traits\TraitDataTarget;
+use Phoundation\Data\Traits\TraitDataTargetServer;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\RsyncInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -31,12 +31,12 @@ use Stringable;
  */
 class Rsync extends Command implements RsyncInterface
 {
-    use DataDebug;
-    use DataNetworkConnection;
-    use DataSource;
-    use DataSourceServer;
-    use DataTarget;
-    use DataTargetServer;
+    use TraitDataDebug;
+    use TraitDataNetworkConnection;
+    use TraitDataSourceString;
+    use TraitDataSourceServer;
+    use TraitDataTarget;
+    use TraitDataTargetServer;
 
 
     /**

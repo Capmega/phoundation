@@ -8,11 +8,11 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryData;
-use Phoundation\Data\DataEntry\Traits\DataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryException;
-use Phoundation\Data\DataEntry\Traits\DataEntryType;
-use Phoundation\Data\DataEntry\Traits\DataEntryUrl;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryException;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 
@@ -30,11 +30,11 @@ use Phoundation\Web\Html\Enums\EnumInputElement;
  */
 class Incident extends DataEntry
 {
-    use DataEntryDescription;
-    use DataEntryException;
-    use DataEntryType;
-    use DataEntryData;
-    use DataEntryUrl;
+    use TraitDataEntryDescription;
+    use TraitDataEntryException;
+    use TraitDataEntryType;
+    use TraitDataEntryData;
+    use TraitDataEntryUrl;
 
 
     /**

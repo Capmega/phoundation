@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Traits\UsesAttributeMultiple;
+use Phoundation\Web\Html\Traits\TraitUsesAttributeMultiple;
 
 
 /**
@@ -20,7 +20,7 @@ use Phoundation\Web\Html\Traits\UsesAttributeMultiple;
  */
 class InputEmail extends InputText
 {
-    use UsesAttributeMultiple;
+    use TraitUsesAttributeMultiple;
 
     /**
      * InputEmail class constructor

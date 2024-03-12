@@ -9,11 +9,11 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryFile;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryUsername;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Servers\Interfaces\SshAccountInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -31,10 +31,10 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class SshAccount extends DataEntry implements SshAccountInterface
 {
-    use DataRestrictions;
-    use DataEntryNameDescription;
-    use DataEntryUsername;
-    use DataEntryFile;
+    use TraitDataRestrictions;
+    use TraitDataEntryNameDescription;
+    use TraitDataEntryUsername;
+    use TraitDataEntryFile;
 
 
     /**

@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataWidth;
+use Phoundation\Data\Traits\TraitDataWidth;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Script;
@@ -26,7 +26,7 @@ use Stringable;
  */
 class InputAutoSuggest extends InputText
 {
-    use DataWidth;
+    use TraitDataWidth;
 
 
     /**

@@ -8,8 +8,8 @@ use PDO;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataCallbacks;
-use Phoundation\Data\Traits\DataTitle;
+use Phoundation\Data\Traits\TraitDataCallbacks;
+use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -36,8 +36,8 @@ use Stringable;
  */
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
-    use DataTitle;
-    use DataCallbacks;
+    use TraitDataTitle;
+    use TraitDataCallbacks;
 
 
     /**

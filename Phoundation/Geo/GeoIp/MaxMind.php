@@ -9,7 +9,7 @@ use GeoIp2\Exception\AddressNotFoundException;
 use GeoIp2\Model\City;
 use MaxMind\Db\Reader\InvalidDatabaseException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\DataDirectory;
+use Phoundation\Data\Traits\TraitDataDirectory;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
@@ -28,7 +28,7 @@ use Throwable;
  */
 class MaxMind extends GeoIp
 {
-    Use DataDirectory;
+    Use TraitDataDirectory;
 
 
     /**

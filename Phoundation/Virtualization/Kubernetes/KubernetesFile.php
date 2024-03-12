@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes;
 
-use Phoundation\Data\Traits\DataFile;
+use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
 
@@ -21,7 +21,7 @@ use Phoundation\Filesystem\File;
  */
 abstract class KubernetesFile
 {
-    use DataFile;
+    use TraitDataFile;
 
     /**
      * The file where to store this Kubernetes configuration

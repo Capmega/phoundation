@@ -8,8 +8,8 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\DataEntryName;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryName;
 use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
 
 
@@ -25,8 +25,8 @@ use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
  */
 class EmailAddressLinked extends DataEntry
 {
-    use DataEntryName;
-    use DataEntryEmail;
+    use TraitDataEntryName;
+    use TraitDataEntryEmail;
 
 
     /**

@@ -7,11 +7,11 @@ namespace Phoundation\Web\Html\Components;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\DataConnector;
+use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
-use Phoundation\Web\Html\Traits\InputElement;
+use Phoundation\Web\Html\Traits\TraitInputElement;
 
 
 /**
@@ -26,8 +26,8 @@ use Phoundation\Web\Html\Traits\InputElement;
  */
 abstract class ResourceElement extends Element implements ResourceElementInterface, InputInterface
 {
-    use InputElement;
-    use DataConnector;
+    use TraitInputElement;
+    use TraitDataConnector;
 
 
     /**

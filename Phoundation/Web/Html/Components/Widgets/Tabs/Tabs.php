@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\Traits\DataOrientation;
+use Phoundation\Data\Traits\TraitDataOrientation;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
@@ -28,7 +28,7 @@ use Stringable;
  */
 class Tabs extends ElementsBlock implements TabsInterface
 {
-    use DataOrientation {
+    use TraitDataOrientation {
         setOrientation AS protected __setOrientation;
     }
 

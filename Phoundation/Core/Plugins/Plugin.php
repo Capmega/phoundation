@@ -14,9 +14,9 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\DataEntryPath;
-use Phoundation\Data\DataEntry\Traits\DataEntryPriority;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
@@ -36,9 +36,9 @@ use Phoundation\Web\Html\Enums\EnumInputType;
  */
 class Plugin extends DataEntry implements PluginInterface
 {
-    use DataEntryNameDescription;
-    use DataEntryPath;
-    use DataEntryPriority {
+    use TraitDataEntryNameDescription;
+    use TraitDataEntryPath;
+    use TraitDataEntryPriority {
         setPriority as setTraitPriority;
     }
 

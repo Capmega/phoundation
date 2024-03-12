@@ -17,10 +17,10 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryRedirect;
-use Phoundation\Data\DataEntry\Traits\DataEntryUser;
-use Phoundation\Data\DataEntry\Traits\DataEntryUuid;
-use Phoundation\Data\Traits\DataUrl;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryRedirect;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryUuid;
+use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Page;
@@ -41,10 +41,10 @@ use Stringable;
  */
 class SignInKey extends DataEntry implements SignInKeyInterface
 {
-    use DataUrl;
-    use DataEntryUser;
-    use DataEntryUuid;
-    use DataEntryRedirect;
+    use TraitDataUrl;
+    use TraitDataEntryUser;
+    use TraitDataEntryUuid;
+    use TraitDataEntryRedirect;
 
 
     /**

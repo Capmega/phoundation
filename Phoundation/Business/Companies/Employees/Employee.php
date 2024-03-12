@@ -7,7 +7,7 @@ namespace Phoundation\Business\Companies\Employees;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
 
 /**
@@ -23,7 +23,7 @@ use Phoundation\Data\DataEntry\Traits\DataEntryNameDescription;
  */
 class Employee extends DataEntry
 {
-    use DataEntryNameDescription;
+    use TraitDataEntryNameDescription;
 
 
     /**

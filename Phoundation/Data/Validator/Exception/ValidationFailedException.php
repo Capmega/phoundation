@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator\Exception;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Traits\DataData;
-use Phoundation\Data\Traits\DataDataEntryClass;
+use Phoundation\Data\Traits\TraitDataData;
+use Phoundation\Data\Traits\TraitDataDataEntryClass;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Throwable;
 
@@ -23,7 +23,7 @@ use Throwable;
  */
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
-    use DataDataEntryClass {
+    use TraitDataDataEntryClass {
         setDataEntryClass as setDataEntryClassDirect;
     }
 

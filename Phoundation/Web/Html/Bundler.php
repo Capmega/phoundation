@@ -13,7 +13,7 @@ use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Filesystem;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Filesystem\Traits\DataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -34,7 +34,7 @@ use Throwable;
  */
 class Bundler
 {
-    use DataRestrictions;
+    use TraitDataRestrictions;
 
 
     /**

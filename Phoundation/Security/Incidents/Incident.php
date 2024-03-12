@@ -9,9 +9,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\DataEntryDetails;
-use Phoundation\Data\DataEntry\Traits\DataEntryTitle;
-use Phoundation\Data\DataEntry\Traits\DataEntryType;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryDetails;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Notifications\Notification;
@@ -40,9 +40,9 @@ use Phoundation\Web\Html\Enums\EnumInputElement;
  */
 class Incident extends DataEntry implements IncidentInterface
 {
-    use DataEntryType;
-    use DataEntryTitle;
-    use DataEntryDetails;
+    use TraitDataEntryType;
+    use TraitDataEntryTitle;
+    use TraitDataEntryDetails;
 
 
     /**
