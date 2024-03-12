@@ -70,40 +70,40 @@ class Css
      */
     public static function generateHtml(): ?string
     {
-        if (!empty($_CONFIG['cdn']['css']['post'])) {
-            static::$files['post'] = [
-                'min'   => $_CONFIG['cdn']['min'],
-                'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : '')
-            ];
-        }
-
-        $return = '';
-        $min    = $_CONFIG['cdn']['min'];
-
-        Bundler::new()->css(static::$files);
-
-        foreach (static::$files as $file => $meta) {
-            if (!$file) continue;
-
-            if (!str_contains(substr($file, 0, 8), '//')) {
-                $file = Cdn::domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
-            }
-
-            $this->render = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
-
-            if (str_starts_with($file, 'ie')) {
-                $html = html_iefilter($html, Strings::until(Strings::from($file, 'ie'), '.'));
-            }
-
-            // Hurray, normal stylesheets!
-            $return .= $html."\n";
-        }
-
-        if (Config::get('cdn')) {
-            Html::addToFooter($return);
-        }
-
-        return $return;
+//        if (!empty($_CONFIG['cdn']['css']['post'])) {
+//            static::$files['post'] = [
+//                'min'   => $_CONFIG['cdn']['min'],
+//                'media' => (is_string($_CONFIG['cdn']['css']['post']) ? $_CONFIG['cdn']['css']['post'] : '')
+//            ];
+//        }
+//
+//        $return = '';
+//        $min    = $_CONFIG['cdn']['min'];
+//
+//        Bundler::new()->css(static::$files);
+//
+//        foreach (static::$files as $file => $meta) {
+//            if (!$file) continue;
+//
+//            if (!str_contains(substr($file, 0, 8), '//')) {
+//                $file = Cdn::domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
+//            }
+//
+//            $this->render = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
+//
+//            if (str_starts_with($file, 'ie')) {
+//                $html = html_iefilter($html, Strings::until(Strings::from($file, 'ie'), '.'));
+//            }
+//
+//            // Hurray, normal stylesheets!
+//            $return .= $html."\n";
+//        }
+//
+//        if (Config::get('cdn')) {
+//            Html::addToFooter($return);
+//        }
+//
+//        return $return;
     }
 
 
@@ -116,50 +116,50 @@ class Css
      */
     public static function purge(string $html_file, string $css_file): string
     {
-        //$purged_css      = 'p-'.$css;
-        //$purged_css_file = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        //$css_file        = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        //
-        //safe_exec(array('commands' => array('cd' , array(DIRECTORY_ROOT.'libs/vendor/purge-css/src/'),
-        //                                    'php', array(DIRECTORY_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
-        //return $purged_css;
-
-        $purged_css      = 'p-' . $css_file;
-        $purged_css_file = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        $css_file        = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
-        $arguments       = array('--css', $css_file, '--content', $html, '--out', DIRECTORY_TMP);
-
-        // Ensure that any previous version is deleted
-        File::new($purged_css_file)->delete();
-        File::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
-
-        // Add list of selectors that should be whitelisted
-        if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
-            // Use the whitelist specifically for this page
-            $whitelist = &$_CONFIG['css']['whitelist'][$core->register['script']];
-
-        } else {
-            // Use the default whitelist
-            $whitelist = &$_CONFIG['css']['whitelist']['default'];
-        }
-
-        if ($whitelist) {
-            $arguments[] = '--whitelist';
-
-            foreach (Arrays::force($whitelist) as $selector) {
-                if ($selector) {
-                    $arguments[] = $selector;
-                }
-            }
-        }
-
-        unset($whitelist);
-
-        // Purge CSS
-        load_libs('node');
-        node_exec('./purgecss', $arguments);
-        rename(DIRECTORY_TMP.basename($css_file), $purged_css_file);
-
-        return $purged_css;
+//        //$purged_css      = 'p-'.$css;
+//        //$purged_css_file = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+//        //$css_file        = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+//        //
+//        //safe_exec(array('commands' => array('cd' , array(DIRECTORY_ROOT.'libs/vendor/purge-css/src/'),
+//        //                                    'php', array(DIRECTORY_ROOT.'libs/vendor/purge-css/src/purge.php', 'purge:run', $css_file, $html, $purged_css_file))));
+//        //return $purged_css;
+//
+//        $purged_css      = 'p-' . $css_file;
+//        $purged_css_file = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$purged_css.($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+//        $css_file        = DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/css/'.$css       .($_CONFIG['cdn']['min'] ? '.min.css' : '.css');
+//        $arguments       = array('--css', $css_file, '--content', $html, '--out', DIRECTORY_TMP);
+//
+//        // Ensure that any previous version is deleted
+//        File::new($purged_css_file)->delete();
+//        File::new(DIRECTORY_WEB . LANGUAGE . '/pub/css')->delete();
+//
+//        // Add list of selectors that should be whitelisted
+//        if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
+//            // Use the whitelist specifically for this page
+//            $whitelist = &$_CONFIG['css']['whitelist'][$core->register['script']];
+//
+//        } else {
+//            // Use the default whitelist
+//            $whitelist = &$_CONFIG['css']['whitelist']['default'];
+//        }
+//
+//        if ($whitelist) {
+//            $arguments[] = '--whitelist';
+//
+//            foreach (Arrays::force($whitelist) as $selector) {
+//                if ($selector) {
+//                    $arguments[] = $selector;
+//                }
+//            }
+//        }
+//
+//        unset($whitelist);
+//
+//        // Purge CSS
+//        load_libs('node');
+//        node_exec('./purgecss', $arguments);
+//        rename(DIRECTORY_TMP.basename($css_file), $purged_css_file);
+//
+//        return $purged_css;
     }
 }
