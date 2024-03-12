@@ -151,109 +151,109 @@ class Js
      */
     public static function generateHtml($lists = null): string
     {
-        // Shortcut to JS configuration
-        $count  = 0;
-        $js     = &$_CONFIG['cdn']['js'];
-        $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
-        $return = '';
-        $footer = '';
-        $lists  = array('js_header', 'js_header_page', 'js_footer', 'js_footer_page', 'js_footer_scripts');
-
-        // Merge all body file lists into one
-        foreach ($lists as $key => $section) {
-            switch ($section) {
-                case 'js_header':
-                    // no-break
-                case 'js_footer':
-                    continue 2;
-
-                default:
-                    $main = Strings::untilReverse($section, '_');
-
-                    /*
-                     * If the sub list is empty then ignore it and continue
-                     */
-                    if (empty($core->register[$section])) {
-                        unset($lists[$key]);
-                        continue 2;
-                    }
-
-                    /*
-                     * Merge the sublist in the main list
-                     */
-                    $core->register[$main] = array_merge($core->register[$main], $core->register[$section]);
-                    unset($lists[$key]);
-                    unset($core->register[$section]);
-            }
-        }
-
-        /*
-         * Loop over header and body javascript file lists to generate the HTML
-         * that will load javascript files to client
-         */
-        foreach ($lists as $section) {
-            /*
-             * Bundle all files for this list into one?
-             */
-            html_bundler($section);
-
-            /*
-             * Generate HTML that will load javascript files to client
-             */
-            foreach ($core->register[$section] as $file => $async) {
-                if (!$file) {
-                    /*
-                     * We should never have empty files
-                     */
-                    notify(array('code'    => 'empty',
-                        'groups'  => 'developer',
-                        'title'   => tr('Empty file specified'),
-                        'message' => tr('html_generate_js(): Found empty string file specified in html_load_js()')));
-                    continue;
-                }
-
-                if (strstr($file, '://')) {
-                    /*
-                     * These are external scripts, hosted by somebody else
-                     */
-                    $this->render = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"'.($async ? ' async' : '').'></script>';
-
-                } else {
-                    /*
-                     * These are local scripts, hosted by us
-                     */
-                    $this->render = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : Strings::until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
-                }
-
-                if ($section === 'js_header') {
-                    /*
-                     * Add this script in the header
-                     */
-                    $return .= $html;
-
-                } else {
-                    /*
-                     * Add this script in the footer of the body tag
-                     */
-                    $footer .= $html;
-                }
-            }
-
-            $core->register[$section] = array();
-        }
-
-        /*
-         * If we have footer data, add it to the footer register, which will
-         * automatically be added to the end of the <body> tag
-         */
-        if (!empty($footer)) {
-            $core->register['footer'] .= $footer.$core->register['footer'] . Core::readRegister('system', 'script_delayed');
-            unset($core->register['script_delayed']);
-        }
-
-        unset($core->register['js_header']);
-        unset($core->register['js_footer']);
-
-        return $return;
+//        // Shortcut to JS configuration
+//        $count  = 0;
+//        $js     = &$_CONFIG['cdn']['js'];
+//        $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
+//        $return = '';
+//        $footer = '';
+//        $lists  = array('js_header', 'js_header_page', 'js_footer', 'js_footer_page', 'js_footer_scripts');
+//
+//        // Merge all body file lists into one
+//        foreach ($lists as $key => $section) {
+//            switch ($section) {
+//                case 'js_header':
+//                    // no-break
+//                case 'js_footer':
+//                    continue 2;
+//
+//                default:
+//                    $main = Strings::untilReverse($section, '_');
+//
+//                    /*
+//                     * If the sub list is empty then ignore it and continue
+//                     */
+//                    if (empty($core->register[$section])) {
+//                        unset($lists[$key]);
+//                        continue 2;
+//                    }
+//
+//                    /*
+//                     * Merge the sublist in the main list
+//                     */
+//                    $core->register[$main] = array_merge($core->register[$main], $core->register[$section]);
+//                    unset($lists[$key]);
+//                    unset($core->register[$section]);
+//            }
+//        }
+//
+//        /*
+//         * Loop over header and body javascript file lists to generate the HTML
+//         * that will load javascript files to client
+//         */
+//        foreach ($lists as $section) {
+//            /*
+//             * Bundle all files for this list into one?
+//             */
+//            html_bundler($section);
+//
+//            /*
+//             * Generate HTML that will load javascript files to client
+//             */
+//            foreach ($core->register[$section] as $file => $async) {
+//                if (!$file) {
+//                    /*
+//                     * We should never have empty files
+//                     */
+//                    notify(array('code'    => 'empty',
+//                        'groups'  => 'developer',
+//                        'title'   => tr('Empty file specified'),
+//                        'message' => tr('html_generate_js(): Found empty string file specified in html_load_js()')));
+//                    continue;
+//                }
+//
+//                if (strstr($file, '://')) {
+//                    /*
+//                     * These are external scripts, hosted by somebody else
+//                     */
+//                    $this->render = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"'.($async ? ' async' : '').'></script>';
+//
+//                } else {
+//                    /*
+//                     * These are local scripts, hosted by us
+//                     */
+//                    $this->render = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : Strings::until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
+//                }
+//
+//                if ($section === 'js_header') {
+//                    /*
+//                     * Add this script in the header
+//                     */
+//                    $return .= $html;
+//
+//                } else {
+//                    /*
+//                     * Add this script in the footer of the body tag
+//                     */
+//                    $footer .= $html;
+//                }
+//            }
+//
+//            $core->register[$section] = array();
+//        }
+//
+//        /*
+//         * If we have footer data, add it to the footer register, which will
+//         * automatically be added to the end of the <body> tag
+//         */
+//        if (!empty($footer)) {
+//            $core->register['footer'] .= $footer.$core->register['footer'] . Core::readRegister('system', 'script_delayed');
+//            unset($core->register['script_delayed']);
+//        }
+//
+//        unset($core->register['js_header']);
+//        unset($core->register['js_footer']);
+//
+//        return $return;
     }
 }
