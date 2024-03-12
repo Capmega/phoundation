@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\IteratorCore;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Os\Processes\Process;
+use ReturnTypeWillChange;
+use Stringable;
 
 
 /**
@@ -21,7 +23,7 @@ use Phoundation\Os\Processes\Process;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class RemoteRepositories extends Iterator
+class RemoteRepositories extends IteratorCore
 {
     use TraitGitProcess {
         __construct as construct;
@@ -62,11 +64,11 @@ class RemoteRepositories extends Iterator
     /**
      * Returns the specified repository
      *
-     * @param string|float|int $key
+     * @param Stringable|string|float|int
      * @param bool $exception
      * @return RemoteRepository|null
      */
-    public function get(string|float|int $key, bool $exception = false): ?RemoteRepository
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {

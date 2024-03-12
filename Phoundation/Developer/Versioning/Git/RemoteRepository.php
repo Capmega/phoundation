@@ -6,7 +6,7 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\IteratorCore;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
@@ -22,7 +22,7 @@ use Phoundation\Utils\Strings;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class RemoteRepository extends Iterator
+class RemoteRepository extends IteratorCore
 {
     use TraitGitProcess {
         __construct as protected construct;
