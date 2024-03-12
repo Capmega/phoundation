@@ -81,10 +81,10 @@ class CliDocumentation
     /**
      * Process auto complete requests specific for this method
      *
-     * @param array $definitions
+     * @param array|null $definitions
      * @return void
      */
-    public static function autoComplete(array $definitions): void
+    public static function autoComplete(?array $definitions = null): void
     {
         try {
             if (CliAutoComplete::isActive()) {
