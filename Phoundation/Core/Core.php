@@ -1114,9 +1114,9 @@ class Core implements CoreInterface
                 ]), 8);
 
                 Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
-                    ':size' => static::$register['cli']['size'],
+                    ':size'    => static::$register['cli']['size'],
                     ':columns' => static::$register['cli']['columns'],
-                    ':lines' => static::$register['cli']['lines']
+                    ':lines'   => static::$register['cli']['lines']
                 ]));
             }
         }
@@ -1163,6 +1163,7 @@ class Core implements CoreInterface
             // Clear all caches
             static::enableInitState();
             Cache::clear();
+            Command::setRequireDefault(false);
             static::disableInitState();
         }
 
@@ -1170,6 +1171,7 @@ class Core implements CoreInterface
             // Clear all tmp data
             static::enableInitState();
             Tmp::clear();
+            Command::setRequireDefault(false);
             static::disableInitState();
         }
     }
