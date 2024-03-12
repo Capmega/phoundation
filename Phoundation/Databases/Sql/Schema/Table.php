@@ -119,9 +119,9 @@ class Table extends SchemaAbstract
     /**
      * Will drop this table
      *
-     * @return void
+     * @return static
      */
-    public function drop(): void
+    public function drop(): static
     {
         Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
@@ -130,6 +130,8 @@ class Table extends SchemaAbstract
         ]),3);
 
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
+
+        return $this;
     }
 
 
