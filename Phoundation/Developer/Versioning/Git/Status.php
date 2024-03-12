@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
 
+use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
-use Phoundation\Exception\OutOfBoundsException;
 
 
 /**
@@ -318,7 +318,7 @@ class Status implements StatusInterface
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Unknown git status ":status" specified', [
+                throw new GitUnknownStatusException(tr('Unknown git status ":status" specified', [
                     ':status' => $status
                 ]));
         }

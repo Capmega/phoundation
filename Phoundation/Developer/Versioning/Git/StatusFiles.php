@@ -10,6 +10,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
@@ -69,7 +70,19 @@ class StatusFiles extends Iterator implements StatusFilesInterface
                 $file   = Strings::until($file, ' -> ');
             }
 
-            $this->source[$file] = StatusFile::new($status, $file, $target);
+            try {
+                $this->source[$file] = StatusFile::new($status, $file, $target);
+
+            } catch (GitUnknownStatusException $e) {
+                throw GitUnknownStatusException::new(tr('Unknown git status ":status" encountered for file ":file"', [
+                    ':file'   => $file,
+                    ':status' => $status
+                ]), $e)
+                    ->setData([
+                        'file'   => $file,
+                        'status' => $status
+                    ]);
+            }
         }
 
         return $this;
