@@ -83,4 +83,19 @@ class LanguagesDropDown extends ElementsBlock
         $this->settings_url = UrlBuilder::getWww($settings_url);
         return $this;
     }
+
+
+    /**
+     * @inheritDoc
+     *
+     * Will only render if multiple languages are supported
+     */
+    public function render(): ?string
+    {
+        if ($this->getLanguages()?->getCount()) {
+            return parent::render();
+        }
+
+        return null;
+    }
 }
