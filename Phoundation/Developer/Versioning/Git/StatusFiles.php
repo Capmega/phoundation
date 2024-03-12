@@ -10,6 +10,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
+use Phoundation\Developer\Versioning\Git\Exception\GitStatusException;
 use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
@@ -61,6 +62,18 @@ class StatusFiles extends Iterator implements StatusFilesInterface
 
         // Parse output
         foreach ($files as $file) {
+            $file   = trim($file);
+
+            if (str_starts_with(strtolower($file), 'warning:')) {
+                throw GitStatusException::new(tr('Failed to fetch git status for file ":file", it failed with ":error"', [
+                    ':file'  => Strings::cut($file, "'", "'"),
+                    ':error' => Strings::fromReverse($file, ': ')
+                ]))->setData([
+                    ':file'  => Strings::cut($file, "'", "'"),
+                    ':error' => Strings::fromReverse($file, ': ')
+                ]);
+            }
+
             $status = substr($file, 0, 2);
             $file   = substr($file, 3);
             $target = '';
@@ -77,11 +90,10 @@ class StatusFiles extends Iterator implements StatusFilesInterface
                 throw GitUnknownStatusException::new(tr('Unknown git status ":status" encountered for file ":file"', [
                     ':file'   => $file,
                     ':status' => $status
-                ]), $e)
-                    ->setData([
-                        'file'   => $file,
-                        'status' => $status
-                    ]);
+                ]), $e)->setData([
+                    'file'   => $file,
+                    'status' => $status
+                ]);
             }
         }
 
