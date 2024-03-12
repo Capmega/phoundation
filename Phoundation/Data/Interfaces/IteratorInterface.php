@@ -2,11 +2,11 @@
 
 namespace Phoundation\Data\Interfaces;
 
-
+use Iterator;
 use PDOStatement;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\IteratorCore;
 use Phoundation\Utils\Enums\EnumMatchMode;
 use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Phoundation\Utils\Utils;
@@ -14,6 +14,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Stringable;
+
 
 /**
  * Class IteratorCore
@@ -36,7 +37,7 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
-interface IteratorInterface
+interface IteratorInterface extends Iterator, Stringable, ArrayableInterface
 {
     /**
      * Returns the class used to generate the select input
