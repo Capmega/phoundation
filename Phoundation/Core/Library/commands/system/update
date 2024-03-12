@@ -24,7 +24,7 @@ use Phoundation\Filesystem\Directory;
  * @package Phoundation\Scripts
  */
 
-CliDocumentation::autoComplete([
+CliDocumentation::setAutoComplete([
     'arguments' => [
         '-b,--branch' => [
             'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->getMatchingKeys($word); },
@@ -45,13 +45,13 @@ CliDocumentation::autoComplete([
     ]
 ]);
 
-CliDocumentation::usage('./pho system update [OPTIONS]
+CliDocumentation::setUsage('./pho system update [OPTIONS]
 ./pho system update -b BRANCH
 ./pho system update -b  BRANCH --check
 ./pho system update -l --branch BRANCH
 ');
 
-CliDocumentation::help('This command will update your Phoundation libraries and list
+CliDocumentation::setHelp('This command will update your Phoundation libraries and list
 
 
 ARGUMENTS
