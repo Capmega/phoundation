@@ -42,7 +42,7 @@ class Tmp
             ->delete()
             ->ensure();
 
-        Log::success(tr('Cleared all temporary files'), 4);
+        Log::success(tr('Cleared all temporary files'));
     }
 
 
