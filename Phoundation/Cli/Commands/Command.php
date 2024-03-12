@@ -144,6 +144,36 @@ class Command
      */
     protected static CommandResponseInterface $response;
 
+    /**
+     * If true, and no command was specified, the internal default command will be executed
+     *
+     * @var bool $require_default
+     */
+    protected static bool $require_default = true;
+
+
+    /**
+     * Returns if the default command will be executed if no command was specified
+     *
+     * @return bool
+     */
+    public static function getRequireDefault(): bool
+    {
+        return static::$require_default;
+    }
+
+
+    /**
+     * Sets if the default command will be executed if no command was specified
+     *
+     * @param bool $require_default
+     * @return void
+     */
+    public static function setRequireDefault(bool $require_default): void
+    {
+        static::$require_default = $require_default;
+    }
+
 
     /**
      * Instructs the Libraries class to clear the commands cache
@@ -1040,7 +1070,8 @@ class Command
      */
     protected static function documentation(): void
     {
-        CliDocumentation::setUsage('./pho METHODS [ARGUMENTS]
+        if (static::$require_default) {
+            CliDocumentation::setUsage('./pho METHODS [ARGUMENTS]
 ./pho intro
 ./pho info
 ./pho accounts users create --help
@@ -1049,8 +1080,9 @@ class Command
 ./pho system maintenance disable
 ./pho system <TAB>', false);
 
-        CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
+            CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute ./pho intro which will print an introduction text to Phoundation
 '), false);
+        }
     }
 
 
