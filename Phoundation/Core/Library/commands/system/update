@@ -120,4 +120,23 @@ if ($argv['local']) {
 
         if ($argv['no_plugins']) {
             // Don't update the plugins nor the templates
-            Log::warning('Not updatin
+            Log::warning('Not updating plugins nor templates');
+        } else {
+            Log::action(tr('Pulling updates from local Phoundation plugins installation...'));
+            Project::new()->updateLocalProjectPlugins($argv['branch'], $argv['message'], $argv['signed'], $argv['phoundation'], !$argv['no_commit']);
+        }
+
+    } catch (PhoundationBranchNotExistException $e) {
+        throw $e->makeWarning();
+    }
+
+} elseif ($argv['check']) {
+    // Don't update, just check
+    Log::information(tr('Checking for Phoundation updates...'));
+    Project::checkUpdates();
+
+} else {
+    // Perform an update from the remote repositories. This should be the default unless you're a Phoundation developer
+    Log::information(tr('Updating Phoundation...'));
+    Project::update();
+}
