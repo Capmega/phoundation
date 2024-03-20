@@ -1008,10 +1008,10 @@ throw new UnderConstructionException();
      */
     protected static function applyVariables(Stringable|string $url): string
     {
-        $url = (string) $url;
-        $url = str_replace(':PROTOCOL', Protocols::getCurrent()    , $url);
+        $url = (string)$url;
+        $url = str_replace(':PROTOCOL', Request::getProtocol()     , $url);
         $url = str_replace(':DOMAIN'  , Domains::getCurrent()      , $url);
-        $url = str_replace(':PORT'    , (string) Request::getPort(), $url);
+        $url = str_replace(':PORT'    , (string)Request::getPort() , $url);
         $url = str_replace(':LANGUAGE', Response::getLanguageCode(), $url);
 
         return $url;

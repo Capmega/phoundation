@@ -2269,7 +2269,7 @@ class Core implements CoreInterface
 
         } catch (Throwable $g) {
             // Well, we tried. Here we just give up all together. Don't do anything anymore because every step from here
-            // will fail anyway. Just die
+            // will fail anyway. Exit the process
             echo 'Fatal error. check data/syslog, application server logs, or webserver logs for more information' . PHP_EOL;
         }
 
