@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -42,7 +42,7 @@ $user = User::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
@@ -60,57 +60,57 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
                     ':user' => $user->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html'));
+                Response::redirect(UrlBuilder::getWww('/accounts/user+' . $user->getId() . '.html'));
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                Response::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
                     ':user' => $user->getDisplayName()
                 ]));
 
-                Page::redirect('root');
+                Response::redirect('root');
 
             case tr('Delete'):
                 $user->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
                     ':user' => $user->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Lock'):
                 $user->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Unlock'):
                 $user->unlock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Undelete'):
                 $user->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
                     ':user' => $user->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }
@@ -291,10 +291,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setPageTitle(tr('User :user', [':user' => $user->getDisplayName()]));
-Page::setHeaderTitle(tr('User'));
-Page::setHeaderSubTitle($user->getDisplayName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setPageTitle(tr('User :user', [':user' => $user->getDisplayName()]));
+Response::setHeaderTitle(tr('User'));
+Response::setHeaderSubTitle($user->getDisplayName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
     '/accounts/users.html' => tr('Users'),
     ''                     => $user->getDisplayName()

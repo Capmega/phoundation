@@ -101,7 +101,7 @@ class Connectors extends DataList implements ConnectorsInterface
             $connector['name']     = $name;
             $connector['seo_name'] = Seo::string($name);
 
-            $this->source[$count]  = Connector::fromSource($connector, true);
+            $this->source[$count]  = Connector::newFromSource($connector, true);
         }
 
         return $this;

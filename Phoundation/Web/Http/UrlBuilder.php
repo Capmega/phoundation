@@ -19,7 +19,8 @@ use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\UrlBuilderConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
@@ -264,7 +265,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getCurrentDomainRootUrl(): static
     {
-        return new static(Page::getRootUrl());
+        return new static(Request::getRootUrl());
     }
 
 
@@ -275,7 +276,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getCurrentDomainUrl(): static
     {
-        return new static(Page::getUrl());
+        return new static(Request::getUrl());
     }
 
 
@@ -286,7 +287,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getParentDomainRootUrl(): static
     {
-        return new static(Domains::from()->getParent() . Page::getRootUri());
+        return new static(Domains::from()->getParent() . Request::getRootUri());
     }
 
 
@@ -297,7 +298,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getParentDomainUrl(): static
     {
-        return new static(Domains::from()->getParent() . Page::getUri());
+        return new static(Domains::from()->getParent() . Request::getUri());
     }
 
 
@@ -308,7 +309,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getRootDomainRootUrl(): static
     {
-        return new static(Domains::from()->getRoot() . Page::getRootUri());
+        return new static(Domains::from()->getRoot() . Request::getRootUri());
     }
 
 
@@ -319,7 +320,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getRootDomainUrl(): static
     {
-        return new static(Domains::from()->getRoot() . Page::getUri());
+        return new static(Domains::from()->getRoot() . Request::getUri());
     }
 
 
@@ -331,7 +332,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getDomainCurrentUrl(string $domain): static
     {
-        return new static($domain . Page::getUri());
+        return new static($domain . Request::getUri());
     }
 
 
@@ -342,7 +343,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getPrimaryDomainRootUrl(): static
     {
-        return new static(Domains::getPrimary() . Page::getRootUri());
+        return new static(Domains::getPrimary() . Request::getRootUri());
     }
 
 
@@ -353,7 +354,7 @@ class UrlBuilder implements UrlBuilderInterface
      */
     public static function getPrimaryDomainUrl(): static
     {
-        return new static(Domains::getPrimary() . Page::getUri());
+        return new static(Domains::getPrimary() . Request::getUri());
     }
 
 
@@ -558,7 +559,7 @@ class UrlBuilder implements UrlBuilderInterface
                 ':url' => $this->url
             ]);
         } else {
-            $cloak = Strings::random(32);
+            $cloak = Strings::getRandom(32);
 
             sql()->dataEntryInsert('url_cloaks', [
                 'created_by' => Session::getUser()->getId(),
@@ -858,7 +859,7 @@ throw new UnderConstructionException();
             $base = Domains::getRootUrl();
 
         } elseif (PLATFORM_WEB) {
-            $base = Page::getRoutingParameters()->getRootUrl();
+            $base = Request::getRoutingParameters()->getRootUrl();
 
         } else {
             $base = Domains::getRootUrl();
@@ -1008,10 +1009,10 @@ throw new UnderConstructionException();
     protected static function applyVariables(Stringable|string $url): string
     {
         $url = (string) $url;
-        $url = str_replace(':PROTOCOL', Protocols::getCurrent() , $url);
-        $url = str_replace(':DOMAIN'  , Domains::getCurrent()   , $url);
-        $url = str_replace(':PORT'    , (string) Page::getPort(), $url);
-        $url = str_replace(':LANGUAGE', Page::getLanguageCode() , $url);
+        $url = str_replace(':PROTOCOL', Protocols::getCurrent()    , $url);
+        $url = str_replace(':DOMAIN'  , Domains::getCurrent()      , $url);
+        $url = str_replace(':PORT'    , (string) Request::getPort(), $url);
+        $url = str_replace(':LANGUAGE', Response::getLanguageCode(), $url);
 
         return $url;
     }

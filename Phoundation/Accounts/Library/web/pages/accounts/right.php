@@ -15,7 +15,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -41,7 +41,7 @@ $right = Right::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
@@ -53,23 +53,23 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Right ":right" has been saved', [':right' => $right->getName()]));
-                Page::redirect('referer');
+                Response::getFlashMessages()->addSuccessMessage(tr('Right ":right" has been saved', [':right' => $right->getName()]));
+                Response::redirect('referer');
 
             case tr('Delete'):
                 $right->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
-                Page::redirect();
+                Response::getFlashMessages()->addSuccessMessage(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
+                Response::redirect();
 
             case tr('Undelete'):
                 $right->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
-                Page::redirect();
+                Response::getFlashMessages()->addSuccessMessage(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
+                Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $right->forceApply();
     }
 }
@@ -130,9 +130,9 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Right'));
-Page::setHeaderSubTitle($right->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Right'));
+Response::setHeaderSubTitle($right->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                     => tr('Home'),
     '/accounts/rights.html' => tr('Rights'),
     ''                      => $right->getName() ?? tr('[NEW]')

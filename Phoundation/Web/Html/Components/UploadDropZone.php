@@ -8,7 +8,7 @@ use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -149,8 +149,8 @@ class UploadDropZone extends ResourceElement
      */
     public function renderBody(): ?string
     {
-        Page::loadCss('plugins/dropzone/min/dropzone');
-        Page::loadJavascript('plugins/dropzone/min/dropzone');
+        Response::loadCss('plugins/dropzone/min/dropzone');
+        Response::loadJavascript('plugins/dropzone/min/dropzone');
 
         return Script::new()
             ->setJavascriptWrapper(EnumJavascriptWrappers::window)

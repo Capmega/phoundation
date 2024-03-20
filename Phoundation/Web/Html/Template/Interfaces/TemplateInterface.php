@@ -2,13 +2,12 @@
 
 namespace Phoundation\Web\Html\Template\Interfaces;
 
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
-use Phoundation\Web\Html\Components\Element;
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Template\TemplatePage;
 
 /**
- * Class Template
+ * Interface TemplateInterface
  *
  * This class contains basic template functionalities. All template classes must extend this class!
  *
@@ -32,9 +31,9 @@ interface TemplateInterface
     /**
      * Returns a new TemplatePage for this template
      *
-     * @return TemplatePage
+     * @return TemplatePageInterface
      */
-    public function getPage(): TemplatePage;
+    public function getPage(): TemplatePageInterface;
 
     /**
      * Returns the name for this template
@@ -46,10 +45,10 @@ interface TemplateInterface
     /**
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
      *
-     * @param Element|ElementsBlock|string $class
+     * @param ElementInterface|ElementsBlockInterface|string $class
      * @return string|null
      */
-    public function getRendererClass(Element|ElementsBlock|string $class): ?string;
+    public function getRendererClass(ElementInterface|ElementsBlockInterface|string $class): ?string;
 
     /**
      * Returns the description for this template

@@ -14,7 +14,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -41,17 +41,17 @@ $notification->setStatus('READ');
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Mark unread'):
                 $notification->setStatus('UNREAD');
-                Page::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [':notification' => $notification->getTitle()]));
+                Response::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [':notification' => $notification->getTitle()]));
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 
@@ -104,9 +104,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('Notification'));
-Page::setHeaderSubTitle($notification->getId());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Notification'));
+Response::setHeaderSubTitle($notification->getId());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                       => tr('Home'),
     '/notifications/all.html' => tr('Notifications'),
     ''                        => tr(':id [:title]', [

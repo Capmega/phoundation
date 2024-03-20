@@ -3,14 +3,13 @@
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
-use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -28,12 +27,12 @@ use Phoundation\Web\Page;
 
 // Only allow being here when it was forced by redirect
 if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string) UrlBuilder::getWww('/force-password-update.html'))) {
-    Page::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
+    Response::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
 }
 
 
 // Validate sign in data and sign in
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         $post = PostValidator::new()
             ->select('password')->isPassword()
@@ -47,28 +46,28 @@ if (Page::isPostRequestMethod()) {
             ->save();
 
         // Add flash message and redirect to original target
-        Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
-        Page::redirect('prev');
+        Response::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
+        Response::redirect('prev');
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
             ':count' => Config::getInteger('security.passwords.size.minimum', 10)
         ]));
 
     } catch (ValidationFailedException $e) {
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
 
     }catch (PasswordNotChangedException $e) {
-        Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
+        Response::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
 
 // Set page meta data
-Page::setPageTitle(tr('Please update your password before continuing...'));
+Response::setPageTitle(tr('Please update your password before continuing...'));
 
 
 // Render the page
-echo ForcePasswordUpdatePage::new()
+echo ForcePasswordUpdateRequest::new()
     ->setEmail(Session::getUser()->getEmail())
     ->render();

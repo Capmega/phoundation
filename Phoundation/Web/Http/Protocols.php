@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -22,12 +22,12 @@ class Protocols
     /**
      * Returns the current domain
      *
-     * @note This is a wrapper for Page::getDomain();
+     * @note This is a wrapper for Request::getDomain();
      * @return string
      */
     public static function getCurrent(): string
     {
-        return Page::getProtocol();
+        return Request::getProtocol();
     }
 
 

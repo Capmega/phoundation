@@ -6,7 +6,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -22,8 +22,8 @@ use Phoundation\Web\Page;
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Employees'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Employees'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'              => tr('Home'),
     '/profiles.html' => tr('Profiles'),
     ''               => tr('Employees')

@@ -8,7 +8,6 @@ use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
 use Phoundation\Audio\Audio;
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
@@ -18,11 +17,12 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 use Throwable;
 
 
@@ -346,7 +346,7 @@ class Debug {
 
             if (Core::readyState() and PLATFORM_WEB) {
                 if (empty($core->register['debug_plain'])) {
-                    switch (Core::getRequestType()) {
+                    switch (Request::getRequestType()) {
                         case EnumRequestTypes::api:
                             // no-break
                         case EnumRequestTypes::ajax:
@@ -358,8 +358,8 @@ class Debug {
                             ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
 
                             if (!headers_sent()) {
-                                Page::setContentType('text/html');
-                                Page::sendHttpHeaders(Page::renderHttpHeaders($output));
+                                Response::setContentType('text/html');
+                                Response::sendHttpHeaders(Response::renderHttpHeaders($output));
                             }
 
                             break;
@@ -373,8 +373,8 @@ class Debug {
 
                     // Show output on web
                     if (!headers_sent()) {
-                        Page::setContentType('text/html');
-                        Page::sendHttpHeaders(Page::renderHttpHeaders($output));
+                        Response::setContentType('text/html');
+                        Response::sendHttpHeaders(Response::renderHttpHeaders($output));
                     }
 
                     echo $output;
@@ -391,8 +391,8 @@ class Debug {
 
                     // Show output on web
                     if (!headers_sent()) {
-                        Page::setContentType('text/html');
-                        Page::sendHttpHeaders(Page::renderHttpHeaders($output));
+                        Response::setContentType('text/html');
+                        Response::sendHttpHeaders(Response::renderHttpHeaders($output));
                     }
 
                     echo $output;

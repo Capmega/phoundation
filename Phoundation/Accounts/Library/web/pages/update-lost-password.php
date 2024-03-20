@@ -3,7 +3,6 @@
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
-use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -12,8 +11,7 @@ use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
 use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -31,16 +29,16 @@ use Phoundation\Web\Page;
 
 // Only allow being here when it was forced by redirect
 if (Session::getUser()->isGuest()) {
-    Page::redirect('prev', 302, reason_warning: tr('Update lost password page is only available to registered users'));
+    Response::redirect('prev', 302, reason_warning: tr('Update lost password page is only available to registered users'));
 }
 
 if (!Session::getSignInKey()) {
-    Page::redirect('prev', 302, reason_warning: tr('Update lost password page is only available through sign-key sessions'));
+    Response::redirect('prev', 302, reason_warning: tr('Update lost password page is only available through sign-key sessions'));
 }
 
 
 // Update password
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         // Validate password data
         $post = PostValidator::new()
@@ -66,42 +64,42 @@ if (Page::isPostRequestMethod()) {
             ->save();
 
         // Add a flash message and redirect to the original target
-        Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
+        Response::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
         $updated = true;
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
             ':count' => Config::getInteger('security.passwords.size.minimum', 10)
         ]));
 
     } catch (ValidationFailedException $e) {
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
 
     }catch (PasswordNotChangedException $e) {
-        Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
+        Response::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
 
 // This page will build its own body
-Page::setBuildBody(false);
+Response::setBuildBody(false);
 if (isset($updated)) {
     // Set page meta data
-    Page::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
+    Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
 
     // Render the page
-    LostPasswordUpdatedPage::new()
+    LostPasswordUpdatedRequest::new()
         ->setEmail(Session::getUser()->getEmail())
         ->render();
 
 } else {
     // Set page meta data
-    Page::setPageTitle(tr('Please update your password before continuing...'));
+    Response::setPageTitle(tr('Please update your password before continuing...'));
 
 
     // Render the page
-    UpdateLostPasswordPage::new()
+    UpdateLostPasswordRequest::new()
         ->setEmail(Session::getUser()->getEmail())
         ->render();
 }

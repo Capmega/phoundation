@@ -13,7 +13,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -67,7 +67,7 @@ class Domains {
     protected function __construct(?string $domain = null)
     {
         if (!$domain) {
-            $domain = Page::getDomain();
+            $domain = Request::getDomain();
         } else {
             $domain = UrlBuilder::getDomainFromUrl($domain);
         }
@@ -119,7 +119,7 @@ class Domains {
     /**
      * Returns the current domain
      *
-     * @note This is a wrapper for Page::getDomain();
+     * @note This is a wrapper for Request::getDomain();
      * @return string
      */
     public static function getCurrent(): string
@@ -325,7 +325,7 @@ class Domains {
                     ':domain' => $domain
                 ]));
 
-                Page::redirect(UrlBuilder::getRootDomainUrl());
+                Response::redirect(UrlBuilder::getRootDomainUrl());
             }
 
             // The specified domain isn't configured

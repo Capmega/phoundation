@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -16,20 +16,20 @@ use Phoundation\Web\Page;
  */
 
 // Set page meta data
-Page::setHeaderTitle(tr('Kanban board'));
-Page::setHeaderSubTitle(tr('Demo'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Kanban board'));
+Response::setHeaderSubTitle(tr('Demo'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'           => tr('Home'),
     '/demos.html' => tr('Demos'),
     ''            => tr('Kanban board')
 ]));
 
-Page::loadCss('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Page::loadJavascript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Page::loadJavascript('/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadCss('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavascript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavascript('/adminlte/plugins/filterizr/jquery.filterizr');
 
 // The content wrapper class for this page is slightly different
-Page::setClass('content-wrapper kanban', 'content-wrapper');
+Response::setClass('content-wrapper kanban', 'content-wrapper');
 ?>
 <!-- Content Wrapper. Contains page content -->
 <section class="content pb-3">

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -30,9 +30,9 @@ class InputSelect2 extends InputSelect
         parent::__construct($content);
         $this->addClass('select2bs4');
 
-        Page::loadCss('css/plugins/select2/css/select2');
-        Page::loadCss('css/plugins/select2-bootstrap4-theme/select2-bootstrap4');
-        Page::loadJavascript('js/plugins/select2/js/select2.full');
+        Response::loadCss('css/plugins/select2/css/select2');
+        Response::loadCss('css/plugins/select2-bootstrap4-theme/select2-bootstrap4');
+        Response::loadJavascript('js/plugins/select2/js/select2.full');
     }
 
 

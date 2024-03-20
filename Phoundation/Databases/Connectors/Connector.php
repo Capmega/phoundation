@@ -455,7 +455,7 @@ class Connector extends DataEntry implements ConnectorInterface
         if (($column === 'id') or (($column === null) and is_numeric($identifier))) {
             if ($identifier < 0) {
                 // Negative identifier is a configured connector!
-                return Connector::fromSource(Connectors::new()->load()->get($identifier));
+                return Connector::newFromSource(Connectors::new()->load()->get($identifier));
             }
         }
 

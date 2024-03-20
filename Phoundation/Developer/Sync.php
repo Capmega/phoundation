@@ -573,7 +573,7 @@ class Sync
         // Dump all connectors
         foreach ($connectors as $name => $connector) {
             if ($this->getDumpConnector($name)) {
-                $connector = Connector::fromSource($connector);
+                $connector = Connector::newFromSource($connector);
                 $connector->setName($name);
 
                 if ($connector->getType() === 'memcached') {
@@ -755,7 +755,7 @@ class Sync
 
         // Dump all connectors
         foreach ($this->dump_files as $connector_name => $file) {
-            $connector = Connector::fromSource($connectors[$connector_name]);
+            $connector = Connector::newFromSource($connectors[$connector_name]);
             $connector->setName($connector_name);
 
             if ($connector->getType() === 'memcached') {
@@ -974,7 +974,7 @@ class Sync
         // Setup remote server, MUST be from configuration!
         try {
             $server       = Config::get('servers.' . Config::escape($this->configuration['server']));
-            $this->server = Server::fromSource($server);
+            $this->server = Server::newFromSource($server);
 
         } catch (ConfigPathDoesNotExistsException) {
             throw SyncException::new(tr('The configured server ":server" for environment ":environment" does not exist', [

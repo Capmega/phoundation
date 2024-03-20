@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -28,11 +29,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(409);
+        Response::setHttpCode(409);
         Json::reply(['error' => tr('Conflict')]);
 }
 
@@ -42,7 +43,7 @@ echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '409',
     ':h3'     => tr('Conflict'),
     ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
-            ':url' => Page::getReferer(true)
+            ':url' => Request::getReferer(true)
     ]),
     ':type'   => 'warning',
     ':search' => tr('Search'),
@@ -51,9 +52,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(409);
-Page::setBuildBody(false);
-Page::setPageTitle('409 - Conflict');
-Page::setHeaderTitle(tr('409 - Conflict'));
-Page::setDescription(tr('The specified could not be completed due to a conflict with the current state of the target resource'));
-Page::setBreadCrumbs();
+Response::setHttpCode(409);
+Response::setBuildBody(false);
+Response::setPageTitle('409 - Conflict');
+Response::setHeaderTitle(tr('409 - Conflict'));
+Response::setDescription(tr('The specified could not be completed due to a conflict with the current state of the target resource'));
+Response::setBreadCrumbs();

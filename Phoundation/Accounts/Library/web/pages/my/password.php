@@ -19,7 +19,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Get current user and password objects
@@ -28,7 +28,7 @@ $password    = $user->getPassword();
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     if (PostValidator::new()->getSubmitButton() === tr('Save')) {
         try {
             $post = PostValidator::new()
@@ -43,24 +43,24 @@ if (Page::isPostRequestMethod()) {
             // Update user password
             $user->changePassword($post['password'], $post['passwordv']);
 
-            Page::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
-            Page::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
+            Response::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
+            Response::redirect(UrlBuilder::getWww(UrlBuilder::getPrevious('/my/profile.html')));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least 10 characters for the password'));
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least 10 characters for the password'));
 
         } catch (AuthenticationException $e) {
             // Oops! The Current password was wrong
-            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10)
             ]));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on this page
-            Page::getFlashMessages()->addWarningMessage($e);
+            Response::getFlashMessages()->addWarningMessage($e);
 
         }catch (PasswordNotChangedException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
+            Response::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
         }
     }
 }
@@ -114,9 +114,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('Change your password'));
-Page::setHeaderSubTitle($user->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Change your password'));
+Response::setHeaderSubTitle($user->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                  => tr('Home'),
     '/your/profile.html' => tr('Your profile'),
     ''                   => tr('Change your password')

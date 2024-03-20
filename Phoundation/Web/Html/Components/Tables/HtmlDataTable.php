@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -1104,7 +1104,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function render(): ?string
     {
         // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
-        Page::loadJavascript([
+        Response::loadJavascript([
             'adminlte/plugins/datatables/jquery.dataTables',
             'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
             'adminlte/plugins/datatables-responsive/js/dataTables.responsive',
@@ -1119,9 +1119,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             'adminlte/plugins/datatables-buttons/js/buttons.colVis'
         ]);
 
-        Page::loadCss('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
-        Page::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
-        Page::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
+        Response::loadCss('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
+        Response::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
+        Response::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
 
         // Build options
         $options = [];
@@ -1220,7 +1220,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         }
 
         if ($this->js_date_format) {
-            Page::loadJavascript([
+            Response::loadJavascript([
                 'adminlte/plugins/moment/moment',
                 'adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
                 'adminlte/plugins/datatables-sorting/datetime-moment',

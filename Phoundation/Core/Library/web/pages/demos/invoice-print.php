@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -16,7 +16,7 @@ use Phoundation\Web\Page;
 
 
 // This page will build its own body
-Page::setBuildBody(false);
+Response::setBuildBody(false);
 
 ?>
 <body>

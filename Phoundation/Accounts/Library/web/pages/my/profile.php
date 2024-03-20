@@ -14,7 +14,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Get the user and alter the default user form
@@ -93,7 +93,7 @@ $definitions->get('description')
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     if (PostValidator::getSubmitButton() === tr('Submit')) {
         try {
             // Update user
@@ -103,12 +103,12 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-            Page::getFlashMessages()->addSuccessMessage(tr('Your profile has been updated'));
-            Page::redirect('referer');
+            Response::getFlashMessages()->addSuccessMessage(tr('Your profile has been updated'));
+            Response::redirect('referer');
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
-            Page::getFlashMessages()->addMessage($e);
+            Response::getFlashMessages()->addMessage($e);
             $user->forceApply();
         }
     }
@@ -173,9 +173,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('My profile'));
-Page::setHeaderSubTitle($user->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('My profile'));
+Response::setHeaderSubTitle($user->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('My profile')
 ]));

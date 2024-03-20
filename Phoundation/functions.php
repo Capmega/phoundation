@@ -5,7 +5,6 @@ declare(strict_types=1);
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Cli\Commands\Interfaces\CommandRequestInterface;
-use Phoundation\Cli\Commands\Interfaces\CommandResponseInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -23,8 +22,8 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Interfaces\WebRequestInterface;
-use Phoundation\Web\Interfaces\WebResponseInterface;
+use Phoundation\Web\Requests\Interfaces\WebRequestInterface;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -909,34 +908,25 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 
 
 /**
- * Execute the specified script file
+ * Execute the specified file
  *
  * @note This function is used to execute commands and web pages to give them their own empty function scope
  *
- * @param WebRequestInterface $request
- * @param WebResponseInterface $response
  * @return string|null
  */
-function execute_web_script(WebRequestInterface $request, WebResponseInterface $response): ?string
+function execute(): ?string
 {
-    ob_start(chunk_size: 0);
-    include($request->getExecutedFile());
+    if (PLATFORM_WEB) {
+        // Web request
+        ob_start(chunk_size: 0);
+        include(Request::getTarget());
+        get_null(ob_get_clean());
+
+    }
+
+    // Command line request
+    include(Request::getTarget());
     return get_null(ob_get_clean());
-}
-
-
-/**
- * Execute the specified script file
- *
- * @note This function is used to execute commands and web pages to give them their own empty function scope
- *
- * @param CommandRequestInterface $request
- * @param CommandResponseInterface $response
- * @return void
- */
-function execute_command_script(CommandRequestInterface $request, CommandResponseInterface $response): void
-{
-    include($request->getExecutedFile());
 }
 
 

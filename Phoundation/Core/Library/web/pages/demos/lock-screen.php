@@ -5,7 +5,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -20,11 +20,11 @@ use Phoundation\Web\Page;
  */
 
 // Set page meta data
-Page::setHeaderTitle(tr('Lock screen'));
-Page::setHeaderSubTitle(tr('Demo'));
+Response::setHeaderTitle(tr('Lock screen'));
+Response::setHeaderSubTitle(tr('Demo'));
 
 // This page will build its own body
-Page::setBuildBody(false);
+Response::setBuildBody(false);
 
 ?>
 <body class="hold-transition lockscreen" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lock-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">

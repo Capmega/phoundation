@@ -13,7 +13,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\TemplateRenderer;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -176,7 +176,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
             return $this->content;
         }
 
-        $renderer_class = Page::getTemplate()->getRendererClass($this);
+        $renderer_class = Response::getTemplate()->getRendererClass($this);
 
         Log::write(tr('Using renderer class ":class" for ":this"', [
             ':class' => $renderer_class,

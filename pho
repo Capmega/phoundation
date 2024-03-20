@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-use Phoundation\Cli\Commands\Command;
+use Phoundation\Cli\CliCommand;
 
 
 /**
@@ -25,7 +25,7 @@ try {
         throw new Exception('Failed opening required \'./vendor/autoload.php\'');
     }
 
-    Command::execute();
+    CliCommand::execute();
 
 } catch (Throwable $e) {
     $message = $e->getMessage();
@@ -61,7 +61,7 @@ try {
 
         echo 'WARNING: Libraries successfully installed, retrying execution of PHO script' . PHP_EOL;
         include('./vendor/autoload.php');
-        Command::execute();
+        CliCommand::execute();
     }
 
     // Some other issue occurred, continue throwing exception

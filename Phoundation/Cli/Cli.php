@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
-use Phoundation\Cli\Exception\NoTtyException;
+use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -341,14 +341,14 @@ class Cli
     public static function checkTty(mixed $file_descriptor, string $tty_name): void
     {
         if (!PLATFORM_CLI) {
-            throw new NoTtyException(tr('Cannot access TTY ":tty", the platform ":platform" is not supported for this', [
+            throw new CliNoTtyException(tr('Cannot access TTY ":tty", the platform ":platform" is not supported for this', [
                 ':platform' => PLATFORM,
                 ':tty' => $tty_name
             ]));
         }
 
         if (!stream_isatty($file_descriptor)) {
-            throw new NoTtyException(tr('Cannot access stream ":tty", the file descriptor is not a TTY', [
+            throw new CliNoTtyException(tr('Cannot access stream ":tty", the file descriptor is not a TTY', [
                 ':tty' => $tty_name
             ]));
         }

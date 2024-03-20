@@ -1021,7 +1021,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function generateCode(): static
     {
-        return $this->setCode(Strings::generateUuid());
+        return $this->setCode(Strings::getUuid());
     }
 
 

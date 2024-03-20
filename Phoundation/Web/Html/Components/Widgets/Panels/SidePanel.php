@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
 use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -46,7 +46,7 @@ class SidePanel extends Panel
                 ->setMethod('post')
                 ->setAction(UrlBuilder::getAjax('sign-in'));
 
-        $this->setMenu(Page::getMenusObject()->getPrimaryMenu())
+        $this->setMenu(Response::getMenusObject()->getPrimaryMenu())
              ->getModals()
                  ->addModal('sign-in', $sign_in);
 

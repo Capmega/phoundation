@@ -8,7 +8,7 @@ use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Developer\Project\Exception\EnvironmentExists;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 throw new \Phoundation\Exception\UnderConstructionException();
 // ONLY HERE do we allow disabling password validation in web
@@ -23,7 +23,7 @@ if (isset_get($get['no_password_validation'])) {
 
 
 // Validate setup data, create project and run setup
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         $post = Project::validate(PostValidator::new());
         Project::create($post['project']);
@@ -41,9 +41,9 @@ if (Page::isPostRequestMethod()) {
 
         Project::setup();
 
-        Page::setBuildBody(false);
+        Response::setBuildBody(false);
         ?>
-        <?= Page::getFlashMessages()->render() ?>
+        <?= Response::getFlashMessages()->render() ?>
         <body class="hold-transition register-page" style="height: auto;">
         <div class="register-box">
             <div class="register-logo">
@@ -67,18 +67,18 @@ if (Page::isPostRequestMethod()) {
         <?php
 
         // Set page meta data
-        Page::setPageTitle(tr('Phoundation setup finished'));
+        Response::setPageTitle(tr('Phoundation setup finished'));
         return;
 
     } catch (EnvironmentExists|ValidationFailedException|SqlAccessDeniedException $e) {
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 
 // This page will build its own body
-Page::setBuildBody(false);
+Response::setBuildBody(false);
 ?>
-<?= Page::getFlashMessages()->render() ?>
+<?= Response::getFlashMessages()->render() ?>
 <body class="hold-transition register-page" style="height: auto;">
     <div class="register-box">
       <div class="register-logo">
@@ -89,7 +89,7 @@ Page::setBuildBody(false);
           <p class="login-box-msg">Setup your new Phoundation system</p>
           <hr>
           <p class="login-box-msg">Phoundation requires a simple setup process to get it running. Please fill out the form below and the system will initialize itself. To help you out, some of the fields have been filled with default values.</p>
-          <form action="<?= Page::getUrl() ?>" method="post">
+          <form action="<?= Request::getUrl() ?>" method="post">
               <div class="mb-3">
                   <label for="admin_email">Administrator email address</label>
                   <input name="admin_email" type="email" class="form-control" placeholder="Administrator email address" value="<?= isset_get($post['admin_email']) ?>">
@@ -113,7 +113,7 @@ Page::setBuildBody(false);
                   </select>
               </div>
               <div class="mb-3">
-                  <input name="domain" type="text" class="form-control" placeholder="Domain name" value="<?= isset_get($post['domain'], Page::getDomain()) ?>">
+                  <input name="domain" type="text" class="form-control" placeholder="Domain name" value="<?= isset_get($post['domain'], Request::getDomain()) ?>">
               </div>
               <div class="mb-3">
                   <input name="database_host" type="text" class="form-control" placeholder="Database host" value="<?= isset_get($post['database_host'], 'localhost') ?>">
@@ -146,5 +146,5 @@ Page::setBuildBody(false);
 <?php
 
 // Set page meta data
-Page::setPageTitle(tr('Setup Phoundation'));
+Response::setPageTitle(tr('Setup Phoundation'));
 

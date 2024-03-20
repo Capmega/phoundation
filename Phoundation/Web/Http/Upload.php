@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 
+use Phoundation\Web\Requests\FileResponse;
+
 /**
  * Class Upload
  *
@@ -15,7 +17,7 @@ namespace Phoundation\Web\Http;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Upload extends File
+class Upload extends FileResponse
 {
     protected string $status;
 }

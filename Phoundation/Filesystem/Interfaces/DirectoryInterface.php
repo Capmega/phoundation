@@ -26,10 +26,11 @@ interface DirectoryInterface extends PathInterface
     /**
      * Returns the path
      *
+     * @param string|null $from
      * @param bool $remove_terminating_slash
      * @return string|null
      */
-    public function getPath(bool $remove_terminating_slash = false): ?string;
+    public function getPath(?string $from = null, bool $remove_terminating_slash = false): ?string;
 
     /**
      * @inheritDoc

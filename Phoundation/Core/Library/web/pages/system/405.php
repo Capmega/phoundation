@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -27,11 +28,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(405);
+        Response::setHttpCode(405);
         Json::reply(['error' => tr('Method not allowed')]);
 }
 
@@ -41,7 +42,7 @@ echo Template::page('admin/system/detail-error')->render([
     ':h2'     => '405',
     ':h3'     => tr('Method not allowed'),
     ':p'      => tr('The action you requested could not be executed because the method is (currently) not allowed. Please try again later or contact your system administrator', [
-            ':url' => Page::getReferer(true)
+            ':url' => Request::getReferer(true)
     ]),
     ':type'   => 'warning',
     ':search' => tr('Search'),
@@ -50,9 +51,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(405);
-Page::setBuildBody(false);
-Page::setPageTitle('405 - Method not allowed');
-Page::setHeaderTitle(tr('405 - Method not allowed'));
-Page::setDescription(tr('The specified method is not allowed'));
-Page::setBreadCrumbs();
+Response::setHttpCode(405);
+Response::setBuildBody(false);
+Response::setPageTitle('405 - Method not allowed');
+Response::setHeaderTitle(tr('405 - Method not allowed'));
+Response::setDescription(tr('The specified method is not allowed'));
+Response::setBreadCrumbs();

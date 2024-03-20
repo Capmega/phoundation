@@ -12,6 +12,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Notifications\Notification;
 use StephenHill\Base58;
 use Stringable;
 use Throwable;
@@ -170,9 +171,8 @@ class Strings extends Utils
      * @param Stringable|string $characters
      * @return string
      * @throws OutOfBoundsException
-     * @throws Exception
      */
-    public static function random(int $length = 8, bool $unique = false, Stringable|string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    public static function getRandom(int $length = 8, bool $unique = false, Stringable|string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
     {
         $characters = (string) $characters;
 
@@ -233,7 +233,18 @@ class Strings extends Utils
         }
 
         for ($i = 0; $i < $length; $i++) {
-            $char = $characters[random_int(0, $charlen - 1)];
+            try {
+                $char = $characters[random_int(0, $charlen - 1)];
+
+            } catch (Throwable) {
+                // Failed to find good random information. Notify and continue using mt_rand()
+                Notification::new()
+                    ->setTitle(tr('Failed to generate random byte, falling back on insecure mt_rand()!'))
+                    ->setException($e)
+                    ->send(true);
+
+                $char = $characters[mt_rand(0, $charlen - 1)];
+            }
 
             if ($unique and (mb_strpos($string, $char) !== false)) {
                 // We want all characters to be unique, do not read this character again
@@ -260,7 +271,7 @@ class Strings extends Utils
     public static function randomSafe(int $length = 8, bool $unique = false, Stringable|string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
     {
         try {
-            return Strings::random();
+            return Strings::getRandom();
 
         } catch (\Exception $e) {
             Log::warning(tr('Failed to find random string, see following exception'));
@@ -2032,26 +2043,29 @@ throw new UnderConstructionException();
      * Generates and returns an RFC 4122 compliant Version 4 UUID
      *
      * @note Taken from https://www.uuidgenerator.net/dev-corner/php
-     * @param Stringable|string|null $data
      * @return string
-     * @throws Exception
      */
-    public static function generateUuid(Stringable|string|null $data = null): string
+    public static function getUuid(): string
     {
-        if (is_object($data)) {
-            $data = (string) $data;
+        // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
+        try {
+            $data = random_bytes(16);
+
+        } catch (Throwable $e) {
+            // Failed to find good random information. Notify and continue using mt_rand()
+            Notification::new()
+                ->setTitle(tr('Failed to generate 16 random bytes required for the UUID, attempting Strings::random() instead'))
+                ->setException($e)
+                ->send(true);
+
+            $data = static::getRandom(16);
         }
 
-        // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
-        $data = $data ?? random_bytes(16);
-        assert(strlen($data) == 16);
-
-        // Set version to 0100
+        // Set version to 0100, set bits 6-7 to 10
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-        // Set bits 6-7 to 10
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
 
-        // Output the 36 character UUID.
+        // Output the 36 characters UUID.
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 

@@ -238,7 +238,7 @@ class MySql extends Command
      */
     protected function createPasswordFile(): string
     {
-        $file = '/tmp/.' . Strings::random(16) . '.cnf';
+        $file = '/tmp/.' . Strings::getRandom(16) . '.cnf';
 //        Process::new()
 //            ->setServer($this->server)
 //

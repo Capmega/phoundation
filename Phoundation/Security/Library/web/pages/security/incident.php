@@ -12,7 +12,7 @@ use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\DisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Validate
@@ -55,9 +55,9 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Incident'));
-Page::setHeaderSubTitle($incident->getId());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Incident'));
+Response::setHeaderSubTitle($incident->getId());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
     '/security/incidents.html' => tr('Incidents'),
     ''                         => $incident->getId()

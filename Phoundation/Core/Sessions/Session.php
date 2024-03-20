@@ -16,7 +16,6 @@ use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
@@ -44,7 +43,9 @@ use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessag
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 use Throwable;
 
 
@@ -175,7 +176,7 @@ class Session implements SessionInterface
         if (PLATFORM_WEB) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
-            static::getFlashMessages()->pullMessagesFrom(Page::getFlashMessages());
+            static::getFlashMessages()->pullMessagesFrom(Response::getFlashMessages());
 
             if (static::$flash_messages->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
@@ -188,7 +189,7 @@ class Session implements SessionInterface
     public static function getUUID(): string
     {
         if (empty($_SESSION['uuid'])) {
-            $_SESSION['uuid'] = Strings::generateUuid();
+            $_SESSION['uuid'] = Strings::getUuid();
         }
 
         return $_SESSION['uuid'];
@@ -355,7 +356,7 @@ class Session implements SessionInterface
         }
 
         // No supported domain found, redirect to the primary domain
-        Page::redirect(true);
+        Response::redirect(true);
     }
 
 
@@ -384,7 +385,7 @@ class Session implements SessionInterface
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
         $supported_languages = Arrays::force(Config::get('language.supported', []));
-        $requested_languages = Page::acceptsLanguages();
+        $requested_languages = Request::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
             if (in_array($requested_language['language'], $supported_languages)) {
@@ -485,7 +486,7 @@ class Session implements SessionInterface
             return false;
         }
 
-        switch(Core::getRequestType()) {
+        switch(Request::getRequestType()) {
             case EnumRequestTypes::api:
                 // API's don't do cookies at all
                 return false;
@@ -585,7 +586,7 @@ Log::warning('RESTART SESSION');
              * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
              * Only check cloaking rules if we are NOT displaying a system page
              */
-            if (!Core::isRequestType(EnumRequestTypes::system)) {
+            if (!Request::isRequestType(EnumRequestTypes::system)) {
                 if (empty($core->register['url_cloak_users_id'])) {
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }
@@ -682,11 +683,11 @@ Log::warning('RESTART SESSION');
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
 
-                    Page::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
+                    Response::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
                         ':user' => User::get($users_id,  'id')->getLogId()
                     ]));
 
-                    Page::redirect($url);
+                    Response::redirect($url);
 
                 } catch (Throwable $e) {
                     // Oops?
@@ -956,7 +957,7 @@ Log::warning('RESTART SESSION');
                             ':current_domain' => static::$domain
                         ]))->send();
 
-                    Page::redirect(PROTOCOL.Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
+                    Response::redirect(PROTOCOL.Strings::startsNotWith(Config::getBoolString('web.sessions.cookies.domain'), '.'));
                 }
 
                 ini_set('session.cookie_domain', Config::getBoolString('web.sessions.cookies.domain'));
@@ -1027,12 +1028,12 @@ Log::warning('RESTART SESSION');
         if (!static::$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
-            Page::redirect();
+            Response::redirect();
         }
 
         // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
         // whitelabel domain
-        if (static::$domain === Page::getDomain()) {
+        if (static::$domain === Request::getDomain()) {
             // This is the primary domain
 
         } else {
@@ -1042,10 +1043,10 @@ Log::warning('RESTART SESSION');
                     // White label domains are disabled, so the requested domain MUST match the configured domain
                     Log::warning(tr('White labels are disabled, redirecting domain ":source" to ":target"', [
                         ':source' => $_SERVER['HTTP_HOST'],
-                        ':target' => Page::getDomain()
+                        ':target' => Request::getDomain()
                     ]));
 
-                    Page::redirect(PROTOCOL . Page::getDomain());
+                    Response::redirect(PROTOCOL . Request::getDomain());
 
                 case 'all':
                     // All domains are allowed
@@ -1053,13 +1054,13 @@ Log::warning('RESTART SESSION');
 
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
-                    if (Strings::from(static::$domain, '.') !== Page::getDomain()) {
+                    if (Strings::from(static::$domain, '.') !== Request::getDomain()) {
                         Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
-                            ':target' => Page::getDomain()
+                            ':target' => Request::getDomain()
                         ]));
 
-                        Page::redirect(PROTOCOL . Page::getDomain());
+                        Response::redirect(PROTOCOL . Request::getDomain());
                     }
 
                     break;
@@ -1075,10 +1076,10 @@ Log::warning('RESTART SESSION');
                     if (empty(static::$domain)) {
                         Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
-                            ':target' => Page::getDomain()
+                            ':target' => Request::getDomain()
                         ]));
 
-                        Page::redirect(PROTOCOL . Page::getDomain());
+                        Response::redirect(PROTOCOL . Request::getDomain());
                     }
 
                     break;
@@ -1089,10 +1090,10 @@ Log::warning('RESTART SESSION');
                         if (!in_array(static::$domain, Config::get('web.domains.whitelabels', false))) {
                             Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
-                                ':target' => Page::getDomain()
+                                ':target' => Request::getDomain()
                             ]));
 
-                            Page::redirect(PROTOCOL . Page::getDomain());
+                            Response::redirect(PROTOCOL . Request::getDomain());
                         }
 
                     } else {
@@ -1101,10 +1102,10 @@ Log::warning('RESTART SESSION');
                         if (static::$domain !== Config::get('web.domains.whitelabels', false)) {
                             Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
-                                ':target' => Page::getDomain()
+                                ':target' => Request::getDomain()
                             ]));
 
-                            Page::redirect(PROTOCOL . Page::getDomain());
+                            Response::redirect(PROTOCOL . Request::getDomain());
                         }
                     }
             }
@@ -1316,8 +1317,8 @@ Log::warning('RESTART SESSION');
                         ->save();
 
                     Session::signOut();
-                    Page::getFlashMessages()->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
-                    Page::redirect('sign-in');
+                    Response::getFlashMessages()->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
+                    Response::redirect('sign-in');
                 }
             }
         }

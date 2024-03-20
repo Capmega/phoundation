@@ -11,11 +11,10 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -162,7 +161,7 @@ abstract class Element implements ElementInterface
                 ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
-        $renderer_class  = Page::getTemplate()->getRendererClass($this);
+        $renderer_class  = Response::getTemplate()->getRendererClass($this);
 
         $render_function = function () use ($postfix) {
             $attributes  = $this->renderAttributes();

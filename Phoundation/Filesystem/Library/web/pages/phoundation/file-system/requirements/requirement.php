@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -41,7 +41,7 @@ $requirement = Requirement::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
@@ -53,49 +53,49 @@ if (Page::isPostRequestMethod()) {
                 // Update requirement, roles, emails, and phones
                 $requirement->apply(false)->save();
 
-                Page::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been saved', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been saved', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/phoundation/file-system/requirements/requirement+' . $requirement->getId() . '.html'));
+                Response::redirect(UrlBuilder::getWww('/phoundation/file-system/requirements/requirement+' . $requirement->getId() . '.html'));
 
             case tr('Delete'):
                 $requirement->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been deleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been deleted', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Lock'):
                 $requirement->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been locked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been locked', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Unlock'):
                 $requirement->unlock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been unlocked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been unlocked', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Undelete'):
                 $requirement->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been undeleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The requirement ":requirement" has been undeleted', [
                     ':requirement' => $requirement->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $requirement->forceApply();
     }
 }
@@ -208,10 +208,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setPageTitle(tr('Requirement :requirement', [':requirement' => $requirement->getDisplayName()]));
-Page::setHeaderTitle(tr('Requirement'));
-Page::setHeaderSubTitle($requirement->getDisplayName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setPageTitle(tr('Requirement :requirement', [':requirement' => $requirement->getDisplayName()]));
+Response::setHeaderTitle(tr('Requirement'));
+Response::setHeaderSubTitle($requirement->getDisplayName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                               => tr('Home'),
     '/system-administration.html'                     => tr('System administration'),
     '/phoundation/file-systems.html'        => tr('Filesystems'),

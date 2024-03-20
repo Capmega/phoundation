@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Web\Requests\Interfaces\RequestInterface;
 
 
 /**

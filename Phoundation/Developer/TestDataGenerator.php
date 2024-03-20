@@ -33,7 +33,7 @@ class TestDataGenerator
      */
     public static function getCode(int $min = 3, int $max = 12, bool $unique = true): string
     {
-        return Strings::random(random_int($min, $max), $unique, 'alpha');
+        return Strings::getRandom(random_int($min, $max), $unique, 'alpha');
     }
 
 
@@ -138,7 +138,7 @@ class TestDataGenerator
      */
     public static function getName(): string
     {
-        return Strings::random(random_int(3, 10), characters: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ');
+        return Strings::getRandom(random_int(3, 10), characters: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ');
     }
 
 
@@ -150,7 +150,7 @@ class TestDataGenerator
      */
     public static function getDomain(): string
     {
-        return Strings::random(random_int(3, 24)) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local');
+        return Strings::getRandom(random_int(3, 24)) . pick_random('.com', '.org', '.net', '.ca', '.nl', '.mx', '.com.mx', '.info', '.local');
     }
 
 

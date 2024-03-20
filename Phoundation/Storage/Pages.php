@@ -6,7 +6,7 @@ namespace Phoundation\Storage;
 
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Storage\Interfaces\PagesInterface;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -35,7 +35,7 @@ class Pages extends DataList implements PagesInterface
      */
     public static function getEntryClass(): string
     {
-        return Page::class;
+        return Request::class;
     }
 
 

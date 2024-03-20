@@ -8,7 +8,7 @@ use JetBrains\PhpStorm\NoReturn;
 use PDO;
 use PDOStatement;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\Commands\Command;
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
@@ -1383,7 +1383,7 @@ class Sql implements SqlInterface
                             if (isset_get($this->configuration['ssh_tunnel']['required'])) {
                                 // The tunneling server has "AllowTcpForwarding" set to "no" in the sshd_config, attempt
                                 // auto fix
-                                Command::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
+                                CliCommand::new($this->configuration['server'])->enableTcpForwarding($this->configuration['ssh_tunnel']['server']);
                                 continue;
                             }
                         }
@@ -1433,9 +1433,12 @@ class Sql implements SqlInterface
                     // Indicate that time_zone settings failed (this will subsequently be used by the init system to
                     // automatically initialize that as well)
                     // TODO Write somewhere else than Core "system" register as that will be readonly
-                    throw new SqlNoTimezonesException(tr('Failed to set timezone ":timezone", MySQL has not yet loaded any timezones', [
-                        ':timezone' => $this->configuration['timezones_name']
-                    ]), $e);
+                    throw SqlNoTimezonesException::new(tr('Failed to set timezone ":timezone" on connector ":connector", MySQL has not yet loaded any timezones', [
+                        ':connector' => $this->connector,
+                        ':timezone'  => $this->configuration['timezones_name']
+                    ]), $e)->addData([
+                        'connector' => $this->connector
+                    ]);
                 }
             }
 
@@ -1448,7 +1451,7 @@ class Sql implements SqlInterface
 
         } catch (Throwable $e) {
             if (PLATFORM_CLI) {
-                switch (Command::getExecutedPath()) {
+                switch (CliCommand::getExecutedPath()) {
                     case 'system/init/drop':
                         // no break
                     case 'system/init/init':

@@ -270,7 +270,7 @@ class Http
 //            $url = Config::get('web.url.prefix', '') . $url;
 //        }
 //
-//        $url = Page::redirect($url);
+//        $url = Response::redirect($url);
 //
 //        if ($time_delay) {
 //            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [':time' => $time_delay, ':url' => $url]));
@@ -279,7 +279,7 @@ class Http
 //        }
 //
 //        Log::action(tr('Redirecting to url ":url"', [':url' => $url]));
-//        header('Location:' . Page::redirect($url), true, $http_code);
+//        header('Location:' . Response::redirect($url), true, $http_code);
 //        exit();
 //    }
 

@@ -9,7 +9,7 @@ use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -278,7 +278,7 @@ class PostValidator extends Validator
      */
     public static function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
     {
-        if (!Page::isPostRequestMethod()) {
+        if (!Request::isPostRequestMethod()) {
             return null;
         }
 

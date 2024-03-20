@@ -10,7 +10,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Network\Curl\Interfaces\CurlInterface;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
 
@@ -130,7 +130,7 @@ class Relay
     #[NoReturn] public function get(): void
     {
         Log::action(tr('Relaying URL ":url"', [':url' => $this->curl->getUrl()]));
-        Page::setBuildBody(false);
+        Response::setBuildBody(false);
 
         try {
             $page = $this->curl

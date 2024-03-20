@@ -10,7 +10,7 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Validate GET
@@ -43,8 +43,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Audit information'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Audit information'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'           => tr('Home'),
     '/audit.html' => tr('Audits'),
     ''            => tr('Item')

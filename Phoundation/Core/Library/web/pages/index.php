@@ -2,15 +2,15 @@
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Set page meta data
-Page::setPageTitle(tr('Dashboard'));
-Page::setHeaderTitle(tr('Dashboard'));
-Page::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUser()->getDisplayName()]));
-Page::setDescription(tr(''));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setPageTitle(tr('Dashboard'));
+Response::setHeaderTitle(tr('Dashboard'));
+Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUser()->getDisplayName()]));
+Response::setDescription(tr(''));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Dashboard')
 ]));

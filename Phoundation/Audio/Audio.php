@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Audio;
 
-use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
@@ -14,7 +12,9 @@ use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Utils\Config;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -71,11 +71,11 @@ class Audio extends File
     public function playRemote(?string $class = null): static
     {
         if (Config::getBoolean('audio.remote.enabled', true)) {
-            switch (Core::getRequestType()) {
+            switch (Request::getRequestType()) {
                 case EnumRequestTypes::html:
                     // no break
                 case EnumRequestTypes::admin:
-                    Page::addToFooter('html', \Phoundation\Web\Html\Components\Audio::new()
+                    Response::addToFooter('html', \Phoundation\Web\Html\Components\Audio::new()
                         ->addClass($class)
                         ->setFile($this->path)
                         ->render());

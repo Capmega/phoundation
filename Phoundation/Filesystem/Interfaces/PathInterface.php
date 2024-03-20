@@ -1,16 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Filesystem\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Enums\Interfaces\EnumFileOpenModeInterface;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
-use Phoundation\Filesystem\Exception\FileExistsException;
-use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotOpenException;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Restrictions;
+use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Stringable;
 use Throwable;
 
@@ -18,7 +15,7 @@ use Throwable;
 /**
  * Interface PathInterface
  *
- * This library contains the variables used in the File class
+ * This library contains the basic functionalities to manage filesystem paths
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -29,67 +26,49 @@ use Throwable;
 interface PathInterface
 {
     /**
-     * Returns the configured file buffer size
+     * Returns the extension of the objects path
      *
-     * @param int|null $requested_buffer_size
-     * @return int
+     * @return string
      */
-    public function getBufferSize(?int $requested_buffer_size = null): int;
+    public function getExtension(): string;
 
     /**
-     * Returns the stream for this file if its opened. Will return NULL if closed
+     * Returns true if this Path object has the specified extension
+     *
+     * @param string $extension
+     * @return bool
+     */
+    public function hasExtension(string $extension): bool;
+
+    /**
+     * Returns the basename of this path
+     *
+     * @return string
+     */
+    public function getBasename(): string;
+
+    /**
+     * Returns the stream for this file if it's opened. Will return NULL if closed
      *
      * @return mixed
      */
     public function getStream(): mixed;
 
     /**
-     * Returns the file
+     * Returns the path
      *
+     * @param string|null $from
      * @return string|null
      */
-    public function getPath(): ?string;
+    public function getPath(?string $from = null): ?string;
 
     /**
-     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     * Returns true if this object is the specified path
      *
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
-     *                 specified does not exist.
-     *
-     * @example
-     * code
-     * show(File::new()->getRealPath());
-     * showdie(File::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
+     * @param string $path
+     * @return bool
      */
-    public function getRealPath(): ?string;
-
-    /**
-     * Returns a normalized path that has all ./ and ../ resolved
-     *
-     * @param Stringable|string|bool|null $make_absolute
-     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
-     *                 specified does not exist.
-     *
-     * @example
-     * code
-     * show(File::new()->getRealPath());
-     * showdie(File::new()->getRealPath());
-     * /code
-     *
-     * This would result in
-     * code
-     * null
-     * /bin
-     * /code
-     */
-    public function getNormalizedPath(Stringable|string|bool|null $make_absolute = null): ?string;
+    public function isPath(string $path): bool;
 
     /**
      * Sets the file for this Path object
@@ -120,8 +99,8 @@ interface PathInterface
     /**
      * Checks if the specified file exists
      *
-     * @param bool $check_dead_symlink
      * @param bool $auto_mount
+     * @param bool $check_dead_symlink
      * @return bool
      */
     public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
@@ -133,7 +112,6 @@ interface PathInterface
      * @param bool $check_dead_symlink
      * @param bool $auto_mount
      * @return static
-     * @throws FileNotExistException
      */
     public function checkExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static;
 
@@ -141,17 +119,26 @@ interface PathInterface
      * Checks if the specified file does not exist, throws exception if it does
      *
      * @param bool $force
+     * @param bool $check_dead_symlink
+     * @param bool $auto_mount
      * @return static
-     * @throws FileExistsException
      */
     public function checkNotExists(bool $force = false, bool $check_dead_symlink = false, bool $auto_mount = true): static;
+
+    /**
+     * Ensures that the path is completely mounted and executes the callback if a mount was made
+     *
+     * @return bool
+     * @todo Add support for recursive auto mounting
+     */
+    public function attemptAutoMount(): bool;
 
     /**
      * Renames a file or directory
      *
      * @param Stringable|string $to_filename
      * @param null $context
-     * @return $this
+     * @return static
      */
     public function rename(Stringable|string $to_filename, $context = null): static;
 
@@ -186,6 +173,34 @@ interface PathInterface
      * @return static
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static;
+
+    /**
+     * Returns true if the path for this Path object is relative (and as such, starts NOT with /)
+     *
+     * @return bool
+     */
+    public function isRelative(): bool;
+
+    /**
+     * Returns true if the path for this Path object is absolute (and as such, starts with /)
+     *
+     * @return bool
+     */
+    public function isAbsolute(): bool;
+
+    /**
+     * Returns true if this path can be read
+     *
+     * @return bool
+     */
+    public function isReadable(): bool;
+
+    /**
+     * Returns true if this path can be written
+     *
+     * @return bool
+     */
+    public function isWritable(): bool;
 
     /**
      * Check if the object file exists and is writable. If not both, an exception will be thrown
@@ -282,11 +297,25 @@ interface PathInterface
     public function getMode(): string|int|null;
 
     /**
+     * Returns the path octal filemode into a text readable filemode (rwxrwxrwx)
+     *
+     * @return string
+     */
+    public function getModeHumanReadable(): string;
+
+    /**
      * Returns the file type
      *
      * @return string|int|null
      */
     public function getType(): string|int|null;
+
+    /**
+     * Returns the name of the file type
+     *
+     * @return string
+     */
+    public function getTypeName(): string;
 
     /**
      * Returns the stat data for the object file
@@ -332,6 +361,47 @@ interface PathInterface
     public function ensureFileReadable(?int $mode = null): bool;
 
     /**
+     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     *
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                 specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     */
+    public function getRealPath(): ?string;
+
+    /**
+     * Returns a normalized path that has all ./ and ../ resolved
+     *
+     * @param Stringable|string|bool|null $make_absolute
+     * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if whatever was
+     *                 specified does not exist.
+     *
+     * @example
+     * code
+     * show(File::new()->getRealPath());
+     * showdie(File::new()->getRealPath());
+     * /code
+     *
+     * This would result in
+     * code
+     * null
+     * /bin
+     * /code
+     */
+    public function getNormalizedPath(Stringable|string|bool|null $make_absolute = null): ?string;
+
+    /**
      * Ensure that the object file is writable
      *
      * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file
@@ -373,6 +443,22 @@ interface PathInterface
      * @return bool
      */
     public function isLink(): bool;
+
+    /**
+     * Returns the path that this link points to
+     *
+     * @param PathInterface|string|bool $make_absolute
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
+     */
+    public function readLink(PathInterface|string|bool $make_absolute = false): PathInterface;
+
+    /**
+     * Wrapper for Path::readlink()
+     *
+     * @param PathInterface|string|bool $absolute
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
+     */
+    public function getLinkTarget(PathInterface|string|bool $absolute = false): PathInterface;
 
     /**
      * Returns true if the file is a symlink AND its target exists
@@ -436,7 +522,7 @@ interface PathInterface
      * @note Will return a NEW Path object (File or Directory, basically) for the specified target
      * @param PathInterface|string $target
      * @param PathInterface|string|bool $make_relative
-     * @return PathInterface
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
      */
     public function symlinkTargetFromThis(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface;
 
@@ -446,7 +532,7 @@ interface PathInterface
      * @note Will return a NEW Path object (File or Directory, basically) for the specified target
      * @param PathInterface|string $target
      * @param PathInterface|string|bool $make_relative
-     * @return PathInterface
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
      */
     public function symlinkThisToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface;
 
@@ -562,7 +648,26 @@ interface PathInterface
      * @param $context
      * @return array
      */
-    public function getContentsAsArray(int $flags = 0, $context = null): array;
+    public function getContentsAsArray(int $flags = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES, $context = null): array;
+
+    /**
+     * Returns the contents of this file as an Iterator object
+     *
+     * @param int $flags
+     * @param $context
+     * @return IteratorInterface
+     */
+    public function getContentsAsIterator(int $flags = FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES, $context = null): IteratorInterface;
+
+    /**
+     * Write the specified data to this file
+     *
+     * @param string $data
+     * @param int $flags
+     * @param null $context
+     * @return $this
+     */
+    public function putContents(string $data, int $flags = 0, $context = null): static;
 
     /**
      * Append specified data string to the end of the object file
@@ -572,6 +677,14 @@ interface PathInterface
      * @return static
      */
     public function appendData(string $data, ?int $length = null): static;
+
+    /**
+     * Create the specified file
+     *
+     * @param bool $force
+     * @return static
+     */
+    public function create(bool $force = false): static;
 
     /**
      * Sets access and modification time of file
@@ -619,58 +732,28 @@ interface PathInterface
     public function shred(int $passes = 3): static;
 
     /**
-     * Returns the relative path between the specified path and this objects path
+     * Returns the device path of the filesystem where this file is stored
+     *
+     * @return string
+     */
+    public function getMountDevice(): string;
+
+    /**
+     * Returns a find object that will search for files in the specified path and upon execution returns a files-object
+     * that can execute callbacks on said files
+     *
+     * @return FindInterface
+     */
+    public function find(): FindInterface;
+
+    /**
+     * Returns the relative path between the specified path and this object's path
      *
      * @param PathInterface|string $target
      * @param PathInterface|string|bool $make_absolute
-     * @return PathInterface
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
      */
     public function getRelativePathTo(PathInterface|string $target, PathInterface|string|bool $make_absolute = null): PathInterface;
-
-    /**
-     * Returns the number of directories counted in the specified path
-     *
-     * @param mixed $path
-     * @return int
-     */
-    public static function countDirectories(mixed $path): int;
-
-    /**
-     * Ensures that the path is completely mounted and executes the callback if a mount was made
-     *
-     * @return bool
-     */
-    public function attemptAutoMount(): bool;
-
-    /**
-     * Returns the server restrictions
-     *
-     * @return RestrictionsInterface
-     */
-    public function getRestrictions(): RestrictionsInterface;
-
-    /**
-     * Sets the server and filesystem restrictions for this File object
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions  The file restrictions to apply to this object
-     * @param bool $write                                   If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $write modifier for that object
-     * @param string|null $label                            If $restrictions is not specified as a Restrictions class,
-     *                                                      but as a path string, or array of path strings, then this
-     *                                                      method will convert that into a Restrictions object and this
-     *                                                      is the $label modifier for that object
-     */
-    public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
-
-    /**
-     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
-     *
-     * @param RestrictionsInterface|null $restrictions
-     * @return RestrictionsInterface
-     */
-    public function ensureRestrictions(?RestrictionsInterface $restrictions): RestrictionsInterface;
 
     /**
      * Checks restrictions
@@ -681,43 +764,65 @@ interface PathInterface
     public function checkRestrictions(bool $write): static;
 
     /**
-     * Returns true if this path can be read
+     * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
+     * original
      *
-     * @return bool
+     * @param PathInterface|string $target
+     * @return \Phoundation\Filesystem\Interfaces\PathInterface
      */
-    public function isReadable(): bool;
+    public function replaceWithPath(PathInterface|string $target): PathInterface;
 
     /**
-     * Returns true if this path can be written
+     * Ensures that this path is a symlink
      *
-     * @return bool
+     * @return $this
      */
-    public function isWritable(): bool;
+    public function checkSymlink(Stringable|string $target): static;
 
     /**
-     * Returns the specified file added to this directory
+     * Returns a PathInterface object with the specified path appended to this path
      *
      * @param PathInterface|string $path
+     * @param bool $make_absolute
      * @return FileInterface
      */
-    public function appendPath(PathInterface|string $path): PathInterface;
+    public function appendPath(PathInterface|string $path, bool $make_absolute = false): PathInterface;
 
     /**
      * Returns a PathInterface object with the specified path prepended to this path
      *
      * @param PathInterface|string $path
+     * @param bool $make_absolute
      * @return FileInterface
      */
-    public function prependPath(PathInterface|string $path): PathInterface;
+    public function prependPath(PathInterface|string $path, bool $make_absolute = false): PathInterface;
 
     /**
-     * Copies all files as symlinks in the tree starting at this objects path to the specified target,
+     * Returns a FilesInterface object that will contain all the files under this current path
+     *
+     * @param bool $reload
+     * @return FilesInterface
+     */
+    public function getFilesObject(bool $reload = false): FilesInterface;
+
+    /**
+     * Copies all directories as directories and all files as symlinks in the tree starting at this objects path to the
+     * specified target,
      *
      * Directories will remain directories, all files will be symlinks
      *
      * @param PathInterface|string $target
-     * @param bool $make_relative
+     * @param PathInterface|string|null $alternate_path
+     * @param RestrictionsInterface|null $restrictions
+     * @param bool $rename
      * @return $this
      */
-    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|null $alternate_path = null): PathInterface;
+    public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|null $alternate_path = null, ?RestrictionsInterface $restrictions = null, bool $rename = false): PathInterface;
+
+    /**
+     * Will scan this path for symlinks and delete all of them one by one
+     *
+     * @return $this
+     */
+    public function clearTreeSymlinks(bool $clean = false): static;
 }

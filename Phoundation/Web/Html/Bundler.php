@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html;
 
 use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\Directory;
@@ -18,7 +17,8 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
 use Throwable;
 
 
@@ -153,7 +153,7 @@ class Bundler
             }
 
             // Add the bundle file to the page
-            Page::addFile($this->bundle_file);
+            Request::addFile($this->bundle_file);
         }
 
         return $this->bundle_file;
@@ -172,12 +172,12 @@ class Bundler
      */
     protected function newBundle(array $files, string $extension): void
     {
-        $admin_path = (Core::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
+        $admin_path = (Request::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
 
         $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
         $this->directory        =  DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
         $this->bundle_file =  Strings::force($files);
-        $this->bundle_file =  substr(sha1($this->bundle . Core::FRAMEWORKCODEVERSION), 1, 32);
+        $this->bundle_file =  substr(sha1($this->bundle . Core::FRAMEWORK_CODE_VERSION), 1, 32);
         $this->bundle_file =  $this->directory . 'bundle-' . $this->bundle_file . $this->extension;
         $this->count       =  0;
     }
@@ -343,12 +343,12 @@ class Bundler
                 foreach ($files as $file => $data) {
                     $org_file = $file;
                     $file     = $this->directory . $file . $this->extension;
-    
+
                     Log::action(tr('Adding file ":file" to bundle file ":bundle"', [
                         ':file'   => $file,
                         ':bundle' => $this->bundle_file
                     ]), 3);
-    
+
                     if (!file_exists($file)) {
                         Notification::new()
                             ->setUrl('developer/incidents.html')
@@ -363,23 +363,23 @@ class Bundler
                             ->send();
                         continue;
                     }
-    
+
                     $this->count++;
-    
+
                     $data = file_get_contents($file);
                     unset($files[$org_file]);
-    
+
                     if ($this->extension === 'css') {
                         $data = $this->processCssData($file, $org_file, $data);
                     }
-    
+
                     if (Debug::getEnabled()) {
                         File::new($this->bundle_file, $this->restrictions)->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
-    
+
                     } else {
                         File::new($this->bundle_file, $this->restrictions)->append($data . (Config::get('web.minify', true) ? '' : "\n"));
                     }
-    
+
                     if ($this->count) {
                         chmod($this->bundle_file, Config::get('filesystem.mode.files', 0640));
                     }
@@ -396,7 +396,7 @@ class Bundler
     protected function purgeCss(): string
     {
         try {
-            $html_file_object = Filesystem::createTempFile(false,'html')->append(Page::getHtml());
+            $html_file_object = Filesystem::createTempFile(false,'html')->append(Request::getHtml());
 
             $bundle_file = Css::purge($this->bundle_file, $html_file_object->getPath());
 

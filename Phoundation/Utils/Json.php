@@ -12,12 +12,12 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
 use Phoundation\Utils\Enums\EnumJsonAfterReply;
+use Phoundation\Utils\Enums\Interfaces\EnumJsonAfterReplyInterface;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 use Throwable;
 
@@ -66,10 +66,9 @@ class Json
             }
         }
 
-        Page::setContentType('application/json');
-        Page::sendHttpHeaders(Page::renderHttpHeaders($data));
-
-        echo $data;
+        Response::setContentType('application/json');
+        Response::setOutput($data);
+        Response::send(false);
 
         switch ($action_after) {
             case EnumJsonAfterReply::die:

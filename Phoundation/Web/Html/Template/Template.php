@@ -6,10 +6,11 @@ namespace Phoundation\Web\Html\Template;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Element;
-use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
+use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
 use Plugins\Phoundation\Components\Menu;
 
 
@@ -49,9 +50,9 @@ abstract class Template implements TemplateInterface
     /**
      * The Template page object
      *
-     * @var TemplatePage $page
+     * @var TemplatePageInterface $page
      */
-    protected TemplatePage $page;
+    protected TemplatePageInterface $page;
 
 
     /**
@@ -62,7 +63,7 @@ abstract class Template implements TemplateInterface
     public function __construct()
     {
         if (empty($this->page_class)) {
-            $this->page_class  = TemplatePage::class;
+            $this->page_class  = TemplateRequest::class;
             $this->menus_class = Menu::class;
         }
 
@@ -106,15 +107,15 @@ abstract class Template implements TemplateInterface
     /**
      * Returns a new TemplatePage for this template
      *
-     * @return TemplatePage
+     * @return TemplatePageInterface
      */
-    public function getPage(): TemplatePage
+    public function getPage(): TemplatePageInterface
     {
         if (!isset($this->page)) {
             // Instantiate page object
             $page = new $this->page_class();
 
-            if (!($page instanceof TemplatePage)) {
+            if (!($page instanceof TemplatePageInterface)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
                     ':template' => $this->name,
                     'class'     => $this->page_class
@@ -142,10 +143,10 @@ abstract class Template implements TemplateInterface
     /**
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
      *
-     * @param Element|ElementsBlock|string $class
+     * @param ElementInterface|ElementsBlockInterface|string $class
      * @return string|null
      */
-    public function getRendererClass(Element|ElementsBlock|string $class): ?string
+    public function getRendererClass(ElementInterface|ElementsBlockInterface|string $class): ?string
     {
         while (true) {
             if (is_object($class)) {

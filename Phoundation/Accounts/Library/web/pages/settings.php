@@ -14,18 +14,18 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 $user = User::get(Session::getUser()->getId());
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $user->apply()->save();
     }
 }
@@ -83,9 +83,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('My settings'));
-Page::setHeaderSubTitle($user->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('My settings'));
+Response::setHeaderSubTitle($user->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('My settings')
 ]));
