@@ -7,7 +7,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -29,9 +29,9 @@ Notification::new()
     ->setUsersId(Session::getUser()->getId())
     ->setTitle(tr('This is a test notification'))
     ->setMessage(tr('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'))
-    ->setDetails(['test' => Strings::random(16)])
+    ->setDetails(['test' => Strings::getRandom(16)])
     ->log()
     ->send();
 
 // Redirect to the all notifications page
-Page::redirect(UrlBuilder::getPrevious('/notifications/notifications.html'));
+Response::redirect(UrlBuilder::getPrevious('/notifications/notifications.html'));

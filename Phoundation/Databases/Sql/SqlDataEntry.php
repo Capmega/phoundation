@@ -259,7 +259,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         if ($this->data_entry->isMetaColumn('meta_state')) {
-            $row['meta_state'] = Strings::random(16);
+            $row['meta_state'] = Strings::getRandom(16);
         }
 
         unset($row['created_on']);
@@ -287,7 +287,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         if ($this->data_entry->isMetaColumn('meta_state')) {
-            $row['meta_state'] = Strings::random(16);
+            $row['meta_state'] = Strings::getRandom(16);
         }
 
         // Never update the other meta-information

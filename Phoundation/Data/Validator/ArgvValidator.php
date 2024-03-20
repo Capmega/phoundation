@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Cli\Commands\Command;
-use Phoundation\Cli\Exception\ArgumentsException;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -648,7 +648,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function addStdInStreamAsKey(string $key): static
     {
-        if (Command::hasStdInStream()) {
+        if (CliCommand::hasStdInStream()) {
             if (in_array($key, static::$argv)) {
                 throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key already exists', [
                     ':key' => $key
@@ -656,7 +656,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             static::$argv[] = $key;
-            static::$argv[] = Command::readStdInStream();
+            static::$argv[] = CliCommand::readStdInStream();
         }
 
         return $this;
@@ -676,7 +676,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *                             of the output
      *
      * @see cli_arguments()
-     * @see Command::argument()
+     * @see CliCommand::argument()
      */
     protected static function method(?int $index = null, ?string $default = null): string
     {
@@ -820,7 +820,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             return match (count($results)) {
                 0       => null,
                 1       => current($results),
-                default => throw ArgumentsException::new(tr('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
+                default => throw CliArgumentsException::new(tr('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
                     ':results' => $results
                 ]))->makeWarning()
             };
@@ -870,11 +870,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             } catch (OutOfBoundsException $e) {
                 // This argument requires another parameter. Make it an arguments exception!
-                throw ArgumentsException::new($e)->makeWarning();
+                throw CliArgumentsException::new($e)->makeWarning();
             }
 
             if (str_starts_with((string) $value, '-')) {
-                throw ArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
+                throw CliArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys'  => $keys,
                     ':value' => $value
                 ]))->addData(['keys' => $keys])->makeWarning();

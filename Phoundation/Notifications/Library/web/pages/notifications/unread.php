@@ -13,7 +13,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -33,12 +33,12 @@ $notifications = Notifications::new()->markSeverityColumn();
 
 
 // Process POST requests
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     if (PostValidator::getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
         sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
-        Page::getFlashMessages()->addSuccessMessage(tr('All your notifications have been marked as read'));
-        Page::redirect();
+        Response::getFlashMessages()->addSuccessMessage(tr('All your notifications have been marked as read'));
+        Response::redirect();
     }
 }
 
@@ -97,8 +97,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Notifications'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Notifications'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Notifications')
 ]));

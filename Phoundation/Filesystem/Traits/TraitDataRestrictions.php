@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Restrictions;
 
@@ -27,6 +28,7 @@ trait TraitDataRestrictions
      */
     protected RestrictionsInterface $restrictions;
 
+
     /**
      * Returns the server restrictions
      *
@@ -34,7 +36,11 @@ trait TraitDataRestrictions
      */
     public function getRestrictions(): RestrictionsInterface
     {
-        return $this->restrictions;
+        if (isset($this->restrictions)) {
+            return $this->restrictions;
+        }
+
+        throw new OutOfBoundsException(tr('Cannot return file restrictions, restrictions have not yet been set'));
     }
 
 

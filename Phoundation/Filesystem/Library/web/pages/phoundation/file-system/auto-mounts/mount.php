@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -41,7 +41,7 @@ $mount = Mount::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
@@ -53,49 +53,49 @@ if (Page::isPostRequestMethod()) {
                 // Update mount, roles, emails, and phones
                 $mount->apply(false)->save();
 
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/phoundation/file-system/mount+' . $mount->getId() . '.html'));
+                Response::redirect(UrlBuilder::getWww('/phoundation/file-system/mount+' . $mount->getId() . '.html'));
 
             case tr('Delete'):
                 $mount->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Lock'):
                 $mount->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Unlock'):
                 $mount->unlock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Undelete'):
                 $mount->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $mount->forceApply();
     }
 }
@@ -208,10 +208,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setPageTitle(tr('Mount :mount', [':mount' => $mount->getDisplayName()]));
-Page::setHeaderTitle(tr('Mount'));
-Page::setHeaderSubTitle($mount->getDisplayName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setPageTitle(tr('Mount :mount', [':mount' => $mount->getDisplayName()]));
+Response::setHeaderTitle(tr('Mount'));
+Response::setHeaderSubTitle($mount->getDisplayName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                               => tr('Home'),
     '/system-administration.html'                     => tr('System administration'),
     '/phoundation/file-systems.html'        => tr('Filesystems'),

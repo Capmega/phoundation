@@ -15,7 +15,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Validate GET
@@ -26,7 +26,7 @@ $get = GetValidator::new()
 $provider = Provider::get($get['id'], no_identifier_exception: false);
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
 //        Provider::validate(PostValidator::new());
 //
@@ -35,12 +35,12 @@ if (Page::isPostRequestMethod()) {
 //        $provider->apply()->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]));
-//        Page::redirect('referer');
+//        Response::getFlashMessages()->addFlashMessage(tr('Success'), tr('Provider ":provider" has been updated', [':provider' => $provider->getName()]));
+//        Response::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $provider->forceApply();
     }
 }
@@ -100,9 +100,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('Provider'));
-Page::setHeaderSubTitle($provider->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Provider'));
+Response::setHeaderSubTitle($provider->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
     '/business/providers.html' => tr('Providers'),
     ''                         => $provider->getName()

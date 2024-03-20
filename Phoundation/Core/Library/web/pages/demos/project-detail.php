@@ -4,7 +4,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -20,9 +20,9 @@ use Phoundation\Web\Page;
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Project details'));
-Page::setHeaderSubTitle(tr('demo'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Project details'));
+Response::setHeaderSubTitle(tr('demo'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
     '/demos.html'          => tr('Demos'),
     '/demos/projects.html' => tr('Projects'),

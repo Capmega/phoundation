@@ -51,6 +51,6 @@ trait TraitDataEntryUuid
      */
     public function generateUuid(Stringable|string|null $data = null): static
     {
-        return $this->setSourceValue('uuid', Strings::generateUuid($data));
+        return $this->setSourceValue('uuid', Strings::getUuid($data));
     }
 }

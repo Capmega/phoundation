@@ -8,7 +8,7 @@ use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -39,7 +39,7 @@ class ProfileImage extends ImageMenu
             $this->setModalSelector('#signinModal');
 
         } else {
-            $this->setMenu(Page::getMenusObject()->getMenu('profile_image'));
+            $this->setMenu(Response::getMenusObject()->getMenu('profile_image'));
         }
 
         parent::__construct($content);

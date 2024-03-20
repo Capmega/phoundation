@@ -10,12 +10,10 @@ use Phoundation\Audio\Audio;
 use Phoundation\Cache\Cache;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliAutoComplete;
-use Phoundation\Cli\Commands\Command;
-use Phoundation\Cli\Exception\ArgumentsException;
-use Phoundation\Cli\Exception\CommandNotFoundException;
-use Phoundation\Cli\Exception\NoCommandSpecifiedException;
-use Phoundation\Core\Enums\EnumRequestTypes;
-use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
+use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Exception\CliArgumentsException;
+use Phoundation\Cli\Exception\CliCommandNotFoundException;
+use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
@@ -31,6 +29,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
+use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
@@ -57,8 +56,9 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
-use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 use Throwable;
 
 
@@ -74,6 +74,7 @@ use Throwable;
  */
 class Core implements CoreInterface
 {
+    use TraitGetInstance;
     use TraitDataStaticReadonly;
     use TraitDataStaticIsExecutedPath;
 
@@ -81,8 +82,10 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const FRAMEWORKCODEVERSION = '4.2.0';
-    public const PHP_MINIMUM_VERSION  = '8.2.0';
+    public const FRAMEWORK_CODE_VERSION = '4.2.0';
+
+    public const PHP_MINIMUM_VERSION    = '8.2.0';
+
 
     /**
      * Singleton variable
@@ -114,28 +117,8 @@ class Core implements CoreInterface
     protected static bool $debug = false;
 
     /**
-     * The type of call for this process. One of http, admin, cli, mobile, ajax, api, amp (deprecated), system
-     *
-     * @var EnumRequestTypesInterface
-     */
-    protected static EnumRequestTypesInterface $request_type = EnumRequestTypes::unknown;
-
-    /**
-     *
-     *
-     * @var string|null $processType
-     */
-    protected static ?string $processType = null;
-
-    /**
-     * @var array $db
-     *
-     * All database connections for this process
-     */
-    protected static array $db = [];
-
-    /**
      * @var array $register
+     * @TODO Get rid of this internal register completely
      *
      * General purpose data register
      */
@@ -150,9 +133,10 @@ class Core implements CoreInterface
     ];
 
     /**
-     * Keeps track of if the core is ready or not
+     * Keeps track of if the core is ready for script execution or not
      *
      * @var bool
+     * @TODO Replace this with using Core state
      */
     protected static bool $ready = false;
 
@@ -176,6 +160,7 @@ class Core implements CoreInterface
      * Keep track of system error state. If true, system is in error
      *
      * @var bool $error_state
+     * @todo Merge $error_state and $failed
      */
     protected static bool $error_state = false;
 
@@ -183,6 +168,7 @@ class Core implements CoreInterface
      * Internal flag indicating if there is a failure or not
      *
      * @var bool $failed
+     * @todo Merge $error_state and $failed
      */
     protected static bool $failed = false;
 
@@ -210,6 +196,7 @@ class Core implements CoreInterface
     /**
      * Temporary storage for any data
      *
+     * @todo Remove this internal storage completely
      * @var array $storage
      */
     protected static array $storage = [];
@@ -218,6 +205,7 @@ class Core implements CoreInterface
      * The Core main timer
      *
      * @var Timer
+     * @todo Remove this, use Timers class
      */
     protected static Timer $timer;
 
@@ -311,21 +299,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Singleton
-     *
-     * @return static
-     */
-    public static function getInstance(): static
-    {
-        if (!isset(static::$instance)) {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
-
-
-    /**
      * The core::startup() method will start up the core class
      *
      * This method starts the correct call type handler
@@ -349,7 +322,6 @@ class Core implements CoreInterface
             static::setProject();
             static::setPlatform();
             static::startupPlatform();
-            static::setRequestType();
             static::setTimeout();
 
         } catch (Throwable $e) {
@@ -367,7 +339,7 @@ class Core implements CoreInterface
                 }
             }
 
-            if (($e instanceof ValidationFailedException) or ($e instanceof ArgumentsException)) {
+            if (($e instanceof ValidationFailedException) or ($e instanceof CliArgumentsException)) {
                 throw $e;
             }
 
@@ -743,8 +715,8 @@ class Core implements CoreInterface
         // Register basic HTTP information
         // TODO MOVE TO HTTP CLASS
         static::$register['http']['code'] = 200;
-//                    static::$register['http']['accepts'] = Page::accepts();
-//                    static::$register['http']['accepts_languages'] = Page::acceptsLanguages();
+//                    static::$register['http']['accepts'] = Request::accepts();
+//                    static::$register['http']['accepts_languages'] = Request::acceptsLanguages();
 
         // Define basic platform constants
         define('ADMIN'     , '');
@@ -788,7 +760,7 @@ class Core implements CoreInterface
         // Check for configured maintenance mode
         if (Config::getBoolean('system.maintenance', false)) {
             // We are in maintenance mode, have to show mainenance page.
-            Route::executeSystem(503);
+            Request::executeSystem(503);
         }
 
         static::setTimeZone();
@@ -818,9 +790,7 @@ class Core implements CoreInterface
      */
     protected static function startupCli(): void
     {
-        static::$request_type = EnumRequestTypes::cli;
-
-        if (!Command::getPhoUidMatch()) {
+        if (!CliCommand::getPhoUidMatch()) {
             // Do NOT startup CLI because we'll restart soon
             return;
         }
@@ -984,7 +954,7 @@ class Core implements CoreInterface
         // Process command line system arguments if we have no exception so far
         if ($argv['version']) {
             Log::cli(tr('Phoundation framework version ":version"', [
-                ':version' => static::FRAMEWORKCODEVERSION
+                ':version' => static::FRAMEWORK_CODE_VERSION
             ]), 10);
             Log::cli(tr('Phoundation database version ":version"', [
                 ':version' => Version::getString(Libraries::getMaximumVersion())
@@ -1032,7 +1002,7 @@ class Core implements CoreInterface
         // Something failed?
         if (isset($e)) {
             echo "startup-cli: Command line parser failed with \"" . $e->getMessage() . "\"\n";
-            Command::setExitCode(1);
+            CliCommand::setExitCode(1);
             exit(1);
         }
 
@@ -1089,11 +1059,11 @@ class Core implements CoreInterface
         // Setup locale and character encoding
         // TODO Check this mess!
         ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
-        static::$register['system']['locale'] = static::setLocale();
+        static::setLocale();
 
         // Prepare for unicode usage
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
-// TOOD Fix this godawful mess!
+// TODO Fix this godawful mess!
             mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
 
             if (function_exists('mb_internal_encoding')) {
@@ -1163,7 +1133,7 @@ class Core implements CoreInterface
             // Clear all caches
             static::enableInitState();
             Cache::clear();
-            Command::setRequireDefault(false);
+            CliCommand::setRequireDefault(false);
             static::disableInitState();
         }
 
@@ -1171,7 +1141,7 @@ class Core implements CoreInterface
             // Clear all tmp data
             static::enableInitState();
             Tmp::clear();
-            Command::setRequireDefault(false);
+            CliCommand::setRequireDefault(false);
             static::disableInitState();
         }
     }
@@ -1241,7 +1211,6 @@ class Core implements CoreInterface
                 error_log('Project file "config/project" does not exist, entering setup mode');
 
                 static::setPlatform();
-                static::setRequestType();
                 static::startupPlatform();
                 static::$state = 'setup';
 
@@ -1297,7 +1266,6 @@ class Core implements CoreInterface
                     error_log('Project version file "config/version" does not exist, entering setup mode');
 
                     static::setPlatform();
-                    static::setRequestType();
                     static::startupPlatform();
                     static::$state = 'setup';
 
@@ -1309,54 +1277,6 @@ class Core implements CoreInterface
         }
 
         return $version;
-    }
-
-
-    /**
-     * Determine the request type
-     *
-     * @return void
-     */
-    protected static function setRequestType(): void
-    {
-        if (PLATFORM_WEB) {
-            // Determine what our target file is. With direct execution, $_SERVER[PHP_SELF] would contain this, with
-            // route execution, $_SERVER[PHP_SELF] would be route, so we cannot use that. Route will store the file
-            // being executed in static::$register['script_path'] instead
-            $file = $_SERVER['REQUEST_URI'];
-
-            // Autodetect what http call type we're on from the script being executed
-            // TODO MOVE ALL THIS TO ROUTER! ROUTER SHOULD DETERMINE WHAT IS ADMIN, AJAX, API, ETC.
-            if (str_contains($file, '/admin/')) {
-                static::$request_type = EnumRequestTypes::admin;
-
-            } elseif (str_contains($file, '/ajax/')) {
-                static::$request_type = EnumRequestTypes::ajax;
-
-//            } elseif (str_contains($file, '/api/')) {
-//                static::$request_type = EnumRequestTypes::api;
-
-//            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-//                static::$request_type = EnumRequestTypes::api;
-
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                static::$request_type = EnumRequestTypes::api;
-
-            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                static::$request_type = EnumRequestTypes::amp;
-
-            } elseif (is_numeric(substr($file, -3, 3))) {
-                static::$register['http']['code'] = substr($file, -3, 3);
-                static::$request_type = EnumRequestTypes::system;
-
-            } else {
-                static::$request_type = EnumRequestTypes::html;
-            }
-
-        } else {
-            // We're running on the command line
-            static::$request_type = EnumRequestTypes::cli;
-        }
     }
 
 
@@ -1384,6 +1304,7 @@ class Core implements CoreInterface
     {
         if ($subkey) {
             $return = isset_get(static::$register[$key][$subkey]);
+
         } else {
             $return = isset_get(static::$register[$key]);
         }
@@ -1417,7 +1338,10 @@ class Core implements CoreInterface
             if (array_key_exists($key, static::$register)) {
                 if (!is_array(static::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
-                    throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
+                    throw new CoreException(tr('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [
+                        ':key'   => $key,
+                        'subkey' => $subkey
+                    ]));
                 }
             } else {
                 // Libraries the register subarray
@@ -1451,7 +1375,10 @@ class Core implements CoreInterface
             if (array_key_exists($key, static::$register)) {
                 if (!is_array(static::$register[$key])) {
                     // Key exists but is not an array so cannot handle sub keys
-                    throw new CoreException('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [':key' => $key, 'subkey' => $subkey]);
+                    throw new CoreException(tr('Cannot write to register key ":key.:subkey" as register key ":key" already exist as a value instead of an array', [
+                        ':key'   => $key,
+                        'subkey' => $subkey
+                    ]));
                 }
             } else {
                 // The key doesn't exist, so we don't have to worry about the sub key
@@ -1735,47 +1662,6 @@ class Core implements CoreInterface
 
 
     /**
-     *
-     *
-     * @return void
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     */
-    public static function executedQuery($query_data)
-    {
-        static::$register['debug_queries'][] = $query_data;
-        return count(static::$register['debug_queries']);
-    }
-
-
-    /**
-     * This method will return the request type for this call, as is stored in the private variable core::request_type
-     *
-     * @return EnumRequestTypesInterface
-     */
-    public static function getRequestType(): EnumRequestTypesInterface
-    {
-        return static::$request_type;
-    }
-
-
-    /**
-     * Will return true if $call_type is equal to core::callType, false if not.
-     *
-     * @param EnumRequestTypesInterface $type The call type you wish to compare to
-     * @return bool This function will return true if $type matches core::callType, or false if it does not.
-     */
-    public static function isRequestType(EnumRequestTypesInterface $type): bool
-    {
-        return (static::$request_type === $type);
-    }
-
-
-    /**
      * Convert all PHP errors in exceptions. With this function the entirety of base works only with exceptions, and
      * function output normally does not need to be checked for errors.
      *
@@ -1815,10 +1701,10 @@ class Core implements CoreInterface
     public static function getExecutedPath(): string
     {
         if (PLATFORM_WEB) {
-            return Page::getExecutedPath();
+            return Request::getExecutedPath();
         }
 
-        return Command::getExecutedPath();
+        return CliCommand::getExecutedPath();
     }
 
 
@@ -1830,10 +1716,10 @@ class Core implements CoreInterface
     public static function getExecutedFile(): string
     {
         if (PLATFORM_WEB) {
-            return Page::getExecutedFile();
+            return Request::getExecutedFile();
         }
 
-        return Command::getExecutedFile();
+        return CliCommand::getExecutedFile();
     }
 
 
@@ -1977,7 +1863,7 @@ class Core implements CoreInterface
                     // The system crashed before platform detection.
                     Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":command" ***', [
                         ':code'    => $e->getCode(),
-                        ':type'    => static::getRequestType()->value,
+                        ':type'    => Request::getRequestType()->value,
                         ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS)
                     ]));
 
@@ -2002,7 +1888,7 @@ class Core implements CoreInterface
 
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 9);
 
-                            if ($e instanceof NoCommandSpecifiedException) {
+                            if ($e instanceof CliNoCommandSpecifiedException) {
                                 if ($data = $e->getData()) {
                                     Log::information('Available methods:', 9);
 
@@ -2010,7 +1896,7 @@ class Core implements CoreInterface
                                         Log::notice($file, 10);
                                     }
                                 }
-                            } elseif ($e instanceof CommandNotFoundException) {
+                            } elseif ($e instanceof CliCommandNotFoundException) {
                                 if ($data = $e->getData()) {
                                     Log::information('Available sub methods:', 9, use_prefix: false);
 
@@ -2085,7 +1971,7 @@ class Core implements CoreInterface
 
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
-                            ':type'        => static::getRequestType()->value,
+                            ':type'        => Request::getRequestType()->value,
                             ':state'       => static::$state,
                             ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
@@ -2109,21 +1995,21 @@ class Core implements CoreInterface
                             Log::warning($e->getData());
 
                             if (!Debug::getEnabled()) {
-                                Route::executeSystem(400);
+                                Request::executeSystem(400);
                             }
 
                         } elseif (($e instanceof Exception) and ($e->isWarning())) {
                             // This is just a simple general warning, no backtrace and such needed, only show the
                             // principal message
                             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]));
-                            Route::executeSystem(500);
+                            Request::executeSystem(500);
 
                         }
 
                         // Log exception data
                         Log::error(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                             ':code'        => $e->getCode(),
-                            ':type'        => static::getRequestType()->value,
+                            ':type'        => Request::getRequestType()->value,
                             ':state'       => static::$state,
                             ':command'     => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
                             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null)
@@ -2133,7 +2019,7 @@ class Core implements CoreInterface
                         Log::error($e);
 
                         if (!Debug::getEnabled()) {
-                            Route::executeSystem(500);
+                            Request::executeSystem(500);
                         }
 
                         // Make sure the Router shutdown won't happen so it won't send a 404
@@ -2146,7 +2032,7 @@ class Core implements CoreInterface
                             header_remove('Expires');
                             header_remove('Content-Type');
 
-                            Page::setHttpCode(500);
+                            Response::setHttpCode(500);
                             http_response_code(500);
                             header('Content-Type: text/html');
                             header('Content-length: 1048576'); // Required or browser won't show half the information
@@ -2198,7 +2084,7 @@ class Core implements CoreInterface
                         }
 
                         if (Debug::getEnabled()) {
-                            switch (Core::getRequestType()) {
+                            switch (Request::getRequestType()) {
                                 case EnumRequestTypes::api:
                                     // no-break
                                 case EnumRequestTypes::ajax:
@@ -2255,7 +2141,7 @@ class Core implements CoreInterface
                                                     ' . tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE COMMAND ":command" ***', [
                                                             ':code'    => $e->getCode(),
                                                             ':command' => Strings::from(static::getExecutedPath(), DIRECTORY_COMMANDS),
-                                                            ':type'    => Core::getRequestType()->value
+                                                            ':type'    => Request::getRequestType()->value
                                                         ]) . '
                                                 </td>
                                             </thead>
@@ -2312,7 +2198,7 @@ class Core implements CoreInterface
                             ->setException($e)
                             ->send();
 
-                        switch (Core::getRequestType()) {
+                        switch (Request::getRequestType()) {
                             case EnumRequestTypes::api:
                                 // no-break
                             case EnumRequestTypes::ajax:
@@ -2324,7 +2210,7 @@ class Core implements CoreInterface
                                 Json::message($e->getCode(), ['reason' => '']);
                         }
 
-                        Route::executeSystem($e->getCode());
+                        Request::executeSystem($e->getCode());
                 }
 
             } catch (Throwable $f) {
@@ -2368,7 +2254,7 @@ class Core implements CoreInterface
                         if (!Debug::getEnabled()) {
                             Notification::new()->setException($f)->send();
                             Notification::new()->setException($e)->send();
-                            Route::executeSystem(500);
+                            Request::executeSystem(500);
                         }
 
                         show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
@@ -2477,12 +2363,12 @@ class Core implements CoreInterface
         ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
 
         $locale = Config::get('locale', [
-            LC_ALL => ':LANGUAGE_:COUNTRY.UTF8',
-            LC_COLLATE => null,
-            LC_CTYPE => null,
+            LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
+            LC_COLLATE  => null,
+            LC_CTYPE    => null,
             LC_MONETARY => null,
-            LC_NUMERIC => null,
-            LC_TIME => null,
+            LC_NUMERIC  => null,
+            LC_TIME     => null,
             LC_MESSAGES => null
         ]);
 
@@ -2507,10 +2393,10 @@ class Core implements CoreInterface
             $country = Config::get('location.default-country', 'us');
         }
 
-        // First set LC_ALL as a baseline, then each individual entry
+        // First set LC_ALL as a baseline, then each entry
         if (isset($locale[LC_ALL])) {
             $locale[LC_ALL] = str_replace(':LANGUAGE', $language, $locale[LC_ALL]);
-            $locale[LC_ALL] = str_replace(':COUNTRY', $country, $locale[LC_ALL]);
+            $locale[LC_ALL] = str_replace(':COUNTRY' , $country , $locale[LC_ALL]);
 
             setlocale(LC_ALL, $locale[LC_ALL]);
             unset($locale[LC_ALL]);
@@ -2529,7 +2415,7 @@ class Core implements CoreInterface
             }
 
             $value = str_replace(':LANGUAGE', $language, (string)$value);
-            $value = str_replace(':COUNTRY', $country, (string)$value);
+            $value = str_replace(':COUNTRY' , $country , (string)$value);
 
             setlocale($key, $value);
         }
@@ -2538,93 +2424,96 @@ class Core implements CoreInterface
     }
 
 
-    /**
-     * ???
-     *
-     * @param string $section
-     * @param bool $writable
-     * @return string
-     */
-    public static function getGlobalDataDirectory(string $section = '', bool $writable = true): string
-    {
-        // First find the global data path. For now, either same height as this project, OR one up the filesystem tree
-        $directories = [
-            '/var/lib/data/',
-            '/var/www/data/',
-            DIRECTORY_ROOT . '../data/',
-            DIRECTORY_ROOT . '../../data/'
-        ];
-
-        if (!empty($_SERVER['HOME'])) {
-            // Also check the users home directory
-            $directories[] = $_SERVER['HOME'] . '/projects/data/';
-            $directories[] = $_SERVER['HOME'] . '/data/';
-        }
-
-        $found = false;
-
-        foreach ($directories as $directory) {
-            if (file_exists($directory)) {
-                $found = $directory;
-                break;
-            }
-        }
-
-        if ($found) {
-            // Cleanup path. If realpath fails, we know something is amiss
-            if (!$found = realpath($found)) {
-                throw new CoreException(tr('Found directory ":directory" failed realpath() check', [':directory' => $directory]));
-            }
-        }
-
-        if (!$found) {
-            if (!PLATFORM_CLI) {
-                throw new CoreException('get_global_data_path(): Global data path not found', 'not-exists');
-            }
-
-            try {
-                Log::warning(tr('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
-                Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
-
-                // TODO Do this better, this is crap
-                $directory = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
-
-                if (!file_exists($directory)) {
-                    // Something went wrong and it was not created anyway
-                    throw new CoreException(tr('Configured directory ":directory" was created but it could not be found', [
-                        ':directory' => $directory
-                    ]));
-                }
-
-                // Its now created! Strip "data/"
-                $directory = Strings::slash($directory);
-
-            } catch (Exception $e) {
-                throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
-            }
-        }
-
-        // Now check if the specified section exists
-        if ($section and !file_exists($directory . $section)) {
-            Directory::ensure($directory . $section);
-        }
-
-        if ($writable and !is_writable($directory . $section)) {
-            throw new CoreException(tr('The global directory ":directory" is not writable', [
-                ':directory' => $directory . $section
-            ]));
-        }
-
-        if (!$global_path = realpath($directory . $section)) {
-            // Curious, the path exists, but realpath failed and returned false. This should never happen since we
-            // ensured the path above! This is just an extra check in case of.. weird problems :)
-            throw new CoreException(tr('The found global data directory ":directory" is invalid (realpath returned false)', [
-                ':directory' => $directory
-            ]));
-        }
-
-        return Strings::slash($global_path);
-    }
+//    /**
+//     * ???
+//     *
+//     * @param string $section
+//     * @param bool $writable
+//     * @return string
+//     */
+//    public static function getGlobalDataDirectory(string $section = '', bool $writable = true): string
+//    {
+//        // First find the global data path.
+//        // For now, either the same height as this project, OR one up the filesystem tree
+//        $directories = [
+//            '/var/lib/data/',
+//            '/var/www/data/',
+//            DIRECTORY_ROOT . '../data/',
+//            DIRECTORY_ROOT . '../../data/'
+//        ];
+//
+//        if (!empty($_SERVER['HOME'])) {
+//            // Also check the users home directory
+//            $directories[] = $_SERVER['HOME'] . '/projects/data/';
+//            $directories[] = $_SERVER['HOME'] . '/data/';
+//        }
+//
+//        $found = false;
+//
+//        foreach ($directories as $directory) {
+//            if (file_exists($directory)) {
+//                $found = $directory;
+//                break;
+//            }
+//        }
+//
+//        if ($found) {
+//            // Cleanup path. If realpath fails, we know something is amiss
+//            if (!$found = realpath($found)) {
+//                throw new CoreException(tr('Found directory ":directory" failed realpath() check', [
+//                    ':directory' => $directory
+//                ]));
+//            }
+//        }
+//
+//        if (!$found) {
+//            if (!PLATFORM_CLI) {
+//                throw new CoreException('Global data path not found');
+//            }
+//
+//            try {
+//                Log::warning(tr('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
+//                Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
+//
+//                // TODO Do this better, this is crap
+//                $directory = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
+//
+//                if (!file_exists($directory)) {
+//                    // Something went wrong and it was not created anyway
+//                    throw new CoreException(tr('Configured directory ":directory" was created but it could not be found', [
+//                        ':directory' => $directory
+//                    ]));
+//                }
+//
+//                // Its now created! Strip "data/"
+//                $directory = Strings::slash($directory);
+//
+//            } catch (Exception $e) {
+//                throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
+//            }
+//        }
+//
+//        // Now check if the specified section exists
+//        if ($section and !file_exists($directory . $section)) {
+//            Directory::ensure($directory . $section);
+//        }
+//
+//        if ($writable and !is_writable($directory . $section)) {
+//            throw new CoreException(tr('The global directory ":directory" is not writable', [
+//                ':directory' => $directory . $section
+//            ]));
+//        }
+//
+//        if (!$global_path = realpath($directory . $section)) {
+//            // Curious, the path exists, but realpath failed and returned false. This should never happen since we
+//            // ensured the path above! This is just an extra check in case of.. Weird problems :)
+//            throw new CoreException(tr('The found global data directory ":directory" is invalid (realpath returned false)', [
+//                ':directory' => $directory
+//            ]));
+//        }
+//
+//        return Strings::slash($global_path);
+//    }
 
 
     /**
@@ -2736,11 +2625,11 @@ class Core implements CoreInterface
         // Execute platform specific exit
         if (PLATFORM_WEB) {
             // Kill a web page
-            Page::exit($exit_message, $sig_kill);
+            Request::exit($exit_message, $sig_kill);
         }
 
         // Kill a CLI command
-        Command::exit($exit_code, $exit_message, $sig_kill);
+        CliCommand::exit($exit_code, $exit_message, $sig_kill);
     }
 
 

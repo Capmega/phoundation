@@ -1,7 +1,7 @@
 <?php
 
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -16,9 +16,9 @@ use Phoundation\Web\Page;
  */
 
 // Set page meta data
-Page::setHeaderTitle(tr('Invoice'));
-Page::setHeaderSubTitle(tr('Demo'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Invoice'));
+Response::setHeaderSubTitle(tr('Demo'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'           => tr('Home'),
     '/demos.html' => tr('Demos'),
     ''            => tr('Invoice')

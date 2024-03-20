@@ -11,7 +11,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -68,9 +68,9 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('My settings'));
-Page::setHeaderSubTitle($user->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('My settings'));
+Response::setHeaderSubTitle($user->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                => tr('Home'),
     '/my/profile.html' => tr('My profile'),
     ''                 => tr('My settings')

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Template;
 
-use Phoundation\Web\Interfaces\WebRequestInterface;
-use Phoundation\Web\Interfaces\WebResponseInterface;
-use Phoundation\Web\Page;
+use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -19,30 +18,26 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-abstract class TemplatePage
+abstract class TemplatePage implements TemplatePageInterface
 {
     /**
      * Returns the page instead of sending it to the client
      *
      * This WILL send the HTTP headers, but will return the HTML instead of sending it to the browser
      *
-     * @param WebRequestInterface $request
-     * @param WebResponseInterface $response
      * @return string|null
      */
-    abstract public function execute(WebRequestInterface $request, WebResponseInterface $response): ?string;
+    abstract public function execute(): ?string;
 
 
     /**
      * Build the page body
      *
-     * @param WebRequestInterface $request
-     * @param WebResponseInterface $response
      * @return string|null
      */
-    public function renderBody(WebRequestInterface $request, WebResponseInterface $response): ?string
+    public function renderBody(): ?string
     {
-        return execute_web_script($request, $response);
+        return execute();
     }
 
 
@@ -53,9 +48,9 @@ abstract class TemplatePage
      */
     public function renderHtmlFooters(): ?string
     {
-        $footers = Page::renderHtmlFooters();
+        $footers = Response::renderHtmlFooters();
 
-        if (Page::getBuildBodyWrapper()) {
+        if (Response::getBuildBodyWrapper()) {
             return        $footers . '
                       </body>
                   </html>';

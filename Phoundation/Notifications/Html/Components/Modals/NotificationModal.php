@@ -8,7 +8,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Modals\LargeModal;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -36,7 +36,7 @@ class NotificationModal extends LargeModal
             ->setContent(':content');
 
         // Add the modal HTML to the page footer as it should be attached to the body tag directly
-        Page::addToFooter('html', parent::render());
+        Response::addToFooter('html', parent::render());
 
         // Render the sign in modal.
         return Script::new()

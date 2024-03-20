@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cli\Exception\AutoCompleteException;
+use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -211,7 +211,7 @@ class CliAutoComplete
             switch (count($matches)) {
                 case 0:
                     // This shouldn't happen at all, there is a match or we wouldn't be here!
-                    throw new AutoCompleteException(tr('Found no match while there should be a match'));
+                    throw new CliAutoCompleteException(tr('Found no match while there should be a match'));
 
                 case 1:
                     echo $cli_commands[static::$position];
@@ -645,7 +645,7 @@ complete -F _phoundation pho');
             return $results;
         }
 
-        throw new AutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
+        throw new CliAutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
             ':command'    => static::$command,
             ':definition' => $definition
         ]));

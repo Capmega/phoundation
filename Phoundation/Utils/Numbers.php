@@ -6,6 +6,7 @@ namespace Phoundation\Utils;
 
 use Exception;
 use Phoundation\Core\Exception\NumbersException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -333,7 +334,38 @@ class Numbers
      */
     public static function getRandomFloat(): float
     {
-        return (random_int(0, PHP_INT_MAX) / PHP_INT_MAX);
+        try {
+            return random_int(0, PHP_INT_MAX) / PHP_INT_MAX;
+
+        } catch (Exception $e) {
+            // random_int() crashed for ... reasons? Fall back on mt_rand()
+            Log::warning(tr('Failed to get result from random_int(), attempting mt_rand()'));
+            Log::error($e);
+
+            return mt_rand(0, PHP_INT_MAX) / PHP_INT_MAX;
+        }
+    }
+
+
+    /**
+     * Returns a random float number between $min and $max
+     *
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
+    public static function getRandomInt(int $min = 0, int $max = PHP_INT_MAX): int
+    {
+        try {
+            return random_int($min, $max);
+
+        } catch (Exception $e) {
+            // random_int() crashed for ... reasons? Fall back on mt_rand()
+            Log::warning(tr('Failed to get result from random_int(), attempting mt_rand()'));
+            Log::error($e);
+
+            return mt_rand($min, $max);
+        }
     }
 
 

@@ -17,6 +17,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Throwable;
 
 
@@ -245,7 +246,7 @@ class Mc implements DatabaseInterface
      *
      *
      * @param mixed $value
-     * @param string|float|int $key
+     * @param string|float|int|null $key
      * @param string|null $namespace
      * @param int|null $expires
      * @return false|mixed

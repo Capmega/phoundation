@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -27,11 +28,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(503);
+        Response::setHttpCode(503);
         Json::reply(['error' => tr('Service Unavailable')]);
 }
 
@@ -48,9 +49,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(503);
-Page::setBuildBody(false);
-Page::setPageTitle('503 - Service Unavailable');
-Page::setHeaderTitle(tr('503 - Error'));
-Page::setDescription(tr('The server is under maintenance and will return momentarily'));
-Page::setBreadCrumbs();
+Response::setHttpCode(503);
+Response::setBuildBody(false);
+Response::setPageTitle('503 - Service Unavailable');
+Response::setHeaderTitle(tr('503 - Error'));
+Response::setDescription(tr('The server is under maintenance and will return momentarily'));
+Response::setBreadCrumbs();

@@ -12,7 +12,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Non200Urls\Non200Url;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Validate
@@ -55,9 +55,9 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Non HTTP-200 URL'));
-Page::setHeaderSubTitle($url->getId());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Non HTTP-200 URL'));
+Response::setHeaderSubTitle($url->getId());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                           => tr('Home'),
     '/security.html'              => tr('Security'),
     '/security/non-200-urls.html' => tr('Non HTTP-200 URL\'s'),

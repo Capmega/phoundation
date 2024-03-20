@@ -17,7 +17,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -41,7 +41,7 @@ $connector = Connector::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Test'):
@@ -49,68 +49,68 @@ if (Page::isPostRequestMethod()) {
                 try {
                     $connector->test();
 
-                    Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been tested successfully', [
+                    Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been tested successfully', [
                         ':connector' => $connector->getDisplayName()
                     ]));
 
                 } catch (\Phoundation\Exception\Exception $e) {
                     Log::error($e);
 
-                    Page::getFlashMessages()->addWarningMessage(tr('The connector ":connector" test failed, please check the logs', [
+                    Response::getFlashMessages()->addWarningMessage(tr('The connector ":connector" test failed, please check the logs', [
                         ':connector' => $connector->getDisplayName()
                     ]));
                 }
 
                 // Redirect away from POST
-                Page::redirect();
+                Response::redirect();
 
             case tr('Save'):
                 // Update connector, roles, emails, and phones
                 $connector->setDebug(true)->apply(false)->save();
 
-                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been saved', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been saved', [
                     ':connector' => $connector->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Page::redirect(UrlBuilder::getWww('/phoundation/databases/connectors/connector+' . $connector->getId() . '.html'));
+                Response::redirect(UrlBuilder::getWww('/phoundation/databases/connectors/connector+' . $connector->getId() . '.html'));
 
             case tr('Delete'):
                 $connector->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been deleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been deleted', [
                     ':connector' => $connector->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Lock'):
                 $connector->lock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been locked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been locked', [
                     ':connector' => $connector->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Unlock'):
                 $connector->unlock();
-                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been unlocked', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been unlocked', [
                     ':connector' => $connector->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
 
             case tr('Undelete'):
                 $connector->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been undeleted', [
+                Response::getFlashMessages()->addSuccessMessage(tr('The connector ":connector" has been undeleted', [
                     ':connector' => $connector->getDisplayName()
                 ]));
 
-                Page::redirect();
+                Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $connector->forceApply();
     }
 }
@@ -222,10 +222,10 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
-Page::setHeaderTitle(tr('Connector'));
-Page::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured() ? ' [' . tr('Configured') . ']' : ''));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
+Response::setHeaderTitle(tr('Connector'));
+Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured() ? ' [' . tr('Configured') . ']' : ''));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                                           => tr('Home'),
     '/system-administration.html'                                 => tr('System administration'),
     '/phoundation/databases.html'                       => tr('Databases'),

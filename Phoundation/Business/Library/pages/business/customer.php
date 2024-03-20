@@ -15,7 +15,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Validate GET
@@ -26,7 +26,7 @@ $get = GetValidator::new()
 $customer = Customer::get($get['id'], no_identifier_exception: false);
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
 //        Customer::validate(PostValidator::new());
 //
@@ -35,12 +35,12 @@ if (Page::isPostRequestMethod()) {
 //        $customer->apply()->save();
 //
 //        // Go back to where we came from
-//        Page::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]));
-//        Page::redirect('referer');
+//        Response::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]));
+//        Response::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $customer->forceApply();
     }
 }
@@ -101,9 +101,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('Customer'));
-Page::setHeaderSubTitle($customer->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Customer'));
+Response::setHeaderSubTitle($customer->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
     '/business/customers.html' => tr('Customers'),
     ''                         => $customer->getName()

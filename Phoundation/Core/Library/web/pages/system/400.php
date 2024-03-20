@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
-use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -29,11 +30,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(400);
+        Response::setHttpCode(400);
         Json::reply($e->getData());
 }
 
@@ -50,9 +51,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(400);
-Page::setBuildBody(false);
-Page::setPageTitle('400 - Bad Request');
-Page::setHeaderTitle(tr('400 - Error'));
-Page::setDescription(tr('You sent incorrect or invalid information and your request was denied'));
-Page::setBreadCrumbs();
+Response::setHttpCode(400);
+Response::setBuildBody(false);
+Response::setPageTitle('400 - Bad Request');
+Response::setHeaderTitle(tr('400 - Error'));
+Response::setDescription(tr('You sent incorrect or invalid information and your request was denied'));
+Response::setBreadCrumbs();

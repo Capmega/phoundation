@@ -184,7 +184,6 @@ class CliRunFile implements CliRunFileInterface
     protected function create(): static
     {
         Directory::new(static::$directory . $this->command . '/', static::$restrictions)->ensure();
-
         $this->file = static::$directory . $this->command . '/' . $this->pid;
 
         touch($this->file);

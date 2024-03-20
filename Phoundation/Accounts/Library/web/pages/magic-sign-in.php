@@ -10,7 +10,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
 throw new \Phoundation\Exception\UnderConstructionException();
@@ -29,7 +29,7 @@ throw new \Phoundation\Exception\UnderConstructionException();
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
-    Page::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
+    Response::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
 }
 
 
@@ -41,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Validate sign in data and sign in
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         $post = PostValidator::new()
             ->select('email')->isEmail()
@@ -96,22 +96,22 @@ if (Page::isPostRequestMethod()) {
             // not
         }
 
-        Page::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
 
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->addWarningMessage(tr('The specified email or password was incorrect'));
+        Response::getFlashMessages()->addWarningMessage(tr('The specified email or password was incorrect'));
     }
 }
 
 
 // This page will build its own body
-Page::setBuildBody(false);
+Response::setBuildBody(false);
 
 ?>
-<?= Page::getFlashMessages()->render() ?>
+<?= Response::getFlashMessages()->render() ?>
     <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
         <!-- /.login-logo -->
@@ -160,4 +160,4 @@ Page::setBuildBody(false);
 
 
 // Set page meta data
-Page::setPageTitle(tr('Request a new password'));
+Response::setPageTitle(tr('Request a new password'));

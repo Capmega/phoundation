@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -27,11 +28,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(500);
+        Response::setHttpCode(500);
         Json::reply(['error' => tr('Internal server error')]);
 }
 
@@ -48,9 +49,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(500);
-Page::setBuildBody(false);
-Page::setPageTitle('500 - Internal Server Error');
-Page::setHeaderTitle(tr('500 - Error'));
-Page::setDescription(tr('The server encountered an internal error and could not fulfill your request'));
-Page::setBreadCrumbs();
+Response::setHttpCode(500);
+Response::setBuildBody(false);
+Response::setPageTitle('500 - Internal Server Error');
+Response::setHeaderTitle(tr('500 - Error'));
+Response::setDescription(tr('The server encountered an internal error and could not fulfill your request'));
+Response::setBreadCrumbs();

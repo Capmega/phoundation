@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace :type:name;
 
-use Phoundation\Web\Page;
-
 
 /**
  * :name class

@@ -3,15 +3,15 @@
 declare(strict_types=1);
 
 
-use Phoundation\Web\Non200Urls\FilterForm;
-use Phoundation\Web\Non200Urls\Non200Urls;
 use Phoundation\Web\Html\Components\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\DisplayMode;
 use Phoundation\Web\Html\Enums\DisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Non200Urls\FilterForm;
+use Phoundation\Web\Non200Urls\Non200Urls;
+use Phoundation\Web\Requests\Response;
 
 
 // Build the page content
@@ -65,8 +65,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Non HTTP-200 URL\'s'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Non HTTP-200 URL\'s'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'              => tr('Home'),
     '/security.html' => tr('Security'),
     ''               => tr('Non HTTP-200 URL\'s'),

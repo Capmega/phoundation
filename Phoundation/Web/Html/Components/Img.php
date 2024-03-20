@@ -11,7 +11,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
@@ -99,7 +99,7 @@ class Img extends Span implements ImgInterface
 
         if ($lazy_load) {
             $this->addClass('lazy');
-            Page::loadJavascript('js/jquery/lazyload/jquery.lazyload');
+            Response::loadJavascript('js/jquery/lazyload/jquery.lazyload');
         }
 
         $this->lazy_load = $lazy_load;
@@ -276,7 +276,7 @@ class Img extends Span implements ImgInterface
      */
     protected function isAccepted(string $format): bool
     {
-        return Page::accepts('image/' . $format);
+        return Request::accepts('image/' . $format);
     }
 
 

@@ -304,7 +304,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $direct
      * @return $this
      */
-    public static function fromSource(DataEntryInterface|array $source, bool $direct = false): static
+    public static function newFromSource(DataEntryInterface|array $source, bool $direct = false): static
     {
         if ($source instanceof DataEntryInterface) {
             if ($source instanceof static) {
@@ -598,7 +598,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface
     {
-        $entry = static::fromSource(Arrays::keepKeys($this->source, $columns, $match_mode));
+        $entry = static::newFromSource(Arrays::keepKeys($this->source, $columns, $match_mode));
         $entry->getDefinitions()->keepKeys($columns, $match_mode);
 
         return $entry;
@@ -919,7 +919,7 @@ abstract class DataEntry implements DataEntryInterface
                     $entry['name'] = $identifier;
 
                     // Create a DataTypeInterface object but since we can't write configuration, make it readonly!
-                    return static::fromSource($entry)->setReadonly(true);
+                    return static::newFromSource($entry)->setReadonly(true);
                 }
             }
 
@@ -1017,7 +1017,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // The requested entry DOES exist! Create a new DataEntry object!
-        $entry = static::fromSource($entry);
+        $entry = static::newFromSource($entry);
 
         // Is it deleted tho?
         if ($entry->isDeleted() and !$force) {

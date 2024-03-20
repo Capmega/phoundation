@@ -7,7 +7,7 @@ namespace Phoundation\Virtualization\Kubernetes;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitUsesNew;
+use Phoundation\Data\Traits\TraitNew;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;

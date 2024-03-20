@@ -4,7 +4,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -19,17 +19,17 @@ use Phoundation\Web\Page;
  */
 
 // Set page meta data
-Page::setHeaderTitle(tr('Compose mail'));
-Page::setHeaderSubTitle(tr('Demo'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Compose mail'));
+Response::setHeaderSubTitle(tr('Demo'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                   => tr('Home'),
     '/demos.html'         => tr('Demos'),
     '/demos/mailbox.html' => tr('Mailbox'),
     ''                    => tr('Compose mail')
 ]));
 
-Page::loadCss('/adminlte/plugins/summernote/summernote-bs4');
-Page::loadJavascript('/adminlte/plugins/summernote/summernote-bs4');
+Response::loadCss('/adminlte/plugins/summernote/summernote-bs4');
+Response::loadJavascript('/adminlte/plugins/summernote/summernote-bs4');
 
 echo Script::new()
     ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)

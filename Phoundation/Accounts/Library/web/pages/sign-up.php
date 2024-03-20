@@ -5,9 +5,8 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\SignUpPage;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -20,11 +19,11 @@ use Phoundation\Web\Page;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-Page::execute('system/404');
+Request::execute('system/404');
 
 // Only show sign-up page if we're a guest user
 if (!Session::getUser()->isGuest()) {
-    Page::redirect('prev', 302);
+    Response::redirect('prev', 302);
 }
 
 
@@ -35,25 +34,25 @@ $get = GetValidator::new()
 
 
 // Validate sign in data and sign in
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         $post = Session::validateSignUp();
 throw new UnderConstructionException();
-        Page::redirect('prev');
+        Response::redirect('prev');
 
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
     } catch (AuthenticationException) {
-        Page::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+        Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
     }
 }
 
 
 // Set page meta data
-Page::setPageTitle(tr('Please sign in'));
+Response::setPageTitle(tr('Please sign in'));
 
 
 // Render the sign-up page
-echo SignUpPage::new()
+echo SignUpRequest::new()
     ->setEmail($post['email'])
     ->render();

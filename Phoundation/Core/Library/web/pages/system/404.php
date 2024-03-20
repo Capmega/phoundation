@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 
 /**
@@ -27,11 +28,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(404);
+        Response::setHttpCode(404);
         Json::reply(['error' => tr('Not Found')]);
 }
 
@@ -48,9 +49,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(404);
-Page::setBuildBody(false);
-Page::setPageTitle('404 - Page not found');
-Page::setHeaderTitle(tr('404 - Page not found'));
-Page::setDescription(tr('The specified page is not found'));
-Page::setBreadCrumbs();
+Response::setHttpCode(404);
+Response::setBuildBody(false);
+Response::setPageTitle('404 - Page not found');
+Response::setHeaderTitle(tr('404 - Page not found'));
+Response::setDescription(tr('The specified page is not found'));
+Response::setBreadCrumbs();

@@ -9,8 +9,6 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\SignInKeyStatusException;
 use Phoundation\Accounts\Users\Exception\SignInKeyUsedException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
-use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
@@ -23,8 +21,10 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUuid;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
-use Phoundation\Web\Routing\Route;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Routing\Route;
 use Stringable;
 
 
@@ -215,9 +215,9 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         }
 
         // Keys only work on web pages
-        if (!Core::isRequestType(EnumRequestTypes::html)) {
+        if (!Request::isRequestType(EnumRequestTypes::html)) {
             throw new AuthenticationException(tr('Cannot execute sign in key ":uuid" for HTTP request type ":type" this is only available on web pages', [
-                ':type' => Core::getRequestType(),
+                ':type' => Request::getRequestType(),
                 ':uuid' => $this->getUuid()
             ]));
         }
@@ -251,7 +251,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         Session::signKey($this);
 
         if ($this->getRedirect()) {
-            Page::redirect($this->getRedirect());
+            Response::redirect($this->getRedirect());
         }
 
         return $this;

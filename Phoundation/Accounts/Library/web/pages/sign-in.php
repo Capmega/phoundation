@@ -11,7 +11,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -28,7 +28,7 @@ use Phoundation\Web\Page;
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
-    Page::redirect('prev', 302, reason_warning: tr('Sign-in page is only available to guest users'));
+    Response::redirect('prev', 302, reason_warning: tr('Sign-in page is only available to guest users'));
 }
 
 
@@ -40,7 +40,7 @@ $get = GetValidator::new()
 
 
 // Validate sign in data and sign in
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     // Try to authenticate against UserRec first. If that fails, authenticate against User.
     foreach ([User::class] as $user_class) {
         try {
@@ -48,21 +48,21 @@ if (Page::isPostRequestMethod()) {
             $post     = Session::validateSignIn();
             $user     = Session::signIn($post['email'], $post['password'], $user_class);
 
-            Page::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
+            Response::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10)
             ]));
 
             break;
 
         } catch (ValidationFailedException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
             break;
 
         } catch (AuthenticationException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+            Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
         }
     }
 
@@ -73,10 +73,10 @@ if (Page::isPostRequestMethod()) {
 
 
 // This page will build its own body
-Page::setBuildBody(false);
+Response::setBuildBody(false);
 
 ?>
-<?= Page::getFlashMessages()->render() ?>
+<?= Response::getFlashMessages()->render() ?>
 <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
       <!-- /.login-logo -->
@@ -172,4 +172,4 @@ Page::setBuildBody(false);
 
 
 // Set page meta data
-Page::setPageTitle(tr('Please sign in'));
+Response::setPageTitle(tr('Please sign in'));

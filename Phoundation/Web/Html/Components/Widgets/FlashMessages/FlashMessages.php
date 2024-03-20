@@ -34,6 +34,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     /**
      * This method will move all messages from the specified FlashMessages object here.
      *
+     * @todo replace with Iterator::addSources()
      * @param FlashMessagesInterface|null $messages
      * @return static
      */

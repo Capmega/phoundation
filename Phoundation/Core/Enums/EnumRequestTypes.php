@@ -14,7 +14,7 @@ use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
  *
  * Sometimes it can be useful or required to know what kind of request we're processing. Is the request made by command
  * line or HTTP? We can use PLATFORM_CLI or PLATFORM_WEB for that too, but if we need more detail (Are we processing
- * an AJAX request or an API request?) we use Core::getRequestType() which will return the request type using this
+ * an AJAX request or an API request?) we use Request::getRequestType() which will return the request type using this
  * EnumRequestTypes enum
  *
  * ADMIN:   HTML web pages in the /admin/ section

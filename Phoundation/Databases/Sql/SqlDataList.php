@@ -259,7 +259,7 @@ class SqlDataList implements SqlDataListInterface
         }
 
         if ($this->data_list->isMetaColumn('meta_state')) {
-            $row['meta_state'] = Strings::random(16);
+            $row['meta_state'] = Strings::getRandom(16);
         }
 
         unset($row['created_on']);
@@ -287,7 +287,7 @@ class SqlDataList implements SqlDataListInterface
         }
 
         if ($this->data_list->isMetaColumn('meta_state')) {
-            $row['meta_state'] = Strings::random(16);
+            $row['meta_state'] = Strings::getRandom(16);
         }
 
         // Never update the other meta-information

@@ -16,7 +16,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -42,7 +42,7 @@ $role = Role::get($get['id'], no_identifier_exception: false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::getSubmitButton()) {
             case tr('Save'):
@@ -61,23 +61,23 @@ if (Page::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Role ":role" has been saved', [':role' => $role->getName()]));
-                Page::redirect('referer');
+                Response::getFlashMessages()->addSuccessMessage(tr('Role ":role" has been saved', [':role' => $role->getName()]));
+                Response::redirect('referer');
 
             case tr('Delete'):
                 $role->delete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been deleted', [':role' => $role->getName()]));
-                Page::redirect();
+                Response::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been deleted', [':role' => $role->getName()]));
+                Response::redirect();
 
             case tr('Undelete'):
                 $role->undelete();
-                Page::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been undeleted', [':role' => $role->getName()]));
-                Page::redirect();
+                Response::getFlashMessages()->addSuccessMessage(tr('The role ":role" has been undeleted', [':role' => $role->getName()]));
+                Response::redirect();
         }
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
         $role->forceApply();
     }
 }
@@ -148,9 +148,9 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Role'));
-Page::setHeaderSubTitle($role->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Role'));
+Response::setHeaderSubTitle($role->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
     '/accounts/roles.html' => tr('Roles'),
     ''                     => $role->getName()

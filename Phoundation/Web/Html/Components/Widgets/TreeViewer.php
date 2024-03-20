@@ -15,9 +15,8 @@ use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Div;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
-use Phoundation\Web\Html\Enums\Interfaces\EnumWebRenderMethodsInterface;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -88,7 +87,7 @@ class TreeViewer extends Widget
             throw new OutOfBoundsException(tr('Cannot render tree viewer, no HTML id specified'));
         }
 
-        Page::loadJavascript('mdb/plugins/js/treeview.min');
+        Response::loadJavascript('mdb/plugins/js/treeview.min');
 
         if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML

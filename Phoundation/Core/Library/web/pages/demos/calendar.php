@@ -3,7 +3,7 @@
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -19,20 +19,20 @@ use Phoundation\Web\Page;
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Calendar'));
-Page::setHeaderSubTitle(tr('Demo'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Calendar'));
+Response::setHeaderSubTitle(tr('Demo'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'           => tr('Home'),
     '/demos.html' => tr('Demos'),
     ''            => tr('Calendar')
 ]));
 
 // Load required CSS
-Page::loadCss('adminlte/plugins/fullcalendar/main');
+Response::loadCss('adminlte/plugins/fullcalendar/main');
 
 // Load required Javascript
-Page::loadJavascript('adminlte/plugins/moment/moment');
-Page::loadJavascript('adminlte/plugins/fullcalendar/main');
+Response::loadJavascript('adminlte/plugins/moment/moment');
+Response::loadJavascript('adminlte/plugins/fullcalendar/main');
 
 Script::new()
     ->setJavascriptWrapper(EnumJavascriptWrappers::window)

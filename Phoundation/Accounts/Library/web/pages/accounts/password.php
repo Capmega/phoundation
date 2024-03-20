@@ -18,7 +18,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Validate GET and get requested user and password
@@ -36,7 +36,7 @@ $definitions->get('current')->setRender(false);
 
 
 // Validate POST and submit
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     if (PostValidator::new()->getSubmitButton() === tr('Save')) {
         try {
             $post = PostValidator::new()
@@ -47,20 +47,20 @@ if (Page::isPostRequestMethod()) {
             // Update user password
             $user->changePassword($post['password'] ,$post['passwordv']);
 
-            Page::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
-            Page::redirect(UrlBuilder::getPrevious('accounts/user+' . $user->getId() . '.html'));
+            Response::getFlashMessages()->addSuccessMessage(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
+            Response::redirect(UrlBuilder::getPrevious('accounts/user+' . $user->getId() . '.html'));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Page::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10)
             ]));
 
         } catch (ValidationFailedException $e) {
             // Oops! Show validation errors and remain on this page
-            Page::getFlashMessages()->addMessage($e);
+            Response::getFlashMessages()->addMessage($e);
 
         }catch (PasswordNotChangedException $e) {
-            Page::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update the password for this account to have a new and secure password'));
+            Response::getFlashMessages()->addWarningMessage(tr('Specified password is the same as the current password for this user. Please update the password for this account to have a new and secure password'));
         }
     }
 }
@@ -113,9 +113,9 @@ $grid = Grid::new()
 echo $grid->render();
 
 // Set page meta data
-Page::setHeaderTitle(tr('Change password'));
-Page::setHeaderSubTitle($user->getName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Change password'));
+Response::setHeaderSubTitle($user->getName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                          => tr('Home'),
     '/accounts/users.html'                       => tr('Users'),
     '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),

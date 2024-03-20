@@ -199,7 +199,7 @@ class Mounts extends DataList implements MountsInterface
                 'fs_passno'   => $mount[5],
             ];
 
-            $return->add(Mount::fromSource($mount), $mount[$key]);
+            $return->add(Mount::newFromSource($mount), $mount[$key]);
         }
 
         return $return;

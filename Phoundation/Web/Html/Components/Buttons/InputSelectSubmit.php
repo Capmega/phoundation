@@ -7,9 +7,6 @@ namespace Phoundation\Web\Html\Components\Buttons;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Exception\HtmlException;
-use function Phoundation\Web\Html\Components\array_default;
-use function Phoundation\Web\Html\Components\array_params;
-use function Phoundation\Web\Html\Components\gettype;
 
 
 /**

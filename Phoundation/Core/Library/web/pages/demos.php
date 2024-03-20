@@ -6,7 +6,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -149,14 +149,14 @@ echo Card::new()
 <?php
 
 // Required javascript
-Page::loadJavascript('adminlte/plugins/moment/moment');
-Page::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
-Page::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+Response::loadJavascript('adminlte/plugins/moment/moment');
+Response::loadJavascript('adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadJavascript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
 
 // Required CSS
-Page::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
-Page::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
-Page::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
+Response::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 
 Script::new()
     ->setJavascriptWrapper(EnumJavascriptWrappers::window)
@@ -167,11 +167,11 @@ Script::new()
           })');
 
 // Set page meta data
-Page::setPageTitle(tr('Demo dashboard'));
-Page::setHeaderTitle(tr('Dashboard'));
-Page::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUser()->getDisplayName()]));
-Page::setDescription(tr(''));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setPageTitle(tr('Demo dashboard'));
+Response::setHeaderTitle(tr('Dashboard'));
+Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUser()->getDisplayName()]));
+Response::setDescription(tr(''));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Demos')
 ]));

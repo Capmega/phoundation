@@ -426,7 +426,7 @@ class Config implements ConfigInterface
      */
     public static function exists(string|array $path): bool
     {
-        $uuid = Strings::generateUuid();
+        $uuid = Strings::getUuid();
 
         if (static::get($path, $uuid) === $uuid) {
             // We got the default value, the requested path does not exist
@@ -818,7 +818,7 @@ class Config implements ConfigInterface
 
         static::$data = [
             'security' => [
-                'seed' => Strings::random(random_int(16, 32))
+                'seed' => Strings::getRandom(random_int(16, 32))
             ],
             'debug' => [
                 'enabled' => (static::$environment !== 'production'),

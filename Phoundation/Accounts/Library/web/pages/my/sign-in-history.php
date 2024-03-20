@@ -11,7 +11,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 $signins = SignIns::new();
@@ -52,8 +52,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Your signin history'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Your signin history'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                => tr('Home'),
     '/my/profile.html' => tr('Profile'),
     ''                 => tr('Your sign in history')

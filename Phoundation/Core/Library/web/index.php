@@ -1,9 +1,8 @@
 <?php
 
-use Phoundation\Web\Routing\Map;
-use Phoundation\Web\Routing\Route;
-use Phoundation\Web\Routing\RoutingParameters;
-use Templates\AdminLte\AdminLte;
+use Phoundation\Web\Requests\Routing\Map;
+use Phoundation\Web\Requests\Routing\Route;
+use Phoundation\Web\Requests\Routing\RoutingParameters;
 use Templates\Mdb\Mdb;
 
 

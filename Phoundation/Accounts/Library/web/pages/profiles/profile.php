@@ -13,7 +13,7 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -39,9 +39,9 @@ $user = User::get($get['id']);
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Profile'));
-Page::setHeaderSubTitle($user->getDisplayName());
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Profile'));
+Response::setHeaderSubTitle($user->getDisplayName());
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                        => tr('Home'),
     '/profiles.html'           => tr('Profiles'),
     '/profiles/employees.html' => tr('Employees'),
@@ -51,37 +51,37 @@ Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 if (Session::getUser()->hasAllRights(['accounts'])) {
 // Validate POST and submit
-    if (Page::isPostRequestMethod()) {
+    if (Request::isPostRequestMethod()) {
         try {
             switch (PostValidator::getSubmitButton()) {
                 case tr('Lock'):
                     $user->lock();
-                    Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                    Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
                         ':user' => $user->getDisplayName()
                     ]));
 
-                    Page::redirect();
+                    Response::redirect();
 
                 case tr('Unlock'):
                     $user->unlock();
-                    Page::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                    Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                         ':user' => $user->getDisplayName()
                     ]));
 
-                    Page::redirect();
+                    Response::redirect();
 
                 case tr('Impersonate'):
                     $user->impersonate();
-                    Page::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                    Response::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
                         ':user' => $user->getDisplayName()
                     ]));
 
-                    Page::redirect('root');
+                    Response::redirect('root');
             }
 
         } catch (IncidentsException|ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
-            Page::getFlashMessages()->addMessage($e);
+            Response::getFlashMessages()->addMessage($e);
             $user->forceApply();
         }
     }

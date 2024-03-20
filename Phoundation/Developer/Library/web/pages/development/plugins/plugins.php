@@ -13,23 +13,23 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 // Button clicked?
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         // Process buttons
         switch (PostValidator::getSubmitButton()) {
             case tr('Scan'):
                 $count = Plugins::scan();
-                Page::getFlashMessages()->addSuccessMessage(tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]));
-                Page::redirect('this');
+                Response::getFlashMessages()->addSuccessMessage(tr('Finished scanning for libraries, found and registered ":count" new libraries', [':count' => $count]));
+                Response::redirect('this');
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 
@@ -87,8 +87,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Plugins'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Plugins'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Plugins')
 ]));

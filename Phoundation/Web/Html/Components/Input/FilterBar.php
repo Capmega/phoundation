@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 /**
  * Class FilterBar
@@ -28,7 +28,7 @@ class FilterBar extends InputSelect
     public function render(): ?string
     {
         // This input element requires some javascript
-        Page::loadJavascript('plugins/select2/js/select2.full');
+        Response::loadJavascript('plugins/select2/js/select2.full');
 
         // This input element also requires some javascript
         Script::new()->setContent('$("'. $this->getId() .'").select2();')->render();

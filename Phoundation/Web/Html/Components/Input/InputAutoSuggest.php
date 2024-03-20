@@ -10,7 +10,7 @@ use Phoundation\Data\Traits\TraitDataWidth;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
@@ -211,7 +211,7 @@ class InputAutoSuggest extends InputText
         }
 
         // This input element requires some javascript
-        Page::loadJavascript('adminlte/plugins/jquery-ui/jquery-ui');
+        Response::loadJavascript('adminlte/plugins/jquery-ui/jquery-ui');
 
         // Setup javascript for the component
         $script = Script::new()->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({

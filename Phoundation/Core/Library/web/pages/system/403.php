@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Enums\EnumRequestTypes;
 use Phoundation\Templates\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -27,11 +29,11 @@ $e = Core::readRegister('e');
 
 
 // JSON type pages should not return this HTML
-switch (Core::getRequestType()) {
+switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
     case EnumRequestTypes::api:
-        Page::setHttpCode(403);
+        Response::setHttpCode(403);
         Json::reply(['error' => tr('Forbidden')]);
 }
 
@@ -48,9 +50,9 @@ echo Template::page('admin/system/detail-error')->render([
 
 
 // Set page meta data
-Page::setHttpCode(403);
-Page::setBuildBody(false);
-Page::setPageTitle('403 - Forbidden');
-Page::setHeaderTitle(tr('403 - Error'));
-Page::setDescription(tr('You do not have access to the specified resource'));
-Page::setBreadCrumbs();
+Response::setHttpCode(403);
+Response::setBuildBody(false);
+Response::setPageTitle('403 - Forbidden');
+Response::setHeaderTitle(tr('403 - Error'));
+Response::setDescription(tr('You do not have access to the specified resource'));
+Response::setBreadCrumbs();

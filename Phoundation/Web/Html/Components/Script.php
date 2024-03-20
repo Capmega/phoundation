@@ -8,9 +8,9 @@ use Phoundation\Data\Traits\TraitDataMinify;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
-use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Page;
+use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -282,7 +282,7 @@ class Script extends Element
                 return '<script type="text/javascript"' . ($this->async ? ' async' : '') . ($this->defer ? ' defer' : '') . ($this->src ? ' src="' . $this->src . '"' : '') . '>' . $render . '</script>' . PHP_EOL;
 
             case EnumAttachJavascript::header:
-                Page::addToHeader('javascript', [
+                Response::addToHeader('javascript', [
                     'type'    => 'text/javascript',
                     'content' => $render
                 ]);
@@ -290,7 +290,7 @@ class Script extends Element
                 return null;
 
             case EnumAttachJavascript::footer:
-                Page::addToFooter('javascript', [
+                Response::addToFooter('javascript', [
                     'type'    => 'text/javascript',
                     'content' => $render
                 ]);

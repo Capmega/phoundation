@@ -13,13 +13,13 @@ use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
-    Page::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
+    Response::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
 }
 
 
@@ -31,7 +31,7 @@ $get = GetValidator::new()
 
 
 // Validate sign in data and sign in
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     try {
         $post = PostValidator::new()
             ->select('email')->isEmail()
@@ -110,10 +110,10 @@ if (Page::isPostRequestMethod()) {
             ])
             ->save();
 
-        Page::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Page::getFlashMessages()->addWarningMessage(tr('Please specify a valid email'));
+        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email'));
 
     } catch (DataEntryNotExistsException|AccessDeniedException $e) {
         // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or
@@ -123,10 +123,10 @@ if (Page::isPostRequestMethod()) {
 
 
 // Set page meta data
-Page::setPageTitle(tr('Request a new password'));
+Response::setPageTitle(tr('Request a new password'));
 
 
 // Render the page
-LostPasswordPage::new()
+LostPasswordRequest::new()
     ->setEmail(isset_get($get['email']))
         ->render();

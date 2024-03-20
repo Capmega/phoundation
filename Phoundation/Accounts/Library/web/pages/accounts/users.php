@@ -14,7 +14,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
+use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -40,7 +40,7 @@ $filters_card = Card::new()
 
 
 // Button clicked?
-if (Page::isPostRequestMethod()) {
+if (Request::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
         ->select('accounts_users_length')->isOptional()->isNumeric()    // This is paging length, ignore
@@ -55,20 +55,20 @@ if (Page::isPostRequestMethod()) {
                 // Delete selected users
                 $count = Users::directOperations()->deleteKeys($post['id']);
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
-                Page::redirect('this');
+                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" users', [':count' => $count]));
+                Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected users
                 $count = Users::directOperations()->undeleteKeys($post['id']);
 
-                Page::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
-                Page::redirect('this');
+                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" users', [':count' => $count]));
+                Response::redirect('this');
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Page::getFlashMessages()->addMessage($e);
+        Response::getFlashMessages()->addMessage($e);
     }
 }
 
@@ -166,8 +166,8 @@ echo $grid->render();
 
 
 // Set page meta data
-Page::setHeaderTitle(tr('Users'));
-Page::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setHeaderTitle(tr('Users'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('Users')
 ]));
