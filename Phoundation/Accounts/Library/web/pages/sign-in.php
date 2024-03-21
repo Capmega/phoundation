@@ -1,5 +1,6 @@
 <?php
 
+use Composer\DependencyResolver\Request;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
 use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
@@ -33,10 +34,17 @@ if (!Session::getUser()->isGuest()) {
 
 
 // Is email specified by URL?
-$get = GetValidator::new()
-    ->select('email')->isOptional()->isEmail()
-    ->select('redirect')->isOptional()->isUrl()
-    ->validate();
+try {
+    $get = GetValidator::new()
+        ->select('email')->isOptional()->isEmail()
+        ->select('redirect')->isOptional()->isUrl()
+        ->validate();
+
+} catch (ValidationFailedException $e) {
+    // If validation failed, this means that either the specified email or redirect variables were invalid. Redirect to
+    // a clean sign-in page to ensure we have valid values
+    Response::redirect('sign-in');
+}
 
 
 // Validate sign in data and sign in
@@ -51,18 +59,18 @@ if (Request::isPostRequestMethod()) {
             Response::redirect(UrlBuilder::getRedirect($redirect, $user->getDefaultPage()));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-            Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+            Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
                 ':count' => Config::getInteger('security.passwords.size.minimum', 10)
             ]));
 
             break;
 
         } catch (ValidationFailedException $e) {
-            Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+            Request::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
             break;
 
         } catch (AuthenticationException $e) {
-            Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+            Request::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
         }
     }
 
@@ -76,7 +84,7 @@ if (Request::isPostRequestMethod()) {
 Response::setBuildBody(false);
 
 ?>
-<?= Response::getFlashMessages()->render() ?>
+<?= Request::getFlashMessages()->render() ?>
 <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
       <!-- /.login-logo -->
