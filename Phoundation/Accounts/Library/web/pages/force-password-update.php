@@ -9,6 +9,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -46,19 +47,19 @@ if (Request::isPostRequestMethod()) {
             ->save();
 
         // Add flash message and redirect to original target
-        Response::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
+        Request::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
         Response::redirect('prev');
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+        Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
             ':count' => Config::getInteger('security.passwords.size.minimum', 10)
         ]));
 
     } catch (ValidationFailedException $e) {
-        Response::getFlashMessages()->addMessage($e);
+        Request::getFlashMessages()->addMessage($e);
 
     }catch (PasswordNotChangedException $e) {
-        Response::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
+        Request::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
@@ -68,6 +69,6 @@ Response::setPageTitle(tr('Please update your password before continuing...'));
 
 
 // Render the page
-echo ForcePasswordUpdateRequest::new()
+echo ForcePasswordUpdatePage::new()
     ->setEmail(Session::getUser()->getEmail())
     ->render();

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Exception;
 
+use Phoundation\Web\Requests\Exception\RequestException;
+
 
 /**
  * Class InvalidRequestTypeException

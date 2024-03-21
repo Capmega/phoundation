@@ -6,7 +6,7 @@ namespace Phoundation\Web\Requests\Exception;
 
 
 /**
- * Class WebRequestTypeException
+ * Class RequestTypeException
  *
  * This exception is thrown when issues were encountered with the request type. Possible issue are:
  *

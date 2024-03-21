@@ -357,11 +357,9 @@ class Debug {
                                 ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string)$value) : count((array) $value)))
                             ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
 
-                            if (!headers_sent()) {
-                                Response::setContentType('text/html');
-                                Response::sendHttpHeaders(Response::renderHttpHeaders($output));
-                            }
-
+                            Response::setContentType('text/html');
+                            Response::setOutput($output);
+                            Response::send();
                             break;
 
                         default:
@@ -372,12 +370,9 @@ class Debug {
                     $output = get_null(ob_get_clean()) . $output;
 
                     // Show output on web
-                    if (!headers_sent()) {
-                        Response::setContentType('text/html');
-                        Response::sendHttpHeaders(Response::renderHttpHeaders($output));
-                    }
-
-                    echo $output;
+                    Response::setContentType('text/html');
+                    Response::setOutput($output);
+                    Response::send();
 
                 } else {
                     echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
@@ -390,12 +385,9 @@ class Debug {
                     $output = get_null(ob_get_clean());
 
                     // Show output on web
-                    if (!headers_sent()) {
-                        Response::setContentType('text/html');
-                        Response::sendHttpHeaders(Response::renderHttpHeaders($output));
-                    }
-
-                    echo $output;
+                    Response::setContentType('text/html');
+                    Response::setOutput($output);
+                    Response::send();
                 }
 
             } else {
@@ -662,7 +654,7 @@ class Debug {
                     } else {
                         $value  = print_r($value, true);
                         $value  = preg_replace('/-----BEGIN RSA PRIVATE KEY.+?END RSA PRIVATE KEY-----/imus', '*** HIDDEN ***', $value);
-                        $value  = preg_replace('/(\[.*?pass.*?\]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
+                        $value  = preg_replace('/(\[.*?pass.*?]\s+=>\s+).+/', '$1*** HIDDEN ***', $value);
                     }
 
                     $return = '<pre>' . $value . '</pre>';
@@ -851,7 +843,7 @@ class Debug {
             Log::printr(Strings::endsWith($query, ';'));
         }
 
-        return show(Strings::endsWith($query, ';'), 6);
+        return show(Strings::endsWith($query, ';'), true, 6);
     }
 
 

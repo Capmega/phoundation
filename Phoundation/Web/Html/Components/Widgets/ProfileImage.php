@@ -39,7 +39,7 @@ class ProfileImage extends ImageMenu
             $this->setModalSelector('#signinModal');
 
         } else {
-            $this->setMenu(Response::getMenusObject()->getMenu('profile_image'));
+            $this->setMenu(Request::getMenusObject()->getMenu('profile_image'));
         }
 
         parent::__construct($content);

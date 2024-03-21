@@ -13,6 +13,7 @@ use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -110,10 +111,10 @@ if (Request::isPostRequestMethod()) {
             ])
             ->save();
 
-        Response::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
+        Request::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
 
     } catch (ValidationFailedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email'));
+        Request::getFlashMessages()->addWarningMessage(tr('Please specify a valid email'));
 
     } catch (DataEntryNotExistsException|AccessDeniedException $e) {
         // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or
@@ -127,6 +128,6 @@ Response::setPageTitle(tr('Request a new password'));
 
 
 // Render the page
-LostPasswordRequest::new()
+LostPasswordPage::new()
     ->setEmail(isset_get($get['email']))
         ->render();

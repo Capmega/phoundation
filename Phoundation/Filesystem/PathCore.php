@@ -1632,7 +1632,7 @@ class PathCore implements Stringable, PathInterface
             if (is_dir($file)) {
                 if ($recursive) {
                     // Get filesize of this entire directory
-                    $size += PathCore::new($file, $this->restrictions)->getSize($recursive);
+                    $size += Path::new($file, $this->restrictions)->getSize($recursive);
                 }
             } else {
                 // Get file size of this file
@@ -1888,7 +1888,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function symlinkTargetFromThis(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
     {
-        $target = new PathCore($target, $this->restrictions);
+        $target = new Path($target, $this->restrictions);
 
         // Calculate absolute or relative path
         if ($make_relative and $this->isAbsolute()) {
@@ -1961,7 +1961,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function symlinkThisToTarget(PathInterface|string $target, PathInterface|string|bool $make_relative = true): PathInterface
     {
-        $target = new PathCore($target, $this->restrictions);
+        $target = new Path($target, $this->restrictions);
 
         // Calculate absolute or relative path
         if ($make_relative and $target->isAbsolute()) {
@@ -2767,7 +2767,7 @@ class PathCore implements Stringable, PathInterface
         if (empty($source_path)) {
             if (empty($target_path)) {
                 // The specified target is the same as this path
-                return new PathCore('.');
+                return new Path('.');
             }
 
         } else {
@@ -2782,7 +2782,7 @@ class PathCore implements Stringable, PathInterface
             $return[] = $section;
         }
 
-        return PathCore::new(implode('/', $return), $target->getRestrictions());
+        return Path::new(implode('/', $return), $target->getRestrictions());
     }
 
 
@@ -2837,7 +2837,7 @@ class PathCore implements Stringable, PathInterface
      */
     public function replaceWithPath(PathInterface|string $target): PathInterface
     {
-        $target = PathCore::new($target);
+        $target = Path::new($target);
 
         // Move the old out of the way, push the new in, delete the current
         if ($this->exists()) {
@@ -2869,7 +2869,7 @@ class PathCore implements Stringable, PathInterface
         $version   = 97;
         $extension = Strings::startsWith($extension, '.');
 
-        $path = PathCore::new($path)->appendPath($extension);
+        $path = Path::new($path)->appendPath($extension);
         $path->getParentDirectory()->ensure();
 
         while ($path->exists()) {
@@ -2943,7 +2943,7 @@ class PathCore implements Stringable, PathInterface
     public function appendPath(PathInterface|string $path, bool $make_absolute = false): PathInterface
     {
         $path = $this->getPath() . Strings::startsNotWith((string) $path, '/');
-        return PathCore::new($path, $this->restrictions, $make_absolute);
+        return Path::new($path, $this->restrictions, $make_absolute);
     }
 
 
@@ -2957,7 +2957,7 @@ class PathCore implements Stringable, PathInterface
     public function prependPath(PathInterface|string $path, bool $make_absolute = false): PathInterface
     {
         $path = Strings::EndsWith((string) $path, '/') . $this->getPath();
-        return PathCore::new($path, $this->restrictions, $make_absolute);
+        return Path::new($path, $this->restrictions, $make_absolute);
     }
 
 
@@ -3003,7 +3003,7 @@ class PathCore implements Stringable, PathInterface
     public function symlinkTreeToTarget(PathInterface|string $target, PathInterface|string|null $alternate_path = null, ?RestrictionsInterface $restrictions = null, bool $rename = false): PathInterface
     {
         // Ensure target is a Path object with restrictions
-        $target = PathCore::new($target, $restrictions ?? $this->restrictions);
+        $target = Path::new($target, $restrictions ?? $this->restrictions);
 
         if (empty($alternate_path)) {
             // We'll create the symlinks in the same directory as where we're linking from. Use Target object
@@ -3012,7 +3012,7 @@ class PathCore implements Stringable, PathInterface
         } else {
             // We'll create the symlink in a different directory than where we're linking from. Ensure alternate path is
             // a Path object
-            $alternate_path = PathCore::new($alternate_path, $target->restrictions);
+            $alternate_path = Path::new($alternate_path, $target->restrictions);
         }
 
         if ($this->isDir()) {

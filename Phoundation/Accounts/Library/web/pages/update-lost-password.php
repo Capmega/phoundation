@@ -11,6 +11,7 @@ use Phoundation\Security\Incidents\Severity;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
 use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -64,19 +65,19 @@ if (Request::isPostRequestMethod()) {
             ->save();
 
         // Add a flash message and redirect to the original target
-        Response::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
+        Request::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
         $updated = true;
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
+        Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
             ':count' => Config::getInteger('security.passwords.size.minimum', 10)
         ]));
 
     } catch (ValidationFailedException $e) {
-        Response::getFlashMessages()->addMessage($e);
+        Request::getFlashMessages()->addMessage($e);
 
     }catch (PasswordNotChangedException $e) {
-        Response::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
+        Request::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
@@ -89,7 +90,7 @@ if (isset($updated)) {
 
 
     // Render the page
-    LostPasswordUpdatedRequest::new()
+    LostPasswordUpdatedPage::new()
         ->setEmail(Session::getUser()->getEmail())
         ->render();
 
@@ -99,7 +100,7 @@ if (isset($updated)) {
 
 
     // Render the page
-    UpdateLostPasswordRequest::new()
+    UpdateLostPasswordPage::new()
         ->setEmail(Session::getUser()->getEmail())
         ->render();
 }

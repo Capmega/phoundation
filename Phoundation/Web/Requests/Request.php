@@ -8,7 +8,6 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -42,8 +41,11 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Ajax\Ajax;
 use Phoundation\Web\Api\Api;
-use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
+use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
+use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
+use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
+use Phoundation\Web\Html\Components\Widgets\Panels\Panels;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
@@ -140,18 +142,11 @@ abstract class Request implements RequestInterface
     protected static int $stack_level = 0;
 
     /**
-     * Contains the details of the request
-     *
-     * @var RequestInterface $request
-     */
-    protected static RequestInterface $request;
-
-    /**
      * Sets if the request should render the entire page or the contents of the page only
      *
      * @var bool $main_contents_only
      */
-    protected static bool $main_contents_only;
+    protected static bool $main_contents_only = false;
 
     /**
      * The list of metadata that the client accepts
@@ -196,6 +191,20 @@ abstract class Request implements RequestInterface
      */
     protected static ?FlashMessagesInterface $flash_messages = null;
 
+    /**
+     * The menus for this page
+     *
+     * @var MenusInterface $menus
+     */
+    protected static MenusInterface $menus;
+
+    /**
+     * The panels for this page
+     *
+     * @var PanelsInterface $panels
+     */
+    protected static PanelsInterface $panels;
+
 
     /**
      * Returns the routing parameters for this request
@@ -224,7 +233,70 @@ abstract class Request implements RequestInterface
             throw new OutOfBoundsException(tr('Cannot set routing parameters for this request, routing parameters have already been set'));
         }
 
+        if (!$parameters->getTemplate()) {
+            throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
+                ':pattern' => Request::getRoutingParameters()->getPattern()
+            ]));
+        }
+
         static::$parameters = $parameters;
+        static::setTemplate($parameters->getTemplateObject());
+    }
+
+
+    /**
+     * Returns the current tab index and automatically increments it
+     *
+     * @return MenusInterface
+     */
+    public static function getMenusObject(): MenusInterface
+    {
+        if (!isset(static::$menus)) {
+            // Menus have not yet been initialized, do so now.
+            static::$menus = new Menus();
+        }
+
+        return static::$menus;
+    }
+
+
+    /**
+     * Sets the current tab index and automatically increments it
+     *
+     * @param MenusInterface $menus
+     * @return void
+     */
+    public static function setMenusObject(MenusInterface $menus): void
+    {
+        static::$menus = $menus;
+    }
+
+
+    /**
+     * Returns the current panels configured for this page
+     *
+     * @return PanelsInterface
+     */
+    public static function getPanelsObject(): PanelsInterface
+    {
+        if (!isset(static::$panels)) {
+            // Menus have not yet been initialized, do so now.
+            static::$panels = new Panels();
+        }
+
+        return static::$panels;
+    }
+
+
+    /**
+     * Sets the current panels configured for this page
+     *
+     * @param PanelsInterface $panels
+     * @return void
+     */
+    public static function setPanelsObject(PanelsInterface $panels): void
+    {
+        static::$panels = $panels;
     }
 
 
@@ -293,7 +365,7 @@ abstract class Request implements RequestInterface
      */
     public static function setSystem(bool $system): void
     {
-        if (static::$system) {
+        if (isset(static::$system)) {
             throw new OutOfBoundsException(tr('Cannot change a system web request into a non web request'));
         }
 
@@ -357,7 +429,7 @@ abstract class Request implements RequestInterface
      *
      * The function will return true if the specified mimetype is supported, or false, if not
      *
-     * @see WebRequest::acceptsLanguages()
+     * @see Request::acceptsLanguages()
      * code
      * // This will return true
      * $result = accepts('image/webp');
@@ -983,7 +1055,7 @@ abstract class Request implements RequestInterface
      */
     protected static function setTarget(FileInterface|string $target): void
     {
-        static::$target = new File($target, static::$restrictions);
+        static::$target = new File($target, static::getRestrictions());
         static::$target->checkRestrictions(false);
         static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
@@ -1355,24 +1427,18 @@ abstract class Request implements RequestInterface
                     ]));
                 }
 
-                if (static::$stack_level)
-                    // Initialize the request and the flash messages
-                    static::$flash_messages = FlashMessages::new();
+                if (!static::$stack_level) {
+                    Response::initalize();
 
-                // Initialize the template
-                if (!Request::getRoutingParameters()->getTemplate()) {
-                    throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
-                        ':pattern' => Request::getRoutingParameters()->getPattern()
-                    ]));
+                    if (static::$flash_messages) {
+                        // Merge the flash messages from sessions into page flash messages.
+                        static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
+
+                    } else {
+                        // Initialize the flash messages
+                        static::$flash_messages = Session::getFlashMessages();
+                    }
                 }
-
-                // Get a new template page from the specified template
-                static::setTemplate(Request::getRoutingParameters()->getTemplateObject());
-
-                // Execute the default target file and send the output to the response object.
-                // Merge the flash messages from sessions into page flash messages.
-                // Send all the output to the client, and we're done.
-                static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
         }
     }
 

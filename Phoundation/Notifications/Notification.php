@@ -171,6 +171,7 @@ class Notification extends DataEntry implements NotificationInterface
             }
 
         } else {
+            $e    = new Exception($e);
             $mode = EnumDisplayMode::exception;
         }
 

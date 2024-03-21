@@ -2,9 +2,6 @@
 
 namespace Phoundation\Web\Html\Template\Interfaces;
 
-use Phoundation\Web\Requests\Interfaces\WebRequestInterface;
-use Phoundation\Web\Requests\Interfaces\ResponseInterface;
-
 
 /**
  * Interface TemplatePageInterface

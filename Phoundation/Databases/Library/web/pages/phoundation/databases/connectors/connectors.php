@@ -55,20 +55,20 @@ if (Request::isPostRequestMethod()) {
                 // Delete selected connectors
                 $count = Connectors::directOperations()->deleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" connectors', [':count' => $count]));
+                Request::getFlashMessages()->addSuccessMessage(tr('Deleted ":count" connectors', [':count' => $count]));
                 Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected connectors
                 $count = Connectors::directOperations()->undeleteKeys($post['id']);
 
-                Response::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" connectors', [':count' => $count]));
+                Request::getFlashMessages()->addSuccessMessage(tr('Undeleted ":count" connectors', [':count' => $count]));
                 Response::redirect('this');
         }
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Request::getFlashMessages()->addMessage($e);
     }
 }
 

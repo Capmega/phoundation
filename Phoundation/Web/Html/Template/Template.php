@@ -63,7 +63,7 @@ abstract class Template implements TemplateInterface
     public function __construct()
     {
         if (empty($this->page_class)) {
-            $this->page_class  = TemplateRequest::class;
+            $this->page_class  = TemplatePage::class;
             $this->menus_class = Menu::class;
         }
 

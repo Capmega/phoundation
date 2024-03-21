@@ -53,7 +53,7 @@ if (Request::isPostRequestMethod()) {
                 // Update mount, roles, emails, and phones
                 $mount->apply(false)->save();
 
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been saved', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -62,7 +62,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $mount->delete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been deleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -70,7 +70,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $mount->lock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been locked', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -78,7 +78,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Unlock'):
                 $mount->unlock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been unlocked', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -86,7 +86,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $mount->undelete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The mount ":mount" has been undeleted', [
                     ':mount' => $mount->getDisplayName()
                 ]));
 
@@ -95,7 +95,7 @@ if (Request::isPostRequestMethod()) {
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Request::getFlashMessages()->addMessage($e);
         $mount->forceApply();
     }
 }

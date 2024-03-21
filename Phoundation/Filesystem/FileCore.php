@@ -1303,7 +1303,7 @@ class FileCore extends PathCore implements FileInterface
      */
     public function tar(): static
     {
-        return FileCore::new(Tar::new($this->restrictions)->tar($this->path), $this->restrictions);
+        return File::new(Tar::new($this->restrictions)->tar($this->path), $this->restrictions);
     }
 
 
@@ -1327,7 +1327,7 @@ class FileCore extends PathCore implements FileInterface
     public function gzip(): static
     {
         $file = Gzip::new($this->restrictions)->gzip($this->path);
-        return FileCore::new($file, $this->restrictions);
+        return File::new($file, $this->restrictions);
     }
 
 
@@ -1339,7 +1339,7 @@ class FileCore extends PathCore implements FileInterface
     public function gunzip(): static
     {
         $file = Gzip::new($this->restrictions)->gunzip($this->path);
-        return FileCore::new($file, $this->restrictions);
+        return File::new($file, $this->restrictions);
     }
 
 

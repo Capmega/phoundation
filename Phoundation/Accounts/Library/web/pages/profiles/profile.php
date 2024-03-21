@@ -56,7 +56,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
             switch (PostValidator::getSubmitButton()) {
                 case tr('Lock'):
                     $user->lock();
-                    Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                    Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
                         ':user' => $user->getDisplayName()
                     ]));
 
@@ -64,7 +64,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                 case tr('Unlock'):
                     $user->unlock();
-                    Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                    Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                         ':user' => $user->getDisplayName()
                     ]));
 
@@ -72,7 +72,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                 case tr('Impersonate'):
                     $user->impersonate();
-                    Response::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                    Request::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
                         ':user' => $user->getDisplayName()
                     ]));
 
@@ -81,7 +81,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
         } catch (IncidentsException|ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
-            Response::getFlashMessages()->addMessage($e);
+            Request::getFlashMessages()->addMessage($e);
             $user->forceApply();
         }
     }

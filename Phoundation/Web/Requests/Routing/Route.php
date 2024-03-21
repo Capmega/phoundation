@@ -22,6 +22,7 @@ use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Restrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -33,7 +34,6 @@ use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Routing\Interfaces\MappingInterface;
 use Phoundation\Web\Requests\Response;
-use Phoundation\Web\Requests\WebRequest;
 use Throwable;
 
 
@@ -178,6 +178,8 @@ class Route
      */
     protected static function init(): void
     {
+        Request::setRestrictions(Restrictions::readonly(DIRECTORY_WEB));
+
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, show the maintenance page
             Log::warning('WARNING: Not processing routes, system is in maintenance mode');
@@ -186,7 +188,7 @@ class Route
 
         // URI may not be more than 2048 bytes
         if (strlen(static::$uri) > 2048) {
-            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See Route() class). 400-ing the request', [
+            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit for compatibility (See Phoundation\Web\Route class). 400-ing the request', [
                 ':uri'   => static::$uri,
                 ':count' => strlen(static::$uri)
             ]));
@@ -842,7 +844,7 @@ class Route
 
                         Core::removeShutdownCallback('route[postprocess]');
                         Request::setRoutingParameters(static::getParameters()->select(static::$uri));
-                        Request::getResponse()->redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
+                        Response::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
                     case 'S':
                         $until = substr($flag, 1);
@@ -874,7 +876,7 @@ class Route
                     case 'Z':
                         // Restrict access to users with the specified right, or execute the specified page instead
                         // (defaults to 403). Format is Z$RIGHT$[$PAGE$] and multiple Z rules may be specified
-                        if (!preg_match_all('/^Z(.+?)(?:\[(.+?)\])?$/iu', $flag, $matches)) {
+                        if (!preg_match_all('/^Z(.+?)(?:\[(.+?)])?$/iu', $flag, $matches)) {
                             Log::warning(tr('Invalid "Z" (requires right) rule ":flag" encountered, denying access by default for security', [
                                 ':flag' => $flag
                             ]));
@@ -1227,7 +1229,7 @@ class Route
 
         // Target may NEVER be web/index.php because that will run the router into endless loops!
         if ($target->isPath('index.php')) {
-            throw new RouteException(tr('Route resolved to main index.php page which would cause an endless loop'));
+            throw new RouteException(tr('Route resolved to main "index.php" routing page which would cause an endless loop'));
         }
 
         // Target exists?
@@ -1262,7 +1264,8 @@ class Route
         }
 
         // The file is NOT a PHP executable, send the resolved file contents
-        \Phoundation\Web\Requests\FileResponse::new($request)->send();
+        throw new UnderConstructionException(tr('Implement routing to files!'));
+        //FileResponse::new()->$request)->send();
     }
 
 

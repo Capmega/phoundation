@@ -35,12 +35,12 @@ if (Request::isPostRequestMethod()) {
 //        $customer->apply()->save();
 //
 //        // Go back to where we came from
-//        Response::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]));
+//        Request::getFlashMessages()->addFlashMessage(tr('Success'), tr('Customer ":customer" has been updated', [':customer' => $customer->getName()]));
 //        Response::redirect('referer');
 
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Request::getFlashMessages()->addMessage($e);
         $customer->forceApply();
     }
 }

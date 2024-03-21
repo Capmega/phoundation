@@ -6,6 +6,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Pages\SignUpPage;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -41,9 +42,9 @@ throw new UnderConstructionException();
         Response::redirect('prev');
 
     } catch (ValidationFailedException) {
-        Response::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
+        Request::getFlashMessages()->addWarningMessage(tr('Please specify a valid email and password'));
     } catch (AuthenticationException) {
-        Response::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
+        Request::getFlashMessages()->addWarningMessage(tr('The specified email and/or password were incorrect'));
     }
 }
 
@@ -53,6 +54,6 @@ Response::setPageTitle(tr('Please sign in'));
 
 
 // Render the sign-up page
-echo SignUpRequest::new()
+echo SignUpPage::new()
     ->setEmail($post['email'])
     ->render();

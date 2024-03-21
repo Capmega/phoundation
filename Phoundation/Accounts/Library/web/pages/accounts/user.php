@@ -60,7 +60,7 @@ if (Request::isPostRequestMethod()) {
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been saved', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -69,7 +69,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Impersonate'):
                 $user->impersonate();
-                Response::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
+                Request::getFlashMessages()->addSuccessMessage(tr('You are now impersonating ":user"', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -77,7 +77,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Delete'):
                 $user->delete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been deleted', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -85,7 +85,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Lock'):
                 $user->lock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been locked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -93,7 +93,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Unlock'):
                 $user->unlock();
-                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been unlocked', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -101,7 +101,7 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Undelete'):
                 $user->undelete();
-                Response::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
+                Request::getFlashMessages()->addSuccessMessage(tr('The account for user ":user" has been undeleted', [
                     ':user' => $user->getDisplayName()
                 ]));
 
@@ -110,7 +110,7 @@ if (Request::isPostRequestMethod()) {
 
     } catch (IncidentsException|ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
-        Response::getFlashMessages()->addMessage($e);
+        Request::getFlashMessages()->addMessage($e);
         $user->forceApply();
     }
 }

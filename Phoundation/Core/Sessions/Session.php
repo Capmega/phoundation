@@ -176,7 +176,7 @@ class Session implements SessionInterface
         if (PLATFORM_WEB) {
             // If this page has flash messages that have not yet been displayed then store them in the session variable
             // so that they can be displayed on the next page load
-            static::getFlashMessages()->pullMessagesFrom(Response::getFlashMessages());
+            static::getFlashMessages()->pullMessagesFrom(Request::getFlashMessages());
 
             if (static::$flash_messages->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
@@ -683,7 +683,7 @@ Log::warning('RESTART SESSION');
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
 
-                    Response::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
+                    Request::getFlashMessages()->addSuccessMessage(tr('You have stopped impersonating user ":user"', [
                         ':user' => User::get($users_id,  'id')->getLogId()
                     ]));
 
@@ -1317,7 +1317,7 @@ Log::warning('RESTART SESSION');
                         ->save();
 
                     Session::signOut();
-                    Response::getFlashMessages()->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
+                    Request::getFlashMessages()->addWarningMessage(tr('Something went wrong with your session, please sign in again'));
                     Response::redirect('sign-in');
                 }
             }

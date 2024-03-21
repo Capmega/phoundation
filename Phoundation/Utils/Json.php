@@ -58,7 +58,7 @@ class Json
         if (!is_string($data)) {
             if (is_object($data)) {
                 // Stringable object
-                $data = (string) $data;
+                $data = (string)$data;
 
             } else {
                 // Array, JSON encode

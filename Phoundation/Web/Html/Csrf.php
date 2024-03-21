@@ -150,7 +150,7 @@ class Csrf
             Log::warning('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
             Log::warning(Request::isRequestType(EnumRequestTypes::html));
             Log::warning($e);
-            Response::getFlashMessages()->add(tr('The form data was too old, please try again'), 'warning');
+            Request::getFlashMessages()->add(tr('The form data was too old, please try again'), 'warning');
         }
     }
 }

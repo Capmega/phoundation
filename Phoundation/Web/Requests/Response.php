@@ -108,9 +108,9 @@ class Response implements ResponseInterface
     /**
      * Information that goes into the HTML header
      *
-     * @var IteratorInterface $http_headers
+     * @var array $http_headers
      */
-    protected static IteratorInterface $http_headers;
+    protected static array $http_headers;
 
     /**
      * CORS headers
@@ -183,20 +183,6 @@ class Response implements ResponseInterface
     protected static bool $build_body = true;
 
     /**
-     * The menus for this page
-     *
-     * @var MenusInterface $menus
-     */
-    protected static MenusInterface $menus;
-
-    /**
-     * The panels for this page
-     *
-     * @var PanelsInterface $panels
-     */
-    protected static PanelsInterface $panels;
-
-    /**
      * @var string $language_code
      */
     protected static string $language_code;
@@ -209,83 +195,48 @@ class Response implements ResponseInterface
     /**
      * Tracks data that goes into the HTML footers
      *
-     * @var IteratorInterface $page_footers
+     * @var array $page_footers
      */
-    protected static IteratorInterface $page_footers;
+    protected static array $page_footers;
 
     /**
      * Tracks data that goes into the HTML headers
      *
-     * @var IteratorInterface $page_headers
+     * @var array $page_headers
      */
-    protected static IteratorInterface $page_headers;
+    protected static array $page_headers;
 
 
     /**
-     * Page class constructor
+     * Response class constructor
      */
     protected function __construct()
     {
+        // Take restrictions from Request object
         static::$restrictions = Request::getRestrictions();
-        static::$http_headers = new Iterator();
-        static::$page_headers = new Iterator();
-        static::$page_footers = new Iterator();
+        static::$http_headers = [];
+        static::$page_headers = [
+            'link'       => [],
+            'javascript' => [],
+            'meta'       => [
+                'charset'  => Config::get('languages.encoding.charset', 'UTF-8'),
+                'viewport' => Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no'),
+            ]
+        ];
+        static::$page_footers = [
+            'javascript' => []
+        ];
     }
 
 
     /**
-     * Returns the current tab index and automatically increments it
+     * Initializes the Response object
      *
-     * @return MenusInterface
-     */
-    public static function getMenusObject(): MenusInterface
-    {
-        if (!isset(static::$menus)) {
-            // Menus have not yet been initialized, do so now.
-            static::$menus = new Menus();
-        }
-
-        return static::$menus;
-    }
-
-
-    /**
-     * Sets the current tab index and automatically increments it
-     *
-     * @param MenusInterface $menus
      * @return void
      */
-    public static function setMenusObject(MenusInterface $menus): void
+    public static function initalize(): void
     {
-        static::$menus = $menus;
-    }
-
-
-    /**
-     * Returns the current panels configured for this page
-     *
-     * @return PanelsInterface
-     */
-    public static function getPanelsObject(): PanelsInterface
-    {
-        if (!isset(static::$panels)) {
-            // Menus have not yet been initialized, do so now.
-            static::$panels = new Panels();
-        }
-
-        return static::$panels;
-    }
-
-
-    /**
-     * Sets the current panels configured for this page
-     *
-     * @param PanelsInterface $panels
-     * @return void
-     */
-    public static function setPanelsObject(PanelsInterface $panels): void
-    {
-        static::$panels = $panels;
+        static::getInstance();
     }
 
 
@@ -579,35 +530,13 @@ class Response implements ResponseInterface
 
 
     /**
-     * Resets all page headers / footers
-     *
-     * @return void
-     */
-    protected static function resetHeadersFooters(): void
-    {
-        static::$page_headers = Iterator::new([
-            'link'       => [],
-            'meta'       => [
-                'charset'  => Config::get('languages.encoding.charset', 'UTF-8'),
-                'viewport' => Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no'),
-            ],
-            'javascript' => []
-        ]);
-
-        static::$page_footers = Iterator::new([
-            'javascript' => []
-        ]);
-    }
-
-
-    /**
      * Add meta-information
      *
      * @param string $key
-     * @param string $value
+     * @param string|int|float|null $value
      * @return void
      */
-    public static function addMeta(string $key, string $value): void
+    public static function addMeta(string $key, string|int|float|null $value): void
     {
         static::$page_headers['meta'][$key] = $value;
     }
@@ -770,10 +699,10 @@ class Response implements ResponseInterface
     /**
      * Checks if HTTP headers have already been sent and logs warnings if so
      *
-     * @param bool $send_now
+     * @param bool $sending_now
      * @return bool
      */
-    protected static function httpHeadersSent(bool $send_now = false): bool
+    protected static function httpHeadersSent(bool $sending_now = false): bool
     {
         if (headers_sent($file, $line)) {
             Log::warning(tr('Will not send HTTP headers again, output started at ":file@:line. Adding backtrace to debug this request', [
@@ -792,7 +721,7 @@ class Response implements ResponseInterface
             return true;
         }
 
-        if ($send_now) {
+        if ($sending_now) {
             static::$http_headers_sent = true;
         }
 
@@ -829,10 +758,9 @@ class Response implements ResponseInterface
     /**
      * Builds and returns all the HTTP headers
      *
-     * @param string $output
      * @return array|null
      */
-    protected static function renderHttpHeaders(string $output): ?array
+    protected static function generateHttpHeaders(): ?array
     {
         if (static::httpHeadersSent()) {
             return null;
@@ -894,7 +822,7 @@ class Response implements ResponseInterface
 
         $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
-        $headers[] = 'Content-Length: ' . strlen($output);
+        $headers[] = 'Content-Length: ' . strlen(static::$output);
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
@@ -1155,7 +1083,7 @@ class Response implements ResponseInterface
      * @param bool $die
      * @return void
      */
-    #[NoReturn] public static function send(bool $die = true): void
+    public static function send(bool $die = true): void
     {
         if (PLATFORM_CLI) {
             // CLI output does not do caching, processing, or buffering.
@@ -1176,6 +1104,7 @@ class Response implements ResponseInterface
 
             // Filter output out for certain HTTP codes, then send headers & output
             static::clearOutputForHttpCodesAndMethods();
+            static::generateHttpHeaders();
             static::sendHttpHeaders();
             static::sendOutput();
         }
@@ -1233,7 +1162,7 @@ class Response implements ResponseInterface
             http_response_code(static::$http_code);
 
             // Send all available headers
-            foreach (static::$page_headers as $header) {
+            foreach (static::$http_headers as $header) {
                 $length += strlen($header);
                 header($header);
             }
@@ -1281,8 +1210,10 @@ class Response implements ResponseInterface
 
         echo static::$output;
 
-        ob_flush();
-        flush();
+        if (ob_get_length()) {
+            ob_flush();
+            flush();
+        }
 
         // Headers have been sent, from here we know if it's a 200 or something else
         if (static::$http_code === 200) {
@@ -1386,6 +1317,7 @@ class Response implements ResponseInterface
 
         if ($prefix) {
             static::$page_headers['link'] = array_merge($scripts, static::$page_headers['link']);
+
         } else {
             static::$page_headers['link'] = array_merge(static::$page_headers['link'], $scripts);
         }

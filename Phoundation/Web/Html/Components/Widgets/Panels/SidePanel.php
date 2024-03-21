@@ -46,7 +46,7 @@ class SidePanel extends Panel
                 ->setMethod('post')
                 ->setAction(UrlBuilder::getAjax('sign-in'));
 
-        $this->setMenu(Response::getMenusObject()->getPrimaryMenu())
+        $this->setMenu(Request::getMenusObject()->getPrimaryMenu())
              ->getModals()
                  ->addModal('sign-in', $sign_in);
 

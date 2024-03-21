@@ -14,6 +14,7 @@ use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -161,7 +162,7 @@ abstract class Element implements ElementInterface
                 ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
-        $renderer_class  = Response::getTemplate()->getRendererClass($this);
+        $renderer_class  = Request::getTemplate()->getRendererClass($this);
 
         $render_function = function () use ($postfix) {
             $attributes  = $this->renderAttributes();

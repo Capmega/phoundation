@@ -35,7 +35,7 @@ trait TraitDataStaticRestrictions
      */
     public static function getRestrictions(): RestrictionsInterface
     {
-        if (static::$restrictions) {
+        if (isset(static::$restrictions)) {
             return static::$restrictions;
         }
 
