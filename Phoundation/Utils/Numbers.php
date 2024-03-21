@@ -79,6 +79,13 @@ class Numbers
                     $unit = 'mib';
                 }
 
+            } else if ($amount < 1000) {
+                if (!$amount) {
+                    return '0b';
+                }
+
+                $unit = 'b';
+
             } else {
                 $unit = 'kib';
             }
@@ -96,6 +103,13 @@ class Numbers
                 } else {
                     $unit = 'mb';
                 }
+
+            } else if ($amount < 1000) {
+                if (!$amount) {
+                    return '0b';
+                }
+
+                $unit = 'b';
 
             } else {
                 $unit = 'kb';

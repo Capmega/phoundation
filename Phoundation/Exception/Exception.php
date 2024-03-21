@@ -693,8 +693,12 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 'get'                   => GetValidator::new()->getSource(),
                 'post'                  => PostValidator::new()->getSource(),
             ];
+
         } catch (Throwable $e) {
             $e = static::ensurePhoundationException($e);
+
+            Log::error(tr('Failed to generate exception detail, see following details'));
+            Log::error($e);
 
             return [
                 'oops'                  => 'Failed to generate exception details, see section "generate_exception"',
@@ -707,7 +711,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 'user'                  => null,
                 'command'               => null,
                 'url'                   => null,
-                'method'                => null,
+                'method'                => PLATFORM_WEB ? Route::getMethod()                  : null,
                 'environment_variables' => $_ENV,
                 'argv'                  => null,
                 'get'                   => null,

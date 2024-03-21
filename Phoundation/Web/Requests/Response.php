@@ -25,6 +25,7 @@ use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
@@ -206,6 +207,13 @@ class Response implements ResponseInterface
      */
     protected static array $page_headers;
 
+    /**
+     * Tracks the total amount of bytes sent
+     *
+     * @var int $bytes_sent
+     */
+    protected static int $bytes_sent = 0;
+
 
     /**
      * Response class constructor
@@ -234,11 +242,21 @@ class Response implements ResponseInterface
      *
      * @return void
      */
-    public static function initalize(): void
+    public static function initialize(): void
     {
         static::getInstance();
     }
 
+
+    /**
+     * Returns the total amount of bytes sent to the client
+     *
+     * @return int
+     */
+    public static function getBytesSent(): int
+    {
+        return static::$bytes_sent;
+    }
 
     /**
      * Returns the language used for this page
@@ -705,19 +723,10 @@ class Response implements ResponseInterface
     protected static function httpHeadersSent(bool $sending_now = false): bool
     {
         if (headers_sent($file, $line)) {
-            Log::warning(tr('Will not send HTTP headers again, output started at ":file@:line. Adding backtrace to debug this request', [
-                ':file' => $file,
-                ':line' => $line
-            ]));
-
             return true;
         }
 
         if (static::$http_headers_sent) {
-            // Since
-            Log::warning(tr('HTTP Headers already sent by :method. This can happen with PHP due to PHP ignoring output buffer flushes, causing this to be called over and over. just ignore this message.', [
-                ':method' => 'static::sendHeaders()'
-            ]), 2);
             return true;
         }
 
@@ -1062,7 +1071,7 @@ class Response implements ResponseInterface
         // 429 Tell the client that it made too many requests, send nothing
         switch (static::getHttpCode()) {
             case 304:
-                // No break
+                // no break
 
             case 429:
                 static::$output = null;
@@ -1080,10 +1089,10 @@ class Response implements ResponseInterface
     /**
      * Send the current buffer to the client
      *
-     * @param bool $die
+     * @param bool $exit
      * @return void
      */
-    public static function send(bool $die = true): void
+    public static function send(bool $exit = true): void
     {
         if (PLATFORM_CLI) {
             // CLI output does not do caching, processing, or buffering.
@@ -1109,7 +1118,7 @@ class Response implements ResponseInterface
             static::sendOutput();
         }
 
-        if ($die) {
+        if ($exit) {
             exit();
         }
     }
@@ -1167,6 +1176,29 @@ class Response implements ResponseInterface
                 header($header);
             }
 
+            switch (static::getHttpCode()) {
+                case 200:
+                    // no break
+                case 301:
+                    // no break
+                case 302:
+                    // no break
+                case 304:
+                    Log::success(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
+                        ':length' => number_format($length),
+                        ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                    ]), 4);
+                    break;
+
+                default:
+                    Log::warning(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
+                        ':length' => number_format($length),
+                        ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                    ]));
+            }
+
+            static::$bytes_sent += $length;
+
             return $length;
 
         } catch (Throwable $e) {
@@ -1215,21 +1247,12 @@ class Response implements ResponseInterface
             flush();
         }
 
-        // Headers have been sent, from here we know if it's a 200 or something else
-        if (static::$http_code === 200) {
-            Log::success(tr('Sent :http with ":length" bytes for URL ":url"', [
-                ':length' => number_format($length),
-                ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
-                ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-            ]), 4);
+        static::$bytes_sent += $length;
 
-        } else {
-            Log::warning(tr('Sent ":http" with ":length" bytes for URL ":url"', [
-                ':length' => number_format($length),
-                ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
-                ':url'    => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-            ]));
-        }
+        // Log how much we sent
+        Log::action(tr('Sent ":length" bytes output data to client', [
+            ':length' => Numbers::getHumanReadableBytes($length),
+        ]), 4);
     }
 
 
@@ -1547,12 +1570,12 @@ class Response implements ResponseInterface
     #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
-            throw new ResponseRedirectException(tr('static::redirect() can only be called on web sessions'));
+            throw new ResponseRedirectException(tr('static::target() can only be called on web sessions'));
         }
 
 //        if (Session::getSignInKey()?->getAllowNavigation()) {
-//            // This session was opened using a sign-in key that does not allow navigation, we cannot redirect away!
-//            throw new RedirectException(tr('Cannot redirect sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
+//            // This session was opened using a sign-in key that does not allow navigation, we cannot target away!
+//            throw new RedirectException(tr('Cannot target sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
 //                ':uuid' => Session::getSignInKey()->getUuid(),
 //                ':user' => Session::getUser()->getLogId(),
 //                ':url'  => $url
@@ -1560,27 +1583,27 @@ class Response implements ResponseInterface
 //        }
 
         // Build URL
-        $redirect = UrlBuilder::getWww($url);
+        $target = UrlBuilder::getWww($url);
 
         // Protect against endless redirecting.
-        if (UrlBuilder::isCurrent($redirect)) {
-            // POST-requests may redirect to the same page as the redirect will change POST to GET
+        if (UrlBuilder::isCurrent($target)) {
+            // POST-requests may target to the same page as the target will change POST to GET
             if (!Request::isPostRequestMethod()) {
-                // If the specified redirect URL was a short code like "prev" or "referer", then it was not hard coded
+                // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
                 // root instead
-                $redirect = match ($url) {
+                $target = match ($url) {
                     'prev', 'previous', 'referer' => UrlBuilder::getCurrentDomainRootUrl(),
-                    default => throw new OutOfBoundsException(tr('Will NOT redirect to ":url", its the current page and the current request method is not POST', [
-                        ':url' => $redirect
+                    default => throw new OutOfBoundsException(tr('Will NOT target to ":url", its the current page and the current request method is not POST', [
+                        ':url' => $target
                     ])),
                 };
             }
         }
 
-        if (isset_get($_GET['redirect'])) {
-            // Add a redirect back query
-            $redirect = UrlBuilder::getWww($redirect)->addQueries(['redirect' => $_GET['redirect']]);
+        if (isset_get($_GET['target'])) {
+            // Add a target back query
+            $target = UrlBuilder::getWww($target)->addQueries(['target' => $_GET['target']]);
         }
 
         /*
@@ -1600,6 +1623,8 @@ class Response implements ResponseInterface
                 // no-break
             case 307:
                 // All valid
+            case 401:
+                // All valid
                 break;
 
             default:
@@ -1607,6 +1632,8 @@ class Response implements ResponseInterface
                     ':code' => $http_code
                 ]));
         }
+
+        static::setHttpCode($http_code);
 
         if ($reason_warning) {
             Log::warning(tr('Redirecting because: :reason', [':reason' => $reason_warning]));
@@ -1617,18 +1644,19 @@ class Response implements ResponseInterface
             Log::action(tr('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
                 ':http' => $http_code,
                 ':time' => $time_delay,
-                ':url'  => $redirect
+                ':url'  => $target
             ]));
 
-            header('Refresh: '.$time_delay . ';' . $redirect, true, $http_code);
+            header('Refresh: '.$time_delay . ';' . $target, true, $http_code);
+
         } else {
             // Redirect immediately
             Log::action(tr('Redirecting with HTTP ":http" to url ":url"', [
                 ':http' => $http_code,
-                ':url'  => $redirect
+                ':url'  => $target
             ]));
 
-            header('Location:' . $redirect, true, $http_code);
+            header('Location:' . $target, true, $http_code);
         }
 
         exit();

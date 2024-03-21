@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
+use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
@@ -18,6 +19,8 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Non200Urls\Non200Url;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Routing\Route;
 use Throwable;
 
@@ -202,8 +205,17 @@ class SystemRequest
         Arrays::default($variables, 'message', 'unspecified');
         Arrays::default($variables, 'details', ((Config::getBoolString('security.expose.phoundation', 'limited')) ? '<address>Phoundation ' . Core::FRAMEWORK_CODE_VERSION . '</address>' : ''));
 
+        // Determine the request path
+        $request_path = match (Request::getRequestType()) {
+            EnumRequestTypes::api  => DIRECTORY_WEB . 'api/',
+            EnumRequestTypes::ajax => DIRECTORY_WEB . 'ajax/',
+            default                => DIRECTORY_WEB . 'pages/', // HTML plus anything we don't know gets an HTML page
+        };
+
         try {
-            Request::execute('system/' . $variables['code'] . '.php');
+            // Execute the system page request
+            Request::setSystem(true);
+            Request::execute($request_path . '/system/' . $variables['code'] . '.php');
             exit();
 
         } catch (Throwable $e) {

@@ -11,7 +11,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\DirectoryException;
-use Phoundation\Filesystem\Exception\DirectoryNotDirectoryException;
+use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
@@ -97,6 +97,29 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         }
 
         return null;
+    }
+
+
+    /**
+     * Make this (relative) path an absolute path
+     *
+     * @param string|null $prefix
+     * @param bool $must_exist
+     * @return $this
+     */
+    public function makeAbsolute(?string $prefix, bool $must_exist = true): static
+    {
+        parent::makeAbsolute($prefix, $must_exist);
+
+        if ($must_exist) {
+            if (!$this->isDir()) {
+                throw new PathNotDirectoryException(tr('The (now absolute) path ":path" exists but is not a directory', [
+                    ':path' => $this->path
+                ]));
+            }
+        }
+
+        return $this;
     }
 
 
@@ -280,7 +303,7 @@ class DirectoryCore extends PathCore implements DirectoryInterface
         if (!is_dir($this->path)) {
             $this->checkReadable();
 
-            throw new DirectoryNotDirectoryException(tr('The specified directory ":directory" is not a directory', [
+            throw new PathNotDirectoryException(tr('The specified directory ":directory" is not a directory', [
                 ':directory' => $this->path
             ]));
         }

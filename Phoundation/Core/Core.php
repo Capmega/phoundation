@@ -522,8 +522,8 @@ class Core implements CoreInterface
     {
         // Detect platform and execute the specific platform startup sequence
         switch (PLATFORM) {
-            case 'http':
-                static::startupHttp();
+            case 'web':
+                static::startupWeb();
                 break;
 
             case 'cli':
@@ -692,7 +692,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function startupHttp(): void
+    protected static function startupWeb(): void
     {
         if (PROJECT === 'UNKNOWN') {
             $env = '';
@@ -1157,16 +1157,16 @@ class Core implements CoreInterface
         // Check what platform we're in
         switch (php_sapi_name()) {
             case 'cli':
-                define('PLATFORM', 'cli');
+                define('PLATFORM'    , 'cli');
                 define('PLATFORM_WEB', false);
                 define('PLATFORM_CLI', true);
                 break;
 
             default:
-                define('PLATFORM', 'http');
+                define('PLATFORM'    , 'web');
                 define('PLATFORM_WEB', true);
                 define('PLATFORM_CLI', false);
-                define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+                define('NOCOLOR'     , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
         }
     }
@@ -1988,7 +1988,7 @@ class Core implements CoreInterface
 //                        Log::printr(debug_backtrace());
                         Core::exit(1);
 
-                    case 'http':
+                    case 'web':
                         if ($e instanceof ValidationFailedException) {
                             // This is just a simple validation warning, show warning messages in the exception data
                             Log::warning($e->getMessage());
@@ -2245,7 +2245,7 @@ class Core implements CoreInterface
                         show($f);
                         showdie($e);
 
-                    case 'http':
+                    case 'web':
                         if (!headers_sent()) {
                             http_response_code(500);
                             header('Content-Type: text/html');

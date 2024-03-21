@@ -160,8 +160,7 @@ class Route
         }
 
         // Ensure the post-processing function is registered
-        Log::information(tr('[:method] ":url" from client ":client" for domain ":domain"', [
-            ':domain' => Request::getDomain(),
+        Log::information(tr('[:method] ":url" from client ":client"', [
             ':method' => static::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
@@ -179,6 +178,7 @@ class Route
     protected static function init(): void
     {
         Request::setRestrictions(Restrictions::readonly(DIRECTORY_WEB));
+        Response::initialize();
 
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, show the maintenance page
@@ -632,8 +632,8 @@ class Route
                 Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
                     ':count'   => $count,
                     ':regex'   => $url_regex,
-                    ':matches' => $matches,
-                    ':flags'   => $flags
+                    ':matches' => Strings::force($matches, ', '),
+                    ':flags'   => Strings::force($flags, ', ')
                 ]));
             }
 
@@ -1204,7 +1204,7 @@ class Route
         }
 
         // This is not a hack, the page simply cannot be found. Show a 404 instead
-        Request::setRoutingParameters(static::getParameters()->select());
+        Request::setRoutingParameters(static::getParameters()->select(static::$uri));
         Request::executeSystem(404);
     }
 

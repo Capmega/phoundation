@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Filesystem\Exception\DirectoryNotDirectoryException;
+use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Interfaces\DirectoryInterface;
 use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Filesystem\Traits\TraitPathNew;
@@ -49,7 +49,7 @@ class Directory extends DirectoryCore implements DirectoryInterface
         if (file_exists($this->path)) {
             // This exists, it must be a directory!
             if (!is_dir($this->path)) {
-                throw new DirectoryNotDirectoryException(tr('The specified path ":path" is not a directory', [
+                throw new PathNotDirectoryException(tr('The specified path ":path" is not a directory', [
                     ':path' => $source
                 ]));
             }

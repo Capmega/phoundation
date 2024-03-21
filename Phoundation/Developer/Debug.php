@@ -359,7 +359,7 @@ class Debug {
 
                             Response::setContentType('text/html');
                             Response::setOutput($output);
-                            Response::send();
+                            Response::send(false);
                             break;
 
                         default:
@@ -372,7 +372,7 @@ class Debug {
                     // Show output on web
                     Response::setContentType('text/html');
                     Response::setOutput($output);
-                    Response::send();
+                    Response::send(false);
 
                 } else {
                     echo PHP_EOL . tr('DEBUG SHOW (:file@:line) [:type :size]', [
@@ -387,7 +387,7 @@ class Debug {
                     // Show output on web
                     Response::setContentType('text/html');
                     Response::setOutput($output);
-                    Response::send();
+                    Response::send(false);
                 }
 
             } else {
@@ -673,7 +673,7 @@ class Debug {
                     'class'    => get_class($value),
                     'contents' => $value->__toArray()
                 ];
-                // No break
+                // no break
 
             case 'array':
                 $return = '';

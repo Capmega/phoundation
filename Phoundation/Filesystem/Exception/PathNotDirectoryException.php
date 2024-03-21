@@ -15,6 +15,6 @@ namespace Phoundation\Filesystem\Exception;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Filesystem
  */
-class DirectoryNotDirectoryException extends DirectoryException
+class PathNotDirectoryException extends DirectoryException
 {
 }

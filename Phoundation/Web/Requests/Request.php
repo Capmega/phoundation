@@ -60,6 +60,7 @@ use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Absolute;
 use Stringable;
 use Templates\AdminLte\AdminLte;
 use Throwable;
@@ -160,7 +161,7 @@ abstract class Request implements RequestInterface
      *
      * @var bool $attachment
      */
-    protected static bool $attachment;
+    protected static bool $attachment = false;
 
     /**
      * If true, this request will return a system HTML page, which ALWAYS is a numeric HTTP code (404 or 500, for
@@ -168,7 +169,7 @@ abstract class Request implements RequestInterface
      *
      * @var bool $system
      */
-    protected static bool $system;
+    protected static bool $system = false;
 
     /**
      * The TemplatePage class that helps build the response page
@@ -365,8 +366,8 @@ abstract class Request implements RequestInterface
      */
     public static function setSystem(bool $system): void
     {
-        if (isset(static::$system)) {
-            throw new OutOfBoundsException(tr('Cannot change a system web request into a non web request'));
+        if (static::$system) {
+            throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
         }
 
         static::$system = $system;
@@ -833,11 +834,11 @@ abstract class Request implements RequestInterface
      * Ensures that this session user has all the specified rights, or a redirect will happen
      *
      * @param array|string $rights
-     * @param int|null $rights_redirect
-     * @param string|null $guest_redirect
+     * @param string|int|null $rights_redirect
+     * @param string|int|null $guest_redirect
      * @return void
      */
-    protected static function hasRightsOrRedirects(array|string $rights, ?int $rights_redirect = null, ?string $guest_redirect = null): void
+    protected static function hasRightsOrRedirects(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
     {
         if (Session::getUser()->hasAllRights($rights)) {
             if (Session::getSignInKey() === null) {
@@ -851,10 +852,7 @@ abstract class Request implements RequestInterface
         }
 
         // Is this a system page though? System pages require no rights to be viewed.
-        $system = dirname(static::$target);
-        $system = basename($system);
-
-        if ($system === 'system') {
+        if (static::getRequestType() === EnumRequestTypes::system) {
             // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see a 404, 500, etc...
             return;
         }
@@ -863,7 +861,7 @@ abstract class Request implements RequestInterface
         if (Session::getUser()->isGuest()) {
             // This user has no rights at all, send to sign-in page
             if (!$guest_redirect) {
-                $guest_redirect = '/sign-in.html';
+                $guest_redirect = 'sign-in';
             }
 
             $current        = Response::getRedirect(UrlBuilder::getCurrent());
@@ -877,7 +875,7 @@ abstract class Request implements RequestInterface
                     ':target'      => static::$target->getPath('web'),
                     ':real_target' => static::$target->getPath('web'),
                     ':redirect'    => $guest_redirect,
-                    ':rights'      => $rights
+                    ':rights'      => Strings::force($rights, ', ')
                 ]))
                 ->setDetails([
                     'user'        => 0,
@@ -902,7 +900,7 @@ abstract class Request implements RequestInterface
                 Json::reply([
                     '__system' => [
                         'http_code' => 401,
-                        'location'  => (string) UrlBuilder::getWww('sign-in')
+                        'location'  => (string) UrlBuilder::getAjax('sign-in')
                     ]
                 ]);
             }
@@ -1055,7 +1053,7 @@ abstract class Request implements RequestInterface
      */
     protected static function setTarget(FileInterface|string $target): void
     {
-        static::$target = new File($target, static::getRestrictions());
+        static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
         static::$target->checkRestrictions(false);
         static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
@@ -1428,8 +1426,6 @@ abstract class Request implements RequestInterface
                 }
 
                 if (!static::$stack_level) {
-                    Response::initalize();
-
                     if (static::$flash_messages) {
                         // Merge the flash messages from sessions into page flash messages.
                         static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
@@ -1562,26 +1558,36 @@ abstract class Request implements RequestInterface
 
         // POST-requests should always show a flash message for feedback!
         if (Request::isPostRequestMethod()) {
-            if (!static::getFlashMessages()->getCount()) {
+            if (!static::getFlashMessages()?->getCount()) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
             }
         }
 
-        if (Response::isHttpCode(200)) {
-            Log::success(tr('Script ":script" ended successfully with HTTP code ":http_code" in ":time" with ":usage" peak memory usage', [
-                ':script'    => static::getExecutedPath(),
-                ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':http_code' => Response::getHttpCode()
-            ]));
+        switch (Response::getHttpCode()) {
+            case 200:
+                // no break
+            case 301:
+                // no break
+            case 302:
+                // no break
+            case 304:
+                Log::success(tr('Script ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
+                    ':script'    => static::getExecutedPath(),
+                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':http_code' => Response::getHttpCode(),
+                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                ]));
+                break;
 
-        } else {
-            Log::warning(tr('Script ":script" ended with HTTP warning code ":http_code" in ":time" with ":usage" peak memory usage', [
-                ':script'    => static::getExecutedPath(),
-                ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                ':http_code' => Response::getHttpCode()
-            ]));
+            default:
+                Log::warning(tr('Script ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
+                    ':script'    => static::getExecutedPath(),
+                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':http_code' => Response::getHttpCode(),
+                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                ]));
         }
 
         // Normal kill request

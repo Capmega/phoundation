@@ -192,19 +192,18 @@ class Notification extends DataEntry implements NotificationInterface
 <pre style="font: monospace">
 Phoundation project ":project" encountered the following :class exception:
 
-Project          : :project
-Project version  : :version_project
-Database version : :version_database
-
+Project                : :project
+Project version        : :version_project
+Database version       : :version_database
 Environment            : :environment
 Platform               : :platform
-:request               : :url
+:request: :url
 Command line arguments : :argv
 Exception location     : :file@:line
 Exception class        : :class
 Exception code         : :code
+Message                : :message
 
-Message            : :message
 Additional messages:
 :all_messages
 
@@ -231,29 +230,29 @@ POST variables:
 </pre>
 </body>
 </html>', [
-                ':url'              => (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
-                ':request'          => (($details['platform'] === 'web') ? 'Requested URL' : 'Executed command'),
-                ':file'             => Strings::from($e->getFile(), DIRECTORY_ROOT),
-                ':line'             => $e->getLine(),
-                ':code'             => $e->getCode(),
-                ':class'            => get_class($e),
-                ':trace'            => $e->getTraceAsFormattedString(),
-                ':message'          => $e->getMessage(),
-                ':all_messages'     => $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-',
-                ':data'             => ($e->getData() ? print_r($e->getData(), true) : '-'),
-                ':project'          => $details['project'],
-                ':version_project'  => $details['project_version'],
-                ':version_database' => $details['database_version'],
-                ':environment'      => $details['environment'],
-                ':platform'         => $details['platform'],
-                ':session'          => $details['session'],
-                ':user'             => $details['user'],
-                ':env'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
-                ':argv'             => $details['argv'] ? Strings::force($details['argv'], ' ') : '-',
-                ':get'              => $details['get']  ? print_r($details['get'] , true) : '-',
-                ':post'             => $details['post'] ? print_r($details['post'], true) : '-',
-             ], clean: false))
-             ->e = $e;
+            ':url'              => (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
+            ':request'          => (($details['platform'] === 'web') ? Strings::size('Requested URL', 23)    : Strings::size('Executed command', 23)),
+            ':file'             => Strings::from($e->getFile(), DIRECTORY_ROOT),
+            ':line'             => $e->getLine(),
+            ':code'             => $e->getCode(),
+            ':class'            => get_class($e),
+            ':trace'            => $e->getTraceAsFormattedString(),
+            ':message'          => $e->getMessage(),
+            ':all_messages'     => $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-',
+            ':data'             => ($e->getData() ? print_r($e->getData(), true) : '-'),
+            ':project'          => $details['project'],
+            ':version_project'  => $details['project_version'],
+            ':version_database' => $details['database_version'],
+            ':environment'      => $details['environment'],
+            ':platform'         => $details['platform'],
+            ':session'          => $details['session'],
+            ':user'             => $details['user'],
+            ':env'              => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
+            ':argv'             => $details['argv'] ? Strings::force($details['argv'], ' ') : '-',
+            ':get'              => $details['get']  ? print_r($details['get'] , true) : '-',
+            ':post'             => $details['post'] ? print_r($details['post'], true) : '-',
+          ], clean: false))
+          ->e = $e;
 
         return $this;
     }

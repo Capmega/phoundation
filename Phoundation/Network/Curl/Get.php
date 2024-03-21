@@ -334,7 +334,7 @@ class Get extends Curl
     {
         switch ($this->getHttpCode()) {
             case 200:
-                // No break;
+                // no break;
             case 304:
                 // All is fine!
                 return $this;

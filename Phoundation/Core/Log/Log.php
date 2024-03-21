@@ -674,13 +674,13 @@ Class Log {
         }
 
         // Log the initial exception message
-        static::write(tr('Main script: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Script: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
         static::write(basename(isset_get($_SERVER['SCRIPT_FILENAME'])), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Exception class: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Class: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
         static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Exception location: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Location: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
         static::write($exception->getFile() . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
-        static::write(tr('Exception message: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
+        static::write(tr('Message: '), 'information', $threshold, true, false, echo_screen: $echo_screen);
         static::write('[' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
 
         // Log the exception data and trace
@@ -707,7 +707,7 @@ Class Log {
         if ($exception instanceof Exception) {
             $data = $exception->getData();
 
-            static::write(tr('Exception data: '), 'information', $threshold, echo_screen: $echo_screen);
+            static::write(tr('Data: '), 'information', $threshold, echo_screen: $echo_screen);
 
             if ($data) {
                 if ($exception->isWarning()) {

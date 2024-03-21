@@ -690,7 +690,7 @@ function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1,
  * @param bool $quiet
  * @return mixed
  */
-function showbacktrace(int $count = 0, int $trace_offset = 1, bool $quiet = false): mixed
+function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = false): mixed
 {
     if (Debug::getEnabled()) {
         $backtrace = Debug::backtrace();

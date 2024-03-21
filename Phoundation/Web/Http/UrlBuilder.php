@@ -181,15 +181,18 @@ class UrlBuilder implements UrlBuilderInterface
     /**
      * Returns a complete web URL
      *
-     * @param UrlBuilder|string|null $url The URL to build
-     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
-     *                                  from the static configuration
+     * @param UrlBuilderInterface|string|int|null $url The URL to build
+     * @param bool $use_configured_root                    If true, the builder will not use the root URI from the
+     *                                                     routing parameters but from the static configuration
      * @return static
      */
-    public static function getWww(UrlBuilder|string|null $url = null, bool $use_configured_root = false): static
+    public static function getWww(UrlBuilderInterface|string|int|null $url = null, bool $use_configured_root = false): static
     {
         if (!$url) {
             $url = UrlBuilder::getCurrent();
+
+        } elseif (is_numeric($url)) {
+            $url = 'system/' . $url . 'html';
         }
 
         return static::renderUrl($url, null, $use_configured_root);
@@ -414,17 +417,20 @@ class UrlBuilder implements UrlBuilderInterface
     /**
      * Returns an ajax URL
      *
-     * @param Stringable|string $url The URL to build
-     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
-     *                                  from the static configuration
+     * @param UrlBuilderInterface|string|int|null $url The URL to build
+     * @param bool $use_configured_root                If true, the builder will not use the root URI from the routing
+     *                                                 parameters but from the static configuration
      * @return static
      */
-    public static function getAjax(Stringable|string $url, bool $use_configured_root = false): static
+    public static function getAjax(UrlBuilderInterface|string|int|null $url, bool $use_configured_root = false): static
     {
         $url = (string) $url;
 
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
+
+        } elseif (is_numeric($url)) {
+            $url = 'system/' . $url . 'json';
         }
 
         return static::renderUrl($url, 'ajax/', $use_configured_root);
@@ -434,17 +440,20 @@ class UrlBuilder implements UrlBuilderInterface
     /**
      * Returns an api URL
      *
-     * @param Stringable|string $url The URL to build
-     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
-     *                                  from the static configuration
+     * @param UrlBuilderInterface|string|int|null $url The URL to build
+     * @param bool $use_configured_root                If true, the builder will not use the root URI from the routing
+     *                                                 parameters but from the static configuration
      * @return static
      */
-    public static function getApi(Stringable|string $url, bool $use_configured_root = false): static
+    public static function getApi(UrlBuilderInterface|string|int|null $url, bool $use_configured_root = false): static
     {
         $url = (string) $url;
 
         if (!$url) {
             throw new OutOfBoundsException(tr('No URL specified'));
+
+        } elseif (is_numeric($url)) {
+            $url = 'system/' . $url . 'json';
         }
 
         return static::renderUrl($url, 'api/', $use_configured_root);

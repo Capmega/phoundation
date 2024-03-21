@@ -162,6 +162,20 @@ class PathCore implements Stringable, PathInterface
 
 
     /**
+     * Make this (relative) path an absolute path
+     *
+     * @param string|null $prefix
+     * @param bool $must_exist
+     * @return $this
+     */
+    public function makeAbsolute(?string $prefix, bool $must_exist = true): static
+    {
+        $this->path = static::getAbsolute($this->path, $prefix, $must_exist);
+        return $this;
+    }
+
+
+    /**
      * Returns a new Directory object with the specified restrictions starting from the specified path, applying a
      * number of defaults
      *
@@ -2819,7 +2833,8 @@ class PathCore implements Stringable, PathInterface
             Log::warning(tr('Not checking restrictions for ":path" as it is a relative path with unknown directory prefix', [
                 ':path' => $this->path
             ]), 4);
-
+            showbacktrace();
+            showdie($this->path);
         } else {
             $this->restrictions->check($this->path, $write);
         }
