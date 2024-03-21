@@ -629,7 +629,7 @@ class Response implements ResponseInterface
      */
     public static function getOutputLength(): int
     {
-        return ob_get_length();
+        return (int)ob_get_length();
     }
 
 

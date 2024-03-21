@@ -1474,13 +1474,20 @@ abstract class Request implements RequestInterface
             ':level'  => static::$stack_level,
         ]), 4);
 
-        ob_start();
-
         if (PLATFORM_CLI) {
-            // This is a CLI command, execute it directly
-            $return = execute();
+            if (static::$stack_level) {
+                // This is a CLI sub command, execute it directly with output buffering and return the output
+                ob_start();
+                $return = execute();
+
+            } else {
+                // This is a CLI command, execute it directly
+                execute();
+                $return = null;
+            }
 
         } else {
+            ob_start();
             static::preparePage();
 
             $return = static::tryCache();
