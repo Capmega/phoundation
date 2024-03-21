@@ -1,14 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Phoundation\Web\Http\Interfaces;
-
-use \Stringable;
 
 
 /**
- * Class Domain
+ * Interface UrlBuilderInterface
  *
  *
  * @todo Add language mapping, see the protected method language_map() at the bottom of this class for more info
@@ -17,8 +13,16 @@ use \Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Http
  */
-interface UrlBuilderInterface extends Stringable
+interface UrlBuilderInterface
 {
+    /**
+     * When used as string, will always return the internal URL as available
+     *
+     * @param bool $strip_queries
+     * @return string
+     */
+    public function getUrl(bool $strip_queries = false): string;
+
     /**
      * Returns if generated URL's is cloaked or not
      *
@@ -46,14 +50,14 @@ interface UrlBuilderInterface extends Stringable
     public function decloak(): static;
 
     /**
-     * Remove the query part from the URL
+     * Clear the query part from the URL
      *
      * @return static
      */
-    public function removeQueries(): static;
+    public function clearQueries(): static;
 
     /**
-     * Add a specified query to the specified URL and return
+     * Add the specified query / queries to the specified URL and return
      *
      * @param array|string|bool|null ...$queries All the queries to add to this URL
      * @return static
@@ -61,10 +65,10 @@ interface UrlBuilderInterface extends Stringable
     public function addQueries(array|string|bool|null ...$queries): static;
 
     /**
-     * Apply predefined URL names
+     * Remove specified queries from the specified URL and return
      *
-     * @param Stringable|string $url
-     * @return UrlBuilderInterface
+     * @param array|string|bool ...$queries All the queries to add to this URL
+     * @return static
      */
-    public static function getConfigured(Stringable|string $url): UrlBuilderInterface;
+    public function removeQueries(array|string|bool ...$queries): static;
 }

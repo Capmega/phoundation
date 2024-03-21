@@ -906,25 +906,18 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 
 
 /**
- * Execute the specified file
+ * Execute the current Request target and return the output (if any)
  *
  * @note This function is used to execute commands and web pages to give them their own empty function scope
+ * @note Any information echo-ed by the targets will be stored in nested buffers and returned by Request::execute() or
+ *       -If it's the first target being executed- flushed to the client (web) or console (cli)
  *
- * @return string|null
+ * @return string| null
  */
 function execute(): ?string
 {
-    if (PLATFORM_WEB) {
-        // Web request
-        ob_start(chunk_size: 0);
-        include(Request::getTarget());
-        get_null(ob_get_clean());
-
-    }
-
-    // Command line request
     include(Request::getTarget());
-    return get_null(ob_get_clean());
+    return get_null((string)ob_get_clean());
 }
 
 

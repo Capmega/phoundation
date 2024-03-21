@@ -25,7 +25,7 @@ use Stringable;
 
 
 /**
- * Class Domain
+ * Class UrlBuilder
  *
  *
  * @todo Add language mapping, see the protected method language_map() at the bottom of this class for more info
@@ -991,7 +991,7 @@ throw new UnderConstructionException();
         $remove_keys = Arrays::force($remove_keys);
 
         foreach ($queries as $query) {
-            list($key, $value) = explode('=', $query);
+            [$key, $value] = explode('=', $query);
 
             if ($remove_keys and array_key_exists($key, $remove_keys)) {
                 continue;

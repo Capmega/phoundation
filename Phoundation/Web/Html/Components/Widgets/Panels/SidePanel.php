@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
 use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 

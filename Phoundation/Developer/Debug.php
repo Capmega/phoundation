@@ -358,7 +358,7 @@ class Debug {
                             ]) . PHP_EOL . print_r($value, true) . PHP_EOL;
 
                             Response::setContentType('text/html');
-                            Response::setOutput($output);
+                            Response::addOutput($output);
                             Response::send(false);
                             break;
 
@@ -367,11 +367,9 @@ class Debug {
                             $output = static::showHtml($value, tr('Unknown'), $sort, $trace_offset, $full_backtrace);
                     }
 
-                    $output = get_null(ob_get_clean()) . $output;
-
                     // Show output on web
                     Response::setContentType('text/html');
-                    Response::setOutput($output);
+                    Response::addOutput($output);
                     Response::send(false);
 
                 } else {
@@ -382,11 +380,8 @@ class Debug {
                         ':size' => ($value === null ? 'NULL' : (is_scalar($value) ? strlen((string)$value) : count((array) $value)))
                     ]) . PHP_EOL;
 
-                    $output = get_null(ob_get_clean());
-
                     // Show output on web
                     Response::setContentType('text/html');
-                    Response::setOutput($output);
                     Response::send(false);
                 }
 

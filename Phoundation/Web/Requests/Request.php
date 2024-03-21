@@ -1345,7 +1345,7 @@ abstract class Request implements RequestInterface
                 $cache = Json::decode($cache);
 
                 Response::setHttpHeaders($cache['headers']);
-                Response::setOutput($cache['output']);
+                Response::addOutput($cache['output']);
                 Response::send();
 
             } catch (Throwable $e) {
@@ -1474,6 +1474,8 @@ abstract class Request implements RequestInterface
             ':level'  => static::$stack_level,
         ]), 4);
 
+        ob_start();
+
         if (PLATFORM_CLI) {
             // This is a CLI command, execute it directly
             $return = execute();
@@ -1481,62 +1483,67 @@ abstract class Request implements RequestInterface
         } else {
             static::preparePage();
 
-            $cache = static::tryCache();
+            $return = static::tryCache();
 
-            if ($cache) {
-                return $cache;
-            }
-
-            // Check user access rights from routing parameters
-            // Check only for non-system pages
-            if (!static::getSystem()) {
-                static::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target));
-                Response::checkForceRedirect();
-            }
-
-            // Execute the specified target file
-            try {
-                // Prepare page, increase the stack counter, and execute the target
-                $return = static::$page->execute();
-
-            } catch (ValidationFailedExceptionInterface $e) {
-                static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
-
-            } catch (AuthenticationExceptionInterface $e) {
-                static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
-
-            } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
-                $new_target = $e->getNewTarget();
-
-                if (!$new_target) {
-                    static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
+            if (!$return) {
+                // Check user access rights from routing parameters
+                // Check only for non-system pages
+                if (!static::getSystem()) {
+                    static::hasRightsOrRedirects(static::$parameters->getRequiredRights(static::$target));
+                    Response::checkForceRedirect();
                 }
 
-                Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
-                    ':target' => $target,
-                    ':user'   => Session::getUser()->getDisplayId(),
-                    ':new'    => $new_target
-                ]));
+                // Execute the specified target file
+                try {
+                    // Prepare page, increase the stack counter, and execute the target
+                    if (static::$stack_level) {
+                        // Execute only the file and return the output
+                        $return = execute();
 
-                $return = static::execute($new_target);
+                    } else {
+                        // Execute the entire page and return the output
+                        $return = static::$page->execute();
+                    }
 
-            } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
-                static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+                } catch (ValidationFailedExceptionInterface $e) {
+                    static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
-            } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
-                static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
+                } catch (AuthenticationExceptionInterface $e) {
+                    static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
-            } catch (Http409Exception $e) {
-                static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+                } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
+                    $new_target = $e->getNewTarget();
+
+                    if (!$new_target) {
+                        static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
+                    }
+
+                    Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+                        ':target' => $target,
+                        ':user'   => Session::getUser()->getDisplayId(),
+                        ':new'    => $new_target
+                    ]));
+
+                    $return = static::execute($new_target);
+
+                } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+                    static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+
+                } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+                    static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
+
+                } catch (Http409Exception $e) {
+                    static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+                }
             }
         }
 
         static::$stack_level--;
 
-        if (static::$stack_level <= 0) {
+        if (static::$stack_level < 0) {
             // The stack is empty, there is nothing executing above this. Assume HTTP headers have been set by this
             // point, and send the output to the client
-            Response::setOutput($return);
+            Response::addOutput($return);
             Response::send();
         }
 

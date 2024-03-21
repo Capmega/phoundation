@@ -67,7 +67,7 @@ class Json
         }
 
         Response::setContentType('application/json');
-        Response::setOutput($data);
+        Response::addOutput($data);
         Response::send(false);
 
         switch ($action_after) {
