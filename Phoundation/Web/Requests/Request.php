@@ -8,7 +8,6 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -61,7 +60,6 @@ use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
-use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Absolute;
 use Stringable;
 use Templates\AdminLte\AdminLte;
 use Throwable;
@@ -237,7 +235,7 @@ abstract class Request implements RequestInterface
 
         if (!$parameters->getTemplate()) {
             throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
-                ':pattern' => Request::getRoutingParameters()->getPattern()
+                ':pattern' => static::getRoutingParameters()->getPattern()
             ]));
         }
 
@@ -1372,10 +1370,10 @@ abstract class Request implements RequestInterface
      */
     public static function cannotBeExecutedDirectly(?string $message = null): void
     {
-        if (Request::isExecutedDirectly()) {
+        if (static::isExecutedDirectly()) {
             if (!$message) {
                 $message = tr('The target ":target" cannot be accessed directly', [
-                    ':page' => Request::getTarget()->getPath('root')
+                    ':page' => static::getTarget()->getPath('root')
                 ]);
             }
 
@@ -1394,7 +1392,7 @@ abstract class Request implements RequestInterface
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
                 Log::information(tr('Executing page ":target" with in language ":language" and sending output as API page', [
-                    ':target'   => Strings::from(Request::getTarget(), DIRECTORY_ROOT),
+                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
                     ':template' => static::$template->getName(),
                     ':language' => LANGUAGE
                 ]));
@@ -1404,7 +1402,7 @@ abstract class Request implements RequestInterface
 
             case EnumRequestTypes::ajax:
                 Log::information(tr('Executing page ":target" with in language ":language" and sending output as AJAX API page', [
-                    ':target'   => Strings::from(Request::getTarget(), DIRECTORY_ROOT),
+                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
                     ':template' => static::$template->getName(),
                     ':language' => LANGUAGE
                 ]));
@@ -1414,7 +1412,7 @@ abstract class Request implements RequestInterface
 
             default:
                 Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
-                    ':target'   => Strings::from(Request::getTarget(), DIRECTORY_ROOT),
+                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
                     ':template' => static::$template->getName(),
                     ':language' => LANGUAGE
                 ]));
@@ -1520,7 +1518,7 @@ abstract class Request implements RequestInterface
                     ':new'    => $new_target
                 ]));
 
-                $return = Request::execute($new_target);
+                $return = static::execute($new_target);
 
             } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
                 static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
@@ -1564,7 +1562,7 @@ abstract class Request implements RequestInterface
         }
 
         // POST-requests should always show a flash message for feedback!
-        if (Request::isPostRequestMethod()) {
+        if (static::isPostRequestMethod()) {
             if (!static::getFlashMessages()?->getCount()) {
                 Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
             }

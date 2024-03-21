@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Cli\Commands\Interfaces\CommandRequestInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;

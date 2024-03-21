@@ -354,7 +354,7 @@ class Plugin extends DataEntry implements PluginInterface
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
 
-        return $class::fromSource($plugin->getSource());
+        return $class::newFromSource($plugin->getSource());
     }
 
 

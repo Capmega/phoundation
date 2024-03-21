@@ -8,6 +8,7 @@ use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
