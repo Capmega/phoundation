@@ -8,6 +8,7 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -140,7 +141,7 @@ abstract class Request implements RequestInterface
      *
      * @var int $stack_level
      */
-    protected static int $stack_level = 0;
+    protected static int $stack_level = -1;
 
     /**
      * Sets if the request should render the entire page or the contents of the page only
@@ -1426,6 +1427,11 @@ abstract class Request implements RequestInterface
                 }
 
                 if (!static::$stack_level) {
+                    // Start session only for AJAX and HTML requests
+                    if (!static::isRequestType(EnumRequestTypes::api)) {
+                        Session::startup();
+                    }
+
                     if (static::$flash_messages) {
                         // Merge the flash messages from sessions into page flash messages.
                         static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
@@ -1463,23 +1469,26 @@ abstract class Request implements RequestInterface
     {
         // Set target and check if we have this target in the cache
         static::setTarget($target);
+        static::$stack_level++;
 
-        $cache = static::tryCache();
-
-        if ($cache) {
-            return $cache;
-        }
-
-        Log::information(tr('Executing request target ":target"', [
+        Log::information(tr('Executing request target ":target" on stack level ":level"', [
             ':target' => static::$target->getPath('root'),
+            ':level'  => static::$stack_level,
         ]), 4);
 
         if (PLATFORM_CLI) {
             // This is a CLI command, execute it directly
-            static::$stack_level++;
             $return = execute();
 
         } else {
+            static::preparePage();
+
+            $cache = static::tryCache();
+
+            if ($cache) {
+                return $cache;
+            }
+
             // Check user access rights from routing parameters
             // Check only for non-system pages
             if (!static::getSystem()) {
@@ -1490,8 +1499,6 @@ abstract class Request implements RequestInterface
             // Execute the specified target file
             try {
                 // Prepare page, increase the stack counter, and execute the target
-                static::preparePage();
-                static::$stack_level++;
                 $return = static::$page->execute();
 
             } catch (ValidationFailedExceptionInterface $e) {
