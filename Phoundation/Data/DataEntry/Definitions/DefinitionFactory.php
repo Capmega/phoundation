@@ -584,7 +584,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(EnumInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                return Country::get($source['countries_id'], no_identifier_exception: false)->getHtmlStatesSelect($key)
+                return Country::new($source['countries_id'])->getHtmlStatesSelect($key)
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
@@ -645,7 +645,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setInputType(EnumInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                return State::get($source['states_id'], no_identifier_exception: false)->getHtmlCitiesSelect($key)
+                return State::new($source['states_id'])->getHtmlCitiesSelect($key)
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())

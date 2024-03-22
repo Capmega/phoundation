@@ -17,6 +17,7 @@ use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -37,7 +38,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId(false, true)
     ->validate();
 
-$connector = Connector::get($get['id'], no_identifier_exception: false);
+$connector = Connector::new($get['id']);
 
 
 // Validate POST and submit
@@ -226,9 +227,9 @@ Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->g
 Response::setHeaderTitle(tr('Connector'));
 Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                                           => tr('Home'),
-    '/system-administration.html'                                 => tr('System administration'),
+    '/'                                                 => tr('Home'),
+    '/system-administration.html'                       => tr('System administration'),
     '/phoundation/databases.html'                       => tr('Databases'),
     '/phoundation/databases/connectors/connectors.html' => tr('Connectors'),
-    ''                                                            => $connector->getDisplayName()
+    ''                                                  => $connector->getDisplayName()
 ]));

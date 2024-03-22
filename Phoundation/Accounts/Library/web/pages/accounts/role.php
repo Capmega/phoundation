@@ -16,6 +16,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -38,7 +39,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$role = Role::get($get['id'], no_identifier_exception: false);
+$role = Role::new($get['id']);
 
 
 // Validate POST and submit

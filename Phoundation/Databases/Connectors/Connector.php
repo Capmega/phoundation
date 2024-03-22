@@ -446,11 +446,10 @@ class Connector extends DataEntry implements ConnectorInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $no_identifier_exception
      * @return Connector
      * @throws SqlExceptionInterface
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         if (($column === 'id') or (($column === null) and is_numeric($identifier))) {
             if ($identifier < 0) {
@@ -460,7 +459,7 @@ class Connector extends DataEntry implements ConnectorInterface
         }
 
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
+            return parent::get($identifier, $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [

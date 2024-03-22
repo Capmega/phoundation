@@ -246,22 +246,21 @@ class User extends DataEntry implements UserInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $no_identifier_exception
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         try {
-            return parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
+            return parent::get($identifier, $column, $meta_enabled, $force);
 
         } catch (DataEntryNotExistsException $e) {
             if ((static::getDefaultConnectorName() === 'system') and (static::getTable() === 'accounts_users')) {
                 if ($column === 'email') {
                     // Try to find the user by alternative email address
                     $user = sql()->get('SELECT `users_id`, `verified_on`
-                                          FROM   `accounts_emails` 
-                                          WHERE  `email` = :email 
-                                            AND  `status` IS NULL', [
+                                              FROM   `accounts_emails` 
+                                              WHERE  `email` = :email 
+                                                AND  `status` IS NULL', [
                         ':email' => $identifier
                     ]);
 

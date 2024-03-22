@@ -344,12 +344,11 @@ class Plugin extends DataEntry implements PluginInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $no_identifier_exception
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
-        $plugin = parent::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
+        $plugin = parent::get($identifier, $column, $meta_enabled, $force);
         $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);

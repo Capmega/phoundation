@@ -855,26 +855,20 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $no_identifier_exception
      * @return static
      */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): static
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
     {
         if (!$identifier) {
             // No identifier specified
-            if ($no_identifier_exception) {
-                // Identifier is required here
-                throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
-                    ':class'      => static::getClassName(),
-                    ':column'     => static::getColumn($identifier, $column),
-                    ':identifier' => $identifier
-                ]))->addData([
-                    'class' => static::class
-                ]);
-            }
-
-            // Return an empty DataEntryInterface object
-            return new static(null, null, $meta_enabled);
+            // Identifier is required here
+            throw DataEntryNotExistsException::new(tr('The specified ":class" ":column" identifier ":identifier" was empty', [
+                ':class'      => static::getClassName(),
+                ':column'     => static::getColumn($identifier, $column),
+                ':identifier' => $identifier
+            ]))->addData([
+                'class' => static::class
+            ]);
         }
 
         if (is_object($identifier)) {
@@ -1048,16 +1042,15 @@ abstract class DataEntry implements DataEntryInterface
      * @param string|null $column
      * @param bool $meta_enabled
      * @param bool $force
-     * @param bool $no_identifier_exception
      * @return static|null
      */
-    public static function getOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false, bool $no_identifier_exception = true): ?static
+    public static function getOrNull(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): ?static
     {
        if ($identifier === null) {
            return null;
        }
 
-       return static::get($identifier, $column, $meta_enabled, $force, $no_identifier_exception);
+       return static::get($identifier, $column, $meta_enabled, $force);
     }
 
 
