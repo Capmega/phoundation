@@ -26,7 +26,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     /**
      * @var array $menus
      */
-    protected array $menus;
+    protected array $menus = [];
 
 
     /**
@@ -37,7 +37,11 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      */
     public function getMenu(string $menu): ?MenuInterface
     {
-        return isset_get($this->menus[$menu], Menu::new());
+        if (empty($this->menus[$menu])) {
+            $this->menus[$menu] = Menu::new();
+        }
+
+        return $this->menus[$menu];
     }
 
 
