@@ -14,7 +14,7 @@ use Phoundation\Core\Log\Log;
  *
  * This is the Init class for the Core library
  *
- * @see \Phoundation\Core\Libraries\Updates
+ * @see Libraries\Updates
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -302,12 +302,12 @@ class Updates extends Libraries\Updates
             ]);
 
             foreach ($tables as $table) {
-                if ($table['IS_NULLABLE'] === 'yes') {
+                if ($table['is_nullable'] === 'yes') {
                     continue;
                 }
 
                 // This table has a NOT NULL meta_id, fix it
-                sql()->query('ALTER TABLE `' . $table['TABLE_NAME'] . '` MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
+                sql()->query('ALTER TABLE `' . $table['table_name'] . '` MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
                 Log::dot(5);
             }
 
