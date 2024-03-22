@@ -70,7 +70,7 @@ class Meta implements MetaInterface
      *
      * @var int $max_buffer
      */
-    protected static int $max_buffer = 100;
+    protected static int $max_buffer = 50;
 
         /**
      * In case buffer mode is enabled, all meta updates will be stored here until flushing

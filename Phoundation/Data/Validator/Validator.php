@@ -2818,7 +2818,7 @@ abstract class Validator implements ValidatorInterface
                 return;
             }
 
-            if (sql()->dataEntryExists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
+            if (sql()->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
                 $this->addFailure($failure ?? tr('with value ":value" already exists', [':value' => $value]));
             }
         });

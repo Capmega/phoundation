@@ -150,11 +150,11 @@ class Get extends Curl
             // Store the request results in cache
             unset($this->curl);
 
-            sql()->dataEntryDelete('network_curl_cache', [
+            sql()->delete('network_curl_cache', [
                 'url' => $this->url
             ]);
 
-            sql()->dataEntryInsert('network_curl_cache', [
+            sql()->insert('network_curl_cache', [
                 'created_by' => Session::getUser()->getId(),
                 'url'        => $this->url,
                 'data'       => Json::encode($this->result_data),

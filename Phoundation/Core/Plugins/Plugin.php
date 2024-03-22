@@ -292,7 +292,7 @@ class Plugin extends DataEntry implements PluginInterface
     public function unregister(?string $comments = null): void
     {
         static::unlinkScripts();
-        sql()->dataEntryDelete('core_plugins', [':seo_name' => $this->getName()], $comments);
+        sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
 
@@ -408,7 +408,7 @@ class Plugin extends DataEntry implements PluginInterface
             ->add(Definition::new($this, 'menu_enabled')
                 ->setOptional(true)
                 ->setInputType(EnumInputType::checkbox)
-                ->setNullDb(false, 5)
+                ->setNullDb(false, true)
                 ->setSize(2)
                 ->setCliColumn('--menu-enabled')
                 ->setCliAutoComplete(true)

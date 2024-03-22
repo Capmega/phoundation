@@ -1725,10 +1725,10 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      * @param bool $value
-     * @param string|float|int|null $default
+     * @param string|float|int|bool|null $default
      * @return static
      */
-    public function setNullDb(bool $value, string|float|int|null $default = null): static
+    public function setNullDb(bool $value, string|float|int|bool|null $default = null): static
     {
         $this->setKey($value, 'null_db');
         $this->setKey($default, 'default');

@@ -180,7 +180,7 @@ class Table extends SchemaAbstract
         $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
 
         foreach ($results as $result) {
-            $columns[$result['Field']] = Arrays::lowercaseKeys($result);
+            $columns[$result['field']] = Arrays::lowercaseKeys($result);
         }
 
         return Iterator::new($columns);

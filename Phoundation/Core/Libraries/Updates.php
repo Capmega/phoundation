@@ -392,7 +392,7 @@ abstract class Updates implements UpdatesInterface
             return;
         }
 
-        sql()->dataEntryInsert('core_versions', [
+        sql()->insert('core_versions', [
             'library'  => $this->library,
             'version'  => Version::getInteger($version),
             'comments' => $comments

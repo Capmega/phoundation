@@ -165,7 +165,7 @@ class Roles extends DataList implements RolesInterface
                         ':role' => $value->getLogId()
                     ]), 3);
 
-                    sql()->dataEntryInsert('accounts_users_roles', [
+                    sql()->insert('accounts_users_roles', [
                         'users_id' => $this->parent->getId(),
                         'roles_id' => $value->getId()
                     ]);
@@ -184,7 +184,7 @@ class Roles extends DataList implements RolesInterface
                         ':role'  => $value->getLogId()
                     ]), 3);
 
-                    sql()->dataEntryInsert('accounts_roles_rights', [
+                    sql()->insert('accounts_roles_rights', [
                         'rights_id' => $this->parent->getId(),
                         'roles_id'  => $value->getId()
                     ]);
@@ -235,7 +235,7 @@ class Roles extends DataList implements RolesInterface
                     ':role' => $right->getLogId()
                 ]));
 
-                sql()->dataEntryDelete('accounts_users_roles', [
+                sql()->delete('accounts_users_roles', [
                     'users_id' => $this->parent->getId(),
                     'roles_id' => $right->getId()
                 ]);
@@ -262,7 +262,7 @@ class Roles extends DataList implements RolesInterface
                     ':role'  => $right->getLogId()
                 ]), 3);
 
-                sql()->dataEntryDelete('accounts_roles_rights', [
+                sql()->delete('accounts_roles_rights', [
                     'rights_id' => $this->parent->getId(),
                     'roles_id'  => $right->getId()
                 ]);

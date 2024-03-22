@@ -570,7 +570,7 @@ class UrlBuilder implements UrlBuilderInterface
         } else {
             $cloak = Strings::getRandom(32);
 
-            sql()->dataEntryInsert('url_cloaks', [
+            sql()->insert('url_cloaks', [
                 'created_by' => Session::getUser()->getId(),
                 'cloak'      => $cloak,
                 'url'        => $this->url
@@ -601,7 +601,7 @@ class UrlBuilder implements UrlBuilderInterface
             ]));
         }
 
-        sql()->dataEntryDelete('url_cloaks', [':cloak' => $this->url]);
+        sql()->delete('url_cloaks', [':cloak' => $this->url]);
         return $this;
     }
 

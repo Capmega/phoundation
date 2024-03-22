@@ -153,11 +153,10 @@ interface SqlInterface
      * This is a simplified delete method to speed up writing basic insert queries
      *
      * @param string $table
-     * @param string $where
      * @param array $execute
      * @return int
      */
-    public function delete(string $table, string $where, array $execute): int;
+    public function delete(string $table, array $execute): int;
 
     /**
      * Truncates the specified table
@@ -397,4 +396,16 @@ interface SqlInterface
      * @return static
      */
     public function test(): static;
+
+    /**
+     * Simple "Does a row with this value exist in that table" method
+     *
+     * @param string $table
+     * @param string|int|float $column
+     * @param string|int|null $value
+     * @param int|null $id
+     * @param string $id_column
+     * @return bool
+     */
+    public function exists(string $table, string|int|float $column, string|int|null $value, ?int $id = null, string $id_column = 'id'): bool;
 }

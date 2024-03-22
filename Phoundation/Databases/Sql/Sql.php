@@ -543,16 +543,38 @@ class Sql implements SqlInterface
 
 
     /**
+     * Simple "Does a row with this value exist in that table" method
+     *
+     * @param string $table
+     * @param string|int|float $column
+     * @param string|int|null $value
+     * @param int|null $id
+     * @param string $id_column
+     * @return bool
+     */
+    public function exists(string $table, string|int|float $column, string|int|null $value, ?int $id = null, string $id_column = 'id'): bool
+    {
+        if ($id) {
+            return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $id_column . '` != :id', [
+                ':' . $column => $value,
+                ':id'         => $id
+            ]);
+        }
+
+        return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+    }
+
+
+    /**
      * Delete the specified table entry
      *
      * This is a simplified delete method to speed up writing basic insert queries
      *
      * @param string $table
-     * @param string $where
      * @param array $execute
      * @return int
      */
-    public function delete(string $table, string $where, array $execute): int
+    public function delete(string $table, array $execute): int
     {
         // This table is not a DataEntry table, delete the entry
         return $this->erase($table, $execute);

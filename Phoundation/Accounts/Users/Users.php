@@ -168,7 +168,7 @@ class Users extends DataList implements UsersInterface
                         ':user' => $value->getLogId()
                     ]), 3);
 
-                    sql()->dataEntryInsert('accounts_users_roles', [
+                    sql()->insert('accounts_users_roles', [
                         'roles_id' => $this->parent->getId(),
                         'users_id' => $value->getId()
                     ]);
@@ -182,7 +182,7 @@ class Users extends DataList implements UsersInterface
                         ':user'  => $value->getLogId()
                     ]), 3);
 
-                    sql()->dataEntryInsert('accounts_users_rights', [
+                    sql()->insert('accounts_users_rights', [
                         'rights_id' => $this->parent->getId(),
                         'users_id'  => $value->getId(),
                         'name'      => $this->parent->getName(),
@@ -230,7 +230,7 @@ class Users extends DataList implements UsersInterface
                     ':user' => $user->getLogId()
                 ]), 3);
 
-                sql()->dataEntryDelete('accounts_users_rights', [
+                sql()->delete('accounts_users_rights', [
                     'roles_id' => $this->parent->getId(),
                     'users_id' => $user->getId()
                 ]);
@@ -244,7 +244,7 @@ class Users extends DataList implements UsersInterface
                     ':user'  => $user->getLogId()
                 ]), 3);
 
-                sql()->dataEntryDelete('accounts_users_rights', [
+                sql()->delete('accounts_users_rights', [
                     'rights_id' => $this->parent->getId(),
                     'users_id' => $user->getId()
                 ]);
@@ -479,7 +479,7 @@ class Users extends DataList implements UsersInterface
 //
 //            // Add the new list
 //            foreach ($this->source as $id) {
-//                sql()->dataEntryInsert('accounts_users_roles', [
+//                sql()->insert('accounts_users_roles', [
 //                    'roles_id' => $this->parent->getId(),
 //                    'users_id' => $id
 //                ]);
@@ -494,7 +494,7 @@ class Users extends DataList implements UsersInterface
 //
 //            // Add the new list
 //            foreach ($this->source as $id) {
-//                sql()->dataEntryInsert('accounts_users_rights', [
+//                sql()->insert('accounts_users_rights', [
 //                    'rights_id' => $this->parent->getId(),
 //                    'users_id'  => $id,
 //                    'name'      => $this->parent->getName(),

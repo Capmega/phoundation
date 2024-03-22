@@ -341,9 +341,9 @@ class User extends DataEntry implements UserInterface
     {
         $id = $this->getSourceValueTypesafe('int', $this->getIdColumn());
 
-        if (!$id) {
+        if ($this instanceof GuestUser) {
             // This is a guest user
-            return tr('Guest');
+            return '0 / ' . tr('Guest');
         }
 
         return $id . ' / ' . $this->getSourceValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
@@ -433,7 +433,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isSystem(): bool
     {
-        return array_get_safe($this->source, 'id') === null;
+        return (array_get_safe($this->source, 'email') === 'guest') or (!$this->isNew() and !$this->getId());
     }
 
 
@@ -1155,11 +1155,15 @@ class User extends DataEntry implements UserInterface
         }
 
         if (empty($this->source['id'])) {
-            throw new OutOfBoundsException(tr('Cannot set password for this user, it has not been saved yet'));
+            throw new OutOfBoundsException(tr('Cannot set password for user ":user", it has not been saved yet', [
+                ':user' => $this->getDisplayName()
+            ]));
         }
 
         if (empty($this->source['email'])) {
-            throw new OutOfBoundsException(tr('Cannot set password for this user, it has no email address'));
+            throw new OutOfBoundsException(tr('Cannot set password for user ":user", it has no email address', [
+                ':user' => $this->getLogId()
+            ]));
         }
 
         // Is the password secure?
@@ -1483,7 +1487,7 @@ class User extends DataEntry implements UserInterface
         Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         // Can this information be changed? If this user has god right, the executing user MUST have god right as well!
-        if ($this->hasAllRights('god')) {
+        if (!$this->isNew() and $this->hasAllRights('god')) {
             if (PLATFORM_WEB and !Session::getUser()->hasAllRights('god')) {
                 // Oops...
                 Incident::new()

@@ -9,6 +9,7 @@ use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
@@ -33,6 +34,11 @@ use Stringable;
  */
 class Emails extends DataList implements EmailsInterface
 {
+    use TraitDataParent {
+        setParent as __setParent;
+    }
+
+
     /**
      * Users class constructor
      */
@@ -92,7 +98,7 @@ class Emails extends DataList implements EmailsInterface
         if ($parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children
             $this->source = [];
-            return $this->setParentTrait($parent);
+            return $this->__setParent($parent);
         }
 
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [

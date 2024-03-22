@@ -488,7 +488,7 @@ class Library implements LibraryInterface
                 $comments = tr('Forced library to this version');
             }
 
-            sql()->dataEntryInsert('core_versions', [
+            sql()->insert('core_versions', [
                 'library'  => $this->library,
                 'version'  => $int_version,
                 'comments' => $comments

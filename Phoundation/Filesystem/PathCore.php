@@ -3094,7 +3094,7 @@ class PathCore implements Stringable, PathInterface
                 ->setPath($this)
                 ->setType('l')
                 ->setCallback(function ($file) use ($clean) {
-                    show($file);
+                    Path::new($file, $this->restrictions)->delete(true);
                 })
                 ->getFiles();
 

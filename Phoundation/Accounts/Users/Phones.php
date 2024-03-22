@@ -10,6 +10,7 @@ use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -34,6 +35,11 @@ use Stringable;
  */
 class Phones extends DataList implements PhonesInterface
 {
+    use TraitDataParent {
+        setParent as __setParent;
+    }
+
+
     /**
      * Users class constructor
      */
@@ -93,7 +99,7 @@ class Phones extends DataList implements PhonesInterface
         if ($parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children
             $this->source = [];
-            return $this->setParentTrait($parent);
+            return $this->__setParent($parent);
         }
 
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [

@@ -169,7 +169,7 @@ class Rights extends DataList implements RightsInterface
                         ':right' => $value->getLogId()
                     ]), 3);
 
-                    sql()->dataEntryInsert('accounts_users_rights', [
+                    sql()->insert('accounts_users_rights', [
                         'users_id'  => $this->parent->getId(),
                         'rights_id' => $value->getId(),
                         'name'      => $value->getName(),
@@ -185,7 +185,7 @@ class Rights extends DataList implements RightsInterface
                         ':right' => $value->getLogId()
                     ]), 3);
 
-                    sql()->dataEntryInsert('accounts_roles_rights', [
+                    sql()->insert('accounts_roles_rights', [
                         'roles_id'  => $this->parent->getId(),
                         'rights_id' => $value->getId()
                     ]);
@@ -236,11 +236,11 @@ class Rights extends DataList implements RightsInterface
                     ':right' => $right->getLogId()
                 ]), 3);
 
-                sql()->dataEntryDelete('accounts_users_rights', [
+                sql()->delete('accounts_users_rights', [
                     'users_id'  => $this->parent->getId(),
                     'rights_id' => $right->getId()
                 ]);
-                show($right->getId());
+
                 // Delete right from the internal list
                 $this->removeKeys($right->getId());
 
@@ -250,7 +250,7 @@ class Rights extends DataList implements RightsInterface
                     ':right' => $right->getLogId()
                 ]), 3);
 
-                sql()->dataEntryDelete('accounts_roles_rights', [
+                sql()->delete('accounts_roles_rights', [
                     'roles_id'  => $this->parent->getId(),
                     'rights_id' => $right->getId()
                 ]);
@@ -528,7 +528,7 @@ class Rights extends DataList implements RightsInterface
 //            foreach ($this->source as $id) {
 //                $right = new Right($id);
 //
-//                sql()->dataEntryInsert('accounts_users_rights', [
+//                sql()->insert('accounts_users_rights', [
 //                    'users_id'  => $this->parent->getId(),
 //                    'rights_id' => $id,
 //                    'name'      => $right->getName(),
@@ -545,7 +545,7 @@ class Rights extends DataList implements RightsInterface
 //
 //            // Add the new list
 //            foreach ($this->source as $id) {
-//                sql()->dataEntryInsert('accounts_roles_rights', [
+//                sql()->insert('accounts_roles_rights', [
 //                    'roles_id'  => $this->parent->getId(),
 //                    'rights_id' => $id
 //                ]);
