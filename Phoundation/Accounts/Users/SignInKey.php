@@ -106,7 +106,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getValidUntil(): ?string
     {
-        return $this->getSourceValueTypesafe('int', 'valid_until');
+        return $this->getValueTypesafe('int', 'valid_until');
     }
 
 
@@ -118,7 +118,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function setValidUntil(?string $valid_until): static
     {
-        return $this->setSourceValue('valid_until', $valid_until);
+        return $this->setValue('valid_until', $valid_until);
     }
 
 
@@ -129,7 +129,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getAllowNavigation(): bool
     {
-        return (bool) $this->getSourceValueTypesafe('bool', 'allow_navigation', false);
+        return (bool) $this->getValueTypesafe('bool', 'allow_navigation', false);
     }
 
 
@@ -141,7 +141,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function setAllowNavigation(int|bool|null $allow_navigation): static
     {
-        return $this->setSourceValue('allow_navigation', (bool) $allow_navigation);
+        return $this->setValue('allow_navigation', (bool) $allow_navigation);
     }
 
 
@@ -152,7 +152,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function getOnce(): ?bool
     {
-        return $this->getSourceValueTypesafe('bool', 'once', true);
+        return $this->getValueTypesafe('bool', 'once', true);
     }
 
 
@@ -168,7 +168,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             $once = (int) $once;
         }
 
-        return $this->setSourceValue('once', $once);
+        return $this->setValue('once', $once);
     }
 
 

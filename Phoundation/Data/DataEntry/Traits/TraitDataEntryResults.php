@@ -24,7 +24,7 @@ trait TraitDataEntryResults
      */
     public function getResults(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'results');
+        return $this->getValueTypesafe('string', 'results');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryResults
      */
     public function setResults(?string $results): static
     {
-        return $this->setSourceValue('results', $results);
+        return $this->setValue('results', $results);
     }
 }

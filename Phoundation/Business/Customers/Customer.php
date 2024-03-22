@@ -98,7 +98,7 @@ class Customer extends DataEntry
      */
     public function getAddress2(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'address2');
+        return $this->getValueTypesafe('string', 'address2');
     }
 
 
@@ -110,7 +110,7 @@ class Customer extends DataEntry
      */
     public function setAddress2(?string $address2): static
     {
-        return $this->setSourceValue('address2', $address2);
+        return $this->setValue('address2', $address2);
     }
 
 
@@ -121,7 +121,7 @@ class Customer extends DataEntry
      */
     public function getAddress3(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'address3');
+        return $this->getValueTypesafe('string', 'address3');
     }
 
 
@@ -133,7 +133,7 @@ class Customer extends DataEntry
      */
     public function setAddress3(?string $address3): static
     {
-        return $this->setSourceValue('address3', $address3);
+        return $this->setValue('address3', $address3);
     }
 
 

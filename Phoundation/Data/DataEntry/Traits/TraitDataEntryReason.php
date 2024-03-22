@@ -24,7 +24,7 @@ trait TraitDataEntryReason
      */
     public function getReason(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'reason');
+        return $this->getValueTypesafe('string', 'reason');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryReason
      */
     public function setReason(?string $reason): static
     {
-        return $this->setSourceValue('reason', $reason);
+        return $this->setValue('reason', $reason);
     }
 }

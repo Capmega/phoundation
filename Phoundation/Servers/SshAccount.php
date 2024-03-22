@@ -91,7 +91,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceValueTypesafe('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceValueTypesafe('string', static::getUniqueColumn()) : '-') . '(' . $this->getUsername() . ')';
+        return $this->getValueTypesafe('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getValueTypesafe('string', static::getUniqueColumn()) : '-') . '(' . $this->getUsername() . ')';
     }
 
 
@@ -102,7 +102,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function getSshKey(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'ssh_key');
+        return $this->getValueTypesafe('string', 'ssh_key');
     }
 
 
@@ -114,7 +114,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function setSshKey(?string $ssh_key): static
     {
-        return $this->setSourceValue('ssh_key', $ssh_key);
+        return $this->setValue('ssh_key', $ssh_key);
     }
 
 

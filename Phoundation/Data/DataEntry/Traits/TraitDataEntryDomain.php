@@ -24,7 +24,7 @@ trait TraitDataEntryDomain
      */
     public function getDomain(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'domain');
+        return $this->getValueTypesafe('string', 'domain');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryDomain
      */
     public function setDomain(?string $domain): static
     {
-        return $this->setSourceValue('domain', $domain);
+        return $this->setValue('domain', $domain);
     }
 }

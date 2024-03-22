@@ -276,7 +276,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
 
         } else {
             if ($key === null) {
-                $key = Strings::randomSafe();
+                $key = Strings::getRandom();
             }
 
             $this->data[$key] = $data;

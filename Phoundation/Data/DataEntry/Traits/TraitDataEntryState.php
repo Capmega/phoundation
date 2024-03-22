@@ -26,7 +26,7 @@ trait TraitDataEntryState
      */
     public function getStatesId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'states_id');
+        return $this->getValueTypesafe('int', 'states_id');
     }
 
 
@@ -38,7 +38,7 @@ trait TraitDataEntryState
      */
     public function setStatesId(?int $states_id): static
     {
-        return $this->setSourceValue('states_id', $states_id);
+        return $this->setValue('states_id', $states_id);
     }
 
 
@@ -49,7 +49,7 @@ trait TraitDataEntryState
      */
     public function getState(): ?State
     {
-        $states_id = $this->getSourceValueTypesafe('int', 'states_id');
+        $states_id = $this->getValueTypesafe('int', 'states_id');
 
         if ($states_id) {
             return new State($states_id);
@@ -66,7 +66,7 @@ trait TraitDataEntryState
      */
     public function getStatesName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'states_name');
+        return $this->getValueTypesafe('string', 'states_name');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryState
      */
     public function setStatesName(?string $states_name): static
     {
-        return $this->setSourceValue('states_name', $states_name);
+        return $this->setValue('states_name', $states_name);
     }
 }

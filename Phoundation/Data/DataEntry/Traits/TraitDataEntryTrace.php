@@ -26,7 +26,7 @@ trait TraitDataEntryTrace
      */
     public function getTrace(): ?array
     {
-        return Json::decode($this->getSourceValueTypesafe('array', 'trace'));
+        return Json::decode($this->getValueTypesafe('array', 'trace'));
     }
 
 
@@ -42,6 +42,6 @@ trait TraitDataEntryTrace
             $trace = Json::encode($trace);
         }
 
-        return $this->setSourceValue('trace', $trace);
+        return $this->setValue('trace', $trace);
     }
 }

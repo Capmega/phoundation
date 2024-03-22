@@ -24,6 +24,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 
@@ -178,17 +179,8 @@ class SqlDataEntry implements SqlDataEntryInterface
         $retry = 0;
 
         while ($retry++ < $this->max_id_retries) {
-            if ($this->random_id) {
-                try {
-                    // Create a random table ID
-                    $random_id = random_int(1, PHP_INT_MAX);
-
-                } catch (Exception $e) {
-                    throw SqlException::new(tr('Failed to create random table ID'), $e);
-                }
-            } else {
-                $random_id = null;
-            }
+            // Init the random table ID
+            $random_id = ($this->random_id ? Numbers::getRandomInt() : null);
 
             try {
                 if ($this->insert_update) {
@@ -245,10 +237,12 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      * @return array
-     * @throws Exception
      */
     protected function initializeInsertRow(array $row, ?string $comments, ?string $diff): array
     {
+        // Filter out non modified rows
+        $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
+
         // Set meta fields
         if ($this->data_entry->isMetaColumn('meta_id')) {
             $row['meta_id'] = ($this->meta_enabled ? Meta::init($comments, $diff)->getId() : null);
@@ -262,6 +256,7 @@ class SqlDataEntry implements SqlDataEntryInterface
             $row['meta_state'] = Strings::getRandom(16);
         }
 
+        // Created_on is always automatically set
         unset($row['created_on']);
         return $row;
     }
@@ -275,10 +270,12 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $diff
      * @param string $meta_action
      * @return array
-     * @throws Exception
      */
     protected function initializeUpdateRow(array $row, ?string $comments, ?string $diff, string $meta_action): array
     {
+        // Filter out non modified rows
+        $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
+
         // Log meta_id action
         if ($this->data_entry->isMetaColumn('meta_id')) {
             if ($this->meta_enabled) {
@@ -357,13 +354,12 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $diff
      * @param string $meta_action
      * @return int|null
-     * @throws Exception
      */
     public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
     {
         Core::checkReadonly('sql data-entry-insert-update');
 
-        // Set meta fields for insert
+        // Filter row and set meta fields for insert
         $insert_row = static::initializeInsertRow($insert_row, $comments, $diff);
         $update_row = static::initializeUpdateRow($update_row, $comments, $diff, $meta_action);
 
@@ -376,20 +372,6 @@ class SqlDataEntry implements SqlDataEntryInterface
         $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), $this->id_column);
         $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), false, [$this->id_column]);
         $execute       = array_merge($insert_values, $update_values);
-
-//        show($this->table);
-//        show($insert_row);
-//        show($update_row);
-//        show($insert_columns);
-//        show($keys);
-//        show($updates);
-//        show($execute);
-//        show('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
-//                                 VALUES                                        (' . $keys           . ')
-//                                 ON DUPLICATE KEY UPDATE ' . $updates);
-//        showdie(SqlQueries::buildQueryString('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
-//                                 VALUES                                        (' . $keys           . ')
-//                                 ON DUPLICATE KEY UPDATE ' . $updates, $execute));
 
         $this->sql->query('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
                                  VALUES                                        (' . $keys           . ')
@@ -416,14 +398,13 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $diff
      * @param string $meta_action
      * @return int|null
-     * @throws Exception
      */
     public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
     {
         Core::checkReadonly('sql data-entry-update');
 
-        // Set meta fields for update
-        static::initializeUpdateRow($row, $comments, $diff, $meta_action);
+        // Filter row and set meta fields for update
+        $row    = static::initializeUpdateRow($row, $comments, $diff, $meta_action);
 
         // Build bound variables for the query
         $update = SqlQueries::getUpdateKeyValues($row, id_column: $this->id_column);

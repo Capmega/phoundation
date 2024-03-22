@@ -24,7 +24,7 @@ trait TraitDataEntryDevice
      */
     public function getDevice(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'device');
+        return $this->getValueTypesafe('string', 'device');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryDevice
      */
     public function setDevice(?string $device): static
     {
-        return $this->setSourceValue('device', $device);
+        return $this->setValue('device', $device);
     }
 }

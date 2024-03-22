@@ -32,7 +32,7 @@ trait TraitDataEntryTask
      */
     public function getTasksId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'tasks_id');
+        return $this->getValueTypesafe('int', 'tasks_id');
 
     }
 
@@ -46,7 +46,7 @@ trait TraitDataEntryTask
     public function setTasksId(?int $tasks_id): static
     {
         unset($this->task);
-        return $this->setSourceValue('tasks_id', $tasks_id);
+        return $this->setValue('tasks_id', $tasks_id);
     }
 
 
@@ -75,7 +75,7 @@ trait TraitDataEntryTask
     {
         if ($task) {
             $this->task = $task;
-            return $this->setSourceValue('tasks_id', $task->getId());
+            return $this->setValue('tasks_id', $task->getId());
         }
 
         return $this->setTasksId(null);

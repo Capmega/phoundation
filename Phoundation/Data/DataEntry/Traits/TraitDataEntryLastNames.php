@@ -24,7 +24,7 @@ trait TraitDataEntryLastNames
      */
     public function getLastNames(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'last_names');
+        return $this->getValueTypesafe('string', 'last_names');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryLastNames
      */
     public function setLastNames(?string $last_names): static
     {
-        return $this->setSourceValue('last_names', $last_names);
+        return $this->setValue('last_names', $last_names);
     }
 }

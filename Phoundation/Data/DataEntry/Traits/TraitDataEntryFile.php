@@ -26,7 +26,7 @@ trait TraitDataEntryFile
      */
     public function getFile(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'file');
+        return $this->getValueTypesafe('string', 'file');
     }
 
 
@@ -44,6 +44,6 @@ trait TraitDataEntryFile
             ]));
         }
 
-        return $this->setSourceValue('file', $file);
+        return $this->setValue('file', $file);
     }
 }

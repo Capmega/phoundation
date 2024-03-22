@@ -171,7 +171,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     public function getSeverity(): string
     {
-        return $this->getSourceValueTypesafe('string', 'severity', Severity::unknown->value);
+        return $this->getValueTypesafe('string', 'severity', Severity::unknown->value);
     }
 
 
@@ -187,7 +187,7 @@ class Incident extends DataEntry implements IncidentInterface
             $severity = Severity::from($severity);
         }
 
-        return $this->setSourceValue('severity', $severity->value);
+        return $this->setValue('severity', $severity->value);
     }
 
 

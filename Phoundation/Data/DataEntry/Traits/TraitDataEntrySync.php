@@ -24,7 +24,7 @@ trait TraitDataEntrySync
      */
     public function getSync(): ?bool
     {
-        return $this->getSourceValueTypesafe('bool', 'sync');
+        return $this->getValueTypesafe('bool', 'sync');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntrySync
      */
     public function setSync(int|bool|null $sync): static
     {
-        return $this->setSourceValue('sync', (bool) $sync);
+        return $this->setValue('sync', (bool) $sync);
     }
 }

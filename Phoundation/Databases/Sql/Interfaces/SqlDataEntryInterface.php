@@ -153,7 +153,6 @@ interface SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      * @return int|null
-     * @throws Exception
      */
     public function insert(array $row, ?string $comments = null, ?string $diff = null): ?int;
 
@@ -170,7 +169,6 @@ interface SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      * @return int|null
-     * @throws Exception
      */
     public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null): ?int;
 
@@ -185,7 +183,6 @@ interface SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      * @return int|null
-     * @throws Exception
      */
     public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int;
 

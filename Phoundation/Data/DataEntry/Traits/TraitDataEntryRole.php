@@ -32,7 +32,7 @@ trait TraitDataEntryRole
      */
     public function getRolesId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'roles_id');
+        return $this->getValueTypesafe('int', 'roles_id');
 
     }
 
@@ -46,7 +46,7 @@ trait TraitDataEntryRole
     public function setRolesId(?int $roles_id): static
     {
         unset($this->role);
-        return $this->setSourceValue('roles_id', $roles_id);
+        return $this->setValue('roles_id', $roles_id);
     }
 
 
@@ -75,7 +75,7 @@ trait TraitDataEntryRole
     {
         if ($role) {
             $this->role = $role;
-            return $this->setSourceValue('roles_id', $role->getId());
+            return $this->setValue('roles_id', $role->getId());
         }
 
         return $this->setRolesId(null);

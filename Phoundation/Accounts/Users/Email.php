@@ -98,7 +98,7 @@ class Email extends DataEntry implements EmailInterface
             ]));
         }
 
-        return $this->setSourceValue('users_id', $users_id);
+        return $this->setValue('users_id', $users_id);
     }
 
 
@@ -119,7 +119,7 @@ class Email extends DataEntry implements EmailInterface
             ]));
         }
 
-        return $this->setSourceValue('users_email', $users_email);
+        return $this->setValue('users_email', $users_email);
     }
 
 

@@ -24,7 +24,7 @@ trait TraitDataEntryPath
      */
     public function getPath(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'path');
+        return $this->getValueTypesafe('string', 'path');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryPath
      */
     public function setPath(?string $path): static
     {
-        return $this->setSourceValue('path', $path);
+        return $this->setValue('path', $path);
     }
 }

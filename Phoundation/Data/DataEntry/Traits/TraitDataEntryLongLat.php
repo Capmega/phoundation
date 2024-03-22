@@ -24,7 +24,7 @@ trait TraitDataEntryLongLat
      */
     public function getLongitude(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'longitude');
+        return $this->getValueTypesafe('float', 'longitude');
     }
 
 
@@ -36,7 +36,7 @@ trait TraitDataEntryLongLat
      */
     public function setLongitude(float|null $longitude): static
     {
-        return $this->setSourceValue('longitude', $longitude);
+        return $this->setValue('longitude', $longitude);
     }
 
 
@@ -48,7 +48,7 @@ trait TraitDataEntryLongLat
      */
     public function getLatitude(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'latitude');
+        return $this->getValueTypesafe('float', 'latitude');
     }
 
 
@@ -60,6 +60,6 @@ trait TraitDataEntryLongLat
      */
     public function setLatitude(float|null $latitude): static
     {
-        return $this->setSourceValue('latitude', $latitude);
+        return $this->setValue('latitude', $latitude);
     }
 }

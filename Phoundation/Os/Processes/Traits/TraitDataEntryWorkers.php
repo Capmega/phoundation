@@ -24,7 +24,7 @@ trait TraitDataEntryWorkers
      */
     public function getMinimumWorkers(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'maximum_workers');
+        return $this->getValueTypesafe('int', 'maximum_workers');
     }
 
 
@@ -36,7 +36,7 @@ trait TraitDataEntryWorkers
      */
     public function setMinimumWorkers(?int $workers): static
     {
-        return $this->setSourceValue('maximum_workers', $workers);
+        return $this->setValue('maximum_workers', $workers);
     }
 
 
@@ -47,7 +47,7 @@ trait TraitDataEntryWorkers
      */
     public function getMaximumWorkers(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'maximum_workers');
+        return $this->getValueTypesafe('int', 'maximum_workers');
     }
 
 
@@ -59,6 +59,6 @@ trait TraitDataEntryWorkers
      */
     public function setMaximumWorkers(?int $workers): static
     {
-        return $this->setSourceValue('maximum_workers', $workers);
+        return $this->setValue('maximum_workers', $workers);
     }
 }

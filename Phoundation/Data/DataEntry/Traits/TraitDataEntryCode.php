@@ -24,7 +24,7 @@ trait TraitDataEntryCode
      */
     public function getCode(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'code');
+        return $this->getValueTypesafe('string', 'code');
     }
 
 
@@ -39,6 +39,6 @@ trait TraitDataEntryCode
      */
     public function setCode(?string $code): static
     {
-        return $this->setSourceValue('code', $code);
+        return $this->setValue('code', $code);
     }
 }

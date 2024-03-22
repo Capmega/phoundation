@@ -80,7 +80,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getParentsId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'parents_id');
+        return $this->getValueTypesafe('int', 'parents_id');
     }
 
 
@@ -92,7 +92,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setParentsId(?int $parents_id): static
     {
-        return $this->setSourceValue('parents_id', $parents_id);
+        return $this->setValue('parents_id', $parents_id);
     }
 
 
@@ -140,7 +140,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecuteAfter(): ?DateTimeInterface
     {
-        return $this->getSourceValueTypesafe('int', 'execute_after');
+        return $this->getValueTypesafe('int', 'execute_after');
     }
 
 
@@ -152,7 +152,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setExecuteAfter(DateTimeInterface|string|null $execute_after): static
     {
-        return $this->setSourceValue('execute_after', $execute_after ? new DateTime($execute_after, 'system') : null);
+        return $this->setValue('execute_after', $execute_after ? new DateTime($execute_after, 'system') : null);
     }
 
 
@@ -183,7 +183,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStart(): ?DateTimeInterface
     {
-        return $this->getSourceValueTypesafe('datetime', 'start');
+        return $this->getValueTypesafe('datetime', 'start');
     }
 
 
@@ -195,7 +195,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setStart(DateTimeInterface|string|null $start): static
     {
-        return $this->setSourceValue('start', $start ? new DateTime($start, 'system') : null);
+        return $this->setValue('start', $start ? new DateTime($start, 'system') : null);
     }
 
 
@@ -206,7 +206,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStop(): ?DateTimeInterface
     {
-        return $this->getSourceValueTypesafe('datetime', 'stop');
+        return $this->getValueTypesafe('datetime', 'stop');
     }
 
 
@@ -218,7 +218,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setStop(DateTimeInterface|string|null $stop): static
     {
-        return $this->setSourceValue('stop', $stop ? new DateTime($stop, 'system') : null);
+        return $this->setValue('stop', $stop ? new DateTime($stop, 'system') : null);
     }
 
 
@@ -229,7 +229,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getSendToId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'send_to_id');
+        return $this->getValueTypesafe('int', 'send_to_id');
     }
 
 
@@ -241,7 +241,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setSendToId(int|null $send_to_id): static
     {
-        return $this->setSourceValue('send_to_id', get_null($send_to_id));
+        return $this->setValue('send_to_id', get_null($send_to_id));
     }
 
 
@@ -252,7 +252,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPid(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'pid');
+        return $this->getValueTypesafe('int', 'pid');
     }
 
 
@@ -264,7 +264,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setPid(int|null $pid): static
     {
-        return $this->setSourceValue('pid', get_null($pid));
+        return $this->setValue('pid', get_null($pid));
     }
 
 
@@ -275,7 +275,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExitCode(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'exit_code');
+        return $this->getValueTypesafe('int', 'exit_code');
     }
 
 
@@ -287,7 +287,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setExitCode(int|null $exit_code): static
     {
-        return $this->setSourceValue('exit_code', get_null($exit_code));
+        return $this->setValue('exit_code', get_null($exit_code));
     }
 
 
@@ -298,7 +298,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getNocache(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'nocache');
+        return $this->getValueTypesafe('int', 'nocache');
     }
 
 
@@ -310,7 +310,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setNocache(int|null $nocache): static
     {
-        return $this->setSourceValue('nocache', get_null($nocache));
+        return $this->setValue('nocache', get_null($nocache));
     }
 
 
@@ -321,7 +321,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getIonice(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'ionice');
+        return $this->getValueTypesafe('int', 'ionice');
     }
 
 
@@ -333,7 +333,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setIonice(int|null $ionice): static
     {
-        return $this->setSourceValue('ionice', get_null($ionice));
+        return $this->setValue('ionice', get_null($ionice));
     }
 
 
@@ -344,7 +344,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getIoniceLevel(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'ionice_level');
+        return $this->getValueTypesafe('int', 'ionice_level');
     }
 
 
@@ -356,7 +356,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setIoniceLevel(int|null $ionice_level): static
     {
-        return $this->setSourceValue('ionice_level', get_null($ionice_level));
+        return $this->setValue('ionice_level', get_null($ionice_level));
     }
 
 
@@ -367,7 +367,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getNice(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'nice');
+        return $this->getValueTypesafe('int', 'nice');
     }
 
 
@@ -379,7 +379,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setNice(int|null $nice): static
     {
-        return $this->setSourceValue('nice', get_null($nice));
+        return $this->setValue('nice', get_null($nice));
     }
 
 
@@ -390,7 +390,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getTimeout(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'timeout');
+        return $this->getValueTypesafe('int', 'timeout');
     }
 
 
@@ -402,7 +402,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setTimeout(int|null $timeout): static
     {
-        return $this->setSourceValue('timeout', get_null($timeout));
+        return $this->setValue('timeout', get_null($timeout));
     }
 
 
@@ -413,7 +413,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getWait(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'wait');
+        return $this->getValueTypesafe('int', 'wait');
     }
 
 
@@ -425,7 +425,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setWait(int|null $wait): static
     {
-        return $this->setSourceValue('wait', get_null($wait));
+        return $this->setValue('wait', get_null($wait));
     }
 
 
@@ -436,7 +436,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getBackground(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'background');
+        return $this->getValueTypesafe('bool', 'background');
     }
 
 
@@ -448,7 +448,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setBackground(int|bool|null $background): static
     {
-        return $this->setSourceValue('background', (bool) $background);
+        return $this->setValue('background', (bool) $background);
     }
 
 
@@ -459,7 +459,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getClearLogs(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'clear_logs');
+        return $this->getValueTypesafe('bool', 'clear_logs');
     }
 
 
@@ -471,7 +471,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setClearLogs(int|bool|null $clear_logs): static
     {
-        return $this->setSourceValue('clear_logs', (bool) $clear_logs);
+        return $this->setValue('clear_logs', (bool) $clear_logs);
     }
 
 
@@ -482,7 +482,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getEscapeQuotes(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'escape_quotes');
+        return $this->getValueTypesafe('bool', 'escape_quotes');
     }
 
 
@@ -494,7 +494,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setEscapeQuotes(int|bool|null $escape_quotes): static
     {
-        return $this->setSourceValue('escape_quotes', (bool) $escape_quotes);
+        return $this->setValue('escape_quotes', (bool) $escape_quotes);
     }
 
 
@@ -505,7 +505,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getLogFile(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'log_file');
+        return $this->getValueTypesafe('string', 'log_file');
     }
 
 
@@ -517,7 +517,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setLogFile(?string $log_file): static
     {
-        return $this->setSourceValue('log_file', $log_file);
+        return $this->setValue('log_file', $log_file);
     }
 
 
@@ -528,7 +528,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPidFile(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'pid_file');
+        return $this->getValueTypesafe('string', 'pid_file');
     }
 
 
@@ -540,7 +540,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setPidFile(?string $pid_file): static
     {
-        return $this->setSourceValue('pid_file', $pid_file);
+        return $this->setValue('pid_file', $pid_file);
     }
 
 
@@ -551,7 +551,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getSudo(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'sudo');
+        return $this->getValueTypesafe('string', 'sudo');
     }
 
 
@@ -563,7 +563,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setSudo(?string $sudo): static
     {
-        return $this->setSourceValue('sudo', $sudo);
+        return $this->setValue('sudo', $sudo);
     }
 
 
@@ -574,7 +574,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getTerm(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'term');
+        return $this->getValueTypesafe('string', 'term');
     }
 
 
@@ -586,7 +586,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setTerm(?string $term): static
     {
-        return $this->setSourceValue('term', $term);
+        return $this->setValue('term', $term);
     }
 
 
@@ -597,7 +597,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPipe(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'pipe');
+        return $this->getValueTypesafe('string', 'pipe');
     }
 
 
@@ -609,7 +609,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setPipe(?string $pipe): static
     {
-        return $this->setSourceValue('pipe', $pipe);
+        return $this->setValue('pipe', $pipe);
     }
 
 
@@ -620,7 +620,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getInputRedirect(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'input_redirect');
+        return $this->getValueTypesafe('string', 'input_redirect');
     }
 
 
@@ -632,7 +632,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setInputRedirect(?string $input_redirect): static
     {
-        return $this->setSourceValue('input_redirect', $input_redirect);
+        return $this->setValue('input_redirect', $input_redirect);
     }
 
 
@@ -643,7 +643,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getOutputRedirect(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'output_redirect');
+        return $this->getValueTypesafe('string', 'output_redirect');
     }
 
 
@@ -655,7 +655,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setOutputRedirect(?string $output_redirect): static
     {
-        return $this->setSourceValue('output_redirect', $output_redirect);
+        return $this->setValue('output_redirect', $output_redirect);
     }
 
 
@@ -666,7 +666,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getRestrictions(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'restrictions');
+        return $this->getValueTypesafe('string', 'restrictions');
     }
 
 
@@ -678,7 +678,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setRestrictions(?string $restrictions): static
     {
-        return $this->setSourceValue('restrictions', $restrictions);
+        return $this->setValue('restrictions', $restrictions);
     }
 
 
@@ -689,7 +689,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPackages(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'packages');
+        return $this->getValueTypesafe('string', 'packages');
     }
 
 
@@ -701,7 +701,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setPackages(?string $packages): static
     {
-        return $this->setSourceValue('packages', $packages);
+        return $this->setValue('packages', $packages);
     }
 
 
@@ -712,7 +712,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPreExec(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'pre_exec');
+        return $this->getValueTypesafe('string', 'pre_exec');
     }
 
 
@@ -724,7 +724,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setPreExec(?string $pre_exec): static
     {
-        return $this->setSourceValue('pre_exec', $pre_exec);
+        return $this->setValue('pre_exec', $pre_exec);
     }
 
 
@@ -735,7 +735,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getPostExec(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'post_exec');
+        return $this->getValueTypesafe('string', 'post_exec');
     }
 
 
@@ -747,7 +747,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setPostExec(?string $post_exec): static
     {
-        return $this->setSourceValue('post_exec', $post_exec);
+        return $this->setValue('post_exec', $post_exec);
     }
 
 
@@ -758,7 +758,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getComments(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'comments');
+        return $this->getValueTypesafe('string', 'comments');
     }
 
 
@@ -770,7 +770,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setComments(?string $comments): static
     {
-        return $this->setSourceValue('comments', $comments);
+        return $this->setValue('comments', $comments);
     }
 
 
@@ -781,7 +781,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getResults(): string
     {
-        return $this->getSourceValueTypesafe('string', 'results');
+        return $this->getValueTypesafe('string', 'results');
     }
 
 
@@ -793,7 +793,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setResults(?string $results): static
     {
-        return $this->setSourceValue('results', $results);
+        return $this->setValue('results', $results);
     }
 
 
@@ -804,7 +804,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecutionDirectory(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'execution_directory');
+        return $this->getValueTypesafe('string', 'execution_directory');
     }
 
 
@@ -816,7 +816,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setExecutionDirectory(?string $execution_directory): static
     {
-        return $this->setSourceValue('execution_directory', $execution_directory);
+        return $this->setValue('execution_directory', $execution_directory);
     }
 
 
@@ -827,7 +827,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getCommand(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'command');
+        return $this->getValueTypesafe('string', 'command');
     }
 
 
@@ -839,7 +839,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setCommand(?string $command): static
     {
-        return $this->setSourceValue('command', $command);
+        return $this->setValue('command', $command);
     }
 
 
@@ -850,7 +850,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getExecutedCommand(): string
     {
-        return $this->getSourceValueTypesafe('string', 'executed_command');
+        return $this->getValueTypesafe('string', 'executed_command');
     }
 
 
@@ -862,7 +862,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setExecutedCommand(?string $executed_command): static
     {
-        return $this->setSourceValue('executed_command', $executed_command);
+        return $this->setValue('executed_command', $executed_command);
     }
 
 
@@ -873,7 +873,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getArguments(): ?array
     {
-        return $this->getSourceValueTypesafe('array', 'arguments');
+        return $this->getValueTypesafe('array', 'arguments');
     }
 
 
@@ -885,7 +885,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setArguments(?array $arguments): static
     {
-        return $this->setSourceValue('arguments', $arguments);
+        return $this->setValue('arguments', $arguments);
     }
 
 
@@ -896,7 +896,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getVariables(): ?array
     {
-        return $this->getSourceValueTypesafe('array', 'variables');
+        return $this->getValueTypesafe('array', 'variables');
     }
 
 
@@ -919,7 +919,7 @@ class Task extends DataEntry implements TaskInterface
             }
         }
 
-        return $this->setSourceValue('variables', $variables);
+        return $this->setValue('variables', $variables);
     }
 
 
@@ -930,7 +930,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getEnvironmentVariables(): ?array
     {
-        return $this->getSourceValueTypesafe('array', 'environment_variables');
+        return $this->getValueTypesafe('array', 'environment_variables');
     }
 
 
@@ -942,7 +942,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setEnvironmentVariables(array|null $environment_variables): static
     {
-        return $this->setSourceValue('environment_variables', $environment_variables);
+        return $this->setValue('environment_variables', $environment_variables);
     }
 
 
@@ -953,7 +953,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getAcceptedExitCodes(): ?array
     {
-        return $this->getSourceValueTypesafe('array', 'accepted_exit_codes');
+        return $this->getValueTypesafe('array', 'accepted_exit_codes');
     }
 
 
@@ -965,7 +965,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setAcceptedExitCodes(array|null $accepted_exit_codes): static
     {
-        return $this->setSourceValue('accepted_exit_codes', $accepted_exit_codes);
+        return $this->setValue('accepted_exit_codes', $accepted_exit_codes);
     }
 
 
@@ -1009,7 +1009,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getCode(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'code');
+        return $this->getValueTypesafe('string', 'code');
     }
 
 
@@ -1033,7 +1033,7 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function setCode(?string $code): static
     {
-        return $this->setSourceValue('code', $code);
+        return $this->setValue('code', $code);
     }
 
 

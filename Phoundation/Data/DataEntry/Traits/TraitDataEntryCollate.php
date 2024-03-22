@@ -24,7 +24,7 @@ trait TraitDataEntryCollate
      */
     public function getCollate(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'collate');
+        return $this->getValueTypesafe('string', 'collate');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryCollate
      */
     public function setCollate(?string $collate): static
     {
-        return $this->setSourceValue('collate', $collate);
+        return $this->setValue('collate', $collate);
     }
 }

@@ -26,7 +26,7 @@ trait TraitDataEntryRedirect
      */
     public function getRedirect(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'redirect');
+        return $this->getValueTypesafe('string', 'redirect');
     }
 
 
@@ -38,6 +38,6 @@ trait TraitDataEntryRedirect
      */
     public function setRedirect(Stringable|string|null $redirect): static
     {
-        return $this->setSourceValue('redirect', (string) $redirect);
+        return $this->setValue('redirect', (string) $redirect);
     }
 }

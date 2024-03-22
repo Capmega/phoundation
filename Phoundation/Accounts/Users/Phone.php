@@ -115,7 +115,7 @@ class Phone extends DataEntry implements PhoneInterface
             ]));
         }
 
-        return $this->setSourceValue('users_id', $users_id);
+        return $this->setValue('users_id', $users_id);
     }
 
 
@@ -136,7 +136,7 @@ class Phone extends DataEntry implements PhoneInterface
             ]));
         }
 
-        return $this->setSourceValue('users_email', $users_email);
+        return $this->setValue('users_email', $users_email);
     }
 
 

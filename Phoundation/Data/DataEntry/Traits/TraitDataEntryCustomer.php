@@ -26,7 +26,7 @@ trait TraitDataEntryCustomer
      */
     public function getCustomersId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'customers_id');
+        return $this->getValueTypesafe('int', 'customers_id');
     }
 
 
@@ -38,7 +38,7 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersId(?int $customers_id): static
     {
-        return $this->setSourceValue('customers_id', $customers_id);
+        return $this->setValue('customers_id', $customers_id);
     }
 
 
@@ -49,7 +49,7 @@ trait TraitDataEntryCustomer
      */
     public function getCustomer(): ?Customer
     {
-        $customers_id = $this->getSourceValueTypesafe('int', 'customers_id');
+        $customers_id = $this->getValueTypesafe('int', 'customers_id');
 
         if ($customers_id) {
             return new Customer($customers_id);
@@ -66,7 +66,7 @@ trait TraitDataEntryCustomer
      */
     public function getCustomersName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'customers_name');
+        return $this->getValueTypesafe('string', 'customers_name');
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersName(?string $customer_name): static
     {
-        return $this->setSourceValue('customers_name', $customer_name);
+        return $this->setValue('customers_name', $customer_name);
     }
 }

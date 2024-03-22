@@ -26,7 +26,7 @@ trait TraitDataEntryProduct
      */
     public function getProduct(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'product');
+        return $this->getValueTypesafe('string', 'product');
     }
 
 
@@ -38,6 +38,6 @@ trait TraitDataEntryProduct
      */
     public function setProduct(Stringable|string|null $product): static
     {
-        return $this->setSourceValue('product', (string) $product);
+        return $this->setValue('product', (string) $product);
     }
 }

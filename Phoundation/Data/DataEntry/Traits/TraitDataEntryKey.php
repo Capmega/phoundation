@@ -24,7 +24,7 @@ trait TraitDataEntryKey
      */
     public function getKey(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'key');
+        return $this->getValueTypesafe('string', 'key');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryKey
      */
     public function setKey(?string $key): static
     {
-        return $this->setSourceValue('key', $key);
+        return $this->setValue('key', $key);
     }
 }

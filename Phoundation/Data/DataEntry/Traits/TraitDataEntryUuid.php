@@ -27,7 +27,7 @@ trait TraitDataEntryUuid
      */
     public function getUuid(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'uuid');
+        return $this->getValueTypesafe('string', 'uuid');
     }
 
 
@@ -39,7 +39,7 @@ trait TraitDataEntryUuid
      */
     public function setUuid(Stringable|string|null $uuid): static
     {
-        return $this->setSourceValue('uuid', (string) $uuid);
+        return $this->setValue('uuid', (string) $uuid);
     }
 
 
@@ -51,6 +51,6 @@ trait TraitDataEntryUuid
      */
     public function generateUuid(Stringable|string|null $data = null): static
     {
-        return $this->setSourceValue('uuid', Strings::getUuid($data));
+        return $this->setValue('uuid', Strings::getUuid($data));
     }
 }

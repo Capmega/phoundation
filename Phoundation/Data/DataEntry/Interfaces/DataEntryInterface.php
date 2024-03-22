@@ -343,7 +343,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *       will not become available outside this object
      * @return array
      */
-    public function getSourceValue(string $key): mixed;
+    public function getValue(string $key): mixed;
 
     /**
      * Sets the value for the specified data key
@@ -584,4 +584,11 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @return static
      */
     public function setMaxIdRetries(int $max_id_retries): static;
+
+    /**
+     * Returns an array with the columns that have changed
+     *
+     * @return array
+     */
+    public function getChanges(): array;
 }

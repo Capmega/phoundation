@@ -26,7 +26,7 @@ trait TraitDataEntryLine
      */
     public function getLine(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'line');
+        return $this->getValueTypesafe('int', 'line');
     }
 
 
@@ -44,6 +44,6 @@ trait TraitDataEntryLine
             ]));
         }
 
-        return $this->setSourceValue('line', get_null($line));
+        return $this->setValue('line', get_null($line));
     }
 }

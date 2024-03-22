@@ -24,7 +24,7 @@ trait TraitDataEntryCookies
      */
     public function getCookies(): ?array
     {
-        return $this->getSourceValueTypesafe('array', 'cookies');
+        return $this->getValueTypesafe('array', 'cookies');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryCookies
      */
     public function setCookies(?array $cookies): static
     {
-        return $this->setSourceValue('cookies', $cookies);
+        return $this->setValue('cookies', $cookies);
     }
 }

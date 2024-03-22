@@ -26,7 +26,7 @@ trait TraitDataEntryCity
      */
     public function getCitiesId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'cities_id');
+        return $this->getValueTypesafe('int', 'cities_id');
     }
 
 
@@ -38,7 +38,7 @@ trait TraitDataEntryCity
      */
     public function setCitiesId(?int $cities_id): static
     {
-        return $this->setSourceValue('cities_id', $cities_id);
+        return $this->setValue('cities_id', $cities_id);
     }
 
 
@@ -49,7 +49,7 @@ trait TraitDataEntryCity
      */
     public function getCity(): ?City
     {
-        $cities_id = $this->getSourceValueTypesafe('int', 'cities_id');
+        $cities_id = $this->getValueTypesafe('int', 'cities_id');
 
         if ($cities_id) {
             return new City($cities_id);
@@ -66,7 +66,7 @@ trait TraitDataEntryCity
      */
     public function getCitiesName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
+        return $this->getValueTypesafe('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
     }
 
 
@@ -78,6 +78,6 @@ trait TraitDataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setSourceValue('cities_name', $cities_name);
+        return $this->setValue('cities_name', $cities_name);
     }
 }

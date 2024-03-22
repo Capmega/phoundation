@@ -29,13 +29,13 @@ trait TraitDataEntryData
     public function getData(): array|string|null
     {
         try {
-            return Json::decode($this->getSourceValueTypesafe('string', 'data'));
+            return Json::decode($this->getValueTypesafe('string', 'data'));
 
         } catch (JsonException $e) {
             Log::warning(tr('Failed to decode data because of following exception'));
             Log::warning(tr('NOTE: This is due to DataEntry::setData() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
             Log::error($e);
-            return $this->getSourceValueTypesafe('string', 'data');
+            return $this->getValueTypesafe('string', 'data');
         }
     }
 
@@ -52,6 +52,6 @@ trait TraitDataEntryData
             $data = Json::encode($data);
         }
 
-        return $this->setSourceValue('data', $data);
+        return $this->setValue('data', $data);
     }
 }

@@ -213,6 +213,12 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected bool $meta_enabled = true;
 
+    /**
+     * Tracks what columns have been changed
+     *
+     * @var array $changes
+     */
+    protected array $changes = [];
 
     /**
      * Return the object contents in JSON string format
@@ -1068,7 +1074,7 @@ abstract class DataEntry implements DataEntryInterface
             $postfix = ' ' . tr('[DELETED]');
         }
 
-        return $this->getSourceValueTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
+        return $this->getValueTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
     }
 
 
@@ -1259,7 +1265,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getId(): int|null
     {
-        return $this->getSourceValueTypesafe('int', $this->getIdColumn());
+        return $this->getValueTypesafe('int', $this->getIdColumn());
     }
 
 
@@ -1270,7 +1276,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getUniqueColumnValue(): string|float|int|null
     {
-        return $this->getSourceValueTypesafe('string|float|int|null', static::getUniqueColumn());
+        return $this->getValueTypesafe('string|float|int|null', static::getUniqueColumn());
     }
 
 
@@ -1281,7 +1287,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getSourceValueTypesafe('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getSourceValueTypesafe('string', static::getUniqueColumn()) : '-');
+        return $this->getValueTypesafe('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getValueTypesafe('string', static::getUniqueColumn()) : '-');
     }
 
 
@@ -1292,7 +1298,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getStatus(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'status');
+        return $this->getValueTypesafe('string', 'status');
     }
 
 
@@ -1304,7 +1310,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function hasStatus(string $status): bool
     {
-        return $status === $this->getSourceValueTypesafe('string', 'status');
+        return $status === $this->getValueTypesafe('string', 'status');
     }
 
 
@@ -1316,7 +1322,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function isStatus(?string $status): bool
     {
-        return $this->getSourceValueTypesafe('string', 'status') === $status;
+        return $this->getValueTypesafe('string', 'status') === $status;
     }
 
 
@@ -1397,7 +1403,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaState(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'meta_state');
+        return $this->getValueTypesafe('string', 'meta_state');
     }
 
 
@@ -1409,7 +1415,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     protected function setMetaState(?string $state): static
     {
-        return $this->setSourceValue('meta_state', $state);
+        return $this->setValue('meta_state', $state);
     }
 
 
@@ -1484,7 +1490,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedBy(): ?UserInterface
     {
-        $created_by = $this->getSourceValueTypesafe('int', 'created_by');
+        $created_by = $this->getValueTypesafe('int', 'created_by');
 
         if ($created_by === null) {
             return null;
@@ -1502,7 +1508,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getCreatedOn(): ?DateTime
     {
-        $created_on = $this->getSourceValueTypesafe('string', 'created_on');
+        $created_on = $this->getValueTypesafe('string', 'created_on');
 
         if ($created_on === null) {
             return null;
@@ -1545,7 +1551,7 @@ abstract class DataEntry implements DataEntryInterface
             return null;
         }
 
-        $meta_id = $this->getSourceValueTypesafe('int', 'meta_id');
+        $meta_id = $this->getValueTypesafe('int', 'meta_id');
 
         if ($meta_id === null) {
             throw new DataEntryException(tr('DataEntry ":id" does not have meta_id information', [
@@ -1586,7 +1592,7 @@ abstract class DataEntry implements DataEntryInterface
      */
     public function getMetaId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'meta_id');
+        return $this->getValueTypesafe('int', 'meta_id');
     }
 
 
@@ -1908,7 +1914,7 @@ abstract class DataEntry implements DataEntryInterface
          */
         if (!static::definitionsHaveMethods() or $directly or $this->definitions->get($column)?->getDirectUpdate()) {
             // Store data directly, bypassing the set method for this key
-            $this->setSourceValue($column, $value);
+            $this->setValue($column, $value);
 
         } else {
             // Store this data through the set method to ensure datatype and filtering is done correctly
@@ -2004,6 +2010,17 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns an array with the columns that have changed
+     *
+     * @return array
+     */
+    public function getChanges(): array
+    {
+        return $this->changes;
+    }
+
+
+    /**
      * Returns a list of all internal source keys
      *
      * @return mixed
@@ -2054,7 +2071,7 @@ abstract class DataEntry implements DataEntryInterface
      *       will not become available outside this object
      * @return array
      */
-    public function getSourceValue(string $key): mixed
+    public function getValue(string $key): mixed
     {
         if ($this->definitions->keyExists($key)) {
             return isset_get($this->source[$key]);
@@ -2075,7 +2092,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param mixed|null $default
      * @return mixed
      */
-    protected function getSourceValueTypesafe(string $type, string $column, mixed $default = null): mixed
+    protected function getValueTypesafe(string $type, string $column, mixed $default = null): mixed
     {
         $this->checkProtected($column);
         return isset_get_typed($type, $this->source[$column], $default, false);
@@ -2141,7 +2158,7 @@ abstract class DataEntry implements DataEntryInterface
      * @param bool $force
      * @return static
      */
-    public function setSourceValue(string $column, mixed $value, bool $force = false): static
+    public function setValue(string $column, mixed $value, bool $force = false): static
     {
         if ($this->debug) {
             Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $column . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
@@ -2180,7 +2197,7 @@ abstract class DataEntry implements DataEntryInterface
         // static value.
         $definition = $this->definitions->get($column);
 
-        // If a column is ignored we won't update anything
+        // If a column is ignored, we won't update anything
         if ($definition->getIgnored()) {
             return $this;
         }
@@ -2225,8 +2242,9 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         // Update the column value
+        $this->changes[]       = $column;
         $this->source[$column] = $value;
-        $this->is_validated   = false;
+        $this->is_validated    = false;
 
         return $this;
     }
@@ -2443,7 +2461,6 @@ abstract class DataEntry implements DataEntryInterface
      * Writes the data to the database
      *
      * @return $this
-     * @throws Exception
      */
     protected function write(?string $comments = null): static
     {

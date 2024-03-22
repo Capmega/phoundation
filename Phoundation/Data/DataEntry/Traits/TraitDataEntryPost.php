@@ -24,7 +24,7 @@ trait TraitDataEntryPost
      */
     public function getPost(): ?array
     {
-        return $this->getSourceValueTypesafe('array', 'post');
+        return $this->getValueTypesafe('array', 'post');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryPost
      */
     public function setPost(?array $post): static
     {
-        return $this->setSourceValue('post', $post);
+        return $this->setValue('post', $post);
     }
 }

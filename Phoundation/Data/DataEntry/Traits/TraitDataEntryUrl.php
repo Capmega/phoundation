@@ -26,7 +26,7 @@ trait TraitDataEntryUrl
      */
     public function getUrl(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'url');
+        return $this->getValueTypesafe('string', 'url');
     }
 
 
@@ -38,6 +38,6 @@ trait TraitDataEntryUrl
      */
     public function setUrl(Stringable|string|null $url): static
     {
-        return $this->setSourceValue('url', (string) $url);
+        return $this->setValue('url', (string) $url);
     }
 }

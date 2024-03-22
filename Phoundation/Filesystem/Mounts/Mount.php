@@ -154,7 +154,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getFilesystem(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'filesystem');
+        return $this->getValueTypesafe('string', 'filesystem');
     }
 
 
@@ -166,7 +166,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setFilesystem(?string $filesystem): static
     {
-        return $this->setSourceValue('filesystem', $filesystem);
+        return $this->setValue('filesystem', $filesystem);
     }
 
 
@@ -177,7 +177,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAutoMount(): ?bool
     {
-        return $this->getSourceValueTypesafe('bool', 'auto_mount');
+        return $this->getValueTypesafe('bool', 'auto_mount');
     }
 
 
@@ -189,7 +189,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setAutoMount(int|bool|null $auto_mount): static
     {
-        return $this->setSourceValue('auto_mount', (bool) $auto_mount);
+        return $this->setValue('auto_mount', (bool) $auto_mount);
     }
 
 
@@ -200,7 +200,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getAutoUnmount(): ?bool
     {
-        return $this->getSourceValueTypesafe('bool', 'auto_unmount');
+        return $this->getValueTypesafe('bool', 'auto_unmount');
     }
 
 
@@ -212,7 +212,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setAutoUnmount(int|bool|null $auto_unmount): static
     {
-        return $this->setSourceValue('auto_unmount', (bool) $auto_unmount);
+        return $this->setValue('auto_unmount', (bool) $auto_unmount);
     }
 
 
@@ -223,7 +223,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getSourcePath(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'source_path');
+        return $this->getValueTypesafe('string', 'source_path');
     }
 
 
@@ -246,7 +246,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setSourcePath(?string $source_path): static
     {
-        return $this->setSourceValue('source_path', $source_path);
+        return $this->setValue('source_path', $source_path);
     }
 
 
@@ -257,7 +257,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function getTargetPath(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'target_path');
+        return $this->getValueTypesafe('string', 'target_path');
     }
 
 
@@ -280,7 +280,7 @@ class Mount extends DataEntry implements MountInterface
      */
     public function setTargetPath(?string $target_path): static
     {
-        return $this->setSourceValue('target_path', $target_path);
+        return $this->setValue('target_path', $target_path);
     }
 
 
@@ -382,7 +382,7 @@ class Mount extends DataEntry implements MountInterface
 
         // This path is inside a mount
         if ($this->isMounted()) {
-            if ($this->getCurrentSource() !== $this->getSourceValue('source_path')) {
+            if ($this->getCurrentSource() !== $this->getValue('source_path')) {
                 throw new MountsException(tr('The target path ":target" should be mounted on ":source" but is currently mounted on ":current"', [
                     ':target'  => $this->getTargetPath(),
                     ':source'  => $this->getSourcePath(),

@@ -27,7 +27,7 @@ trait TraitDataEntryDeviceObject
      */
     public function getDevicesId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'devices_id');
+        return $this->getValueTypesafe('int', 'devices_id');
     }
 
 
@@ -39,7 +39,7 @@ trait TraitDataEntryDeviceObject
      */
     public function setDevicesId(?int $devices_id): static
     {
-        return $this->setSourceValue('devices_id', $devices_id);
+        return $this->setValue('devices_id', $devices_id);
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryDeviceObject
      */
     public function getDevice(): ?DeviceInterface
     {
-        $devices_id = $this->getSourceValueTypesafe('int', 'devices_id');
+        $devices_id = $this->getValueTypesafe('int', 'devices_id');
 
         if ($devices_id) {
             return Device::get($devices_id,  'id');
@@ -67,7 +67,7 @@ trait TraitDataEntryDeviceObject
      */
     public function getDevicesName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'devices_name');
+        return $this->getValueTypesafe('string', 'devices_name');
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryDeviceObject
      */
     public function setDevicesName(?string $devices_name): static
     {
-        return $this->setSourceValue('devices_name', $devices_name);
+        return $this->setValue('devices_name', $devices_name);
     }
 }

@@ -24,7 +24,7 @@ trait TraitDataEntryUsername
      */
     public function getUsername(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'username');
+        return $this->getValueTypesafe('string', 'username');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryUsername
      */
     public function setUsername(?string $username): static
     {
-        return $this->setSourceValue('username', $username);
+        return $this->setValue('username', $username);
     }
 }

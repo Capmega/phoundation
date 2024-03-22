@@ -27,7 +27,7 @@ trait TraitDataEntryAccountType
      */
     public function getAccountType(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'account_type');
+        return $this->getValueTypesafe('string', 'account_type');
     }
 
 
@@ -46,6 +46,6 @@ trait TraitDataEntryAccountType
             $account_type = EnumAccountType::from($account_type)->value;
         }
 
-        return $this->setSourceValue('account_type', get_null($account_type));
+        return $this->setValue('account_type', get_null($account_type));
     }
 }

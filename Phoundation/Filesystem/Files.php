@@ -148,7 +148,7 @@ class Files extends Iterator implements FilesInterface
         while (true) {
             switch ($current) {
                 case '.':
-                    // no break
+                    // No break
                 case '..':
                     // Skip the "." and ".." directories
                     $this->next();
@@ -195,7 +195,7 @@ class Files extends Iterator implements FilesInterface
                         return false;
 
                     case '.':
-                        // no break
+                        // No break
                     case '..':
                         // Skip the "." and ".." directories
                         parent::next();

@@ -24,7 +24,7 @@ trait TraitDataEntryVerifiedOn
      */
     public function getVerifiedOn(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'verified_on');
+        return $this->getValueTypesafe('string', 'verified_on');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryVerifiedOn
      */
     public function setVerifiedOn(?string $verified_on): static
     {
-        return $this->setSourceValue('verified_on', $verified_on);
+        return $this->setValue('verified_on', $verified_on);
     }
 }

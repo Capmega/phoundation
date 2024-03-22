@@ -33,7 +33,7 @@ trait TraitDataEntryServer
      */
     public function getServersId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'servers_id');
+        return $this->getValueTypesafe('int', 'servers_id');
 
     }
 
@@ -47,7 +47,7 @@ trait TraitDataEntryServer
     public function setServersId(?int $servers_id): static
     {
         unset($this->server);
-        return $this->setSourceValue('servers_id', $servers_id);
+        return $this->setValue('servers_id', $servers_id);
     }
 
 
@@ -76,7 +76,7 @@ trait TraitDataEntryServer
     {
         if ($server) {
             $this->server = $server;
-            return $this->setSourceValue('servers_id', $server->getId());
+            return $this->setValue('servers_id', $server->getId());
         }
 
         return $this->setServersId(null);

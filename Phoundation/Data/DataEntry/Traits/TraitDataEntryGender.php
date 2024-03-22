@@ -37,7 +37,7 @@ trait TraitDataEntryGender
      */
     public function getGender(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'gender');
+        return $this->getValueTypesafe('string', 'gender');
     }
 
 
@@ -58,6 +58,6 @@ trait TraitDataEntryGender
             ]));
         }
 
-        return $this->setSourceValue('gender', get_null($gender));
+        return $this->setValue('gender', get_null($gender));
     }
 }

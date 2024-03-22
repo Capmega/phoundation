@@ -27,7 +27,7 @@ trait TraitDataEntryUser
      */
     public function getUsersId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'users_id');
+        return $this->getValueTypesafe('int', 'users_id');
     }
 
 
@@ -39,7 +39,7 @@ trait TraitDataEntryUser
      */
     public function setUsersId(?int $users_id): static
     {
-        return $this->setSourceValue('users_id', $users_id);
+        return $this->setValue('users_id', $users_id);
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryUser
      */
     public function getUser(): ?UserInterface
     {
-        $users_id = $this->getSourceValueTypesafe('int', 'users_id');
+        $users_id = $this->getValueTypesafe('int', 'users_id');
 
         if ($users_id) {
             return User::get($users_id,  'id');
@@ -67,7 +67,7 @@ trait TraitDataEntryUser
      */
     public function getUsersEmail(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'users_email');
+        return $this->getValueTypesafe('string', 'users_email');
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryUser
      */
     public function setUsersEmail(?string $users_email): static
     {
-        return $this->setSourceValue('users_email', $users_email);
+        return $this->setValue('users_email', $users_email);
     }
 }

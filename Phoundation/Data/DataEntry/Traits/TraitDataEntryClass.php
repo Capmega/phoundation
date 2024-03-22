@@ -24,7 +24,7 @@ trait TraitDataEntryClass
      */
     public function getClass(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'class');
+        return $this->getValueTypesafe('string', 'class');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryClass
      */
     public function setClass(?string $class): static
     {
-        return $this->setSourceValue('class', $class);
+        return $this->setValue('class', $class);
     }
 }

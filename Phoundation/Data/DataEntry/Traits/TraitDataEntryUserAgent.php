@@ -24,7 +24,7 @@ trait TraitDataEntryUserAgent
      */
     public function getUserAgent(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'user_agent');
+        return $this->getValueTypesafe('string', 'user_agent');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryUserAgent
      */
     public function setUserAgent(?string $user_agent): static
     {
-        return $this->setSourceValue('user_agent', $user_agent);
+        return $this->setValue('user_agent', $user_agent);
     }
 }

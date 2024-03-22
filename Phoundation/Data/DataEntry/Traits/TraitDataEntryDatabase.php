@@ -24,7 +24,7 @@ trait TraitDataEntryDatabase
      */
     public function getDatabase(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'database');
+        return $this->getValueTypesafe('string', 'database');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryDatabase
      */
     public function setDatabase(?string $database): static
     {
-        return $this->setSourceValue('database', $database);
+        return $this->setValue('database', $database);
     }
 }

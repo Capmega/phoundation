@@ -98,7 +98,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getSourceValueTypesafe('bool', 'enabled', false);
+        return $this->getValueTypesafe('bool', 'enabled', false);
     }
 
 
@@ -116,7 +116,7 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setSourceValue('enabled', (bool) $enabled);
+        return $this->setValue('enabled', (bool) $enabled);
     }
 
 
@@ -168,7 +168,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setClass(?string $class): static
     {
-        return $this->setSourceValue('class', $class);
+        return $this->setValue('class', $class);
     }
 
 
@@ -206,7 +206,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getPath(): string
     {
-        $path = $this->getSourceValueTypesafe('string', 'path');
+        $path = $this->getValueTypesafe('string', 'path');
 
         if (!$path) {
             // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.

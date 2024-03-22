@@ -24,7 +24,7 @@ trait TraitDataEntryDescription
      */
     public function getDescription(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'description');
+        return $this->getValueTypesafe('string', 'description');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryDescription
      */
     public function setDescription(?string $description): static
     {
-        return $this->setSourceValue('description', $description);
+        return $this->setValue('description', $description);
     }
 }

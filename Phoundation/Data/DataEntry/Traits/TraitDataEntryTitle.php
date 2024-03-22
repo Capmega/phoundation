@@ -24,7 +24,7 @@ trait TraitDataEntryTitle
      */
     public function getTitle(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'title');
+        return $this->getValueTypesafe('string', 'title');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryTitle
      */
     public function setTitle(?string $title): static
     {
-        return $this->setSourceValue('title', $title);
+        return $this->setValue('title', $title);
     }
 }

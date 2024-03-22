@@ -153,7 +153,7 @@ class Sql implements SqlInterface
      */
     public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true)
     {
-        $this->uniqueid = Strings::randomSafe();
+        $this->uniqueid = Strings::getRandom();
 
         if ($connector instanceof ConnectorInterface) {
             // Connector specified directly. Take configuration from connector and connect

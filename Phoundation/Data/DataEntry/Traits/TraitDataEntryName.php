@@ -28,7 +28,7 @@ trait TraitDataEntryName
      */
     public function getSeoName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'seo_name');
+        return $this->getValueTypesafe('string', 'seo_name');
     }
 
 
@@ -41,7 +41,7 @@ trait TraitDataEntryName
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->setSourceValue('seo_name', $seo_name);
+        return $this->setValue('seo_name', $seo_name);
     }
 
 
@@ -52,7 +52,7 @@ trait TraitDataEntryName
      */
     public function getName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'name');
+        return $this->getValueTypesafe('string', 'name');
     }
 
 
@@ -67,14 +67,14 @@ trait TraitDataEntryName
     {
         if ($set_seo_name) {
             if ($name === null) {
-                $this->setSourceValue('seo_name', null, true);
+                $this->setValue('seo_name', null, true);
 
             } else {
                 // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
                 // the entry if it does!
                 try {
-                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getSourceValueTypesafe('int', 'id'), 'seo_name');
-                    $this->setSourceValue('seo_name', $seo_name, true);
+                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getValueTypesafe('int', 'id'), 'seo_name');
+                    $this->setValue('seo_name', $seo_name, true);
                 } catch (SqlTableDoesNotExistException $e) {
                     // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
                     // then we can ignore this issue as we're likely working from configuration instead
@@ -85,6 +85,6 @@ trait TraitDataEntryName
             }
         }
 
-        return $this->setSourceValue('name', $name);
+        return $this->setValue('name', $name);
     }
 }

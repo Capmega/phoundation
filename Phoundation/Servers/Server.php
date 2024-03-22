@@ -114,7 +114,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getCost(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'cost');
+        return $this->getValueTypesafe('float', 'cost');
     }
 
 
@@ -126,7 +126,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setCost(?float $cost): static
     {
-        return $this->setSourceValue('cost', $cost);
+        return $this->setValue('cost', $cost);
     }
 
 
@@ -137,7 +137,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getBillDueDate(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'bill_due_date');
+        return $this->getValueTypesafe('string', 'bill_due_date');
     }
 
 
@@ -149,7 +149,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setBillDueDate(?string $bill_due_date): static
     {
-        return $this->setSourceValue('bill_due_date', $bill_due_date);
+        return $this->setValue('bill_due_date', $bill_due_date);
     }
 
 
@@ -161,7 +161,7 @@ class Server extends DataEntry implements ServerInterface
     #[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])]
     public function getInterval(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'interval');
+        return $this->getValueTypesafe('string', 'interval');
     }
 
 
@@ -173,7 +173,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setInterval(#[ExpectedValues([null, 'hourly', 'daily', 'weekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annually'])] ?string $interval): static
     {
-        return $this->setSourceValue('interval', $interval);
+        return $this->setValue('interval', $interval);
     }
 
 
@@ -185,7 +185,7 @@ class Server extends DataEntry implements ServerInterface
     #[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])]
     public function getOsName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'os_name');
+        return $this->getValueTypesafe('string', 'os_name');
     }
 
 
@@ -197,7 +197,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setOsName(#[ExpectedValues([null, 'debian','ubuntu','redhat','gentoo','slackware','linux','windows','freebsd','macos','other'])] ?string $os_name): static
     {
-        return $this->setSourceValue('os_name', $os_name);
+        return $this->setValue('os_name', $os_name);
     }
 
 
@@ -208,7 +208,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getOsVersion(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'os_version');
+        return $this->getValueTypesafe('string', 'os_version');
     }
 
 
@@ -220,7 +220,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setOsVersion(?string $os_version): static
     {
-        return $this->setSourceValue('os_version', $os_version);
+        return $this->setValue('os_version', $os_version);
     }
 
 
@@ -232,7 +232,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getWebServices(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'web_services', false);
+        return $this->getValueTypesafe('bool', 'web_services', false);
     }
 
 
@@ -244,7 +244,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setWebServices(?bool $web_services): static
     {
-        return $this->setSourceValue('web_services', (bool) $web_services);
+        return $this->setValue('web_services', (bool) $web_services);
     }
 
 
@@ -255,7 +255,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getMailServices(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'mail_services', false);
+        return $this->getValueTypesafe('bool', 'mail_services', false);
     }
 
 
@@ -267,7 +267,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setMailServices(?bool $mail_services): static
     {
-        return $this->setSourceValue('mail_services', (bool) $mail_services);
+        return $this->setValue('mail_services', (bool) $mail_services);
     }
 
 
@@ -278,7 +278,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getDatabaseServices(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'database_services', false);
+        return $this->getValueTypesafe('bool', 'database_services', false);
     }
 
 
@@ -290,7 +290,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setDatabaseServices(?bool $database_services): static
     {
-        return $this->setSourceValue('database_services', (bool) $database_services);
+        return $this->setValue('database_services', (bool) $database_services);
     }
 
 
@@ -301,7 +301,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getAllowSshdModifications(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'allow_sshd_modifications', false);
+        return $this->getValueTypesafe('bool', 'allow_sshd_modifications', false);
     }
 
 
@@ -313,7 +313,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function setAllowSshdModifications(?bool $allow_sshd_modifications): static
     {
-        return $this->setSourceValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
+        return $this->setValue('allow_sshd_modifications', (bool) $allow_sshd_modifications);
     }
 
 

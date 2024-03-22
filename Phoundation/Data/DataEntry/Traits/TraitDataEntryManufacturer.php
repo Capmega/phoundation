@@ -26,7 +26,7 @@ trait TraitDataEntryManufacturer
      */
     public function getManufacturer(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'manufacturer');
+        return $this->getValueTypesafe('string', 'manufacturer');
     }
 
 
@@ -38,6 +38,6 @@ trait TraitDataEntryManufacturer
      */
     public function setManufacturer(Stringable|string|null $manufacturer): static
     {
-        return $this->setSourceValue('manufacturer', (string) $manufacturer);
+        return $this->setValue('manufacturer', (string) $manufacturer);
     }
 }

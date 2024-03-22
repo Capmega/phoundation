@@ -26,7 +26,7 @@ trait TraitDataEntryModel
      */
     public function getModel(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'model');
+        return $this->getValueTypesafe('string', 'model');
     }
 
 
@@ -38,6 +38,6 @@ trait TraitDataEntryModel
      */
     public function setModel(Stringable|string|null $model): static
     {
-        return $this->setSourceValue('model', (string) $model);
+        return $this->setValue('model', (string) $model);
     }
 }

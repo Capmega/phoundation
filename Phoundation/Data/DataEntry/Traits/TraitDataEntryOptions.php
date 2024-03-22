@@ -26,7 +26,7 @@ trait TraitDataEntryOptions
      */
     public function getOptions(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'options');
+        return $this->getValueTypesafe('string', 'options');
     }
 
 
@@ -42,6 +42,6 @@ trait TraitDataEntryOptions
             $options = Json::encode($options);
         }
 
-        return $this->setSourceValue('options', $options);
+        return $this->setValue('options', $options);
     }
 }

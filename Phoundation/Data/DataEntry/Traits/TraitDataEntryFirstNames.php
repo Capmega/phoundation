@@ -24,7 +24,7 @@ trait TraitDataEntryFirstNames
      */
     public function getFirstNames(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'first_names');
+        return $this->getValueTypesafe('string', 'first_names');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryFirstNames
      */
     public function setFirstNames(?string $first_names): static
     {
-        return $this->setSourceValue('first_names', $first_names);
+        return $this->setValue('first_names', $first_names);
     }
 }

@@ -339,14 +339,14 @@ class User extends DataEntry implements UserInterface
      */
     public function getLogId(): string
     {
-        $id = $this->getSourceValueTypesafe('int', $this->getIdColumn());
+        $id = $this->getValueTypesafe('int', $this->getIdColumn());
 
         if ($this instanceof GuestUser) {
             // This is a guest user
             return '0 / ' . tr('Guest');
         }
 
-        return $id . ' / ' . $this->getSourceValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
+        return $id . ' / ' . $this->getValueTypesafe('string|int', static::getUniqueColumn() ?? 'id');
     }
 
 
@@ -444,7 +444,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getRemoteId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'remote_id');
+        return $this->getValueTypesafe('int', 'remote_id');
     }
 
 
@@ -456,7 +456,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setRemoteId(?int $remote_id): static
     {
-        return $this->setSourceValue('remote_id', $remote_id);
+        return $this->setValue('remote_id', $remote_id);
     }
 
 
@@ -525,7 +525,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getNickname(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'nickname');
+        return $this->getValueTypesafe('string', 'nickname');
     }
 
 
@@ -537,7 +537,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setNickname(?string $nickname): static
     {
-        return $this->setSourceValue('nickname', $nickname);
+        return $this->setValue('nickname', $nickname);
     }
 
 
@@ -548,7 +548,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getName(): ?string
     {
-        return trim($this->getSourceValueTypesafe('string', 'first_names') . ' ' . $this->getSourceValueTypesafe('string', 'last_names'));
+        return trim($this->getValueTypesafe('string', 'first_names') . ' ' . $this->getValueTypesafe('string', 'last_names'));
     }
 
 
@@ -559,7 +559,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getUsername(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'username');
+        return $this->getValueTypesafe('string', 'username');
     }
 
 
@@ -571,7 +571,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setUsername(?string $username): static
     {
-        return $this->setSourceValue('username', $username);
+        return $this->setValue('username', $username);
     }
 
 
@@ -582,7 +582,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLastSignin(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'last_sign_in');
+        return $this->getValueTypesafe('string', 'last_sign_in');
     }
 
 
@@ -594,7 +594,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLastSignin(?string $last_sign_in): static
     {
-        return $this->setSourceValue('last_sign_in', $last_sign_in);
+        return $this->setValue('last_sign_in', $last_sign_in);
     }
 
 
@@ -605,7 +605,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getUpdatePassword(): ?DateTime
     {
-        $update_password = $this->getSourceValueTypesafe('string', 'update_password');
+        $update_password = $this->getValueTypesafe('string', 'update_password');
 
         if ($update_password) {
             return new DateTime($update_password);
@@ -630,7 +630,7 @@ class User extends DataEntry implements UserInterface
             $date_time = $date_time->getTimestamp();
         }
 
-        return $this->setSourceValue('update_password', $date_time);
+        return $this->setValue('update_password', $date_time);
     }
 
 
@@ -641,7 +641,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getAuthenticationFailures(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'authentication_failures');
+        return $this->getValueTypesafe('int', 'authentication_failures');
     }
 
 
@@ -653,7 +653,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setAuthenticationFailures(?int $authentication_failures): static
     {
-        return $this->setSourceValue('authentication_failures', (int) $authentication_failures);
+        return $this->setValue('authentication_failures', (int) $authentication_failures);
     }
 
 
@@ -664,7 +664,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLockedUntil(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'locked_until');
+        return $this->getValueTypesafe('string', 'locked_until');
     }
 
 
@@ -676,7 +676,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLockedUntil(?string $locked_until): static
     {
-        return $this->setSourceValue('locked_until', $locked_until);
+        return $this->setValue('locked_until', $locked_until);
     }
 
 
@@ -687,7 +687,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getSigninCount(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'sign_in_count');
+        return $this->getValueTypesafe('int', 'sign_in_count');
     }
 
 
@@ -699,7 +699,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setSigninCount(?int $sign_in_count): static
     {
-        return $this->setSourceValue('sign_in_count', $sign_in_count);
+        return $this->setValue('sign_in_count', $sign_in_count);
     }
 
 
@@ -710,7 +710,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getNotificationsHash(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'notifications_hash');
+        return $this->getValueTypesafe('string', 'notifications_hash');
     }
 
 
@@ -723,7 +723,7 @@ class User extends DataEntry implements UserInterface
     public function setNotificationsHash(?string $notifications_hash): static
     {
         sql()->update('accounts_users', ['notifications_hash' => $notifications_hash], ['id' => $this->getId()]);
-        return $this->setSourceValue('notifications_hash', $notifications_hash);
+        return $this->setValue('notifications_hash', $notifications_hash);
     }
 
 
@@ -734,7 +734,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getFingerprint(): ?DateTimeInterface
     {
-        $fingerprint = $this->getSourceValueTypesafe('string', 'fingerprint');
+        $fingerprint = $this->getValueTypesafe('string', 'fingerprint');
         return new DateTime($fingerprint);
     }
 
@@ -752,10 +752,10 @@ class User extends DataEntry implements UserInterface
                 $fingerprint = new DateTime($fingerprint);
             }
 
-            return $this->setSourceValue('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
+            return $this->setValue('fingerprint', $fingerprint->format('Y-m-d H:i:s'));
         }
 
-        return $this->setSourceValue('fingerprint', null);
+        return $this->setValue('fingerprint', null);
     }
 
 
@@ -766,7 +766,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getKeywords(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'keywords');
+        return $this->getValueTypesafe('string', 'keywords');
     }
 
 
@@ -778,7 +778,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setKeywords(array|string|null $keywords): static
     {
-        return $this->setSourceValue('keywords', Strings::force($keywords, ', '));
+        return $this->setValue('keywords', Strings::force($keywords, ', '));
     }
 
 
@@ -789,7 +789,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getPriority(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'priority');
+        return $this->getValueTypesafe('int', 'priority');
     }
 
 
@@ -801,7 +801,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setPriority(?int $priority): static
     {
-        return $this->setSourceValue('priority', $priority);
+        return $this->setValue('priority', $priority);
     }
 
 
@@ -812,7 +812,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getIsLeader(): bool
     {
-        return $this->getSourceValueTypesafe('bool', 'is_leader', false);
+        return $this->getValueTypesafe('bool', 'is_leader', false);
     }
 
 
@@ -824,7 +824,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setIsLeader(int|bool|null $is_leader): static
     {
-        return $this->setSourceValue('is_leader', (bool) $is_leader);
+        return $this->setValue('is_leader', (bool) $is_leader);
     }
 
 
@@ -835,7 +835,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeadersId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'leaders_id');
+        return $this->getValueTypesafe('int', 'leaders_id');
     }
 
 
@@ -847,7 +847,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLeadersId(?int $leaders_id): static
     {
-        return $this->setSourceValue('leaders_id', $leaders_id);
+        return $this->setValue('leaders_id', $leaders_id);
     }
 
 
@@ -858,7 +858,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        $leaders_id = $this->getSourceValueTypesafe('int', 'leaders_id');
+        $leaders_id = $this->getValueTypesafe('int', 'leaders_id');
 
         if ($leaders_id) {
             return new static($leaders_id);
@@ -875,7 +875,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeadersName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'leaders_name');
+        return $this->getValueTypesafe('string', 'leaders_name');
     }
 
 
@@ -887,7 +887,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLeadersName(?string $leaders_name): static
     {
-        return $this->setSourceValue('leaders_name', $leaders_name);
+        return $this->setValue('leaders_name', $leaders_name);
     }
 
 
@@ -898,7 +898,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLatitude(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'latitude');
+        return $this->getValueTypesafe('float', 'latitude');
     }
 
 
@@ -910,7 +910,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLatitude(?float $latitude): static
     {
-        return $this->setSourceValue('latitude', $latitude);
+        return $this->setValue('latitude', $latitude);
     }
 
 
@@ -921,7 +921,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLongitude(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'longitude');
+        return $this->getValueTypesafe('float', 'longitude');
     }
 
 
@@ -933,7 +933,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setLongitude(?float $longitude): static
     {
-        return $this->setSourceValue('longitude', $longitude);
+        return $this->setValue('longitude', $longitude);
     }
 
 
@@ -944,7 +944,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getAccuracy(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'accuracy');
+        return $this->getValueTypesafe('float', 'accuracy');
     }
 
 
@@ -956,7 +956,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setAccuracy(?float $accuracy): static
     {
-        return $this->setSourceValue('accuracy', $accuracy);
+        return $this->setValue('accuracy', $accuracy);
     }
 
 
@@ -967,7 +967,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getOffsetLatitude(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'offset_latitude');
+        return $this->getValueTypesafe('float', 'offset_latitude');
     }
 
 
@@ -979,7 +979,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setOffsetLatitude(?float $offset_latitude): static
     {
-        return $this->setSourceValue('offset_latitude', $offset_latitude);
+        return $this->setValue('offset_latitude', $offset_latitude);
     }
 
 
@@ -990,7 +990,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getOffsetLongitude(): ?float
     {
-        return $this->getSourceValueTypesafe('float', 'offset_longitude');
+        return $this->getValueTypesafe('float', 'offset_longitude');
     }
 
 
@@ -1002,7 +1002,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setOffsetLongitude(?float $offset_longitude): static
     {
-        return $this->setSourceValue('offset_longitude', $offset_longitude);
+        return $this->setValue('offset_longitude', $offset_longitude);
     }
 
 
@@ -1013,7 +1013,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getRedirect(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'redirect');
+        return $this->getValueTypesafe('string', 'redirect');
     }
 
 
@@ -1030,7 +1030,7 @@ class User extends DataEntry implements UserInterface
             $redirect = UrlBuilder::getWww($redirect);
         }
 
-        return $this->setSourceValue('redirect', get_null((string) $redirect));
+        return $this->setValue('redirect', get_null((string) $redirect));
     }
 
 
@@ -1041,7 +1041,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getGender(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'gender');
+        return $this->getValueTypesafe('string', 'gender');
     }
 
 
@@ -1053,7 +1053,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setGender(?string $gender): static
     {
-        return $this->setSourceValue('gender', $gender);
+        return $this->setValue('gender', $gender);
     }
 
 
@@ -1064,7 +1064,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getBirthdate(): ?DateTimeInterface
     {
-        $birthdate = $this->getSourceValueTypesafe('string', 'birthdate');
+        $birthdate = $this->getValueTypesafe('string', 'birthdate');
 
         if ($birthdate ) {
             return new DateTime($birthdate);
@@ -1082,7 +1082,7 @@ class User extends DataEntry implements UserInterface
      */
     public function setBirthdate(DateTimeInterface|string|null $birthdate): static
     {
-        return $this->setSourceValue('birthdate', $birthdate);
+        return $this->setValue('birthdate', $birthdate);
     }
 
 
@@ -1226,7 +1226,7 @@ class User extends DataEntry implements UserInterface
      */
     function getDisplayId(): string
     {
-        return $this->getSourceValueTypesafe('int', 'id') . ' / ' . $this->getDisplayName();
+        return $this->getValueTypesafe('int', 'id') . ' / ' . $this->getDisplayName();
     }
 
 

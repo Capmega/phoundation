@@ -27,7 +27,7 @@ trait TraitDataEntryStart
      */
     public function getStart(): ?DateTimeInterface
     {
-        return $this->getSourceValueTypesafe('datetime', 'start');
+        return $this->getValueTypesafe('datetime', 'start');
     }
 
 
@@ -39,6 +39,6 @@ trait TraitDataEntryStart
      */
     public function setStart(DateTimeInterface|string|null $start): static
     {
-        return $this->setSourceValue('start', $start ? new DateTime($start, 'system') : null);
+        return $this->setValue('start', $start ? new DateTime($start, 'system') : null);
     }
 }

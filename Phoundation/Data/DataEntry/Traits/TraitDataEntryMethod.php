@@ -24,7 +24,7 @@ trait TraitDataEntryMethod
      */
     public function getMethod(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'method');
+        return $this->getValueTypesafe('string', 'method');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryMethod
      */
     public function setMethod(?string $method): static
     {
-        return $this->setSourceValue('method', $method);
+        return $this->setValue('method', $method);
     }
 }

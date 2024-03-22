@@ -24,7 +24,7 @@ trait TraitDataEntryVerificationCode
      */
     public function getVerificationCode(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'verification_code');
+        return $this->getValueTypesafe('string', 'verification_code');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryVerificationCode
      */
     public function setVerificationCode(?string $verification_code): static
     {
-        return $this->setSourceValue('verification_code', $verification_code);
+        return $this->setValue('verification_code', $verification_code);
     }
 }

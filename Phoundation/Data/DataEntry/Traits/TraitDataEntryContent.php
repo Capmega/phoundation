@@ -24,7 +24,7 @@ trait TraitDataEntryContent
      */
     public function getContent(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'content');
+        return $this->getValueTypesafe('string', 'content');
     }
 
 
@@ -36,6 +36,6 @@ trait TraitDataEntryContent
      */
     public function setContent(?string $content): static
     {
-        return $this->setSourceValue('content', $content);
+        return $this->setValue('content', $content);
     }
 }

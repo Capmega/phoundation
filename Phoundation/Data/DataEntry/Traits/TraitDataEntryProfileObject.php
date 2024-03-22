@@ -27,7 +27,7 @@ trait TraitDataEntryProfileObject
      */
     public function getProfilesId(): ?int
     {
-        return $this->getSourceValueTypesafe('int', 'profiles_id');
+        return $this->getValueTypesafe('int', 'profiles_id');
     }
 
 
@@ -39,7 +39,7 @@ trait TraitDataEntryProfileObject
      */
     public function setProfilesId(?int $profiles_id): static
     {
-        return $this->setSourceValue('profiles_id', $profiles_id);
+        return $this->setValue('profiles_id', $profiles_id);
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataEntryProfileObject
      */
     public function getProfile(): ?ProfileInterface
     {
-        $profiles_id = $this->getSourceValueTypesafe('int', 'profiles_id');
+        $profiles_id = $this->getValueTypesafe('int', 'profiles_id');
 
         if ($profiles_id) {
             return Profile::get($profiles_id,  'id');
@@ -67,7 +67,7 @@ trait TraitDataEntryProfileObject
      */
     public function getProfilesName(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'profiles_name');
+        return $this->getValueTypesafe('string', 'profiles_name');
     }
 
 
@@ -79,6 +79,6 @@ trait TraitDataEntryProfileObject
      */
     public function setProfilesName(?string $profiles_name): static
     {
-        return $this->setSourceValue('profiles_name', $profiles_name);
+        return $this->setValue('profiles_name', $profiles_name);
     }
 }

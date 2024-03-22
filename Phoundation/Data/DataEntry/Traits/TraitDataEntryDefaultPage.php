@@ -26,7 +26,7 @@ trait TraitDataEntryDefaultPage
      */
     public function getDefaultPage(): ?string
     {
-        return $this->getSourceValueTypesafe('string', 'default_page');
+        return $this->getValueTypesafe('string', 'default_page');
     }
 
 
@@ -39,6 +39,6 @@ trait TraitDataEntryDefaultPage
     public function setDefaultPage(?string $default_page): static
     {
 
-        return $this->setSourceValue('default_page', $default_page ? (string) UrlBuilder::getWww($default_page) : null);
+        return $this->setValue('default_page', $default_page ? (string) UrlBuilder::getWww($default_page) : null);
     }
 }

@@ -27,7 +27,7 @@ trait TraitDataEntryStop
      */
     public function getStop(): ?DateTimeInterface
     {
-        return $this->getSourceValueTypesafe('datetime', 'stop');
+        return $this->getValueTypesafe('datetime', 'stop');
     }
 
 
@@ -39,6 +39,6 @@ trait TraitDataEntryStop
      */
     public function setStop(DateTimeInterface|string|null $stop): static
     {
-        return $this->setSourceValue('stop', new DateTime($stop, 'system'));
+        return $this->setValue('stop', new DateTime($stop, 'system'));
     }
 }
