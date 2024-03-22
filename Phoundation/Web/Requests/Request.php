@@ -122,9 +122,9 @@ abstract class Request implements RequestInterface
     /**
      * The data sent to this executed file
      *
-     * @var IteratorInterface|null $data
+     * @var IteratorInterface|null $source
      */
-    protected static ?IteratorInterface $data = null;
+    protected static ?IteratorInterface $source = null;
 
     /**
      * The unique hash for this page
@@ -1263,9 +1263,13 @@ abstract class Request implements RequestInterface
      * @param bool $exception
      * @return void
      */
-    public static function addData(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
+    public static function addValue(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
     {
-        static::$data->add($value, $key, $skip_null, $exception);
+        if (empty(static::$source)) {
+            static::$source = new Iterator();
+        }
+
+        static::$source->add($value, $key, $skip_null, $exception);
     }
 
 
@@ -1274,9 +1278,9 @@ abstract class Request implements RequestInterface
      *
      * @return IteratorInterface|null
      */
-    public static function getData(): ?IteratorInterface
+    public static function getSource(): ?IteratorInterface
     {
-        return static::$data;
+        return static::$source;
     }
 
 
@@ -1287,9 +1291,9 @@ abstract class Request implements RequestInterface
      * @param mixed $default
      * @return mixed
      */
-    public static function getDataKey(string $key, mixed $default = null): mixed
+    public static function getValue(string $key, mixed $default = null): mixed
     {
-        return static::$data?->get($key, false) ?? $default;
+        return static::$source?->get($key, false) ?? $default;
     }
 
 
