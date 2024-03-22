@@ -1111,9 +1111,8 @@ class Response implements ResponseInterface
             static::clearOutputForHttpCodesAndMethods();
             static::generateHttpHeaders();
             static::sendHttpHeaders();
+            static::sendOutput();
         }
-
-        static::sendOutput();
 
         if ($exit) {
             exit();
