@@ -1,20 +1,5 @@
 <?php
 
-use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Core;
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Utils\Config;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Response;
-use PHPMailer\PHPMailer\PHPMailer;
-
-throw new \Phoundation\Exception\UnderConstructionException();
-
 /**
  * Page magic-sign-in
  *
@@ -26,6 +11,21 @@ throw new \Phoundation\Exception\UnderConstructionException();
  * @package Phoundation\Web
  */
 
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Core;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
+use PHPMailer\PHPMailer\PHPMailer;
+
+throw new \Phoundation\Exception\UnderConstructionException();
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {

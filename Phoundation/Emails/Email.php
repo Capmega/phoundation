@@ -98,7 +98,7 @@ class Email extends DataEntry
             $phpmailer->Password   = $from->getPass();
 
             // Build email
-            $phpmailer->body    = $this->body->;
+            $phpmailer->body    = $this->body;
             $phpmailer->subject = $this->subject;
 
             $phpmailer->isHTML($this->is_html);
@@ -116,8 +116,9 @@ class Email extends DataEntry
             // Send the email
             $phpmailer->send();
             $this->setStatus('SENT');
-            return $this;
         }
+
+        return $this;
     }
 
 
@@ -188,7 +189,9 @@ class Email extends DataEntry
                 ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [':id' => '$parents_id']);
+                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [
+                        ':id' => '$parents_id'
+                    ]);
                 }))
             ->add(Definition::new($this, 'main')
                 ->setRender(false)
@@ -201,14 +204,18 @@ class Email extends DataEntry
                 ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [':id' => '$categories']);
+                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [
+                        ':id' => '$categories'
+                    ]);
                 }))
             ->add(Definition::new($this, 'templates_id')
                 ->setRender(false)
                 ->setInputType(EnumInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [':id' => '$templates_id']);
+                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [
+                        ':id' => '$templates_id'
+                    ]);
                 }))
             ->add(DefinitionFactory::getCode($this)
                 ->setSize(3))

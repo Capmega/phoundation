@@ -1,13 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
-
-use PDOStatement;
-use Phoundation\Data\Interfaces\IteratorInterface;
-
-
 /**
  * Interface MenuInterface
  *
@@ -18,7 +10,16 @@ use Phoundation\Data\Interfaces\IteratorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
-interface MenuInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
+
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+
+interface MenuInterface extends ElementsBlockInterface
 {
     /**
      * Set the menu source and ensure all URL's are absolute

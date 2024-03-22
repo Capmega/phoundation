@@ -569,7 +569,7 @@ class Http
 
         foreach ($_POST as $key => $value) {
             if (substr($key, 0, 4) == '__HT') {
-                $_POST[Strings::until(substr($key, 4), '__')] = $_POST[$key];
+                $_POST[Strings::until(substr($key, 4), '__')] = $value;
                 unset($_POST[$key]);
                 $count++;
             }

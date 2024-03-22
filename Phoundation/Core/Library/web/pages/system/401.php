@@ -1,11 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Web\Requests\Response;
-use Phoundation\Web\Requests\Request;
-
-
 /**
  * Page 401
  *
@@ -18,10 +12,13 @@ use Phoundation\Web\Requests\Request;
  * @package Phoundation\Web
  */
 
+declare(strict_types=1);
+
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 Response::setHttpCode(401);
 Request::execute('pages/system/401');
-
 
 //// Get the exception
 //$e = Core::readRegister('e');

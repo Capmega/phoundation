@@ -1,18 +1,5 @@
 <?php
 
-use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
-use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
-use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Utils\Config;
-use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
-
-
 /**
  * Page force-password-update
  *
@@ -25,6 +12,17 @@ use Phoundation\Web\Requests\Response;
  * @package Phoundation\Web
  */
 
+use Phoundation\Accounts\Users\Exception\NoPasswordSpecifiedException;
+use Phoundation\Accounts\Users\Exception\PasswordNotChangedException;
+use Phoundation\Accounts\Users\Exception\PasswordTooShortException;
+use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Utils\Config;
+use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 // Only allow being here when it was forced by redirect
 if (!Session::getUser()->getRedirect() or (Session::getUser()->getRedirect() !== (string) UrlBuilder::getWww('/force-password-update.html'))) {

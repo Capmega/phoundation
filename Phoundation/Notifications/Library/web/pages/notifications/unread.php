@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Page unread
+ *
+ * This page displays the unread notifications
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Core\Sessions\Session;
@@ -13,22 +24,10 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
-/**
- * Page unread
- *
- * This page displays the unread notifications
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
-
-
-// Get new notifications object
+// Get a new notifications object
 $notifications = Notifications::new()->markSeverityColumn();
 
 
@@ -36,7 +35,12 @@ $notifications = Notifications::new()->markSeverityColumn();
 if (Request::isPostRequestMethod()) {
     if (PostValidator::getSubmitButton() === tr('Mark all as read')) {
 //        $notifications->setStatus('READ');
-        sql()->query('UPDATE `notifications` SET `status` = "READ" WHERE `users_id` = :users_id', [':users_id' => Session::getUser()->getId()]);
+        sql()->query('UPDATE `notifications`
+                            SET    `status`   = "READ"
+                            WHERE  `users_id` = :users_id', [
+                                ':users_id' => Session::getUser()->getId()
+        ]);
+
         Request::getFlashMessages()->addSuccessMessage(tr('All your notifications have been marked as read'));
         Response::redirect();
     }

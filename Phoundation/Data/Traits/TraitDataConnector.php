@@ -48,6 +48,7 @@ trait TraitDataConnector
      * @param ConnectorInterface|string|null $connector
      * @param bool $ignore_sql_exceptions
      * @return static
+     * @throws SqlExceptionInterface
      */
     public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
     {

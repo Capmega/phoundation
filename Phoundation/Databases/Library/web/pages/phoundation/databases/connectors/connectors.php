@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Page databases/connectors/connectors.php
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Databases
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -14,23 +25,11 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
-/**
- * Page databases/connectors/connectors.php
- *
- *
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
- */
-
-
 // Build the page content
-// Build connectors filter card
+// Build a connectors filter card
 $filters      = FilterForm::new()->apply();
 $filters_card = Card::new()
     ->setCollapseSwitch(true)

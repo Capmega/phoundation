@@ -22,6 +22,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
@@ -844,60 +845,41 @@ $skip = false;
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
 
         // Move /Phoundation and /scripts out of the way
-        try {
-            Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
+        Directory::new(DIRECTORY_ROOT . 'data/garbage/', Restrictions::new(DIRECTORY_ROOT . 'data/', true, tr('Project management')))->delete();
 
-//            $files['phoundation'] = Directory::new(DIRECTORY_ROOT . 'Phoundation/', Restrictions::new([DIRECTORY_ROOT . 'Phoundation/', DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
-//            $files['templates']   = Directory::new(DIRECTORY_ROOT . 'Templates/'  , Restrictions::new([DIRECTORY_ROOT . 'Templates/'  , DIRECTORY_DATA], true, tr('Project management')))->move(DIRECTORY_ROOT . 'data/garbage/');
+        // Copy new core library versions
+        Log::action('Updating Phoundation core libraries');
+        Rsync::new()
+            ->setSource($phoundation->getDirectory() . 'Phoundation/')
+            ->setTarget(DIRECTORY_ROOT . 'Phoundation')
+            ->setExclude(['.git', '.gitignore', '/Templates', '/Plugins'])
+            ->setDelete(true)
+            ->execute();
 
-            // Copy new core library versions
-            Log::action('Updating Phoundation core libraries');
-            Rsync::new()
-                ->setSource($phoundation->getDirectory() . 'Phoundation/')
-                ->setTarget(DIRECTORY_ROOT . 'Phoundation')
-                ->setExclude(['.git', '.gitignore', '/Templates', '/Plugins'])
-                ->setDelete(true)
-                ->execute();
+        // Copy Phoundation plugin
+        Log::action('Updating Phoundation Plugin');
+        Rsync::new()
+            ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
+            ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
+            ->setExclude(['.git', '.gitignore'])
+            ->setDelete(true)
+            ->execute();
 
-            // Copy Phoundation plugin
-            Log::action('Updating Phoundation Plugin');
-            Rsync::new()
-                ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
-                ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
-                ->setExclude(['.git', '.gitignore'])
-                ->setDelete(true)
-                ->execute();
-
-            // Copy Phoundation PHO command
-            Log::action('Updating "pho" command');
-            Rsync::new()
-                ->setSource($phoundation->getDirectory() . 'pho')
-                ->setTarget(DIRECTORY_ROOT . 'pho')
-                ->setExclude(['.git', '.gitignore'])
-                ->setDelete(true)
-                ->execute();
+        // Copy Phoundation PHO command
+        Log::action('Updating "pho" command');
+        Rsync::new()
+            ->setSource($phoundation->getDirectory() . 'pho')
+            ->setTarget(DIRECTORY_ROOT . 'pho')
+            ->setExclude(['.git', '.gitignore'])
+            ->setDelete(true)
+            ->execute();
 
 //            // All is well? Get rid of the garbage
 //            $files['phoundation']->delete();
 //            $files['templates']->delete();
 
-            // Switch phoundation back to its previous branch
-            $phoundation->switchBranch();
-
-        } catch (Throwable $e) {
-//            //  Move Phoundation files back again
-//            if (isset($files['phoundation'])) {
-//                Log::warning(tr('Moving Phoundation core libraries back from garbage'));
-//                $files['phoundation']->move(DIRECTORY_ROOT . 'Phoundation/');
-//            }
-//
-//            if (isset($files['templates'])) {
-//                Log::warning(tr('Moving Template core scripts back from garbage'));
-//                $files['templates']->move(DIRECTORY_ROOT . 'Templates/');
-//            }
-
-            throw $e;
-        }
+        // Switch phoundation back to its previous branch
+        $phoundation->switchBranch();
     }
 
 

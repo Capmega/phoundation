@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Incidents;
-
-use Phoundation\Data\DataEntry\DataList;
-use Phoundation\Web\Html\Components\Input\InputSelect;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
-use Phoundation\Web\Html\Enums\EnumTableIdColumn;
-
-
 /**
  * Incidents class
  *
@@ -21,6 +10,18 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Incidents;
+
+use Phoundation\Data\DataEntry\DataList;
+use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+
 class Incidents extends DataList
 {
     /**
@@ -29,9 +30,9 @@ class Incidents extends DataList
     public function __construct()
     {
         $this->setQuery('SELECT   `id`, `created_on`, `status`, `type`, `title` 
-                                   FROM     `developer_incidents` 
-                                   WHERE    `status` IS NULL 
-                                   ORDER BY `created_on`');
+                               FROM     `developer_incidents` 
+                               WHERE    `status` IS NULL 
+                               ORDER BY `created_on`');
         parent::__construct();
     }
 
@@ -77,7 +78,7 @@ class Incidents extends DataList
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
     {
-        $table = parent::getHtmlTable();
+        $table = parent::getHtmlTable($columns);
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
@@ -93,6 +94,7 @@ class Incidents extends DataList
      * @param array|null $joins
      * @param array|null $filters
      * @return InputSelectInterface
+     * @throws SqlExceptionInterface
      */
     public function getHtmlSelect(string $value_column = 'title', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {

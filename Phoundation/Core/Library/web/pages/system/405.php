@@ -1,16 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Core\Core;
-use Phoundation\Templates\Template;
-use Phoundation\Utils\Json;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\Response;
-use Phoundation\Web\Requests\Request;
-
-
 /**
  * Page 405 - Method not allowed
  *
@@ -22,6 +11,15 @@ use Phoundation\Web\Requests\Request;
  * @package Phoundation\Web
  */
 
+declare(strict_types=1);
+
+use Phoundation\Core\Core;
+use Phoundation\Templates\Template;
+use Phoundation\Utils\Json;
+use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Request;
 
 // Get the exception
 $e = Core::readRegister('e');

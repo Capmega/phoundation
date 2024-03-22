@@ -7,6 +7,7 @@ namespace Phoundation\Utils;
 use Exception;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
@@ -348,7 +349,7 @@ class Config implements ConfigInterface
     /**
      * Return configuration ARRAY for the specified key path
      *
-     * @note Will cause an exception if a non array value is returned!
+     * @note Will cause an exception if a non-array value is returned!
      * @param string|array $path
      * @param array|null $default
      * @param mixed|null $specified
@@ -366,6 +367,22 @@ class Config implements ConfigInterface
             ':path'  => $path,
             ':value' => $return
         ]));
+    }
+
+
+    /**
+     * Return configuration IteratorInterface for the specified key path
+     *
+     * @note Will cause an exception if a non-array value is returned!
+     *
+     * @param string|array $path
+     * @param array|null $default
+     * @param mixed|null $specified
+     * @return IteratorInterface
+     */
+    public static function getIterator(string|array $path, array|null $default = null, mixed $specified = null): IteratorInterface
+    {
+        return new Iterator(static::getArray($path, $default, $specified));
     }
 
 

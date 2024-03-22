@@ -320,6 +320,21 @@ class IteratorCore implements IteratorInterface
 
 
     /**
+     * Wrapper for Iterator::append()
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    {
+        return $this->append($value, $key, $skip_null, $exception);
+    }
+
+
+    /**
      * Add the specified value to the iterator array using an optional key
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
@@ -330,7 +345,7 @@ class IteratorCore implements IteratorInterface
      * @param bool $exception
      * @return static
      */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -354,6 +369,47 @@ class IteratorCore implements IteratorInterface
             }
 
             $this->source[$key] = $value;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Add the specified value to the iterator array using an optional key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool $skip_null
+     * @param bool $exception
+     * @return static
+     */
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null) {
+                return $this;
+            }
+        }
+
+        $this->checkDataType($value);
+
+        // NULL keys will be added as numerical "first" entries
+        if ($key === null) {
+            array_unshift($this->source, $value);
+
+        } else {
+            if (array_key_exists($key, $this->source) and $exception) {
+                throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
+                    ':key'   => $key,
+                    ':class' => get_class($this)
+                ]));
+            }
+
+            $this->source = array_merge([$key => $value], $this->source);
         }
 
         return $this;
@@ -395,9 +451,9 @@ class IteratorCore implements IteratorInterface
         // NULL keys will be added as numerical "next" entries
         if (array_key_exists($key, $this->source) and $exception) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
-                ':key'   => $key,
+                ':key'    => $key,
                 ':before' => $before,
-                ':class' => get_class($this)
+                ':class'  => get_class($this)
             ]));
         }
 

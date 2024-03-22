@@ -416,7 +416,7 @@ class CliAutoComplete
      * @param array|null $definitions
      * @return void
      */
-    public static function processCommandArguments(?array $definitions): void
+    #[NoReturn] public static function processCommandArguments(?array $definitions): void
     {
         if ($definitions) {
             static::processArguments(array_merge($definitions, static::$system_arguments));
@@ -517,7 +517,8 @@ complete -F _phoundation pho');
      * @param array $argument_definitions
      * @return void
      */
-    #[NoReturn] public static function processArguments(array $argument_definitions) {
+    #[NoReturn] public static function processArguments(array $argument_definitions): void
+    {
         // Get the word where we're <TAB>bing on
         if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);

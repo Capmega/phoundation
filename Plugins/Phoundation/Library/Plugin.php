@@ -1,14 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Plugins\Phoundation\Library;
-
-use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
-use Phoundation\Web\Requests\Response;
-use Plugins\Phoundation\Components\ProfileImageMenu;
-
-
 /**
  * Class Plugin
  *
@@ -19,6 +10,15 @@ use Plugins\Phoundation\Components\ProfileImageMenu;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Plugins\Phoundation
  */
+
+declare(strict_types=1);
+
+namespace Plugins\Phoundation\Library;
+
+use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
+use Phoundation\Web\Requests\Request;
+use Plugins\Phoundation\Components\ProfileImageMenu;
+
 class Plugin extends \Phoundation\Core\Plugins\Plugin
 {
     /**

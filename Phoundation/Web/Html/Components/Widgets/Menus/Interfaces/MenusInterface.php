@@ -1,10 +1,5 @@
 <?php
 
-namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
-
-use Phoundation\Data\Interfaces\IteratorInterface;
-
-
 /**
  * Menus class
  *
@@ -15,6 +10,11 @@ use Phoundation\Data\Interfaces\IteratorInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation/Web
  */
+
+namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
+
+use Phoundation\Data\Interfaces\IteratorInterface;
+
 interface MenusInterface extends IteratorInterface
 {
     /**

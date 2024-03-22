@@ -150,7 +150,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      *
      * @return IteratorInterface
      */
-    public function getMenus(): IteratorInterface
+    public function getMenusObject(): IteratorInterface
     {
         if (empty($this->menus)) {
             $this->menus = Iterator::new()->setDataTypes('object:' . Menu::class);

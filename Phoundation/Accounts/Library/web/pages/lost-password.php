@@ -17,7 +17,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
-
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));

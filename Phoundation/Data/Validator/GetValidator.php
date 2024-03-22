@@ -97,12 +97,10 @@ class GetValidator extends Validator
         }
 
         $messages = [];
-        $fields   = [];
         $get      = array_keys(static::$get);
 
         foreach ($get as $field) {
             if (!in_array($field, $this->selected_fields)) {
-                $fields[]   = $field;
                 $messages[] = tr('Unknown field ":field" encountered', [
                     ':field' => $field
                 ]);

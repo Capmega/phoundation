@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Page notification
+ *
+ * This page will display the requested notification, and mark it as read
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -14,20 +25,8 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
-
-/**
- * Page notification
- *
- * This page will display the requested notification, and mark it as read
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
-
 
 // Validate GET
 $get = GetValidator::new()
@@ -46,9 +45,10 @@ if (Request::isPostRequestMethod()) {
         switch (PostValidator::getSubmitButton()) {
             case tr('Mark unread'):
                 $notification->setStatus('UNREAD');
-                Request::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [':notification' => $notification->getTitle()]));
+                Request::getFlashMessages()->addSuccessMessage(tr('The notification ":notification" has been marked as unread', [
+                    ':notification' => $notification->getTitle()
+                ]));
         }
-
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Request::getFlashMessages()->addMessage($e);

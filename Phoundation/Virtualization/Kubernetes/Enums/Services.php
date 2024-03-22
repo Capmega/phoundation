@@ -1,4 +1,4 @@
-`<?php
+<?php
 
 declare(strict_types=1);
 
@@ -19,4 +19,3 @@ enum Services: string
 {
     case minikube = 'minikube';
 }
-`

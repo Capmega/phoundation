@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Profile page
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -13,20 +24,8 @@ use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\UrlBuilder;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
-
-/**
- * Profile page
- *
- *
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
-
 
 // Get parameters
 $get = GetValidator::new()
@@ -78,8 +77,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                     Response::redirect('root');
             }
-
-        } catch (IncidentsException|ValidationFailedException $e) {
+        } catch (IncidentsException | ValidationFailedException $e) {
             // Oops! Show validation errors and remain on page
             Request::getFlashMessages()->addMessage($e);
             $user->forceApply();
@@ -108,7 +106,6 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                 ->setMode(EnumDisplayMode::warning)
                 ->setValue(tr('Unlock'))
                 ->setContent(tr('Unlock'));
-
         } else {
             $lock = Button::new()
                 ->setFloatRight(true)
@@ -136,7 +133,9 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                     ->getHtmlElement()
                     ->setSrc(UrlBuilder::getImg('img/profiles/default.png'))
                     ->setClass('profile-user-img img-fluid img-circle')
-                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUser()->getDisplayName())]))
+                    ->setAlt(tr('Profile picture for :user', [
+                            ':user' => Html::safe(Session::getUser()->getDisplayName())
+                    ]))
                     ->render() ?>
             </div>
 
@@ -176,15 +175,15 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
 
                     echo ($user->getEmail() ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a><br>' : null);
 
-                    foreach ($user->getEmails() as $email) {
-                        echo '<a href="mailto:' . $email->getEmail() . '">' . $email->getEmail() . '</a><br>';
-                    }
+                foreach ($user->getEmails() as $email) {
+                    echo '<a href="mailto:' . $email->getEmail() . '">' . $email->getEmail() . '</a><br>';
+                }
 
                     echo ($user->getPhone() ? '<a href="tel:' . $user->getPhone() . '">' . $user->getPhone() . '</a><br>' : null);
 
-                    foreach ($user->getPhones() as $phone) {
-                        echo '<a href="tel:' . $phone->getPhone() . '">' . $phone->getPhone() . '</a><br>';
-                    }
+                foreach ($user->getPhones() as $phone) {
+                    echo '<a href="tel:' . $phone->getPhone() . '">' . $phone->getPhone() . '</a><br>';
+                }
                 ?>
             </p>
 
@@ -243,7 +242,7 @@ if (Session::getUser()->hasAllRights(['accounts'])) {
                                                          ->render() . '
                                                 </div>')
                         ->render();
-                  ?>
+                    ?>
               </div>
               <!-- /.tab-pane -->
             </div>
