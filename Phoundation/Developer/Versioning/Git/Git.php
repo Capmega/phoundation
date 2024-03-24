@@ -1,24 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git;
-
-use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Versioning\Git\Exception\GitException;
-use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
-use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
-use Phoundation\Filesystem\Interfaces\DirectoryInterface;
-use Phoundation\Os\Processes\Interfaces\ProcessInterface;
-use Phoundation\Os\Processes\Process;
-use Phoundation\Utils\Strings;
-use Stringable;
-
-
 /**
  * Class Git
  *
@@ -29,6 +10,29 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git;
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Versioning\Git\Exception\GitException;
+use Phoundation\Developer\Versioning\Git\Interfaces\BranchesInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\RemoteRepositoriesInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
+use Phoundation\Developer\Versioning\Versioning;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\File;
+use Phoundation\Filesystem\Path;
+use Phoundation\Filesystem\Interfaces\DirectoryInterface;
+use Phoundation\Os\Processes\Interfaces\ProcessInterface;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
+use Stringable;
+
 class Git extends Versioning implements GitInterface
 {
     /**
@@ -169,9 +173,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns all available git repositories
      *
-     * @return RemoteRepositories
+     * @return RemoteRepositoriesInterface
      */
-    public function getRepositories(): RemoteRepositories
+    public function getRepositoriesObject(): RemoteRepositoriesInterface
     {
         return RemoteRepositories::new()->setDirectory($this->directory);
     }
@@ -180,9 +184,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @return Branches
+     * @return BranchesInterface
      */
-    public function getBranches(): Branches
+    public function getBranchesObject(): BranchesInterface
     {
         return Branches::new()->setDirectory($this->directory);
     }
@@ -191,9 +195,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Stashes the git changes
      *
-     * @return Stash
+     * @return StashInterface
      */
-    public function getStash(): Stash
+    public function getStashObject(): StashInterface
     {
         return Stash::new()->setDirectory($this->directory);
     }
@@ -308,6 +312,19 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Returns a Git Tag object to manage git tagging
+     *
+     * @param string $message
+     * @param bool $signed
+     * @return TagInterface
+     */
+    public function getTagObject(string $message, bool $signed = false): TagInterface
+    {
+        return new Tag($this->git);
+    }
+
+
+    /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
      * @param string|null $directory
@@ -410,16 +427,15 @@ class Git extends Versioning implements GitInterface
      * Push the local changes to the remote repository / branch
      *
      * @param string $repository
-     * @param string $branch
+     * @param string|null $branch
      * @return static
      */
-    public function push(string $repository, string $branch): static
+    public function push(string $repository, ?string $branch = null): static
     {
         $output = $this->git
             ->clearArguments()
             ->addArgument('push')
-            ->addArgument($repository)
-            ->addArgument($branch)
+            ->addArguments([$repository, $branch])
             ->executeReturnArray();
 
         Log::notice($output, 4, false);

@@ -341,7 +341,7 @@ class Plugins extends Project
                             }
 
                             // Stash all problematic files (auto un-stash later)
-                            $git->getStash()->stash($files);
+                            $git->getStashObject()->stash($files);
 
 //                        } else {
 //                            // There are no problematic files found, look for other issues.
@@ -385,7 +385,7 @@ class Plugins extends Project
 
                 // Whoopsie, we have shirts in stash, meaning some file was naughty.
                 Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $files]));
-                Git::new(DIRECTORY_ROOT)->getStash()->pop();
+                Git::new(DIRECTORY_ROOT)->getStashObject()->pop();
 
                 throw PatchPartiallySuccessfulException::new(tr('Phoundation plugins patch was partially successful, some files failed'))
                     ->addData([
@@ -396,7 +396,7 @@ class Plugins extends Project
             if ($non_phoundation_stash) {
                 // We have non Phoundation plugins in stash, pop those too
                 Log::warning(tr('Unstashing non phoundation plugins'));
-                Git::new(DIRECTORY_ROOT)->getStash()->pop();
+                Git::new(DIRECTORY_ROOT)->getStashObject()->pop();
             }
 
         } catch (GitHasChangesException $e) {
@@ -449,8 +449,8 @@ class Plugins extends Project
                 ':plugins' => implode(', ', array_keys($non_phoundation_plugins))
             ]));
 
-            $pre_stash_count  = Git::new(DIRECTORY_ROOT)->getStash()->getList()->getCount();
-            $post_stash_count = Git::new(DIRECTORY_ROOT)->getStash()->stash($non_phoundation_plugins)->getList()->getCount();
+            $pre_stash_count  = Git::new(DIRECTORY_ROOT)->getStashObject()->getList()->getCount();
+            $post_stash_count = Git::new(DIRECTORY_ROOT)->getStashObject()->stash($non_phoundation_plugins)->getList()->getCount();
         }
 
         return (bool) ($post_stash_count - $pre_stash_count);

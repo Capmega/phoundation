@@ -32,4 +32,4 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-Git::new(DIRECTORY_ROOT)->getRepositories()->CliDisplayTable();
+Git::new(DIRECTORY_ROOT)->getRepositoriesObject()->CliDisplayTable();

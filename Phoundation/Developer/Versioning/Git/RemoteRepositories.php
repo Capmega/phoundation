@@ -1,18 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Developer\Versioning\Git;
-
-use Phoundation\Cli\Cli;
-use Phoundation\Data\IteratorCore;
-use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
-use Phoundation\Exception\NotExistsException;
-use Phoundation\Os\Processes\Process;
-use ReturnTypeWillChange;
-use Stringable;
-
-
 /**
  * Class Repositories
  *
@@ -23,7 +10,21 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class RemoteRepositories extends IteratorCore
+
+declare(strict_types=1);
+
+namespace Phoundation\Developer\Versioning\Git;
+
+use Phoundation\Cli\Cli;
+use Phoundation\Data\IteratorCore;
+use Phoundation\Developer\Versioning\Git\Interfaces\RemoteRepositoriesInterface;
+use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Exception\NotExistsException;
+use Phoundation\Os\Processes\Process;
+use ReturnTypeWillChange;
+use Stringable;
+
+class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInterface
 {
     use TraitGitProcess {
         __construct as construct;

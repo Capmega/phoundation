@@ -63,23 +63,23 @@ interface GitInterface
     /**
      * Returns all available git repositories
      *
-     * @return RemoteRepositories
+     * @return RemoteRepositoriesInterface
      */
-    public function getRepositories(): RemoteRepositories;
+    public function getRepositoriesObject(): RemoteRepositoriesInterface;
 
     /**
      * Returns a list of available git branches
      *
-     * @return Branches
+     * @return BranchesInterface
      */
-    public function getBranches(): Branches;
+    public function getBranchesObject(): BranchesInterface;
 
     /**
      * Stashes the git changes
      *
-     * @return Stash
+     * @return StashInterface
      */
-    public function getStash(): Stash;
+    public function getStashObject(): StashInterface;
 
     /**
      * Checks out the specified branches or paths for this git path

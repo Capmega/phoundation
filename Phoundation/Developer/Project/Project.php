@@ -583,7 +583,7 @@ class Project implements ProjectInterface
             // Add all files to index to ensure everything will be stashed
             if ($this->git->getStatus()->getCount()) {
                 $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStash()->stash();
+                $this->git->getStashObject()->stash();
                 $stash = true;
             }
 
@@ -610,7 +610,7 @@ class Project implements ProjectInterface
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->git->getStash()->pop();
+                $this->git->getStashObject()->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -619,7 +619,7 @@ class Project implements ProjectInterface
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
-                $this->git->getStash()->pop();
+                $this->git->getStashObject()->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -658,7 +658,7 @@ class Project implements ProjectInterface
             // Add all files to index to ensure everything will be stashed
             if ($this->git->getStatus()->getCount()) {
                 $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStash()->stash();
+                $this->git->getStashObject()->stash();
                 $stash = true;
             }
 
@@ -685,7 +685,7 @@ class Project implements ProjectInterface
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->git->getStash()->pop();
+                $this->git->getStashObject()->pop();
                 $this->git->reset('HEAD');
             }
 
@@ -694,7 +694,7 @@ class Project implements ProjectInterface
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(tr('Moving stashed files back'));
-                $this->git->getStash()->pop();
+                $this->git->getStashObject()->pop();
                 $this->git->reset('HEAD');
             }
 

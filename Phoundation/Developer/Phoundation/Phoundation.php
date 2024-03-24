@@ -347,7 +347,7 @@ class Phoundation extends Project
                             }
 
                             // Stash all problematic files (auto un-stash later)
-                            $git->getStash()->stash($files);
+                            $git->getStashObject()->stash($files);
 
 //                        } else {
 //                            // There are no problematic files found, look for other issues.
@@ -391,7 +391,7 @@ class Phoundation extends Project
 
                 // Whoopsie, we have shirts in stash, meaning some file was naughty.
                 Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $files]));
-                Git::new(DIRECTORY_ROOT)->getStash()->pop();
+                Git::new(DIRECTORY_ROOT)->getStashObject()->pop();
 
                 throw PatchPartiallySuccessfulException::new(tr('Phoundation patch was partially successful, some files failed'))
                     ->addData([
@@ -488,7 +488,7 @@ class Phoundation extends Project
     public function getPhoundationBranches(): IteratorInterface
     {
         // Ensure phoundation is on the right branch
-        return $this->git->getBranches();
+        return $this->git->getBranchesObject();
     }
 
 
