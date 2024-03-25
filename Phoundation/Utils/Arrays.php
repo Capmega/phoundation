@@ -2024,13 +2024,13 @@ class Arrays extends Utils
      *
      * @see Strings::force()
      */
-    public static function force(mixed $source, ?string $separator = ','): DataListInterface|IteratorInterface|array
+    public static function force(mixed $source, ?string $separator = ','): array
     {
         if (($source === '') or ($source === null)) {
             return [];
         }
 
-        if (is_array($source) or ($source instanceof DataListInterface) or ($source instanceof IteratorInterface)) {
+        if (is_array($source)) {
             return $source;
         }
 
