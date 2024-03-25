@@ -11,7 +11,7 @@
  * @package Phoundation\Utils
  */
 
-namespace Phoundation\Utils;
+namespace Phoundation\Utils\Traits;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
