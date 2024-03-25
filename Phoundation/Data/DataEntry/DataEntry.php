@@ -2042,8 +2042,8 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_loading = true;
 
         if ($direct) {
-            // Load data directly without object init. THIS MAY CAUSE PROBLEMS
-            $this->source = $source;
+            // Load data directly without an object init. THIS MAY CAUSE PROBLEMS
+            $this->source = Arrays::keepKeys($source, $this->definitions->getKeys());
 
         } else {
             // Load data with object init
