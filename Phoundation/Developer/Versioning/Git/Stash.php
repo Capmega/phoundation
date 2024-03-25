@@ -7,6 +7,7 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Versioning;
 
@@ -21,7 +22,7 @@ use Phoundation\Developer\Versioning\Versioning;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Stash extends Versioning
+class Stash extends Versioning implements StashInterface
 {
     use TraitGitProcess {
         setDirectory as protected setTraitDirectory;
