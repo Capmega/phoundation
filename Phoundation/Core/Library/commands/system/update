@@ -41,7 +41,7 @@ CliDocumentation::setAutoComplete([
         '--no-phoundation' => false,
         '-n,--no-plugins'  => false,
         '-s,--signed'      => false,
-        '--skip-caching'   => false,
+        '--no-caching'     => false,
     ]
 ]);
 
