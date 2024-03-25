@@ -9,13 +9,16 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Exception\WebRenderException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormRowsInterface;
 use Phoundation\Web\Html\Components\Input\InputHidden;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -37,9 +40,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * The key metadata for the specified data
      *
-     * @var Definitions|null $definitions
+     * @var DefinitionsInterface|null $definitions
      */
-    protected ?Definitions $definitions = null;
+    protected ?DefinitionsInterface $definitions = null;
 
     /**
      * Optional class for input elements
@@ -68,6 +71,13 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      * @var DataEntryFormRowsInterface $rows
      */
     protected DataEntryFormRowsInterface $rows;
+
+    /**
+     * The data entry that generated this form
+     *
+     * @var DataEntryInterface $data_entry
+     */
+    protected DataEntryInterface $data_entry;
 
 
     /**
@@ -167,12 +177,36 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Set the data source for this DataEntryForm
      *
-     * @param Definitions $definitions
+     * @param DefinitionsInterface $definitions
      * @return static
      */
-    public function setDefinitions(Definitions $definitions): static
+    public function setDefinitions(DefinitionsInterface $definitions): static
     {
         $this->definitions = $definitions;
+        return $this;
+    }
+
+
+    /**
+     * Returns the data fields for this DataEntryForm
+     *
+     * @return DataEntryInterface|null
+     */
+    public function getDataEntry(): ?DataEntryInterface
+    {
+        return $this->data_entry;
+    }
+
+
+    /**
+     * Set the data fields for this DataEntryForm
+     *
+     * @param DataEntryInterface $data_entry
+     * @return static
+     */
+    public function setDataEntry(DataEntryInterface $data_entry): static
+    {
+        $this->data_entry = $data_entry;
         return $this;
     }
 
@@ -185,7 +219,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     public function render(): ?string
     {
         if (!$this->getDefinitions()) {
-            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no field definitions specified'));
+            throw new OutOfBoundsException(tr('Cannot render DataEntryForm, no column definitions specified'));
         }
 
         $source        = $this->getSource();
@@ -208,18 +242,18 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         $is_array = str_ends_with((string) $prefix, '[');
 
         /*
-         * $data field keys: (Or just use Definitions class)
+         * $data column keys: (Or just use Definitions class)
          *
          * FIELD          DATATYPE           DEFAULT VALUE  DESCRIPTION
          * value          mixed              null           The value for this entry
          * visible        boolean            true           If false, this key will not be shown on web, and be readonly
          * virtual        boolean            false          If true, this key will be visible and can be modified but it
          *                                                  won't exist in database. It instead will be used to generate
-         *                                                  a different field
+         *                                                  a different column
          * element        string|null        "input"        Type of element, input, select, or text or callable function
          * type           string|null        "text"         Type of input element, if element is "input"
          * readonly       boolean            false          If true, will make the input element readonly
-         * disabled       boolean            false          If true, the field will be displayed as disabled
+         * disabled       boolean            false          If true, the column will be displayed as disabled
          * label          string|null        null           If specified, will show a description label in HTML
          * size           int [1-12]         12             The HTML boilerplate column size, 1 - 12 (12 being the whole
          *                                                  row)
@@ -231,11 +265,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
          *                                                  and "word". each key must contain a callable function that
          *                                                  returns an array with possible words for shell auto
          *                                                  completion. If bool, the system will generate this array
-         *                                                  automatically from the rows for this field
+         *                                                  automatically from the rows for this column
          * cli            string|null        null           If set, defines the alternative column name definitions for
          *                                                  use with CLI. For example, the column may be name, whilst
          *                                                  the cli column name may be "-n,--name"
-         * optional       boolean            false          If true, the field is optional and may be left empty
+         * optional       boolean            false          If true, the column is optional and may be left empty
          * title          string|null        null           The title attribute which may be used for tooltips
          * placeholder    string|null        null           The placeholder attribute which typically shows an example
          * maxlength      string|null        null           The maxlength attribute which typically shows an example
@@ -252,31 +286,31 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         // If form key definitions are available, reorder the keys as in the form key definitions
 
         // Go over each key and add it to the form
-        foreach ($definitions as $field => $definition) {
-            // Add field name prefix
-            $field_name = $prefix . $field;
+        foreach ($definitions as $column => $definition) {
+            // Add column name prefix
+            $field_name = $prefix . $column;
 
             if ($field_name === $auto_focus_id) {
-                // This field has autofocus
+                // This column has autofocus
                 $definition->setAutoFocus(true);
             }
 
             if ($is_array) {
-                // The field name prefix is an HTML form array prefix, close that array
+                // The column name prefix is an HTML form array prefix, close that array
                 $field_name .= ']';
             }
 
             if (!is_object($definition) or !($definition instanceof DefinitionInterface)) {
-                throw new OutOfBoundsException(tr('Data key definition for field ":field / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
-                    ':field'      => $field,
+                throw new OutOfBoundsException(tr('Data key definition for column ":column / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
+                    ':column'      => $column,
                     ':field_name' => $field_name,
                     ':data'       => gettype($definition) . ': ' . $definition
                 ]));
             }
 
             if ($definition->isMeta()) {
-                // This is an immutable meta field, virtual field, or readonly field.
-                // In creation mode we're not even going to show this, in edit mode don't put a field name because
+                // This is an immutable meta column, virtual column, or readonly column.
+                // In creation mode we're not even going to show this, in edit mode don't put a column name because
                 // users aren't even supposed to be able to submit this
                 if (empty($source['id'])) {
                     continue;
@@ -299,7 +333,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             $definition->setDisabled($definition->getDisabled() or $this->getDisabled());
 
             if ($definition->getDisabled() or $definition->getReadonly()) {
-                // This is an unmutable field. Don't add a field names as users aren't supposed to submit this.
+                // This is an unmutable column. Don't add a column names as users aren't supposed to submit this.
                 $field_name = '';
             }
 
@@ -308,10 +342,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 $definition->setSize(0);
             }
 
-            // Ensure security field values are never sent in the form
-            switch ($field) {
+            // Ensure security column values are never sent in the form
+            switch ($column) {
                 case 'password':
-                    $source[$field] = '';
+                    $source[$column] = '';
             }
 
             $execute = $definition->getExecute();
@@ -340,11 +374,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
             if ($definition->getDisplayCallback()) {
                 // Execute the specified callback on the data before displaying it
-                $source[$field] = $definition->getDisplayCallback()(isset_get($source[$field]), $source);
+                $source[$column] = $definition->getDisplayCallback()(isset_get($source[$column]), $source);
             }
 
             // Set default value and override key entry values if value is null
-            if (isset_get($source[$field]) === null) {
+            if (isset_get($source[$column]) === null) {
                 if ($definition->getNullElement()) {
                     $definition->setElement($definition->getNullElement());
                 }
@@ -361,17 +395,17 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     $definition->setReadonly($definition->getNullReadonly());
                 }
 
-                $source[$field] = $definition->getDefault();
+                $source[$column] = $definition->getDefault();
             }
 
             // Set value to value specified in $data
             if ($definition->getValue()) {
-                $source[$field] = $definition->getValue();
+                $source[$column] = $definition->getValue();
 
                 // Apply variables
                 foreach ($source as $source_key => $source_value) {
                     if ($definitions->keyExists($source_key)) {
-                        $source[$field] = str_replace(':' . $source_key, (string) $source_value, $source[$field]);
+                        $source[$column] = str_replace(':' . $source_key, (string) $source_value, $source[$column]);
                     }
                 }
             }
@@ -381,9 +415,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 switch ($definition->getElement()) {
                     case 'input':
                         if (!$definition->getInputType()) {
-                            throw new OutOfBoundsException(tr('No input type specified for field ":field / :field_name"', [
+                            throw new OutOfBoundsException(tr('No input type specified for column ":column / :field_name"', [
                                 ':field_name' => $field_name,
-                                ':field'      => $field
+                                ':column'      => $column
                             ]));
                         }
 
@@ -422,7 +456,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
                                     ->setValue('1')
-                                    ->setChecked((bool) $source[$field]);
+                                    ->setChecked((bool) $source[$column]);
                                 break;
 
                             case EnumInputType::number:
@@ -434,7 +468,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setMin($definition->getMin())
                                     ->setMax($definition->getMax())
                                     ->setStep($definition->getStep())
-                                    ->setValue($source[$field]);
+                                    ->setValue($source[$column]);
                                 break;
 
                             case EnumInputType::date:
@@ -445,7 +479,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setRequired($definition->getRequired())
                                     ->setMin($definition->getMin())
                                     ->setMax($definition->getMax())
-                                    ->setValue($source[$field]);
+                                    ->setValue($source[$column]);
                                 break;
 
                             case EnumInputType::auto_suggest:
@@ -459,7 +493,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setMaxLength($definition->getMaxLength())
                                     ->setSourceUrl($definition->getDataSource())
                                     ->setVariables($definition->getVariables())
-                                    ->setValue($source[$field]);
+                                    ->setValue($source[$column]);
                                 break;
 
                             case EnumInputType::button:
@@ -469,7 +503,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $component = $element_class::new()
                                     ->setDefinition($definition)
                                     ->setHidden($definition->getHidden())
-                                    ->setValue($source[$field]);
+                                    ->setValue($source[$column]);
                                 break;
 
                             case EnumInputType::select:
@@ -478,7 +512,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setDefinition($definition)
                                     ->setHidden($definition->getHidden())
                                     ->setRequired($definition->getRequired())
-                                    ->setValue($source[$field]);
+                                    ->setValue($source[$column]);
                                 break;
 
                             default:
@@ -491,7 +525,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     ->setMaxLength($definition->getMaxLength())
                                     ->setAutoComplete($definition->getAutoComplete())
                                     ->setAutoSubmit($definition->getAutoSubmit())
-                                    ->setValue($source[$field]);
+                                    ->setValue($source[$column]);
                         }
 
                         $this->rows->add($definition, $component);
@@ -502,7 +536,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     case 'textarea':
                         // If we have a source query specified, then get the actual value from the query
                         if ($definition->getDataSource()) {
-                            $source[$field] = sql()->getColumn($definition->getDataSource(), $execute);
+                            $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
                         }
 
                         // Get the class for this element and ensure the library file is loaded
@@ -514,7 +548,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             ->setHidden($definition->getHidden())
                             ->setMaxLength($definition->getMaxLength())
                             ->setRows($definition->getRows())
-                            ->setContent(isset_get($source[$field]));
+                            ->setContent(isset_get($source[$column]));
 
                         $this->rows->add($definition, $component);
                         break;
@@ -526,14 +560,14 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                         // If we have a source query specified, then get the actual value from the query
                         if ($definition->getDataSource()) {
-                            $source[$field] = sql()->getColumn($definition->getDataSource(), $execute);
+                            $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
                         }
 
                         // Get the class for this element and ensure the library file is loaded
                         $element_class = Library::includeClassFile('\\Phoundation\\Web\\Http\\Html\\Components\\' . $element_class);
                         $component     = $element_class::new()
                             ->setDefinition($definition)
-                            ->setContent(isset_get($source[$field]));
+                            ->setContent(isset_get($source[$column]));
 
                         $this->rows->add($definition, $component);
                         break;
@@ -550,7 +584,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             ->setName($field_name)
                             ->setAutoComplete($definition->getAutoComplete())
                             ->setAutoSubmit($definition->getAutoSubmit())
-                            ->setSelected(isset_get($source[$field]))
+                            ->setSelected(isset_get($source[$column]))
                             ->setAutoFocus($definition->getAutoFocus());
 
                         $this->rows->add($definition, $component);
@@ -569,8 +603,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             ->setDefinition($definition)
                             ->setHidden($definition->getHidden())
                             ->setName($field_name)
-                            ->setValue($source[$field])
-                            ->setContent(isset_get($source[$field]))
+                            ->setValue($source[$column])
+                            ->setContent(isset_get($source[$column]))
                             ->setAutoFocus($definition->getAutoFocus());
 
                         $this->rows->add($definition, $component);
@@ -578,35 +612,46 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     case '':
                         throw new OutOfBoundsException(tr('No element specified for key ":key"', [
-                            ':key' => $field
+                            ':key' => $column
                         ]));
 
                     default:
                         if (!is_callable($definition->getElement())) {
                             if (!$definition->getElement()) {
                                 throw new OutOfBoundsException(tr('No element specified for key ":key"', [
-                                    ':key' => $field
+                                    ':key' => $column
                                 ]));
                             }
 
                             throw new OutOfBoundsException(tr('Unknown element ":element" specified for key ":key"', [
                                 ':element' => $definition->getElement(),
-                                ':key'     => $field
+                                ':key'     => $column
                             ]));
                         }
 
                         // Execute this to get the element
-                        $this->rows->add($definition, $definition->getElement()($field, $definition, $source));
+                        $this->rows->add($definition, $definition->getElement()($column, $definition, $source));
                 }
 
             } elseif(is_callable($definition->getContent())) {
                 if ($definition->getHidden()) {
                     $this->rows->add($definition, InputHidden::new()
-                        ->setName($field)
-                        ->setValue(Strings::force($source[$field], ' - ')));
+                        ->setName($column)
+                        ->setValue(Strings::force($source[$column], ' - ')));
 
                 } else {
-                    $this->rows->add($definition, $definition->getContent()($definition, $field, $field_name, $source));
+                    $component = $definition->getContent()($definition, $column, $field_name, $source);
+
+                    if (!$component instanceof RenderInterface) {
+                        // The content function did NOT return a render object
+                        throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
+                            ':class'  => get_class($this->data_entry),
+                            ':column' => $column,
+                            ':type'   => get_object_class_or_data_type($component)
+                        ]));
+                    }
+
+                    $this->rows->add($definition, $definition->getContent()($definition, $column, $field_name, $source));
                 }
 
             } else {

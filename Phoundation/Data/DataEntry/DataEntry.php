@@ -2539,6 +2539,7 @@ abstract class DataEntry implements DataEntryInterface
     public function getHtmlDataEntryForm(): DataEntryFormInterface
     {
         return DataEntryForm::new()
+            ->setDataEntry($this)
             ->setSource($this->source)
             ->setReadonly($this->readonly)
             ->setDisabled($this->disabled)
@@ -2801,26 +2802,23 @@ abstract class DataEntry implements DataEntryInterface
                         ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
                             if ($this->isNew()) {
-                                // This is a new DataEntry object, so the creator is.. well, you!
+                                // This is a new DataEntry object, so the creator is.. Well, you!
                                 return InputText::new()
                                     ->setDisabled(true)
                                     ->addClasses('text-center')
-                                    ->setValue(Session::getUser()->getDisplayName())
-                                    ->render();
+                                    ->setValue(Session::getUser()->getDisplayName());
                             } else {
                                 // This is created by a user or by the system user
                                 if ($source[$key]) {
                                     return InputText::new()
                                         ->setDisabled(true)
                                         ->addClasses('text-center')
-                                        ->setValue(User::get($source[$key],  null)->getDisplayName())
-                                        ->render();
+                                        ->setValue(User::get($source[$key],  null)->getDisplayName());
                                 } else {
                                     return InputText::new()
                                         ->setDisabled(true)
                                         ->addClasses('text-center')
-                                        ->setValue(tr('System'))
-                                        ->render();
+                                        ->setValue(tr('System'));
                                 }
                             }
                         }));

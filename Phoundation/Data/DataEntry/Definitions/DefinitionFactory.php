@@ -72,8 +72,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(6)
             ->setLabel(tr('Category'))
@@ -131,8 +130,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(6)
             ->setLabel(tr('Server'))
@@ -224,8 +222,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(6)
             ->setLabel(tr('Company'))
@@ -284,8 +281,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(3)
             ->setCliColumn('--languages-id')
@@ -347,8 +343,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(6)
             ->setLabel(tr('Provider'))
@@ -405,8 +400,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(6)
             ->setLabel(tr('Customer'))
@@ -464,8 +458,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setCliColumn('--timezones-id TIMEZONE-DATABASE-ID')
             ->setCliAutoComplete(true)
@@ -528,8 +521,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(3)
             ->setCliColumn('--countries-id COUNTRY-DATABASE-ID')
@@ -589,8 +581,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(3)
             ->setCliColumn('--states-id STATE-DATABASE-ID')
@@ -650,8 +641,7 @@ class DefinitionFactory
                     ->setName($key)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->setSize(3)
             ->setCliColumn('--cities-id CITY-DATABASE-ID')
@@ -714,8 +704,7 @@ class DefinitionFactory
                     ->setName($column)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
                 $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $column]);
@@ -774,8 +763,7 @@ class DefinitionFactory
                     ->setName($column)
                     ->setReadonly($definition->getReadonly())
                     ->setDisabled($definition->getDisabled())
-                    ->setSelected(isset_get($source[$key]))
-                    ->render();
+                    ->setSelected(isset_get($source[$key]));
             })
             ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
                 $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_roles` WHERE `id` = :id AND `status` IS NULL', [':id' => '$' . $column]);
