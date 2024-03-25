@@ -8,6 +8,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
+use Phoundation\Developer\Versioning\Git\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Path;
@@ -24,7 +25,7 @@ use Phoundation\Os\Processes\Process;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Developer
  */
-class Branches extends Iterator
+class Branches extends Iterator implements BranchesInterface
 {
     use TraitGitProcess {
         setDirectory as protected setGitDirectory;

@@ -46,6 +46,13 @@ interface ProcessCoreInterface
     public function executeReturnArray(): array;
 
     /**
+     * Execute the command using the PHP exec() call and return an IteratorInterface
+     *
+     * @return IteratorInterface The output from the executed command
+     */
+    public function executeReturnIterator(): IteratorInterface;
+
+    /**
      * Execute the command using the PHP exec() call and return a string
      *
      * @return string The output from the executed command

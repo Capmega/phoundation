@@ -127,7 +127,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessCoreInte
 
 
     /**
-     * Execute the command using the PHP exec() call and return an array
+     * Execute the command using the PHP exec() call and return an IteratorInterface
      *
      * @return IteratorInterface The output from the executed command
      */
