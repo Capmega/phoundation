@@ -683,7 +683,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
         // Does the key match?
         if (array_key_exists($key, $this->selected)) {
             // If $this->selected[$value] is false, it means it's a key
-            return ($this->selected[$value] ? null : ' selected');
+            return ($this->selected[$key] ? null : ' selected');
         }
 
         // Does the value match?
