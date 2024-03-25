@@ -568,8 +568,7 @@ showdie('fuck!');
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['categories_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['categories_id']));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorColumn('category')->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
@@ -583,8 +582,7 @@ showdie('fuck!');
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['providers_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['providers_id']));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorColumn('provider')->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
@@ -598,8 +596,7 @@ showdie('fuck!');
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['customers_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['customers_id']));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorColumn('customer')->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
@@ -614,8 +611,7 @@ showdie('fuck!');
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['countries_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['countries_id']));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorColumn('country')->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
@@ -630,8 +626,7 @@ showdie('fuck!');
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['states_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['states_id']));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorColumn('state')->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
@@ -644,8 +639,7 @@ showdie('fuck!');
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['cities_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['cities_id']));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->xorColumn('city')->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);

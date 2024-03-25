@@ -161,8 +161,7 @@ class SignIn extends DataEntry
                     return Countries::getHtmlCountriesSelect()
                         ->setDisabled(true)
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['countries_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['countries_id']));
                 })
                 ->setSize(6)
                 ->setLabel(tr('Country'))
@@ -178,8 +177,7 @@ class SignIn extends DataEntry
                     return Timezones::new()->getHtmlSelect()
                         ->setDisabled(true)
                         ->setName($field_name)
-                        ->setSelected(isset_get($source['timezones_id']))
-                        ->render();
+                        ->setSelected(isset_get($source['timezones_id']));
                 })
                 ->setSize(6)
                 ->setLabel(tr('Timezone'))

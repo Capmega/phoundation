@@ -26,7 +26,7 @@ class InputImage extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::image;
+        $this->input_type = EnumInputType::image;
         parent::__construct($content);
     }
 }

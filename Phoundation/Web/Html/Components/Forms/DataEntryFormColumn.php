@@ -1,21 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Forms;
-
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\Traits\TraitDataDefinition;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
-use Phoundation\Web\Html\Html;
-
-
 /**
- * Class DataEntryComponentForm
+ * Class DataEntryFormColumn
  *
  *
  *
@@ -24,6 +10,19 @@ use Phoundation\Web\Html\Html;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Forms;
+
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
+use Phoundation\Web\Html\Html;
+
 class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnInterface
 {
     /**
@@ -63,7 +62,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
      *
      * @return string|null
      */
-    public function render(): ?string
+    protected function defaultRender(): ?string
     {
         if (!$this->definition) {
             throw new OutOfBoundsException(tr('Cannot render form component, no definition specified'));
@@ -75,26 +74,29 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
 
         $definition = $this->definition;
 
-        if (is_object($this->column_component)) {
-            $this->column_component = $this->column_component->render();
-        }
-
         if ($definition->getHidden()) {
             // Hidden elements don't display anything beyond the hidden <input>
             return $this->column_component;
         }
 
+        if ($this->column_component->hasOuterDiv()) {
+            // Get attributes and properties for the outer div
+            $outer      = $this->column_component->getOuterDiv();
+            $class      = $outer->getClass();
+            $attributes = $outer->getAttributes();
+        }
+
         $this->render .= match ($definition->getInputType()?->value) {
-            default    => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . '">
+            default    => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
                                  <div data-mdb-input-init class="form-outline">
-                                     ' . $this->column_component . '
+                                     ' . $this->column_component->render() . '
                                      <label class="form-label" for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
                                  </div>
                              </div>',
 //            ' . $this->renderTooltip($definition) . '
         };
 
-        return parent::render();
+        return $this->render;
     }
 
 

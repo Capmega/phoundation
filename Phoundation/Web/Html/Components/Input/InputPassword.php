@@ -26,7 +26,7 @@ class InputPassword extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::password;
+        $this->input_type = EnumInputType::password;
         parent::__construct($content);
     }
 }

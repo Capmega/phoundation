@@ -35,9 +35,9 @@ trait TraitInputElement
     /**
      * Input element type
      *
-     * @var EnumInputTypeInterface|null $type
+     * @var EnumInputTypeInterface|null $input_type
      */
-    protected ?EnumInputTypeInterface $type = null;
+    protected ?EnumInputTypeInterface $input_type = null;
 
 
     /**
@@ -91,21 +91,21 @@ trait TraitInputElement
      *
      * @return EnumInputTypeInterface|null
      */
-    public function getType(): ?EnumInputTypeInterface
+    public function getInputType(): ?EnumInputTypeInterface
     {
-        return $this->type;
+        return $this->input_type;
     }
 
 
     /**
      * Sets the type for the input element
      *
-     * @param EnumInputTypeInterface|null $type
+     * @param EnumInputTypeInterface|null $input_type
      * @return static
      */
-    public function setType(?EnumInputTypeInterface $type): static
+    public function setInputType(?EnumInputTypeInterface $input_type): static
     {
-        $this->type = $type;
+        $this->input_type = $input_type;
         return $this;
     }
 
@@ -244,7 +244,7 @@ trait TraitInputElement
     protected function renderInputAttributes(): IteratorInterface
     {
         return Iterator::new()->setSource([
-            'type'  => $this->type?->value,
+            'type'  => $this->input_type?->value,
             'value' => $this->value,
         ]);
     }

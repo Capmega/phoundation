@@ -26,7 +26,7 @@ class InputSearch extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::search;
+        $this->input_type = EnumInputType::search;
         parent::__construct($content);
     }
 }

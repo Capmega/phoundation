@@ -144,8 +144,7 @@ class Category extends DataEntry implements CategoryInterface
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Categories::new()->getHtmlSelect()
                         ->setName($field_name)
-                        ->setSelected(isset_get($source[$key]))
-                        ->render();
+                        ->setSelected(isset_get($source[$key]));
                 })
                 ->setSize(6)
                 ->setLabel(tr('Parent category'))

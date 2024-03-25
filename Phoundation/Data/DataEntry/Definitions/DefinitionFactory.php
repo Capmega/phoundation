@@ -23,6 +23,7 @@ use Phoundation\Geo\States\States;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Servers\Servers;
+use Phoundation\Web\Html\Enums\EnumInputElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -1233,6 +1234,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
+            ->setElement(EnumInputElement::textarea)
             ->setInputType(EnumInputType::array_json)
             ->setSize(12)
             ->setMaxlength(16_777_200)

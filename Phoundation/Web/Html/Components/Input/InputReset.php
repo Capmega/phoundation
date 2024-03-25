@@ -26,7 +26,7 @@ class InputReset extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::reset;
+        $this->input_type = EnumInputType::reset;
         parent::__construct($content);
     }
 }

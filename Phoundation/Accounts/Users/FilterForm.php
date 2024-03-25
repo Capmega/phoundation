@@ -65,8 +65,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                         ->setAutoSubmit(true)
                         ->setName($field_name)
                         ->setNone(tr('Select'))
-                        ->setSelected(isset_get($this->source[$key]))
-                        ->render();
+                        ->setSelected(isset_get($this->source[$key]));
                 }))
             ->add(Definition::new(null, 'rights_id')
                 ->setLabel(tr('Right'))
@@ -78,8 +77,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                         ->setAutoSubmit(true)
                         ->setName($field_name)
                         ->setNone(tr('Select'))
-                        ->setSelected(isset_get($this->source[$key]))
-                        ->render();
+                        ->setSelected(isset_get($this->source[$key]));
                 }));
     }
 }

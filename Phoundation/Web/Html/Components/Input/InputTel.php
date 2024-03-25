@@ -29,7 +29,7 @@ class InputTel extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::tel;
+        $this->input_type = EnumInputType::tel;
         parent::__construct($content);
     }
 }

@@ -173,4 +173,49 @@ interface InputSelectInterface extends ResourceElementInterface
      * @see ElementInterface::render()
      */
     public function renderBody(): ?string;
+
+    /**
+     * Returns if the select element has a search
+     *
+     * @return bool
+     */
+    public function getSearch(): bool;
+
+    /**
+     * Sets if the select element has a search
+     *
+     * @param bool $search
+     * @return static
+     */
+    public function setSearch(bool $search): static;
+
+    /**
+     * Returns if the select element has a clear_button
+     *
+     * @return bool
+     */
+    public function getClearButton(): bool;
+
+    /**
+     * Sets if the select element has a clear_button
+     *
+     * @param bool $clear_button
+     * @return static
+     */
+    public function setClearButton(bool $clear_button): static;
+
+    /**
+     * Returns if the select element has custom_content
+     *
+     * @return string|null
+     */
+    public function getCustomContent(): ?string;
+
+    /**
+     * Sets if the select element has custom_content
+     *
+     * @param string|null $custom_content
+     * @return static
+     */
+    public function setCustomContent(?string $custom_content): static;
 }

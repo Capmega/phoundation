@@ -12,7 +12,10 @@ use Phoundation\Data\Traits\TraitDataDefinition;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
+use Phoundation\Web\Html\Components\Interfaces\DivInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
@@ -192,6 +195,13 @@ trait ElementAttributes
      */
     protected ?AInterface $anchor = null;
 
+    /**
+     * Contains data, arguments, classes, etc for the element around this element, if needed
+     *
+     * @var DivInterface $outer_div
+     */
+    protected DivInterface $outer_div;
+
 
     /**
      * Class constructor
@@ -247,7 +257,7 @@ trait ElementAttributes
     public function getAnchor(): AInterface
     {
         if (empty($this->anchor)) {
-            $this->anchor = A::new()->setParent($this);
+            $this->anchor = A::new()->setChildElement($this);
         }
 
         return $this->anchor;
@@ -267,9 +277,54 @@ trait ElementAttributes
                 $anchor = A::new()->setHref($anchor);
             }
 
-            $this->anchor = $anchor->setParent($this);
+            $this->anchor = $anchor->setChildElement($this);
         } else {
             $this->anchor = null;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this element has an outer div set up
+     *
+     * @return bool
+     */
+    public function hasOuterDiv(): bool
+    {
+        return isset($this->outer_div);
+    }
+
+
+    /**
+     * Returns the (optional) outer_element for this element
+     *
+     * @return DivInterface
+     */
+    public function getOuterDiv(): DivInterface
+    {
+        if (empty($this->outer_div)) {
+            $this->outer_div = Div::new()->setChildElement($this);
+        }
+
+        return $this->outer_div;
+    }
+
+
+    /**
+     * Sets the outer_element for this element
+     *
+     * @param DivInterface|null $outer_div
+     * @return Span
+     */
+    public function setOuterDiv(DivInterface|null $outer_div): static
+    {
+        if ($outer_div) {
+            $this->outer_div = $outer_div->setChildElement($this);
+
+        } else {
+            unset($this->outer_div);
         }
 
         return $this;
@@ -423,6 +478,17 @@ trait ElementAttributes
     public function getAttributes(): IteratorInterface
     {
         return $this->attributes;
+    }
+
+
+    /**
+     * Returns the HTML attributes as a string
+     *
+     * @return string|null
+     */
+    public function getAttributesString(): ?string
+    {
+        return Arrays::implodeWithKeys($this->attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
     }
 
 
@@ -655,7 +721,7 @@ trait ElementAttributes
 
 
     /**
-     * Returns the HTML required element attribute
+     * Returns the HTML "required" element attribute
      *
      * @return bool
      */
@@ -666,7 +732,7 @@ trait ElementAttributes
 
 
     /**
-     * Set the HTML required element attribute
+     * Set the HTML "required" element attribute
      *
      * @param bool $required
      * @return static

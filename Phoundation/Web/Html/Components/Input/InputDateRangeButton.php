@@ -32,7 +32,7 @@ class InputDateRangeButton extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::text;
+        $this->input_type = EnumInputType::text;
         parent::__construct($content);
     }
 }

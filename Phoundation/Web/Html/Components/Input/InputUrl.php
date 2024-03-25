@@ -26,7 +26,7 @@ class InputUrl extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::url;
+        $this->input_type = EnumInputType::url;
         parent::__construct($content);
     }
 }

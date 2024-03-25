@@ -207,7 +207,7 @@ abstract class Element implements ElementInterface
 
         if ($this->anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
-            return $this->anchor->setContent($render)->setParent(null)->render();
+            return $this->anchor->setContent($render)->setChildElement(null)->render();
         }
 
         return $render;

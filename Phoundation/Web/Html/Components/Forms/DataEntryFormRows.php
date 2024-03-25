@@ -134,10 +134,10 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
      * Adds the column component and its definition as a DataEntryFormColumn
      *
      * @param DefinitionInterface|null $definition
-     * @param RenderInterface|string|null $component
+     * @param RenderInterface|null $component
      * @return $this
      */
-    public function add(?DefinitionInterface $definition = null, RenderInterface|string|null $component = null): static
+    public function add(?DefinitionInterface $definition = null, RenderInterface|null $component = null): static
     {
         return $this->addColumn(DataEntryFormColumn::new()->setDefinition($definition)->setColumnComponent($component));
     }

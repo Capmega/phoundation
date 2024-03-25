@@ -26,7 +26,7 @@ class InputNumeric extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::number;
+        $this->input_type = EnumInputType::number;
         parent::__construct($content);
     }
 

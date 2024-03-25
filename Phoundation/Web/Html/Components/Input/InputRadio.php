@@ -26,7 +26,7 @@ class InputRadio extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::radio;
+        $this->input_type = EnumInputType::radio;
         parent::__construct($content);
     }
 }

@@ -27,7 +27,7 @@ class InputHidden extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::hidden;
+        $this->input_type = EnumInputType::hidden;
         parent::__construct($content);
     }
 

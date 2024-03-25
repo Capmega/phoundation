@@ -27,7 +27,7 @@ class InputText extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = $this->type ?? EnumInputType::text;
+        $this->input_type = $this->input_type ?? EnumInputType::text;
         parent::__construct($content);
     }
 

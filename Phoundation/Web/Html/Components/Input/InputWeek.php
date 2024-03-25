@@ -26,7 +26,7 @@ class InputWeek extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::week;
+        $this->input_type = EnumInputType::week;
         parent::__construct($content);
     }
 }

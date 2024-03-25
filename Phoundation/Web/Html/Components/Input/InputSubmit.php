@@ -26,7 +26,7 @@ class InputSubmit extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::submit;
+        $this->input_type = EnumInputType::submit;
         parent::__construct($content);
     }
 }

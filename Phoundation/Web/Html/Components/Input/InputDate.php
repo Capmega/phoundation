@@ -28,7 +28,7 @@ class InputDate extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::date;
+        $this->input_type = EnumInputType::date;
         parent::__construct($content);
     }
 

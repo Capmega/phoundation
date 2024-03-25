@@ -79,7 +79,7 @@ trait ButtonProperties
     public function setType(?EnumInputTypeInterface $type): static
     {
         $this->setElement('button');
-        $this->type = $type;
+        $this->input_type = $type;
         return $this;
     }
 
@@ -91,7 +91,7 @@ trait ButtonProperties
      */
     public function getType(): ?EnumInputTypeInterface
     {
-        return $this->type;
+        return $this->input_type;
     }
 
 
@@ -116,7 +116,7 @@ trait ButtonProperties
     {
         $this->setElement('a');
         $this->anchor_url = (string) UrlBuilder::getWww($anchor_url);
-        $this->type       = null;
+        $this->input_type       = null;
 
         return $this;
     }

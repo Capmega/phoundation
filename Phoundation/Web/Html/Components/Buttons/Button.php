@@ -174,7 +174,7 @@ class Button extends Input
     public function render(): ?string
     {
         $this->resetButtonClasses();
-        $this->attributes->set($this->type?->value, 'type');
+        $this->attributes->set($this->input_type?->value, 'type');
 
         if ($this->anchor_url) {
             $this->attributes->removeKeys('type');

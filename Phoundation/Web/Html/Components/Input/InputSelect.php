@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use PDO;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -132,6 +131,18 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
 
     /**
+     * Returns the HTML readonly element attribute
+     *
+     * Enabling readonly on a select element will also enable disabled!
+     * @return bool
+     */
+    public function getReadonly(): bool
+    {
+        return $this->readonly;
+    }
+
+
+    /**
      * Set the HTML readonly element attribute
      *
      * Enabling readonly on a select element will also enable disabled!
@@ -163,6 +174,18 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
 
     /**
+     * Returns  the HTML disabled element attribute
+     *
+     * Enabling readonly on a select element will also enable disabled!
+     * @return bool
+     */
+    public function getDisabled(): bool
+    {
+        return $this->disabled;
+    }
+
+
+    /**
      * Set the HTML disabled element attribute
      *
      * @param bool $disabled
@@ -188,6 +211,17 @@ class InputSelect extends ResourceElement implements InputSelectInterface
     /**
      * Sets if the select element allows multiple options to be selected
      *
+     * @return bool
+     */
+    public function getMultiple(): bool
+    {
+        return (bool)$this->attributes->get('multiple', false);
+    }
+
+
+    /**
+     * Sets if the select element allows multiple options to be selected
+     *
      * @param bool $multiple
      * @return static
      */
@@ -198,13 +232,71 @@ class InputSelect extends ResourceElement implements InputSelectInterface
 
 
     /**
-     * Sets if the select element allows multiple options to be selected
+     * Returns if the select element has a search
      *
      * @return bool
      */
-    public function getMultiple(): bool
+    public function getSearch(): bool
     {
-        return $this->attributes->get('multiple', false);
+        return (bool)$this->attributes->get('search', false);
+    }
+
+
+    /**
+     * Sets if the select element has a search
+     *
+     * @param bool $search
+     * @return static
+     */
+    public function setSearch(bool $search): static
+    {
+        return $this->setAttribute($search, 'search');
+    }
+
+
+    /**
+     * Returns if the select element has a clear_button
+     *
+     * @return bool
+     */
+    public function getClearButton(): bool
+    {
+        return (bool)$this->attributes->get('clear_button', false);
+    }
+
+
+    /**
+     * Sets if the select element has a clear_button
+     *
+     * @param bool $clear_button
+     * @return static
+     */
+    public function setClearButton(bool $clear_button): static
+    {
+        return $this->setAttribute($clear_button, 'clear_button');
+    }
+
+
+    /**
+     * Returns if the select element has custom_content
+     *
+     * @return string|null
+     */
+    public function getCustomContent(): ?string
+    {
+        return $this->attributes->get('custom_content', false);
+    }
+
+
+    /**
+     * Sets if the select element has custom_content
+     *
+     * @param string|null $custom_content
+     * @return static
+     */
+    public function setCustomContent(?string $custom_content): static
+    {
+        return $this->setAttribute($custom_content, 'custom_content');
     }
 
 
@@ -441,7 +533,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      */
     public function renderBody(): ?string
     {
-        $return = null;
+        $return  = null;
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
 
@@ -543,13 +635,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface
      *
      * Return the body HTML for a <select> list
      *
-     * @return null
+     * @return string|null
      * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::render()
      * @see \Templates\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
-    protected function renderBodyQuery(): null
+    protected function renderBodyQuery(): ?string
     {
         if (empty($this->source_query)) {
             return null;

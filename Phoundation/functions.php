@@ -21,6 +21,7 @@ use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
 
 
@@ -1140,6 +1141,26 @@ function in_range(float|int $value, float|int $begin, float|int $end, bool $allo
 function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeInterface
 {
     return new \Phoundation\Date\DateTime('now', $timezone);
+}
+
+
+/**
+ * Renders the given content to HTML and returns it
+ *
+ * @param RenderInterface|callable|string|float|int|null $content
+ * @return string
+ */
+function render(RenderInterface|callable|string|float|int|null $content): string
+{
+    if (is_callable($content)) {
+        return render($content());
+    }
+
+    if ($content instanceof RenderInterface) {
+        return render($content->render());
+    }
+
+    return (string)$content;
 }
 
 

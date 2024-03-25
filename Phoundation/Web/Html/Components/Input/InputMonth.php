@@ -26,7 +26,7 @@ class InputMonth extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::month;
+        $this->input_type = EnumInputType::month;
         parent::__construct($content);
     }
 }

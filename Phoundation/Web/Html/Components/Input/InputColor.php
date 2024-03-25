@@ -26,7 +26,7 @@ class InputColor extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::color;
+        $this->input_type = EnumInputType::color;
         parent::__construct($content);
     }
 }

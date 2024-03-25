@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
+use Phoundation\Web\Html\Traits\TraitChildElement;
 
 
 /**
@@ -19,6 +20,9 @@ use Phoundation\Web\Html\Components\Interfaces\DivInterface;
  */
 class Div extends Element implements DivInterface
 {
+    use TraitChildElement;
+
+
     /**
      * Form class constructor
      *

@@ -26,7 +26,7 @@ class InputRange extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::range;
+        $this->input_type = EnumInputType::range;
         parent::__construct($content);
     }
 }

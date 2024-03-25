@@ -405,9 +405,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                         // Build the element class path and load the required class file
                         $type = match ($definition->getInputType()) {
-                            'datetime-local' => 'DateTimeLocal',
-                            'auto-suggest'   => 'AutoSuggest',
-                            default          => str_replace(' ', '', Strings::camelCase(str_replace([' ', '-', '_'], ' ', $definition->getInputType()->value))),
+                            EnumInputType::datetime_local => 'DateTimeLocal',
+                            EnumInputType::auto_suggest   => 'AutoSuggest',
+                            default                       => str_replace(' ', '', Strings::camelCase(str_replace([' ', '-', '_'], ' ', $definition->getInputType()->value))),
                         };
 
                         // Get the class for this element and ensure the library file is loaded
@@ -603,8 +603,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 if ($definition->getHidden()) {
                     $this->rows->add($definition, InputHidden::new()
                         ->setName($field)
-                        ->setValue(Strings::force($source[$field], ' - '))
-                        ->render());
+                        ->setValue(Strings::force($source[$field], ' - ')));
 
                 } else {
                     $this->rows->add($definition, $definition->getContent()($definition, $field, $field_name, $source));

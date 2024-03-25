@@ -1,12 +1,5 @@
 <?php
 
-namespace Phoundation\Web\Html\Components\Interfaces;
-
-use Phoundation\Web\Html\Components\A;
-use Phoundation\Web\Html\Components\Span;
-use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
-
-
 /**
  * interface AInterface
  *
@@ -17,6 +10,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
+namespace Phoundation\Web\Html\Components\Interfaces;
+
+use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
+
+
 interface AInterface extends SpanInterface
 {
     /**
@@ -48,19 +47,4 @@ interface AInterface extends SpanInterface
      * @return $this
      */
     public function setTarget(?EnumAnchorTargetInterface $target): static;
-
-    /**
-     * Returns the parent for this anchor
-     *
-     * @return ElementInterface|null
-     */
-    public function getParent(): ?ElementInterface;
-
-    /**
-     * Sets the parent for this anchor
-     *
-     * @param ElementInterface|null $parent
-     * @return $this
-     */
-    public function setParent(?ElementInterface $parent): static;
 }

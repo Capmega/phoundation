@@ -85,4 +85,11 @@ interface ElementInterface extends RenderInterface
      * @return Span
      */
     public function setAnchor(?AInterface $anchor): static;
+
+    /**
+     * Returns the HTML attributes as a string
+     *
+     * @return string|null
+     */
+    public function getAttributesString(): ?string;
 }

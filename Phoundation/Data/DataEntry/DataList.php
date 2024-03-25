@@ -416,7 +416,7 @@ abstract class DataList extends Iterator implements DataListInterface
                 $where = [];
 
                 foreach ($filters as $key => $value) {
-                    $where[] = $key . SqlQueries::is($key, $value, 'value', $execute);
+                    $where[] = SqlQueries::is($key, $value, 'value', $execute);
                 }
 
                 $query .= ' WHERE ' . implode(' AND ', $where);

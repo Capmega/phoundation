@@ -64,7 +64,7 @@ class InputCheckbox extends Input
     public function __construct(?string $content = null)
     {
         $this->setElement('input');
-        $this->type = EnumInputType::checkbox;
+        $this->input_type = EnumInputType::checkbox;
         parent::__construct($content);
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Traits\TraitInputElement;
@@ -39,13 +40,26 @@ abstract class Input extends Element implements InputInterface
 
 
     /**
+     * Add the system arguments to the arguments list
+     *
+     * @note The system attributes (id, name, class, autofocus, readonly, disabled) will overwrite those same
+     *       values that were added as general attributes using Element::getAttributes()->add()
+     * @return IteratorInterface
+     */
+    protected function renderAttributes(): IteratorInterface
+    {
+        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
+        return parent::renderAttributes();
+    }
+
+
+    /**
      * Render and return the HTML for this Input Element
      *
      * @return string|null
      */
     public function render(): ?string
     {
-        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
         return parent::render();
     }
 }

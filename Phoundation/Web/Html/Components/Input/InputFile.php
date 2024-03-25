@@ -33,7 +33,7 @@ class InputFile extends Input
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::file;
+        $this->input_type = EnumInputType::file;
         parent::__construct($content);
     }
 }

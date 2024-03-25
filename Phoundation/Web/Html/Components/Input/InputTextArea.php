@@ -46,7 +46,7 @@ class InputTextArea extends Input
 
         $this->requires_closing_tag = true;
         $this->element              = 'textarea';
-        $this->type                 = null;
+        $this->input_type                 = null;
     }
 
 

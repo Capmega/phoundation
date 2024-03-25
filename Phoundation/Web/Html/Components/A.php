@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumAnchorTargetInterface;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Phoundation\Web\Http\UrlBuilder;
@@ -25,14 +24,6 @@ use Phoundation\Web\Http\UrlBuilder;
 class A extends Span implements AInterface
 {
     /**
-     * The parent where this anchor sits around
-     *
-     * @var ElementInterface|null $parent
-     */
-    protected ?ElementInterface $parent = null;
-
-
-    /**
      * Form class constructor
      *
      * @param string|null $content
@@ -41,30 +32,6 @@ class A extends Span implements AInterface
     {
         parent::__construct($content);
         $this->setElement('a');
-    }
-
-
-    /**
-     * Returns the parent for this anchor
-     *
-     * @return ElementInterface|null
-     */
-    public function getParent(): ?ElementInterface
-    {
-        return $this->parent;
-    }
-
-
-    /**
-     * Sets the parent for this anchor
-     *
-     * @param ElementInterface|null $parent
-     * @return $this
-     */
-    public function setParent(?ElementInterface $parent): static
-    {
-        $this->parent = $parent;
-        return $this;
     }
 
 
@@ -122,18 +89,18 @@ class A extends Span implements AInterface
      */
     public function render(): ?string
     {
-        if ($this->parent) {
+        if ($this->child_element) {
             // Render the parent first and use it as content
             if ($this->content) {
                 // This A element already has content, can't have a parent AND content!
-                throw new OutOfBoundsException(tr('Cannot render A element, it has parent "" and content "". It must have one or the other', [
-                    ':parent' => get_class($this->parent),
-                    ':conten' => $this->content
+                throw new OutOfBoundsException(tr('Cannot render A element, it has child element ":child" and content ":content". It must have one or the other', [
+                    ':parent'  => get_class($this->child_element),
+                    ':content' => $this->content
                 ]));
             }
 
-            $this->parent->setAnchor(null);
-            $this->content = $this->parent->render();
+            $this->child_element->setAnchor(null);
+            $this->content = $this->child_element->render();
         }
 
         return parent::render();

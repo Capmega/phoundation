@@ -964,6 +964,8 @@ throw new UnderConstructionException();
             'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up.html'),
             'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out.html'),
             'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key.html'),
+            'profile'              => Config::getString('web.pages.profile', '/my/profile.html'),
+            'settings'             => Config::getString('web.pages.settings', '/my/settings.html'),
             default                => Config::getString('web.pages.' . $url , '')
         };
 

@@ -29,7 +29,7 @@ class InputEmail extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->type = EnumInputType::email;
+        $this->input_type = EnumInputType::email;
         parent::__construct($content);
     }
 }

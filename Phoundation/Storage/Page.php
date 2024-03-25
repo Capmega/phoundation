@@ -146,8 +146,7 @@ class Page extends DataEntry implements PageInterface
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Pages::new()->getHtmlSelect()
                         ->setName($key)
-                        ->setSelected(isset_get($source[$key]))
-                        ->render();
+                        ->setSelected(isset_get($source[$key]));
                 })
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure categories id exists and that its or category
