@@ -11,7 +11,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Templates\Template;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use PHPMailer\PHPMailer\PHPMailer;
 

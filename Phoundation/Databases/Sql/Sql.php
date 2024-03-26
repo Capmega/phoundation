@@ -536,9 +536,26 @@ class Sql implements SqlInterface
 
         $statement = $this->query('UPDATE `' . $table . '`
                                          SET     ' . $update .
-                                         $where, $values);
+                                  $where, $values);
 
         return $statement->rowCount();
+    }
+
+
+    /**
+     * Update the status for the specified data row in the specified table
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     *
+     * @param string $table
+     * @param string|null $status
+     * @param array|null $where
+     * @return int The number of rows that were updated
+     */
+    public function setStatus(string $table, ?string $status, array|null $where = null): int
+    {
+        return $this->update($table, ['status' => $status], $where);
     }
 
 

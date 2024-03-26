@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Templates\Template;
-use Phoundation\Templates\Interfaces\TemplateInterface;
+use Phoundation\Templates\Html\Pages\Interfaces\TemplateInterface;
+use Phoundation\Web\Html\Pages\Template;
 
 
 /**

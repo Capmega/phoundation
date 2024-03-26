@@ -927,6 +927,15 @@ interface ValidatorInterface
     public function sanitizeDecodeJson(bool $array = true): static;
 
     /**
+     * Sanitize the selected value by encoding the data to JSON
+     *
+     * @return static
+     * @see static::isJson()
+     * @see static::sanitizeDecodeJson()
+     */
+    public function sanitizeEncodeJson(): static;
+
+    /**
      * Sanitize the selected value by decoding the specified CSV
      *
      * @param string $separator The separation character, defaults to comma
@@ -944,7 +953,7 @@ interface ValidatorInterface
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static;
 
     /**
-     * Sanitize the selected value by decoding the specified CSV
+     * Sanitize the selected value by decoding the specified serialized string
      *
      * @return static
      * @see static::sanitizeDecodeBase58()
@@ -955,6 +964,14 @@ interface ValidatorInterface
      * @see static::sanitizeForceString()
      */
     public function sanitizeDecodeSerialized(): static;
+
+    /**
+     * Sanitize the selected value by encoding the specified data to a serialized string
+     *
+     * @return static
+     * @see static::sanitizeDecodeSerialized()
+     */
+    public function sanitizeEncodeSerialized(): static;
 
     /**
      * Sanitize the selected value by converting it to an array

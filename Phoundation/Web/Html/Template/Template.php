@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Template;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
@@ -143,10 +144,10 @@ abstract class Template implements TemplateInterface
     /**
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
      *
-     * @param ElementInterface|ElementsBlockInterface|string $class
+     * @param RenderInterface|string $class
      * @return string|null
      */
-    public function getRendererClass(ElementInterface|ElementsBlockInterface|string $class): ?string
+    public function getRendererClass(RenderInterface|string $class): ?string
     {
         while (true) {
             if (is_object($class)) {
@@ -193,6 +194,12 @@ abstract class Template implements TemplateInterface
                 // rendering
                 $include_class  = Strings::untilReverse(get_class($this), '\\');
                 $include_class .= '\\Html\\' . $class_path;
+            }
+
+            if (str_ends_with($include_class, 'TemplateTemplate')) {
+                // "Template" class will be named just "Template"
+                $include_class = str_replace('TemplateTemplate', 'Template', $include_class);
+                $include_file  = str_replace('TemplateTemplate', 'Template', $include_file);
             }
 
             if (file_exists($include_file)) {

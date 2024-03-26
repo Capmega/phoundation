@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Html\Template\Interfaces;
 
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
@@ -45,10 +46,10 @@ interface TemplateInterface
     /**
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
      *
-     * @param ElementInterface|ElementsBlockInterface|string $class
+     * @param RenderInterface|string $class
      * @return string|null
      */
-    public function getRendererClass(ElementInterface|ElementsBlockInterface|string $class): ?string;
+    public function getRendererClass(RenderInterface|string $class): ?string;
 
     /**
      * Returns the description for this template

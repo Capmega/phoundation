@@ -122,7 +122,7 @@ class Template extends Page implements TemplateInterface
                                     
                                             <p>:p</p>
                                             <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . UrlBuilder::getCurrentDomainRootUrl() . '">here</a>']) . '</p>
-                                            <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out.html') . '">here</a>']) . '</p>';
+                                            <p>' . tr('Click :here to sign out', [':here' => '<a href="' . UrlBuilder::getWww('sign-out') . '">here</a>']) . '</p>';
 
                 if (!Session::getUser()->isGuest()) {
                     $html .= '              <form class="search-form" method="post" action=":action">

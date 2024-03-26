@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 
 
 /**
@@ -30,7 +31,7 @@ trait TraitDataIteratorSource
      *
      * @return IteratorInterface|null
      */
-    public function getIteratorSource(): ?IteratorInterface
+    public function getSource(): ?IteratorInterface
     {
         return $this->source;
     }
@@ -39,12 +40,18 @@ trait TraitDataIteratorSource
     /**
      * Sets the iterator source
      *
-     * @param IteratorInterface|null $source
+     * @param IteratorInterface|array|null $source
      * @return static
      */
-    public function setIteratorSource(?IteratorInterface $source): static
+    public function setSource(IteratorInterface|array|null $source): static
     {
-        $this->source = $source;
+        if ($source) {
+            $this->source = new Iterator($source);
+
+        } else {
+            $this->source = null;
+        }
+
         return $this;
     }
 }

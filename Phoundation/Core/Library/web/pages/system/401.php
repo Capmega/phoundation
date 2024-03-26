@@ -35,7 +35,7 @@ Request::execute('pages/system/401');
 //
 //
 //// Build the error page
-//echo Template::page('admin/system/detail-error')->render([
+//echo Template::page('system/http-error')->render([
 //    ':h2'     => '401',
 //    ':h3'     => tr('Unauthorized'),
 //    ':p'      => tr('You need to login to access the specified resource. Please contact the system administrator if you think this was in error'),

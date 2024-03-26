@@ -53,7 +53,7 @@ Response::setBuildBody(false);
                 Please authenticate using the fingerprint scanner to continue
             </div>
             <div class="text-center">
-                <a href="<?= UrlBuilder::getWww('sign-out.html'); ?>">Or sign in as a different user</a>
+                <a href="<?= UrlBuilder::getWww('sign-out'); ?>">Or sign in as a different user</a>
             </div>
             <div class="lockscreen-footer text-center">
                 <?= 'Copyright © ' . Config::getString('project.copyright', '2023') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>

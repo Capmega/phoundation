@@ -14,12 +14,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Templates\Template;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 // Get the exception
 $e = Core::readRegister('e');
@@ -36,14 +36,14 @@ switch (Request::getRequestType()) {
 
 
 // Build the error page
-echo Template::page('admin/system/detail-error')->render([
+echo Template::new('system/http-error')->setSource([
     ':h2'     => '403',
     ':h3'     => tr('Forbidden'),
     ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')
-]);
+])->render();
 
 
 // Set page meta data

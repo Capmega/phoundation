@@ -18,6 +18,7 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -538,7 +539,7 @@ abstract class Validator implements ValidatorInterface
                 $value = trim($value);
             }
 
-            $this->hasMinCharacters(2)->hasMaxCharacters($max_characters);
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -748,7 +749,7 @@ abstract class Validator implements ValidatorInterface
             }
 
             if ($array instanceof IteratorInterface) {
-                $this->hasMaxCharacters($array->getLongestValueLength());
+                $this->sanitizeTrim()->hasMaxCharacters($array->getLongestValueLength());
 
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
@@ -758,7 +759,7 @@ abstract class Validator implements ValidatorInterface
                 $failed = !$array->valueExists($value);
 
             } else {
-                $this->hasMaxCharacters(Arrays::getLongestValueLength($array));
+                $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
 
                 if ($this->process_value_failed) {
                     // Validation already failed, don't test anything more
@@ -1627,7 +1628,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function(&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1662,7 +1663,7 @@ abstract class Validator implements ValidatorInterface
     public function isTime(array|string|null $formats = null): static
     {
         return $this->validateValues(function(&$value) use ($formats) {
-            $this->hasMaxCharacters(15); // 00:00:00.000000
+            $this->sanitizeTrim()->hasMinCharacters(5)->hasMaxCharacters(15); // 00:00:00.000000
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1672,7 +1673,12 @@ abstract class Validator implements ValidatorInterface
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
-                $formats = Config::get('locale.dates.formats', ['h:i a', 'H:i', 'h:i:s a', 'H:i:s']);
+                $formats = Config::get('locale.dates.formats', [
+                    'h:i a',
+                    'H:i',
+                    'h:i:s a',
+                    'H:i:s'
+                ]);
             }
 
             $formats = Arrays::force($formats, null);
@@ -1703,7 +1709,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function(&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1738,7 +1744,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function(&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1763,7 +1769,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function(&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1793,7 +1799,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function(&$value) {
             // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1869,7 +1875,7 @@ abstract class Validator implements ValidatorInterface
     {
         return $this->validateValues(function(&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->hasMaxCharacters(64);
+            $this->sanitizeTrim()->hasMaxCharacters(64);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -1981,7 +1987,7 @@ abstract class Validator implements ValidatorInterface
     public function isHttpMethod(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2026,7 +2032,7 @@ abstract class Validator implements ValidatorInterface
     public function isPhoneNumber(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(10)->hasMaxCharacters(30);
+            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(30);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2047,7 +2053,7 @@ abstract class Validator implements ValidatorInterface
     public function isPhoneNumbers(string $separator = ','): static
     {
         return $this->validateValues(function(&$value) use ($separator) {
-            $this->hasMinCharacters(10)->hasMaxCharacters(64);
+            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(64);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2068,7 +2074,7 @@ abstract class Validator implements ValidatorInterface
     public function isGender(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(2)->hasMaxCharacters(16);
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(16);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2089,7 +2095,7 @@ abstract class Validator implements ValidatorInterface
     public function isName(int $characters = 128): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(1)->hasMaxCharacters($characters);
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2110,7 +2116,7 @@ abstract class Validator implements ValidatorInterface
     public function isUsername(int $characters = 64): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(2)->hasMaxCharacters($characters);
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2130,7 +2136,7 @@ abstract class Validator implements ValidatorInterface
     public function isWord(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(2)->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2150,7 +2156,7 @@ abstract class Validator implements ValidatorInterface
     public function isVariable(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(2)->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2171,7 +2177,7 @@ abstract class Validator implements ValidatorInterface
     public function isVariableName(int $length = 128): static
     {
         return $this->validateValues(function(&$value) use ($length) {
-            $this->hasMinCharacters(2)->hasMaxCharacters($length);
+            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($length);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2196,7 +2202,7 @@ abstract class Validator implements ValidatorInterface
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function(&$value) use($exists_in_directories, $restrictions, $exists) {
-            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2222,7 +2228,7 @@ abstract class Validator implements ValidatorInterface
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function(&$value) use($exists_in_directories, $restrictions, $exists) {
-            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2248,7 +2254,7 @@ abstract class Validator implements ValidatorInterface
         $restrictions = Restrictions::ensure($restrictions)->setLabel(tr('Validator'));
 
         return $this->validateValues(function(&$value) use($exists_in_directories, $restrictions, $exists) {
-            $this->hasMinCharacters(1)->hasMaxCharacters(2048);
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2372,7 +2378,7 @@ abstract class Validator implements ValidatorInterface
     public function isDescription(int $characters = 16_777_200): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMaxCharacters($characters);
+            $this->sanitizeTrim()->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2420,7 +2426,7 @@ abstract class Validator implements ValidatorInterface
     public function isStrongPassword(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(10)->hasMaxCharacters(128);
+            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2441,7 +2447,7 @@ abstract class Validator implements ValidatorInterface
     public function isColor(int $characters = 6): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(3)->hasMaxCharacters($characters);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2463,7 +2469,7 @@ abstract class Validator implements ValidatorInterface
     public function isEmail(int $characters = 2048): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(3)->hasMaxCharacters($characters);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($characters);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2486,7 +2492,7 @@ abstract class Validator implements ValidatorInterface
     public function isUrl(int $max_size = 2048): static
     {
         return $this->validateValues(function(&$value) use ($max_size) {
-            $this->hasMinCharacters(3)->hasMaxCharacters($max_size);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_size);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2508,7 +2514,7 @@ abstract class Validator implements ValidatorInterface
     public function isDomain(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2530,7 +2536,7 @@ abstract class Validator implements ValidatorInterface
     public function isIp(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters(48);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2552,7 +2558,7 @@ abstract class Validator implements ValidatorInterface
     public function isDomainOrIp(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters(128);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2576,7 +2582,7 @@ abstract class Validator implements ValidatorInterface
     public function isUuid(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters(48);
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2604,7 +2610,7 @@ abstract class Validator implements ValidatorInterface
     public function isJson(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2636,7 +2642,7 @@ abstract class Validator implements ValidatorInterface
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
         return $this->validateValues(function(&$value) use ($separator, $enclosure, $escape) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2667,7 +2673,7 @@ abstract class Validator implements ValidatorInterface
     public function isSerialized(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2695,7 +2701,7 @@ abstract class Validator implements ValidatorInterface
     public function isBase58(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2721,7 +2727,7 @@ abstract class Validator implements ValidatorInterface
     public function isBase64(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2744,7 +2750,7 @@ abstract class Validator implements ValidatorInterface
     public function isVersion(int $characters = 11): static
     {
         return $this->validateValues(function(&$value) use ($characters) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
@@ -2834,7 +2840,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeHtmlSpecialChars(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -2876,7 +2882,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeHtmlEntities(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -3034,7 +3040,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeUppercase(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -3064,7 +3070,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeLowercase(): static
     {
         return $this->validateValues(function(&$value) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -3097,7 +3103,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeSearchReplace(array $replace, bool $regex = false): static
     {
         return $this->validateValues(function(&$value) use ($replace, $regex) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -3131,7 +3137,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeDecodeJson(bool $array = true): static
     {
         return $this->validateValues(function(&$value) use ($array) {
-            $this->hasMinCharacters(3)->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -3144,6 +3150,33 @@ abstract class Validator implements ValidatorInterface
                 $value = Json::decode($value);
             } catch (JsonException) {
                 $this->addFailure(tr('must contain a valid JSON string'));
+            }
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by encoding the data to JSON
+     *
+     * @return static
+     * @see static::isJson()
+     * @see static::sanitizeDecodeJson()
+     */
+    public function sanitizeEncodeJson(): static
+    {
+        return $this->validateValues(function(&$value) {
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            try {
+                $value = Json::encode($value);
+
+            } catch (JsonException) {
+                $this->addFailure(tr('could not be processed'));
             }
         });
     }
@@ -3210,6 +3243,32 @@ abstract class Validator implements ValidatorInterface
                 $value = unserialize($value);
             } catch (Throwable $e) {
                 $this->addFailure(tr('must contain a valid serialized string'));
+            }
+        });
+    }
+
+
+    /**
+     * Sanitize the selected value by decoding the specified CSV
+     *
+     * @return static
+     * @see static::sanitizeDecodeSerialized()
+     */
+    public function sanitizeEncodeSerialized(): static
+    {
+        return $this->validateValues(function(&$value) {
+            if ($this->process_value_failed) {
+                if (!$this->selected_is_default) {
+                    // Validation already failed, don't test anything more
+                    return;
+                }
+            }
+
+            try {
+                $value = serialize($value);
+
+            } catch (Throwable $e) {
+                $this->addFailure(tr('could not be processed'));
             }
         });
     }
@@ -3436,7 +3495,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeCallback(callable $callback): static
     {
         return $this->validateValues(function(&$value) use ($callback) {
-            $this->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {
@@ -3461,7 +3520,7 @@ abstract class Validator implements ValidatorInterface
     public function sanitizeCallbackNoNull(callable $callback): static
     {
         return $this->validateValues(function(&$value) use ($callback) {
-            $this->hasMaxCharacters();
+            $this->sanitizeTrim()->hasMaxCharacters();
 
             if ($this->process_value_failed) {
                 if (!$this->selected_is_default) {

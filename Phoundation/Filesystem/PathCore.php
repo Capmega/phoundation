@@ -692,7 +692,7 @@ class PathCore implements Stringable, PathInterface
             if (!file_exists(dirname($this->path))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FilesystemException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
-                    ':type'      => ($type ? ' ' . $type : ''),
+                    ':type'      => ($type ?: ''),
                     ':file'      => $this->path,
                     ':directory' => dirname($this->path)
                 ]), $previous_e);

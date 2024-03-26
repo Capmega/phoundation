@@ -12,6 +12,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumInputElement;
@@ -820,182 +821,420 @@ class Definition implements DefinitionInterface
 
         if (!$value) {
             // NULL specified
-            return $this->setKey(null, 'type');
+            return $this->clearValidationFunctions()
+                        ->setElement(null)
+                        ->setKey(null, 'type');
         }
 
-        if ($value instanceof EnumInputTypeInterface) {
-            // This is an extended virtual input type, adjust it to an existing input type.
-            switch ($value) {
-                case EnumInputType::dbid:
-                    $value = EnumInputType::number;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isNatural();
-                    });
-
-                    break;
-
-                case EnumInputType::natural:
-                    $value = EnumInputType::number;
-
-                    $this->setKey($value->value, 'type');
-                    $this->setMin(0);
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isNatural();
-                    });
-
-                    break;
-
-                case EnumInputType::integer:
-                    $value = EnumInputType::number;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isInteger();
-                    });
-
-                    break;
-
-                case EnumInputType::positiveInteger:
-                    $value = EnumInputType::number;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isInteger()->isMoreThan(0, true);
-                    });
-
-                    break;
-
-                case EnumInputType::negativeInteger:
-                    $value = EnumInputType::number;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isInteger()->isLessThan(0, true);
-                    });
-
-                    break;
-
-                case EnumInputType::float:
-                    $value = EnumInputType::number;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isFloat();
-                    });
-
-                    break;
-
-                case EnumInputType::name:
-                    $value = EnumInputType::text;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isName();
-                    });
-
-                    break;
-
-                case EnumInputType::variable:
-                    $value = EnumInputType::text;
-                    break;
-
-                case EnumInputType::email:
-                    $this->setMaxlength(128)->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isEmail();
-                    });
-
-                    break;
-
-                case EnumInputType::url:
-                    $value = EnumInputType::text;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isUrl();
-                    });
-
-                    break;
-
-                case EnumInputType::phone:
-                    $value = EnumInputType::tel;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->sanitizePhoneNumber();
-                    });
-
-                    break;
-
-//                    case InputTypeExtended::phones:
-//                        $value = InputType::text;
-//
-//                        $this->addValidationFunction(function (ValidatorInterface $validator) {
-//                            $validator->isPhoneNumbers();
-//                        });
-//
-//                        break;
-
-                case EnumInputType::username:
-                    $value = EnumInputType::text;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isUsername();
-                    });
-
-                    break;
-
-                case EnumInputType::path:
-                    $value = EnumInputType::text;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isDirectory();
-                    });
-
-                    break;
-
-                case EnumInputType::file:
-                    $value = EnumInputType::text;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isFile();
-                    });
-
-                    break;
-
-                case EnumInputType::code:
-                    $value = EnumInputType::text;
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isCode();
-                    });
-
-                    break;
-
-                case EnumInputType::description:
-                    $this->setElement(EnumInputElement::textarea);
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isDescription();
-                    });
-
-                    // Don't set the value, textarea does not have an input type
-                    return $this;
-
-                case EnumInputType::boolean:
-                    $this->setElement(EnumInputElement::input);
-                    $this->setInputType(EnumInputType::checkbox);
-
-                    $this->addValidationFunction(function (ValidatorInterface $validator) {
-                        $validator->isBoolean();
-                    });
-
-                    // Don't set the value, textarea does not have an input type
-                    return $this;
-            }
-        }
-
+        // Apply default definitions for this input type
         switch ($value) {
             case EnumInputType::number:
-                // Numbers should never be longer than this
-                $this->setMaxlength(24);
+                // Numbers should never be longer than 24 digits
+                $this->setMaxlength(24)
+                     ->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    if ($this->getMin()) {
+                        $validator->isMoreThan($this->getMin(), true);
+                    }
+
+                    if ($this->getMax()) {
+                        $validator->isLessThan($this->getMax(), true);
+                    }
+                });
+
+                break;
+
+            case EnumInputType::year:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    if ($this->getMin() ?? 0) {
+                        $validator->isMoreThan($this->getMin() ?? 0, true);
+                    }
+
+                    if ($this->getMax() ?? 9999) {
+                        $validator->isLessThan($this->getMax() ?? 9999, true);
+                    }
+                });
+
+                break;
+
+            case EnumInputType::month:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    if ($this->getMin() ?? 1) {
+                        $validator->isMoreThan($this->getMin() ?? 1, true);
+                    }
+
+                    if ($this->getMax() ?? 12) {
+                        $validator->isLessThan($this->getMax() ?? 12, true);
+                    }
+                });
+
+                break;
+
+            case EnumInputType::week:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    if ($this->getMin() ?? 1) {
+                        $validator->isMoreThan($this->getMin() ?? 1, true);
+                    }
+
+                    if ($this->getMax() ?? 52) {
+                        $validator->isLessThan($this->getMax() ?? 52, true);
+                    }
+                });
+
+                break;
+
+            case EnumInputType::day:
+                // Validate days
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    if ($this->getMin() ?? 1) {
+                        $validator->isMoreThan($this->getMin() ?? 1, true);
+                    }
+
+                    if ($this->getMax() ?? 31) {
+                        $validator->isLessThan($this->getMax() ?? 31, true);
+                    }
+                });
+
+                break;
+
+            case EnumInputType::datetime_local:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isDateTime();
+                });
+
+                break;
+
+            case EnumInputType::date:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isDate();
+                });
+
+                break;
+
+            case EnumInputType::color:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isColor();
+                });
+                break;
+
+            case EnumInputType::dbid:
+                $value = EnumInputType::number;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isNatural();
+                });
+
+                break;
+
+            case EnumInputType::natural:
+                $value = EnumInputType::number;
+
+                $this->setElement(EnumInputElement::input)
+                     ->setKey($value->value, 'type')
+                     ->setMin(0)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isNatural();
+                });
+
+                break;
+
+            case EnumInputType::integer:
+                $value = EnumInputType::number;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isInteger();
+                });
+
+                break;
+
+            case EnumInputType::positiveInteger:
+                $value = EnumInputType::number;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isInteger()->isMoreThan(0, true);
+                });
+
+                break;
+
+            case EnumInputType::negativeInteger:
+                $value = EnumInputType::number;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isInteger()->isLessThan(0, true);
+                });
+
+                break;
+
+            case EnumInputType::float:
+                $value = EnumInputType::number;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFloat();
+                });
+
+                break;
+
+            case EnumInputType::name:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isName();
+                });
+
+                break;
+
+            case EnumInputType::variable:
+                $value = EnumInputType::text;
+                break;
+
+            case EnumInputType::email:
+                $this->setElement(EnumInputElement::input)
+                     ->setMaxlength(128)->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isEmail();
+                });
+
+                break;
+
+            case EnumInputType::time:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isTime();
+                });
+
+                break;
+
+            case EnumInputType::url:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUrl();
+                });
+
+                break;
+
+            case EnumInputType::phone:
+                // no break
+            case EnumInputType::tel:
+                $value = EnumInputType::tel;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->sanitizePhoneNumber();
+                });
+
+                break;
+
+            case EnumInputType::phones:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isPhoneNumbers();
+                });
+
+                break;
+
+            case EnumInputType::username:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isUsername();
+                });
+
+                break;
+
+            case EnumInputType::path:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isDirectory();
+                });
+
+                break;
+
+            case EnumInputType::file:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isFile();
+                });
+
+                break;
+
+            case EnumInputType::code:
+                $value = EnumInputType::text;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isCode();
+                });
+
+                break;
+
+            case EnumInputType::description:
+                $this->setElement(EnumInputElement::textarea)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->sanitizeTrim();
+
+                    // Validate textarea strings
+                    if ($this->getMinlength()) {
+                        $validator->hasMinCharacters($this->getMinlength());
+                    }
+
+                    if ($this->getMaxlength()) {
+                        $validator->hasMaxCharacters($this->getMaxlength());
+                    }
+                });
+
+                // Don't set the value
+                return $this;
+
+            case EnumInputType::checkbox:
+                // no break
+            case EnumInputType::boolean:
+                $value = EnumInputType::checkbox;
+
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->isBoolean();
+                });
+                break;
+
+            case EnumInputType::array_json:
+                $this->setElement(EnumInputElement::textarea)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->sanitizeForceArray(',')->sanitizeEncodeJson();
+                });
+                break;
+
+            case EnumInputType::array_serialized:
+                $this->setElement(EnumInputElement::textarea)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->sanitizeForceArray(',')->sanitizeEncodeSerialized();
+                });
+                break;
+
+            case EnumInputType::button:
+                // no break
+            case EnumInputType::submit:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->hasMaxCharacters(255);
+                });
+                break;
+
+            case EnumInputType::password:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    // Validate input text strings
+                    $validator->sanitizeTrim();
+
+                    if ($this->getMinlength() ?? 4) {
+                        $validator->hasMinCharacters($this->getMinlength() ?? 4);
+                    }
+
+                    if ($this->getMaxlength() ?? 8192) {
+                        $validator->hasMaxCharacters($this->getMaxlength() ?? 8192);
+                    }
+                });
+
+                break;
+
+            case EnumInputType::select:
+                $this->setElement(EnumInputElement::select)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->sanitizeTrim();
+                });
+                break;
+
+            case EnumInputType::search:
+                // no break
+            case EnumInputType::text:
+                // no break
+            case EnumInputType::auto_suggest:
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    // Validate input text strings
+                    $validator->sanitizeTrim();
+
+                    if ($this->getMinlength()) {
+                        $validator->hasMinCharacters($this->getMinlength());
+                    }
+
+                    if ($this->getMaxlength()) {
+                        $validator->hasMaxCharacters($this->getMaxlength());
+                    }
+                });
+
+                break;
+
+            case EnumInputType::reset:
+                // Reset button should never arrive
+                $this->setElement(EnumInputElement::input)
+                     ->addValidationFunction(function (ValidatorInterface $validator) {
+                    $validator->addFailure(tr('is not supported'));
+                });
+
+                break;
+
+            case EnumInputType::radio:
+                $this->setElement(EnumInputElement::input);
+                break;
+
+            case EnumInputType::range:
+                $this->setElement(EnumInputElement::input);
+                break;
+
+            case EnumInputType::hidden:
+                $this->setElement(EnumInputElement::input);
+                break;
+
+            case EnumInputType::image:
+                throw new UnderConstructionException('Input type EnumInputType::image is not yet supported');
         }
 
-        if (empty($this->source['element'])) {
-            $this->source['element'] = 'input';
+        // If a data source is available then ensure its resolved and that the user data will match source
+        $source = $this->getDataSource();
+
+        if ($source) {
+            if (is_string($source)) {
+                $source = sql()->query($source);
+            }
+
+            if ($source instanceof SqlQueryInterface) {
+                $source = sql()->query($source);
+
+            }
+
+            if ($source instanceof PDOStatement) {
+                $source = $source->fetchAll();
+            }
+
+            if (is_array($source)) {
+                // The submitted user data value must be in the definition source
+                $this->addValidationFunction(function (ValidatorInterface $validator) use ($source) {
+                    $validator->isInArray(array_keys($source));
+                });
+            }
         }
 
         return $this->setKey($value->value, 'type');
@@ -1981,122 +2220,6 @@ class Definition implements DefinitionInterface
         // Apply default validations
         if ($this->getOptional()) {
             $validator->isOptional($this->getDefault());
-        }
-
-        if ($bool) {
-            $validator->isBoolean();
-
-        } else {
-            switch ($this->getElement()) {
-                case 'textarea':
-                    $validator->sanitizeTrim();
-
-                    // Validate textarea strings
-                    if ($this->getMinlength()) {
-                        $validator->hasMinCharacters($this->getMinlength());
-                    }
-
-                    if ($this->getMaxlength()) {
-                        $validator->hasMaxCharacters($this->getMaxlength());
-                    }
-
-                    break;
-
-                case 'input':
-                    switch ($this->getInputType()->value) {
-                        case 'date':
-                            $validator->sanitizeTrim();
-                            $validator->isDate();
-                            break;
-
-                        case 'color':
-                            $validator->sanitizeTrim();
-                            $validator->isColor();
-                            break;
-
-                        case 'tel':
-                            $validator->sanitizeTrim();
-                            $validator->isPhoneNumber();
-                            break;
-
-                        case 'email':
-                            $validator->sanitizeTrim();
-                            $validator->isEmail();
-                            break;
-
-                        case 'time':
-                            $validator->sanitizeTrim();
-                            $validator->isTime();
-                            break;
-
-                        case 'datetime-local':
-                            $validator->sanitizeTrim();
-                            $validator->isDateTime();
-                            break;
-
-                        case 'number':
-                            // no break
-                        case 'year':
-                            // no break
-                        case 'month':
-                            // no break
-                        case 'week':
-                            // no break
-                        case 'day':
-                            // Validate numbers
-                            if ($this->getMin()) {
-                                $validator->isMoreThan($this->getMin(), true);
-                            }
-
-                            if ($this->getMax()) {
-                                $validator->isLessThan($this->getMax(), true);
-                            }
-
-                            break;
-
-                        case 'array_json':
-                            $validator->sanitizeForceArray(',');
-                            break;
-
-                        default:
-                            // Validate input text strings
-                            $validator->sanitizeTrim();
-
-                            if ($this->getMinlength()) {
-                                $validator->hasMinCharacters($this->getMinlength());
-                            }
-
-                            if ($this->getMaxlength()) {
-                                $validator->hasMaxCharacters($this->getMaxlength());
-                            }
-                    }
-
-                    break;
-
-                case 'select':
-                    $validator->sanitizeTrim();
-            }
-
-            $source = $this->getDataSource();
-
-            if ($source) {
-                if ($source instanceof SqlQueryInterface) {
-                    $source = sql()->query($source);
-
-                } elseif ($source instanceof PDOStatement) {
-                    $source = $source->fetchAll();
-
-                } elseif (is_array($source)) {
-                    // The data value must be in the definition source
-                    $validator->isInArray(array_keys($source));
-
-                } elseif (is_string($source)) {
-                    throw new OutOfBoundsException(tr('Invalid source specified for DataEntry Definition ":column"', [
-                        ':column' => $this->getColumn()
-                    ]));
-                }
-
-            }
         }
 
         // Apply all other validations

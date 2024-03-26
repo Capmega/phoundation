@@ -14,12 +14,12 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Templates\Template;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 // Get the exception
 $e = Core::readRegister('e');
@@ -36,14 +36,14 @@ switch (Request::getRequestType()) {
 
 
 // Build the error page
-echo Template::page('admin/system/detail-error')->render([
+echo Template::new('system/http-error')->setSource([
     ':h2'     => '404',
     ':h3'     => tr('Page not found'),
     ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!'),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')
-]);
+])->render();
 
 
 // Set page meta data

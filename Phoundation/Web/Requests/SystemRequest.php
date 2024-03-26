@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
-use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
@@ -13,14 +12,13 @@ use Phoundation\Data\Traits\TraitNew;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Templates\Template;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Routing\Route;
 use Throwable;
 

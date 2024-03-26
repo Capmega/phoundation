@@ -29,7 +29,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.2.7';
     }
 
 
@@ -343,7 +343,13 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.2.6', function () {
             sql()->schema()->table('core_plugins')->alter()
-                ->addColumn('`commands_enabled` tinyint NOT NULL', 'AFTER `menu_enabled`');
+                 ->addColumn('`commands_enabled` tinyint NOT NULL', 'AFTER `menu_enabled`');
+
+        })->addUpdate('0.2.7', function () {
+            sql()->schema()->table('core_plugins')->alter()
+                ->dropIndex('enabled-status')
+                ->addIndex('INDEX `enabled_status` (`enabled`, `status`)')
+                ->changeColumn('priority', '`priority` int NOT NULL DEFAULT 50');
         });
     }
 }

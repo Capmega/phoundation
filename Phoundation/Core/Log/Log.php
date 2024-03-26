@@ -1223,6 +1223,11 @@ Class Log {
                 $messages = Strings::cleanWhiteSpace($messages);
             }
 
+            if (!$messages) {
+                // Do not log empty messages
+                return false;
+            }
+
             // Build message string that should be written to log and (possibly) screen
             if (static::$use_prefix and $use_prefix) {
                 if (is_bool($use_prefix)) {

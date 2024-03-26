@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Templates\Template;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -37,16 +37,16 @@ switch (Request::getRequestType()) {
 
 
 // Build the error page
-echo Template::page('admin/system/detail-error')->render([
+echo Template::new('system/http-error')->setSource([
     ':h2'     => '409',
     ':h3'     => tr('Conflict'),
     ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
-            ':url' => Request::getReferer(true)
+        ':url' => Request::getReferer(true)
     ]),
     ':type'   => 'warning',
     ':search' => tr('Search'),
     ':action' => UrlBuilder::getWww('search/')
-]);
+])->render();
 
 
 // Set page meta data

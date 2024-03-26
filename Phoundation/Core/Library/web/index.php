@@ -3,6 +3,7 @@
 use Phoundation\Web\Requests\Routing\Map;
 use Phoundation\Web\Requests\Routing\Route;
 use Phoundation\Web\Requests\Routing\RoutingParameters;
+use Templates\AdminLte\AdminLte;
 use Templates\Mdb\Mdb;
 
 
