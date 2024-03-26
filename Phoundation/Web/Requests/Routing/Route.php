@@ -1236,13 +1236,13 @@ class Route
         if (!$target->exists()) {
             if (static::$dynamic_pagematch) {
                 Log::warning(tr('Pattern matched file ":file" does not exist', [
-                    ':page' => $target->getPath('root')
+                    ':file' => $target->getPath('root')
                 ]));
 
             } else {
                 // The hardcoded file for the regex does not exist, oops!
                 Log::warning(tr('Matched hard coded file ":file" does not exist', [
-                    ':page' => $target->getPath('root')
+                    ':file' => $target->getPath('root')
                 ]));
             }
 
