@@ -12,6 +12,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
+use Phoundation\Utils\Config;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Throwable;
 
@@ -108,7 +110,7 @@ class Plugins extends DataList implements PluginsInterface
      */
     public static function scan(): PluginsInterface
     {
-        foreach (static::scanPlugins() as $name => $class) {
+        foreach (static::scanPluginsPath() as $name => $class) {
             try {
                 $plugin = $class::new($name, 'name');
 
@@ -143,13 +145,20 @@ class Plugins extends DataList implements PluginsInterface
                     include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
-
             } catch (Throwable $e) {
                 Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
                     ':plugin' => $plugin['name']
                 ]));
 
                 Log::error($e);
+
+                if (Config::getBoolean('plugins.error.startup.disable', true)) {
+                    Log::warning(tr('Disabling plugin ":plugin" because it failed to startup', [
+                        ':plugin' => $plugin['name']
+                    ]));
+
+                    Plugin::new($plugin['id'])->disable();
+                }
             }
         }
     }
@@ -231,7 +240,6 @@ class Plugins extends DataList implements PluginsInterface
                                      FROM     `core_plugins` 
                                      WHERE    `name`    != "Phoundation"
                                      AND      `status`  IS NULL 
-                                       AND    `enabled` != 0  
                                      ORDER BY `priority` ASC');
 
         if (!$return) {
@@ -286,11 +294,11 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @return array
      */
-    protected static function scanPlugins(): array
+    protected static function scanPluginsPath(): array
     {
-        $directory    = DIRECTORY_ROOT . 'Plugins/';
-        $return  = [];
-        $plugins = scandir($directory);
+        $directory = DIRECTORY_ROOT . 'Plugins/';
+        $return    = [];
+        $plugins   = scandir($directory);
 
         foreach ($plugins as $id => $plugin) {
             // Filter . .. and hidden files
@@ -308,17 +316,17 @@ class Plugins extends DataList implements PluginsInterface
             // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
             // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
             if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
-                Log::warning(tr('Not registering plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
+                Log::warning(tr('Ignoring plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
                     ':plugin' => $plugin
-                ]));
+                ]), 9);
 
                 continue;
             }
 
             if (!file_exists($file)) {
-                Log::warning(tr('Not registering plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
+                Log::warning(tr('Ignoring plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
                     ':plugin' => $plugin
-                ]), 4);
+                ]), 3);
 
                 continue;
             }
@@ -326,8 +334,19 @@ class Plugins extends DataList implements PluginsInterface
             $class = Library::getClassPath($file);
             include_once($file);
 
+            // Ensure that the class path matches the file path
+            if (!static::classPathMatchesFilePath($class, $file)) {
+                Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
+                    ':plugin' => $plugin,
+                    ':file'   => Strings::from($file, DIRECTORY_ROOT),
+                    ':class'  => $class
+                ]));
+
+                continue;
+            }
+
             if (!is_subclass_of($class, Plugin::class)) {
-                Log::warning(tr('Not registering plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
                     ':plugin' => $plugin,
                     ':class'  => Plugin::class
                 ]));
@@ -339,6 +358,22 @@ class Plugins extends DataList implements PluginsInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns true if the specified class path matches the file path
+     *
+     * @param string $class
+     * @param string $file
+     * @return bool
+     */
+    protected static function classPathMatchesFilePath(string $class, string $file): bool
+    {
+        $class = str_replace('\\', '/', $class);
+        $file  = Strings::cut($file, DIRECTORY_ROOT, '.php');
+
+        return $class === $file;
     }
 
 

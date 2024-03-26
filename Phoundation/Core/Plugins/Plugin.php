@@ -173,6 +173,58 @@ class Plugin extends DataEntry implements PluginInterface
 
 
     /**
+     * Returns the menu_enabled for this object
+     *
+     * @return bool|null
+     */
+    public function getMenuEnabled(): ?bool
+    {
+        return $this->getValueTypesafe('int', 'menu_enabled', 50);
+    }
+
+
+    /**
+     * Sets the menu_enabled for this object
+     *
+     * @param int|bool|null $menu_enabled
+     * @return static
+     */
+    public function setMenuEnabled(int|bool|null $menu_enabled): static
+    {
+        return $this->setValue('menu_enabled', (bool)$menu_enabled);
+    }
+
+
+    /**
+     * Returns the menu_priority for this object
+     *
+     * @return int|null
+     */
+    public function getMenuPriority(): ?int
+    {
+        return $this->getValueTypesafe('int', 'menu_priority', 50);
+    }
+
+
+    /**
+     * Sets the menu_priority for this object
+     *
+     * @param int|null $menu_priority
+     * @return static
+     */
+    public function setMenuPriority(?int $menu_priority): static
+    {
+        if (is_numeric($menu_priority) and (($menu_priority < 0) or ($menu_priority > 100))) {
+            throw new OutOfBoundsException(tr('Specified menu_priority ":menu_priority" is invalid, it should be a number from 0 to 100', [
+                ':menu_priority' => $menu_priority
+            ]));
+        }
+
+        return $this->setValue('menu_priority', $menu_priority);
+    }
+
+
+    /**
      * Sets the priority for this plugin
      *
      * @param int|null $priority
@@ -188,8 +240,8 @@ class Plugin extends DataEntry implements PluginInterface
                 // Default to mid level
                 $priority = 50;
 
-            } elseif (($priority < 1) or ($priority > 100)) {
-                throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be between 1 - 100', [
+            } elseif (($priority < 0) or ($priority > 100)) {
+                throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be between 0 - 100', [
                     ':priority' => $priority
                 ]));
             }
@@ -304,7 +356,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function enable(?string $comments = null): void
     {
-        sql()->dataEntrySetStatus(null, 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+        $this->setStatus(null, $comments);
     }
 
 
@@ -316,7 +368,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function disable(?string $comments = null): void
     {
-        sql()->dataEntrySetStatus('disabled', 'core_plugins', ['seo_name' => $this->getSeoName()], $comments);
+        $this->setStatus('disabled', $comments);
     }
 
 
