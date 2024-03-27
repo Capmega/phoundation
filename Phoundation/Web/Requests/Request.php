@@ -109,9 +109,9 @@ abstract class Request implements RequestInterface
     /**
      * The real / initial target that was executed for this request
      *
-     * @var FileInterface $real_target
+     * @var FileInterface $main_target
      */
-    protected static FileInterface $real_target;
+    protected static FileInterface $main_target;
 
     /**
      * The file that is currently executed for this request
@@ -922,14 +922,14 @@ abstract class Request implements RequestInterface
                 ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                     ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ':target'      => static::$target->getPath('web'),
-                    ':real_target' => static::$real_target->getPath('web'),
+                    ':real_target' => static::$main_target->getPath('web'),
                     ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'           => Session::getUser()->getLogId(),
                     'uri'            => static::getUri(),
                     'target'         => static::$target->getPath('web'),
-                    'real_target'    => static::$real_target->getPath('web'),
+                    'real_target'    => static::$main_target->getPath('web'),
                     'rights'         => $rights,
                     'missing_rights' => Rights::getNotExist($rights)
                 ])
@@ -945,14 +945,14 @@ abstract class Request implements RequestInterface
                     ':user'        => Session::getUser()->getLogId(),
                     ':rights'      => Session::getUser()->getMissingRights($rights),
                     ':target'      => static::$target->getPath('web'),
-                    ':real_target' => static::$real_target->getPath('web'),
+                    ':real_target' => static::$main_target->getPath('web'),
                     ':redirect'    => $rights_redirect
                 ]))
                 ->setDetails([
                     'user'        => Session::getUser()->getLogId(),
                     'uri'         => static::getUri(),
                     'target'      => static::$target->getPath('web'),
-                    'real_target' => static::$real_target->getPath('web'),
+                    'real_target' => static::$main_target->getPath('web'),
                     'rights'      => Session::getUser()->getMissingRights($rights),
                 ])
                 ->notifyRoles('accounts')
@@ -1060,7 +1060,7 @@ abstract class Request implements RequestInterface
         static::addExecutedPath($target); // TODO We should get this from targets
 
         // Store request hash used for caching, store real / original target
-        if (empty(static::$real_target)) {
+        if (empty(static::$main_target)) {
             if (PLATFORM_WEB) {
                 static::$hash = sha1($_SERVER['REQUEST_URI']);
 
@@ -1068,7 +1068,12 @@ abstract class Request implements RequestInterface
                 static::$hash = sha1(Strings::force($_SERVER['argv']));
             }
 
-            static::$real_target = static::$target;
+            static::$main_target = static::$target;
+
+            if (PLATFORM_WEB) {
+                // Start the main target buffer
+                ob_start();
+            }
         }
 
         // Determine the target request type
@@ -1371,9 +1376,10 @@ abstract class Request implements RequestInterface
     {
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
-                Log::information(tr('Executing page ":target" with in language ":language" and sending output as API page', [
+                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
                     ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
                     ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
                     ':language' => LANGUAGE
                 ]));
 
@@ -1381,9 +1387,10 @@ abstract class Request implements RequestInterface
                 break;
 
             case EnumRequestTypes::ajax:
-                Log::information(tr('Executing page ":target" with in language ":language" and sending output as AJAX API page', [
+                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
                     ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
                     ':language' => LANGUAGE
                 ]));
 
@@ -1391,9 +1398,10 @@ abstract class Request implements RequestInterface
                 break;
 
             default:
-                Log::information(tr('Executing page ":target" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
                     ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
                     ':language' => LANGUAGE
                 ]));
 
@@ -1454,13 +1462,8 @@ abstract class Request implements RequestInterface
             static::processFileNotFound($e, $target);
         }
 
-        Log::information(tr('Executing request target ":target" on stack level ":level"', [
-            ':target' => static::$target->getPath('root'),
-            ':level'  => static::$stack_level,
-        ]), 4);
-
         if (PLATFORM_CLI) {
-            if (static::$stack_level) {
+            if (static::$stack_level > 0) {
                 // This is a CLI sub command, execute it directly with output buffering and return the output
                 ob_start();
                 $return = execute();
@@ -1485,7 +1488,7 @@ abstract class Request implements RequestInterface
                     Response::checkForceRedirect();
                 }
 
-                $return = static::executeTarget();
+                $return = static::executeWebTarget();
             }
         }
 
@@ -1534,7 +1537,7 @@ abstract class Request implements RequestInterface
      *
      * @return string|null
      */
-    protected static function executeTarget(): ?string
+    protected static function executeWebTarget(): ?string
     {
         // Execute the specified target file
         try {
@@ -1612,7 +1615,7 @@ abstract class Request implements RequestInterface
             case 302:
                 // no break
             case 304:
-                Log::success(tr('Script ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
+                Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
                     ':script'    => static::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
@@ -1622,7 +1625,7 @@ abstract class Request implements RequestInterface
                 break;
 
             default:
-                Log::warning(tr('Script ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
+                Log::warning(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
                     ':script'    => static::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
