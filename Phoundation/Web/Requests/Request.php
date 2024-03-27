@@ -19,6 +19,7 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -1054,6 +1055,7 @@ abstract class Request implements RequestInterface
     {
         static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
         static::$target->checkRestrictions(false);
+
         static::getTargets()->add(static::$target);
         static::addExecutedPath($target); // TODO We should get this from targets
 
@@ -1224,32 +1226,6 @@ abstract class Request implements RequestInterface
 
             default:
                 static::$request_type = $request_type;
-        }
-    }
-
-
-    /**
-     * Returns the absolute target file to execute
-     *
-     * @return string
-     */
-    protected static function getAbsoluteTarget(): string
-    {
-        if (str_starts_with(static::$target, '/')) {
-            // This target is already absolute
-            return static::$target;
-        }
-
-        try {
-            // All web pages (API, AJAX, or HTML) should be under DIRECTORY_WEB, get an absolute path
-            return Path::getAbsolute(static::$parameters->getRootDirectory() . Strings::unslash(static::$target), DIRECTORY_WEB);
-
-        } catch (FileNotExistException $e) {
-            throw FileNotExistException::new(tr('The specified target ":target" does not exist', [
-                ':target' => static::$target->getPath('root')
-            ]), $e)->addData([
-                'target'  => static::$target->getPath('root')
-            ]);
         }
     }
 
@@ -1470,8 +1446,13 @@ abstract class Request implements RequestInterface
     public static function execute(FileInterface|string $target): ?string
     {
         // Set target and check if we have this target in the cache
-        static::setTarget($target);
-        static::$stack_level++;
+        try {
+            static::setTarget($target);
+            static::$stack_level++;
+
+        } catch (FileNotExistException $e) {
+            static::processFileNotFound($e, $target);
+        }
 
         Log::information(tr('Executing request target ":target" on stack level ":level"', [
             ':target' => static::$target->getPath('root'),
@@ -1504,48 +1485,7 @@ abstract class Request implements RequestInterface
                     Response::checkForceRedirect();
                 }
 
-                // Execute the specified target file
-                try {
-                    // Prepare page, increase the stack counter, and execute the target
-                    if (static::$stack_level) {
-                        // Execute only the file and return the output
-                        $return = execute();
-
-                    } else {
-                        // Execute the entire page and return the output
-                        $return = static::$page->execute();
-                    }
-
-                } catch (ValidationFailedExceptionInterface $e) {
-                    static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
-
-                } catch (AuthenticationExceptionInterface $e) {
-                    static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
-
-                } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
-                    $new_target = $e->getNewTarget();
-
-                    if (!$new_target) {
-                        static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
-                    }
-
-                    Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
-                        ':target' => $target,
-                        ':user'   => Session::getUser()->getDisplayId(),
-                        ':new'    => $new_target
-                    ]));
-
-                    $return = static::execute($new_target);
-
-                } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
-                    static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
-
-                } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
-                    static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
-
-                } catch (Http409Exception $e) {
-                    static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-                }
+                $return = static::executeTarget();
             }
         }
 
@@ -1560,6 +1500,84 @@ abstract class Request implements RequestInterface
 
         // Return the output to the page that executed this page
         return $return;
+    }
+
+
+    /**
+     * Process a FileNotFoundException
+     *
+     * @param FileNotExistException $e
+     * @param FileInterface|string $target
+     * @return never
+     * @throws FileNotExistException
+     */
+    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, FileInterface|string $target): never
+    {
+        if (static::$stack_level >= 0) {
+            Log::warning(tr('Sub target ":target" does not exist, displaying 500 instead', [
+                ':target' => $target
+            ]));
+
+            throw $e;
+        }
+
+        Log::warning(tr('Main target ":target" does not exist, displaying 404 instead', [
+            ':target' => $target
+        ]));
+
+        Request::executeSystem(404);
+    }
+
+
+    /**
+     * Executes the specified target and returns the results
+     *
+     * @return string|null
+     */
+    protected static function executeTarget(): ?string
+    {
+        // Execute the specified target file
+        try {
+            // Prepare page, increase the stack counter, and execute the target
+            if (static::$stack_level) {
+                // Execute only the file and return the output
+                return execute();
+
+            } else {
+                // Execute the entire page and return the output
+                return static::$page->execute();
+            }
+
+        } catch (ValidationFailedExceptionInterface $e) {
+            static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+
+        } catch (AuthenticationExceptionInterface $e) {
+            static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+
+        } catch (IncidentsExceptionInterface|AccessDeniedExceptionInterface $e) {
+            $new_target = $e->getNewTarget();
+
+            if (!$new_target) {
+                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/401" instead'));
+            }
+
+            Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+                ':target' => static::$target,
+                ':user'   => Session::getUser()->getDisplayId(),
+                ':new'    => $new_target
+            ]));
+
+            return static::execute($new_target);
+
+        } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+
+        } catch (Http405Exception|DataEntryReadonlyExceptionInterface|CoreReadonlyExceptionInterface $e) {
+            static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
+
+        } catch (Http409Exception $e) {
+            static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+        }
     }
 
 
