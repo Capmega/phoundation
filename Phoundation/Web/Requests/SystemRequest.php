@@ -149,6 +149,18 @@ class SystemRequest
      */
     #[NoReturn] protected function execute404(): never
     {
+        Log::warning(tr('Found no routes for known pages, testing for hacks'));
+
+        // Test the URI for known hacks. If so, apply configured response
+        if (Config::get('web.route.known-hacks', false)) {
+            Log::warning(tr('Applying known hacking rules'));
+
+            foreach (Config::get('web.route.known-hacks') as $hacks) {
+                static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+            }
+        }
+
+        // No hack detected, execute the 404 page.
         $this->executePage([
             'code'    => 404,
             'title'   => tr('Not found'),
