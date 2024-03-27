@@ -1071,7 +1071,7 @@ abstract class Request implements RequestInterface
             static::$main_target = static::$target;
 
             if (PLATFORM_WEB) {
-                // Start the main target buffer
+                // Start the main web target buffer
                 ob_start();
             }
         }
