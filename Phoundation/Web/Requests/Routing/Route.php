@@ -165,8 +165,6 @@ class Route
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => $_SERVER['REMOTE_ADDR'] . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')')
         ]), 9);
-
-        Core::addShutdownCallback('route[postprocess]', ['\Phoundation\Web\Requests\Routing\Route', 'postProcess']);
     }
 
 
@@ -739,7 +737,6 @@ class Route
                     case 'B':
                         // Block this request, send nothing
                         Log::warning(tr('Blocking request as per B flag'));
-                        Core::removeShutdownCallback('route[postprocess]');
                         $block = true;
                         break;
 
@@ -842,7 +839,6 @@ class Route
                                 ]));
                         }
 
-                        Core::removeShutdownCallback('route[postprocess]');
                         Request::setRoutingParameters(static::getParameters()->select(static::$uri));
                         Response::redirect(UrlBuilder::getWww($route)->addQueries($_GET), (int) $http_code);
 
@@ -958,7 +954,6 @@ class Route
                                 ':key' => $key
                             ]));
 
-                            Core::removeShutdownCallback('route[postprocess]');
                             Request::setRoutingParameters(static::getParameters()->select(static::$uri));
                             Response::redirect($domain);
                     }
@@ -991,8 +986,6 @@ class Route
                             ':language' => $language
                         ]));
 
-                        // TODO route_postprocess() This should be a class method!
-                        Core::removeShutdownCallback('route[postprocess]');
                         // TODO Check if this should be 404 or maybe some other HTTP code?
                         Request::executeSystem(404);
 
@@ -1008,10 +1001,7 @@ class Route
                         }
 
                         if (!file_exists($page)) {
-                            // TODO route_postprocess() This should be a class method!
                             Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
-                            Core::removeShutdownCallback('route[postprocess]');
-                            // TODO Check if this should be 404 or maybe some other HTTP code?
                             Request::executeSystem(404);
                         }
 
@@ -1025,9 +1015,6 @@ class Route
                             ':page'     => $page
                         ]));
 
-                        // TODO route_postprocess() This should be a class method!
-                        Core::removeShutdownCallback('route[postprocess]');
-                        // TODO Check if this should be 404 or maybe some other HTTP code?
                         Request::executeSystem(404);
                     }
                 }
@@ -1044,8 +1031,6 @@ class Route
                 }
 
                 // We are going to show the matched page so we no longer need to default to 404
-                // TODO route_postprocess() This should be a class method!
-                Core::removeShutdownCallback('route[postprocess]');
 
                 // Execute the page specified in $target (from here, $route)
                 // Update the current running script name
@@ -1166,35 +1151,6 @@ class Route
         // Set specific language map
         Log::notice(tr('Setting specified URL map'));
         Core::register($map, 'route', 'map');
-    }
-
-
-    /**
-     * Shutdown the URL routing
-     *
-     * @note: This function typically is called automatically
-     *
-     * @see Route::try()
-     * @see Request::executeSystem()
-     *
-     * @return void
-     */
-    public static function postProcess(): void
-    {
-        Log::warning(tr('Found no routes for known pages, testing for hacks'));
-
-        // Test the URI for known hacks. If so, apply configured response
-        if (Config::get('web.route.known-hacks', false)) {
-            Log::warning(tr('Applying known hacking rules'));
-
-            foreach (Config::get('web.route.known-hacks') as $hacks) {
-                static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
-            }
-        }
-
-        // This is not a hack, the page simply cannot be found. Show a 404 instead
-        Request::setRoutingParameters(static::getParameters()->select(static::$uri));
-        Request::executeSystem(404);
     }
 
 
