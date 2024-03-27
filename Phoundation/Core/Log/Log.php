@@ -873,7 +873,7 @@ Class Log {
 
             case 'boolean':
                 $size = '-';
-                $message = strtoupper(Strings::fromBoolean($messages));
+                $messages = strtoupper(Strings::fromBoolean($messages));
                 break;
 
             case 'string':
@@ -904,18 +904,11 @@ Class Log {
                 }
             }
 
-            // We cannot display non-scalar data, encode it with JSON
-            try {
-                $messages = Json::encode($messages,JSON_INVALID_UTF8_IGNORE | JSON_INVALID_UTF8_SUBSTITUTE | JSON_UNESCAPED_UNICODE);
-            } catch (JsonException $e) {
-                // Message failed to be JSON encoded
-                $messages = tr('JSON data could not be encoded for this log message');
-            }
+        } else {
+            // Build the message
+            $use_prefix = strtoupper($type) . ' [' . $size . '] ';
+            $messages   = $use_prefix . $messages;
         }
-
-        // Build the message
-        $use_prefix = strtoupper($type) . ' [' . $size . '] ';
-        $messages = $use_prefix . $messages;
 
         if ($echo_header) {
             static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
@@ -1214,9 +1207,6 @@ Class Log {
                 return true;
             }
 
-            // Add coloring for easier reading
-            $messages = CliColor::apply((string) $messages, $class);
-
             // Build the message to be logged, clean it and log
             // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
             if ($clean) {
@@ -1227,6 +1217,9 @@ Class Log {
                 // Do not log empty messages
                 return false;
             }
+
+            // Add coloring for easier reading
+            $messages = CliColor::apply((string) $messages, $class);
 
             // Build message string that should be written to log and (possibly) screen
             if (static::$use_prefix and $use_prefix) {
