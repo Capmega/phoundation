@@ -76,7 +76,7 @@ trait TraitDataStaticExecuted
 
         unset($path);
 
-        return implode(' > ', $return);
+        return implode(', ', $return);
     }
 
 
