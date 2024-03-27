@@ -1595,7 +1595,7 @@ abstract class Request implements RequestInterface
                 // no break
             case 304:
                 Log::success(tr('Script ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
-                    ':script'    => static::getExecutedPath(),
+                    ':script'    => static::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':http_code' => Response::getHttpCode(),
@@ -1605,7 +1605,7 @@ abstract class Request implements RequestInterface
 
             default:
                 Log::warning(tr('Script ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
-                    ':script'    => static::getExecutedPath(),
+                    ':script'    => static::getExecutedPath(true),
                     ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':http_code' => Response::getHttpCode(),

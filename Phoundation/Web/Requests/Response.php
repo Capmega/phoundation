@@ -591,8 +591,8 @@ class Response implements ResponseInterface
             }
 
         } catch (FilesystemException $e) {
-            Log::warning('Failed to find favicon, see next message for more information');
-            Log::warning($e->makeWarning());
+            Log::warning(tr('Failed to find favicon, see next message for more information'), 3);
+            Log::warning($e->makeWarning(), 3);
         }
     }
 
