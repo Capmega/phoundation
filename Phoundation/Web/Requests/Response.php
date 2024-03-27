@@ -1241,7 +1241,7 @@ class Response implements ResponseInterface
         echo static::getOutput();
 
         // Log how much we sent
-        Log::action(tr('Sent ":length" bytes output data to client', [
+        Log::action(tr('Sent ":length" output data to client', [
             ':length' => Numbers::getHumanReadableBytes($length),
         ]), 4);
     }
