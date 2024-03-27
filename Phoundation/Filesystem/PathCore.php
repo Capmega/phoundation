@@ -285,11 +285,13 @@ class PathCore implements Stringable, PathInterface
             }
         } else {
             if ($must_exist) {
-                throw new FileNotExistException(tr('The resolved path ":resolved" for the specified path ":directory" with prefix ":prefix" does not exist', [
+                throw FileNotExistException::new(tr('The resolved path ":resolved" for the specified path ":directory" with prefix ":prefix" does not exist', [
                     ':prefix'    => $prefix,
                     ':directory' => $path,
                     ':resolved'  => $return
-                ]));
+                ]))->addData([
+                    'path' => $return
+                ]);
             }
 
             // The path doesn't exist, but apparently that's okay! Continue!
