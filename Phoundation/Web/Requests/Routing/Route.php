@@ -1232,31 +1232,6 @@ class Route
             throw new RouteException(tr('Route resolved to main "index.php" routing page which would cause an endless loop'));
         }
 
-        // Target exists?
-        if (!$target->exists()) {
-            if (static::$dynamic_pagematch) {
-                Log::warning(tr('Pattern matched file ":file" does not exist', [
-                    ':file' => $target->getPath('root')
-                ]));
-
-            } else {
-                // The hardcoded file for the regex does not exist, oops!
-                Log::warning(tr('Matched hard coded file ":file" does not exist', [
-                    ':file' => $target->getPath('root')
-                ]));
-            }
-
-            // TODO route_postprocess() This should be a class method!
-            Core::removeShutdownCallback('route[postprocess]');
-
-            // TODO Check if this should be 404 or maybe some other HTTP code?
-            Request::executeSystem(404);
-        }
-
-        // Remove the 404 auto execution on shutdown
-        // TODO route_postprocess() This should be a class method!
-        Core::removeShutdownCallback('route[postprocess]');
-
         if ($target->hasExtension('php')) {
             // The target is a PHP file, so execute it. The Page object will take care of everything, even if it's an
             // attachment that the client will download instead of view in the browser.
