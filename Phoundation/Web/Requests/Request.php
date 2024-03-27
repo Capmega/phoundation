@@ -1530,7 +1530,7 @@ abstract class Request implements RequestInterface
 
 
     /**
-     * Executes the specified target and returns the results
+     * Executes the specified target, processes default exceptions, and returns the results
      *
      * @return string|null
      */
@@ -1543,10 +1543,10 @@ abstract class Request implements RequestInterface
                 // Execute only the file and return the output
                 return execute();
 
-            } else {
-                // Execute the entire page and return the output
-                return static::$page->execute();
             }
+
+            // Execute the entire page and return the output
+            return static::$page->execute();
 
         } catch (ValidationFailedExceptionInterface $e) {
             static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
