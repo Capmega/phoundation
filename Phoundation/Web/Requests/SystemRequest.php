@@ -17,6 +17,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Routing\Route;
@@ -213,7 +214,7 @@ class SystemRequest
         try {
             // Execute the system page request
             Request::setSystem(true);
-            Request::execute($request_path . '/system/' . $variables['code'] . '.php');
+            Request::execute($request_path . 'system/' . $variables['code'] . '.php');
             exit();
 
         } catch (Throwable $e) {
@@ -223,12 +224,15 @@ class SystemRequest
                     ':code' => $variables['code']
                 ]));
 
-                echo Template::new()->render([
-                    ':title' => $variables['code'] . ' - ' . Strings::capitalize($variables['title']),
-                    ':h1'    => strtoupper($variables['title']),
-                    ':p'     => $variables['message'],
-                    ':body'  => $variables['details']
-                ]);
+                echo Template::new('system/http-error')->setSource([
+                   ':h2'     => $variables['code'],
+                   ':h3'     => Strings::capitalize($variables['title']),
+                   ':p'      => $variables['message'],
+                   ':body'   => $variables['details'],
+                   ':type'   => 'warning',
+                   ':search' => tr('Search'),
+                   ':action' => UrlBuilder::getWww('search/')
+               ])->render();
 
                 exit();
             }
