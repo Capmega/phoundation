@@ -190,6 +190,7 @@ class PathCore implements Stringable, PathInterface
     public static function getAbsolute(Stringable|string|null $path = null, Stringable|string|bool|null $prefix = null, bool $must_exist = true): string
     {
         $path = trim((string) $path);
+        $path = str_replace('//', '/', $path);
 
         if ($prefix === false) {
             // Don't make it absolute at all
