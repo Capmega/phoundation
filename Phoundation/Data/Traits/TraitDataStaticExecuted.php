@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Strings;
 
 
@@ -69,7 +70,7 @@ trait TraitDataStaticExecuted
         if ($from_root) {
             foreach ($return as &$path) {
                 $path = Strings::from($path, DIRECTORY_DATA);
-                $path = Strings::from($path, 'data/cache/system/commands/');
+                $path = Strings::from($path, 'data/system/cache/');
             }
         }
 
@@ -95,7 +96,7 @@ trait TraitDataStaticExecuted
 
         if ($from_root) {
             $path = Strings::from($path, DIRECTORY_DATA);
-            $path = Strings::from($path, 'data/cache/system/commands/');
+            $path = Strings::from($path, 'data/system/cache/');
         }
 
         return $path;
