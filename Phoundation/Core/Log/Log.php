@@ -826,9 +826,9 @@ Class Log {
      * @param string|bool $use_prefix
      * @return bool
      */
-    public static function cli(mixed $messages = null, int $threshold = 10, bool $newline = true, bool $use_prefix = false): bool
+    public static function cli(mixed $messages = null, int $threshold = 10, bool $clean = false, bool $newline = true, bool $use_prefix = false): bool
     {
-        return static::write($messages, 'cli', $threshold, false, $newline, $use_prefix);
+        return static::write($messages, 'cli', $threshold, $clean, $newline, $use_prefix);
     }
 
 
