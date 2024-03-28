@@ -1289,4 +1289,21 @@ class DefinitionFactory
             ->setCliAutoComplete(true)
             ->setLabel(tr('Comments'));
     }
+
+
+    /**
+     * Returns a Definition object for buttons
+     *
+     * @param DataEntryInterface $data_entry
+     * @param string|null $column
+     * @return DefinitionInterface
+     */
+    public static function getButton(DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+            ->setOptional(true)
+            ->setVirtual(true)
+            ->setInputType(EnumInputType::button)
+            ->setSize(1);
+    }
 }
