@@ -399,9 +399,11 @@ class Updates extends Libraries\Updates
                  ->changeColumn('priority', '`priority` int NOT NULL DEFAULT 50');
 
         })->addUpdate('0.2.8', function () {
-            sql()->schema()->table('core_plugins')->alter()
-                 ->addColumn('`vendor` varchar(128) NOT NULL', 'AFTER `commands_enabled`')
-                 ->addIndex('`vendor` (`vendor`)');
+            if (!sql()->schema()->table('core_plugins')->exists('vendor')) {
+                sql()->schema()->table('core_plugins')->alter()
+                     ->addColumn('`vendor` varchar(128) NOT NULL', 'AFTER `commands_enabled`')
+                     ->addIndex('`vendor` (`vendor`)');
+            }
         });
     }
 }
