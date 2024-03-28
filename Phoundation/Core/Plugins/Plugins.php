@@ -298,63 +298,72 @@ class Plugins extends DataList implements PluginsInterface
     {
         $directory = DIRECTORY_ROOT . 'Plugins/';
         $return    = [];
-        $plugins   = scandir($directory);
+        $vendors   = scandir($directory);
 
-        foreach ($plugins as $id => $plugin) {
+        foreach ($vendors as $id => $vendor) {
             // Filter . .. and hidden files
-            if (str_starts_with($plugin, '.')) {
+            if (str_starts_with($vendor, '.')) {
                 continue;
             }
 
-            $file = $directory . $plugin . '/Library/Plugin.php';
+            $plugins = scandir($directory . $vendor);
 
-            if ($plugin === 'disabled') {
-                // The "disabled" directory is for disabled plugins, ignore it completely
-                continue;
+            foreach ($plugins as $id => $plugin) {
+                // Filter . .. and hidden files
+                if (str_starts_with($plugin, '.')) {
+                    continue;
+                }
+
+                $file = $directory . $vendor . '/' . $plugin . '/Library/Plugin.php';
+
+                if ($plugin === 'disabled') {
+                    // The "disabled" directory is for disabled plugins, ignore it completely
+                    continue;
+                }
+
+                // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
+                // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
+                if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
+                    Log::warning(tr('Ignoring plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
+                        ':plugin' => $plugin
+                    ]),          9);
+
+                    continue;
+                }
+
+                if (!file_exists($file)) {
+                    Log::warning(tr('Ignoring plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
+                        ':plugin' => $plugin
+                    ]),          3);
+
+                    continue;
+                }
+
+                $class = Library::getClassPath($file);
+                include_once($file);
+
+                // Ensure that the class path matches the file path
+                if (!static::classPathMatchesFilePath($class, $file)) {
+                    Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
+                        ':plugin' => $plugin,
+                        ':file' => Strings::from($file, DIRECTORY_ROOT),
+                        ':class' => $class
+                    ]));
+
+                    continue;
+                }
+
+                if (!is_subclass_of($class, Plugin::class)) {
+                    Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                        ':plugin' => $plugin,
+                        ':class' => Plugin::class
+                    ]));
+
+                    continue;
+                }
+
+                $return[$plugin] = $class;
             }
-
-            // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
-            // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
-            if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
-                Log::warning(tr('Ignoring plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
-                    ':plugin' => $plugin
-                ]), 9);
-
-                continue;
-            }
-
-            if (!file_exists($file)) {
-                Log::warning(tr('Ignoring plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
-                    ':plugin' => $plugin
-                ]), 3);
-
-                continue;
-            }
-
-            $class = Library::getClassPath($file);
-            include_once($file);
-
-            // Ensure that the class path matches the file path
-            if (!static::classPathMatchesFilePath($class, $file)) {
-                Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
-                    ':plugin' => $plugin,
-                    ':file'   => Strings::from($file, DIRECTORY_ROOT),
-                    ':class'  => $class
-                ]));
-
-                continue;
-            }
-
-            if (!is_subclass_of($class, Plugin::class)) {
-                Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
-                    ':plugin' => $plugin,
-                    ':class'  => Plugin::class
-                ]));
-
-                continue;
-            }
-
-            $return[$plugin] = $class;
         }
 
         return $return;

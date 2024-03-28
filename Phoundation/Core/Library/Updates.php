@@ -8,7 +8,6 @@ use Phoundation\Core\Libraries;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;
 
-
 /**
  * Updates class
  *
@@ -29,7 +28,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.2.7';
+        return '0.2.8';
     }
 
 
@@ -81,7 +80,7 @@ class Updates extends Libraries\Updates
             sql()->schema()->table('meta_history')->drop();
             sql()->schema()->table('meta')->drop();
 
-            // Add tables for the meta library
+            // Add tables for the "meta" library
             sql()->schema()->table('meta')->define()
                 ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')->create();
 
@@ -102,22 +101,33 @@ class Updates extends Libraries\Updates
                     KEY `meta_id` (`meta_id`),
                     KEY `action` (`action`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_meta_history_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_meta_history_meta_id` 
+                        FOREIGN KEY (`meta_id`) 
+                        REFERENCES `meta` (`id`) 
+                        ON DELETE CASCADE,
                 ')->create();
 
         })->addUpdate('0.0.5', function () {
             sql()->schema()->table('sessions_extended')->drop();
 
             // Modify the core_versions and meta_history tables to have a foreign key to the (now existing) accounts_users table
-            sql()->schema()->table('meta_history')->alter()->addForeignKey('
-                CONSTRAINT `fk_meta_history_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+            sql()->schema()->table('meta_history')->alter()
+                ->addForeignKey('
+                    CONSTRAINT `fk_meta_history_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT
             ');
 
-            sql()->schema()->table('core_versions')->alter()->addForeignKey('
-                CONSTRAINT `fk_core_versions_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+            sql()->schema()->table('core_versions')->alter()
+               ->addForeignKey('
+                CONSTRAINT `fk_core_versions_created_by` 
+                    FOREIGN KEY (`created_by`) 
+                    REFERENCES `accounts_users` (`id`) 
+                    ON DELETE RESTRICT
             ');
 
-            // Add tables for the sessions management
+            // Add tables for session management
             sql()->schema()->table('sessions_extended')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -134,13 +144,16 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `session_key` (`session_key`),
                     KEY `ip` (`ip`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_sessions_extended_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_sessions_extended_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT,
                 ')->create();
 
         })->addUpdate('0.0.6', function () {
             sql()->schema()->table('url_cloaks')->drop();
 
-            // Add tables for the sessions management
+            // Add tables for URL cloaking
             sql()->schema()->table('url_cloaks')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -157,13 +170,16 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `cloak` (`cloak`),
                     UNIQUE KEY `url_created_by` (`url` (32), `created_by`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_url_cloaks_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                    CONSTRAINT `fk_url_cloaks_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT
                 ')->create();
 
         })->addUpdate('0.0.7', function () {
             sql()->schema()->table('key_value_store')->drop();
 
-            // Add tables for the sessions management
+            // Add tables for generic key-value store
             sql()->schema()->table('key_value_store')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -182,8 +198,14 @@ class Updates extends Libraries\Updates
                     KEY `meta_id` (`meta_id`),
                     UNIQUE KEY `key` (`key`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_key_value_store_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_key_value_store_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_key_value_store_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT,
+                    CONSTRAINT `fk_key_value_store_meta_id` 
+                        FOREIGN KEY (`meta_id`) 
+                        REFERENCES `meta` (`id`) 
+                        ON DELETE CASCADE,
                 ')->create();
 
         })->addUpdate('0.0.8', function () {
@@ -215,8 +237,14 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `code_639_2_b` (`code_639_2_b`),
                     UNIQUE KEY `code_639_3` (`code_639_3`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_languages_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_languages_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_languages_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT,
+                    CONSTRAINT `fk_languages_meta_id` 
+                        FOREIGN KEY (`meta_id`) 
+                        REFERENCES `meta` (`id`) 
+                        ON DELETE CASCADE,
                 ')->create();
 
             // Import all languages
@@ -226,7 +254,7 @@ class Updates extends Libraries\Updates
             sql()->schema()->table('core_templates')->drop();
             sql()->schema()->table('core_plugins')->drop();
 
-            // Add table for plugins registration
+            // Add table for core plugin registration
             sql()->schema()->table('core_plugins')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -255,11 +283,17 @@ class Updates extends Libraries\Updates
                     INDEX `enabled-status` (`enabled`, `status`),                    
                     INDEX `priority` (`priority`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_core_plugins_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_core_plugins_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_core_plugins_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT,
+                    CONSTRAINT `fk_core_plugins_meta_id` 
+                        FOREIGN KEY (`meta_id`) 
+                        REFERENCES `meta` (`id`) 
+                        ON DELETE CASCADE,
                 ')->create();
 
-            // Add table for teplates registration
+            // Add table for template registration
             sql()->schema()->table('core_templates')->define()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -283,12 +317,18 @@ class Updates extends Libraries\Updates
                     UNIQUE KEY `name` (`name`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_core_templates_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_core_templates_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_core_templates_created_by` 
+                        FOREIGN KEY (`created_by`) 
+                        REFERENCES `accounts_users` (`id`) 
+                        ON DELETE RESTRICT,
+                    CONSTRAINT `fk_core_templates_meta_id` 
+                        FOREIGN KEY (`meta_id`) 
+                        REFERENCES `meta` (`id`) 
+                        ON DELETE CASCADE,
                 ')->create();
-
         })->addUpdate('0.0.11', function () {
-            sql()->schema()->table('core_templates')->alter()->changeColumn('file', '`directory` varchar(128) NOT NULL');
+            sql()->schema()->table('core_templates')->alter()
+                ->changeColumn('file', '`directory` varchar(128) NOT NULL');
 
         })->addUpdate('0.0.15', function () {
             // Fix meta_id columns
@@ -307,14 +347,15 @@ class Updates extends Libraries\Updates
                 }
 
                 // This table has a NOT NULL meta_id, fix it
-                sql()->query('ALTER TABLE `' . $table['table_name'] . '` MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
+                sql()->query('ALTER TABLE   `' . $table['table_name'] . '` 
+                                    MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
                 Log::dot(5);
             }
 
             Log::success('Finished', use_prefix: false);
 
         })->addUpdate('0.1.0', function () {
-            // Add table support in meta system
+            // Add table support in meta-system
             if (!sql()->schema()->table('meta')->getColumns()->keyExists('table')) {
                 sql()->schema()->table('meta')->alter()
                     ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
@@ -323,7 +364,7 @@ class Updates extends Libraries\Updates
 
             sql()->schema()->table('meta_users')->drop();
 
-            // Add users meta tracking table
+            // Add users meta-tracking table
             sql()->schema()->table('meta_users')->define()
                 ->setColumns('
                 `users_id` bigint NOT NULL,
@@ -332,8 +373,14 @@ class Updates extends Libraries\Updates
                 KEY `users_id` (`users_id`),
                 KEY `histories_id` (`histories_id`),
             ')->setForeignKeys('
-                CONSTRAINT `fk_meta_users_histories_id` FOREIGN KEY (`histories_id`) REFERENCES `meta_history` (`id`) ON DELETE CASCADE,
-                CONSTRAINT `fk_meta_users_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
+                CONSTRAINT `fk_meta_users_histories_id` 
+                    FOREIGN KEY (`histories_id`) 
+                    REFERENCES `meta_history` (`id`) 
+                    ON DELETE CASCADE,
+                CONSTRAINT `fk_meta_users_users_id` 
+                    FOREIGN KEY (`users_id`) 
+                    REFERENCES `accounts_users` (`id`) 
+                    ON DELETE CASCADE,
             ')->create();
 
         })->addUpdate('0.2.5', function () {
@@ -347,9 +394,14 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.2.7', function () {
             sql()->schema()->table('core_plugins')->alter()
-                ->dropIndex('enabled-status')
-                ->addIndex('INDEX `enabled_status` (`enabled`, `status`)')
-                ->changeColumn('priority', '`priority` int NOT NULL DEFAULT 50');
+                 ->dropIndex('enabled-status')
+                 ->addIndex('INDEX `enabled_status` (`enabled`, `status`)')
+                 ->changeColumn('priority', '`priority` int NOT NULL DEFAULT 50');
+
+        })->addUpdate('0.2.8', function () {
+            sql()->schema()->table('core_plugins')->alter()
+                 ->addColumn('`vendor` varchar(128) NOT NULL', 'AFTER `commands_enabled`')
+                 ->addIndex('`vendor` (`vendor`)');
         });
     }
 }
