@@ -23,10 +23,10 @@ use Throwable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Plugins extends DataList implements PluginsInterface
 {
@@ -44,6 +44,7 @@ class Plugins extends DataList implements PluginsInterface
     public function __construct()
     {
         $this->setQuery('SELECT   `id`, 
+                                        `vendor`, 
                                         `name`, 
                                         IFNULL(`status`, "' . tr('Ok') . '") AS `status`, 
                                         IF(`enabled`, "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
@@ -95,8 +96,8 @@ class Plugins extends DataList implements PluginsInterface
     public static function setup(): void
     {
         static::new()
-            ->erase()
-            ->scan();
+              ->erase()
+              ->scan();
     }
 
 
@@ -120,14 +121,15 @@ class Plugins extends DataList implements PluginsInterface
 
             } catch (Throwable $e) {
                 Log::warning(tr('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
-                    ':plugin' => $name
+                    ':plugin' => $name,
                 ]));
 
                 Log::error($e);
             }
         }
 
-        return static::new()->load();
+        return static::new()
+                     ->load();
     }
 
 
@@ -147,50 +149,51 @@ class Plugins extends DataList implements PluginsInterface
                 }
             } catch (Throwable $e) {
                 Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
-                    ':plugin' => $plugin['name']
+                    ':plugin' => $plugin['name'],
                 ]));
 
                 Log::error($e);
 
                 if (Config::getBoolean('plugins.error.startup.disable', true)) {
                     Log::warning(tr('Disabling plugin ":plugin" because it failed to startup', [
-                        ':plugin' => $plugin['name']
+                        ':plugin' => $plugin['name'],
                     ]));
 
-                    Plugin::new($plugin['id'])->disable();
+                    Plugin::new($plugin['id'])
+                          ->disable();
                 }
             }
         }
     }
 
 
-//    /**
-//     * Starts CLI all enabled plugins
-//     *
-//     * @return void
-//     */
-//    public static function startCli(): void
-//    {
-//        foreach (static::getEnabled() as $name => $plugin) {
-//            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
-//            $plugin['class']::startCli();
-//        }
-//    }
-//
-//
-//
-//    /**
-//     * Starts HTTP for all enabled plugins
-//     *
-//     * @return void
-//     */
-//    public static function startHttp(): void
-//    {
-//        foreach (static::getEnabled() as $name => $plugin) {
-//            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
-//            $plugin['class']::startHttp();
-//        }
-//    }
+    //    /**
+    //     * Starts CLI all enabled plugins
+    //     *
+    //     * @return void
+    //     */
+    //    public static function startCli(): void
+    //    {
+    //        foreach (static::getEnabled() as $name => $plugin) {
+    //            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
+    //            $plugin['class']::startCli();
+    //        }
+    //    }
+    //
+    //
+    //
+    //    /**
+    //     * Starts HTTP for all enabled plugins
+    //     *
+    //     * @return void
+    //     */
+    //    public static function startHttp(): void
+    //    {
+    //        foreach (static::getEnabled() as $name => $plugin) {
+    //            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
+    //            $plugin['class']::startHttp();
+    //        }
+    //    }
 
 
     /**
@@ -205,6 +208,7 @@ class Plugins extends DataList implements PluginsInterface
                                               IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
                                               IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
                                               `priority`, 
+                                              `vendor`, 
                                               `class`, 
                                               `path`
                                      FROM     `core_plugins`
@@ -218,7 +222,6 @@ class Plugins extends DataList implements PluginsInterface
 
         // Push Phoundation plugin to the front of the list
         array_unshift($return, static::getPhoundationPluginEntry());
-
         return new Iterator($return);
     }
 
@@ -235,6 +238,7 @@ class Plugins extends DataList implements PluginsInterface
                                               IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
                                               IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
                                               `priority`, 
+                                              `vendor`, 
                                               `class`, 
                                               `path`
                                      FROM     `core_plugins` 
@@ -249,7 +253,6 @@ class Plugins extends DataList implements PluginsInterface
 
         // Push Phoundation plugin to the front of the list
         array_unshift($return, static::getPhoundationPluginEntry());
-
         return new Iterator($return);
     }
 
@@ -262,6 +265,7 @@ class Plugins extends DataList implements PluginsInterface
     protected static function getPhoundationPluginEntry(): array
     {
         return [
+            'vendor'   => 'Phoundation',
             'name'     => 'Phoundation',
             'status'   => tr('Ok'),
             'enabled'  => tr('Enabled'),
@@ -282,8 +286,10 @@ class Plugins extends DataList implements PluginsInterface
         // Delete all plugins from disk
         $directory = DIRECTORY_ROOT . 'Plugins/';
 
-        File::new($directory)->delete();
-        Directory::new($directory)->ensure();
+        File::new($directory)
+            ->delete();
+        Directory::new($directory)
+                 ->ensure();
 
         return $this;
     }
@@ -297,10 +303,10 @@ class Plugins extends DataList implements PluginsInterface
     protected static function scanPluginsPath(): array
     {
         $directory = DIRECTORY_ROOT . 'Plugins/';
-        $return    = [];
-        $vendors   = scandir($directory);
+        $return = [];
+        $vendors = scandir($directory);
 
-        foreach ($vendors as $id => $vendor) {
+        foreach ($vendors as $vendor) {
             // Filter . .. and hidden files
             if (str_starts_with($vendor, '.')) {
                 continue;
@@ -325,7 +331,7 @@ class Plugins extends DataList implements PluginsInterface
                 // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
                 if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
                     Log::warning(tr('Ignoring plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
-                        ':plugin' => $plugin
+                        ':plugin' => $plugin,
                     ]),          9);
 
                     continue;
@@ -333,7 +339,7 @@ class Plugins extends DataList implements PluginsInterface
 
                 if (!file_exists($file)) {
                     Log::warning(tr('Ignoring plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
-                        ':plugin' => $plugin
+                        ':plugin' => $plugin,
                     ]),          3);
 
                     continue;
@@ -346,8 +352,8 @@ class Plugins extends DataList implements PluginsInterface
                 if (!static::classPathMatchesFilePath($class, $file)) {
                     Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
                         ':plugin' => $plugin,
-                        ':file' => Strings::from($file, DIRECTORY_ROOT),
-                        ':class' => $class
+                        ':file'   => Strings::from($file, DIRECTORY_ROOT),
+                        ':class'  => $class,
                     ]));
 
                     continue;
@@ -356,7 +362,7 @@ class Plugins extends DataList implements PluginsInterface
                 if (!is_subclass_of($class, Plugin::class)) {
                     Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
                         ':plugin' => $plugin,
-                        ':class' => Plugin::class
+                        ':class'  => Plugin::class,
                     ]));
 
                     continue;
@@ -375,6 +381,7 @@ class Plugins extends DataList implements PluginsInterface
      *
      * @param string $class
      * @param string $file
+     *
      * @return bool
      */
     protected static function classPathMatchesFilePath(string $class, string $file): bool
@@ -389,18 +396,19 @@ class Plugins extends DataList implements PluginsInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
-            ->setName('plugins_id')
-            ->setNone(tr('Select a plugin'))
-            ->setObjectEmpty(tr('No plugins available'));
+                     ->setName('plugins_id')
+                     ->setNone(tr('Select a plugin'))
+                     ->setObjectEmpty(tr('No plugins available'));
     }
 }
