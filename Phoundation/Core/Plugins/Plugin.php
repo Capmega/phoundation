@@ -390,7 +390,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @note IMPORTANT DETAIL: This Plugins::get() method overrides the DataEntry::get() method. It works the same, but
      *       will return the correct class for the plugin. If, for example, the Phoundation plugin was requested, the
-     *       returned class will be Plugins\Phoundation\Library\Plugin, instead of Phoundation\Core\Plugins\Plugin
+     *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of Phoundation\Core\Plugins\Plugin
      *
      * @param DataEntryInterface|string|int|null $identifier
      * @param string|null $column
