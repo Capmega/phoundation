@@ -5,6 +5,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Http\UrlBuilder;
 
 
 /**
@@ -43,7 +44,7 @@ $reply = [
     'buttons' => isset_get($button) .
         Button::new()
             ->setOutlined(true)
-            ->setAnchorUrl('http://mediweb.medinet.ca.local/en/notifications/notification+' . $notification->getId() . '.html')
+            ->setAnchorUrl(UrlBuilder::getWww('notifications/notification+' . $notification->getId() . '.html'))
             ->setContent(tr('See details'))
             ->render()];
 

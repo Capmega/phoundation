@@ -80,12 +80,12 @@ if (Request::isPostRequestMethod()) {
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
             if (Core::isProductionEnvironment()) {
-                $mail->addBCC('sven@medinet.ca', 'Sven Olaf Oostenbrink');
+                $mail->addBCC('sven@phoundation.org', 'Sven Olaf Oostenbrink');
             } else {
                 $mail->addAddress($user->getEmail(), $user->getDisplayName());
             }
 
-            $mail->setFrom('no-reply@medinet.ca', 'Medinet no-reply');
+            $mail->setFrom('no-reply@phoundation.org', 'Phoundation no-reply');
 
             if (!$mail->send()) {
                 throw new \Phoundation\Exception\Exception($mail->ErrorInfo);

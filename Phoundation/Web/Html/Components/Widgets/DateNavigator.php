@@ -13,7 +13,6 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
-use Plugins\Medinet\Traits\TraitDataDate;
 use Stringable;
 
 

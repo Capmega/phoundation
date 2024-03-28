@@ -14,9 +14,9 @@ use Phoundation\Date\DateTime;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <sven@medinet.ca>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://openstart.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Medinet <copyright@medinet.ca>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Data
  */
 trait TraitDataStartDateTime

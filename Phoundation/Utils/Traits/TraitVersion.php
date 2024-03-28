@@ -5,9 +5,9 @@
  *
  * This trait contains various methods to verify and manipulate versions
  *
- * @author Sven Olaf Oostenbrink <sven@medinet.ca>
- * @license This plugin is developed by, AND may only exclusively be used by Medinet or customers with written authorization to do so
- * @copyright Copyright (c) 2024 Medinet <copyright@medinet.ca>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Utils
  */
 
