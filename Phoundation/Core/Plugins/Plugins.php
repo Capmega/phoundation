@@ -266,7 +266,7 @@ class Plugins extends DataList implements PluginsInterface
             'status'   => tr('Ok'),
             'enabled'  => tr('Enabled'),
             'priority' => 0,
-            'class'    => 'Plugins\Phoundation\Library\Plugin',
+            'class'    => 'Plugins\Phoundation\Phoundation\Library\Plugin',
             'path'     => 'Plugins/Phoundation/',
         ];
     }

@@ -12,7 +12,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
-use Plugins\Phoundation\Components\Menu;
+use Plugins\Phoundation\Phoundation\Components\Menu;
 
 
 /**
