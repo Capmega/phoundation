@@ -126,7 +126,7 @@ class Cli
             // Determine the size of the keys to display them
             $column_sizes = Arrays::getLongestStringPerColumn($source, 2, $id_column);
 
-            // Get headers from columns
+            // Get headers from id_column and row columns and reformat them for displaying
             if ($headers === null) {
                 $value   = str_replace(['_', '-'], ' ', (string) $id_column);
                 $value   = Strings::capitalize($value) . ':';
@@ -146,7 +146,7 @@ class Cli
                 }
 
                 if (!$exists) {
-                    // The specified ID column doesn't exists in the rows, remove it
+                    // The specified ID column doesn't exist in the rows, remove it
                     unset($headers[$id_column]);
                 }
 
@@ -155,14 +155,14 @@ class Cli
                 $headers = static::cleanHeaders($headers);
             }
 
-            // Display header
+            // Display header?
             if (!VERY_QUIET) {
                 foreach (Arrays::force($headers) as $column => $header) {
                     $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false);
+                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false, false);
                 }
 
-                Log::cli();
+                Log::cli(' ');
             }
 
             // Display source
@@ -178,11 +178,11 @@ class Cli
                     $value = $row[$column];
 
                     if (is_numeric($column) or array_key_exists($column, $headers)) {
-                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false);
+                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
                     }
                 }
 
-                Log::cli();
+                Log::cli(' ');
             }
         } else {
             // Oops, empty source!
