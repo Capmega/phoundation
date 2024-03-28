@@ -859,8 +859,8 @@ $skip = false;
         // Copy Phoundation plugin
         Log::action('Updating Phoundation Plugin');
         Rsync::new()
-            ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/')
-            ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation')
+            ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/Phoundation/')
+            ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation/Phoundation')
             ->setExclude(['.git', '.gitignore'])
             ->setDelete(true)
             ->execute();
