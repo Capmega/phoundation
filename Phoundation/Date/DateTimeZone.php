@@ -50,7 +50,7 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
                 case 'display':
                     // The timezone requested by the user
                     $detected = Session::getUser()->getTimezone();
-$detected = 'PST';
+$detected = 'PDT';
                     break;
 
                 default:
