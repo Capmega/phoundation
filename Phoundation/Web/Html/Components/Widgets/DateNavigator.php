@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
+use Phoundation\Data\Traits\TraitDataDate;
 use Phoundation\Date\DateTime;
 use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Components\ElementsBlock;
