@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class HtmlTable
+ *
+ * This class can create various HTML tables
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables;
@@ -23,17 +34,6 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumTableIdColumnInterface;
 use Phoundation\Web\Http\UrlBuilder;
 use Stringable;
 
-
-/**
- * Class HtmlTable
- *
- * This class can create various HTML tables
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
     use TraitDataTitle;
@@ -845,7 +845,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
             // Update the headers to look pretty for humans
             foreach ($this->headers as $key => $column_header) {
-                $column_header = str_replace(['-', '_'], ' ', $column_header);
+                $column_header = str_replace(['-', '_'], ' ', (string)$column_header);
                 $column_header = Strings::capitalize($column_header);
 
                 $this->headers->set($column_header, $key);
@@ -963,12 +963,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Changes the first column to a checkbox
      *
-     * @param string $column
+     * @param string|int            $column
      * @param string|float|int|null $value
-     * @param bool $made_checkbox
+     * @param bool                  $made_checkbox
+     *
      * @return string|null
      */
-    protected function renderCheckboxColumn(string $column, string|float|int|null $value, bool &$made_checkbox): string|null
+    protected function renderCheckboxColumn(string|int $column, string|float|int|null $value, bool &$made_checkbox): string|null
     {
         switch ($this->checkbox_selectors) {
             case EnumTableIdColumn::hidden:
