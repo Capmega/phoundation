@@ -10,9 +10,9 @@ use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Avatar;
-use Phoundation\Web\Html\Components\Buttons\Button;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Icons\Icon;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Logo;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\ImageMenu;
@@ -25,8 +25,8 @@ use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Widgets\ProfileImage;
 use Phoundation\Web\Html\Enums\EnumBootstrapColor;
-use Phoundation\Web\Html\Traits\TraitMode;
 use Phoundation\Web\Html\Traits\TraitBootstrapColor;
+use Phoundation\Web\Html\Traits\TraitMode;
 
 
 /**

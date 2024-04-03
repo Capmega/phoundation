@@ -13,6 +13,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\Interfaces\EnumTableRowTypeInterface;
 use Phoundation\Web\Http\UrlBuilder;
 
@@ -254,7 +255,7 @@ class Notifications extends DataList implements NotificationsInterface
         Audio::new(DIRECTORY_CDN . '/audio/ping.mp3')->playRemote('notification');
 
         Script::new()
-            ->setJavascriptWrapper(null)
+            ->setJavascriptWrapper(EnumJavascriptWrappers::none)
             ->setContent('   function checkNotifications(ping) {
                                         var ping = (typeof ping !== "undefined") ? ping : true;
 

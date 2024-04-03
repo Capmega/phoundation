@@ -18,7 +18,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -133,7 +133,7 @@ class Right extends DataEntry implements RightInterface
     {
         $definitions
             ->add(DefinitionFactory::getName($this)
-                ->setInputType(EnumInputType::name)
+                ->setInputType(EnumElementInputType::name)
                 ->setSize(12)
                 ->setMaxlength(64)
                 ->setHelpText(tr('The name for this right'))

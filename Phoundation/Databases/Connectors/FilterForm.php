@@ -6,7 +6,7 @@ namespace Phoundation\Databases\Connectors;
 
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumElement;
 
 
 /**
@@ -50,10 +50,10 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                 ->setLabel(tr('Status'))
                 ->setSize(4)
                 ->setOptional(true)
-                ->setElement(EnumInputElement::select)
+                ->setElement(EnumElement::select)
                 ->setValue(isset_get($this->source['entry_status']))
                 ->setKey(true, 'auto_submit')
                 ->setDataSource($this->states))
-            ->add($connector->getDefinitions()->get('type'));
+            ->add($connector->getDefinitionsObject()->get('type'));
     }
 }

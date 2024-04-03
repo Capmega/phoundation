@@ -28,8 +28,8 @@ use Phoundation\Databases\Databases;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Enums\EnumInputElement;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -561,7 +561,7 @@ class Connector extends DataEntry implements ConnectorInterface
             ->add(Definition::new($this, 'environment')
                 ->setSize(4)
                 ->setLabel('Environment')
-                ->setElement(EnumInputElement::select)
+                ->setElement(EnumElement::select)
                 ->setDataSource([
                     'production' => tr('Production'),
                     'trial'      => tr('Trial'),
@@ -571,7 +571,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setSize(4)
                 ->setLabel('Connector type')
                 ->setInputType(null)
-                ->setElement(EnumInputElement::select)
+                ->setElement(EnumElement::select)
                 ->setDataSource([
                     'sql'       => tr('SQL'),
                     'memcached' => tr('Memcached'),
@@ -583,7 +583,7 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setOptional(true)
                 ->setLabel('Driver')
                 ->setInputType(null)
-                ->setElement(EnumInputElement::select)
+                ->setElement(EnumElement::select)
                 ->setDataSource([
                     ''        => tr('Not specified'),
                     'mysql'   => tr('MySQL'),
@@ -644,16 +644,16 @@ class Connector extends DataEntry implements ConnectorInterface
                 ->setDataSource([
 
                 ])
-                ->setInputType(EnumInputType::select)
+                ->setInputType(EnumElementInputType::select)
                 ->setSize(2))
             ->add(DefinitionFactory::getNumber($this, 'auto_increment')
                 ->setLabel(tr('Auto increment'))
-                ->setInputType(EnumInputType::positiveInteger)
+                ->setInputType(EnumElementInputType::positiveInteger)
                 ->setSize(1))
             ->add(DefinitionFactory::getNumber($this, 'limit_max')
                 ->setLabel(tr('Maximum row limit'))
                 ->setDefault(1_000_000)
-                ->setInputType(EnumInputType::positiveInteger)
+                ->setInputType(EnumElementInputType::positiveInteger)
                 ->setSize(1))
             ->add(DefinitionFactory::getBoolean($this, 'persist')
                 ->setLabel(tr('Persist'))

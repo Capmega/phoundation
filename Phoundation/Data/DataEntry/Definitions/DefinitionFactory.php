@@ -23,8 +23,8 @@ use Phoundation\Geo\States\States;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Servers\Servers;
-use Phoundation\Web\Html\Enums\EnumInputElement;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -50,7 +50,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::dbid)
+            ->setInputType(EnumElementInputType::dbid)
             ->setSize(3);
     }
 
@@ -275,7 +275,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::number)
+            ->setInputType(EnumElementInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                 return Languages::new()->getHtmlSelect()
                     ->setName($key)
@@ -452,7 +452,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::number)
+            ->setInputType(EnumElementInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                 return Timezones::new()->getHtmlSelect()
                     ->setName($key)
@@ -515,7 +515,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::number)
+            ->setInputType(EnumElementInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                 return Countries::getHtmlCountriesSelect()
                     ->setName($key)
@@ -575,7 +575,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::number)
+            ->setInputType(EnumElementInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                 return Country::new($source['countries_id'])->getHtmlStatesSelect($key)
                     ->setName($key)
@@ -635,7 +635,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::number)
+            ->setInputType(EnumElementInputType::number)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                 return State::new($source['states_id'])->getHtmlCitiesSelect($key)
                     ->setName($key)
@@ -695,7 +695,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::dbid)
+            ->setInputType(EnumElementInputType::dbid)
             ->setSize(3)
             ->setCliAutoComplete(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
@@ -725,7 +725,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setRender(false)
             ->setVirtual(true)
-            ->setInputType(EnumInputType::email)
+            ->setInputType(EnumElementInputType::email)
             ->setCliColumn('-u,--user EMAIL')
             ->setLabel(tr('User'))
             ->setCliAutoComplete([
@@ -754,7 +754,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::dbid)
+            ->setInputType(EnumElementInputType::dbid)
             ->setSize(3)
             ->setCliAutoComplete(true)
             ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
@@ -784,7 +784,7 @@ class DefinitionFactory
             ->setOptional(true)
             ->setRender(false)
             ->setVirtual(true)
-            ->setInputType(EnumInputType::name)
+            ->setInputType(EnumElementInputType::name)
             ->setCliColumn('-r,--role EMAIL')
             ->setLabel(tr('Role'))
             ->setCliAutoComplete([
@@ -812,7 +812,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::code)
+            ->setInputType(EnumElementInputType::code)
             ->setSize(3)
             ->setMaxlength(64)
             ->setMinlength(1)
@@ -836,7 +836,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::datetime_local)
+            ->setInputType(EnumElementInputType::datetime_local)
             ->setSize(3)
             ->setLabel(tr('Date time'));
     }
@@ -853,7 +853,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::date)
+            ->setInputType(EnumElementInputType::date)
             ->setSize(3)
             ->setCliAutoComplete(true)
             ->setLabel(tr('Date'));
@@ -873,7 +873,7 @@ class DefinitionFactory
             ->setMaxLength(255)
             ->setOptional(true)
             ->setSize(6)
-            ->setInputType(EnumInputType::text)
+            ->setInputType(EnumElementInputType::text)
             ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isDomainOrIp();
@@ -894,7 +894,7 @@ class DefinitionFactory
             ->setMaxLength(255)
             ->setOptional(true)
             ->setSize(6)
-            ->setInputType(EnumInputType::variable)
+            ->setInputType(EnumElementInputType::variable)
             ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isVariable();
@@ -913,7 +913,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::number)
+            ->setInputType(EnumElementInputType::number)
             ->setSize(4)
             ->setMin(0)
             ->setCliAutoComplete(true)
@@ -936,7 +936,7 @@ class DefinitionFactory
             ->setMaxLength(255)
             ->setOptional(true)
             ->setSize(6)
-            ->setInputType(EnumInputType::password)
+            ->setInputType(EnumElementInputType::password)
             ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isVariable();
@@ -955,7 +955,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::time)
+            ->setInputType(EnumElementInputType::time)
             ->setSize(3)
             ->setCliAutoComplete(true)
             ->setLabel(tr('Time'));
@@ -999,7 +999,7 @@ class DefinitionFactory
             ->setSize(3)
             ->setLabel(tr('Name'))
             ->setCliColumn(tr('[-n,--name NAME]'))
-            ->setInputType(EnumInputType::name)
+            ->setInputType(EnumElementInputType::name)
             ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isName();
@@ -1022,7 +1022,7 @@ class DefinitionFactory
             ->setSize(3)
             ->setLabel(tr('File'))
             ->setCliColumn(tr('-f,--file NAME'))
-            ->setInputType(EnumInputType::text)
+            ->setInputType(EnumElementInputType::text)
             ->setCliAutoComplete(true)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isName();
@@ -1041,7 +1041,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::email)
+            ->setInputType(EnumElementInputType::email)
             ->setMaxlength(128)
             ->setCliColumn('-e,--email EMAIL')
             ->setCliAutoComplete(true)
@@ -1060,7 +1060,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::url)
+            ->setInputType(EnumElementInputType::url)
             ->setMaxlength(2048)
             ->setCliAutoComplete(true)
             ->setCliColumn('-w,--website WEBSITE-URL')
@@ -1082,7 +1082,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setReadonly(true)
-            ->setInputType(EnumInputType::text)
+            ->setInputType(EnumElementInputType::text)
             ->setSize(6)
             ->setMaxlength(48)
             ->setCliAutoComplete(true)
@@ -1101,7 +1101,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setReadonly(true)
-            ->setInputType(EnumInputType::text)
+            ->setInputType(EnumElementInputType::text)
             ->setSize(6)
             ->setMaxlength(255)
             ->setCliAutoComplete(true)
@@ -1120,7 +1120,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::phone)
+            ->setInputType(EnumElementInputType::phone)
             ->setLabel(tr('Phone number'))
             ->setCliColumn(tr('-p,--phone-number PHONE-NUMBER'))
             ->setMaxlength(22)
@@ -1183,7 +1183,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setReadonly(true)
-            ->setInputType(EnumInputType::text)
+            ->setInputType(EnumElementInputType::text)
             ->setSize(6)
             ->setMaxlength(36)
             ->setCliAutoComplete(true)
@@ -1203,7 +1203,7 @@ class DefinitionFactory
         return Definition::new($data_entry, $column)
             ->setOptional(true)
             ->setDefault(false)
-            ->setInputType(EnumInputType::checkbox)
+            ->setInputType(EnumElementInputType::checkbox)
             ->setSize(2)
             ->addValidationFunction(function (ValidatorInterface $validator) {
                 $validator->isBoolean();
@@ -1222,8 +1222,8 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setElement(EnumInputElement::textarea)
-            ->setInputType(EnumInputType::array_json)
+            ->setElement(EnumElement::textarea)
+            ->setInputType(EnumElementInputType::array_json)
             ->setSize(12)
             ->setMaxlength(16_777_200)
             ->setLabel(tr('Data'))
@@ -1242,7 +1242,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::description)
+            ->setInputType(EnumElementInputType::description)
             ->setSize(12)
             ->setMaxlength(65_535)
             ->setCliColumn('-d,--description "DESCRIPTION"')
@@ -1262,7 +1262,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::text)
+            ->setInputType(EnumElementInputType::text)
             ->setSize(12)
             ->setMaxlength(16_777_215)
             ->setCliColumn('--content "CONTENT"')
@@ -1282,7 +1282,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
-            ->setInputType(EnumInputType::description)
+            ->setInputType(EnumElementInputType::description)
             ->setSize(12)
             ->setMaxlength(65_535)
             ->setCliColumn('--comments "COMMENTS"')
@@ -1302,8 +1302,11 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
             ->setOptional(true)
+            ->addClasses('btn-primary')
+            ->setRender(true)
             ->setVirtual(true)
-            ->setInputType(EnumInputType::button)
+            ->setElement(EnumElement::button)
+            ->setLabel(tr(' '))
             ->setSize(1);
     }
 }

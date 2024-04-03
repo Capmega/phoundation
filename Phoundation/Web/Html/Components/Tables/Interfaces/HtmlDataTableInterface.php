@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
 
 
@@ -29,10 +30,10 @@ interface HtmlDataTableInterface extends HtmlTableInterface
     /**
      * Sets table top-buttons
      *
-     * @param array|string|null $buttons
+     * @param ArrayableInterface|array|string|null $buttons
      * @return $this
      */
-    public function setButtons(array|string|null $buttons): static;
+    public function setButtons(ArrayableInterface|array|string|null $buttons): static;
 
     /**
      * Returns if responsive table is enabled or not

@@ -1,12 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components;
-
-
 /**
- * P class
+ * Class P
  *
  *
  *
@@ -15,6 +10,11 @@ namespace Phoundation\Web\Html\Components;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components;
+
 class P extends Div
 {
     /**

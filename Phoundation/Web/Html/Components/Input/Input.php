@@ -51,15 +51,4 @@ abstract class Input extends Element implements InputInterface
         $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
         return parent::renderAttributes();
     }
-
-
-    /**
-     * Render and return the HTML for this Input Element
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return parent::render();
-    }
 }

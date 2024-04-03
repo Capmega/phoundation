@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Web\Html\Components\A;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
+use Phoundation\Web\Html\Enums\EnumElement;
 use Stringable;
 
 
@@ -26,10 +27,10 @@ interface ElementInterface extends RenderInterface
     /**
      * Sets the type of element to display
      *
-     * @param string $element
+     * @param EnumElement|string|null $element
      * @return static
      */
-    public function setElement(string $element): static;
+    public function setElement(EnumElement|string|null $element): static;
 
     /**
      * Returns the HTML class element attribute
@@ -92,4 +93,14 @@ interface ElementInterface extends RenderInterface
      * @return string|null
      */
     public function getAttributesString(): ?string;
+
+    /**
+     * Adds the specified attribute
+     *
+     * @param string|float|int|null $value
+     * @param string                $key
+     *
+     * @return static
+     */
+    public function addAttribute(string|float|int|null $value, string $key): static;
 }

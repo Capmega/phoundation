@@ -45,7 +45,8 @@ trait TraitMode
      * @param EnumDisplayModeInterface|string $mode
      * @return static
      */
-    public function setMode(EnumDisplayModeInterface|string $mode): static {
+    public function setMode(EnumDisplayModeInterface|string $mode): static
+    {
         if (is_string($mode)) {
             $mode = EnumDisplayMode::from($mode);
         }

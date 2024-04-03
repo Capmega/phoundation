@@ -19,7 +19,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryReason;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Requests\Routing\Route;
 
 
@@ -118,7 +118,7 @@ throw new UnderConstructionException();
                 ->setReadonly(true))
             ->add(Definition::new($this, 'method')
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::variable)
+                ->setInputType(EnumElementInputType::variable)
                 ->setSize(4)
                 ->setMaxlength(12)
                 ->setHelpText(tr('The HTTP method used for this request'))
@@ -127,7 +127,7 @@ throw new UnderConstructionException();
                 }))
             ->add(Definition::new($this, 'http_code')
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::number)
+                ->setInputType(EnumElementInputType::number)
                 ->setSize(4)
                 ->setMin(100)
                 ->setMax(599)

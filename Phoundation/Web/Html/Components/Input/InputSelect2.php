@@ -27,6 +27,8 @@ class InputSelect2 extends InputSelect
      */
     public function __construct(?string $content = null)
     {
+showbacktrace();
+showdie();
         parent::__construct($content);
         $this->addClass('select2bs4');
 

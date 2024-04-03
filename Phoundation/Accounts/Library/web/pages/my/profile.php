@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -19,7 +19,7 @@ use Phoundation\Web\Requests\Response;
 
 // Get the user and alter the default user form
 $user        = Session::getUser();
-$definitions = $user->getDefinitions();
+$definitions = $user->getDefinitionsObject();
 
 $definitions->get('last_sign_in')
     ->setSize(4);
@@ -124,7 +124,7 @@ $buttons = Buttons::new()
 $card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Manage your profile information here'))
-    ->setContent($user->getHtmlDataEntryForm()->render())
+    ->setContent($user->getHtmlDataEntryFormObject()->render())
     ->setButtons($buttons);
 
 

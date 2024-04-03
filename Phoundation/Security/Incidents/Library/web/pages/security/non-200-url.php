@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -23,7 +23,7 @@ $get = GetValidator::new()
 
 // Build the page content
 $url = Non200Url::get($get['id']);
-$form     = $url->getHtmlDataEntryForm();
+$form     = $url->getHtmlDataEntryFormObject();
 $card     = Card::new()
     ->setTitle($url->getTitle())
     ->setMaximizeSwitch(true)

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -26,7 +26,7 @@ class InputRange extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->input_type = EnumInputType::range;
+        $this->input_type = EnumElementInputType::range;
         parent::__construct($content);
     }
 }

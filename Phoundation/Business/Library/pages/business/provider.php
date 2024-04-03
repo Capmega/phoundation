@@ -6,8 +6,8 @@ declare(strict_types=1);
 use Phoundation\Business\Providers\Provider;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -57,7 +57,7 @@ $buttons = Buttons::new()
 $provider_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for provider :name', [':name' => $provider->getName()]))
-    ->setContent($provider->getHtmlDataEntryForm()->render())
+    ->setContent($provider->getHtmlDataEntryFormObject()->render())
     ->setButtons($buttons);
 
 

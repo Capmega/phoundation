@@ -11,7 +11,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -78,7 +78,7 @@ class Requirement extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getName($this)
-                ->setInputType(EnumInputType::name)
+                ->setInputType(EnumElementInputType::name)
                 ->setSize(12)
                 ->setMaxlength(128)
                 ->setLabel(tr('Name'))
@@ -88,7 +88,7 @@ class Requirement extends DataEntry
                 }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(Definition::new($this, 'path')
-                ->setInputType(EnumInputType::name)
+                ->setInputType(EnumElementInputType::name)
                 ->setSize(6)
                 ->setMaxlength(255)
                 ->setLabel(tr('Path'))
@@ -97,7 +97,7 @@ class Requirement extends DataEntry
                     $validator->isFile();
                 }))
             ->add(Definition::new($this, 'filesystem')
-                ->setInputType(EnumInputType::select)
+                ->setInputType(EnumElementInputType::select)
                 ->setDataSource([
                     ''             => tr('No requirements'),
                     'ext2'         => tr('EXT2'),
@@ -127,7 +127,7 @@ class Requirement extends DataEntry
                 ->setLabel(tr('Filesystem'))
                 ->setHelpText(tr('The filesystem this should use')))
             ->add(Definition::new($this, 'file_type')
-                ->setInputType(EnumInputType::select)
+                ->setInputType(EnumElementInputType::select)
                 ->setDataSource([
                     ''                 => tr('No requirements'),
                     'directory'        => tr('Directory'),

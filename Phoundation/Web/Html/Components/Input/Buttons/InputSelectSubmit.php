@@ -1,16 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Buttons;
-
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Web\Html\Components\Input\InputSelect;
-use Phoundation\Web\Html\Exception\HtmlException;
-
-
 /**
- * Class SelectSubmit
+ * Class InputSelectSubmit
  *
  *
  *
@@ -19,6 +10,15 @@ use Phoundation\Web\Html\Exception\HtmlException;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input\Buttons;
+
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Exception\HtmlException;
+
 class InputSelectSubmit extends InputSelect
 {
     /**

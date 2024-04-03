@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
-
-
 /**
  * Enum EnumJavascriptWrappers
  *
@@ -17,9 +10,17 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
+
 enum EnumJavascriptWrappers: string implements EnumJavascriptWrappersInterface
 {
     case dom_content = 'dom_content';
     case window      = 'window';
     case function    = 'function';
+    case none        = 'none';
 }

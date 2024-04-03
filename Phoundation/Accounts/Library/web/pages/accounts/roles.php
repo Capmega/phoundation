@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\FilterForm;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;

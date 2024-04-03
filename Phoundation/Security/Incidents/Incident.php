@@ -23,7 +23,7 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumElement;
 
 
 /**
@@ -297,7 +297,7 @@ class Incident extends DataEntry implements IncidentInterface
                 ->setSize(6)
                 ->setMaxlength(6))
             ->add(Definition::new($this, 'severity')
-                ->setElement(EnumInputElement::select)
+                ->setElement(EnumElement::select)
                 ->setLabel(tr('Severity'))
                 ->setDisabled(true)
                 ->setSize(6)
@@ -316,7 +316,7 @@ class Incident extends DataEntry implements IncidentInterface
                 ->setMaxlength(4)
                 ->setMaxlength(255))
             ->add(Definition::new($this, 'details')
-                ->setElement(EnumInputElement::textarea)
+                ->setElement(EnumElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setDisabled(true)
                 ->setSize(12)

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -261,10 +262,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets table top-buttons
      *
-     * @param array|string|null $buttons
+     * @param ArrayableInterface|array|string|null $buttons
      * @return $this
      */
-    public function setButtons(array|string|null $buttons): static
+    public function setButtons(ArrayableInterface|array|string|null $buttons): static
     {
         // For now only built in buttons are supported
         $builtin = [

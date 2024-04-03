@@ -7,7 +7,7 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumElement;
 
 /**
  * Class FilterForm
@@ -32,7 +32,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
             ->add(Definition::new(null, 'type[]')
                 ->setLabel(tr('Type'))
                 ->setSize(6)
-                ->setElement(EnumInputElement::select)
+                ->setElement(EnumElement::select)
                 ->setDataSource([]))
             ->add(Definition::new(null, 'filter[]')
                 ->setLabel(tr('Filter'))

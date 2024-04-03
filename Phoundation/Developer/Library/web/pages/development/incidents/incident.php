@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Incidents\Incident;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -33,7 +33,7 @@ $buttons = Buttons::new()
 $incident_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Incident :name', [':name' => $incident->getTitle()]))
-    ->setContent($incident->getHtmlDataEntryForm()->render())
+    ->setContent($incident->getHtmlDataEntryFormObject()->render())
     ->setButtons($buttons);
 
 

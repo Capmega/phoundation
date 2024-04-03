@@ -23,7 +23,7 @@ $get = GetValidator::new()
 
 // Build the page content
 $incident = Incident::get($get['id']);
-$form     = $incident->getHtmlDataEntryForm();
+$form     = $incident->getHtmlDataEntryFormObject();
 $card     = Card::new()
     ->setTitle($incident->getTitle())
     ->setMaximizeSwitch(true)

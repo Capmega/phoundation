@@ -74,7 +74,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface;
+    public function getQueryBuilderObject(): QueryBuilderInterface;
 
     /**
      * Returns true if the internal data structures have been modified
@@ -251,7 +251,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return UserInterface|null
      */
-    public function getCreatedBy(): ?UserInterface;
+    public function getCreatedByObject(): ?UserInterface;
 
     /**
      * Returns the object that created this data entry
@@ -259,7 +259,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return DateTime|null
      */
-    public function getCreatedOn(): ?DateTime;
+    public function getCreatedOnObject(): ?DateTime;
 
     /**
      * Returns the meta-information for this entry
@@ -377,14 +377,14 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryForm(): DataEntryFormInterface;
+    public function getHtmlDataEntryFormObject(): DataEntryFormInterface;
 
     /**
      * Returns the definitions for the columns in this table
      *
      * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): ?DefinitionsInterface;
+    public function getDefinitionsObject(): ?DefinitionsInterface;
 
     /**
      * Returns the table name used by this object
@@ -520,7 +520,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * @param EnumMatchModeInterface $match_mode
      * @return DataEntryInterface
      */
-    public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
+    public function extractDataEntryObject(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
 
     /**
      * Returns whether to use random_id

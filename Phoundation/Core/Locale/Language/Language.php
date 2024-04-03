@@ -10,7 +10,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -168,7 +168,7 @@ class Language extends DataEntry implements LanguageInterface
             ->add(DefinitionFactory::getSeoName($this))
             ->add(Definition::new($this, 'code_639_1')
                 ->setDisabled(true)
-                ->setInputType(EnumInputType::code)
+                ->setInputType(EnumElementInputType::code)
                 ->setLabel(tr('ISO 639-1 code'))
                 ->setCliColumn(tr('--iso-691-1 CODE'))
                 ->setSize(12)
@@ -176,7 +176,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setHelpText(tr('The ISO 639-1 code for this language')))
             ->add(Definition::new($this, 'code_639_2_t')
                 ->setDisabled(true)
-                ->setInputType(EnumInputType::code)
+                ->setInputType(EnumElementInputType::code)
                 ->setLabel(tr('ISO 639-2/T code'))
                 ->setCliColumn(tr('--iso-691-2-t CODE'))
                 ->setSize(12)
@@ -184,7 +184,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setHelpText(tr('The ISO 639-2/T code for this language')))
             ->add(Definition::new($this, 'code_639_2_b')
                 ->setDisabled(true)
-                ->setInputType(EnumInputType::code)
+                ->setInputType(EnumElementInputType::code)
                 ->setLabel(tr('ISO 639-2/B code'))
                 ->setCliColumn(tr('--iso-691-2-b CODE'))
                 ->setSize(12)
@@ -192,7 +192,7 @@ class Language extends DataEntry implements LanguageInterface
                 ->setHelpText(tr('The ISO 639-2/B code for this language')))
             ->add(Definition::new($this, 'code_639_3')
                 ->setDisabled(true)
-                ->setInputType(EnumInputType::code)
+                ->setInputType(EnumElementInputType::code)
                 ->setLabel(tr('ISO 639-3 code'))
                 ->setCliColumn(tr('--iso-691-2-b CODE'))
                 ->setSize(12)

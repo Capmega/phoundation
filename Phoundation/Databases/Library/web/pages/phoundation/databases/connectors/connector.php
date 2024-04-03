@@ -19,8 +19,8 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Buttons\Button;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -181,7 +181,7 @@ $connector_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
-    ->setContent($connector->getHtmlDataEntryForm()->render())
+    ->setContent($connector->getHtmlDataEntryFormObject()->render())
     ->setButtons(Buttons::new()
         ->addButton(isset_get($save))
         ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/phoundation/databases/connectors/connectors.html'), true)

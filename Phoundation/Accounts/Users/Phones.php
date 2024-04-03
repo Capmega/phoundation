@@ -133,7 +133,7 @@ class Phones extends DataList implements PhonesInterface
     public function getHtmlDataEntryForm(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $phone = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryForm()->setMetaVisible($meta_visible);
+        $phone = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryFormObject()->setMetaVisible($meta_visible);
         $definitions = $phone->getDefinitions();
         $definitions->get('phone')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -145,7 +145,7 @@ class Phones extends DataList implements PhonesInterface
         foreach ($this->ensureDataEntries() as $phone) {
             $content[] = $phone
                 ->setColumnPrefix($name)
-                ->getHtmlDataEntryForm()
+                ->getHtmlDataEntryFormObject()
                 ->setMetaVisible($meta_visible)
                 ->render();
         }

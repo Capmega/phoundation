@@ -19,8 +19,8 @@ use Phoundation\Geo\Countries\Countries;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\Timezones\Timezones;
-use Phoundation\Web\Html\Enums\EnumInputElement;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -137,7 +137,7 @@ class SignIn extends DataEntry
             ->add(Definition::new($this, 'latitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::number)
+                ->setInputType(EnumElementInputType::number)
                 ->setSize(6)
                 ->setMin(-90)
                 ->setMax(90)
@@ -146,7 +146,7 @@ class SignIn extends DataEntry
             ->add(Definition::new($this, 'longitude')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::number)
+                ->setInputType(EnumElementInputType::number)
                 ->setSize(6)
                 ->setMin(-180)
                 ->setMax(180)
@@ -155,8 +155,8 @@ class SignIn extends DataEntry
             ->add(Definition::new($this, 'countries_id')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::dbid)
-                ->setElement(EnumInputElement::select)
+                ->setInputType(EnumElementInputType::dbid)
+                ->setElement(EnumElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Countries::getHtmlCountriesSelect()
                         ->setDisabled(true)
@@ -171,8 +171,8 @@ class SignIn extends DataEntry
             ->add(Definition::new($this, 'timezones_id')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::dbid)
-                ->setElement(EnumInputElement::select)
+                ->setInputType(EnumElementInputType::dbid)
+                ->setElement(EnumElement::select)
                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                     return Timezones::new()->getHtmlSelect()
                         ->setDisabled(true)

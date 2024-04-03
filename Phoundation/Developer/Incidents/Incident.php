@@ -14,7 +14,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryException;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Web\Html\Enums\EnumInputElement;
+use Phoundation\Web\Html\Enums\EnumElement;
 
 
 /**
@@ -108,7 +108,7 @@ class Incident extends DataEntry
             ->add(Definition::new($this, 'data')
                 ->setOptional(true)
                 ->setReadonly(true)
-                ->setElement(EnumInputElement::textarea)
+                ->setElement(EnumElement::textarea)
                 ->setLabel('Data')
                 ->setSize(12)
                 ->setMaxlength(16_777_200));

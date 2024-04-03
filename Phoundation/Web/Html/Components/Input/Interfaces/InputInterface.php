@@ -29,10 +29,11 @@ interface InputInterface extends ElementInterface
     /**
      * Returns a new input element from
      *
-     * @param DefinitionInterface $field
+     * @param DefinitionInterface $definition
+     *
      * @return static
      */
-    public static function newFromDataEntryField(DefinitionInterface $field): static;
+    public static function newFromDataEntryDefinition(DefinitionInterface $definition): static;
 
     /**
      * Returns the description

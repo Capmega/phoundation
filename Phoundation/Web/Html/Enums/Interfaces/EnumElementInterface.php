@@ -6,15 +6,15 @@ namespace Phoundation\Web\Html\Enums\Interfaces;
 
 
 /**
- * Interface EnumInputElementInterface
+ * Interface EnumElementInterface
  *
- * The different available HTML button types
+ * Contains a list of all HTML elements
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-interface EnumInputElementInterface
+interface EnumElementInterface
 {
 }

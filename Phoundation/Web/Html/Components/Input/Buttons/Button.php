@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Buttons;
-
-use Phoundation\Web\Html\Components\Icons\Icons;
-use Phoundation\Web\Html\Components\Input\Input;
-use Phoundation\Web\Html\Enums\EnumButtonType;
-use Stringable;
-
-
 /**
  * Button class
  *
@@ -20,7 +10,18 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Button extends Input
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input\Buttons;
+
+use Phoundation\Web\Html\Components\Icons\Icons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
+use Phoundation\Web\Html\Components\Input\Input;
+use Phoundation\Web\Html\Enums\EnumButtonType;
+use Stringable;
+
+class Button extends Input implements ButtonInterface
 {
     use ButtonProperties;
 

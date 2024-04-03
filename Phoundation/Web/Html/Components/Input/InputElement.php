@@ -6,7 +6,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Html\Traits\TraitMode;
@@ -33,7 +33,7 @@ trait InputElement
      *
      * @var EnumInputTypeInterface|null $type
      */
-    protected ?EnumInputTypeInterface $type = EnumInputType::text;
+    protected ?EnumInputTypeInterface $type = EnumElementInputType::text;
 
     /**
      * Input element value

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -32,7 +32,7 @@ $buttons = Buttons::new()
 $plugin_card = Card::new()
     ->setCollapseSwitch(true)
     ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
-    ->setContent($plugin->getHtmlDataEntryForm()->render())
+    ->setContent($plugin->getHtmlDataEntryFormObject()->render())
     ->setButtons($buttons);
 
 

@@ -12,7 +12,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Web\Html\Pages\Template;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
@@ -186,7 +186,7 @@ class Email extends DataEntry
                 ->setRender(false))
             ->add(Definition::new($this, 'parents_id')
                 ->setRender(false)
-                ->setInputType(EnumInputType::dbid)
+                ->setInputType(EnumElementInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [
@@ -195,13 +195,13 @@ class Email extends DataEntry
                 }))
             ->add(Definition::new($this, 'main')
                 ->setRender(false)
-                ->setInputType(EnumInputType::checkbox))
+                ->setInputType(EnumElementInputType::checkbox))
             ->add(Definition::new($this, 'read')
                 ->setRender(false)
-                ->setInputType(EnumInputType::checkbox))
+                ->setInputType(EnumElementInputType::checkbox))
             ->add(Definition::new($this, 'categories_id')
                 ->setRender(false)
-                ->setInputType(EnumInputType::dbid)
+                ->setInputType(EnumElementInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [
@@ -210,7 +210,7 @@ class Email extends DataEntry
                 }))
             ->add(Definition::new($this, 'templates_id')
                 ->setRender(false)
-                ->setInputType(EnumInputType::dbid)
+                ->setInputType(EnumElementInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     // Ensure the specified parents_id exists
                     $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [

@@ -6,11 +6,12 @@ namespace Phoundation\Data\DataEntry\Definitions\Interfaces;
 
 use PDOStatement;
 use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputElementInterface;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Enums\Interfaces\EnumElementInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Stringable;
 
@@ -206,6 +207,68 @@ interface DefinitionInterface
     public function setClasses(array|string $value): static;
 
     /**
+     * Returns the extra HTML data for this DataEntryForm object
+     *
+     * @return array
+     */
+    public function getData(): array;
+
+    /**
+     * Adds the specified HTML data to the DataEntryForm object
+     *
+     * @note When specifying multiple data in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     * @param string       $key
+     *
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function addData(array|string $value, string $key): static;
+
+    /**
+     * Sets specified HTML data to the DataEntryForm object
+     *
+     * @note When specifying multiple data in a string, make sure they are space separated!
+     *
+     * @param IteratorInterface|array $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setData(IteratorInterface|array $value): static;
+
+    /**
+     * Returns the extra HTML aria for this AriaEntryForm object
+     *
+     * @return array
+     */
+    public function getAria(): array;
+
+    /**
+     * Adds the specified HTML aria to the AriaEntryForm object
+     *
+     * @note When specifying multiple aria in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     * @param string       $key
+     *
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function addAria(array|string $value, string $key): static;
+
+    /**
+     * Sets specified HTML aria to the AriaEntryForm object
+     *
+     * @note When specifying multiple aria in a string, make sure they are space separated!
+     *
+     * @param IteratorInterface|array $value
+     * @return static
+     * @see Definition::setVirtual()
+     */
+    public function setAria(IteratorInterface|array $value): static;
+
+    /**
      * Returns if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to true
@@ -289,21 +352,21 @@ interface DefinitionInterface
     /**
      * Sets static value for this column
      *
-     * @param callable|string|float|int|bool|null $value
+     * @param RenderInterface|callable|string|float|int|bool|null $value
      * @param bool $only_when_new = false
      * @return static
      */
-    public function setValue(callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
+    public function setValue(RenderInterface|callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
 
     /**
-     * Returns the auto focus for this column
+     * Returns the autofocus for this column
      *
      * @return bool
      */
     public function getAutoFocus(): bool;
 
     /**
-     * Sets the auto focus for this column
+     * Sets the autofocus for this column
      *
      * @param bool $auto_focus
      * @return static
@@ -320,26 +383,27 @@ interface DefinitionInterface
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param EnumInputElementInterface|null $value
+     * @param EnumElementInterface|null $value
+     *
      * @return static
      */
-    public function setElement(EnumInputElementInterface|null $value): static;
+    public function setElement(EnumElementInterface|null $value): static;
 
     /**
      * Returns the HTML client element to be used for this column
      *
-     * @return callable|string|null
+     * @return RenderInterface|callable|string|null
      */
-    public function getContent(): callable|string|null;
+    public function getContent(): RenderInterface|callable|string|null;
 
     /**
      * Sets the HTML client element to be used for this column
      *
-     * @param callable|string|null $value
+     * @param RenderInterface|callable|string|null $value
      * @param bool $make_safe
      * @return static
      */
-    public function setContent(callable|string|null $value, bool $make_safe = false): static;
+    public function setContent(RenderInterface|callable|string|null $value, bool $make_safe = false): static;
 
     /**
      * Return the type of input element.
@@ -818,10 +882,11 @@ interface DefinitionInterface
     /**
      * Sets the type for this element if the value is NULL
      *
-     * @param EnumInputType|null $value
+     * @param EnumElementInputType|null $value
+     *
      * @return static
      */
-    public function setNullInputType(?EnumInputType $value): static;
+    public function setNullInputType(?EnumElementInputType $value): static;
 
     /**
      * Returns the type for this element if the value is NULL
@@ -944,17 +1009,18 @@ interface DefinitionInterface
     /**
      * Returns what element should be displayed if the value of this entry is NULL
      *
-     * @return EnumInputElementInterface|null
+     * @return EnumElementInterface|null
      */
-    public function getNullElement(): EnumInputElementInterface|null;
+    public function getNullElement(): EnumElementInterface|null;
 
     /**
      * Sets what element should be displayed if the value of this entry is NULL
      *
-     * @param EnumInputElementInterface|null $value
+     * @param EnumElementInterface|null $value
+     *
      * @return static
      */
-    public function setNullElement(EnumInputElementInterface|null $value): static;
+    public function setNullElement(EnumElementInterface|null $value): static;
 
     /**
      * Returns the additional content for this component

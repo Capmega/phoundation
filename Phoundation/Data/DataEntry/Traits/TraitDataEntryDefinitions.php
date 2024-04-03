@@ -32,7 +32,7 @@ trait TraitDataEntryDefinitions
      *
      * @return DefinitionsInterface|null
      */
-    public function getDefinitions(): ?DefinitionsInterface
+    public function getDefinitionsObject(): ?DefinitionsInterface
     {
         return $this->definitions;
     }

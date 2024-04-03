@@ -62,7 +62,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Stringable;
 use Throwable;
 
@@ -328,6 +328,21 @@ abstract class DataEntry implements DataEntryInterface
 
 
     /**
+     * Returns the name of this DataEntry object
+     *
+     * @return string
+     */
+    public function getObjectName(): string
+    {
+        $name = static::class;
+        $name = Strings::fromReverse($name, '\\');
+        $name = strtolower($name);
+
+        return $name;
+    }
+
+
+    /**
      * Returns the default meta data for DataEntry object
      *
      * @return array
@@ -465,7 +480,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface
+    public function getQueryBuilderObject(): QueryBuilderInterface
     {
         if (!$this->query_builder) {
             $this->query_builder = QueryBuilder::new($this);
@@ -488,7 +503,7 @@ abstract class DataEntry implements DataEntryInterface
         $data_entry   = clone $data_entry;
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
 
-        $this->definitions->appendSource($data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
+        $this->definitions->appendSource($data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
         return $this;
     }
 
@@ -505,7 +520,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         $data_entry   = clone $data_entry;
         $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()), $this->source);
-        $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)->appendSource($this->definitions)->setDataEntry($this);
+        $data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)->appendSource($this->definitions)->setDataEntry($this);
         return $this;
     }
 
@@ -524,7 +539,7 @@ abstract class DataEntry implements DataEntryInterface
     {
         $data_entry   = clone $data_entry;
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
-        $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitions()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), $after);
+        $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), $after);
 
         return $this;
     }
@@ -602,10 +617,10 @@ abstract class DataEntry implements DataEntryInterface
      * @param EnumMatchModeInterface $match_mode
      * @return DataEntryInterface
      */
-    public function extract(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface
+    public function extractDataEntryObject(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface
     {
         $entry = static::newFromSource(Arrays::keepKeys($this->source, $columns, $match_mode));
-        $entry->getDefinitions()->keepKeys($columns, $match_mode);
+        $entry->getDefinitionsObject()->keepKeys($columns, $match_mode);
 
         return $entry;
     }
@@ -740,7 +755,7 @@ abstract class DataEntry implements DataEntryInterface
         $arguments = [];
 
         // Extract auto complete for cli parameters from column definitions
-        foreach (static::new()->getDefinitions() as $definitions) {
+        foreach (static::new()->getDefinitionsObject() as $definitions) {
             if ($definitions->getCliColumn() and $definitions->getCliAutoComplete()) {
                 $arguments[$definitions->getCliColumn()] = $definitions->getCliAutoComplete();
             }
@@ -790,7 +805,7 @@ abstract class DataEntry implements DataEntryInterface
         }
 
         $groups  = [];
-        $columns = static::new()->getDefinitions();
+        $columns = static::new()->getDefinitionsObject();
         $return  = PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
 
         // Get the required columns and gather a list of available help groups
@@ -1481,7 +1496,7 @@ abstract class DataEntry implements DataEntryInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return UserInterface|null
      */
-    public function getCreatedBy(): ?UserInterface
+    public function getCreatedByObject(): ?UserInterface
     {
         $created_by = $this->getValueTypesafe('int', 'created_by');
 
@@ -1499,7 +1514,7 @@ abstract class DataEntry implements DataEntryInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return DateTime|null
      */
-    public function getCreatedOn(): ?DateTime
+    public function getCreatedOnObject(): ?DateTime
     {
         $created_on = $this->getValueTypesafe('string', 'created_on');
 
@@ -2536,7 +2551,7 @@ abstract class DataEntry implements DataEntryInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryForm(): DataEntryFormInterface
+    public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
         return DataEntryForm::new()
             ->setDataEntry($this)
@@ -2737,7 +2752,7 @@ abstract class DataEntry implements DataEntryInterface
         $this->is_loading = true;
 
         // Get the data using the query builder
-        $data = $this->getQueryBuilder()
+        $data = $this->getQueryBuilderObject()
             ->setMetaEnabled($meta_enabled ?? $this->meta_enabled)
             ->setDatabaseConnectorName($this->database_connector)
             ->addSelect('`' . static::getTable() . '`.*')
@@ -2775,7 +2790,7 @@ abstract class DataEntry implements DataEntryInterface
                 case 'id':
                     $definitions->add(Definition::new($this, 'id')
                         ->setDisabled(true)
-                        ->setInputType(EnumInputType::dbid)
+                        ->setInputType(EnumElementInputType::dbid)
                         ->addClasses('text-center')
                         ->setSize(3)
                         ->setCliAutoComplete(true)
@@ -2786,8 +2801,8 @@ abstract class DataEntry implements DataEntryInterface
                 case 'created_on':
                     $definitions->add(Definition::new($this, 'created_on')
                         ->setDisabled(true)
-                        ->setInputType(EnumInputType::datetime_local)
-                        ->setNullInputType(EnumInputType::text)
+                        ->setInputType(EnumElementInputType::datetime_local)
+                        ->setNullInputType(EnumElementInputType::text)
                         ->addClasses('text-center')
                         ->setSize(3)
                         ->setTooltip(tr('This column contains the exact date / time when this object was created'))
@@ -2828,8 +2843,8 @@ abstract class DataEntry implements DataEntryInterface
                     $definitions->add(Definition::new($this, 'meta_id')
                         ->setDisabled(true)
                         ->setRender(false)
-                        ->setInputType(EnumInputType::dbid)
-                        ->setNullInputType(EnumInputType::text)
+                        ->setInputType(EnumElementInputType::dbid)
+                        ->setNullInputType(EnumElementInputType::text)
                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
                         ->setLabel(tr('Meta ID')));
                     break;
@@ -2838,7 +2853,7 @@ abstract class DataEntry implements DataEntryInterface
                     $definitions->add(Definition::new($this, 'status')
                         ->setOptional(true)
                         ->setDisabled(true)
-                        ->setInputType(EnumInputType::text)
+                        ->setInputType(EnumElementInputType::text)
                         ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
 //                ->setDisplayDefault(tr('Ok'))
                         ->addClasses('text-center')
@@ -2850,7 +2865,7 @@ abstract class DataEntry implements DataEntryInterface
                     $definitions->add(Definition::new($this, 'meta_state')
                         ->setDisabled(true)
                         ->setRender(false)
-                        ->setInputType(EnumInputType::text)
+                        ->setInputType(EnumElementInputType::text)
                         ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
                         ->setLabel(tr('Meta state')));
                     break;

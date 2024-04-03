@@ -482,6 +482,21 @@ trait ElementAttributes
 
 
     /**
+     * Adds the specified attribute
+     *
+     * @param string|float|int|null $value
+     * @param string                $key
+     *
+     * @return static
+     */
+    public function addAttribute(string|float|int|null $value, string $key): static
+    {
+        $this->attributes->add($value, $key);
+        return $this;
+    }
+
+
+    /**
      * Returns the HTML attributes as a string
      *
      * @return string|null
@@ -537,6 +552,26 @@ trait ElementAttributes
 
 
     /**
+     * Sets the HTML element data-* attribute store
+     *
+     * @param IteratorInterface|array|null $data
+     *
+     * @return static
+     */
+    public function setData(IteratorInterface|array|null $data): static
+    {
+        if (!$data) {
+            unset($this->data);
+
+        } else {
+            $this->data = new Iterator($data);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the HTML element aria-* attribute store
      *
      * @return IteratorInterface
@@ -549,6 +584,26 @@ trait ElementAttributes
         }
 
         return $this->aria;
+    }
+
+
+    /**
+     * Sets the HTML element aria-* attribute store
+     *
+     * @param IteratorInterface|array|null $aria
+     *
+     * @return static
+     */
+    public function setAria(IteratorInterface|array|null $aria): static
+    {
+        if (!$aria) {
+            unset($this->aria);
+
+        } else {
+            $this->aria = new Iterator($aria);
+        }
+
+        return $this;
     }
 
 
@@ -1019,7 +1074,9 @@ trait ElementAttributes
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
                 ->setRequired($definition->getRequired())
-                ->setClasses($definition->getClasses())
+                ->addClasses($definition->getClasses())
+                ->setData($definition->getData())
+                ->setAria($definition->getAria())
                 ->setDisabled($definition->getDisabled())
                 ->setReadOnly($definition->getReadonly())
                 ->setAutoFocus($definition->getAutoFocus());

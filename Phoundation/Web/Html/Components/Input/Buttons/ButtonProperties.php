@@ -1,18 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Buttons;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
-use Phoundation\Web\Html\Traits\TraitMode;
-use Phoundation\Web\Html\Traits\TraitUsesSize;
-use Phoundation\Web\Http\UrlBuilder;
-use Stringable;
-
-
 /**
- * ButtonProperties trait
+ * Trait ButtonProperties
  *
  *
  *
@@ -21,6 +10,17 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input\Buttons;
+
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
+use Phoundation\Web\Html\Traits\TraitMode;
+use Phoundation\Web\Html\Traits\TraitUsesSize;
+use Phoundation\Web\Http\UrlBuilder;
+use Stringable;
+
 trait ButtonProperties
 {
     use TraitMode;

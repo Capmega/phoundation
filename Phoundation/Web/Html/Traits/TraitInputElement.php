@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Trait TraitInputElement
+ *
+ * This trait adds functionality for HTML input elements
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package Phoundation\Web
+ */
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
@@ -14,22 +24,12 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
 use Phoundation\Web\Html\Html;
 use Stringable;
 
-
-/**
- * Trait TraitInputElement
- *
- * This trait adds functionality for HTML input elements
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
 trait TraitInputElement
 {
     use TraitDataDescription;
     use TraitDataIcon;
     use TraitMode;
+
 
 
     /**
@@ -213,16 +213,17 @@ trait TraitInputElement
     /**
      * Returns a new input element from the specified data entry field
      *
-     * @param DefinitionInterface $field
+     * @param DefinitionInterface $definition
+     *
      * @return static
      */
-    public static function newFromDataEntryField(DefinitionInterface $field): static
+    public static function newFromDataEntryDefinition(DefinitionInterface $definition): static
     {
         $element    = new static();
-        $attributes = $field->getSource();
+        $attributes = $definition->getSource();
 
-        // Set all attributes from the definitions file
-        foreach($attributes as $key => $value) {
+        // Set all attributes from the definition file
+        foreach ($attributes as $key => $value) {
             $method = 'set' . Strings::capitalize($key);
 
             if (method_exists($element, $method)) {

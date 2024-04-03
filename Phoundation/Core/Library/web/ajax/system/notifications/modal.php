@@ -3,7 +3,7 @@
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Json;
-use Phoundation\Web\Html\Components\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\UrlBuilder;
 

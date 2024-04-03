@@ -20,7 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 
 
 /**
@@ -459,7 +459,7 @@ class Password extends DataEntry implements PasswordInterface
             ->add(Definition::new($this, 'current')
                 ->setRender(true)
                 ->setVirtual(true)
-                ->setInputType(EnumInputType::password)
+                ->setInputType(EnumElementInputType::password)
                 ->setMaxlength(128)
                 ->setLabel(tr('Current password'))
                 ->setHelpText(tr('Your current password'))
@@ -469,7 +469,7 @@ class Password extends DataEntry implements PasswordInterface
             ->add(Definition::new($this, 'password')
                 ->setRender(true)
                 ->setVirtual(true)
-                ->setInputType(EnumInputType::password)
+                ->setInputType(EnumElementInputType::password)
                 ->setMaxlength(128)
                 ->setLabel(tr('New password'))
                 ->setHelpText(tr('The new password for this user'))
@@ -479,7 +479,7 @@ class Password extends DataEntry implements PasswordInterface
             ->add(Definition::new($this, 'passwordv')
                 ->setRender(true)
                 ->setVirtual(true)
-                ->setInputType(EnumInputType::password)
+                ->setInputType(EnumElementInputType::password)
                 ->setMaxlength(128)
                 ->setLabel(tr('Validate password'))
                 ->setHelpText(tr('Validate the new password for this user'))

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Class Element
+ *
+ * This class is an abstract HTML element object class
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -12,21 +23,11 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Requests\Request;
 
-
-/**
- * Class Element
- *
- * This class is an abstract HTML element object class
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
 abstract class Element implements ElementInterface
 {
     use ElementAttributes;
@@ -54,7 +55,7 @@ abstract class Element implements ElementInterface
      */
     public function __construct(?string $content = null)
     {
-        $this->classes    = new Iterator();
+        $this->classes = new Iterator();
         $this->attributes = new Iterator();
 
         $this->setContent($content);
@@ -79,26 +80,33 @@ abstract class Element implements ElementInterface
      */
     public function __toString(): string
     {
-        return (string) $this->render();
+        return (string)$this->render();
     }
 
 
     /**
      * Sets the type of element to display
      *
-     * @param string|null $element
+     * @param EnumElement|string|null $element
+     *
      * @return static
      */
-    public function setElement(?string $element): static
+    public function setElement(EnumElement|string|null $element): static
     {
+        if (is_enum($element)) {
+            $element = $element->value;
+        }
+
         if ($element) {
             $this->requires_closing_tag = match ($element) {
                 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
-                default => true,
+                default                                                                                              => true,
             };
-        } elseif ($element !== null) {
+
+        }
+        elseif ($element !== null) {
             throw new OutOfBoundsException(tr('Invalid element ":element" specified, must be NULL or valid HTML element', [
-                ':element' => $element
+                ':element' => $element,
             ]));
         }
 
@@ -128,7 +136,7 @@ abstract class Element implements ElementInterface
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see ElementsBlock::render()
+     * @see  ElementsBlock::render()
      */
     public function render(): ?string
     {
@@ -136,7 +144,8 @@ abstract class Element implements ElementInterface
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
                     $this->classes->add(true, 'has-tooltip-icon-left');
-                } else {
+                }
+                else {
                     $this->classes->add(true, 'has-tooltip-icon-right');
                 }
             }
@@ -157,15 +166,16 @@ abstract class Element implements ElementInterface
             // Add javascript to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
             $postfix .= Script::new()
-                ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
-                ->setJavascriptWrapper(EnumJavascriptWrappers::window);
+                              ->setContent('$("[name=' . $this->name . ']").change(function (e){ e.target.closest("form").submit(); });')
+                              ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
-        $renderer_class  = Request::getTemplate()->getRendererClass($this);
+        $renderer_class = Request::getTemplate()
+                                 ->getRendererClass($this);
 
         $render_function = function () use ($postfix) {
-            $attributes  = $this->renderAttributes();
-            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+            $attributes = $this->renderAttributes();
+            $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
             $attributes .= $this->extra;
 
             if ($attributes) {
@@ -179,7 +189,7 @@ abstract class Element implements ElementInterface
 
             }
 
-            $render       = $this->render . ' />';
+            $render = $this->render . ' />';
             $this->render = null;
 
             return $render . $postfix;
@@ -189,14 +199,15 @@ abstract class Element implements ElementInterface
             TemplateRenderer::ensureClass($renderer_class, $this);
 
             $render = $renderer_class::new($this)
-                ->setParentRenderFunction($render_function)
-                ->render() . $postfix;
+                                     ->setParentRenderFunction($render_function)
+                                     ->render() . $postfix;
 
-        } else {
+        }
+        else {
             // The template component does not exist, return the basic Phoundation version
             Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
-                ':component' => get_class($this)
-            ]), 3);
+                ':component' => get_class($this),
+            ]),          3);
 
             $render = $render_function() . $postfix;
         }
@@ -207,7 +218,9 @@ abstract class Element implements ElementInterface
 
         if ($this->anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
-            return $this->anchor->setContent($render)->setChildElement(null)->render();
+            return $this->anchor->setContent($render)
+                                ->setChildElement(null)
+                                ->render();
         }
 
         return $render;
@@ -264,7 +277,8 @@ abstract class Element implements ElementInterface
                 if ($value === null) {
                     $return['data-' . $key] = null;
 
-                } else {
+                }
+                else {
                     $return['data-' . $key] = Strings::force($value, ' ');
                 }
             }

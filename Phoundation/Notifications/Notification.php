@@ -37,8 +37,8 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\EnumInputElement;
-use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Throwable;
 
 
@@ -596,7 +596,7 @@ POST variables:
         $definitions
             ->add(Definition::new($this, 'users_id')
                 ->setRender(false)
-                ->setInputType(EnumInputType::dbid)
+                ->setInputType(EnumElementInputType::dbid)
                 ->addValidationFunction(function (ValidatorInterface $validator) {
                     $validator->isDbId()->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id', [':id' => '$users_id']);
                 }))
@@ -624,10 +624,10 @@ POST variables:
             ->add(Definition::new($this, 'icon')
                 ->setRender(false)
                 ->setOptional(true)
-                ->setInputType(EnumInputType::url))
+                ->setInputType(EnumElementInputType::url))
             ->add(Definition::new($this, 'priority')
                 ->setReadonly(true)
-                ->setInputType(EnumInputType::integer)
+                ->setInputType(EnumElementInputType::integer)
                 ->setLabel(tr('Priority'))
                 ->setDefault(5)
                 ->addClasses('text-center')
@@ -644,7 +644,7 @@ POST variables:
                 }))
             ->add(Definition::new($this, 'message')
                 ->setReadonly(true)
-                ->setElement(EnumInputElement::textarea)
+                ->setElement(EnumElement::textarea)
                 ->setLabel(tr('Message'))
                 ->setMaxlength(65_535)
                 ->setSize(12)
@@ -654,14 +654,14 @@ POST variables:
             ->add(Definition::new($this, 'url')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setInputType(EnumInputType::url)
+                ->setInputType(EnumElementInputType::url)
                 ->setLabel(tr('URL'))
                 ->setMaxlength(2048)
                 ->setSize(12))
             ->add(Definition::new($this, 'details')
                 ->setReadonly(true)
                 ->setOptional(true)
-                ->setElement(EnumInputElement::textarea)
+                ->setElement(EnumElement::textarea)
                 ->setLabel(tr('Details'))
                 ->setMaxlength(65_535)
                 ->setRows(10)
@@ -700,7 +700,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setRender(false)
-                ->setInputType(EnumInputType::text)
+                ->setInputType(EnumElementInputType::text)
                 ->setLabel(tr('File'))
                 ->setMaxlength(255)
                 ->setSize(8))
@@ -708,7 +708,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setRender(false)
-                ->setInputType(EnumInputType::natural)
+                ->setInputType(EnumElementInputType::natural)
                 ->setLabel(tr('Line'))
                 ->setMin(1)
                 ->setSize(4))
@@ -716,7 +716,7 @@ POST variables:
                 ->setReadonly(true)
                 ->setOptional(true)
                 ->setRender(false)
-                ->setElement(EnumInputElement::textarea)
+                ->setElement(EnumElement::textarea)
                 ->setLabel(tr('Trace'))
                 ->setMaxlength(65_535)
                 ->setRows(10)

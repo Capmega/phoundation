@@ -1,20 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components\Buttons;
-
-use Iterator;
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Enums\EnumButtonType;
-use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
-use ReturnTypeWillChange;
-use Stringable;
-
-
 /**
  * Buttons class
  *
@@ -25,7 +10,23 @@ use Stringable;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-class Buttons extends ElementsBlock implements Iterator
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components\Input\Buttons;
+
+use Iterator;
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
+use ReturnTypeWillChange;
+use Stringable;
+
+class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
 {
     use ButtonProperties;
 
@@ -41,10 +42,10 @@ class Buttons extends ElementsBlock implements Iterator
     /**
      * Sets the buttons list
      *
-     * @param array $buttons
+     * @param ArrayableInterface|array $buttons
      * @return static
      */
-    public function setButtons(array $buttons): static
+    public function setButtons(ArrayableInterface|array $buttons): static
     {
         $this->source = [];
         return $this->addButtons($buttons);

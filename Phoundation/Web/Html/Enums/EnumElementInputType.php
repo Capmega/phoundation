@@ -1,12 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Enums;
-
-use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
-
-
 /**
  * Enum EnumInputType
  *
@@ -17,7 +10,14 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Web
  */
-enum EnumInputType: string implements EnumInputTypeInterface
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Enums;
+
+use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
+
+enum EnumElementInputType: string implements EnumInputTypeInterface
 {
     // HTML input types
     case button         = 'button';

@@ -23,7 +23,7 @@ $get = GetValidator::new()
 
 // Build the page content
 $url = Non200Url::get($get['id']);
-$form     = $url->getHtmlDataEntryForm();
+$form     = $url->getHtmlDataEntryFormObject();
 $card     = Card::new()
     ->setTitle($url->getTitle())
     ->setMaximizeSwitch(true)
