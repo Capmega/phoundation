@@ -378,7 +378,7 @@ class Definition implements DefinitionInterface
      * @param bool|null $value
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setRender(?bool $value): static
     {
@@ -416,7 +416,7 @@ class Definition implements DefinitionInterface
      * @param bool|null $value
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setVisible(?bool $value): static
     {
@@ -454,7 +454,7 @@ class Definition implements DefinitionInterface
      * @param bool|null $value
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setDisplay(?bool $value): static
     {
@@ -496,7 +496,7 @@ class Definition implements DefinitionInterface
      * @param array|string $value
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function addClasses(array|string $value): static
     {
@@ -515,7 +515,7 @@ class Definition implements DefinitionInterface
      * @param IteratorInterface|array|string $value
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setClasses(IteratorInterface|array|string $value): static
     {

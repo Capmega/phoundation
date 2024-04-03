@@ -1,18 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Phoundation\Web\Html\Components;
-
-use Phoundation\Data\Traits\TraitDataMinify;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Input\InputSelect;
-use Phoundation\Web\Html\Enums\EnumAttachJavascript;
-use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
-use Phoundation\Web\Requests\Response;
-
-
 /**
  * Class Script
  *
@@ -24,7 +11,20 @@ use Phoundation\Web\Requests\Response;
  * @package Phoundation\Web
  * @see InputSelect
  */
-class Script extends Element
+
+declare(strict_types=1);
+
+namespace Phoundation\Web\Html\Components;
+
+use Phoundation\Data\Traits\TraitDataMinify;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
+use Phoundation\Web\Html\Enums\EnumAttachJavascript;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Html\Enums\Interfaces\EnumJavascriptWrappersInterface;
+use Phoundation\Web\Requests\Response;
+
+class Script extends Element implements ScriptInterface
 {
     use TraitDataMinify;
 
@@ -67,25 +67,11 @@ class Script extends Element
     /**
      * What event to wrap this script into
      *
-     * @var EnumJavascriptWrappersInterface|null $javascript_wrapper
+     * @var EnumJavascriptWrappersInterface $javascript_wrapper
      */
-    protected ?EnumJavascriptWrappersInterface $javascript_wrapper = null;
+    protected EnumJavascriptWrappersInterface $javascript_wrapper = EnumJavascriptWrappers::dom_content;
 
 
-    /**
-     * Script class constructor
-     *
-     * @param string|null $content
-     */
-    public function __construct(?string $content = null)
-    {
-        parent::__construct($content);
-
-        // Default the javascript wrapper
-        $this->javascript_wrapper = EnumJavascriptWrappers::dom_content;
-    }
-
-    
     /**
      * Returns if this script is loaded async
      *
@@ -209,9 +195,9 @@ class Script extends Element
     /**
      * Returns the event wrapper code for this script
      *
-     * @return EnumJavascriptWrappersInterface|null
+     * @return EnumJavascriptWrappersInterface
      */
-    public function getJavascriptWrapper(): ?EnumJavascriptWrappersInterface
+    public function getJavascriptWrapper(): EnumJavascriptWrappersInterface
     {
         return $this->javascript_wrapper;
     }
@@ -220,10 +206,10 @@ class Script extends Element
     /**
      * Sets the event wrapper code for this script
      *
-     * @param EnumJavascriptWrappersInterface|null $javascript_wrapper
+     * @param EnumJavascriptWrappersInterface $javascript_wrapper
      * @return static
      */
-    public function setJavascriptWrapper(?EnumJavascriptWrappersInterface $javascript_wrapper): static
+    public function setJavascriptWrapper(EnumJavascriptWrappersInterface $javascript_wrapper): static
     {
         $this->javascript_wrapper = $javascript_wrapper;
         return $this;
@@ -262,12 +248,13 @@ class Script extends Element
                            });' . PHP_EOL;
                     break;
 
-                case null:
+                case EnumJavascriptWrappers::none:
                     // No wrapping
                     $render = $this->content . PHP_EOL;
                     break;
 
                 default:
+                    // TODO: This should be impossible to reach, remove?
                     throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
                         ':value' => $this->javascript_wrapper
                     ]));
@@ -290,10 +277,10 @@ class Script extends Element
                 return null;
 
             case EnumAttachJavascript::footer:
-                Response::addToFooter('javascript', [
+                Response::addToFooter([
                     'type'    => 'text/javascript',
                     'content' => $render
-                ]);
+                ], 'javascript');
 
                 return null;
         }

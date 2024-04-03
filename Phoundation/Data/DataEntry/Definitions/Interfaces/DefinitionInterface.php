@@ -222,7 +222,7 @@ interface DefinitionInterface
      * @param string       $key
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function addData(array|string $value, string $key): static;
 
@@ -253,7 +253,7 @@ interface DefinitionInterface
      * @param string       $key
      *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function addAria(array|string $value, string $key): static;
 
