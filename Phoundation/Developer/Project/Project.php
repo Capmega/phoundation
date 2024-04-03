@@ -923,7 +923,7 @@ $skip = false;
             Rsync::new()
                 ->setSource($plugins->getDirectory())
                 ->setTarget(DIRECTORY_ROOT)
-                ->setExclude(['/Phoundation', '/Plugins/Phoundation', '.git', '.gitignore'])
+                ->setExclude(['/Phoundation', '/Plugins/Phoundation/Phoundation', '.git', '.gitignore'])
                 ->execute();
 
             // Switch phoundation back to its previous branch
