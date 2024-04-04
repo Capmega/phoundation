@@ -505,10 +505,11 @@ interface UserInterface extends DataEntryInterface
      * Returns the name for this user that can be displayed
      *
      * @param bool $official
+     * @param bool $clean
      *
      * @return string
      */
-    function getDisplayName(bool $official = false): string;
+    function getDisplayName(bool $official = false, bool $clean = false): string;
 
     /**
      * Returns the name with an id for a user

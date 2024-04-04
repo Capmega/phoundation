@@ -494,16 +494,22 @@ class User extends DataEntry implements UserInterface
      * Returns the name for this user that can be displayed
      *
      * @param bool $official
+     * @param bool $clean
      *
      * @return string
      */
-    function getDisplayName(bool $official = false): string
+    function getDisplayName(bool $official = false, bool $clean = false): string
     {
-        $postfix = match ($this->getStatus()) {
-            'deleted' => ' ' . tr('[DELETED]'),
-            'locked'  => ' ' . tr('[LOCKED]'),
-            default   => null
-        };
+        if ($clean) {
+            $postfix = null;
+
+        } else {
+            $postfix = match ($this->getStatus()) {
+                'deleted' => ' ' . tr('[DELETED]'),
+                'locked'  => ' ' . tr('[LOCKED]'),
+                default   => null
+            };
+        }
 
         if ((!$name = $this->getNickname()) or $official) {
             // Nickname is NOT allowed for official information
