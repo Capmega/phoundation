@@ -28,10 +28,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
-use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
-use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
-use Phoundation\Web\Html\Components\Widgets\Panels\Panels;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -48,10 +44,10 @@ use Throwable;
  *
  * This class manages the execution and processing of response to Commands, HTML, AJAX and API requests.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Response implements ResponseInterface
 {
@@ -228,11 +224,11 @@ class Response implements ResponseInterface
             'javascript' => [],
             'meta'       => [
                 'charset'  => Config::get('languages.encoding.charset', 'UTF-8'),
-                'viewport' => Config::get('web.viewport'              , 'width=device-width, initial-scale=1, shrink-to-fit=no'),
-            ]
+                'viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'),
+            ],
         ];
         static::$page_footers = [
-            'javascript' => []
+            'javascript' => [],
         ];
     }
 
@@ -285,7 +281,8 @@ class Response implements ResponseInterface
                 // Get requested language
                 static::$language_code = Request::detectRequestedLanguage();
 
-            } else {
+            }
+            else {
                 // Get requested language from core
                 static::$language_code = Core::readRegister('system', 'language');
             }
@@ -299,6 +296,7 @@ class Response implements ResponseInterface
      * Sets an alternative class for the <body> tag
      *
      * @param bool $build_body
+     *
      * @return void
      */
     public static function setBuildBody(bool $build_body): void
@@ -323,6 +321,7 @@ class Response implements ResponseInterface
      *
      * @param string $class
      * @param string $section
+     *
      * @return void
      */
     public static function setClass(string $class, string $section): void
@@ -336,6 +335,7 @@ class Response implements ResponseInterface
      *
      * @param string $class
      * @param string $section
+     *
      * @return void
      */
     public static function defaultClass(string $class, string $section): void
@@ -349,8 +349,9 @@ class Response implements ResponseInterface
     /**
      * Returns the class for the given section, if available
      *
-     * @param string $section
+     * @param string      $section
      * @param string|null $default
+     *
      * @return string|null
      */
     public static function getClass(string $section, ?string $default = null): ?string
@@ -374,6 +375,7 @@ class Response implements ResponseInterface
      * Sets the bread crumbs for this page
      *
      * @param BreadCrumbs|null $bread_crumbs
+     *
      * @return void
      */
     public static function setBreadCrumbs(?BreadCrumbs $bread_crumbs = null): void
@@ -397,6 +399,7 @@ class Response implements ResponseInterface
      * Sets  the DOCTYPE value
      *
      * @param string $doctype
+     *
      * @return void
      */
     public static function setDoctype(string $doctype): void
@@ -420,11 +423,12 @@ class Response implements ResponseInterface
      * Sets the browser page title
      *
      * @param Stringable|string|float|int|null $page_title
+     *
      * @return void
      */
     public static function setPageTitle(Stringable|string|float|int|null $page_title): void
     {
-        static::$page_title = strip_tags((string) $page_title);
+        static::$page_title = strip_tags((string)$page_title);
     }
 
 
@@ -443,6 +447,7 @@ class Response implements ResponseInterface
      * Sets the browser page description
      *
      * @param string|null $description
+     *
      * @return void
      */
     public static function setDescription(?string $description): void
@@ -466,11 +471,12 @@ class Response implements ResponseInterface
      * Sets the page header title
      *
      * @param Stringable|string|float|int|null $header_title
+     *
      * @return void
      */
     public static function setHeaderTitle(Stringable|string|float|int|null $header_title): void
     {
-        static::$header_title = (string) $header_title;
+        static::$header_title = (string)$header_title;
 
         if (!static::$page_title) {
             static::$page_title = Config::get('project.name', 'Phoundation') . ' - ' . $header_title;
@@ -493,11 +499,12 @@ class Response implements ResponseInterface
      * Sets the page header subtitle
      *
      * @param Stringable|string|float|int|null $header_sub_title
+     *
      * @return void
      */
     public static function setHeaderSubTitle(Stringable|string|float|int|null $header_sub_title): void
     {
-        static::$header_sub_title = get_null((string) $header_sub_title);
+        static::$header_sub_title = get_null((string)$header_sub_title);
     }
 
 
@@ -516,6 +523,7 @@ class Response implements ResponseInterface
      * Sets the page charset
      *
      * @param string|null $charset
+     *
      * @return void
      */
     public static function setCharset(?string $charset): void
@@ -539,6 +547,7 @@ class Response implements ResponseInterface
      * Sets the page viewport
      *
      * @param string|null $viewport
+     *
      * @return void
      */
     public static function setViewport(?string $viewport): void
@@ -550,8 +559,9 @@ class Response implements ResponseInterface
     /**
      * Add meta-information
      *
-     * @param string $key
+     * @param string                $key
      * @param string|int|float|null $value
+     *
      * @return void
      */
     public static function addMeta(string $key, string|int|float|null $value): void
@@ -561,32 +571,46 @@ class Response implements ResponseInterface
 
 
     /**
+     * Returns the current page footers for this request
+     *
+     * @return array
+     */
+    public static function getPageFooters(): array
+    {
+        return static::$page_footers;
+    }
+
+
+    /**
      * Set the favicon for this page
      *
      * @param string|null $url
+     *
      * @return void
      */
     public static function setFavIcon(?string $url = null): void
     {
         try {
             if (!$url) {
-                $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
-                $url  = static::versionFile($url, 'img');
+                $url = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
+                $url = static::versionFile($url, 'img');
                 $file = Path::getAbsolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => UrlBuilder::getImg($url),
-                    'type' => File::new($file)->getMimetype()
+                    'type' => File::new($file)
+                                  ->getMimetype(),
                 ];
-            } else {
+            }
+            else {
                 $url = static::versionFile($url, 'img');
 
                 // Unknown (likely remote?) link
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
                     'href' => UrlBuilder::getImg($url),
-                    'type' => 'image/' . Strings::fromReverse($url, '.')
+                    'type' => 'image/' . Strings::fromReverse($url, '.'),
                 ];
             }
 
@@ -601,6 +625,7 @@ class Response implements ResponseInterface
      * Sets the output generated by the request
      *
      * @param string|null $output
+     *
      * @return void
      */
     public static function setOutput(?string $output): void
@@ -614,6 +639,7 @@ class Response implements ResponseInterface
      * Adds output generated by the request to the (possibly already existing) current output
      *
      * @param string|null $output
+     *
      * @return void
      */
     public static function addOutput(?string $output): void
@@ -637,6 +663,7 @@ class Response implements ResponseInterface
      * Returns the current HTML output buffer for this page
      *
      * @param bool $clear
+     *
      * @return string|null
      */
     public static function getOutput(bool $clear = true): ?string
@@ -669,6 +696,7 @@ class Response implements ResponseInterface
      * Returns true if the specified HTTP code is the specified HTTP code
      *
      * @param int $code
+     *
      * @return bool
      */
     public static function isHttpCode(int $code): bool
@@ -692,6 +720,7 @@ class Response implements ResponseInterface
      * Sets the status code that will be sent to the client
      *
      * @param int $code
+     *
      * @return void
      */
     public static function setHttpCode(int $code): void
@@ -718,6 +747,7 @@ class Response implements ResponseInterface
      * Checks if HTTP headers have already been sent and logs warnings if so
      *
      * @param bool $sending_now
+     *
      * @return bool
      */
     protected static function httpHeadersSent(bool $sending_now = false): bool
@@ -801,7 +831,8 @@ class Response implements ResponseInterface
             // Remove the PHP signature
             header_remove('X-Powered-By');
 
-        } elseif (!is_bool($signature)) {
+        }
+        elseif (!is_bool($signature)) {
             // Send custom (fake) X-Powered-By header
             $headers[] = 'X-Powered-By: ' . $signature;
         }
@@ -814,7 +845,7 @@ class Response implements ResponseInterface
 
             case 'full':
                 header(tr('Powered-By: Phoundation version ":version"', [
-                    ':version' => Core::FRAMEWORK_CODE_VERSION
+                    ':version' => Core::FRAMEWORK_CODE_VERSION,
                 ]));
                 break;
 
@@ -825,7 +856,7 @@ class Response implements ResponseInterface
 
             default:
                 throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
-                    ':value' => Config::getBoolString('security.expose.phoundation', 'limited')
+                    ':value' => Config::getBoolString('security.expose.phoundation', 'limited'),
                 ]));
         }
 
@@ -837,7 +868,8 @@ class Response implements ResponseInterface
             if (empty($params['last_modified'])) {
                 $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
-            } else {
+            }
+            else {
                 $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
             }
         }
@@ -867,7 +899,8 @@ class Response implements ResponseInterface
                                 // current sub domain.
                                 $value = $_SERVER['HTTP_ORIGIN'];
 
-                            } else {
+                            }
+                            else {
                                 // Sub domain does not match. Since CORS does not support sub domains, just show no
                                 // allowed origin domain at all
                                 $value = '';
@@ -887,7 +920,7 @@ class Response implements ResponseInterface
 
                     default:
                         throw new HttpException(tr('Unknown CORS header ":header" specified', [
-                            ':header' => $key
+                            ':header' => $key,
                         ]));
                 }
             }
@@ -903,18 +936,18 @@ class Response implements ResponseInterface
      *
      * Returns headers Cache-Control and ETag
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     * @see htt_noCache()
-     * @see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
-     * @see https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
-     * @version 2.5.92: Added function and documentation
-
      * @param array $headers Any extra headers that are required
+     *
      * @return array
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     * @see       htt_noCache()
+     * @see       https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+     * @see       https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+     * @version   2.5.92: Added function and documentation
      */
     protected static function addHttpCacheHeaders(array $headers): array
     {
@@ -931,7 +964,8 @@ class Response implements ResponseInterface
                 $headers[] = 'Cache-Control: no-store, max-age=0';
                 static::$etag = null;
 
-            } else {
+            }
+            else {
                 // Send caching headers. Ajax, API, and admin calls do not have proxy caching
                 switch (Request::getRequestType()) {
                     case EnumRequestTypes::api:
@@ -970,7 +1004,7 @@ class Response implements ResponseInterface
      */
     protected static function cacheTest($etag = null): bool
     {
-        static::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
+        static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
 
         if (!Config::get('web.cache.enabled', 'auto')) {
             return false;
@@ -1010,10 +1044,10 @@ class Response implements ResponseInterface
         }
 
         // Create local ETAG
-        static::$etag = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
+        static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
-// :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if (trim((string) isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
+        // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
+        if (trim((string)isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary
                 http_response_code(304);
@@ -1028,10 +1062,11 @@ class Response implements ResponseInterface
     /**
      * Add the specified HTML to the HEAD tag
      *
-     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
      * @param string $key
-     * @param array $entry
+     * @param array  $entry
+     *
      * @return void
+     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
      */
     public static function addToHeader(string $key, array $entry): void
     {
@@ -1045,6 +1080,7 @@ class Response implements ResponseInterface
      * @param string $origin
      * @param string $methods
      * @param string $headers
+     *
      * @return void
      */
     public static function setCors(string $origin, string $methods, string $headers): void
@@ -1055,7 +1091,7 @@ class Response implements ResponseInterface
         static::$cors = [
             'origin'  => '*.',
             'methods' => 'GET, POST',
-            'headers' => ''
+            'headers' => '',
         ];
     }
 
@@ -1090,6 +1126,7 @@ class Response implements ResponseInterface
      * Send the current buffer to the client
      *
      * @param bool $exit
+     *
      * @return void
      */
     public static function send(bool $exit = true): void
@@ -1099,9 +1136,9 @@ class Response implements ResponseInterface
                 // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
                 // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
                 Cache::write([
-                    'output'  => static::getOutput(false),
-                    'headers' => static::$page_headers,
-                ], 'WebResponse ' . Request::getUri());
+                                 'output' => static::getOutput(false),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          'headers' => static::$page_headers,
+                             ], 'WebResponse ' . Request::getUri());
 
                 $length = static::sendHttpHeaders();
                 Log::success(tr('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
@@ -1125,12 +1162,12 @@ class Response implements ResponseInterface
      *
      * @return void
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     * @see Http::cache()
-     * @version 2.5.92: Added function and documentation
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     * @see       Http::cache()
+     * @version   2.5.92: Added function and documentation
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     protected static function sendNoCacheHttpHeaders(): void
     {
@@ -1183,7 +1220,7 @@ class Response implements ResponseInterface
                     Log::success(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
                         ':length' => number_format($length),
                         ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
-                    ]), 4);
+                    ]),          4);
                     break;
 
                 default:
@@ -1199,9 +1236,9 @@ class Response implements ResponseInterface
 
         } catch (Throwable $e) {
             Notification::new()
-                ->setException($e)
-                ->setTitle(tr('Failed to send headers to client'))
-                ->send();
+                        ->setException($e)
+                        ->setTitle(tr('Failed to send headers to client'))
+                        ->send();
 
             // static::sendHeaders() itself crashed. Since static::sendHeaders() would send out http 500, and since it
             // crashed, it no longer can do this, send out the http 500 here.
@@ -1227,10 +1264,11 @@ class Response implements ResponseInterface
         if (Request::getAttachment()) {
             // Send download headers and send the $html payload
             FileResponse::new()
-                ->setAttachment(true)
-                ->setData(static::getOutput())
-                ->setFilename(basename(Request::getTarget()->getPath()))
-                ->send();
+                        ->setAttachment(true)
+                        ->setData(static::getOutput())
+                        ->setFilename(basename(Request::getTarget()
+                                                      ->getPath()))
+                        ->send();
         }
 
         // Track data sizes
@@ -1243,7 +1281,7 @@ class Response implements ResponseInterface
         // Log how much we sent
         Log::action(tr('Sent ":length" output data to client', [
             ':length' => Numbers::getHumanReadableBytes($length),
-        ]), 4);
+        ]),         4);
     }
 
 
@@ -1262,8 +1300,9 @@ class Response implements ResponseInterface
      * Load the specified javascript file(s)
      *
      * @param string|array $urls
-     * @param bool|null $header
-     * @param bool $prefix If true, the scripts will be added at the beginning of the scripts list
+     * @param bool|null    $header
+     * @param bool         $prefix If true, the scripts will be added at the beginning of the scripts list
+     *
      * @return void
      */
     public static function loadJavascript(string|array $urls, ?bool $header = null, bool $prefix = false): void
@@ -1274,7 +1313,7 @@ class Response implements ResponseInterface
 
         if ($header and static::$html_headers_sent) {
             Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
-                ':files' => $urls
+                ':files' => $urls,
             ]));
         }
 
@@ -1286,7 +1325,7 @@ class Response implements ResponseInterface
 
             $scripts[$url] = [
                 'type' => 'text/javascript',
-                'src'  => UrlBuilder::getJs($url)
+                'src'  => UrlBuilder::getJs($url),
             ];
         }
 
@@ -1294,14 +1333,17 @@ class Response implements ResponseInterface
         if ($header) {
             if ($prefix) {
                 static::$page_headers['javascript'] = array_merge($scripts, static::$page_headers['javascript']);
-            } else {
+            }
+            else {
                 static::$page_headers['javascript'] = array_merge(static::$page_headers['javascript'], $scripts);
             }
 
-        } else {
+        }
+        else {
             if ($prefix) {
                 static::$page_footers['javascript'] = array_merge($scripts, static::$page_footers['javascript']);
-            } else {
+            }
+            else {
                 static::$page_footers['javascript'] = array_merge(static::$page_footers['javascript'], $scripts);
             }
         }
@@ -1312,7 +1354,8 @@ class Response implements ResponseInterface
      * Load the specified CSS file(s)
      *
      * @param UrlBuilder|array|string $urls
-     * @param bool $prefix If true, the scripts will be added at the beginning of the scripts list
+     * @param bool                    $prefix If true, the scripts will be added at the beginning of the scripts list
+     *
      * @return void
      */
     public static function loadCss(UrlBuilder|array|string $urls, bool $prefix = false): void
@@ -1332,7 +1375,8 @@ class Response implements ResponseInterface
         if ($prefix) {
             static::$page_headers['link'] = array_merge($scripts, static::$page_headers['link']);
 
-        } else {
+        }
+        else {
             static::$page_headers['link'] = array_merge(static::$page_headers['link'], $scripts);
         }
     }
@@ -1375,12 +1419,12 @@ class Response implements ResponseInterface
         }
 
         foreach (static::$page_headers['link'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $header = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<link ' . $header . ' />' . PHP_EOL;
         }
 
         foreach (static::$page_headers['javascript'] as $header) {
-            $header  = Arrays::implodeWithKeys($header, ' ', '=', '"');
+            $header = Arrays::implodeWithKeys($header, ' ', '=', '"');
             $return .= '<script ' . $header . '></script>' . PHP_EOL;
         }
 
@@ -1391,8 +1435,8 @@ class Response implements ResponseInterface
     /**
      * Build and return the HTML page_footers
      *
-     * @todo This should be upgraded to using Javascript / Css objects
      * @return string|null
+     * @todo This should be upgraded to using Javascript / Css objects
      */
     public static function renderHtmlFooters(): ?string
     {
@@ -1406,13 +1450,15 @@ class Response implements ResponseInterface
 
         foreach (static::$page_footers['javascript'] as $footer) {
             if (isset($footer['src'])) {
-                $footer  = Arrays::implodeWithKeys($footer, ' ', '=', '"');
+                $footer = Arrays::implodeWithKeys($footer, ' ', '=', '"');
                 $return .= '<script ' . $footer . '></script>' . PHP_EOL;
 
-            } elseif (isset($footer['content'])) {
+            }
+            elseif (isset($footer['content'])) {
                 $return .= '<script>' . PHP_EOL . $footer['content'] . PHP_EOL . '</script>' . PHP_EOL;
 
-            } else {
+            }
+            else {
                 throw new OutOfBoundsException(tr('Invalid script footer specified, should contain at least "src" or "content"'));
             }
         }
@@ -1431,6 +1477,7 @@ class Response implements ResponseInterface
      *
      * @param string $url
      * @param string $type
+     *
      * @return string
      */
     public static function versionFile(string $url, string $type): string
@@ -1452,7 +1499,7 @@ class Response implements ResponseInterface
             // Determine the absolute file path
             // then get timestamp and inject it into the given file
             $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
-            $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
+            $url = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
         }
 
         return $url;
@@ -1467,26 +1514,31 @@ class Response implements ResponseInterface
     public static function checkForceRedirect(): void
     {
         // Does this user have a forced redirect?
-        if (!Session::getUser()->isGuest()) {
-            $redirect = Session::getUser()->getRedirect();
+        if (
+            !Session::getUser()
+                    ->isGuest()
+        ) {
+            $redirect = Session::getUser()
+                               ->getRedirect();
 
             if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
-                $current = (string) UrlBuilder::getCurrent();
+                $current = (string)UrlBuilder::getCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
                     if (!static::skipRedirect()) {
                         // No, it's not, redirect!
                         Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
-                            ':user' => Session::getUser()->getLogId(),
-                            ':url'  => $redirect
+                            ':user' => Session::getUser()
+                                              ->getLogId(),
+                            ':url'  => $redirect,
                         ]));
 
                         // Get URL builder object, ensure that sign-in page gets a redirect=$current_url
                         $redirect = UrlBuilder::getWww($redirect);
 
-                        if ((string) $redirect === (string) UrlBuilder::getWww('sign-in')) {
+                        if ((string)$redirect === (string)UrlBuilder::getWww('sign-in')) {
                             $redirect->addQueries('redirect=' . $current);
                         }
 
@@ -1494,8 +1546,9 @@ class Response implements ResponseInterface
                     }
 
                     Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
-                        ':user' => Session::getUser()->getLogId(),
-                        ':url'  => $redirect
+                        ':user' => Session::getUser()
+                                          ->getLogId(),
+                        ':url'  => $redirect,
                     ]));
                 }
             }
@@ -1509,6 +1562,7 @@ class Response implements ResponseInterface
      * Currently, sign-out or index pages should not be redirected to
      *
      * @param Stringable|string|null $url
+     *
      * @return bool
      */
     protected static function skipRedirect(Stringable|string|null $url = null): bool
@@ -1519,9 +1573,9 @@ class Response implements ResponseInterface
         }
 
         // Compare URLs without queries
-        $url  = Strings::until((string) $url, '?');
+        $url = Strings::until((string)$url, '?');
         $skip = [
-            (string) UrlBuilder::getWww('sign-out'),
+            (string)UrlBuilder::getWww('sign-out'),
         ];
 
         return in_array($url, $skip);
@@ -1532,19 +1586,20 @@ class Response implements ResponseInterface
      * Returns the redirect URL if it should not be skipped
      *
      * @param Stringable|string $redirect
+     *
      * @return string|null
      */
     public static function getRedirect(Stringable|string $redirect): ?string
     {
         if (static::skipRedirect($redirect)) {
             Log::warning(tr('Skipping redirect to ":redirect" as it is now allowed', [
-                ':redirect' => $redirect
+                ':redirect' => $redirect,
             ]));
 
             return null;
         }
 
-        return (string) $redirect;
+        return (string)$redirect;
     }
 
 
@@ -1552,13 +1607,15 @@ class Response implements ResponseInterface
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @note If no URL is specified, the current URL will be used
+     *
      * @param UrlBuilder|string|bool|null $url
-     * @param int $http_code
-     * @param int|null $time_delay
-     * @param string|null $reason_warning
+     * @param int                         $http_code
+     * @param int|null                    $time_delay
+     * @param string|null                 $reason_warning
+     *
      * @return never
-     * @see UrlBuilder
-     * @see UrlBuilder::addQueries()
+     * @see  UrlBuilder
+     * @see  UrlBuilder::addQueries()
      */
     #[NoReturn] public static function redirect(UrlBuilder|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
@@ -1566,14 +1623,14 @@ class Response implements ResponseInterface
             throw new ResponseRedirectException(tr('static::target() can only be called on web sessions'));
         }
 
-//        if (Session::getSignInKey()?->getAllowNavigation()) {
-//            // This session was opened using a sign-in key that does not allow navigation, we cannot target away!
-//            throw new RedirectException(tr('Cannot target sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
-//                ':uuid' => Session::getSignInKey()->getUuid(),
-//                ':user' => Session::getUser()->getLogId(),
-//                ':url'  => $url
-//            ]));
-//        }
+        //        if (Session::getSignInKey()?->getAllowNavigation()) {
+        //            // This session was opened using a sign-in key that does not allow navigation, we cannot target away!
+        //            throw new RedirectException(tr('Cannot target sign-in session with UUID ":uuid" for user ":user" to URL ":url", this session does not allow navigation', [
+        //                ':uuid' => Session::getSignInKey()->getUuid(),
+        //                ':user' => Session::getUser()->getLogId(),
+        //                ':url'  => $url
+        //            ]));
+        //        }
 
         // Build URL
         $target = UrlBuilder::getWww($url);
@@ -1587,8 +1644,8 @@ class Response implements ResponseInterface
                 // root instead
                 $target = match ($url) {
                     'prev', 'previous', 'referer' => UrlBuilder::getCurrentDomainRootUrl(),
-                    default => throw new OutOfBoundsException(tr('Will NOT target to ":url", its the current page and the current request method is not POST', [
-                        ':url' => $target
+                    default                       => throw new OutOfBoundsException(tr('Will NOT target to ":url", its the current page and the current request method is not POST', [
+                        ':url' => $target,
                     ])),
                 };
             }
@@ -1596,7 +1653,8 @@ class Response implements ResponseInterface
 
         if (isset_get($_GET['target'])) {
             // Add a target back query
-            $target = UrlBuilder::getWww($target)->addQueries(['target' => $_GET['target']]);
+            $target = UrlBuilder::getWww($target)
+                                ->addQueries(['target' => $_GET['target']]);
         }
 
         /*
@@ -1622,7 +1680,7 @@ class Response implements ResponseInterface
 
             default:
                 throw new OutOfBoundsException(tr('Invalid HTTP code ":code" specified', [
-                    ':code' => $http_code
+                    ':code' => $http_code,
                 ]));
         }
 
@@ -1637,16 +1695,17 @@ class Response implements ResponseInterface
             Log::action(tr('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
                 ':http' => $http_code,
                 ':time' => $time_delay,
-                ':url'  => $target
+                ':url'  => $target,
             ]));
 
-            header('Refresh: '.$time_delay . ';' . $target, true, $http_code);
+            header('Refresh: ' . $time_delay . ';' . $target, true, $http_code);
 
-        } else {
+        }
+        else {
             // Redirect immediately
             Log::action(tr('Redirecting with HTTP ":http" to url ":url"', [
                 ':http' => $http_code,
-                ':url'  => $target
+                ':url'  => $target,
             ]));
 
             header('Location:' . $target, true, $http_code);
