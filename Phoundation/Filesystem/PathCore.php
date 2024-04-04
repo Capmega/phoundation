@@ -125,6 +125,13 @@ class PathCore implements Stringable, PathInterface
      */
     protected FilesInterface $files;
 
+    /**
+     * Cache for the mime type of this file
+     *
+     * @var string $mime
+     */
+    protected string $mime;
+
 
     /**
      * Path class toString method
@@ -1005,20 +1012,17 @@ class PathCore implements Stringable, PathInterface
      */
     public function getMimetype(): string
     {
-        // TODO Make this an object property
-        static $mime = null;
-
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        if (empty($mime)) {
+        if (empty($this->mime)) {
             if (is_dir($this->path)) {
                 $mime = 'directory/directory';
 
             } else {
                 try {
                     $r = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-                    $mime = finfo_file($r, $this->path);
+                    $this->mime = finfo_file($r, $this->path);
                     finfo_close($r);
 
                 } catch (Exception $e) {
@@ -1033,7 +1037,7 @@ class PathCore implements Stringable, PathInterface
             }
         }
 
-        return $mime;
+        return $this->mime;
     }
 
 
