@@ -12,6 +12,7 @@ use Phoundation\Core\Libraries\Exception\LibraryExistsException;
 use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Interfaces\PluginInterface;
 use Phoundation\Exception\Exception;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Directory;
@@ -57,6 +58,13 @@ class Library implements LibraryInterface
     protected ?UpdatesInterface $updates = null;
 
     /**
+     * The plugin object for this library
+     *
+     * @var \Phoundation\Core\Plugins\Interfaces\PluginInterface|null $plugin
+     */
+    protected ?PluginInterface $plugin = null;
+
+    /**
      * Tracks if the structure check has been executed and what the result was
      *
      * @var bool|null
@@ -77,16 +85,59 @@ class Library implements LibraryInterface
         $this->library   = strtolower($this->library);
 
         // Get the Init object
-        $this->loadUpdatesObject();
+        $this->loadUpdatesObject()
+             ->loadPluginObject();
     }
 
     /**
-     * Load the Init object for this library
+     * Loads the Updates object for this library
      */
-    protected function loadUpdatesObject(): void
+    protected function loadUpdatesObject(): static
+    {
+        static::loadLibraryFile('Updates', function (object $object) {
+            if ($object instanceof UpdatesInterface) {
+                $this->updates = $object;
+
+            } else {
+                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\UpdatesInterface. This file has been ignored', [
+                    ':directory' => $this->directory,
+                    ':library'   => $this->library,
+                ]));
+            }
+        });
+
+        return $this;
+    }
+
+    /**
+     * Loads the Plugin object for this library
+     *
+     * @return static
+     */
+    protected function loadPluginObject(): static
+    {
+        static::loadLibraryFile('Plugin', function (object $object) {
+            if ($object instanceof PluginInterface) {
+                $this->plugin = $object;
+
+            } else {
+                Log::Warning(tr('The Plugin.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\PluginInterface. This file has been ignored', [
+                    ':directory' => $this->directory,
+                    ':library'   => $this->library,
+                ]));
+            }
+        });
+
+        return $this;
+    }
+
+    /**
+     * Loads the specified library file
+     */
+    protected function loadLibraryFile(string $file, callable $callback): void
     {
         // Scan for the Updates.php file
-        $file = Strings::slash($this->directory) . 'Library/Updates.php';
+        $file = Strings::slash($this->directory) . 'Library/' . $file . '.php';
 
         if (!file_exists($file)) {
             // There is no init class available
@@ -97,21 +148,13 @@ class Library implements LibraryInterface
             // Load the PHP file
             include_once($file);
 
-            $updates_class_path = static::getClassPath($file);
-            $updates            = new $updates_class_path();
-
-            if ($updates instanceof UpdatesInterface) {
-                $this->updates = $updates;
-
-            } else {
-                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Updates. This updates file has been ignored', [
-                    ':directory' => $this->directory,
-                    ':library'   => $this->library,
-                ]));
-            }
+            $class_path = static::getClassPath($file);
+            $object     = new $class_path();
+            $callback($object);
 
         } catch (Error $e) {
-            Log::warning(tr('Failed to load the Updates file for library ":library", see the following exception for more information', [
+            Log::warning(tr('Failed to load the ":file" file for library ":library", see the following exception for more information', [
+                ':file' => $file,
                 ':library' => $this->getName(),
             ]));
 
@@ -369,7 +412,7 @@ class Library implements LibraryInterface
      */
     public function getDescription(): ?string
     {
-        return $this->updates?->description();
+        return $this->plugin?->getDescription();
     }
 
     /**

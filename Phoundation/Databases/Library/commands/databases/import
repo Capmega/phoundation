@@ -1,19 +1,6 @@
 #!/usr/bin/php
 <?php
 
-declare(strict_types=1);
-
-use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Import;
-use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
-use Phoundation\Utils\Enums\EnumMatchMode;
-
-
 /**
  * Script system/databases/import
  *
@@ -24,6 +11,20 @@ use Phoundation\Utils\Enums\EnumMatchMode;
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Import;
+use Phoundation\Filesystem\Directory;
+use Phoundation\Filesystem\Restrictions;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Enums\EnumMatchMode;
+
 $restrictions = Restrictions::readonly([
                                            DIRECTORY_DATA . 'sources/',
                                            DIRECTORY_TMP,
@@ -63,8 +64,8 @@ CliDocumentation::setAutoComplete([
                                               'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
                                           ],
                                           '-c,--connector' => [
-                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'); },
-                                              'noword' => function () { return Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'); },
+                                              'word'   => function ($word) { return Arrays::keep(Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'), $word); },
+                                              'noword' => function () { return Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'); },
                                           ],
                                           '-b,--database'  => [
                                               'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },

@@ -167,7 +167,8 @@ class Plugins extends DataList implements PluginsInterface
                 // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
                 // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
                 if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
-                    Log::warning(tr('Ignoring plugin ":plugin", the name is invalid. It should have a valid CamelCase type name', [
+                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the name is invalid. It should have a valid CamelCase type name', [
+                        ':vendor' => $vendor,
                         ':plugin' => $plugin,
                     ]),          9);
 
@@ -175,7 +176,8 @@ class Plugins extends DataList implements PluginsInterface
                 }
 
                 if (!file_exists($file)) {
-                    Log::warning(tr('Ignoring plugin ":plugin", it has no required Plugin.php file in the Library/ directory', [
+                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", it has no required Plugin.php file in the Library/ directory', [
+                        ':vendor' => $vendor,
                         ':plugin' => $plugin,
                     ]),          3);
 
@@ -187,7 +189,8 @@ class Plugins extends DataList implements PluginsInterface
 
                 // Ensure that the class path matches the file path
                 if (!static::classPathMatchesFilePath($class, $file)) {
-                    Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
+                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file has class path ":class" which does not match its file path ":file"', [
+                        ':vendor' => $vendor,
                         ':plugin' => $plugin,
                         ':file'   => Strings::from($file, DIRECTORY_ROOT),
                         ':class'  => $class,
@@ -197,7 +200,8 @@ class Plugins extends DataList implements PluginsInterface
                 }
 
                 if (!is_subclass_of($class, Plugin::class)) {
-                    Log::warning(tr('Ignoring plugin ":plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                        ':vendor' => $vendor,
                         ':plugin' => $plugin,
                         ':class'  => Plugin::class,
                     ]));
@@ -267,19 +271,25 @@ class Plugins extends DataList implements PluginsInterface
         foreach (static::getEnabled() as $plugin) {
             try {
                 if ($plugin['enabled']) {
-                    Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
+                    Log::action(tr('Starting plugin ":vendor/:plugin"', [
+                        ':vendor' => $plugin['vendor'],
+                        ':plugin' => $plugin['name'],
+                    ]), 9);
+
                     include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
                     $plugin['class']::start();
                 }
             } catch (Throwable $e) {
-                Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
+                Log::error(tr('Failed to start plugin ":vendor/:plugin" because of next exception', [
+                    ':vendor' => $plugin['vendor'],
                     ':plugin' => $plugin['name'],
                 ]));
 
                 Log::error($e);
 
                 if (Config::getBoolean('plugins.error.startup.disable', true)) {
-                    Log::warning(tr('Disabling plugin ":plugin" because it failed to startup', [
+                    Log::warning(tr('Disabling plugin ":vendor/:plugin" because it failed to startup', [
+                        ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));
 

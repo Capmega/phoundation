@@ -34,7 +34,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         // TODO Write a description for this library
         return tr('');

@@ -30,17 +30,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
 
     /**
-     * The description for this library
-     *
-     * @return string
-     */
-    public function description(): string
-    {
-        return tr('The Emails library contains functions to manage, send and receive emails');
-    }
-
-
-    /**
      * The list of version updates available for this library
      *f
      *

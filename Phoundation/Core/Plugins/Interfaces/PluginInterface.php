@@ -19,6 +19,13 @@ namespace Phoundation\Core\Plugins\Interfaces;
 interface PluginInterface
 {
     /**
+     * Returns the plugin description
+     *
+     * @return string
+     */
+    public function getDescription(): ?string;
+
+    /**
      * Returns if this plugin is enabled or not
      *
      * @return bool

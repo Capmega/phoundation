@@ -95,13 +95,6 @@ interface UpdatesInterface
     public function version(): string;
 
     /**
-     * Returns the library description
-     *
-     * @return string
-     */
-    public function description(): string;
-
-    /**
      * Adds the list of updates
      *
      * @return void

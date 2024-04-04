@@ -38,7 +38,7 @@ class Plugin extends \Phoundation\Core\Plugins\Plugin
      *
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return tr('This is the default Phoundation plugin');
     }

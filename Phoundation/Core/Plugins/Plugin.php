@@ -266,14 +266,16 @@ class Plugin extends DataEntry implements PluginInterface
     public function register(): void
     {
         if (!$this->isNew()) {
-            Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
+            Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
+                ':vendor' => $this->getVendor(),
                 ':plugin' => $this->getName(),
             ]),          3);
         }
 
         if (static::exists($this->getName(), 'name')) {
             // This plugin is already registered
-            Log::warning(tr('Not registering plugin ":plugin", it is already registered', [
+            Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
+                ':vendor' => $this->getVendor(),
                 ':plugin' => $this->getName(),
             ]),          3);
 
@@ -283,7 +285,10 @@ class Plugin extends DataEntry implements PluginInterface
         // Only the Phoundation plugin is ALWAYS enabled
         $enabled = ($this->getName() === 'Phoundation');
 
-        Log::action(tr('Registering new plugin ":plugin"', [':plugin' => $this->getName()]));
+        Log::action(tr('Registering new plugin ":vendor/:plugin"', [
+            ':vendor' => $this->getVendor(),
+            ':plugin' => $this->getName()
+        ]));
 
         // Register the plugin
         $this->setPath($this->getPath())
@@ -362,7 +367,8 @@ class Plugin extends DataEntry implements PluginInterface
                 return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
             }
 
-            throw new PluginsException(tr('Plugin ":plugin" does not have a class path set', [
+            throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class path set', [
+                ':vendor' => get_class($this),
                 ':plugin' => get_class($this),
             ]));
         }

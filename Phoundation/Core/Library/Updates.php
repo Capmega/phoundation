@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Updates class
+ *
+ * This is the Init class for the Core library
+ *
+ * @see       Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Core
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Core\Library;
@@ -8,17 +20,6 @@ use Phoundation\Core\Libraries;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;
 
-/**
- * Updates class
- *
- * This is the Init class for the Core library
- *
- * @see       Libraries\Updates
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
- */
 class Updates extends Libraries\Updates
 {
     /**
@@ -29,17 +30,6 @@ class Updates extends Libraries\Updates
     public function version(): string
     {
         return '0.2.8';
-    }
-
-
-    /**
-     * The description for this library
-     *
-     * @return string
-     */
-    public function description(): string
-    {
-        return tr('The Core library is the most basic library in the entire Phoundation framwork. It contains all the low level libraries used by all other libraries and is an essential component of your entire system. Do NOT modify!');
     }
 
 
@@ -399,10 +389,10 @@ class Updates extends Libraries\Updates
                  ->changeColumn('priority', '`priority` int NOT NULL DEFAULT 50');
 
         })->addUpdate('0.2.8', function () {
-            if (!sql()->schema()->table('core_plugins')->exists('vendor')) {
+            if (!sql()->schema()->table('core_plugins')->getColumns()->keyExists('vendor')) {
                 sql()->schema()->table('core_plugins')->alter()
                      ->addColumn('`vendor` varchar(128) NOT NULL', 'AFTER `commands_enabled`')
-                     ->addIndex('`vendor` (`vendor`)');
+                     ->addIndex('KEY `vendor` (`vendor`)');
             }
         });
     }

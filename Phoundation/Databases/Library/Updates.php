@@ -30,17 +30,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
 
     /**
-     * The description for this library
-     *
-     * @return string
-     */
-    public function description(): string
-    {
-        return tr('This library manages all database functionalities. It contains File and Directory objects that represent real world files and objects and each contain a huge array of methods to manipulate them');
-    }
-
-
-    /**
      * The list of version updates available for this library
      *
      * @return void

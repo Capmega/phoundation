@@ -488,13 +488,6 @@ abstract class Updates implements UpdatesInterface
     }
 
     /**
-     * Returns the library description
-     *
-     * @return string
-     */
-    abstract public function description(): string;
-
-    /**
      * Returns true if this init file has already been executed before (and should not be executed again)
      *
      * @param string $version

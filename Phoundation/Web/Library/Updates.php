@@ -30,17 +30,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
 
     /**
-     * The description for this library
-     *
-     * @return string
-     */
-    public function description(): string
-    {
-        return tr('This library manages all web functionalities');
-    }
-
-
-    /**
      * The list of version updates available for this library
      *
      * @return void

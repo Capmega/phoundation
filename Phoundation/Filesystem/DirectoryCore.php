@@ -859,9 +859,9 @@ class DirectoryCore extends PathCore implements DirectoryInterface
 
             return $action;
 
-        }, tr('Cleaned up temporary directories ":private, :public"', [
-            ':private' => Strings::from(static::$temp_directory_private, DIRECTORY_ROOT),
-            ':public'  => Strings::from(static::$temp_directory_public, DIRECTORY_ROOT)
+        }, tr('Cleaned up temporary directories: private ":private" and public ":public"', [
+            ':private' => not_empty(Strings::from(static::$temp_directory_private, DIRECTORY_ROOT), '-'),
+            ':public'  => not_empty(Strings::from(static::$temp_directory_public, DIRECTORY_ROOT), '-'),
         ]));
     }
 

@@ -56,7 +56,7 @@ interface TemplateInterface
      *
      * @return string
      */
-    public function getDescription(): string;
+    public function getDescription(): ?string;
 
     /**
      * Returns the root path for this template

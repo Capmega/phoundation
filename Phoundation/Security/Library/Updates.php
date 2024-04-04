@@ -30,17 +30,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
 
     /**
-     * The description for this library
-     *
-     * @return string
-     */
-    public function description(): string
-    {
-        return tr('The security library monitors, registers and manages security incidents that happen on this system. It also contains the Puks system, the Phoundation Unified Key Setup library which is an encryption system that allows data to be encrypted with one key and decrypted with another, or require multiple keys combined to encrypt / decrypt data');
-    }
-
-
-    /**
      * The list of version updates available for this library
      *
      * @return void

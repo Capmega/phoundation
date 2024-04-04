@@ -228,5 +228,5 @@ abstract class Template implements TemplateInterface
      *
      * @return string
      */
-    abstract public function getDescription(): string;
+    abstract public function getDescription(): ?string;
 }
