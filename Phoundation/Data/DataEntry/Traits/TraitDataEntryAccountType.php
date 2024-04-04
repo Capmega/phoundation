@@ -13,10 +13,10 @@ use Phoundation\Accounts\Enums\Interfaces\EnumAccountTypeInterface;
  *
  * This trait contains methods for DataEntry objects that require a verification code
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryAccountType
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryAccountType
      * Sets the account_type for this user
      *
      * @param EnumAccountTypeInterface|string|null $account_type
+     *
      * @return static
      */
     public function setAccountType(EnumAccountTypeInterface|string|null $account_type): static

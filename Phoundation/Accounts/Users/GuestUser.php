@@ -13,10 +13,10 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class GuestUser extends User implements GuestUserInterface
 {
@@ -24,8 +24,8 @@ class GuestUser extends User implements GuestUserInterface
      * GuestUser class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     * @param bool|null $meta_enabled
+     * @param string|null                        $column
+     * @param bool|null                          $meta_enabled
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {

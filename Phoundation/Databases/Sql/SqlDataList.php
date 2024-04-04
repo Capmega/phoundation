@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
 
-use Exception;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
 use Phoundation\Data\Traits\TraitDataDataList;
 use Phoundation\Data\Traits\TraitDataIdColumn;
@@ -17,14 +14,10 @@ use Phoundation\Data\Traits\TraitDataMaxIdRetries;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataTable;
-use Phoundation\Databases\Sql\Exception\SqlDuplicateException;
-use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Interfaces\SqlDataListInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
-use Phoundation\Utils\Strings;
 
 
 /**
@@ -32,10 +25,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class SqlDataList implements SqlDataListInterface
 {
@@ -69,27 +62,42 @@ class SqlDataList implements SqlDataListInterface
     /**
      * SqlDataList class constructor
      *
-     * @param SqlInterface $sql
+     * @param SqlInterface      $sql
      * @param DataListInterface $data_list
      */
-    public function __construct(SqlInterface $sql, DataListInterface $data_list) {
+    public function __construct(SqlInterface $sql, DataListInterface $data_list)
+    {
         $this->setSql($sql)
              ->setDataList($data_list);
     }
 
+    /**
+     * Sets the data list
+     *
+     * @param DataListInterface $data_list
+     *
+     * @return static
+     */
+    public function setDataList(DataListInterface $data_list): static
+    {
+        $this->setTable($data_list->getTable())
+             ->setIdColumn($data_list->getIdColumn());
+
+        return $this->__setDataList($data_list);
+    }
 
     /**
      * Returns a new SqlDataList object
      *
-     * @param SqlInterface $sql
+     * @param SqlInterface      $sql
      * @param DataListInterface $data_list
+     *
      * @return static
      */
     public static function new(SqlInterface $sql, DataListInterface $data_list): static
     {
         return new static($sql, $data_list);
     }
-
 
     /**
      * Returns the Sql object used by this SqlDataList object
@@ -101,11 +109,11 @@ class SqlDataList implements SqlDataListInterface
         return $this->sql;
     }
 
-
     /**
      * Sets the Sql object used by this SqlDataList object
      *
      * @param SqlInterface $sql
+     *
      * @return static
      */
     public function setSql(SqlInterface $sql): static
@@ -114,22 +122,6 @@ class SqlDataList implements SqlDataListInterface
         return $this;
     }
 
-
-    /**
-     * Sets the data list
-     *
-     * @param DataListInterface $data_list
-     * @return static
-     */
-    public function setDataList(DataListInterface $data_list): static
-    {
-        $this->setTable($data_list->getTable())
-             ->setIdColumn($data_list->getIdColumn());
-
-        return $this->__setDataList($data_list);
-    }
-
-
     /**
      * Update the status for the data row in the specified table to "deleted"
      *
@@ -137,8 +129,10 @@ class SqlDataList implements SqlDataListInterface
      *
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param array $row
+     *
+     * @param array       $row
      * @param string|null $comments
+     *
      * @return int
      */
     public function delete(array $row, ?string $comments = null): int
@@ -158,9 +152,10 @@ class SqlDataList implements SqlDataListInterface
     /**
      * Update the status for the data row in the specified table to the specified status
      *
-     * @param string|null $status
+     * @param string|null             $status
      * @param DataListInterface|array $list
-     * @param string|null $comments
+     * @param string|null             $comments
+     *
      * @return int
      */
     public function setStatus(?string $status, DataListInterface|array $list, ?string $comments = null): int
@@ -181,8 +176,8 @@ class SqlDataList implements SqlDataListInterface
         // Update the meta data
         if ($this->meta_enabled) {
             Meta::get($list['meta_id'], false)->action(tr('Changed status'), $comments, Json::encode([
-                'status' => $status
-            ]));
+                                                                                                         'status' => $status,
+                                                                                                     ]));
         }
 
         // Update the row status
@@ -190,7 +185,7 @@ class SqlDataList implements SqlDataListInterface
                                    SET     `status`             = :status
                                    WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
             ':status'              => $status,
-            ':' . $this->id_column => $list[$this->id_column]
+            ':' . $this->id_column => $list[$this->id_column],
         ])->rowCount();
     }
 
@@ -198,21 +193,22 @@ class SqlDataList implements SqlDataListInterface
     /**
      * Simple "Does a row with this value exist in that table" method
      *
-     * @param string $column
+     * @param string          $column
      * @param string|int|null $value
-     * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
-     *                     row with this id
+     * @param int|null        $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT
+     *                            select the row with this id
+     *
      * @return bool
      */
     public function exists(string $column, string|int|null $value, ?int $id = null): bool
     {
         if ($id) {
-            return (bool) $this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $this->id_column . '` != :' . $this->id_column, [
+            return (bool)$this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $this->id_column . '` != :' . $this->id_column, [
                 ':' . $column          => $value,
-                ':' . $this->id_column => $id
+                ':' . $this->id_column => $id,
             ]);
         }
 
-        return (bool) $this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool)$this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
 }

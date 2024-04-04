@@ -16,12 +16,12 @@ use Phoundation\Web\Http\UrlBuilder;
 /**
  * SignInModal class
  *
- * 
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class SignInModal extends Modal
 {
@@ -49,21 +49,21 @@ class SignInModal extends Modal
 
         // Build the layout
         $layout = Grid::new()
-            ->addRow(GridRow::new()
-                ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
-                ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::six)->setContent($form))
-                ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
-            );
+                      ->addRow(GridRow::new()
+                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
+                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::six)->setContent($form))
+                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
+                      );
 
         // Set defaults
         $this->setId('signinModal')
-            ->setSize('lg')
-            ->setTitle(tr('Sign in'))
-            ->setContent($layout->render());
+             ->setSize('lg')
+             ->setTitle(tr('Sign in'))
+             ->setContent($layout->render());
 
         // Render the sign in modal.
         return parent::render() . Script::new()
-            ->setContent('
+                                        ->setContent('
             $("form#form-sign-in").submit(function(e) {
                 e.stopPropagation();
                 

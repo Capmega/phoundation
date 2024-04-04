@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Templates
+ * @package   Phoundation\Templates
  */
 
 declare(strict_types=1);
@@ -59,6 +59,7 @@ class Template implements TemplateInterface
      * Returns a new Template page object
      *
      * @param string $page
+     *
      * @return TemplateInterface
      */
     public static function new(string $page): TemplateInterface
@@ -82,6 +83,7 @@ class Template implements TemplateInterface
      * Set the template text
      *
      * @param string|null $text
+     *
      * @return static
      */
     public function setText(?string $text): static
@@ -101,14 +103,14 @@ class Template implements TemplateInterface
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see Element::render(), ElementsBlock::render()
+     * @see  Element::render(), ElementsBlock::render()
      */
     public function render(): ?string
     {
         $text = $this->text;
 
         foreach ($this->source as $search => $replace) {
-            $text = str_replace($search, (string) $replace, $text);
+            $text = str_replace($search, (string)$replace, $text);
         }
 
         return $text;
@@ -129,14 +131,15 @@ class Template implements TemplateInterface
     /**
      * Sets the template page to use
      *
-     * @todo Implement! For now this just returns hard coded texts
      * @param string|null $page
+     *
      * @return static
+     * @todo Implement! For now this just returns hard coded texts
      */
     public function setPage(?string $page): static
     {
-        $this->page      = $page;
-        $renderer_class  = Request::getTemplate()->getRendererClass($this);
+        $this->page     = $page;
+        $renderer_class = Request::getTemplate()->getRendererClass($this);
 
         if ($renderer_class) {
             $this->text = $renderer_class::new($this)->render();
@@ -177,7 +180,7 @@ class Template implements TemplateInterface
 
                 default:
                     throw new OutOfBoundsException(tr('Specified template page ":template" does not exist', [
-                        ':template' => $page
+                        ':template' => $page,
                     ]));
             }
         }

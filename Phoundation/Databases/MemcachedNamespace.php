@@ -10,10 +10,10 @@ namespace Phoundation\Databases;
  *
  * This is the default MemcachedNamespace object
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class MemcachedNamespace
 {
@@ -37,8 +37,9 @@ class MemcachedNamespace
     /**
      * Return the key for the specified key and namespace combination
      *
-     * @param string $key
+     * @param string      $key
      * @param string|null $namespace
+     *
      * @return string
      */
     public function getKey(string $key, ?string $namespace = null): string
@@ -108,11 +109,8 @@ class MemcachedNamespace
 
     /**
      *
-     * @todo implement
      * @return void
+     * @todo implement
      */
-    public function delete(string $namespace): void
-    {
-
-    }
+    public function delete(string $namespace): void {}
 }

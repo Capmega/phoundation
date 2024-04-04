@@ -19,7 +19,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
 use Throwable;
 
 
@@ -28,10 +27,10 @@ use Throwable;
  *
  * This class contains the bundler functions which can bundle JS and CSS files into one
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Bundler
 {
@@ -72,7 +71,10 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setRestrictions(Restrictions::new([DIRECTORY_CDN . 'js', DIRECTORY_CDN . 'css'], true, 'Bundler'));
+        $this->setRestrictions(Restrictions::new([
+                                                     DIRECTORY_CDN . 'js',
+                                                     DIRECTORY_CDN . 'css',
+                                                 ], true, 'Bundler'));
     }
 
 
@@ -91,6 +93,7 @@ class Bundler
      * Bundle multiple javascript files into one
      *
      * @param array $files
+     *
      * @return string|null
      */
     public function js(array $files): ?string
@@ -98,26 +101,14 @@ class Bundler
         return $this->bundle($files, 'js');
     }
 
-
-    /**
-     * Bundle multiple CSS files into one
-     *
-     * @param array $files A list of files that must be bundled
-     * @return string|null Returns the path to the bundle file, or NULL if nothing was bundled (also in case of failure)
-     */
-    public function css(array $files): ?string
-    {
-        return $this->bundle($files, 'css');
-    }
-
-
     /**
      * Bundle all the files for the specified extension
      *
-     * @todo Add support for individual bundles that require async loading
-     * @param array $files
+     * @param array  $files
      * @param string $extension
+     *
      * @return string|null
+     * @todo Add support for individual bundles that require async loading
      */
     protected function bundle(array $files, string $extension): ?string
     {
@@ -160,15 +151,15 @@ class Bundler
         return $this->bundle_file;
     }
 
-
     /**
      * Initialize the class to build a new bundle file
      *
      * Prepare bundle information. The bundle file name will be a hash of the bundle file names and the framework
      * version.
      *
-     * @param array $files
+     * @param array  $files
      * @param string $extension
+     *
      * @return void
      */
     protected function newBundle(array $files, string $extension): void
@@ -176,13 +167,12 @@ class Bundler
         $admin_path = (Request::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
 
         $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
-        $this->directory        =  DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension.'/';
-        $this->bundle_file =  Strings::force($files);
-        $this->bundle_file =  substr(sha1($this->bundle . Core::FRAMEWORK_CODE_VERSION), 1, 32);
-        $this->bundle_file =  $this->directory . 'bundle-' . $this->bundle_file . $this->extension;
-        $this->count       =  0;
+        $this->directory   = DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension . '/';
+        $this->bundle_file = Strings::force($files);
+        $this->bundle_file = substr(sha1($this->bundle . Core::FRAMEWORK_CODE_VERSION), 1, 32);
+        $this->bundle_file = $this->directory . 'bundle-' . $this->bundle_file . $this->extension;
+        $this->count       = 0;
     }
-
 
     /**
      * Returns true if the current bundle file exists and is valid
@@ -217,6 +207,65 @@ class Bundler
         return true;
     }
 
+    /**
+     * Execute the bundling of all the specified files.
+     *
+     * @param array $files
+     *
+     * @return void
+     */
+    protected function bundleFiles(array $files): void
+    {
+        // Generate new bundle file. This requires the pub/$files path to be writable
+        Directory::new(dirname($this->bundle_file), $this->restrictions)->execute()
+                 ->setMode(0770)
+                 ->onDirectoryOnly(function () use ($files) {
+                     foreach ($files as $file => $data) {
+                         $org_file = $file;
+                         $file     = $this->directory . $file . $this->extension;
+
+                         Log::action(tr('Adding file ":file" to bundle file ":bundle"', [
+                             ':file'   => $file,
+                             ':bundle' => $this->bundle_file,
+                         ]),         3);
+
+                         if (!file_exists($file)) {
+                             Notification::new()
+                                         ->setUrl('developer/incidents.html')
+                                         ->setMode(EnumDisplayMode::exception)
+                                         ->setCode('not-exists')
+                                         ->setRoles('developer')
+                                         ->setTitle(tr('Bundler file does not exist'))
+                                         ->setMessage(tr('The requested ":extension" type file ":file" is stated to be bundled but it does not exist', [
+                                             ':file'      => $file,
+                                             ':extension' => $this->extension,
+                                         ]))
+                                         ->send();
+                             continue;
+                         }
+
+                         $this->count++;
+
+                         $data = file_get_contents($file);
+                         unset($files[$org_file]);
+
+                         if ($this->extension === 'css') {
+                             $data = $this->processCssData($file, $org_file, $data);
+                         }
+
+                         if (Debug::getEnabled()) {
+                             File::new($this->bundle_file, $this->restrictions)->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+
+                         } else {
+                             File::new($this->bundle_file, $this->restrictions)->append($data . (Config::get('web.minify', true) ? '' : "\n"));
+                         }
+
+                         if ($this->count) {
+                             chmod($this->bundle_file, Config::get('filesystem.mode.files', 0640));
+                         }
+                     }
+                 });
+    }
 
     /**
      * Process CSS data, @includes need to be bundled directly as well
@@ -224,6 +273,7 @@ class Bundler
      * @param string $file
      * @param string $org_file
      * @param string $data
+     *
      * @return string
      */
     protected function processCssData(string $file, string $org_file, string $data): string
@@ -242,16 +292,16 @@ class Bundler
 
                     if (!file_exists($this->directory . $import)) {
                         Notification::new()
-                            ->setUrl('developer/incidents.html')
-                            ->setMode(EnumDisplayMode::exception)
-                            ->setCode('not-exists')
-                            ->setRoles('developer')
-                            ->setTitle(tr('Bundler file does not exist'))
-                            ->setMessage(tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', [
-                                ':file'      => $file,
-                                ':import'    => $import,
-                                ':extension' => $this->extension
-                            ]))->send();
+                                    ->setUrl('developer/incidents.html')
+                                    ->setMode(EnumDisplayMode::exception)
+                                    ->setCode('not-exists')
+                                    ->setRoles('developer')
+                                    ->setTitle(tr('Bundler file does not exist'))
+                                    ->setMessage(tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', [
+                                        ':file'      => $file,
+                                        ':import'    => $import,
+                                        ':extension' => $this->extension,
+                                    ]))->send();
 
                         $import = '';
 
@@ -263,22 +313,22 @@ class Bundler
 // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
                     // This is an external URL. Get it locally as a temp file, then include
                     $import = Strings::cut($match, '(', ')');
-                    $import = Strings::slash(dirname($file)).Strings::unslash($import);
+                    $import = Strings::slash(dirname($file)) . Strings::unslash($import);
 
                     if (!file_exists($import)) {
                         Notification::new()
-                            ->setUrl('developer/incidents.html')
-                            ->setMode(EnumDisplayMode::exception)
-                            ->setCode('not-exists')
-                            ->setRoles('developer')
-                            ->setTitle(tr('Bundler file does not exist'))
-                            ->setMessage(tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', [
-                                ':file'      => $file,
-                                ':import'    => $import,
-                                ':extension' => $this->extension
-                            ]))->send();
+                                    ->setUrl('developer/incidents.html')
+                                    ->setMode(EnumDisplayMode::exception)
+                                    ->setCode('not-exists')
+                                    ->setRoles('developer')
+                                    ->setTitle(tr('Bundler file does not exist'))
+                                    ->setMessage(tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', [
+                                        ':file'      => $file,
+                                        ':import'    => $import,
+                                        ':extension' => $this->extension,
+                                    ]))->send();
 
-                            $import = '';
+                        $import = '';
 
                     } else {
                         $import = file_get_contents($import);
@@ -320,74 +370,13 @@ class Bundler
                         continue;
                     }
 
-                    $data = str_replace($url, '"' . str_repeat('../', $count) . $url.'"', $data);
+                    $data = str_replace($url, '"' . str_repeat('../', $count) . $url . '"', $data);
                 }
             }
         }
 
         return $data;
     }
-
-
-    /**
-     * Execute the bundling of all the specified files.
-     *
-     * @param array $files
-     * @return void
-     */
-    protected function bundleFiles(array $files): void
-    {
-        // Generate new bundle file. This requires the pub/$files path to be writable
-        Directory::new(dirname($this->bundle_file), $this->restrictions)->execute()
-            ->setMode(0770)
-            ->onDirectoryOnly(function() use ($files) {
-                foreach ($files as $file => $data) {
-                    $org_file = $file;
-                    $file     = $this->directory . $file . $this->extension;
-
-                    Log::action(tr('Adding file ":file" to bundle file ":bundle"', [
-                        ':file'   => $file,
-                        ':bundle' => $this->bundle_file
-                    ]), 3);
-
-                    if (!file_exists($file)) {
-                        Notification::new()
-                            ->setUrl('developer/incidents.html')
-                            ->setMode(EnumDisplayMode::exception)
-                            ->setCode('not-exists')
-                            ->setRoles('developer')
-                            ->setTitle(tr('Bundler file does not exist'))
-                            ->setMessage(tr('The requested ":extension" type file ":file" is stated to be bundled but it does not exist', [
-                                ':file'      => $file,
-                                ':extension' => $this->extension
-                            ]))
-                            ->send();
-                        continue;
-                    }
-
-                    $this->count++;
-
-                    $data = file_get_contents($file);
-                    unset($files[$org_file]);
-
-                    if ($this->extension === 'css') {
-                        $data = $this->processCssData($file, $org_file, $data);
-                    }
-
-                    if (Debug::getEnabled()) {
-                        File::new($this->bundle_file, $this->restrictions)->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
-
-                    } else {
-                        File::new($this->bundle_file, $this->restrictions)->append($data . (Config::get('web.minify', true) ? '' : "\n"));
-                    }
-
-                    if ($this->count) {
-                        chmod($this->bundle_file, Config::get('filesystem.mode.files', 0640));
-                    }
-                }
-            });
-    }
-
 
     /**
      * Purge CSS rules from this CSS bundle file
@@ -397,27 +386,39 @@ class Bundler
     protected function purgeCss(): string
     {
         try {
-            $html_file_object = Filesystem::createTempFile(false,'html')->append(Request::getHtml());
+            $html_file_object = Filesystem::createTempFile(false, 'html')->append(Request::getHtml());
 
             $bundle_file = Css::purge($this->bundle_file, $html_file_object->getPath());
 
             Log::success(tr('Purged not-used CSS rules from bundled file ":file"', [
-                ':file' => $bundle_file
+                ':file' => $bundle_file,
             ]));
 
             $html_file_object->delete();
 
             return $bundle_file;
 
-        }catch(Throwable $e) {
+        } catch (Throwable $e) {
             // The CSS purge failed. Delete the HTML file (if required) and notify
             if (isset($html_file_object)) {
                 $html_file_object->delete();
             }
 
             Notification::new()
-                ->setException($e->makeWarning())
-                ->send();
+                        ->setException($e->makeWarning())
+                        ->send();
         }
+    }
+
+    /**
+     * Bundle multiple CSS files into one
+     *
+     * @param array $files A list of files that must be bundled
+     *
+     * @return string|null Returns the path to the bundle file, or NULL if nothing was bundled (also in case of failure)
+     */
+    public function css(array $files): ?string
+    {
+        return $this->bundle($files, 'css');
     }
 }

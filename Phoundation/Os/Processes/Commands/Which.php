@@ -14,10 +14,10 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * This class manages the which command
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Which extends Command
 {
@@ -25,6 +25,7 @@ class Which extends Command
      * Returns the realpath for the specified command
      *
      * @param string $command The command for which the realpath must be known
+     *
      * @return string The real path for the specified command
      */
     public function which(string $command): string
@@ -50,7 +51,7 @@ class Which extends Command
                 // So which gave us a path that doesn't exist or that we can't access
                 throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [
                     ':command' => $command,
-                    ':result' => $result
+                    ':result'  => $result,
                 ]));
             }
 
@@ -60,11 +61,11 @@ class Which extends Command
 
         } catch (ProcessFailedException $e) {
             // The command which failed, likely it could not find the requested command
-            static::handleException('which', $e, function($first_line, $last_line, $e) use ($command) {
+            static::handleException('which', $e, function ($first_line, $last_line, $e) use ($command) {
                 if ($e->getCode() == 1) {
                     if (!$e->getData()['output']) {
                         throw new CommandNotFoundException(tr('Could not find command ":command"', [
-                            ':command' => $command
+                            ':command' => $command,
                         ]));
                     }
                 }

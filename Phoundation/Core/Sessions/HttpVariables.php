@@ -13,10 +13,10 @@ use Phoundation\Utils\Config;
  *
  * Manage HTTP GET or POST variables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 abstract class HttpVariables extends Iterator
 {
@@ -35,35 +35,11 @@ abstract class HttpVariables extends Iterator
      */
     abstract static public function decode(): void;
 
-
-    /**
-     * Encode the HTTP variables
-     *
-     * @param array $variables
-     * @return void
-     */
-    protected static function encodeVariables(array &$variables): void
-    {
-        if (!Config::getBoolean('www.http.variables.encode', false)) {
-            // Don't encode / decode HTTP variables
-            return;
-        }
-
-        // Copy $variables locally
-        $local  = $variables;
-        $variables = [];
-
-        // Encode key and copy variables back
-        foreach ($local as $key => $value) {
-            $variables[$key] = $value;
-        }
-    }
-
-
     /**
      * Decode the HTTP variables
      *
      * @param array $variables
+     *
      * @return void
      */
     public static function decodeVariables(array &$variables): void
@@ -74,10 +50,34 @@ abstract class HttpVariables extends Iterator
         }
 
         // Copy $variables locally
-        $local = $variables;
+        $local     = $variables;
         $variables = [];
 
         // Decode key and copy variables back
+        foreach ($local as $key => $value) {
+            $variables[$key] = $value;
+        }
+    }
+
+    /**
+     * Encode the HTTP variables
+     *
+     * @param array $variables
+     *
+     * @return void
+     */
+    protected static function encodeVariables(array &$variables): void
+    {
+        if (!Config::getBoolean('www.http.variables.encode', false)) {
+            // Don't encode / decode HTTP variables
+            return;
+        }
+
+        // Copy $variables locally
+        $local     = $variables;
+        $variables = [];
+
+        // Encode key and copy variables back
         foreach ($local as $key => $value) {
             $variables[$key] = $value;
         }

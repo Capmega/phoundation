@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataPort
 {
@@ -42,6 +42,7 @@ trait TraitDataPort
      * Sets the port
      *
      * @param int|null $port
+     *
      * @return static
      */
     public function setPort(?int $port): static
@@ -49,7 +50,7 @@ trait TraitDataPort
         if ($port) {
             if (($port < 1) or ($port > 65535)) {
                 throw new OutOfBoundsException(tr('Invalid port ":port" specified, it must be an integer value between 1 and 65535', [
-                    ':port' => $port
+                    ':port' => $port,
                 ]));
             }
         }

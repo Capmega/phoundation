@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
@@ -74,88 +74,8 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      */
     public function __toString(): string
     {
-        return (string) $this->render();
+        return (string)$this->render();
     }
-
-
-    /**
-     * Returns the contents of this object as an array
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Sets the content of the element to display
-     *
-     * @param bool $use_form
-     * @return static
-     */
-    public function useForm(bool $use_form): static
-    {
-        if ($use_form) {
-            if (!$this->form) {
-                $this->form = Form::new();
-            }
-        } else {
-            $this->form = null;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the form of this objects block
-     *
-     * @return FormInterface|null
-     */
-    public function getForm(): ?FormInterface
-    {
-        return $this->form;
-    }
-
-
-    /**
-     * Returns the form of this objects block
-     *
-     * @param FormInterface|null $form
-     * @return static
-     */
-    public function setForm(?FormInterface $form): static
-    {
-        $this->form = $form;
-        return $this;
-    }
-
-
-    /**
-     * If set true, when this element renders it will only return the contents
-     *
-     * @param bool $enable
-     * @return $this
-     */
-    public function setRenderContentsOnly(bool $enable): static
-    {
-        $this->render_contents_only = $enable;
-        return $this;
-    }
-
-
-    /**
-     * Returns if this element renders it will only return the contents
-     *
-     * @return bool
-     */
-    public function getRenderContentsOnly(): bool
-    {
-        return $this->render_contents_only;
-    }
-
 
     /**
      * Renders and returns the HTML for this object using the template renderer if available
@@ -167,7 +87,7 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see ElementInterface::render()
+     * @see  ElementInterface::render()
      */
     public function render(): ?string
     {
@@ -179,8 +99,8 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
 
         Log::write(tr('Using renderer class ":class" for ":this"', [
             ':class' => $renderer_class,
-            ':this'  => get_class($this)
-        ]), 'debug', 2);
+            ':this'  => get_class($this),
+        ]),        'debug', 2);
 
         $render_function = function (?string $render = null) {
             if ($this->form) {
@@ -197,8 +117,8 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
             TemplateRenderer::ensureClass($renderer_class, $this);
 
             return $renderer_class::new($this)
-                ->setParentRenderFunction($render_function)
-                ->render();
+                                  ->setParentRenderFunction($render_function)
+                                  ->render();
         }
 
         if (method_exists($this, 'defaultRender')) {
@@ -208,12 +128,87 @@ abstract class ElementsBlock extends Iterator implements IteratorInterface, Elem
 
         // The template component does not exist, return the basic Phoundation version
         Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
-            ':component' => get_class($this)
-        ]), 3);
+            ':component' => get_class($this),
+        ]),          3);
 
         return $render_function($this->render);
     }
 
+    /**
+     * Returns the contents of this object as an array
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return $this->source;
+    }
+
+    /**
+     * Sets the content of the element to display
+     *
+     * @param bool $use_form
+     *
+     * @return static
+     */
+    public function useForm(bool $use_form): static
+    {
+        if ($use_form) {
+            if (!$this->form) {
+                $this->form = Form::new();
+            }
+        } else {
+            $this->form = null;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns the form of this objects block
+     *
+     * @return FormInterface|null
+     */
+    public function getForm(): ?FormInterface
+    {
+        return $this->form;
+    }
+
+    /**
+     * Returns the form of this objects block
+     *
+     * @param FormInterface|null $form
+     *
+     * @return static
+     */
+    public function setForm(?FormInterface $form): static
+    {
+        $this->form = $form;
+        return $this;
+    }
+
+    /**
+     * Returns if this element renders it will only return the contents
+     *
+     * @return bool
+     */
+    public function getRenderContentsOnly(): bool
+    {
+        return $this->render_contents_only;
+    }
+
+    /**
+     * If set true, when this element renders it will only return the contents
+     *
+     * @param bool $enable
+     *
+     * @return $this
+     */
+    public function setRenderContentsOnly(bool $enable): static
+    {
+        $this->render_contents_only = $enable;
+        return $this;
+    }
 
     /**
      * Returns if this FlashMessages object has rendered HTML or not

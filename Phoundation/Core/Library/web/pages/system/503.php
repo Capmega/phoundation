@@ -5,17 +5,17 @@
  *
  * This is the page that will be shown when the system is down for maintenance
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -37,13 +37,13 @@ switch (Request::getRequestType()) {
 
 // Build the error page
 echo Template::new('system/http-error')->setSource([
-    ':h2'     => '503',
-    ':h3'     => tr('503 Service Unavailable'),
-    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
-    ':type'   => 'warning',
-    ':search' => tr('Search'),
-    ':action' => UrlBuilder::getWww('search/')
-])->render();
+                                                       ':h2'     => '503',
+                                                       ':h3'     => tr('503 Service Unavailable'),
+                                                       ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
+                                                       ':type'   => 'warning',
+                                                       ':search' => tr('Search'),
+                                                       ':action' => UrlBuilder::getWww('search/'),
+                                                   ])->render();
 
 
 // Set page meta data

@@ -18,10 +18,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class GridColumn extends Layout
 {
@@ -42,9 +42,10 @@ class GridColumn extends Layout
     /**
      * Sets the content of the grid
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param Stringable|string|float|int|null  $content
+     * @param bool                              $make_safe
      * @param EnumDisplaySizeInterface|int|null $size
+     *
      * @return static
      */
     public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false, EnumDisplaySizeInterface|int|null $size = null): static
@@ -60,9 +61,10 @@ class GridColumn extends Layout
     /**
      * Adds the specified content to the content of the grid
      *
-     * @param Stringable|string|float|int|null $content
+     * @param Stringable|string|float|int|null  $content
      * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool $use_form
+     * @param bool                              $use_form
+     *
      * @return static
      */
     public function addContent(Stringable|string|float|int|null $content, bool $make_safe = false, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static

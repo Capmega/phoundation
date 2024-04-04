@@ -14,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  * This class manages library versions
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Version
 {
@@ -25,19 +25,20 @@ class Version
      * Returns a string version of the integer version
      *
      * @param ?int $version
+     *
      * @return string
      */
     public static function getString(?int $version): string
     {
-        $version = (int) $version;
+        $version = (int)$version;
 
         if ($version < 0) {
             return match ($version) {
-                -1 => 'post_once',
-                -2 => 'post_always',
+                -1      => 'post_once',
+                -2      => 'post_always',
                 default => throw new OutOfBoundsException(tr('Invalid version string ":version" specified', [
-                        ':version' => $version
-                    ]))
+                    ':version' => $version,
+                ]))
             };
         }
 
@@ -47,19 +48,19 @@ class Version
 
         if ($major > 999) {
             throw new OutOfBoundsException(tr('The major of version ":version" cannot be greater than "999"', [
-                ':version' => $version
+                ':version' => $version,
             ]));
         }
 
         if ($minor > 999) {
             throw new OutOfBoundsException(tr('The minor of version ":version" cannot be greater than "999"', [
-                ':version' => $version
+                ':version' => $version,
             ]));
         }
 
         if ($revision > 999) {
             throw new OutOfBoundsException(tr('The revision of version ":version" cannot be greater than "999"', [
-                ':version' => $version
+                ':version' => $version,
             ]));
         }
 
@@ -71,6 +72,7 @@ class Version
      * Returns an integer version of the string version
      *
      * @param string $version
+     *
      * @return int
      */
     public static function getInteger(string $version): int
@@ -85,13 +87,13 @@ class Version
 
         if (!Strings::isVersion($version)) {
             throw new OutOfBoundsException(tr('Specified version ":version" is not valid, should be of format "\d{1,4}.\d{1,4}.\d{1,4}"', [
-                ':version' => $version
+                ':version' => $version,
             ]));
         }
 
-        $major    = (int) Strings::until($version, '.') * 1000000;
-        $minor    = (int) Strings::until(Strings::from($version, '.'), '.') * 1000;
-        $revision = (int) Strings::fromReverse($version, '.');
+        $major    = (int)Strings::until($version, '.') * 1000000;
+        $minor    = (int)Strings::until(Strings::from($version, '.'), '.') * 1000;
+        $revision = (int)Strings::fromReverse($version, '.');
 
         return $major + $minor + $revision;
     }
@@ -102,6 +104,7 @@ class Version
      *
      * @param string $version1
      * @param string $version2
+     *
      * @return int
      */
     public static function compare(string $version1, string $version2): int
@@ -115,14 +118,14 @@ class Version
             case 'post_once':
                 return match ($version2) {
                     'post_always' => -1,
-                    'post_once' => 0,
-                    default => 1,
+                    'post_once'   => 0,
+                    default       => 1,
                 };
 
             case 'post_always':
                 return match ($version2) {
                     'post_always' => 0,
-                    default => 1,
+                    default       => 1,
                 };
         }
 

@@ -24,10 +24,10 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class TreeViewer extends Widget
 {
@@ -54,7 +54,8 @@ class TreeViewer extends Widget
      * Sets the internal source directly
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
+     * @param array|null                                       $execute
+     *
      * @return static
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
@@ -70,7 +71,7 @@ class TreeViewer extends Widget
             if (!is_array($source) and !($source instanceof TreeInterface)) {
                 // This is not a valid source
                 throw OutOfBoundsException::new(tr('Cannot use specified source for TreeViewer object, source must be an array or a TreeInterface object'))
-                    ->setData(['source' => $source]);
+                                          ->setData(['source' => $source]);
             }
         }
 
@@ -92,17 +93,17 @@ class TreeViewer extends Widget
         if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML
             return Div::new()
-                ->setId($this->getId())
-                ->setContent($this->renderHtml($this->source))
-                ->addClass('treeview')
-                ->addData(null, 'mdb-treeview-init')
-                ->render() .
+                      ->setId($this->getId())
+                      ->setContent($this->renderHtml($this->source))
+                      ->addClass('treeview')
+                      ->addData(null, 'mdb-treeview-init')
+                      ->render() .
                 Script::new('$("#' . $this->getId() . '").treeview()')->render();
         }
 
         // Render the tree-view using javascript data
         return Div::new()->setId($this->getId())->addClass('treeview')->render() .
-           Script::new('
+            Script::new('
              const jsTreeview = document.getElementById("' . $this->getId() . '");
              const jsInstance = new Treeview(jsTreeview, {
                structure: ' . Tree::new($this->source)->getJson(true) . ',
@@ -116,7 +117,8 @@ class TreeViewer extends Widget
      * Renders and returns tree-view content HTML for the given source
      *
      * @param array $source
-     * @param bool $child
+     * @param bool  $child
+     *
      * @return string
      */
     protected function renderHtml(array $source, bool $child = false): string
@@ -129,7 +131,7 @@ class TreeViewer extends Widget
 
             } else {
                 if ($this->url) {
-                    $url     = str_replace(':ID', (string)$key, $this->url);
+                    $url    = str_replace(':ID', (string)$key, $this->url);
                     $return .= '<li><a href="' . $url . '">' . Html::safe($value) . '</a></li>';
                 } else {
                     $return .= '<li>' . $value . '</li>';

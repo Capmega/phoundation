@@ -12,10 +12,10 @@ use Throwable;
  * Class Documentation
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Cli
+ * @package   Phoundation\Cli
  */
 class CliDocumentation
 {
@@ -38,7 +38,8 @@ class CliDocumentation
      * Displays the help text
      *
      * @param string $help
-     * @param bool $exit
+     * @param bool   $exit
+     *
      * @return void
      */
     public static function setHelp(string $help, bool $exit = true): void
@@ -60,7 +61,8 @@ class CliDocumentation
      * Displays the usage text
      *
      * @param string $usage
-     * @param bool $exit
+     * @param bool   $exit
+     *
      * @return void
      */
     public static function setUsage(string $usage, bool $exit = true): void
@@ -82,6 +84,7 @@ class CliDocumentation
      * Process auto complete requests specific for this method
      *
      * @param array|null $definitions
+     *
      * @return void
      */
     public static function setAutoComplete(?array $definitions = null): void

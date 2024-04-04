@@ -10,10 +10,10 @@ namespace Phoundation\Databases\Sql\QueryBuilder;
  *
  * This class contains the definitions for a colum to select, filter, group, order or limit by
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class QueryDefinition extends QueryObject
 {
@@ -35,7 +35,7 @@ class QueryDefinition extends QueryObject
     /**
      * QueryDefinition class constructor
      *
-     * @param string $column_name
+     * @param string                $column_name
      * @param QueryBuilderInterface $builder
      */
     public function __construct(string $column_name, QueryBuilderInterface $builder)

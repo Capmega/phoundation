@@ -10,10 +10,10 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * This trait contains methods for DataEntry objects that require a directory
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryDirectory
 {
@@ -32,6 +32,7 @@ trait TraitDataEntryDirectory
      * Sets the path for this object
      *
      * @param string|null $directory
+     *
      * @return static
      */
     public function setDirectory(?string $directory): static

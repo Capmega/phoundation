@@ -7,7 +7,6 @@ namespace Phoundation\Cli;
 use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
@@ -19,10 +18,10 @@ use Phoundation\Utils\Strings;
  *
  * This class contains basic Command Line Interface management methods
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Cli
+ * @package   Phoundation\Cli
  */
 class Cli
 {
@@ -38,6 +37,7 @@ class Cli
      * Sets & returns if passwords are shown or not.
      *
      * @param bool|null $show_passwords
+     *
      * @return bool
      */
     public static function showPasswords(?bool $show_passwords = null): bool
@@ -72,7 +72,7 @@ class Cli
         $cols = exec('tput cols');
 
         if (is_numeric($cols)) {
-            return (int) $cols;
+            return (int)$cols;
         }
 
         return -1;
@@ -90,7 +90,7 @@ class Cli
         $cols = exec('tput lines');
 
         if (is_numeric($cols)) {
-            return (int) $cols;
+            return (int)$cols;
         }
 
         return -1;
@@ -104,9 +104,10 @@ class Cli
      *       $source[$id] = [$column1 => $value1, $column2 => $value2, ...];
      *
      * @param IteratorInterface|array $source
-     * @param array|string|null $headers
-     * @param string|null $id_column
-     * @param int $column_spacing
+     * @param array|string|null       $headers
+     * @param string|null             $id_column
+     * @param int                     $column_spacing
+     *
      * @return void
      */
     public static function displayTable(IteratorInterface|array $source, array|string|null $headers = null, ?string $id_column = 'id', int $column_spacing = 2): void
@@ -118,7 +119,7 @@ class Cli
 
         if (!is_natural($column_spacing)) {
             throw new OutOfBoundsException(tr('Invalid column spacing ":spacing" specified, please ensure it is a natural number, 1 or higher', [
-                ':spacing' => $column_spacing
+                ':spacing' => $column_spacing,
             ]));
         }
 
@@ -128,14 +129,20 @@ class Cli
 
             // Get headers from id_column and row columns and reformat them for displaying
             if ($headers === null) {
-                $value   = str_replace(['_', '-'], ' ', (string) $id_column);
+                $value   = str_replace([
+                                           '_',
+                                           '-',
+                                       ], ' ', (string)$id_column);
                 $value   = Strings::capitalize($value) . ':';
                 $headers = ($id_column ? [$id_column => $value] : []);
                 $row     = current($source);
                 $exists  = false;
 
                 foreach (Arrays::force($row, null) as $header => $value) {
-                    $value = str_replace(['_', '-'], ' ', (string) $header);
+                    $value = str_replace([
+                                             '_',
+                                             '-',
+                                         ], ' ', (string)$header);
                     $value = Strings::capitalize($value) . ':';
 
                     $headers[$header] = $value;
@@ -159,7 +166,7 @@ class Cli
             if (!VERY_QUIET) {
                 foreach (Arrays::force($headers) as $column => $header) {
                     $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                    Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false, false);
+                    Log::cli(CliColor::apply(Strings::size((string)$header, $column_sizes[$column]), 'white') . Strings::size(' ', $column_spacing), 10, false, false);
                 }
 
                 Log::cli(' ');
@@ -178,7 +185,7 @@ class Cli
                     $value = $row[$column];
 
                     if (is_numeric($column) or array_key_exists($column, $headers)) {
-                        Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
+                        Log::cli(Strings::size((string)$value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
                     }
                 }
 
@@ -195,6 +202,7 @@ class Cli
      * Returns cleaned headers from the specified headers value
      *
      * @param array|string $headers
+     *
      * @return array
      */
     protected static function cleanHeaders(array|string $headers): array
@@ -206,7 +214,10 @@ class Cli
             if (is_numeric($column)) {
                 // Headers were assigned only a label, which will be the column name
                 $column = $header;
-                $header = str_replace(['_', '-'], ' ', (string) $header);
+                $header = str_replace([
+                                          '_',
+                                          '-',
+                                      ], ' ', (string)$header);
                 $header = Strings::capitalize($header) . ':';
             }
 
@@ -220,10 +231,11 @@ class Cli
     /**
      * Display the data in the specified source array in a neat looking form
      *
-     * @param array $source
+     * @param array       $source
      * @param string|null $key_header
      * @param string|null $value_header
-     * @param int $offset If specified, the text will be set $offset number of characters to the right
+     * @param int         $offset If specified, the text will be set $offset number of characters to the right
+     *
      * @return void
      */
     public static function displayForm(array $source, ?string $key_header = null, string $value_header = null, int $offset = 0): void
@@ -231,7 +243,7 @@ class Cli
         // Validate arguments
         if ($offset < 0) {
             throw new OutOfBoundsException(tr('Invalid offset ":offset" specified, it should be 0 or higher', [
-                ':offset' => $offset
+                ':offset' => $offset,
             ]));
         }
 
@@ -248,22 +260,25 @@ class Cli
 
         // Display header
         if ($key_header and $value_header) {
-            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header , $key_size), 'white') . ' ' . $value_header);
+            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'white') . ' ' . $value_header);
         }
 
         // Display source
         foreach ($source as $key => $value) {
-            $key = str_replace(['_', '-'], ' ', $key);
+            $key = str_replace([
+                                   '_',
+                                   '-',
+                               ], ' ', $key);
             $key = Strings::capitalize($key) . ':';
 
             if (!is_scalar($value)) {
                 if (is_object($value)) {
                     // Yeah, how to display this? Try to cast to array, hope for the best.
-                    $value = (array) $value;
+                    $value = (array)$value;
                 }
 
                 if (is_array($value)) {
-                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') );
+                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white'));
                     static::displayForm($value, '', '', $key_size + 1);
                     continue;
                 }
@@ -272,7 +287,7 @@ class Cli
                 $value = gettype($value);
             }
 
-            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key , $key_size), 'white') . ' ' . $value);
+            Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
         }
     }
 
@@ -281,6 +296,7 @@ class Cli
      * Read a password from the command line prompt
      *
      * @param string $prompt
+     *
      * @return string|null
      */
     public static function readPassword(string $prompt): ?string
@@ -303,12 +319,36 @@ class Cli
         return $return;
     }
 
+    /**
+     * Checks if we have a TTY and throws exception if we don't
+     *
+     * @param mixed  $file_descriptor
+     * @param string $tty_name
+     *
+     * @return void
+     */
+    public static function checkTty(mixed $file_descriptor, string $tty_name): void
+    {
+        if (!PLATFORM_CLI) {
+            throw new CliNoTtyException(tr('Cannot access TTY ":tty", the platform ":platform" is not supported for this', [
+                ':platform' => PLATFORM,
+                ':tty'      => $tty_name,
+            ]));
+        }
+
+        if (!stream_isatty($file_descriptor)) {
+            throw new CliNoTtyException(tr('Cannot access stream ":tty", the file descriptor is not a TTY', [
+                ':tty' => $tty_name,
+            ]));
+        }
+    }
 
     /**
      * Read an input from the command line prompt
      *
-     * @param string $prompt
+     * @param string      $prompt
      * @param string|null $default
+     *
      * @return string|null
      */
     public static function readInput(string $prompt, ?string $default = null): ?string
@@ -328,30 +368,6 @@ class Cli
         }
 
         return $return;
-    }
-
-
-    /**
-     * Checks if we have a TTY and throws exception if we don't
-     *
-     * @param mixed $file_descriptor
-     * @param string $tty_name
-     * @return void
-     */
-    public static function checkTty(mixed $file_descriptor, string $tty_name): void
-    {
-        if (!PLATFORM_CLI) {
-            throw new CliNoTtyException(tr('Cannot access TTY ":tty", the platform ":platform" is not supported for this', [
-                ':platform' => PLATFORM,
-                ':tty' => $tty_name
-            ]));
-        }
-
-        if (!stream_isatty($file_descriptor)) {
-            throw new CliNoTtyException(tr('Cannot access stream ":tty", the file descriptor is not a TTY', [
-                ':tty' => $tty_name
-            ]));
-        }
     }
 }
 

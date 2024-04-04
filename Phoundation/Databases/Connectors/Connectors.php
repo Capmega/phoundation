@@ -17,10 +17,10 @@ use Phoundation\Utils\Config;
  *
  * This class represents a list of SqlConnector objects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Connectors extends DataList implements ConnectorsInterface
 {
@@ -62,6 +62,7 @@ class Connectors extends DataList implements ConnectorsInterface
      * Load the id list from the database
      *
      * @param bool $clear
+     *
      * @return $this
      */
     public function load(bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
@@ -87,13 +88,13 @@ class Connectors extends DataList implements ConnectorsInterface
         foreach ($connectors as $name => &$connector) {
             if (!is_array($connector)) {
                 throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it should contain an array with at least "type"', [
-                    ':connector' => $name
+                    ':connector' => $name,
                 ]));
             }
 
             if (empty($connector['driver'])) {
                 throw new DatabasesConnectorException(tr('Invalid configuration encountered for connector ":connector", it has no type specified', [
-                    ':connector' => $name
+                    ':connector' => $name,
                 ]));
             }
 
@@ -101,7 +102,7 @@ class Connectors extends DataList implements ConnectorsInterface
             $connector['name']     = $name;
             $connector['seo_name'] = Seo::string($name);
 
-            $this->source[$count]  = Connector::newFromSource($connector, true);
+            $this->source[$count] = Connector::newFromSource($connector, true);
         }
 
         return $this;

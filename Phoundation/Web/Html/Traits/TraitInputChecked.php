@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 
 namespace Phoundation\Web\Html\Traits;
@@ -22,7 +22,7 @@ trait TraitInputChecked
      */
     public function getChecked(): bool
     {
-        return (bool) $this->attributes->get('checked', false);
+        return (bool)$this->attributes->get('checked', false);
     }
 
 
@@ -30,6 +30,7 @@ trait TraitInputChecked
      * Sets if the checkbox is checked or not
      *
      * @param bool $checked
+     *
      * @return static
      */
     public function setChecked(bool $checked): static

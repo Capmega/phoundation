@@ -19,50 +19,50 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 
 
 // Validate
 $get = GetValidator::new()
-    ->select('id')->isOptional()->isDbId()
-    ->validate();
+                   ->select('id')->isOptional()->isDbId()
+                   ->validate();
 
 
 // Build the settings card
-$user  = Session::getUser();
-$form  = $user->getSettings()->getHtmlDataEntryForm();
-$card  = Card::new()
-    ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
-    ->setContent($form->render())
-    ->setButtons(Buttons::new()
-        ->addButton(tr('Save'))
-        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/my/settings.html'), true)
-        ->addButton(isset_get($delete))
-        ->addButton(isset_get($audit)));
+$user = Session::getUser();
+$form = $user->getSettings()->getHtmlDataEntryForm();
+$card = Card::new()
+            ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
+            ->setContent($form->render())
+            ->setButtons(Buttons::new()
+                                ->addButton(tr('Save'))
+                                ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/my/settings.html'), true)
+                                ->addButton(isset_get($delete))
+                                ->addButton(isset_get($audit)));
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a><br>');
+                ->setMode(EnumDisplayMode::info)
+                ->setTitle(tr('Relevant links'))
+                ->setContent('<a href="' . UrlBuilder::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a><br>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($card, EnumDisplaySize::nine, true)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($card, EnumDisplaySize::nine, true)
+            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
@@ -71,7 +71,7 @@ echo $grid->render();
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                => tr('Home'),
-    '/my/profile.html' => tr('My profile'),
-    ''                 => tr('My settings')
-]));
+                                                           '/'                => tr('Home'),
+                                                           '/my/profile.html' => tr('My profile'),
+                                                           ''                 => tr('My settings'),
+                                                       ]));

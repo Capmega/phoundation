@@ -22,10 +22,10 @@ use Stringable;
  *
  * This class contains various easy-to-use and ready-to-go command line commands in static methods.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 abstract class Command extends ProcessCore implements CommandInterface
 {
@@ -33,8 +33,8 @@ abstract class Command extends ProcessCore implements CommandInterface
      * Command constructor.
      *
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|null $operating_system
-     * @param string|null $packages
+     * @param Stringable|string|null                  $operating_system
+     * @param string|null                             $packages
      */
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
@@ -55,8 +55,9 @@ abstract class Command extends ProcessCore implements CommandInterface
      * Create a new process factory for a specific command
      *
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null $operating_system
-     * @param string|null $packages
+     * @param string|null                             $operating_system
+     * @param string|null                             $packages
+     *
      * @return static
      */
     public static function new(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
@@ -70,9 +71,11 @@ abstract class Command extends ProcessCore implements CommandInterface
      *
      * @param array|string $commands
      * @param Restrictions $restrictions
-     * @param bool $exception
+     * @param bool         $exception
+     *
      * @return bool
-     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands like "true", or "which", etc?
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
+     *       like "true", or "which", etc?
      */
     public static function sudoAvailable(array|string $commands, Restrictions $restrictions, bool $exception = false): bool
     {
@@ -81,9 +84,9 @@ abstract class Command extends ProcessCore implements CommandInterface
 
             foreach (Arrays::force($commands) as $command) {
                 Process::new($command, $restrictions)
-                    ->setSudo(true)
-                    ->addArgument('--version')
-                    ->executeReturnArray();
+                       ->setSudo(true)
+                       ->addArgument('--version')
+                       ->executeReturnArray();
             }
 
             return true;
@@ -91,14 +94,14 @@ abstract class Command extends ProcessCore implements CommandInterface
         } catch (CommandNotFoundException) {
             if ($exception) {
                 throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
-                    ':command' => $command
+                    ':command' => $command,
                 ]));
             }
 
         } catch (ProcessFailedException) {
             if ($exception) {
                 throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
-                    ':command' => $command
+                    ':command' => $command,
                 ]));
             }
         }

@@ -15,12 +15,12 @@ use Phoundation\Web\Http\UrlBuilder;
 /**
  * MetaModal class
  *
- * 
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class MetaModal extends Modal
 {
@@ -48,21 +48,21 @@ class MetaModal extends Modal
 
         // Build the layout
         $layout = Grid::new()
-            ->addRow(GridRow::new()
-                ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
-                ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::six)->setContent($form))
-                ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
-            );
+                      ->addRow(GridRow::new()
+                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
+                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::six)->setContent($form))
+                                      ->addColumn(GridColumn::new()->setSize(EnumDisplaySize::three))
+                      );
 
         // Set defaults
         $this->setId('MetaModal')
-            ->setSize('lg')
-            ->setTitle(tr('Audit information'))
-            ->setContent($layout->render());
+             ->setSize('lg')
+             ->setTitle(tr('Audit information'))
+             ->setContent($layout->render());
 
         // Render the sign in modal.
         return parent::render() . Script::new()
-            ->setContent('
+                                        ->setContent('
             $("table.showmeta").click(function(e) {
                 e.stopPropagation();
 

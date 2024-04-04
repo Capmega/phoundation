@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  * This adds config_path state registration to objects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataConfigPath
 {
@@ -44,6 +44,7 @@ trait TraitDataConfigPath
      * Set NULL if this object cannot be loaded from configuration
      *
      * @param string|null $config_path
+     *
      * @return static
      */
     public function setConfigPath(?string $config_path): static

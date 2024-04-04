@@ -10,11 +10,11 @@ namespace Phoundation\Emails\Library;
  *
  * This is the Init class for the Email library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Emails
+ * @package   Phoundation\Emails
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -43,6 +43,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     /**
      * The list of version updates available for this library
      *f
+     *
      * @return void
      */
     public function updates(): void
@@ -59,7 +60,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for emails
             sql()->schema()->table('emails')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -95,7 +96,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for emails
             sql()->schema()->table('emails_labels')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -126,7 +127,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for emails
             sql()->schema()->table('emails_labels_links')->define()
-                ->setColumns('
+                 ->setColumns('
                     `emails_id` bigint NOT NULL,    /* Email */
                     `labels_id` bigint DEFAULT NULL /* Label */
                 ')->setIndices('
@@ -140,7 +141,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for email accounts
             sql()->schema()->table('emails_accounts')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -172,7 +173,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for to, cc, bcc, from
             sql()->schema()->table('emails_addresses')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `users_id` bigint DEFAULT NULL,     /* Optionally, the local user to which this address belongs */
                     `accounts_id` bigint DEFAULT NULL,  /* Optionally the email account to which this belongs */
@@ -196,7 +197,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for to, cc, bcc, from
             sql()->schema()->table('emails_addresses_linked')->define()
-                ->setColumns('
+                 ->setColumns('
                     `emails_id` bigint NOT NULL AUTO_INCREMENT,
                     `address_id` bigint DEFAULT NULL,                /* The email to which this TO / CC / BCC, FROM entry belongs */
                     `type` enum("to", "cc", "bcc", "from") NOT NULL, /* The type of address, to, cc, bcc, from. */
@@ -215,7 +216,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for attachments
             sql()->schema()->table('emails_attachments')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -246,10 +247,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.17', function () {
             sql()->schema()->table('emails_attachments')
-                ->alter()
-                    ->changeColumn('local_path', '`local_directory` varchar(128) NOT NULL')
-                    ->dropIndex('local_path')
-                    ->addIndex('UNIQUE KEY local_path (`local_directory`)');
+                 ->alter()
+                 ->changeColumn('local_path', '`local_directory` varchar(128) NOT NULL')
+                 ->dropIndex('local_path')
+                 ->addIndex('UNIQUE KEY local_path (`local_directory`)');
         });
     }
 }

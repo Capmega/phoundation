@@ -15,10 +15,10 @@ use Phoundation\Os\Processes\Process;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Content
+ * @package   Phoundation\Content
  */
 class Resize extends File
 {
@@ -43,34 +43,6 @@ class Resize extends File
      */
     protected string $method = 'resize';
 
-
-    /**
-     * Returns the method used to perform the resize operations
-     *
-     * @param string $method
-     * @return Resize
-     */
-    public function setMethod(#[ExpectedValues('resize', 'sample', 'scale')] string $method): Resize
-    {
-        switch ($method) {
-            case 'resize':
-                // no-break
-            case 'sample':
-            // no-break
-            case 'scale':
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown method ":method" specified, please use one of "resize", "scale", or "sample"', [
-                    ':method' => $method
-                ]));
-        }
-
-        $this->method = $method;
-        return $this;
-    }
-
-
     /**
      * Returns the method used to perform the resize operations
      *
@@ -81,6 +53,32 @@ class Resize extends File
         return $this->method;
     }
 
+    /**
+     * Returns the method used to perform the resize operations
+     *
+     * @param string $method
+     *
+     * @return Resize
+     */
+    public function setMethod(#[ExpectedValues('resize', 'sample', 'scale')] string $method): Resize
+    {
+        switch ($method) {
+            case 'resize':
+                // no-break
+            case 'sample':
+                // no-break
+            case 'scale':
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown method ":method" specified, please use one of "resize", "scale", or "sample"', [
+                    ':method' => $method,
+                ]));
+        }
+
+        $this->method = $method;
+        return $this;
+    }
 
     /**
      * Returns if the resize command should be executed in the background or not
@@ -97,6 +95,7 @@ class Resize extends File
      * Sets if the resize command should be executed in the background or not
      *
      * @param bool $background
+     *
      * @return Resize
      */
     public function setBackground(bool $background): Resize
@@ -111,15 +110,16 @@ class Resize extends File
      *
      * @param int $width
      * @param int $height
+     *
      * @return void
      */
     public function getAbsoluteSize(int $width, int $height): void
     {
         $process = $this->convert()
-            ->addArgument($this->path)
-            ->addArgument('-' . $this->method)
-            ->addArgument($width . 'x' . $height)
-            ->addArgument($this->getTarget());
+                        ->addArgument($this->path)
+                        ->addArgument('-' . $this->method)
+                        ->addArgument($width . 'x' . $height)
+                        ->addArgument($this->getTarget());
 
         if ($this->background) {
             // Resize in background
@@ -129,130 +129,6 @@ class Resize extends File
         // Resize in foreground and store results
         $this->output = $process->executeReturnArray();
     }
-
-
-    /**
-     * Resize the image to the specified absolute width and height, ignore aspect ratio
-     *
-     * @param int $width
-     * @param int $height
-     * @return void
-     */
-    public function absoluteKeepAspectration(int $width, int $height): void
-    {
-        $process = $this->convert()
-            ->addArgument($this->path)
-            ->addArgument('-' . $this->method)
-            ->addArgument($width . 'x' . $height . '\\!')
-            ->addArgument($this->target);
-
-        if ($this->background) {
-            // Resize in background
-            $process->executeBackground(true);
-        }
-
-        // Resize in foreground and store results
-        $this->output = $process->executeReturnArray();
-    }
-
-
-    /**
-     * Resize image to the specified absolute width and height only when larger than the specified width x height
-     *
-     * @param int $width
-     * @param int $height
-     * @return void
-     */
-    public function shrinkOnlyLarger(int $width, int $height): void
-    {
-        $process = $this->convert()
-            ->addArgument($this->path)
-            ->addArgument('-' . $this->method)
-            ->addArgument($width . 'x' . $height . '\\>')
-            ->addArgument($this->target);
-
-        if ($this->background) {
-            // Resize in background
-            $process->executeBackground(true);
-        }
-
-        // Resize in foreground and store results
-        $this->output = $process->executeReturnArray();
-    }
-
-
-    /**
-     * Resize image to the specified absolute width and height only when smaller than the specified width x height
-     *
-     * @param int $width
-     * @param int $height
-     * @return void
-     */
-    public function enlargeOnlySmaller(int $width, int $height): void
-    {
-        $process = $this->convert()
-            ->addArgument($this->path)
-            ->addArgument('-' . $this->method)
-            ->addArgument($width . 'x' . $height . '\\>')
-            ->addArgument($this->target);
-
-        if ($this->background) {
-            // Resize in background
-            $process->executeBackground(true);
-        }
-
-        // Resize in foreground and store results
-        $this->output = $process->executeReturnArray();
-    }
-
-
-    /**
-     * Resize image to the specified percentage
-     *
-     * @param float $percentage
-     * @return void
-     */
-    public function percentage(float $percentage): void
-    {
-        $process = $this->convert()
-            ->addArgument($this->path)
-            ->addArgument('-' . $this->method)
-            ->addArgument($percentage . '%')
-            ->addArgument($this->target);
-
-        if ($this->background) {
-            // Resize in background
-            $process->executeBackground(true);
-        }
-
-        // Resize in foreground and store results
-        $this->output = $process->executeReturnArray();
-    }
-
-
-    /**
-     * Resize image to the specified number of pixels, irrespective of the width or height
-     *
-     * @param int $pixel_count
-     * @return void
-     */
-    public function pixelCount(int $pixel_count): void
-    {
-        $process = $this->convert()
-            ->addArgument($this->path)
-            ->addArgument('-' . $this->method)
-            ->addArgument($pixel_count . '@')
-            ->addArgument($this->target);
-
-        if ($this->background) {
-            // Resize in background
-            $process->executeBackground(true);
-        }
-
-        // Resize in foreground and store results
-        $this->output = $process->executeReturnArray();
-    }
-
 
     /**
      * Returns a "convert" process
@@ -262,5 +138,128 @@ class Resize extends File
     protected function convert(): Process
     {
         return Process::new('convert', $this->restrictions);
+    }
+
+    /**
+     * Resize the image to the specified absolute width and height, ignore aspect ratio
+     *
+     * @param int $width
+     * @param int $height
+     *
+     * @return void
+     */
+    public function absoluteKeepAspectration(int $width, int $height): void
+    {
+        $process = $this->convert()
+                        ->addArgument($this->path)
+                        ->addArgument('-' . $this->method)
+                        ->addArgument($width . 'x' . $height . '\\!')
+                        ->addArgument($this->target);
+
+        if ($this->background) {
+            // Resize in background
+            $process->executeBackground(true);
+        }
+
+        // Resize in foreground and store results
+        $this->output = $process->executeReturnArray();
+    }
+
+    /**
+     * Resize image to the specified absolute width and height only when larger than the specified width x height
+     *
+     * @param int $width
+     * @param int $height
+     *
+     * @return void
+     */
+    public function shrinkOnlyLarger(int $width, int $height): void
+    {
+        $process = $this->convert()
+                        ->addArgument($this->path)
+                        ->addArgument('-' . $this->method)
+                        ->addArgument($width . 'x' . $height . '\\>')
+                        ->addArgument($this->target);
+
+        if ($this->background) {
+            // Resize in background
+            $process->executeBackground(true);
+        }
+
+        // Resize in foreground and store results
+        $this->output = $process->executeReturnArray();
+    }
+
+    /**
+     * Resize image to the specified absolute width and height only when smaller than the specified width x height
+     *
+     * @param int $width
+     * @param int $height
+     *
+     * @return void
+     */
+    public function enlargeOnlySmaller(int $width, int $height): void
+    {
+        $process = $this->convert()
+                        ->addArgument($this->path)
+                        ->addArgument('-' . $this->method)
+                        ->addArgument($width . 'x' . $height . '\\>')
+                        ->addArgument($this->target);
+
+        if ($this->background) {
+            // Resize in background
+            $process->executeBackground(true);
+        }
+
+        // Resize in foreground and store results
+        $this->output = $process->executeReturnArray();
+    }
+
+    /**
+     * Resize image to the specified percentage
+     *
+     * @param float $percentage
+     *
+     * @return void
+     */
+    public function percentage(float $percentage): void
+    {
+        $process = $this->convert()
+                        ->addArgument($this->path)
+                        ->addArgument('-' . $this->method)
+                        ->addArgument($percentage . '%')
+                        ->addArgument($this->target);
+
+        if ($this->background) {
+            // Resize in background
+            $process->executeBackground(true);
+        }
+
+        // Resize in foreground and store results
+        $this->output = $process->executeReturnArray();
+    }
+
+    /**
+     * Resize image to the specified number of pixels, irrespective of the width or height
+     *
+     * @param int $pixel_count
+     *
+     * @return void
+     */
+    public function pixelCount(int $pixel_count): void
+    {
+        $process = $this->convert()
+                        ->addArgument($this->path)
+                        ->addArgument('-' . $this->method)
+                        ->addArgument($pixel_count . '@')
+                        ->addArgument($this->target);
+
+        if ($this->background) {
+            // Resize in background
+            $process->executeBackground(true);
+        }
+
+        // Resize in foreground and store results
+        $this->output = $process->executeReturnArray();
     }
 }

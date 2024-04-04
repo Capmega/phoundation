@@ -14,17 +14,17 @@ use Phoundation\Utils\Config;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Geo
+ * @package   Phoundation/Geo
  */
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
      * Import class constructor
      *
-     * @param bool $demo
+     * @param bool     $demo
      * @param int|null $min
      * @param int|null $max
      */
@@ -42,8 +42,8 @@ class Import extends \Phoundation\Developer\Project\Import
      */
     public function execute(): int
     {
-        $provider = static::getProvider();
-        $directory     = $provider->download();
+        $provider  = static::getProvider();
+        $directory = $provider->download();
 
         $provider->process($directory);
         return 0;
@@ -54,6 +54,7 @@ class Import extends \Phoundation\Developer\Project\Import
      * Returns the class for the specified provider
      *
      * @param string|null $provider
+     *
      * @return static
      */
     public static function getProvider(?string $provider = null): static
@@ -69,7 +70,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
             default:
                 throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
-                    ':provider' => $provider
+                    ':provider' => $provider,
                 ]));
         }
     }

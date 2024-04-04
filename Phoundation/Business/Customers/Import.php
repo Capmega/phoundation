@@ -13,17 +13,17 @@ use Phoundation\Developer\TestDataGenerator;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Geo
+ * @package   Phoundation/Geo
  */
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
      * Import class constructor
      *
-     * @param bool $demo
+     * @param bool     $demo
      * @param int|null $min
      * @param int|null $max
      */
@@ -57,10 +57,10 @@ class Import extends \Phoundation\Developer\Project\Import
             for ($count = 1; $count <= $this->count; $count++) {
                 // Add customer
                 Customer::new()
-                    ->setCode(TestDataGenerator::getCode())
-                    ->setName(TestDataGenerator::getName())
-                    ->setDescription(TestDataGenerator::getDescription())
-                    ->save();
+                        ->setCode(TestDataGenerator::getCode())
+                        ->setName(TestDataGenerator::getName())
+                        ->setDescription(TestDataGenerator::getDescription())
+                        ->save();
             }
         }
 

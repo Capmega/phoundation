@@ -16,10 +16,10 @@ use Phoundation\Os\Processes\Process;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 trait TraitGitProcess
 {
@@ -56,6 +56,7 @@ trait TraitGitProcess
      * Returns the directory for this ChangedFiles object
      *
      * @param string $directory
+     *
      * @return static
      */
     public function setDirectory(string $directory): static
@@ -66,7 +67,7 @@ trait TraitGitProcess
         if (!$this->directory) {
             if (!file_exists($directory)) {
                 throw new OutOfBoundsException(tr('The specified directory ":directory" does not exist', [
-                    ':directory' => $directory
+                    ':directory' => $directory,
                 ]));
             }
         }

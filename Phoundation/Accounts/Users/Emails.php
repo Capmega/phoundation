@@ -26,11 +26,11 @@ use Stringable;
  *
  *
  *
- * @see DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class Emails extends DataList implements EmailsInterface
 {
@@ -91,6 +91,7 @@ class Emails extends DataList implements EmailsInterface
      * Sets the parent
      *
      * @param DataEntryInterface $parent
+     *
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static
@@ -102,7 +103,7 @@ class Emails extends DataList implements EmailsInterface
         }
 
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
-            ':parent' => $parent
+            ':parent' => $parent,
         ]));
     }
 
@@ -111,11 +112,12 @@ class Emails extends DataList implements EmailsInterface
      * Returns Emails list object with emails for the specified user.
      *
      * @param bool $clear
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::get($this->parent,  'seo_name');
+        $this->parent  = User::get($this->parent, 'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -126,13 +128,14 @@ class Emails extends DataList implements EmailsInterface
      * Creates and returns an HTML for the emails
      *
      * @param string $name
-     * @param bool $meta_visible
+     * @param bool   $meta_visible
+     *
      * @return DataEntryFormInterface
      */
     public function getHtmlDataEntryForm(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $email = Email::new()->setColumnPrefix($name)->getHtmlDataEntryFormObject()->setMetaVisible($meta_visible);
+        $email       = Email::new()->setColumnPrefix($name)->getHtmlDataEntryFormObject()->setMetaVisible($meta_visible);
         $definitions = $email->getDefinitions();
         $definitions->get('email')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -150,60 +153,15 @@ class Emails extends DataList implements EmailsInterface
         }
 
         return DataEntryForm::new()
-            ->appendContent(implode('<hr>', $content))
-            ->setRenderContentsOnly(true);
+                            ->appendContent(implode('<hr>', $content))
+                            ->setRenderContentsOnly(true);
     }
-
-
-    /**
-     * Add the specified email to the iterator array
-     *
-     * @param mixed $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
-     * @return static
-     */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
-    {
-        if (!$value instanceof EmailInterface) {
-            if (!is_string($value)) {
-                throw new OutOfBoundsException(tr('Invalid value ":value" specified, can only add "EmailInterface" to Emails Iterator class', [
-                    ':value' => $value
-                ]));
-            }
-
-            $value = Email::new($value, 'email')->setAccountType('other');
-        }
-
-        // Ensure that the email list has a parent
-        if (empty($this->parent)) {
-            throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
-                ':email' => $value->getLogId()
-            ]));
-        }
-
-        // Ensure that the email has a users id and that the users id matches the id of the users parent
-        if ($value->getUsersId()) {
-            if ($value->getUsersId() !== $this->parent->getId()) {
-                throw new OutOfBoundsException(tr('Specified email ":email" has a different users id than the users id ":parent" for the emails in this list', [
-                    ':email' => $value->getEmail(),
-                    ':parent' => $this->parent->getId()
-                ]));
-            }
-
-        } else {
-            $value->setUsersId($this->parent->getId())->save();
-        }
-
-        return parent::add($value, $key, $skip_null, $exception);
-    }
-
 
     /**
      * Apply all email account updates
      *
      * @param bool $clear_source
+     *
      * @return static
      * @throws ValidationFailedException|OutOfBoundsExceptionInterface
      */
@@ -217,8 +175,8 @@ class Emails extends DataList implements EmailsInterface
 
         $emails = [];
         $post   = Validator::get()
-            ->select('emails')->isOptional()->sanitizeForceArray()
-            ->validate($clear_source);
+                           ->select('emails')->isOptional()->sanitizeForceArray()
+                           ->validate($clear_source);
 
         // Parse and sub validate
         if (isset($post['emails'])) {
@@ -234,7 +192,7 @@ class Emails extends DataList implements EmailsInterface
                     $email = [
                         'email'        => isset_get($email[0]),
                         'account_type' => isset_get($email[1]),
-                        'description'  => isset_get($email[2])
+                        'description'  => isset_get($email[2]),
                     ];
                 }
 
@@ -258,18 +216,18 @@ class Emails extends DataList implements EmailsInterface
             foreach ($diff['add'] as $email) {
                 if ($email) {
                     $this->add(Email::new()
-                        ->apply(false, $emails[$email])
-                        ->setUsersId($this->parent->getId())
-                        ->save());
+                                    ->apply(false, $emails[$email])
+                                    ->setUsersId($this->parent->getId())
+                                    ->save());
                 }
             }
 
             // Update all other email addresses
             foreach ($diff['keep'] as $id => $email) {
                 Email::get($id, 'id')
-                    ->apply(false, $emails[$email])
-                    ->setUsersId($this->parent->getId())
-                    ->save();
+                     ->apply(false, $emails[$email])
+                     ->setUsersId($this->parent->getId())
+                     ->save();
             }
         }
 
@@ -281,12 +239,12 @@ class Emails extends DataList implements EmailsInterface
         return $this;
     }
 
-
     /**
      * Save all the emails for this user
      *
-     * @param bool $force
+     * @param bool        $force
      * @param string|null $comments
+     *
      * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static
@@ -302,5 +260,50 @@ class Emails extends DataList implements EmailsInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Add the specified email to the iterator array
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    {
+        if (!$value instanceof EmailInterface) {
+            if (!is_string($value)) {
+                throw new OutOfBoundsException(tr('Invalid value ":value" specified, can only add "EmailInterface" to Emails Iterator class', [
+                    ':value' => $value,
+                ]));
+            }
+
+            $value = Email::new($value, 'email')->setAccountType('other');
+        }
+
+        // Ensure that the email list has a parent
+        if (empty($this->parent)) {
+            throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
+                ':email' => $value->getLogId(),
+            ]));
+        }
+
+        // Ensure that the email has a users id and that the users id matches the id of the users parent
+        if ($value->getUsersId()) {
+            if ($value->getUsersId() !== $this->parent->getId()) {
+                throw new OutOfBoundsException(tr('Specified email ":email" has a different users id than the users id ":parent" for the emails in this list', [
+                    ':email'  => $value->getEmail(),
+                    ':parent' => $this->parent->getId(),
+                ]));
+            }
+
+        } else {
+            $value->setUsersId($this->parent->getId())->save();
+        }
+
+        return parent::add($value, $key, $skip_null, $exception);
     }
 }

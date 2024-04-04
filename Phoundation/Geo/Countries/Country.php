@@ -17,11 +17,11 @@ use Phoundation\Web\Html\Components\Input\InputSelect;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Geo
+ * @package   Phoundation\Geo
  */
 class Country extends DataEntry
 {
@@ -87,20 +87,21 @@ class Country extends DataEntry
      * Returns an HTML <select> object with all states available in this country
      *
      * @param string $name
+     *
      * @return InputSelect
      */
     public function getHtmlStatesSelect(string $name = 'states_id'): InputSelect
     {
         return InputSelect::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setSourceQuery('SELECT `id`, `name` 
+                          ->setConnector(static::getDefaultConnectorName())
+                          ->setSourceQuery('SELECT `id`, `name` 
                                           FROM  `geo_states` 
                                           WHERE `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [
-                ':countries_id' => $this->getId()
-            ])
-            ->setName($name)
-            ->setNone(tr('Select a state'))
-            ->setObjectEmpty(tr('No states available'));
+                              ':countries_id' => $this->getId(),
+                          ])
+                          ->setName($name)
+                          ->setNone(tr('Select a state'))
+                          ->setObjectEmpty(tr('No states available'));
     }
 
 

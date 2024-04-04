@@ -10,10 +10,10 @@ namespace Phoundation\Cli\Exception;
  *
  * This exception is thrown in case STDIN data retrieval fails
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Cli
+ * @package   Phoundation\Cli
  */
 class CliStdInException extends CliException
 {

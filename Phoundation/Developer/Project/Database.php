@@ -10,10 +10,10 @@ namespace Phoundation\Developer\Project;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 class Database
 {
@@ -61,6 +61,7 @@ class Database
      * Sets the configured host for this environment
      *
      * @param string $host
+     *
      * @return static
      */
     public function setHost(string $host): static
@@ -85,6 +86,7 @@ class Database
      * Sets the configured database name for this environment
      *
      * @param string $name
+     *
      * @return static
      */
     public function setName(string $name): static
@@ -109,6 +111,7 @@ class Database
      * Sets the configured user for this environment
      *
      * @param string $user
+     *
      * @return static
      */
     public function setUser(string $user): static
@@ -133,6 +136,7 @@ class Database
      * Sets the configured password for this environment
      *
      * @param string $pass
+     *
      * @return static
      */
     public function setPass(string $pass): static

@@ -8,8 +8,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Mtime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Path;
 use Stringable;
 
 
@@ -19,10 +19,10 @@ use Stringable;
  * This class can check and remove the Unicode Byte Order Mark from the specified file. This is important as PHP can
  * choke on this BOM
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class BomFile extends File
 {
@@ -33,33 +33,10 @@ class BomFile extends File
         // Only allow PHP files
         if (!str_ends_with($this->path, '.php')) {
             throw new OutOfBoundsException(tr('Cannot check file ":file" for BOM, only PHP files are supported', [
-                ':file' => $this->path
+                ':file' => $this->path,
             ]));
         }
     }
-
-
-    /**
-     * Returns true if this file has a BOM
-     *
-     * @return bool
-     */
-    public function hasBom(): bool
-    {
-        // Only check unmodified files
-        if (Mtime::isModified($this->path)) {
-            $data = $this->readBytes(3);
-
-            if($data === chr(0xEF) . chr(0xBB) . chr(0xBF)){
-                // Found a twitcher! Gotta shootem in the head!
-                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->path]));
-                return true;
-            }
-        }
-
-        return false;
-    }
-
 
     /**
      * Will scan for and if found, clear the file of the BOM
@@ -77,5 +54,26 @@ class BomFile extends File
         }
 
         return $this;
+    }
+
+    /**
+     * Returns true if this file has a BOM
+     *
+     * @return bool
+     */
+    public function hasBom(): bool
+    {
+        // Only check unmodified files
+        if (Mtime::isModified($this->path)) {
+            $data = $this->readBytes(3);
+
+            if ($data === chr(0xEF) . chr(0xBB) . chr(0xBF)) {
+                // Found a twitcher! Gotta shootem in the head!
+                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->path]));
+                return true;
+            }
+        }
+
+        return false;
     }
 }

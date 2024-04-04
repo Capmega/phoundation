@@ -13,11 +13,11 @@ use Phoundation\Core\Log\Log;
  *
  * This is the Init class for the Core library
  *
- * @see Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Updates extends Libraries\Updates
 {
@@ -55,7 +55,7 @@ class Updates extends Libraries\Updates
 
             // Add table for version control itself
             sql()->schema()->table('core_versions')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -82,10 +82,10 @@ class Updates extends Libraries\Updates
 
             // Add tables for the "meta" library
             sql()->schema()->table('meta')->define()
-                ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')->create();
+                 ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')->create();
 
             sql()->schema()->table('meta_history')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -112,7 +112,7 @@ class Updates extends Libraries\Updates
 
             // Modify the core_versions and meta_history tables to have a foreign key to the (now existing) accounts_users table
             sql()->schema()->table('meta_history')->alter()
-                ->addForeignKey('
+                 ->addForeignKey('
                     CONSTRAINT `fk_meta_history_created_by` 
                         FOREIGN KEY (`created_by`) 
                         REFERENCES `accounts_users` (`id`) 
@@ -120,7 +120,7 @@ class Updates extends Libraries\Updates
             ');
 
             sql()->schema()->table('core_versions')->alter()
-               ->addForeignKey('
+                 ->addForeignKey('
                 CONSTRAINT `fk_core_versions_created_by` 
                     FOREIGN KEY (`created_by`) 
                     REFERENCES `accounts_users` (`id`) 
@@ -129,7 +129,7 @@ class Updates extends Libraries\Updates
 
             // Add tables for session management
             sql()->schema()->table('sessions_extended')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -155,7 +155,7 @@ class Updates extends Libraries\Updates
 
             // Add tables for URL cloaking
             sql()->schema()->table('url_cloaks')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -181,7 +181,7 @@ class Updates extends Libraries\Updates
 
             // Add tables for generic key-value store
             sql()->schema()->table('key_value_store')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -212,7 +212,7 @@ class Updates extends Libraries\Updates
             sql()->schema()->table('core_languages')->drop();
 
             sql()->schema()->table('core_languages')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -256,7 +256,7 @@ class Updates extends Libraries\Updates
 
             // Add table for core plugin registration
             sql()->schema()->table('core_plugins')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -295,7 +295,7 @@ class Updates extends Libraries\Updates
 
             // Add table for template registration
             sql()->schema()->table('core_templates')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -328,7 +328,7 @@ class Updates extends Libraries\Updates
                 ')->create();
         })->addUpdate('0.0.11', function () {
             sql()->schema()->table('core_templates')->alter()
-                ->changeColumn('file', '`directory` varchar(128) NOT NULL');
+                 ->changeColumn('file', '`directory` varchar(128) NOT NULL');
 
         })->addUpdate('0.0.15', function () {
             // Fix meta_id columns
@@ -338,7 +338,7 @@ class Updates extends Libraries\Updates
                                           FROM   `information_schema`.`COLUMNS`
                                           WHERE  `TABLE_SCHEMA` = :table_schema
                                             AND  `COLUMN_NAME`  = "meta_id"', [
-                ':table_schema' => sql()->getDatabase()
+                ':table_schema' => sql()->getDatabase(),
             ]);
 
             foreach ($tables as $table) {
@@ -358,15 +358,15 @@ class Updates extends Libraries\Updates
             // Add table support in meta-system
             if (!sql()->schema()->table('meta')->getColumns()->keyExists('table')) {
                 sql()->schema()->table('meta')->alter()
-                    ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
-                    ->addIndex('KEY `table` (`table`)');
+                     ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
+                     ->addIndex('KEY `table` (`table`)');
             }
 
             sql()->schema()->table('meta_users')->drop();
 
             // Add users meta-tracking table
             sql()->schema()->table('meta_users')->define()
-                ->setColumns('
+                 ->setColumns('
                 `users_id` bigint NOT NULL,
                 `histories_id` bigint NOT NULL,
             ')->setIndices('
@@ -385,8 +385,8 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.2.5', function () {
             sql()->schema()->table('core_plugins')->alter()
-                ->addColumn('`menu_priority` int NOT NULL DEFAULT 50', 'AFTER `priority`')
-                ->addColumn('`menu_enabled` tinyint NOT NULL', 'AFTER `menu_priority`');
+                 ->addColumn('`menu_priority` int NOT NULL DEFAULT 50', 'AFTER `priority`')
+                 ->addColumn('`menu_enabled` tinyint NOT NULL', 'AFTER `menu_priority`');
 
         })->addUpdate('0.2.6', function () {
             sql()->schema()->table('core_plugins')->alter()

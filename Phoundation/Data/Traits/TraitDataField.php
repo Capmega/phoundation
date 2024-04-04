@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openfield.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openfield.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataField
 {
@@ -40,6 +40,7 @@ trait TraitDataField
      * Sets the field
      *
      * @param string|null $field
+     *
      * @return static
      */
     public function setColumn(?string $field): static

@@ -13,11 +13,11 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Companies
+ * @package   Phoundation\Companies
  */
 class Employees extends DataList
 {
@@ -70,18 +70,19 @@ class Employees extends DataList
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
-            ->setName('employees_id')
-            ->setNone(tr('Select a employee'))
-            ->setObjectEmpty(tr('No employees available'));
+                     ->setName('employees_id')
+                     ->setNone(tr('Select a employee'))
+                     ->setObjectEmpty(tr('No employees available'));
     }
 }

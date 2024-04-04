@@ -15,11 +15,11 @@ use Stringable;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 interface RightsInterface extends DataListInterface
 {
@@ -27,6 +27,7 @@ interface RightsInterface extends DataListInterface
      * Set the new rights for the current parents to the specified list
      *
      * @param array|null $list
+     *
      * @return static
      */
     public function setRights(?array $list): static;
@@ -34,10 +35,11 @@ interface RightsInterface extends DataListInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param mixed $value
+     * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
      * @return static
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
@@ -46,6 +48,7 @@ interface RightsInterface extends DataListInterface
      * Remove the specified data entry from the data list
      *
      * @param RightInterface|Stringable|array|string|float|int $keys
+     *
      * @return static
      */
     public function deleteKeys(RightInterface|Stringable|array|string|float|int $keys): static;
@@ -62,6 +65,7 @@ interface RightsInterface extends DataListInterface
      *
      * @param bool $clear
      * @param bool $only_if_empty
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;

@@ -16,10 +16,10 @@ use Stringable;
  *
  * This class can create various HTML tables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface HtmlTableInterface extends ResourceElementInterface
 {
@@ -34,6 +34,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets if the table is header_text or not
      *
      * @param string|null $header_text
+     *
      * @return static
      */
     public function setHeaderText(?string $header_text): static;
@@ -49,6 +50,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets if the table will process entities in the source data or not
      *
      * @param bool $process_entities
+     *
      * @return static
      */
     public function setProcessEntities(bool $process_entities): static;
@@ -64,6 +66,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets if the table is responsive or not
      *
      * @param bool $responsive
+     *
      * @return static
      */
     public function setResponsive(bool $responsive): static;
@@ -79,6 +82,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets if the table is full width or not
      *
      * @param bool $full_width
+     *
      * @return static
      */
     public function setFullWidth(bool $full_width): static;
@@ -122,6 +126,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Returns the HTML class element attribute
      *
      * @param string|null $classes
+     *
      * @return static
      */
     public function setRowClasses(?string $classes): static;
@@ -137,6 +142,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets the HTML class element attribute for <td> tags
      *
      * @param string|null $classes
+     *
      * @return static
      */
     public function setColumnClasses(?string $classes): static;
@@ -152,6 +158,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets the HTML class element attribute for <td> tags
      *
      * @param string|null $classes
+     *
      * @return static
      */
     public function setAnchorClasses(?string $classes): static;
@@ -167,6 +174,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets if the first column will automatically be converted to checkboxes
      *
      * @param EnumTableIdColumnInterface $checkbox_selectors
+     *
      * @return static
      */
     public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static;
@@ -182,6 +190,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets the URL that applies to each row
      *
      * @param Stringable|string|null $row_url
+     *
      * @return static
      */
     public function setRowUrl(Stringable|string|null $row_url): static;
@@ -211,6 +220,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Returns the table headers
      *
      * @param IteratorInterface|array|null $footers
+     *
      * @return static
      */
     public function setFooters(IteratorInterface|array|null $footers): static;
@@ -233,6 +243,7 @@ interface HtmlTableInterface extends ResourceElementInterface
      * Sets if the table is header_text or not
      *
      * @param ArrayableInterface|array|string|null $columns
+     *
      * @return static
      */
     public function setColumns(ArrayableInterface|array|string|null $columns): static;

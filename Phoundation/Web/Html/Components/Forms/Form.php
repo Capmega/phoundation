@@ -19,10 +19,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Form extends Element implements FormInterface
 {
@@ -31,7 +31,10 @@ class Form extends Element implements FormInterface
      *
      * @var string $method
      */
-    #[ExpectedValues(values: ["get", "post"])]
+    #[ExpectedValues(values: [
+        "get",
+        "post",
+    ])]
     protected string $method = 'post';
 
     /**
@@ -89,38 +92,6 @@ class Form extends Element implements FormInterface
         $this->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
     }
 
-
-    /**
-     * Sets the form action.
-     *
-     * Defaults to the current URL
-     *
-     * @return string|null
-     */
-    public function getAction(): ?string
-    {
-        return $this->action ?? (string) UrlBuilder::getWww();
-    }
-
-
-    /**
-     * Sets the form action
-     *
-     * @param Stringable|string|null $action
-     * @return static
-     */
-    public function setAction(Stringable|string|null $action): static
-    {
-        if ($action) {
-            $this->action = (string) UrlBuilder::getWww($action);
-        } else {
-            $this->action = null;
-        }
-
-        return $this;
-    }
-
-
     /**
      * Sets the form method
      *
@@ -131,11 +102,11 @@ class Form extends Element implements FormInterface
         return $this->method;
     }
 
-
     /**
      * Sets the form method
      *
      * @param string $method
+     *
      * @return static
      */
     public function setMethod(string $method): static
@@ -143,7 +114,6 @@ class Form extends Element implements FormInterface
         $this->method = $method;
         return $this;
     }
-
 
     /**
      * Sets the form no_validate
@@ -155,11 +125,11 @@ class Form extends Element implements FormInterface
         return $this->no_validate;
     }
 
-
     /**
      * Sets the form no_validate
      *
      * @param bool $no_validate
+     *
      * @return static
      */
     public function setNoValidate(bool $no_validate): static
@@ -167,7 +137,6 @@ class Form extends Element implements FormInterface
         $this->no_validate = $no_validate;
         return $this;
     }
-
 
     /**
      * Sets the form auto_complete
@@ -179,11 +148,11 @@ class Form extends Element implements FormInterface
         return $this->auto_complete;
     }
 
-
     /**
      * Sets the form auto_complete
      *
      * @param string $auto_complete
+     *
      * @return static
      */
     public function setAutoComplete(string $auto_complete): static
@@ -191,7 +160,6 @@ class Form extends Element implements FormInterface
         $this->auto_complete = $auto_complete;
         return $this;
     }
-
 
     /**
      * Sets the form accept_charset
@@ -203,11 +171,11 @@ class Form extends Element implements FormInterface
         return $this->accept_charset;
     }
 
-
     /**
      * Sets the form accept_charset
      *
      * @param string $accept_charset
+     *
      * @return static
      */
     public function setAcceptCharset(string $accept_charset): static
@@ -215,7 +183,6 @@ class Form extends Element implements FormInterface
         $this->accept_charset = $accept_charset;
         return $this;
     }
-
 
     /**
      * Sets the form rel
@@ -227,11 +194,11 @@ class Form extends Element implements FormInterface
         return $this->rel;
     }
 
-
     /**
      * Sets the form rel
      *
      * @param string $rel
+     *
      * @return static
      */
     public function setRel(string $rel): static
@@ -239,7 +206,6 @@ class Form extends Element implements FormInterface
         $this->rel = $rel;
         return $this;
     }
-
 
     /**
      * Sets the form target
@@ -251,11 +217,11 @@ class Form extends Element implements FormInterface
         return $this->target;
     }
 
-
     /**
      * Sets the form target
      *
      * @param string $target
+     *
      * @return static
      */
     public function setTarget(string $target): static
@@ -274,7 +240,7 @@ class Form extends Element implements FormInterface
 
                 default:
                     throw new OutOfBoundsException(tr('Unknown form target ":target" specified', [
-                        ':target' => $target
+                        ':target' => $target,
                     ]));
             }
         }
@@ -282,7 +248,6 @@ class Form extends Element implements FormInterface
         $this->target = $target;
         return $this;
     }
-
 
     /**
      * Add the system arguments to the arguments list
@@ -295,8 +260,8 @@ class Form extends Element implements FormInterface
     {
         // These are obligatory
         $return = [
-            'action'       => $this->getAction(),
-            'method'       => strtolower($this->method) ?? 'post',
+            'action' => $this->getAction(),
+            'method' => strtolower($this->method) ?? 'post',
             'autocomplete' => $this->auto_complete ? 'on' : 'off',
         ];
 
@@ -314,5 +279,35 @@ class Form extends Element implements FormInterface
 
         // Merge the system values over the set attributes
         return parent::renderAttributes()->appendSource($this->attributes, $return);
+    }
+
+    /**
+     * Sets the form action.
+     *
+     * Defaults to the current URL
+     *
+     * @return string|null
+     */
+    public function getAction(): ?string
+    {
+        return $this->action ?? (string)UrlBuilder::getWww();
+    }
+
+    /**
+     * Sets the form action
+     *
+     * @param Stringable|string|null $action
+     *
+     * @return static
+     */
+    public function setAction(Stringable|string|null $action): static
+    {
+        if ($action) {
+            $this->action = (string)UrlBuilder::getWww($action);
+        } else {
+            $this->action = null;
+        }
+
+        return $this;
     }
 }

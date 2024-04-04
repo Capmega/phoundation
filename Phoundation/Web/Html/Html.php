@@ -23,12 +23,12 @@ use Throwable;
  *
  * This class contains various HTML processing methods
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
-Class Html
+class Html
 {
     /**
      * Keeps track of the tab index
@@ -89,7 +89,8 @@ Class Html
      * Wrapper for htmlspecialchars() that can conditionally execute and accept more data types
      *
      * @param Stringable|string|float|int|null $html
-     * @param bool $enabled
+     * @param bool                             $enabled
+     *
      * @return string|null
      * @see htmlentities()
      */
@@ -100,10 +101,10 @@ Class Html
         }
 
         if ($enabled) {
-            return trim(htmlspecialchars((string) $html));
+            return trim(htmlspecialchars((string)$html));
         }
 
-        return (string) $html;
+        return (string)$html;
     }
 
 
@@ -111,7 +112,8 @@ Class Html
      * Minify and return the specified HTML
      *
      * @param string $html
-     * @param bool $force
+     * @param bool   $force
+     *
      * @return string
      */
     public static function minify(string $html, bool $force = false): string
@@ -123,72 +125,19 @@ Class Html
         return $html;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * ???
      *
-     * @param $html
-     * @param $filter
-     * @return string
      */
-    function iefilter($html, $filter): string
+    public static function statusSelect($params)
     {
-        if (!$filter) {
-            return $this->render;
-        }
+        array_params($params, 'name');
+        Arrays::default($params, 'name', 'status');
+        Arrays::default($params, 'none', '');
+        Arrays::default($params, 'resource', false);
+        Arrays::default($params, 'selected', '');
 
-        if ($mod = Strings::until(Strings::from($filter, '.'), '.')) {
-            return "\n<!--[if ".$mod.' IE '.Strings::fromReverse($filter, '.')."]>\n\t".$html."\n<![endif]-->\n";
-
-        } elseif ($filter == 'ie') {
-            return "\n<!--[if IE ]>\n\t".$html."\n<![endif]-->\n";
-        }
-
-        return "\n<!--[if IE ".Strings::from($filter, 'ie')."]>\n\t".$html."\n<![endif]-->\n";
+        return static::select($params);
     }
-
-
 
 
     /*
@@ -230,17 +179,218 @@ Class Html
      * @param params $meta The list of meta values to be included in the <head> tags
      * @return string The HTML containing <script> tags that is to be included in the <head> tag
      */
-    function header($params, $meta, &$html) {
+
+    function select($params)
+    {
+        static $count = 0;
+
+        array_params($params);
+        Arrays::default($params, 'class', 'form-control');
+        Arrays::default($params, 'option_class', '');
+        Arrays::default($params, 'disabled', false);
+        Arrays::default($params, 'name', '');
+        Arrays::default($params, 'id', $params['name']);
+        Arrays::default($params, 'none', tr('None selected'));
+        Arrays::default($params, 'empty', tr('None available'));
+        Arrays::default($params, 'tabindex', html_tabindex());
+        Arrays::default($params, 'extra', '');
+        Arrays::default($params, 'selected', null);
+        Arrays::default($params, 'bodyonly', false);
+        Arrays::default($params, 'autosubmit', false);
+        Arrays::default($params, 'onchange', '');
+        Arrays::default($params, 'hide_empty', false);
+        Arrays::default($params, 'autofocus', false);
+        Arrays::default($params, 'multiple', false);
+
+        if (!$params['tabindex']) {
+            $params['tabindex'] = html_tabindex();
+        }
+
+        if (!$params['name']) {
+            if (!$params['id']) {
+                throw new HtmlException(tr('No name specified'));
+            }
+
+            $params['name'] = $params['id'];
+        }
+
+        if ($params['autosubmit']) {
+            if ($params['class']) {
+                $params['class'] .= ' autosubmit';
+
+            } else {
+                $params['class'] = 'autosubmit';
+            }
+        }
+
+        if (empty($params['resource'])) {
+            if ($params['hide_empty']) {
+                return '';
+            }
+
+            $params['resource'] = [];
+
+// :DELETE: Wut? What exactly was this supposed to do? doesn't make any sense at all..
+            //if (is_numeric($params['disabled'])) {
+            //    $params['disabled'] = true;
+            //
+            //} else {
+            //    if (is_array($params['resource'])) {
+            //        $params['disabled'] = ((count($params['resource']) + ($params['name'] ? 1 : 0)) <= $params['disabled']);
+            //
+            //    } elseif (is_object($params['resource'])) {
+            //        $params['disabled'] = (($params['resource']->rowCount() + ($params['name'] ? 1 : 0)) <= $params['disabled']);
+            //
+            //    } elseif ($params['resource'] === null) {
+            //        $params['disabled'] = true;
+            //
+            //    } else {
+            //        throw new HtmlException(tr('Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', ['%type%' => gettype($params['resource']])));
+            //    }
+            //}
+        }
+
+        if ($params['bodyonly']) {
+            return html_select_body($params);
+        }
+
+        /*
+         * <select> class should not be applied to <option>
+         */
+        $class           = $params['class'];
+        $params['class'] = $params['option_class'];
+
+        $body = html_select_body($params);
+
+        if (substr($params['id'], -2, 2) == '[]') {
+            $params['id'] = substr($params['id'], 0, -2) . $count++;
+        }
+
+        if ($params['multiple']) {
+            $params['multiple'] = ' multiple="multiple"';
+
+        } else {
+            $params['multiple'] = '';
+        }
+
+        if ($params['disabled']) {
+            /*
+             * Add a hidden element with the name to ensure that multiple selects with [] will not show holes
+             */
+            return '<select' . $params['multiple'] . ($params['tabindex'] ? ' tabindex="' . $params['tabindex'] . '"' : '') . ($params['id'] ? ' id="' . $params['id'] . '_disabled"' : '') . ' name="' . $params['name'] . '" ' . ($class ? ' class="' . $class . '"' : '') . ($params['extra'] ? ' ' . $params['extra'] : '') . ' readonly disabled>' .
+                $body . '</select><input type="hidden" name="' . $params['name'] . '" >';
+        } else {
+            $return = '<select' . $params['multiple'] . ($params['id'] ? ' id="' . $params['id'] . '"' : '') . ' name="' . $params['name'] . '" ' . ($class ? ' class="' . $class . '"' : '') . ($params['disabled'] ? ' disabled' : '') . ($params['autofocus'] ? ' autofocus' : '') . ($params['extra'] ? ' ' . $params['extra'] : '') . '>' .
+                $body . '</select>';
+        }
+
+        if ($params['onchange']) {
+            /*
+             * Execute the JS code for an onchange
+             */
+            $return .= html_script('$("#' . $params['id'] . '").change(function() { ' . $params['onchange'] . ' });');
+
+        }
+
+        if (!$params['autosubmit']) {
+            /*
+             * There is no onchange and no autosubmit
+             */
+            return $return;
+
+        } elseif ($params['autosubmit'] === true) {
+            /*
+             * By default autosubmit on the id
+             */
+            $params['autosubmit'] = $params['name'];
+        }
+
+        /*
+         * Autosubmit on the specified selector
+         */
+        $params['autosubmit'] = str_replace('[', '\\\\[', $params['autosubmit']);
+        $params['autosubmit'] = str_replace(']', '\\\\]', $params['autosubmit']);
+
+        return $return . html_script('$("[name=\'' . $params['autosubmit'] . '\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
+    }
+
+
+    /*
+     * Generate all <meta> tags
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package html
+     * @see html_header()
+     * @see html_og()
+     * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
+     * @version 2.4.89: Added function and documentation
+     * @version 2.8.24: Added support for html_og() open graph data
+     * @version 2.8.25: Fixed various minor issues, improved warning messages
+     *
+     * @param params $meta The required meta tags in key => value format
+     * @return string The <meta> tags
+     */
+
+    /**
+     * ???
+     *
+     * @param $html
+     * @param $filter
+     *
+     * @return string
+     */
+    function iefilter($html, $filter): string
+    {
+        if (!$filter) {
+            return $this->render;
+        }
+
+        if ($mod = Strings::until(Strings::from($filter, '.'), '.')) {
+            return "\n<!--[if " . $mod . ' IE ' . Strings::fromReverse($filter, '.') . "]>\n\t" . $html . "\n<![endif]-->\n";
+
+        } elseif ($filter == 'ie') {
+            return "\n<!--[if IE ]>\n\t" . $html . "\n<![endif]-->\n";
+        }
+
+        return "\n<!--[if IE " . Strings::from($filter, 'ie') . "]>\n\t" . $html . "\n<![endif]-->\n";
+    }
+
+
+    /*
+     * Generate all open graph <meta> tags
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package html
+     * @see html_header()
+     * @see html_meta()
+     * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
+     * @note: Any OG meta properties without content will cause notifications, not errors. This will not stop the page from loading, but log entries will be made and developers will receive warnings to resolve the issue
+     * @version 2.8.24: Added function and documentation
+     * @version 2.8.25: Fixed various minor issues, improved warning messages
+     *
+     * @param params $og The required meta tags in property => content format
+     * @param params $$meta The required meta data
+     * @return string The <meta> tags containing open graph data
+     */
+
+    function header($params, $meta, &$html)
+    {
         Arrays::ensure($params, 'links,extra');
-        Arrays::default($params, 'http'          , 'html');
-        Arrays::default($params, 'captcha'       , false);
-        Arrays::default($params, 'doctype'       , '<!DOCTYPE html>');
-        Arrays::default($params, 'html'          , '<html lang="'.LANGUAGE.'">');
-        Arrays::default($params, 'body'          , '<body>');
-        Arrays::default($params, 'favicon'       , true);
-        Arrays::default($params, 'amp'           , false);
-        Arrays::default($params, 'style'         , '');
-        Arrays::default($params, 'prefetch_dns'  , $_CONFIG['prefetch']['dns']);
+        Arrays::default($params, 'http', 'html');
+        Arrays::default($params, 'captcha', false);
+        Arrays::default($params, 'doctype', '<!DOCTYPE html>');
+        Arrays::default($params, 'html', '<html lang="' . LANGUAGE . '">');
+        Arrays::default($params, 'body', '<body>');
+        Arrays::default($params, 'favicon', true);
+        Arrays::default($params, 'amp', false);
+        Arrays::default($params, 'style', '');
+        Arrays::default($params, 'prefetch_dns', $_CONFIG['prefetch']['dns']);
         Arrays::default($params, 'prefetch_files', $_CONFIG['prefetch']['files']);
 
         if (!empty($params['js'])) {
@@ -264,19 +414,19 @@ Class Html
          * AMP page? Canonical page?
          */
         if (!empty($params['amp'])) {
-            $params['links'] .= '<link rel="amphtml" href="'.domain('/amp'.$_SERVER['REQUEST_URI']).'">';
+            $params['links'] .= '<link rel="amphtml" href="' . domain('/amp' . $_SERVER['REQUEST_URI']) . '">';
         }
 
         if (!empty($params['canonical'])) {
-            $params['links'] .= '<link rel="canonical" href="'.$params['canonical'].'">';
+            $params['links'] .= '<link rel="canonical" href="' . $params['canonical'] . '">';
         }
 
-        $return =  $params['doctype'].
-            $params['html'].'
+        $return = $params['doctype'] .
+            $params['html'] . '
                <head>';
 
         if ($params['style']) {
-            $return .= '<style>'.$params['style'].'</style>';
+            $return .= '<style>' . $params['style'] . '</style>';
         }
 
         if ($params['links']) {
@@ -286,23 +436,23 @@ Class Html
             } else {
 // :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
                 foreach ($params['links'] as $data) {
-                    $sections = array();
+                    $sections = [];
 
                     foreach ($data as $key => $value) {
-                        $sections[] = $key.'="'.$value.'"';
+                        $sections[] = $key . '="' . $value . '"';
                     }
 
-                    $return .= '<link '.implode(' ', $sections).'>';
+                    $return .= '<link ' . implode(' ', $sections) . '>';
                 }
             }
         }
 
         foreach ($params['prefetch_dns'] as $prefetch) {
-            $return .= '<link rel="dns-prefetch" href="//'.$prefetch.'">';
+            $return .= '<link rel="dns-prefetch" href="//' . $prefetch . '">';
         }
 
         foreach ($params['prefetch_files'] as $prefetch) {
-            $return .= '<link rel="prefetch" href="'.$prefetch.'">';
+            $return .= '<link rel="prefetch" href="' . $prefetch . '">';
         }
 
         unset($prefetch);
@@ -311,7 +461,7 @@ Class Html
             $return .= $core->register['header'];
         }
 
-        $return .= html_generate_css().
+        $return .= html_generate_css() .
             html_generate_js();
 
         /*
@@ -330,18 +480,18 @@ Class Html
                     case 'woff':
                         // no-break
                     case 'woff2':
-                        $return .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
+                        $return .= '<link rel="preload" href="' . $font . '" as="font" type="font/' . $extension . '" crossorigin="anonymous">';
                         break;
 
                     default:
                         if (!str_contains($font, 'fonts.googleapis.com')) {
                             throw new HtmlException(tr('Unknown font type ":type" specified for font ":font"', [
                                 ':type' => $extension,
-                                ':font' => $font
+                                ':font' => $font,
                             ]));
                         }
 
-                        $return .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
+                        $return .= '<link rel="preload" href="' . $font . '" as="font" type="text/css" crossorigin="anonymous">';
                 }
             }
         }
@@ -350,15 +500,19 @@ Class Html
          * Add meta data, favicon, and <body> tag
          */
         $return .= html_meta($meta);
-        $return .= html_favicon($params['favicon']).$params['extra'];
-        $return .= '</head>'.$params['body'];
+        $return .= html_favicon($params['favicon']) . $params['extra'];
+        $return .= '</head>' . $params['body'];
 
         return $return;
     }
 
 
     /*
-     * Generate all <meta> tags
+     * Generate and return the HTML footer
+     *
+     * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
+     *
+     * This function should be called in your c_page() function
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -366,16 +520,13 @@ Class Html
      * @category Function reference
      * @package html
      * @see html_header()
-     * @see html_og()
-     * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
-     * @version 2.4.89: Added function and documentation
-     * @version 2.8.24: Added support for html_og() open graph data
-     * @version 2.8.25: Fixed various minor issues, improved warning messages
+     * @version 2.5.9: Added documentation, added debug bar support
      *
-     * @param params $meta The required meta tags in key => value format
-     * @return string The <meta> tags
+     * @return string The footer HTML
      */
-    function meta($meta) {
+
+    function meta($meta)
+    {
         /*
          * Add all other meta tags
          * Only add keywords with contents, all that have none are considerred
@@ -400,20 +551,20 @@ Class Html
          */
         if (empty($meta['title'])) {
             $meta['title'] = domain(true);
-            Notification(new HtmlException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+            Notification(new HtmlException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', [':script' => $core->register['script']]), 'warning/not-specified'));
 
         } elseif (strlen($meta['title']) > 65) {
             $meta['title'] = str_truncate($meta['title'], 65);
-            Notification(new HtmlException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', [':title' => $meta['title']]), 'warning/invalid'));
         }
 
         if (empty($meta['description'])) {
             $meta['description'] = domain(true);
-            Notification(new HtmlException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+            Notification(new HtmlException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', [':script' => $core->register['script']]), 'warning/not-specified'));
 
         } elseif (strlen($meta['description']) > 155) {
             $meta['description'] = str_truncate($meta['description'], 155);
-            Notification(new HtmlException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', [':description' => $meta['description']]), 'warning/invalid'));
         }
 
         /*
@@ -440,8 +591,8 @@ Class Html
         /*
          * Start building meta data
          */
-        $return = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
-            '<title>'.$meta['title'].'</title>';
+        $return = '<meta http-equiv="Content-Type" content="text/html;charset="' . $_CONFIG['encoding']['charset'] . '">' .
+            '<title>' . $meta['title'] . '</title>';
 
         foreach ($meta as $key => $value) {
             if ($key === 'og') {
@@ -449,10 +600,13 @@ Class Html
 
             } elseif (substr($key, 0, 3) === 'og:') {
 // :COMPATIBILITY: Remove this section @ 2.10
-                Notification(new HtmlException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
+                Notification(new HtmlException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', [
+                    ':key'   => $key,
+                    ':ogkey' => Strings::from($key, 'og:'),
+                ]),                            'warning/invalid'));
 
             } else {
-                $return .= '<meta name="'.$key.'" content="'.$value.'">';
+                $return .= '<meta name="' . $key . '" content="' . $value . '">';
             }
         }
 
@@ -461,7 +615,11 @@ Class Html
 
 
     /*
-     * Generate all open graph <meta> tags
+     * Generate and return the HTML footer
+     *
+     * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
+     *
+     * This function should be called in your c_page() function
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
@@ -469,104 +627,46 @@ Class Html
      * @category Function reference
      * @package html
      * @see html_header()
-     * @see html_meta()
-     * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
-     * @note: Any OG meta properties without content will cause notifications, not errors. This will not stop the page from loading, but log entries will be made and developers will receive warnings to resolve the issue
-     * @version 2.8.24: Added function and documentation
-     * @version 2.8.25: Fixed various minor issues, improved warning messages
+     * @version 2.5.9: Added documentation, added debug bar support
      *
-     * @param params $og The required meta tags in property => content format
-     * @param params $$meta The required meta data
-     * @return string The <meta> tags containing open graph data
+     * @return string The footer HTML
      */
-    function og($og, $meta) {
+
+    function og($og, $meta)
+    {
         Arrays::ensure($meta, 'title,description');
         Arrays::ensure($og, 'description,url,image');
-        Arrays::default($og, 'url'        , domain(true));
-        Arrays::default($og, 'site_name'  , $_CONFIG['name']);
-        Arrays::default($og, 'title'      , $meta['title']);
-        Arrays::default($og, 'image'      , (isset($_CONFIG['logo']['og']) ? cdn_domain($_CONFIG['logo']['og']) : ''));
+        Arrays::default($og, 'url', domain(true));
+        Arrays::default($og, 'site_name', $_CONFIG['name']);
+        Arrays::default($og, 'title', $meta['title']);
+        Arrays::default($og, 'image', (isset($_CONFIG['logo']['og']) ? cdn_domain($_CONFIG['logo']['og']) : ''));
         Arrays::default($og, 'description', $meta['description']);
-        Arrays::default($og, 'locale'     , $core->register['locale']);
-        Arrays::default($og, 'type'       , 'website');
+        Arrays::default($og, 'locale', $core->register['locale']);
+        Arrays::default($og, 'type', 'website');
 
         $return = '';
 
         if (strlen($og['description']) > 65) {
             $og['description'] = str_truncate($og['description'], 65);
-            Notification(new HtmlException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', array(':description' => $og['description'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', [':description' => $og['description']]), 'warning/invalid'));
         }
 
         if (strlen($og['title']) > 35) {
             $og['title'] = str_truncate($og['title'], 35);
-            Notification(new HtmlException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
+            Notification(new HtmlException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', [':title' => $og['title']]), 'warning/invalid'));
         }
 
         $og['locale'] = Strings::until($og['locale'], '.');
 
         foreach ($og as $property => $content) {
             if (empty($content)) {
-                Notification(new HtmlException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
+                Notification(new HtmlException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', [':property' => $property]), 'warning/not-specified'));
             }
 
-            $return .= '<meta property="og:'.$property.'" content="'.$content.'">';
+            $return .= '<meta property="og:' . $property . '" content="' . $content . '">';
         }
 
         return $return;
-    }
-
-
-    /*
-     * Generate and return the HTML footer
-     *
-     * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
-     *
-     * This function should be called in your c_page() function
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_header()
-     * @version 2.5.9: Added documentation, added debug bar support
-     *
-     * @return string The footer HTML
-     */
-    function footer() {
-        $this->render = '';
-
-        if (Debug::getEnabled()) {
-            $this->render .= debug_bar();
-        }
-
-        return $this->render;
-    }
-
-
-    /*
-     * Generate and return the HTML footer
-     *
-     * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
-     *
-     * This function should be called in your c_page() function
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_header()
-     * @version 2.5.9: Added documentation, added debug bar support
-     *
-     * @return string The footer HTML
-     */
-    function end() {
-        if ($core->register['footer']) {
-            return $core->register['footer'].'</body></html>';
-        }
-
-        return '</body></html>';
     }
 
 
@@ -894,33 +994,16 @@ Class Html
      * For when to use _blank anchors:
      * See https://css-tricks.com/use-target_blank/
      */
-    function a($params) {
-        array_params ($params, 'href');
-        Arrays::default($params, 'name'  , '');
-        Arrays::default($params, 'target', '');
-        Arrays::default($params, 'rel'   , '');
 
-        switch ($params['target']) {
-            case '_blank':
-                $params['rel'] .= ' noreferrer noopener';
-                break;
+    function footer()
+    {
+        $this->render = '';
+
+        if (Debug::getEnabled()) {
+            $this->render .= debug_bar();
         }
 
-        if (empty($params['href'])) {
-            throw new HtmlException('html_a(): No href specified', 'not-specified');
-        }
-
-        if ($params['name']) {
-            $params['name'] = ' name="'.$params['name'].'"';
-        }
-
-        if ($params['class']) {
-            $params['class'] = ' class="'.$params['class'].'"';
-        }
-
-        $return = '<a href="'.$params['href'].'"'.$params['name'].$params['class'].$params['rel'].'">';
-
-        return $return;
+        return $this->render;
     }
 
 
@@ -928,35 +1011,14 @@ Class Html
      * Return HTML for a submit button
      * If the button should not cause validation, then use "no_validation" true
      */
-    function submit($params, $class = '') {
-        static $added;
 
-        array_params ($params, 'value');
-        Arrays::default($params, 'name'         , 'dosubmit');
-        Arrays::default($params, 'class'        , $class);
-        Arrays::default($params, 'no_validation', false);
-        Arrays::default($params, 'value'        , 'submit');
-
-        if ($params['no_validation']) {
-            $params['class'] .= ' no_validation';
-
-            if (empty($added)) {
-                $added  = true;
-                $script = html_script('$(".no_validation").click(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
-            }
+    function end()
+    {
+        if ($core->register['footer']) {
+            return $core->register['footer'] . '</body></html>';
         }
 
-        if ($params['class']) {
-            $params['class'] = ' class="'.$params['class'].'"';
-        }
-
-        if ($params['value']) {
-            $params['value'] = ' value="'.$params['value'].'"';
-        }
-
-        $return = '<input type="submit" id="'.$params['name'].'" name="'.$params['name'].'"'.$params['class'].$params['value'].'>';
-
-        return $return.isset_get($script);
+        return '</body></html>';
     }
 
 
@@ -977,44 +1039,35 @@ Class Html
      * @params midex buttons The buttons to be shown. This may be specified by array, or PDO SQL statement
      * @return string The HTML for the button selector
      */
-    function select_submit($params) {
-        array_params ($params);
-        Arrays::default($params, 'name'      , 'multisubmit');
-        Arrays::default($params, 'id'        , '');
-        Arrays::default($params, 'autosubmit', true);
-        Arrays::default($params, 'none'      , tr('Select action'));
-        Arrays::default($params, 'buttons'   , array());
 
-        /*
-         * Build the html_select resource from the buttons
-         */
-        if (is_object($params['buttons'])) {
-            /*
-             * This should be a PDO statement, do nothing, html_select will take
-             * care of it
-             */
-            $params['resource'] = $params['buttons'];
+    function a($params)
+    {
+        array_params($params, 'href');
+        Arrays::default($params, 'name', '');
+        Arrays::default($params, 'target', '');
+        Arrays::default($params, 'rel', '');
 
-        } elseif (is_array($params['buttons'])) {
-            foreach ($params['buttons'] as $key => $value) {
-                if (is_numeric($key)) {
-                    $key = $value;
-                }
-
-                $params['resource'][$key] = $value;
-            }
-
-        } else {
-            $type = gettype($params['buttons']);
-
-            if ($type === 'object') {
-                $type .= tr(' of class :class', array(':class' => get_class($params['buttons'])));
-            }
-
-            throw new HtmlException(tr('Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', [':type' => $type]));
+        switch ($params['target']) {
+            case '_blank':
+                $params['rel'] .= ' noreferrer noopener';
+                break;
         }
 
-        return html_select($params);
+        if (empty($params['href'])) {
+            throw new HtmlException('html_a(): No href specified', 'not-specified');
+        }
+
+        if ($params['name']) {
+            $params['name'] = ' name="' . $params['name'] . '"';
+        }
+
+        if ($params['class']) {
+            $params['class'] = ' class="' . $params['class'] . '"';
+        }
+
+        $return = '<a href="' . $params['href'] . '"' . $params['name'] . $params['class'] . $params['rel'] . '">';
+
+        return $return;
     }
 
 
@@ -1069,137 +1122,37 @@ Class Html
      * @param mixed resource The resource for the contents of the <select>. May be a key => value array (where each value must be of scalar datatype) or a PDO statement from a query that selects 2 columns, where the first column will be the key and the second column the value.
      * @return string The HTML for a <select> tag.
      */
-    function select($params) {
-        static $count = 0;
 
-        array_params ($params);
-        Arrays::default($params, 'class'       , 'form-control');
-        Arrays::default($params, 'option_class', '');
-        Arrays::default($params, 'disabled'    , false);
-        Arrays::default($params, 'name'        , '');
-        Arrays::default($params, 'id'          , $params['name']);
-        Arrays::default($params, 'none'        , tr('None selected'));
-        Arrays::default($params, 'empty'       , tr('None available'));
-        Arrays::default($params, 'tabindex'    , html_tabindex());
-        Arrays::default($params, 'extra'       , '');
-        Arrays::default($params, 'selected'    , null);
-        Arrays::default($params, 'bodyonly'    , false);
-        Arrays::default($params, 'autosubmit'  , false);
-        Arrays::default($params, 'onchange'    , '');
-        Arrays::default($params, 'hide_empty'  , false);
-        Arrays::default($params, 'autofocus'   , false);
-        Arrays::default($params, 'multiple'    , false);
+    function submit($params, $class = '')
+    {
+        static $added;
 
-        if (!$params['tabindex']) {
-            $params['tabindex'] = html_tabindex();
-        }
+        array_params($params, 'value');
+        Arrays::default($params, 'name', 'dosubmit');
+        Arrays::default($params, 'class', $class);
+        Arrays::default($params, 'no_validation', false);
+        Arrays::default($params, 'value', 'submit');
 
-        if (!$params['name']) {
-            if (!$params['id']) {
-                throw new HtmlException(tr('No name specified'));
-            }
+        if ($params['no_validation']) {
+            $params['class'] .= ' no_validation';
 
-            $params['name'] = $params['id'];
-        }
-
-        if ($params['autosubmit']) {
-            if ($params['class']) {
-                $params['class'] .= ' autosubmit';
-
-            } else {
-                $params['class']  = 'autosubmit';
+            if (empty($added)) {
+                $added  = true;
+                $script = html_script('$(".no_validation").click(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
             }
         }
 
-        if (empty($params['resource'])) {
-            if ($params['hide_empty']) {
-                return '';
-            }
-
-            $params['resource'] = array();
-
-// :DELETE: Wut? What exactly was this supposed to do? doesn't make any sense at all..
-            //if (is_numeric($params['disabled'])) {
-            //    $params['disabled'] = true;
-            //
-            //} else {
-            //    if (is_array($params['resource'])) {
-            //        $params['disabled'] = ((count($params['resource']) + ($params['name'] ? 1 : 0)) <= $params['disabled']);
-            //
-            //    } elseif (is_object($params['resource'])) {
-            //        $params['disabled'] = (($params['resource']->rowCount() + ($params['name'] ? 1 : 0)) <= $params['disabled']);
-            //
-            //    } elseif ($params['resource'] === null) {
-            //        $params['disabled'] = true;
-            //
-            //    } else {
-            //        throw new HtmlException(tr('Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', ['%type%' => gettype($params['resource']])));
-            //    }
-            //}
+        if ($params['class']) {
+            $params['class'] = ' class="' . $params['class'] . '"';
         }
 
-        if ($params['bodyonly']) {
-            return html_select_body($params);
+        if ($params['value']) {
+            $params['value'] = ' value="' . $params['value'] . '"';
         }
 
-        /*
-         * <select> class should not be applied to <option>
-         */
-        $class = $params['class'];
-        $params['class'] = $params['option_class'];
+        $return = '<input type="submit" id="' . $params['name'] . '" name="' . $params['name'] . '"' . $params['class'] . $params['value'] . '>';
 
-        $body = html_select_body($params);
-
-        if (substr($params['id'], -2, 2) == '[]') {
-            $params['id'] = substr($params['id'], 0, -2).$count++;
-        }
-
-        if ($params['multiple']) {
-            $params['multiple'] = ' multiple="multiple"';
-
-        } else {
-            $params['multiple'] = '';
-        }
-
-        if ($params['disabled']) {
-            /*
-             * Add a hidden element with the name to ensure that multiple selects with [] will not show holes
-             */
-            return '<select'.$params['multiple'].($params['tabindex'] ? ' tabindex="'.$params['tabindex'].'"' : '').($params['id'] ? ' id="'.$params['id'].'_disabled"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['extra'] ? ' '.$params['extra'] : '').' readonly disabled>'.
-                $body.'</select><input type="hidden" name="'.$params['name'].'" >';
-        } else {
-            $return = '<select'.$params['multiple'].($params['id'] ? ' id="'.$params['id'].'"' : '').' name="'.$params['name'].'" '.($class ? ' class="'.$class.'"' : '').($params['disabled'] ? ' disabled' : '').($params['autofocus'] ? ' autofocus' : '').($params['extra'] ? ' '.$params['extra'] : '').'>'.
-                $body.'</select>';
-        }
-
-        if ($params['onchange']) {
-            /*
-             * Execute the JS code for an onchange
-             */
-            $return .= html_script('$("#'.$params['id'].'").change(function() { '.$params['onchange'].' });');
-
-        }
-
-        if (!$params['autosubmit']) {
-            /*
-             * There is no onchange and no autosubmit
-             */
-            return $return;
-
-        } elseif ($params['autosubmit'] === true) {
-            /*
-             * By default autosubmit on the id
-             */
-            $params['autosubmit'] = $params['name'];
-        }
-
-        /*
-         * Autosubmit on the specified selector
-         */
-        $params['autosubmit'] = str_replace('[', '\\\\[', $params['autosubmit']);
-        $params['autosubmit'] = str_replace(']', '\\\\]', $params['autosubmit']);
-
-        return $return.html_script('$("[name=\''.$params['autosubmit'].'\']").change(function() { $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
+        return $return . isset_get($script);
     }
 
 
@@ -1226,17 +1179,81 @@ Class Html
      * @param mixed $params[data_resource]
      * @return string The body HTML for a <select> tag, containing all <option> tags
      */
-    function select_body($params) {
-        array_params ($params);
-        Arrays::default($params, 'class'        , '');
-        Arrays::default($params, 'none'         , tr('None selected'));
-        Arrays::default($params, 'empty'        , tr('None available'));
-        Arrays::default($params, 'selected'     , null);
-        Arrays::default($params, 'auto_select'  , true);
+
+    function select_submit($params)
+    {
+        array_params($params);
+        Arrays::default($params, 'name', 'multisubmit');
+        Arrays::default($params, 'id', '');
+        Arrays::default($params, 'autosubmit', true);
+        Arrays::default($params, 'none', tr('Select action'));
+        Arrays::default($params, 'buttons', []);
+
+        /*
+         * Build the html_select resource from the buttons
+         */
+        if (is_object($params['buttons'])) {
+            /*
+             * This should be a PDO statement, do nothing, html_select will take
+             * care of it
+             */
+            $params['resource'] = $params['buttons'];
+
+        } elseif (is_array($params['buttons'])) {
+            foreach ($params['buttons'] as $key => $value) {
+                if (is_numeric($key)) {
+                    $key = $value;
+                }
+
+                $params['resource'][$key] = $value;
+            }
+
+        } else {
+            $type = gettype($params['buttons']);
+
+            if ($type === 'object') {
+                $type .= tr(' of class :class', [':class' => get_class($params['buttons'])]);
+            }
+
+            throw new HtmlException(tr('Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', [':type' => $type]));
+        }
+
+        return html_select($params);
+    }
+
+
+    /*
+     * Generate HTML <script> tags, and depending on load_delayed, return them immediately or attach them to $core->resource[footer]
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package html
+     * @see html_select()
+     * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead
+     * @note Even if $_CONFIG[cdn][js][load_delayed] is true, the return value of this function should always be received in a variable, just in case the setting gets changes for whatever reason
+     * @version 1.26.0: Added documentation
+     *
+     * @param params string $script The javascript content
+     * @param boolean $dom_content_loaded If set to true, the $script will be changed to document.addEventListener("DOMContentLoaded", function(e) { :script });
+     * @param string $extra If specified, these extra HTML attributes will be added into the <script> tag
+     * @param string $type The <script type="TYPE"> contents. Defaults to "text/javascript"
+     * @return string The body HTML for a <select> tag, containing all <option> tags
+     */
+
+    function select_body($params)
+    {
+        array_params($params);
+        Arrays::default($params, 'class', '');
+        Arrays::default($params, 'none', tr('None selected'));
+        Arrays::default($params, 'empty', tr('None available'));
+        Arrays::default($params, 'selected', null);
+        Arrays::default($params, 'auto_select', true);
         Arrays::default($params, 'data_resource', null);
 
         if ($params['none']) {
-            $return = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($params['selected'] === null) ? ' selected' : '').' value="">'.$params['none'].'</option>';
+            $return = '<option' . ($params['class'] ? ' class="' . $params['class'] . '"' : '') . '' . (($params['selected'] === null) ? ' selected' : '') . ' value="">' . $params['none'] . '</option>';
 
         } else {
             $return = '';
@@ -1244,7 +1261,7 @@ Class Html
 
         if ($params['data_resource'] and !is_array($params['data_resource'])) {
             throw new HtmlException(tr('Invalid data_resource specified, should be an array, but received a ":gettype"', [
-                ':gettype' => gettype($params['data_resource'])
+                ':gettype' => gettype($params['data_resource']),
             ]));
         }
 
@@ -1264,12 +1281,12 @@ Class Html
                     if ($params['data_resource']) {
                         foreach ($params['data_resource'] as $data_key => $resource) {
                             if (!empty($resource[$key])) {
-                                $option_data .= ' data-'.$data_key.'="'.$resource[$key].'"';
+                                $option_data .= ' data-' . $data_key . '="' . $resource[$key] . '"';
                             }
                         }
                     }
 
-                    $return  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.((($params['selected'] !== null) and ($key === $params['selected'])) ? ' selected' : '').' value="'.html_safe($key).'"'.$option_data.'>'.html_safe($value).'</option>';
+                    $return .= '<option' . ($params['class'] ? ' class="' . $params['class'] . '"' : '') . '' . ((($params['selected'] !== null) and ($key === $params['selected'])) ? ' selected' : '') . ' value="' . html_safe($key) . '"' . $option_data . '>' . html_safe($value) . '</option>';
                 }
 
             } elseif (is_object($params['resource'])) {
@@ -1304,12 +1321,12 @@ Class Html
                     if ($params['data_resource']) {
                         foreach ($params['data_resource'] as $data_key => $resource) {
                             if (!empty($resource[$key])) {
-                                $option_data = ' data-'.$data_key.'="'.$resource[$key].'"';
+                                $option_data = ' data-' . $data_key . '="' . $resource[$key] . '"';
                             }
                         }
                     }
 
-                    $return  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
+                    $return .= '<option' . ($params['class'] ? ' class="' . $params['class'] . '"' : '') . '' . (($row[0] === $params['selected']) ? ' selected' : '') . ' value="' . html_safe($row[0]) . '"' . $option_data . '>' . html_safe($row[1]) . '</option>';
                 }
 
             } else {
@@ -1322,7 +1339,7 @@ Class Html
              * No conent (other than maybe the "none available" entry) was added
              */
             if ($params['empty']) {
-                $return = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').' selected value="">'.$params['empty'].'</option>';
+                $return = '<option' . ($params['class'] ? ' class="' . $params['class'] . '"' : '') . ' selected value="">' . $params['empty'] . '</option>';
             }
 
             /*
@@ -1334,35 +1351,16 @@ Class Html
         return $return;
     }
 
-
-    /*
-     * Generate HTML <script> tags, and depending on load_delayed, return them immediately or attach them to $core->resource[footer]
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_select()
-     * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead
-     * @note Even if $_CONFIG[cdn][js][load_delayed] is true, the return value of this function should always be received in a variable, just in case the setting gets changes for whatever reason
-     * @version 1.26.0: Added documentation
-     *
-     * @param params string $script The javascript content
-     * @param boolean $dom_content_loaded If set to true, the $script will be changed to document.addEventListener("DOMContentLoaded", function(e) { :script });
-     * @param string $extra If specified, these extra HTML attributes will be added into the <script> tag
-     * @param string $type The <script type="TYPE"> contents. Defaults to "text/javascript"
-     * @return string The body HTML for a <select> tag, containing all <option> tags
-     */
-    function script($script, $event = 'dom_content', $extra = null, $type = 'text/javascript') {
+    function script($script, $event = 'dom_content', $extra = null, $type = 'text/javascript')
+    {
         static $count = 0;
 
         array_params($script, 'script');
-        Arrays::default($script, 'event'  , $event);
-        Arrays::default($script, 'extra'  , $extra);
-        Arrays::default($script, 'type'   , $type);
+        Arrays::default($script, 'event', $event);
+        Arrays::default($script, 'extra', $extra);
+        Arrays::default($script, 'type', $type);
         Arrays::default($script, 'to_file', null);
-        Arrays::default($script, 'list'   , 'scripts');
+        Arrays::default($script, 'list', 'scripts');
         Arrays::default($script, 'delayed', $_CONFIG['cdn']['js']['load_delayed']);
 
         if ($script['to_file'] === null) {
@@ -1383,7 +1381,7 @@ Class Html
             case '>':
                 // Keep this script internal! This is required when script contents contain session sensitive data, or
                 // may even change per page
-                $return            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
+                $return            = '<script type="' . $type . '" src="' . cdn_domain('js/' . substr($script['script'], 1)) . '"' . ($extra ? ' ' . $extra : '') . '></script>';
                 $script['to_file'] = false;
                 break;
 
@@ -1408,19 +1406,19 @@ Class Html
                     switch ($script['event']) {
                         case 'dom_content':
                             $return = 'document.addEventListener("DOMContentLoaded", function(e) {
-                                      '.$script['script'].'
+                                      ' . $script['script'] . '
                                    });';
                             break;
 
                         case 'window':
                             $return = 'window.addEventListener("load", function(e) {
-                                      '.$script['script'].'
+                                      ' . $script['script'] . '
                                    });';
                             break;
 
                         case 'function':
                             $return = '$(function() {
-                                      '.$script['script'].'
+                                      ' . $script['script'] . '
                                    });';
                             break;
 
@@ -1439,8 +1437,8 @@ Class Html
                     $return .= ';';
 
                 } else {
-                    $return  = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                                 '.$return.'
+                    $return = ' <script type="' . $type . '"' . ($extra ? ' ' . $extra : '') . '>
+                                 ' . $return . '
                              </script>';
                 }
         }
@@ -1449,34 +1447,36 @@ Class Html
         if ($script['to_file']) {
             try {
                 // Create the cached file names
-                $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
-                $file = DIRECTORY_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
+                $base = 'cached-' . substr($core->register['script'], 0, -4) . '-' . ($core->register['script_file'] ? $core->register['script_file'] . '-' : '') . $count;
+                $file = DIRECTORY_ROOT . 'www/' . LANGUAGE . (Core::getCallType('admin') ? '/admin' : '') . '/pub/js/' . $base;
 
-                log_file(tr('Creating externally cached javascript file ":file"', array(':file' => $file.'.js')), 'html-script', 'VERYVERBOSE/cyan');
+                log_file(tr('Creating externally cached javascript file ":file"', [':file' => $file . '.js']), 'html-script', 'VERYVERBOSE/cyan');
 
                 /*
                  * Check if the cached file exists and is not too old.
                  */
-                if (file_exists($file.'.js')) {
-                    if (!filesize($file.'.js')) {
+                if (file_exists($file . '.js')) {
+                    if (!filesize($file . '.js')) {
                         // The javascript file is empty
-                        log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
+                        log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file . '.js']), 'html-script', 'yellow');
 
-                        File::new(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->executeMode(0770, function() use ($file) {
-                            File::new($file.'.js,'.$file.'.min.js', 'ug+w', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->chmod();
-                            File::new($file.'.js,'.$file.'.min.js', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js')->delete();
+                        File::new(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')->executeMode(0770, function () use ($file) {
+                            File::new($file . '.js,' . $file . '.min.js', 'ug+w', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')->chmod();
+                            File::new($file . '.js,' . $file . '.min.js', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js')->delete();
                         });
 
-                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
+                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file . '.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
                         /*
                          * External cached file is too old
                          */
-                        log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
+                        log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file . '.js']), 'html-script', 'yellow');
 
-                        File::new()->executeMode(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file) {
-                            file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
-                                'force_writable' => true,
-                                'restrictions'   => DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js'));
+                        File::new()->executeMode(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js', 0770, function () use ($file) {
+                            file_delete([
+                                            'patterns'       => $file . '.js,' . $file . '.min.js',
+                                            'force_writable' => true,
+                                            'restrictions'   => DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js',
+                                        ]);
                         });
                     }
                 }
@@ -1486,10 +1486,10 @@ Class Html
                  * exist, because the previous function may have possibly
                  * deleted it
                  */
-                if (!file_exists($file.'.js')) {
-                    File::new()->executeMode(dirname($file), 0770, function() use ($file, $return) {
-                        log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
-                        file_put_contents($file.'.js', $return);
+                if (!file_exists($file . '.js')) {
+                    File::new()->executeMode(dirname($file), 0770, function () use ($file, $return) {
+                        log_file(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file . '.js']), 'html-script', 'cyan');
+                        file_put_contents($file . '.js', $return);
                     });
                 }
 
@@ -1499,10 +1499,10 @@ Class Html
                  * resources, and it will immediately test minification for
                  * production as well.
                  */
-                if (!file_exists($file.'.min.js')) {
+                if (!file_exists($file . '.min.js')) {
                     try {
                         load_libs('uglify');
-                        uglify_js($file.'.js');
+                        uglify_js($file . '.js');
 
                     } catch (Throwable $e) {
                         /*
@@ -1510,7 +1510,7 @@ Class Html
                          * copy
                          */
                         Notification($e);
-                        copy($file.'.js', $file.'.min.js');
+                        copy($file . '.js', $file . '.min.js');
                     }
                 }
 
@@ -1533,8 +1533,8 @@ Class Html
                  * Add a <script> element because now we'll include it into the
                  * HTML anyway
                  */
-                $return = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                            '.$return.'
+                $return = ' <script type="' . $type . '"' . ($extra ? ' ' . $extra : '') . '>
+                            ' . $return . '
                         </script>';
             }
         }
@@ -1558,13 +1558,12 @@ Class Html
             $core->register['script_delayed'] .= $return;
 
         } else {
-            $core->register['script_delayed']  = $return;
+            $core->register['script_delayed'] = $return;
         }
 
         $count++;
         return '';
     }
-
 
     /**
      * Return favicon HTML
@@ -1573,16 +1572,18 @@ Class Html
      * @param $mobile_icon
      * @param $sizes
      * @param $precomposed
+     *
      * @return string|void
      */
-    function favicon($icon = null, $mobile_icon = null, $sizes = null, $precomposed = false) {
+    function favicon($icon = null, $mobile_icon = null, $sizes = null, $precomposed = false)
+    {
         array_params($params, 'icon');
         Arrays::default($params, 'mobile_icon', $mobile_icon);
-        Arrays::default($params, 'sizes'      , $sizes);
+        Arrays::default($params, 'sizes', $sizes);
         Arrays::default($params, 'precomposed', $precomposed);
 
         if (!$params['sizes']) {
-            $params['sizes'] = array('');
+            $params['sizes'] = [''];
 
         } else {
             $params['sizes'] = Arrays::force($params['sizes']);
@@ -1594,24 +1595,24 @@ Class Html
                     $params['mobile_icon'] = cdn_domain('img/mobile/favicon.png');
                 }
 
-                return '<link rel="apple-touch-icon'.($params['precomposed'] ? '-precompsed' : '').'"'.($sizes ? ' sizes="'.$sizes.'"' : '').' href="'.$params['mobile_icon'].'" />';
+                return '<link rel="apple-touch-icon' . ($params['precomposed'] ? '-precompsed' : '') . '"' . ($sizes ? ' sizes="' . $sizes . '"' : '') . ' href="' . $params['mobile_icon'] . '" />';
 
             } else {
                 if (empty($params['icon'])) {
                     $params['icon'] = cdn_domain('img/favicon.png');
                 }
 
-                return '<link rel="icon" type="image/x-icon"'.($sizes ? ' sizes="'.$sizes.'"' : '').'  href="'.$params['icon'].'" />';
+                return '<link rel="icon" type="image/x-icon"' . ($sizes ? ' sizes="' . $sizes . '"' : '') . '  href="' . $params['icon'] . '" />';
             }
         }
     }
-
 
     /**
      * Create HTML for an HTML step process bar
      *
      * @param $params
      * @param $selected
+     *
      * @return string
      */
     function list($params, $selected = '')
@@ -1624,30 +1625,30 @@ Class Html
             throw new HtmlException('html_list(): params[steps] is not specified or not an array', 'invalid');
         }
 
-        Arrays::default($params, 'selected'    , $selected);
-        Arrays::default($params, 'class'       , '');
-        Arrays::default($params, 'disabled'    , false);
+        Arrays::default($params, 'selected', $selected);
+        Arrays::default($params, 'class', '');
+        Arrays::default($params, 'disabled', false);
         Arrays::default($params, 'show_counter', false);
-        Arrays::default($params, 'use_list'    , true);
+        Arrays::default($params, 'use_list', true);
 
         if (!$params['disabled']) {
             if ($params['class']) {
                 $params['class'] = Strings::endsWith($params['class'], ' ');
             }
 
-            $params['class'].'hover';
+            $params['class'] . 'hover';
         }
 
         if ($params['use_list']) {
-            $return = '<ul'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
+            $return = '<ul' . ($params['class'] ? ' class="' . $params['class'] . '"' : '') . '>';
 
         } else {
-            $return = '<div'.($params['class'] ? ' class="'.$params['class'].'"' : '').'>';
+            $return = '<div' . ($params['class'] ? ' class="' . $params['class'] . '"' : '') . '>';
         }
 
         // Get first and last keys.
         end($params['steps']);
-        $last  = key($params['steps']);
+        $last = key($params['steps']);
 
         reset($params['steps']);
         $first = key($params['steps']);
@@ -1657,7 +1658,7 @@ Class Html
         foreach ($params['steps'] as $name => $data) {
             $count++;
 
-            $class = $params['class'].(($params['selected'] == $name) ? ' selected active' : '');
+            $class = $params['class'] . (($params['selected'] == $name) ? ' selected active' : '');
 
             if ($name == $first) {
                 $class .= ' first';
@@ -1670,7 +1671,7 @@ Class Html
             }
 
             if ($params['show_counter']) {
-                $counter = '<strong>'.$count.'.</strong> ';
+                $counter = '<strong>' . $count . '.</strong> ';
 
             } else {
                 $counter = '';
@@ -1678,61 +1679,49 @@ Class Html
 
             if ($params['use_list']) {
                 if ($params['disabled']) {
-                    $return .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="" class="nolink">'.$counter.$data['name'].'</a></li>';
+                    $return .= '<li' . ($class ? ' class="' . $class . '"' : '') . '><a href="" class="nolink">' . $counter . $data['name'] . '</a></li>';
 
                 } else {
-                    $return .= '<li'.($class ? ' class="'.$class.'"' : '').'><a href="'.$data['url'].'">'.$counter.$data['name'].'</a></li>';
+                    $return .= '<li' . ($class ? ' class="' . $class . '"' : '') . '><a href="' . $data['url'] . '">' . $counter . $data['name'] . '</a></li>';
                 }
 
             } else {
                 if ($params['disabled']) {
-                    $return .= '<a'.($class ? ' class="nolink'.($class ? ' '.$class : '').'"' : '').'>'.$counter.$data['name'].'</a>';
+                    $return .= '<a' . ($class ? ' class="nolink' . ($class ? ' ' . $class : '') . '"' : '') . '>' . $counter . $data['name'] . '</a>';
 
                 } else {
-                    $return .= '<a'.($class ? ' class="'.$class.'"' : '').' href="'.$data['url'].'">'.$counter.$data['name'].'</a>';
+                    $return .= '<a' . ($class ? ' class="' . $class . '"' : '') . ' href="' . $data['url'] . '">' . $counter . $data['name'] . '</a>';
                 }
 
             }
         }
 
         if ($params['use_list']) {
-            return $return.'</ul>';
+            return $return . '</ul>';
         }
 
-        return $return.'</div>';
+        return $return . '</div>';
     }
 
-
     /**
-     *
-     */
-    public static function statusSelect($params) {
-        array_params ($params, 'name');
-        Arrays::default($params, 'name'    , 'status');
-        Arrays::default($params, 'none'    , '');
-        Arrays::default($params, 'resource', false);
-        Arrays::default($params, 'selected', '');
-
-        return static::select($params);
-    }
-
-
-    /**
-     * Converts the specified src URL by adding the CDN domain if it does not have a domain specified yet. Also converts the image to a different format if configured to do so
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package image
-     * @version 2.5.161: Added function and documentation
+     * Converts the specified src URL by adding the CDN domain if it does not have a domain specified yet. Also
+     * converts the image to a different format if configured to do so
      *
      * @param string $url The URL for the image
      * @param string
      * @param string
+     *
      * @return string The result
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   image
+     * @version   2.5.161: Added function and documentation
+     *
      */
-    function img_src($src, &$external = null, &$file_src = null, &$original_src = null, $section = 'pub') {
+    function img_src($src, &$external = null, &$file_src = null, &$original_src = null, $section = 'pub')
+    {
         /*
          * Check if the URL comes from this domain. This info will be needed
          * below
@@ -1749,10 +1738,10 @@ Class Html
                 $external  = false;
 
                 if (substr($file_part, 0, 5) === '/pub/') {
-                    $file_src = DIRECTORY_ROOT.'www/'.LANGUAGE.$file_part;
+                    $file_src = DIRECTORY_ROOT . 'www/' . LANGUAGE . $file_part;
 
                 } else {
-                    $file_src = DIRECTORY_ROOT.'data/content'.$file_part;
+                    $file_src = DIRECTORY_ROOT . 'data/content' . $file_part;
                 }
 
             } elseif (str_contains($src, domain(''))) {
@@ -1760,22 +1749,22 @@ Class Html
                  * Here, mistakenly, the main domain was used for CDN data
                  */
                 $file_part = Strings::startsWith(Strings::from($src, domain('')), '/');
-                $file_src  = DIRECTORY_ROOT.'data/content'.$file_part;
+                $file_src  = DIRECTORY_ROOT . 'data/content' . $file_part;
                 $external  = false;
 
-                Notification(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
+                Notification(new HtmlException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', [':domain' => domain('')]), 'warning/invalid'));
 
             } else {
-                $file_src  = $src;
-                $external  = true;
+                $file_src = $src;
+                $external = true;
             }
 
         } else {
             /*
              * Assume all images are PUB images
              */
-            $file_part = '/pub'.Strings::startsWith($src, '/');
-            $file_src  = DIRECTORY_ROOT.'www/'.LANGUAGE.$file_part;
+            $file_part = '/pub' . Strings::startsWith($src, '/');
+            $file_src  = DIRECTORY_ROOT . 'www/' . LANGUAGE . $file_part;
             $src       = cdn_domain($src, $section);
         }
 
@@ -1796,7 +1785,7 @@ Class Html
             return $src;
         }
 
-        if (!accepts('image/'.$_CONFIG['cdn']['img']['auto_convert'][$format])) {
+        if (!accepts('image/' . $_CONFIG['cdn']['img']['auto_convert'][$format])) {
             /*
              * This browser does not accept the specified image format
              */
@@ -1814,24 +1803,30 @@ Class Html
          * Automatically convert the image to the specified format for
          * automatically optimized images
          */
-        $target_part = Strings::untilReverse($file_part, '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
-        $target      = Strings::untilReverse($file_src , '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
+        $target_part = Strings::untilReverse($file_part, '.') . '.' . $_CONFIG['cdn']['img']['auto_convert'][$format];
+        $target      = Strings::untilReverse($file_src, '.') . '.' . $_CONFIG['cdn']['img']['auto_convert'][$format];
 
-        log_file(tr('Automatically converting ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['cdn']['img']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+        log_file(tr('Automatically converting ":format" format image ":src" to format ":target"', [
+            ':format' => $format,
+            ':src'    => $file_src,
+            ':target' => $_CONFIG['cdn']['img']['auto_convert'][$format],
+        ]),      'html', 'VERBOSE/cyan');
 
         try {
             if (!file_exists($target)) {
-                log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/warning');
+                log_file(tr('Modified format target ":target" does not exist, converting original source', [':target' => $target]), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
 
-                File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $target, $format) {
-                    File::new()->executeMode($file_src, 0660, function() use ($file_src, $target, $format) {
+                File::new()->executeMode(dirname($file_src), 0770, function () use ($file_src, $target, $format) {
+                    File::new()->executeMode($file_src, 0660, function () use ($file_src, $target, $format) {
                         global $_CONFIG;
 
-                        image_convert(array('method' => 'custom',
-                            'source' => $file_src,
-                            'target' => $target,
-                            'format' => $_CONFIG['cdn']['img']['auto_convert'][$format]));
+                        image_convert([
+                                          'method' => 'custom',
+                                          'source' => $file_src,
+                                          'target' => $target,
+                                          'format' => $_CONFIG['cdn']['img']['auto_convert'][$format],
+                                      ]);
                     });
                 });
             }
@@ -1847,7 +1842,10 @@ Class Html
              * Failed to upgrade image. Use the original image
              */
             $e->makeWarning(true);
-            $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['cdn']['img']['auto_convert'][$format])));
+            $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', [
+                ':src'    => $src,
+                ':format' => $_CONFIG['cdn']['img']['auto_convert'][$format],
+            ]));
             Notification($e);
         }
 
@@ -1860,25 +1858,28 @@ Class Html
      * If height / width are not specified, then html_img() will try to get the height / width
      * data itself, and store that data in database for future reference
      */
-    function img($params, $alt = null, $width = null, $height = null, $extra = '') {
-        static $images, $cache = array();
+    function img($params, $alt = null, $width = null, $height = null, $extra = '')
+    {
+        static $images, $cache = [];
 
 // :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
         if (!is_array($params)) {
             /*
              * Ensure we have a params array
              */
-            $params = array('src'    => $params,
+            $params = [
+                'src'    => $params,
                 'alt'    => $alt,
                 'width'  => $width,
                 'height' => $height,
                 'lazy'   => null,
-                'extra'  => $extra);
+                'extra'  => $extra,
+            ];
         }
 
-        array_ensure ($params, 'src,alt,width,height,class,extra');
-        Arrays::default($params, 'lazy'   , $_CONFIG['cdn']['img']['lazy_load']);
-        Arrays::default($params, 'tag'    , 'img');
+        array_ensure($params, 'src,alt,width,height,class,extra');
+        Arrays::default($params, 'lazy', $_CONFIG['cdn']['img']['lazy_load']);
+        Arrays::default($params, 'tag', 'img');
         Arrays::default($params, 'section', 'pub');
 
         if (!$params['src']) {
@@ -1889,10 +1890,12 @@ Class Html
                 /*
                  * On production, just Notification and ignore
                  */
-                Notification(array('code'    => 'not-specified',
-                    'groups'  => 'developer',
-                    'title'   => tr('No image src specified'),
-                    'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt']))));
+                Notification([
+                                 'code'    => 'not-specified',
+                                 'groups'  => 'developer',
+                                 'title'   => tr('No image src specified'),
+                                 'message' => tr('html_img(): No src for image with alt text ":alt"', [':alt' => $params['alt']]),
+                             ]);
                 return '';
             }
 
@@ -1910,16 +1913,20 @@ Class Html
 
         } else {
             if (!$params['src']) {
-                Notification(array('code'   => 'not-specified',
-                    'groups' => 'developer',
-                    'title'  => tr('html_img(): No image src specified')));
+                Notification([
+                                 'code'   => 'not-specified',
+                                 'groups' => 'developer',
+                                 'title'  => tr('html_img(): No image src specified'),
+                             ]);
             }
 
             if (!$params['alt']) {
-                Notification(array('code'    => 'not-specified',
-                    'groups'  => 'developer',
-                    'title'   => tr('No image alt specified'),
-                    'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src']))));
+                Notification([
+                                 'code'    => 'not-specified',
+                                 'groups'  => 'developer',
+                                 'title'   => tr('No image alt specified'),
+                                 'message' => tr('html_img(): No image alt text specified for src ":src"', [':src' => $params['src']]),
+                             ]);
             }
         }
 
@@ -1951,14 +1958,16 @@ Class Html
                               AND    `created_on` > NOW() - INTERVAL 1 DAY
                               AND    `status`    IS NULL',
 
-                    array(':url' => $params['src']));
+                                 [':url' => $params['src']]);
 
                 if ($image) {
                     /*
                      * Database cache found, add it to local cache
                      */
-                    $cache[$params['src']] = array('width'  => $image['width'],
-                        'height' => $image['height']);
+                    $cache[$params['src']] = [
+                        'width'  => $image['width'],
+                        'height' => $image['height'],
+                    ];
 
                 }
             }
@@ -1982,37 +1991,42 @@ Class Html
                      */
                     try {
                         $file  = file_move_to_target($file_src, DIRECTORY_TMP, false, true);
-                        $image = getimagesize(DIRECTORY_TMP.$file);
+                        $image = getimagesize(DIRECTORY_TMP . $file);
 
                     } catch (Throwable $e) {
                         switch ($e->getCode()) {
                             case 404:
-                                log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
+                                log_file(tr('html_img(): Specified image ":src" does not exist', [':src' => $file_src]));
                                 break;
 
                             case 403:
-                                log_file(tr('html_img(): Specified image ":src" got access denied', array(':src' => $file_src)));
+                                log_file(tr('html_img(): Specified image ":src" got access denied', [':src' => $file_src]));
                                 break;
 
                             default:
-                                log_file(tr('html_img(): Specified image ":src" got error ":e"', array(':src' => $file_src, ':e' => $e->getMessage())));
+                                log_file(tr('html_img(): Specified image ":src" got error ":e"', [
+                                    ':src' => $file_src,
+                                    ':e'   => $e->getMessage(),
+                                ]));
                                 throw $e->makeWarning(true);
                         }
 
                         /*
                          * Image doesnt exist
                          */
-                        Notification(array('code'    => 'not-exists',
-                            'groups'  => 'developer',
-                            'title'   => tr('Image does not exist'),
-                            'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
+                        Notification([
+                                         'code'    => 'not-exists',
+                                         'groups'  => 'developer',
+                                         'title'   => tr('Image does not exist'),
+                                         'message' => tr('html_img(): Specified image ":src" does not exist', [':src' => $file_src]),
+                                     ]);
 
                         $image[0] = 0;
                         $image[1] = 0;
                     }
 
                     if (!empty($file)) {
-                        file_delete(DIRECTORY_TMP.$file);
+                        file_delete(DIRECTORY_TMP . $file);
                     }
 
                 } else {
@@ -2026,23 +2040,28 @@ Class Html
                         } catch (Throwable $e) {
                             switch ($e->getCode()) {
                                 case 404:
-                                    log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
+                                    log_file(tr('html_img(): Specified image ":src" does not exist', [':src' => $file_src]));
                                     break;
 
                                 case 403:
-                                    log_file(tr('html_img(): Specified image ":src" got access denied', array(':src' => $file_src)));
+                                    log_file(tr('html_img(): Specified image ":src" got access denied', [':src' => $file_src]));
                                     break;
 
                                 default:
-                                    log_file(tr('html_img(): Specified image ":src" got error ":e"', array(':src' => $file_src, ':e' => $e->getMessage())));
+                                    log_file(tr('html_img(): Specified image ":src" got error ":e"', [
+                                        ':src' => $file_src,
+                                        ':e'   => $e->getMessage(),
+                                    ]));
                                     throw $e->makeWarning(true);
                             }
 
                             // Image doesnt exist
-                            Notification(array('code'    => 'not-exists',
-                                'groups'  => 'developer',
-                                'title'   => tr('Image does not exist'),
-                                'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
+                            Notification([
+                                             'code'    => 'not-exists',
+                                             'groups'  => 'developer',
+                                             'title'   => tr('Image does not exist'),
+                                             'message' => tr('html_img(): Specified image ":src" does not exist', [':src' => $file_src]),
+                                         ]);
 
                             $image[0] = 0;
                             $image[1] = 0;
@@ -2050,7 +2069,10 @@ Class Html
 
                     } else {
                         // Image doesn't exist.
-                        log_console(tr('html_img(): Can not analyze image ":src", the local directory ":directory" does not exist', array(':src' => $params['src'], ':directory' => $file_src)), 'yellow');
+                        log_console(tr('html_img(): Can not analyze image ":src", the local directory ":directory" does not exist', [
+                            ':src'       => $params['src'],
+                            ':directory' => $file_src,
+                        ]),         'yellow');
                         $image[0] = 0;
                         $image[1] = 0;
                     }
@@ -2069,7 +2091,11 @@ Class Html
             }
 
             if (!$image['height'] or !$image['width']) {
-                log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $params['src'], ':width' => $image['width'], ':height' => $image['height'])), 'yellow');
+                log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', [
+                    ':src'    => $params['src'],
+                    ':width'  => $image['width'],
+                    ':height' => $image['height'],
+                ]),         'yellow');
 
             } else {
                 try {
@@ -2077,8 +2103,10 @@ Class Html
                      * Store image info in local and db cache
                      */
 // :TODO: Add support for memcached
-                    $cache[$params['src']] = array('width'  => $image['width'],
-                        'height' => $image['height']);
+                    $cache[$params['src']] = [
+                        'width'  => $image['width'],
+                        'height' => $image['height'],
+                    ];
 
                     sql()->query('INSERT INTO `html_img_cache` (`status`, `url`, `width`, `height`)
                            VALUES                       (:status , :url , :width , :height )
@@ -2086,10 +2114,12 @@ Class Html
                            ON DUPLICATE KEY UPDATE `status`    = NULL,
                                                    `created_on` = NOW()',
 
-                        array(':url'    => $params['src'],
-                            ':width'  => $image['width'],
-                            ':height' => $image['height'],
-                            ':status' => $status));
+                                 [
+                                     ':url'    => $params['src'],
+                                     ':width'  => $image['width'],
+                                     ':height' => $image['height'],
+                                     ':status' => $status,
+                                 ]);
 
                 } catch (Throwable $e) {
                     Notification($e);
@@ -2111,22 +2141,36 @@ Class Html
              */
             if (!is_numeric($params['width']) and ($params['width'] > 0)) {
                 if (!$image['width']) {
-                    Notification(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', [
+                        ':width' => $params['width'],
+                        ':src'   => $params['src'],
+                    ]),                            'warning/invalid'));
                     $params['width'] = null;
 
                 } else {
-                    Notification(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $image['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', [
+                        ':width' => $params['width'],
+                        ':real'  => $image['width'],
+                        ':src'   => $params['src'],
+                    ]),                            'warning/invalid'));
                     $params['width'] = $image['width'];
                 }
             }
 
             if (!is_numeric($params['height']) and ($params['height'] > 0)) {
                 if (!$image['height']) {
-                    Notification(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', [
+                        ':height' => $params['height'],
+                        ':src'    => $params['src'],
+                    ]),                            'warning/invalid'));
                     $params['height'] = null;
 
                 } else {
-                    Notification(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $image['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    Notification(new HtmlException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', [
+                        ':height' => $params['height'],
+                        ':real'   => $image['height'],
+                        ':src'    => $params['src'],
+                    ]),                            'warning/invalid'));
                     $params['height'] = $image['height'];
                 }
             }
@@ -2139,7 +2183,7 @@ Class Html
              */
             if ($_CONFIG['cdn']['img']['auto_resize'] and !$external and $params['width'] and $params['height']) {
                 if (($image['width'] > $params['width']) or ($image['height'] > $params['height'])) {
-                    log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
+                    log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', [':src' => $params['src']]), 'html', 'warning');
 
                     /*
                      * Determine the resize dimensions
@@ -2149,7 +2193,7 @@ Class Html
                     }
 
                     if (!$params['width']) {
-                        $params['width']  = $image['width'];
+                        $params['width'] = $image['width'];
                     }
 
                     /*
@@ -2158,20 +2202,20 @@ Class Html
                     if (str_contains($params['src'], '@2x')) {
                         $pre    = Strings::until($params['src'], '@2x');
                         $post   = Strings::from($params['src'], '@2x');
-                        $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
+                        $target = $pre . '@' . $params['width'] . 'x' . $params['height'] . '@2x' . $post;
 
                         $pre         = Strings::until($file_src, '@2x');
                         $post        = Strings::from($file_src, '@2x');
-                        $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
+                        $file_target = $pre . '@' . $params['width'] . 'x' . $params['height'] . '@2x' . $post;
 
                     } else {
                         $pre    = Strings::untilReverse($params['src'], '.');
                         $post   = Strings::fromReverse($params['src'], '.');
-                        $target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
+                        $target = $pre . '@' . $params['width'] . 'x' . $params['height'] . '.' . $post;
 
                         $pre         = Strings::untilReverse($file_src, '.');
                         $post        = Strings::fromReverse($file_src, '.');
-                        $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
+                        $file_target = $pre . '@' . $params['width'] . 'x' . $params['height'] . '.' . $post;
                     }
 
                     /*
@@ -2179,19 +2223,19 @@ Class Html
                      */
                     try {
                         if (!file_exists($file_target)) {
-                            log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
+                            log_file(tr('Resized version of ":src" does not yet exist, converting', [':src' => $params['src']]), 'html', 'VERBOSE/cyan');
                             load_libs('image');
 
-                            File::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+                            File::new()->executeMode(dirname($file_src), 0770, function () use ($file_src, $file_target, $params) {
                                 global $_CONFIG;
 
                                 Image::convert([
-                                    'method' => 'resize',
-                                    'source' => $file_src,
-                                    'target' => $file_target,
-                                    'x'      => $params['width'],
-                                    'y'      => $params['height']
-                                ]);
+                                                   'method' => 'resize',
+                                                   'source' => $file_src,
+                                                   'target' => $file_target,
+                                                   'x'      => $params['width'],
+                                                   'y'      => $params['height'],
+                                               ]);
                             });
                         }
 
@@ -2199,9 +2243,9 @@ Class Html
                         $params['src'] = $target;
                         $file_src      = $file_target;
 
-                    }catch(Throwable $e) {
+                    } catch (Throwable $e) {
                         // Failed to auto resize the image. Notification and stay with the current version meanwhile.
-                        $e->addMessages(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', array(':image' => $file_src)));
+                        $e->addMessages(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', [':image' => $file_src]));
                         Notification($e->makeWarning(true));
                     }
                 }
@@ -2209,25 +2253,25 @@ Class Html
         }
 
         if ($params['height']) {
-            $params['height'] = ' height="'.$params['height'].'"';
+            $params['height'] = ' height="' . $params['height'] . '"';
 
         } else {
             $params['height'] = '';
         }
 
         if ($params['width']) {
-            $params['width'] = ' width="'.$params['width'].'"';
+            $params['width'] = ' width="' . $params['width'] . '"';
 
         } else {
             $params['width'] = '';
         }
 
         if (isset($params['style'])) {
-            $params['extra'] .= ' style="'.$params['style'].'"';
+            $params['extra'] .= ' style="' . $params['style'] . '"';
         }
 
         if (isset($params['class'])) {
-            $params['extra'] .= ' class="'.$params['class'].'"';
+            $params['extra'] .= ' class="' . $params['class'] . '"';
         }
 
         if ($params['lazy']) {
@@ -2238,7 +2282,7 @@ Class Html
 
                 } else {
                     // Add class definition with "lazy" to extra
-                    $params['extra'] = ' class="lazy" '.$params['extra'];
+                    $params['extra'] = ' class="lazy" ' . $params['extra'];
                 }
 
             } else {
@@ -2251,14 +2295,14 @@ Class Html
             if (empty($core->register['lazy_img'])) {
                 // Use lazy image loading
                 try {
-                    if (!file_exists(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')) {
+                    if (!file_exists(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/jquery.lazy.js')) {
                         // jquery.lazy is not available, auto install it.
-                        $file = File::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
+                        $file      = File::download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
                         $directory = cli_unzip($file);
 
-                        File::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
-                            File::delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
-                            rename($directory.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
+                        File::new()->executeMode(DIRECTORY_ROOT . 'www/en/pub/js', 0770, function () use ($directory) {
+                            File::delete(DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/');
+                            rename($directory . 'jquery.lazy-master/', DIRECTORY_ROOT . 'www/' . LANGUAGE . '/pub/js/jquery.lazy');
                         });
 
                         file_delete($directory);
@@ -2268,7 +2312,7 @@ Class Html
                     load_config('lazy_img');
 
                     // Build jquery.lazy options
-                    $options = array();
+                    $options = [];
 
                     foreach ($_CONFIG['lazy_img'] as $key => $value) {
                         if ($value === null) {
@@ -2313,7 +2357,7 @@ Class Html
                                 // no-break
                             case 'on_finished_all':
                                 // All these need no quotes
-                                $options[Strings::underscoreToCamelcase($key)] = 'function(e) {'.$value.'}';
+                                $options[Strings::underscoreToCamelcase($key)] = 'function(e) {' . $value . '}';
                                 break;
 
                             // Strings
@@ -2337,7 +2381,7 @@ Class Html
                                 /*
                                  * All these need quotes
                                  */
-                                $options[Strings::underscoreToCamelcase($key)] = '"'.$value.'"';
+                                $options[Strings::underscoreToCamelcase($key)] = '"' . $value . '"';
                                 break;
 
                             default:
@@ -2346,10 +2390,10 @@ Class Html
                     }
 
                     $core->register['lazy_img'] = true;
-                    $this->render .= Script::new([
-                        'event'  => 'function',
-                        'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'
-                    ])->render();
+                    $this->render               .= Script::new([
+                                                                   'event'  => 'function',
+                                                                   'script' => '$(".lazy").Lazy({' . array_implode_with_keys($options, ',', ':') . '});',
+                                                               ])->render();
 
                 } catch (Throwable $e) {
                     /*
@@ -2360,12 +2404,12 @@ Class Html
                 }
             }
 
-            $this->render .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlspecialchars($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+            $this->render .= '<' . $params['tag'] . ' data-src="' . $params['src'] . '" alt="' . htmlspecialchars($params['alt']) . '"' . $params['width'] . $params['height'] . $params['extra'] . '>';
 
             return $this->render;
         }
 
-        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlspecialchars($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+        return '<' . $params['tag'] . ' src="' . $params['src'] . '" alt="' . htmlspecialchars($params['alt']) . '"' . $params['width'] . $params['height'] . $params['extra'] . '>';
     }
 
 
@@ -2421,15 +2465,15 @@ Class Html
             /*
              * This is a local video
              */
-            $params['src']  = DIRECTORY_ROOT.'www/en'.Strings::startsWith($params['src'], '/');
+            $params['src']  = DIRECTORY_ROOT . 'www/en' . Strings::startsWith($params['src'], '/');
             $params['type'] = mime_content_type($params['src']);
 
         } else {
-            if (preg_match('/^'.str_replace('/', '\/', str_replace('.', '\.', domain())).'\/.+$/ius', $params['src'])) {
+            if (preg_match('/^' . str_replace('/', '\/', str_replace('.', '\.', domain())) . '\/.+$/ius', $params['src'])) {
                 /*
                  * This is a local video with domain specification
                  */
-                $params['src']  = DIRECTORY_ROOT.'www/en'.Strings::startsWith(Strings::from($params['src'], domain()), '/');
+                $params['src']  = DIRECTORY_ROOT . 'www/en' . Strings::startsWith(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
             } elseif (!Core::isProductionEnvironment()) {
@@ -2456,21 +2500,21 @@ Class Html
 
                     case '':
                         // Try to autodetect
-                        $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
-                        $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
+                        $params['type'] = 'video/' . Strings::fromReverse($params['src'], '.');
+                        $params['type'] = 'video/' . Strings::fromReverse($params['src'], '.');
                         break;
 
                     default:
                         throw new HtmlException(tr('Unknown type ":type" specified for remote video', [
-                            ':type' => $params['type']
+                            ':type' => $params['type'],
                         ]));
                 }
             }
         }
 
         // Build HTML
-        $this->render = '   <video width="'.$params['width'].'" height="'.$params['height'].'" '.($params['controls'] ? 'controls ' : '').''.($params['more'] ? ' '.$params['more'] : '').'>
-                                <source src="'.$params['src'].'" type="'.$params['type'].'">
+        $this->render = '   <video width="' . $params['width'] . '" height="' . $params['height'] . '" ' . ($params['controls'] ? 'controls ' : '') . '' . ($params['more'] ? ' ' . $params['more'] : '') . '>
+                                <source src="' . $params['src'] . '" type="' . $params['type'] . '">
                             </video>';
 
         return $this->render;
@@ -2480,26 +2524,27 @@ Class Html
     /*
      *
      */
-    function autosuggest($params) {
-        static $sent = array();
+    function autosuggest($params)
+    {
+        static $sent = [];
 
         Arrays::ensure($params);
-        Arrays::default($params, 'class'          , '');
-        Arrays::default($params, 'input_class'    , 'form-control');
-        Arrays::default($params, 'name'           , '');
-        Arrays::default($params, 'id'             , $params['name']);
-        Arrays::default($params, 'placeholder'    , '');
-        Arrays::default($params, 'required'       , false);
-        Arrays::default($params, 'tabindex'       , html_tabindex());
-        Arrays::default($params, 'extra'          , '');
-        Arrays::default($params, 'value'          , '');
-        Arrays::default($params, 'source'         , '');
-        Arrays::default($params, 'maxlength'      , '');
+        Arrays::default($params, 'class', '');
+        Arrays::default($params, 'input_class', 'form-control');
+        Arrays::default($params, 'name', '');
+        Arrays::default($params, 'id', $params['name']);
+        Arrays::default($params, 'placeholder', '');
+        Arrays::default($params, 'required', false);
+        Arrays::default($params, 'tabindex', html_tabindex());
+        Arrays::default($params, 'extra', '');
+        Arrays::default($params, 'value', '');
+        Arrays::default($params, 'source', '');
+        Arrays::default($params, 'maxlength', '');
         Arrays::default($params, 'filter_selector', '');
-        Arrays::default($params, 'selector'       , 'form.autosuggest');
+        Arrays::default($params, 'selector', 'form.autosuggest');
 
-        $return = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
-                    <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" tabindex="'.$params['tabindex'].'" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['extra'] ? ' '.$params['extra'] : '').($params['required'] ? ' required' : '').'>
+        $return = ' <div class="autosuggest' . ($params['class'] ? ' ' . $params['class'] : '') . '">
+                    <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" tabindex="' . $params['tabindex'] . '" ' . ($params['input_class'] ? 'class="' . $params['input_class'] . '" ' : '') . 'type="text" name="' . $params['name'] . '" id="' . $params['id'] . '" placeholder="' . $params['placeholder'] . '" data-source="' . $params['source'] . '" value="' . $params['value'] . '"' . ($params['filter_selector'] ? ' data-filter-selector="' . $params['filter_selector'] . '"' : '') . ($params['maxlength'] ? ' maxlength="' . $params['maxlength'] . '"' : '') . ($params['extra'] ? ' ' . $params['extra'] : '') . ($params['required'] ? ' required' : '') . '>
                     <ul>
                     </ul>
                 </div>';
@@ -2509,14 +2554,13 @@ Class Html
              * Add only one autosuggest start per selector
              */
             $sent[$params['selector']] = true;
-            $return                   .= Script::new('$("'.$params['selector'].'").autosuggest();')->render();
+            $return                    .= Script::new('$("' . $params['selector'] . '").autosuggest();')->render();
         }
 
         html_load_js('base/autosuggest');
 
         return $return;
     }
-
 
 
     /*
@@ -2531,7 +2575,8 @@ Class Html
      *
      * @return void
      */
-    function fix_checkbox_values() {
+    function fix_checkbox_values()
+    {
         foreach ($_POST as $key => $value) {
             if (substr($key, 0, 4) === '__CB') {
                 if (!array_key_exists(substr($key, 4), $_POST)) {
@@ -2564,33 +2609,43 @@ Class Html
      * @param boolean $param[csrf] If set to true, the form will include a hidden Cross Site Request Forgery protection input. Defaults to $_CONFIG[security][csrf][enabled]
      * @return string the HTML <form> tag
      */
-    function form($params = null) {
+    function form($params = null)
+    {
         global $_CONFIG;
 
         Arrays::ensure($params, 'extra');
-        Arrays::default($params, 'id'    , 'form');
-        Arrays::default($params, 'name'  , $params['id']);
+        Arrays::default($params, 'id', 'form');
+        Arrays::default($params, 'name', $params['id']);
         Arrays::default($params, 'method', 'post');
         Arrays::default($params, 'action', domain(true));
-        Arrays::default($params, 'class' , 'form-horizontal');
-        Arrays::default($params, 'csrf'  , $_CONFIG['security']['csrf']['enabled']);
+        Arrays::default($params, 'class', 'form-horizontal');
+        Arrays::default($params, 'csrf', $_CONFIG['security']['csrf']['enabled']);
 
-        foreach (array('id', 'name', 'method', 'action', 'class', 'extra') as $key) {
-            if (!$params[$key]) continue;
+        foreach ([
+            'id',
+            'name',
+            'method',
+            'action',
+            'class',
+            'extra',
+        ] as $key) {
+            if (!$params[$key]) {
+                continue;
+            }
 
             if ($params[$key] == 'extra') {
                 $attributes[] = $params[$key];
 
             } else {
-                $attributes[] = $key.'="'.$params[$key].'"';
+                $attributes[] = $key . '="' . $params[$key] . '"';
             }
         }
 
-        $form = '<form '.implode(' ', $attributes).'>';
+        $form = '<form ' . implode(' ', $attributes) . '>';
 
         if ($params['csrf']) {
-            $csrf  = set_csrf();
-            $form .= '<input type="hidden" name="csrf" value="'.$csrf.'">';
+            $csrf = set_csrf();
+            $form .= '<input type="hidden" name="csrf" value="' . $csrf . '">';
         }
 
         return $form;
@@ -2608,7 +2663,8 @@ Class Html
      *
      * @return natural The current tab index
      */
-    function tabindex() {
+    function tabindex()
+    {
         return ++$core->register['tabindex'];
     }
 
@@ -2624,8 +2680,9 @@ Class Html
      *
      * @return void()
      */
-    function set_js_cdn_url() {
-        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain().'"; var site_prefix="'.domain().'";', false);
+    function set_js_cdn_url()
+    {
+        $core->register['header'] = html_script('var cdnprefix="' . cdn_domain() . '"; var site_prefix="' . domain() . '";', false);
     }
 
 
@@ -2644,8 +2701,9 @@ Class Html
      * @param boolean $exception
      * @return string The result
      */
-    function filter_tags($html, $tags, $exception = false) {
-        $list = array();
+    function filter_tags($html, $tags, $exception = false)
+    {
+        $list = [];
         $tags = Arrays::force($tags);
         $dom  = new DOMDocument();
 
@@ -2664,7 +2722,10 @@ Class Html
 
         if ($list) {
             if ($exception) {
-                throw new HtmlException('Found HTML tags ":tags" which are forbidden', [':tags', implode(', ', $list)]);
+                throw new HtmlException('Found HTML tags ":tags" which are forbidden', [
+                    ':tags',
+                    implode(', ', $list),
+                ]);
             }
 
             foreach ($list as $item) {
@@ -2706,51 +2767,52 @@ Class Html
      * @param string $params[test_loader_screen] If set to true, the loader screen will not hide and be removed, instead it will show indefinitely so that the contents can be checked and tested
      * @return string The HTML for the loader screen.
      */
-    function loader_screen($params) {
+    function loader_screen($params)
+    {
         array_params($params);
-        Arrays::default($params, 'page_selector'        , '');
-        Arrays::default($params, 'text'                 , '');
-        Arrays::default($params, 'text_style'           , '');
-        Arrays::default($params, 'image_src'            , '');
-        Arrays::default($params, 'image_alt'            , tr('Loader screen'));
-        Arrays::default($params, 'image_width'          , null);
-        Arrays::default($params, 'image_height'         , null);
-        Arrays::default($params, 'image_top'            , '100px');
-        Arrays::default($params, 'image_left'           , null);
-        Arrays::default($params, 'image_right'          , null);
-        Arrays::default($params, 'image_bottom'         , null);
-        Arrays::default($params, 'image_style'          , 'position:relative;');
-        Arrays::default($params, 'screen_line_height'   , 0);
-        Arrays::default($params, 'screen_background'    , 'white');
-        Arrays::default($params, 'screen_color'         , 'black');
-        Arrays::default($params, 'screen_remove'        , true);
-        Arrays::default($params, 'screen_text_align'    , 'center');
+        Arrays::default($params, 'page_selector', '');
+        Arrays::default($params, 'text', '');
+        Arrays::default($params, 'text_style', '');
+        Arrays::default($params, 'image_src', '');
+        Arrays::default($params, 'image_alt', tr('Loader screen'));
+        Arrays::default($params, 'image_width', null);
+        Arrays::default($params, 'image_height', null);
+        Arrays::default($params, 'image_top', '100px');
+        Arrays::default($params, 'image_left', null);
+        Arrays::default($params, 'image_right', null);
+        Arrays::default($params, 'image_bottom', null);
+        Arrays::default($params, 'image_style', 'position:relative;');
+        Arrays::default($params, 'screen_line_height', 0);
+        Arrays::default($params, 'screen_background', 'white');
+        Arrays::default($params, 'screen_color', 'black');
+        Arrays::default($params, 'screen_remove', true);
+        Arrays::default($params, 'screen_text_align', 'center');
         Arrays::default($params, 'screen_vertical_align', 'middle');
-        Arrays::default($params, 'screen_style_extra'   , '');
-        Arrays::default($params, 'transition_time'      , 300);
-        Arrays::default($params, 'transition_style'     , 'fade');
-        Arrays::default($params, 'test_loader_screen'   , false);
+        Arrays::default($params, 'screen_style_extra', '');
+        Arrays::default($params, 'transition_time', 300);
+        Arrays::default($params, 'transition_style', 'fade');
+        Arrays::default($params, 'test_loader_screen', false);
 
         $extra = '';
 
         if ($params['screen_line_height']) {
-            $extra .= 'line-height:'.$params['screen_line_height'].';';
+            $extra .= 'line-height:' . $params['screen_line_height'] . ';';
         }
 
         if ($params['screen_vertical_align']) {
-            $extra .= 'vertical-align:'.$params['screen_vertical_align'].';';
+            $extra .= 'vertical-align:' . $params['screen_vertical_align'] . ';';
         }
 
         if ($params['screen_text_align']) {
-            $extra .= 'text-align:'.$params['screen_text_align'].';';
+            $extra .= 'text-align:' . $params['screen_text_align'] . ';';
         }
 
-        $this->render = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';color: '.$params['screen_color'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
+        $this->render = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:' . $params['screen_background'] . ';color: ' . $params['screen_color'] . ';text-align: ' . $params['screen_text_align'] . ';' . $extra . '" ' . $params['screen_style_extra'] . '>';
 
         // Show loading text
         if ($params['text']) {
-            $this->render .=    '<div style="'.$params['text_style'].'">
-                     '.$params['text'].'
+            $this->render .= '<div style="' . $params['text_style'] . '">
+                     ' . $params['text'] . '
                      </div>';
         }
 
@@ -2759,27 +2821,29 @@ Class Html
          */
         if ($params['image_src']) {
             if ($params['image_top']) {
-                $params['image_style'] .= 'top:'.$params['image_top'].';';
+                $params['image_style'] .= 'top:' . $params['image_top'] . ';';
             }
 
             if ($params['image_left']) {
-                $params['image_style'] .= 'left:'.$params['image_left'].';';
+                $params['image_style'] .= 'left:' . $params['image_left'] . ';';
             }
 
             if ($params['image_right']) {
-                $params['image_style'] .= 'right:'.$params['image_right'].';';
+                $params['image_style'] .= 'right:' . $params['image_right'] . ';';
             }
 
             if ($params['image_bottom']) {
-                $params['image_style'] .= 'bottom:'.$params['image_bottom'].';';
+                $params['image_style'] .= 'bottom:' . $params['image_bottom'] . ';';
             }
 
-            $this->render .=    html_img(array('src'    => $params['image_src'],
-                'alt'    => $params['image_alt'],
-                'lazy'   => false,
-                'width'  => $params['image_width'],
-                'height' => $params['image_height'],
-                'style'  => $params['image_style']));
+            $this->render .= html_img([
+                                          'src'    => $params['image_src'],
+                                          'alt'    => $params['image_alt'],
+                                          'lazy'   => false,
+                                          'width'  => $params['image_width'],
+                                          'height' => $params['image_height'],
+                                          'style'  => $params['image_style'],
+                                      ]);
         }
 
         $this->render .= '  </div>';
@@ -2791,8 +2855,8 @@ Class Html
                         /*
                          * Hide the loader screen and show the main page wrapper
                          */
-                        $this->render .= html_script('$("'.$params['page_selector'].'").show('.$params['transition_time'].');
-                                          $("#loader-screen").fadeOut('.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
+                        $this->render .= html_script('$("' . $params['page_selector'] . '").show(' . $params['transition_time'] . ');
+                                          $("#loader-screen").fadeOut(' . $params['transition_time'] . ', function() { $("#loader-screen").css("display", "none"); ' . ($params['screen_remove'] ? '$("#loader-screen").remove();' : '') . ' });');
 
                         return $this->render;
                     }
@@ -2800,15 +2864,15 @@ Class Html
                     /*
                      * Only hide the loader screen
                      */
-                    $this->render .= html_script('$("#loader-screen").fadeOut('.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
+                    $this->render .= html_script('$("#loader-screen").fadeOut(' . $params['transition_time'] . ', function() { $("#loader-screen").css("display", "none"); ' . ($params['screen_remove'] ? '$("#loader-screen").remove();' : '') . ' });');
                     break;
 
                 case 'slide':
-                    $this->render .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, '.$params['transition_time'].', function() { $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
+                    $this->render .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, ' . $params['transition_time'] . ', function() { $("#loader-screen").css("display", "none"); ' . ($params['screen_remove'] ? '$("#loader-screen").remove();' : '') . ' });');
                     break;
 
                 default:
-                    throw new HtmlException(tr('html_loader_screen(): Unknown screen transition value ":value" specified', array(':value' => $params['test_loader_screen'])), 'unknown');
+                    throw new HtmlException(tr('html_loader_screen(): Unknown screen transition value ":value" specified', [':value' => $params['test_loader_screen']]), 'unknown');
             }
         }
 
@@ -2834,7 +2898,8 @@ Class Html
      * @param list $allowed_attributes The HTML tag attributes that are allowed to remain
      * @return string The source string with all HTML attributes filtered except for those specified in $allowed_attributes
      */
-    function strip_attributes($source, $allowed_attributes = null) {
+    function strip_attributes($source, $allowed_attributes = null)
+    {
         $allowed_attributes = Arrays::force($allowed_attributes);
 
         /*

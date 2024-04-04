@@ -10,11 +10,11 @@ namespace Phoundation\Network\Library;
  *
  * This is the Init class for the Core library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Network
+ * @package   Phoundation\Network
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         $this->addUpdate('0.0.8', function () {
             // Add network_curl_cache table
             sql()->schema()->table('network_curl_cache')->drop()->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -62,10 +62,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `url` (`url`),')
-              ->setForeignKeys('
+                 ->setForeignKeys('
                     CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
               ')
-              ->create();
+                 ->create();
         });
     }
 }

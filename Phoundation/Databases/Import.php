@@ -29,10 +29,10 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Database
+ * @package   Phoundation\Database
  */
 class Import
 {
@@ -74,25 +74,13 @@ class Import
         $this->restrictions = Restrictions::default($restrictions, Restrictions::writable('/', 'Mysql exporter'));
     }
 
-
-    /**
-     * Returns a new Export object
-     *
-     * @param RestrictionsInterface|null $restrictions
-     * @return static
-     */
-    public static function new(?RestrictionsInterface $restrictions = null): static
-    {
-        return new static($restrictions);
-    }
-
-
     /**
      * Sets the driver
      *
      * @note Overrides trait DataDriver::setDriver()
      *
      * @param string|null $driver
+     *
      * @return static
      */
     public function setDriver(?string $driver): static
@@ -102,7 +90,7 @@ class Import
             if ($driver and ($driver !== $this->connector->getDriver())) {
                 throw new OutOfBoundsException(tr('Specified driver ":driver" does not match driver for already specified connector ":connector"', [
                     ':connector' => $this->connector->getDriver(),
-                    ':driver'    => $driver
+                    ':driver'    => $driver,
                 ]));
             }
 
@@ -112,35 +100,6 @@ class Import
 
         return $this;
     }
-
-
-    /**
-     * Sets the source
-     *
-     * @param ConnectorInterface|string|null $connector
-     * @param bool $ignore_sql_exceptions
-     * @return static
-     */
-    public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
-    {
-        $this->__setConnector($connector, $ignore_sql_exceptions);
-
-        if ($this->getDriver()) {
-            // Driver was specified separately, must match driver for this connector
-            if ($this->getDriver() !== $this->connector->getDriver()) {
-                throw new OutOfBoundsException(tr('Specified connector is for driver ":connector", however a different driver ":driver" has already been specified separately', [
-                    ':connector' => $this->connector->getDriver(),
-                    ':driver'    => $this->getDriver()
-                ]));
-            }
-
-        } else {
-            $this->driver = get_null($this->connector->getDriver());
-        }
-
-        return $this;
-    }
-
 
     /**
      * Sets if the database should be dropped before import
@@ -152,11 +111,11 @@ class Import
         return $this->drop;
     }
 
-
     /**
      * Sets if the database should be dropped before import
      *
      * @param bool $drop
+     *
      * @return static
      */
     public function setDrop(bool $drop): static
@@ -164,7 +123,6 @@ class Import
         $this->drop = $drop;
         return $this;
     }
-
 
     /**
      * Returns the database that will be imported
@@ -176,11 +134,11 @@ class Import
         return $this->database;
     }
 
-
     /**
      * Sets the database that will be imported
      *
      * @param string|null $database
+     *
      * @return static
      */
     public function setDatabase(?string $database): static
@@ -189,11 +147,11 @@ class Import
         return $this;
     }
 
-
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethodInterface $method
+     *
      * @return static
      */
     public function import(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): static
@@ -206,11 +164,11 @@ class Import
                 ]));
 
                 MySql::new()
-                    ->setTimeout($this->timeout)
-                    ->setConnector($this->connector)
-                    ->drop($this->drop ? $this->database : null)
-                    ->create($this->drop ? $this->database : null)
-                    ->import($this->file, Restrictions::new('/'));
+                     ->setTimeout($this->timeout)
+                     ->setConnector($this->connector)
+                     ->drop($this->drop ? $this->database : null)
+                     ->create($this->drop ? $this->database : null)
+                     ->import($this->file, Restrictions::new('/'));
 
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->file,
@@ -233,5 +191,45 @@ class Import
         }
 
         return $this;
+    }
+
+    /**
+     * Sets the source
+     *
+     * @param ConnectorInterface|string|null $connector
+     * @param bool                           $ignore_sql_exceptions
+     *
+     * @return static
+     */
+    public function setConnector(ConnectorInterface|string|null $connector, bool $ignore_sql_exceptions = false): static
+    {
+        $this->__setConnector($connector, $ignore_sql_exceptions);
+
+        if ($this->getDriver()) {
+            // Driver was specified separately, must match driver for this connector
+            if ($this->getDriver() !== $this->connector->getDriver()) {
+                throw new OutOfBoundsException(tr('Specified connector is for driver ":connector", however a different driver ":driver" has already been specified separately', [
+                    ':connector' => $this->connector->getDriver(),
+                    ':driver'    => $this->getDriver(),
+                ]));
+            }
+
+        } else {
+            $this->driver = get_null($this->connector->getDriver());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns a new Export object
+     *
+     * @param RestrictionsInterface|null $restrictions
+     *
+     * @return static
+     */
+    public static function new(?RestrictionsInterface $restrictions = null): static
+    {
+        return new static($restrictions);
     }
 }

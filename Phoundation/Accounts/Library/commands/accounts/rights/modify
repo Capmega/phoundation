@@ -14,10 +14,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This script will create a new right with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho accounts right create -n NAME [OPTIONS]
 ./pho system accounts right create -n test -d "This is a test right!"');
@@ -35,10 +35,10 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('right', true)->isName()
-    ->select('-n,--name', true)->isOptional(null)->isName()
-    ->select('-d,--description', true)->isOptional(null)->isDescription()
-    ->validate();
+                     ->select('right', true)->isName()
+                     ->select('-n,--name', true)->isOptional(null)->isName()
+                     ->select('-d,--description', true)->isOptional(null)->isDescription()
+                     ->validate();
 
 
 // Get right, ensure new name doesn't exist yet, and modify it

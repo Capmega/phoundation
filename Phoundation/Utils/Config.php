@@ -29,10 +29,10 @@ use Throwable;
  * specified in the classes themselves whereas users can add configuration sections in the YAML file
  * DIRECTORY_ROOT/config/ENVIRONMENT/CLASSNAME and this class will apply those values.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Utils
+ * @package   Phoundation\Utils
  */
 class Config implements ConfigInterface
 {
@@ -99,22 +99,6 @@ class Config implements ConfigInterface
      */
     protected static bool $include_production = true;
 
-
-    /**
-     * Singleton, ensure to always return the same Config object.
-     *
-     * @return static
-     */
-    public static function getInstance(): static
-    {
-        if (!isset(static::$instance)) {
-            static::$instance = new static();
-        }
-
-        return static::$instance;
-    }
-
-
     /**
      * Returns the current environment for the configuration object
      *
@@ -125,60 +109,12 @@ class Config implements ConfigInterface
         return static::$environment;
     }
 
-
-    /**environment
-     * Returns the current section for the configuration object
-     *
-     * @return string|null
-     */
-    public static function getSection(): ?string
-    {
-        return substr(static::$section, 0, -1);
-    }
-
-
-    /**
-     * Returns a config object for the specified environment
-     *
-     * @param string $environment
-     * @return ConfigInterface
-     */
-    public static function forEnvironment(string $environment): ConfigInterface
-    {
-        if (empty(static::$instances[$environment])) {
-            static::$instances[$environment] = new static();
-            static::$instances[$environment]->setEnvironment($environment);
-        }
-
-        return static::$instances[$environment];
-    }
-
-
-    /**
-     * Returns a config object for the specified environment
-     *
-     * @param string $section
-     * @param string $environment
-     * @return ConfigInterface
-     */
-    public static function forSection(string $section, string $environment): ConfigInterface
-    {
-        $key = $section . '-' . $environment;
-
-        if (empty(static::$instances[$key])) {
-            static::$instances[$key] = new static();
-            static::$instances[$key]->setSection($section, $environment);
-        }
-
-        return static::$instances[$key];
-    }
-
-
     /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
      * @param string $environment
-     * @param bool $include_production
+     * @param bool   $include_production
+     *
      * @return void
      */
     public static function setEnvironment(string $environment, bool $include_production = true): void
@@ -198,13 +134,23 @@ class Config implements ConfigInterface
         static::read(false);
     }
 
+    /**environment
+     * Returns the current section for the configuration object
+     *
+     * @return string|null
+     */
+    public static function getSection(): ?string
+    {
+        return substr(static::$section, 0, -1);
+    }
 
     /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
      * @param string $section
      * @param string $environment
-     * @param bool $include_production
+     * @param bool   $include_production
+     *
      * @return void
      */
     public static function setSection(string $section, string $environment, bool $include_production = true): void
@@ -230,6 +176,42 @@ class Config implements ConfigInterface
         static::read(true);
     }
 
+    /**
+     * Returns a config object for the specified environment
+     *
+     * @param string $environment
+     *
+     * @return ConfigInterface
+     */
+    public static function forEnvironment(string $environment): ConfigInterface
+    {
+        if (empty(static::$instances[$environment])) {
+            static::$instances[$environment] = new static();
+            static::$instances[$environment]->setEnvironment($environment);
+        }
+
+        return static::$instances[$environment];
+    }
+
+    /**
+     * Returns a config object for the specified environment
+     *
+     * @param string $section
+     * @param string $environment
+     *
+     * @return ConfigInterface
+     */
+    public static function forSection(string $section, string $environment): ConfigInterface
+    {
+        $key = $section . '-' . $environment;
+
+        if (empty(static::$instances[$key])) {
+            static::$instances[$key] = new static();
+            static::$instances[$key]->setSection($section, $environment);
+        }
+
+        return static::$instances[$key];
+    }
 
     /**
      * Returns true if the Config object has failed
@@ -241,14 +223,15 @@ class Config implements ConfigInterface
         return static::$failed;
     }
 
-
     /**
      * Return configuration BOOLEAN for the specified key path
      *
      * @note Will cause an exception if a non-boolean value is returned!
+     *
      * @param string|array $path
-     * @param bool|null $default
-     * @param mixed|null $specified
+     * @param bool|null    $default
+     * @param mixed|null   $specified
+     *
      * @return bool
      */
     public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
@@ -263,206 +246,28 @@ class Config implements ConfigInterface
             // Try to interpret as boolean
             return Strings::toBoolean($return);
 
-        } catch(OutOfBoundsException) {
+        } catch (OutOfBoundsException) {
             // Do nothing, following exception will do the job
         }
 
         throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
             ':path'  => $path,
-            ':value' => $return
+            ':value' => $return,
         ]));
     }
-
-
-    /**
-     * Return configuration INTEGER for the specified key path
-     *
-     * @note Will cause an exception if a non integer value is returned!
-     * @param string|array $path
-     * @param int|null $default
-     * @param mixed|null $specified
-     * @return int
-     */
-    public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
-    {
-        $return = static::get($path, $default, $specified);
-
-        if (is_integer($return)) {
-            return $return;
-        }
-
-        throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return
-        ]));
-    }
-
-
-    /**
-     * Return configuration NUMBER for the specified key path
-     *
-     * @note Will cause an exception if a non-numeric value is returned!
-     * @param string|array $path
-     * @param int|float|null $default
-     * @param mixed|null $specified
-     * @return int|float
-     */
-    public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
-    {
-        $return = static::get($path, $default, $specified);
-
-        if (is_natural($return)) {
-            return $return;
-        }
-
-        throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return
-        ]));
-    }
-
-
-    /**
-     * Return configuration NUMBER for the specified key path
-     *
-     * @note Will cause an exception if a non-numeric value is returned!
-     * @param string|array $path
-     * @param int|float|null $default
-     * @param mixed|null $specified
-     * @return int|float
-     */
-    public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
-    {
-        $return = static::get($path, $default, $specified);
-
-        if (is_float($return)) {
-            return $return;
-        }
-
-        throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return
-        ]));
-    }
-
-
-    /**
-     * Return configuration ARRAY for the specified key path
-     *
-     * @note Will cause an exception if a non-array value is returned!
-     * @param string|array $path
-     * @param array|null $default
-     * @param mixed|null $specified
-     * @return array
-     */
-    public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
-    {
-        $return = static::get($path, $default, $specified);
-
-        if (is_array($return)) {
-            return static::fixKeys($return);
-        }
-
-        throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return
-        ]));
-    }
-
-
-    /**
-     * Return configuration IteratorInterface for the specified key path
-     *
-     * @note Will cause an exception if a non-array value is returned!
-     *
-     * @param string|array $path
-     * @param array|null $default
-     * @param mixed|null $specified
-     * @return IteratorInterface
-     */
-    public static function getIterator(string|array $path, array|null $default = null, mixed $specified = null): IteratorInterface
-    {
-        return new Iterator(static::getArray($path, $default, $specified));
-    }
-
-
-    /**
-     * Return configuration STRING for the specified key path
-     *
-     * @note Will cause an exception if a non string value is returned!
-     * @param string|array $path
-     * @param string|null $default
-     * @param mixed|null $specified
-     * @return string
-     */
-    public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
-    {
-        $return = static::get($path, $default, $specified);
-
-        if (is_string($return)) {
-            return $return;
-        }
-
-        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return
-        ]));
-    }
-
-
-    /**
-     * Return configuration STRING or BOOLEAN for the specified key path
-     *
-     * @note Will cause an exception if a non string or bool value is returned!
-     * @param string|array $path
-     * @param string|bool|null $default
-     * @param mixed|null $specified
-     * @return string|bool
-     */
-    public static function getBoolString(string|array $path, string|bool|null $default = null, mixed $specified = null): string|bool
-    {
-        $return = static::get($path, $default, $specified);
-
-        if (is_string($return) or is_bool($return)) {
-            return $return;
-        }
-
-        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return
-        ]));
-    }
-
-
-    /**
-     * Returns true of the specified configuration path exists
-     *
-     * @param string|array $path The key path to search for. This should be specified either as an array with key names
-     *                           or a . separated string
-     * @return bool
-     */
-    public static function exists(string|array $path): bool
-    {
-        $uuid = Strings::getUuid();
-
-        if (static::get($path, $uuid) === $uuid) {
-            // We got the default value, the requested path does not exist
-            return false;
-        }
-
-        return true;
-    }
-
 
     /**
      * Return configuration data for the specified key path
      *
-     * @param string|array $path    The key path to search for. This should be specified either as an array with key
-     *                              names or a . separated string
-     * @param mixed|null $default   The default value to return if no value was found in the configuration files
-     * @param mixed|null $specified A value that might have been specified by a calling function. IF this value is not
-     *                              NULL, it will automatically be returned as we will assume that that is the user
-     *                             (developer) specified value we should be using, overriding configuration and defaults
+     * @param string|array $path      The key path to search for. This should be specified either as an array with key
+     *                                names or a . separated string
+     * @param mixed|null   $default   The default value to return if no value was found in the configuration files
+     * @param mixed|null   $specified A value that might have been specified by a calling function. IF this value is
+     *                                not
+     *                                NULL, it will automatically be returned as we will assume that that is the user
+     *                                (developer) specified value we should be using, overriding configuration and
+     *                                defaults
+     *
      * @return mixed
      */
     public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
@@ -478,7 +283,7 @@ class Config implements ConfigInterface
             // Config class failed, return all default values when not NULL
             if ($default === null) {
                 throw new ConfigFailedException(tr('Cannot get configuration, Config failed with ":e"', [
-                    ':e' => static::$failed
+                    ':e' => static::$failed,
                 ]));
             }
 
@@ -517,7 +322,7 @@ class Config implements ConfigInterface
                 if ($data !== null) {
                     Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
                         ':path'    => $path,
-                        ':section' => $section
+                        ':section' => $section,
                     ]));
                 }
 
@@ -532,7 +337,7 @@ class Config implements ConfigInterface
                     throw ConfigPathDoesNotExistsException::new(tr('The configuration section ":section" from key path ":path" does not exist. Please check "production.yaml" AND ":environment.yaml"', [
                         ':environment' => ENVIRONMENT,
                         ':section'     => $section,
-                        ':path'        => Strings::force($path, '.')
+                        ':path'        => Strings::force($path, '.'),
                     ]))->makeWarning();
                 }
 
@@ -547,13 +352,236 @@ class Config implements ConfigInterface
         return static::$cache[$path] = $data;
     }
 
+    /**
+     * Singleton, ensure to always return the same Config object.
+     *
+     * @return static
+     */
+    public static function getInstance(): static
+    {
+        if (!isset(static::$instance)) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
+
+    /**
+     * Fixes configuration key names, - will be replaced with _
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    protected static function fixKeys(array $data): array
+    {
+        $return = [];
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                // Recurse
+                $value = static::fixKeys($value);
+            }
+
+            $return[str_replace('-', '_', (string)$key)] = $value;
+        }
+
+        return $return;
+    }
+
+    /**
+     * Return configuration INTEGER for the specified key path
+     *
+     * @note Will cause an exception if a non integer value is returned!
+     *
+     * @param string|array $path
+     * @param int|null     $default
+     * @param mixed|null   $specified
+     *
+     * @return int
+     */
+    public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_integer($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]));
+    }
+
+    /**
+     * Return configuration NUMBER for the specified key path
+     *
+     * @note Will cause an exception if a non-numeric value is returned!
+     *
+     * @param string|array   $path
+     * @param int|float|null $default
+     * @param mixed|null     $specified
+     *
+     * @return int|float
+     */
+    public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_natural($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]));
+    }
+
+    /**
+     * Return configuration NUMBER for the specified key path
+     *
+     * @note Will cause an exception if a non-numeric value is returned!
+     *
+     * @param string|array   $path
+     * @param int|float|null $default
+     * @param mixed|null     $specified
+     *
+     * @return int|float
+     */
+    public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_float($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]));
+    }
+
+    /**
+     * Return configuration IteratorInterface for the specified key path
+     *
+     * @note Will cause an exception if a non-array value is returned!
+     *
+     * @param string|array $path
+     * @param array|null   $default
+     * @param mixed|null   $specified
+     *
+     * @return IteratorInterface
+     */
+    public static function getIterator(string|array $path, array|null $default = null, mixed $specified = null): IteratorInterface
+    {
+        return new Iterator(static::getArray($path, $default, $specified));
+    }
+
+    /**
+     * Return configuration ARRAY for the specified key path
+     *
+     * @note Will cause an exception if a non-array value is returned!
+     *
+     * @param string|array $path
+     * @param array|null   $default
+     * @param mixed|null   $specified
+     *
+     * @return array
+     */
+    public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_array($return)) {
+            return static::fixKeys($return);
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]));
+    }
+
+    /**
+     * Return configuration STRING for the specified key path
+     *
+     * @note Will cause an exception if a non string value is returned!
+     *
+     * @param string|array $path
+     * @param string|null  $default
+     * @param mixed|null   $specified
+     *
+     * @return string
+     */
+    public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_string($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]));
+    }
+
+    /**
+     * Return configuration STRING or BOOLEAN for the specified key path
+     *
+     * @note Will cause an exception if a non string or bool value is returned!
+     *
+     * @param string|array     $path
+     * @param string|bool|null $default
+     * @param mixed|null       $specified
+     *
+     * @return string|bool
+     */
+    public static function getBoolString(string|array $path, string|bool|null $default = null, mixed $specified = null): string|bool
+    {
+        $return = static::get($path, $default, $specified);
+
+        if (is_string($return) or is_bool($return)) {
+            return $return;
+        }
+
+        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]));
+    }
+
+    /**
+     * Returns true of the specified configuration path exists
+     *
+     * @param string|array $path The key path to search for. This should be specified either as an array with key names
+     *                           or a . separated string
+     *
+     * @return bool
+     */
+    public static function exists(string|array $path): bool
+    {
+        $uuid = Strings::getUuid();
+
+        if (static::get($path, $uuid) === $uuid) {
+            // We got the default value, the requested path does not exist
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Return configuration data for the specified key path
      *
      * @param string|array $path    The key path to search for. This should be specified either as an array with key
      *                              names or a . separated string
-     * @param mixed $value
+     * @param mixed        $value
+     *
      * @return mixed
      */
     public static function set(string|array $path, mixed $value = null): mixed
@@ -572,7 +600,7 @@ class Config implements ConfigInterface
                 // Oops, this data section should be an array
                 throw ConfigException::new(tr('The configuration section ":section" from requested path ":path" does not exist', [
                     ':section' => $section,
-                    ':path'    => $path
+                    ':path'    => $path,
                 ]))->makeWarning();
             }
 
@@ -590,93 +618,17 @@ class Config implements ConfigInterface
         return static::$cache[$path] = $value;
     }
 
-
     /**
      * Returns true if a configuration file for the specified environment exists, false if not
      *
      * @param string $environment
+     *
      * @return bool
      */
     public static function environmentExists(string $environment): bool
     {
         return file_exists(DIRECTORY_ROOT . 'config/' . $environment . '.yaml');
     }
-
-
-    /**
-     * Reads the configuration file for the specified configuration environment
-     *
-     * @param bool $exception
-     * @return void
-     */
-    protected static function read(bool $exception): void
-    {
-        try {
-            if (!static::$environment) {
-                // We don't really have an environment, don't read configuration
-                return;
-            }
-
-            // What environments should be read?
-            if (static::$environment === 'production') {
-                $environments = ['default', 'production'];
-
-            } elseif(static::$include_production) {
-                $environments = ['default', 'production', static::$environment];
-
-            } else {
-                // Read only the specified environment
-                $environments = [static::$environment];
-            }
-
-            // Read the section for each environment
-            foreach ($environments as $environment) {
-                $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
-                Restrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
-
-                // Check if a configuration file exists for this environment
-                if (!file_exists($file)) {
-                    // Do NOT use tr() here as it will cause endless loops!
-                    throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
-                        ->makeWarning();
-                }
-
-                try {
-                    // Read the configuration data and merge it in the internal configuration data array
-                    $data = yaml_parse_file($file);
-
-                } catch (Throwable $e) {
-                    // Failed to read YAML data from configuration file
-                    static::$failed = 'Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" because "' . $e->getMessage() . '"';
-                    throw ConfigParseFailedException::new(static::$failed, $e)->makeWarning();
-                }
-
-                if (!is_array($data)) {
-                    if ($data) {
-                        throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
-                            ':file' => $file
-                        ]));
-                    }
-
-                    // It looks like the configuration file was empty
-                    $data = [];
-                }
-
-                static::$data = Arrays::mergeFull(static::$data, $data);
-            }
-
-        } catch (ConfigException $e) {
-            // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
-            static::$failed = 'Failed to load configuration file "' . isset_get($file) . '" because: ' . $e->getMessage();
-
-            if ($exception) {
-                throw $e;
-            }
-
-            echo static::$failed . PHP_EOL;
-        }
-    }
-
 
     /**
      * Scan the entire project from ROOT for Config::get() and Config::set() and generate a config/default.yaml file
@@ -691,51 +643,64 @@ class Config implements ConfigInterface
 
         // Scan all files for Config::get() and Config::set() calls
         Directory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->execute()
-            ->addSkipDirectories([DIRECTORY_DATA, DIRECTORY_ROOT . 'tests', DIRECTORY_ROOT . 'garbage'])
-            ->setRecurse(true)
-            ->setRestrictions(new Restrictions(DIRECTORY_ROOT))
-            ->onFiles(function (string $file) use (&$store) {
-                $files = File::new($file, DIRECTORY_ROOT)->grep(['Config::get(\'', 'Config::set(\'']);
+                 ->addSkipDirectories([
+                                          DIRECTORY_DATA,
+                                          DIRECTORY_ROOT . 'tests',
+                                          DIRECTORY_ROOT . 'garbage',
+                                      ])
+                 ->setRecurse(true)
+                 ->setRestrictions(new Restrictions(DIRECTORY_ROOT))
+                 ->onFiles(function (string $file) use (&$store) {
+                     $files = File::new($file, DIRECTORY_ROOT)->grep([
+                                                                         'Config::get(\'',
+                                                                         'Config::set(\'',
+                                                                     ]);
 
-                foreach ($files as $file) {
-                    foreach ($file as $lines) {
-                        foreach ($lines as $line) {
-                            // Extract the configuration path and default value for each call
-                            if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
-                                if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
-                                    Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line" in file ":file"', [
-                                        ':file' => $file,
-                                        ':line' => $line
-                                    ]));
+                     foreach ($files as $file) {
+                         foreach ($file as $lines) {
+                             foreach ($lines as $line) {
+                                 // Extract the configuration path and default value for each call
+                                 if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
+                                     if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
+                                         Log::warning(tr('Failed to extract a Config::get() or Config::set() from line ":line" in file ":file"', [
+                                             ':file' => $file,
+                                             ':line' => $line,
+                                         ]));
 
-                                    continue;
-                                }
-                            }
+                                         continue;
+                                     }
+                                 }
 
-                            // Pass over all matches
-                            foreach ($matches[0] as $match => $value) {
-                                $path = str_replace(['"', "'"], '', trim($matches[1][$match]));
-                                $default = str_replace(['"', "'"], '', trim($matches[2][$match]));
+                                 // Pass over all matches
+                                 foreach ($matches[0] as $match => $value) {
+                                     $path    = str_replace([
+                                                                '"',
+                                                                "'",
+                                                            ], '', trim($matches[1][$match]));
+                                     $default = str_replace([
+                                                                '"',
+                                                                "'",
+                                                            ], '', trim($matches[2][$match]));
 
-                                // Log all Config::get() and Config::set() calls that have the same configuration path but different
-                                // default values
-                                if (array_key_exists($path, $store)) {
-                                    if ($store[$path] !== $default) {
-                                        Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
-                                            ':path' => $path,
-                                            ':1'    => $default,
-                                            ':2'    => $store[$path],
-                                        ]));
-                                    }
-                                }
+                                     // Log all Config::get() and Config::set() calls that have the same configuration path but different
+                                     // default values
+                                     if (array_key_exists($path, $store)) {
+                                         if ($store[$path] !== $default) {
+                                             Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
+                                                 ':path' => $path,
+                                                 ':1'    => $default,
+                                                 ':2'    => $store[$path],
+                                             ]));
+                                         }
+                                     }
 
-                                // Store the configuration path
-                                $store[$path] = $default;
-                            }
-                        }
-                    }
-                }
-            });
+                                     // Store the configuration path
+                                     $store[$path] = $default;
+                                 }
+                             }
+                         }
+                     }
+                 });
 
         // Convert all entries ending in . to array values (these typically have variable subkeys following)
         foreach ($store as $path => $default) {
@@ -774,7 +739,7 @@ class Config implements ConfigInterface
 
         // Convert the store to an array map
         foreach ($store as $path => $default) {
-            $path = explode('.', $path);
+            $path    = explode('.', $path);
             $section = &$data;
             $count++;
 
@@ -801,6 +766,7 @@ class Config implements ConfigInterface
      * Save the configuration as currently in memory to the configuration file
      *
      * @param array|null $data
+     *
      * @return void
      */
     public static function save(?array $data = null): void
@@ -825,6 +791,7 @@ class Config implements ConfigInterface
      * Import data from the specified setup configuration and save it in a yaml config file for the current environment
      *
      * @param Configuration $configuration
+     *
      * @return void
      * @throws Exception
      */
@@ -834,97 +801,73 @@ class Config implements ConfigInterface
         static::reset();
 
         static::$data = [
-            'security' => [
-                'seed' => Strings::getRandom(random_int(16, 32))
+            'security'      => [
+                'seed' => Strings::getRandom(random_int(16, 32)),
             ],
-            'debug' => [
-                'enabled' => (static::$environment !== 'production'),
-                'production' => (static::$environment === 'production')
+            'debug'         => [
+                'enabled'    => (static::$environment !== 'production'),
+                'production' => (static::$environment === 'production'),
             ],
-            'project' => [
-                'name' => $configuration->getProject(),
-                'version' => '0.0.0'
+            'project'       => [
+                'name'    => $configuration->getProject(),
+                'version' => '0.0.0',
             ],
-            'languages' => [
+            'languages'     => [
                 'supported' => ['en'],
-                'default' => 'en'
+                'default'   => 'en',
             ],
-            'databases' => [
+            'databases'     => [
                 'sql' => [
-                    'debug' => (static::$environment === 'production'),
+                    'debug'     => (static::$environment === 'production'),
                     'instances' => [
                         'system' => [
                             'type'   => 'mysql',
                             'server' => $configuration->getDatabase()->getHost(),
                             'name'   => $configuration->getDatabase()->getName(),
                             'user'   => $configuration->getDatabase()->getUser(),
-                            'pass'   => $configuration->getDatabase()->getPass()
-                        ]
+                            'pass'   => $configuration->getDatabase()->getPass(),
+                        ],
                     ],
                 ],
 
                 'memcached' => [
                     'instances' => [
-                        'system' => null
-                    ]
-                ]
+                        'system' => null,
+                    ],
+                ],
             ],
             'notifications' => [
                 'groups' => [
                     'developer' => [
-                        $configuration->getEmail()
-                    ]
-                ]
+                        $configuration->getEmail(),
+                    ],
+                ],
             ],
-            'web' => [
-                'minify' => false,
+            'web'           => [
+                'minify'   => false,
                 'sessions' => [
                     'cookies' => [
                         'secure' => false,
                         'domain' => 'auto',
-                    ]
+                    ],
                 ],
-                'domains' => [
-                    'primary' => [
+                'domains'  => [
+                    'primary'     => [
                         'www' => 'http://' . $configuration->getDomain() . '/:LANGUAGE/',
-                        'cdn' => 'http://cdn.' . $configuration->getDomain() . '/:LANGUAGE/'
+                        'cdn' => 'http://cdn.' . $configuration->getDomain() . '/:LANGUAGE/',
                     ],
                     'whitelabel1' => [
                         'www' => 'https://whitelabel1.phoundation.org/:LANGUAGE/',
-                        'cdn' => 'https://cdn.whitelabel1.phoundation.org/:LANGUAGE/'
+                        'cdn' => 'https://cdn.whitelabel1.phoundation.org/:LANGUAGE/',
                     ],
                 ],
-                'route' => [
+                'route'    => [
                     'known-hacks' => [
-                    ]
-                ]
+                    ],
+                ],
             ],
         ];
     }
-
-
-    /**
-     * Fixes configuration key names, - will be replaced with _
-     *
-     * @param array $data
-     * @return array
-     */
-    protected static function fixKeys(array $data): array
-    {
-        $return = [];
-
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                // Recurse
-                $value = static::fixKeys($value);
-            }
-
-            $return[str_replace('-', '_', (string) $key)] = $value;
-        }
-
-        return $return;
-    }
-
 
     /**
      * Reset this Config object
@@ -939,15 +882,97 @@ class Config implements ConfigInterface
         static::$cache  = [];
     }
 
-
     /**
      * Escapes . in the specified path section
      *
      * @param string $path
+     *
      * @return string
      */
     public static function escape(string $path): string
     {
         return str_replace('.', '\\.', $path);
+    }
+
+    /**
+     * Reads the configuration file for the specified configuration environment
+     *
+     * @param bool $exception
+     *
+     * @return void
+     */
+    protected static function read(bool $exception): void
+    {
+        try {
+            if (!static::$environment) {
+                // We don't really have an environment, don't read configuration
+                return;
+            }
+
+            // What environments should be read?
+            if (static::$environment === 'production') {
+                $environments = [
+                    'default',
+                    'production',
+                ];
+
+            } elseif (static::$include_production) {
+                $environments = [
+                    'default',
+                    'production',
+                    static::$environment,
+                ];
+
+            } else {
+                // Read only the specified environment
+                $environments = [static::$environment];
+            }
+
+            // Read the section for each environment
+            foreach ($environments as $environment) {
+                $file = DIRECTORY_ROOT . 'config/' . self::$section . $environment . '.yaml';
+                Restrictions::new(DIRECTORY_ROOT . 'config/')->check($file, false);
+
+                // Check if a configuration file exists for this environment
+                if (!file_exists($file)) {
+                    // Do NOT use tr() here as it will cause endless loops!
+                    throw ConfigFileDoesNotExistsException::new('Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" does not exist')
+                                                          ->makeWarning();
+                }
+
+                try {
+                    // Read the configuration data and merge it in the internal configuration data array
+                    $data = yaml_parse_file($file);
+
+                } catch (Throwable $e) {
+                    // Failed to read YAML data from configuration file
+                    static::$failed = 'Failed to read configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" for environment "' . Strings::log(static::$environment) . '" because "' . $e->getMessage() . '"';
+                    throw ConfigParseFailedException::new(static::$failed, $e)->makeWarning();
+                }
+
+                if (!is_array($data)) {
+                    if ($data) {
+                        throw new OutOfBoundsException(tr('Configuration data in file ":file" has an invalid format', [
+                            ':file' => $file,
+                        ]));
+                    }
+
+                    // It looks like the configuration file was empty
+                    $data = [];
+                }
+
+                static::$data = Arrays::mergeFull(static::$data, $data);
+            }
+
+        } catch (ConfigException $e) {
+            // Do NOT use Log class here as log class requires config which just now failed... Same goes for tr()!
+            static::$failed = 'Failed to load configuration file "' . isset_get($file) . '" because: ' . $e->getMessage();
+
+            if ($exception) {
+                throw $e;
+            }
+
+            echo static::$failed . PHP_EOL;
+        }
     }
 }

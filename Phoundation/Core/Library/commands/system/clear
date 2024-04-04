@@ -6,8 +6,8 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Date\DateTime;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Restrictions;
 
@@ -17,10 +17,10 @@ use Phoundation\Filesystem\Restrictions;
  *
  * This script can be used to test the authentication for the specified user
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 CliDocumentation::setUsage('./pho system clear [OPTIONS]
@@ -48,10 +48,10 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-s,--shred')->isOptional()->isBoolean()
-    ->select('-t,--timestamp')->isOptional()->or('date')->isNatural()
-    ->select('-d,--date')->isOptional()->or('timestamp')->isDate()
-    ->validate();
+                     ->select('-s,--shred')->isOptional()->isBoolean()
+                     ->select('-t,--timestamp')->isOptional()->or('date')->isNatural()
+                     ->select('-d,--date')->isOptional()->or('timestamp')->isDate()
+                     ->validate();
 
 
 // Convert timestamp to ISO-8601 date

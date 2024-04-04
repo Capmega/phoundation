@@ -21,10 +21,10 @@ use Stringable;
  *
  * This class manages the basic Curl functionality
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Network
+ * @package   Phoundation\Network
  */
 abstract class Curl implements CurlInterface
 {
@@ -42,7 +42,17 @@ abstract class Curl implements CurlInterface
      *
      * @var string $method
      */
-    #[ExpectedValues(values: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE'])]
+    #[ExpectedValues(values: [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'HEAD',
+        'CONNECT',
+        'OPTIONS',
+        'TRACE',
+    ])]
     protected string $method;
 
     /**
@@ -247,7 +257,15 @@ abstract class Curl implements CurlInterface
      *
      * @var int $http_version
      */
-    #[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])]
+    #[ExpectedValues(values: [
+        CURL_HTTP_VERSION_NONE,
+        CURL_HTTP_VERSION_1_0,
+        CURL_HTTP_VERSION_1_1,
+        CURL_HTTP_VERSION_2_0,
+        CURL_HTTP_VERSION_2,
+        CURL_HTTP_VERSION_2TLS,
+        CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE,
+    ])]
     protected int $http_version = CURL_HTTP_VERSION_NONE;
 
 
@@ -265,7 +283,7 @@ abstract class Curl implements CurlInterface
             $this->verbose = true;
         }
 
-        $this->url   = (string) $url;
+        $this->url   = (string)$url;
         $this->retry = 0;
 
         $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
@@ -279,6 +297,7 @@ abstract class Curl implements CurlInterface
      * Returns a new cURL class
      *
      * @param Stringable|string|null $url
+     *
      * @return static
      */
     public static function new(Stringable|string|null $url = null): static
@@ -292,7 +311,15 @@ abstract class Curl implements CurlInterface
      *
      * @return int
      */
-    #[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])]
+    #[ExpectedValues(values: [
+        CURL_HTTP_VERSION_NONE,
+        CURL_HTTP_VERSION_1_0,
+        CURL_HTTP_VERSION_1_1,
+        CURL_HTTP_VERSION_2_0,
+        CURL_HTTP_VERSION_2,
+        CURL_HTTP_VERSION_2TLS,
+        CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE,
+    ])]
     public function getHttpVersion(): int
     {
         return $this->http_version;
@@ -303,9 +330,18 @@ abstract class Curl implements CurlInterface
      * Sets the request method
      *
      * @param int $http_version
+     *
      * @return static
      */
-    public function setHttpVersion(#[ExpectedValues(values: [CURL_HTTP_VERSION_NONE, CURL_HTTP_VERSION_1_0, CURL_HTTP_VERSION_1_1, CURL_HTTP_VERSION_2_0, CURL_HTTP_VERSION_2, CURL_HTTP_VERSION_2TLS, CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE])] int $http_version): static
+    public function setHttpVersion(#[ExpectedValues(values: [
+        CURL_HTTP_VERSION_NONE,
+        CURL_HTTP_VERSION_1_0,
+        CURL_HTTP_VERSION_1_1,
+        CURL_HTTP_VERSION_2_0,
+        CURL_HTTP_VERSION_2,
+        CURL_HTTP_VERSION_2TLS,
+        CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE,
+    ])] int $http_version): static
     {
         $this->http_version = $http_version;
         return $this;
@@ -317,7 +353,17 @@ abstract class Curl implements CurlInterface
      *
      * @return string
      */
-    #[ExpectedValues(values: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE'])]
+    #[ExpectedValues(values: [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'HEAD',
+        'CONNECT',
+        'OPTIONS',
+        'TRACE',
+    ])]
     public function getMethod(): string
     {
         return $this->method;
@@ -328,9 +374,20 @@ abstract class Curl implements CurlInterface
      * Sets the request method
      *
      * @param string $method
+     *
      * @return static
      */
-    public function setMethod(#[ExpectedValues(values: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'CONNECT', 'OPTIONS', 'TRACE'])] string $method): static
+    public function setMethod(#[ExpectedValues(values: [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'HEAD',
+        'CONNECT',
+        'OPTIONS',
+        'TRACE',
+    ])] string $method): static
     {
         $this->method = $method;
 
@@ -347,8 +404,9 @@ abstract class Curl implements CurlInterface
     /**
      * Set cURL options directly
      *
-     * @param int $option
+     * @param int   $option
      * @param mixed $value
+     *
      * @return $this
      */
     public function setOpt(int $option, mixed $value): static
@@ -373,6 +431,7 @@ abstract class Curl implements CurlInterface
      * Sets if cURL will be verbose or not
      *
      * @param bool $verbose
+     *
      * @return static
      */
     public function setVerbose(bool $verbose): static
@@ -397,6 +456,7 @@ abstract class Curl implements CurlInterface
      * Sets if the request will follow page redirects
      *
      * @param bool $follow_location
+     *
      * @return static
      */
     public function setFollowLocation(bool $follow_location): static
@@ -430,6 +490,7 @@ abstract class Curl implements CurlInterface
      * Sets the user agent to be used for this request
      *
      * @param string|null $user_agent
+     *
      * @return static
      */
     public function setUserAgent(?string $user_agent): static
@@ -466,6 +527,7 @@ abstract class Curl implements CurlInterface
      *
      * @param string $log_directory
      * @param string $restrictions
+     *
      * @return static
      */
     public function setLogDirectory(string $log_directory, string $restrictions = DIRECTORY_DATA . 'log/'): static
@@ -506,6 +568,7 @@ abstract class Curl implements CurlInterface
      * Returns the maximum number of retries executed for this request
      *
      * @param int $retries
+     *
      * @return static
      */
     public function setRetries(int $retries): static
@@ -530,6 +593,7 @@ abstract class Curl implements CurlInterface
      * Returns the number of time this object will wait before retrying a failed connection
      *
      * @param int $sleep
+     *
      * @return static
      */
     public function setSleep(int $sleep): static
@@ -554,6 +618,7 @@ abstract class Curl implements CurlInterface
      * Returns the number of time in seconds before a complete request times out
      *
      * @param int $timeout
+     *
      * @return static
      */
     public function setTimeout(int $timeout): static
@@ -578,6 +643,7 @@ abstract class Curl implements CurlInterface
      * Returns the number of time in seconds before a connection times out
      *
      * @param int $connect_timeout
+     *
      * @return static
      */
     public function setConnectTimeout(int $connect_timeout): static
@@ -613,6 +679,7 @@ abstract class Curl implements CurlInterface
      * Sets if the request should use multipart or not
      *
      * @param bool $multipart
+     *
      * @return static
      */
     public function setMultipart(bool $multipart): static
@@ -637,6 +704,7 @@ abstract class Curl implements CurlInterface
      * Returns if the connection will be closed once the request has been completed
      *
      * @param bool $close
+     *
      * @return static
      */
     public function setClose(bool $close): static
@@ -661,6 +729,7 @@ abstract class Curl implements CurlInterface
      * Sets if the DNS should use cache or not
      *
      * @param bool $dns_cache
+     *
      * @return static
      */
     public function setDnsCache(bool $dns_cache): static
@@ -685,6 +754,7 @@ abstract class Curl implements CurlInterface
      * Sets if the request will verify the SSL certificate or not
      *
      * @param bool $verify_ssl
+     *
      * @return static
      */
     public function setVerifySsl(bool $verify_ssl): static
@@ -709,6 +779,7 @@ abstract class Curl implements CurlInterface
      * Returns if object will store and use cookies
      *
      * @param bool $get_cookies
+     *
      * @return static
      */
     public function setGetCookies(bool $get_cookies): static
@@ -733,6 +804,7 @@ abstract class Curl implements CurlInterface
      * Returns if object will store and use cookies
      *
      * @param string $cookie_file
+     *
      * @return static
      */
     public function setCookieFile(string $cookie_file): static
@@ -763,23 +835,11 @@ abstract class Curl implements CurlInterface
         return $this->cookies;
     }
 
-
-    /**
-     * Clears the cookies that will be sent for this request
-     *
-     * @return static
-     */
-    public function clearCookies(): static
-    {
-        $this->cookies = [];
-        return $this;
-    }
-
-
     /**
      * Sets the cookies that will be sent for this request
      *
      * @param array $cookies
+     *
      * @return static
      */
     public function setCookies(array $cookies): static
@@ -788,11 +848,11 @@ abstract class Curl implements CurlInterface
         return $this->addCookies($cookies);
     }
 
-
     /**
      * Adds the specified cookies that will be sent for this request
      *
      * @param array $cookies
+     *
      * @return static
      */
     public function addCookies(array $cookies): static
@@ -804,11 +864,11 @@ abstract class Curl implements CurlInterface
         return $this;
     }
 
-
     /**
      * Adds the specified cookie that will be sent for this request
      *
      * @param string $cookie
+     *
      * @return static
      */
     public function addCookie(string $cookie): static
@@ -817,6 +877,16 @@ abstract class Curl implements CurlInterface
         return $this;
     }
 
+    /**
+     * Clears the cookies that will be sent for this request
+     *
+     * @return static
+     */
+    public function clearCookies(): static
+    {
+        $this->cookies = [];
+        return $this;
+    }
 
     /**
      * Sets if object will use local cache for this request
@@ -833,6 +903,7 @@ abstract class Curl implements CurlInterface
      * Returns if object will use local cache for this request
      *
      * @param int $cache_timeout
+     *
      * @return static
      */
     public function setCacheTimeout(int $cache_timeout): static
@@ -857,6 +928,7 @@ abstract class Curl implements CurlInterface
      * Sets the user_password header
      *
      * @param string $user_password
+     *
      * @return static
      */
     public function setReferer(string $user_password): static
@@ -881,6 +953,7 @@ abstract class Curl implements CurlInterface
      * Sets the file to which the result will be saved
      *
      * @param string $save_to_file
+     *
      * @return static
      */
     public function setSaveToFile(string $save_to_file): static
@@ -900,23 +973,11 @@ abstract class Curl implements CurlInterface
         return $this->options;
     }
 
-
-    /**
-     * Clears other extra cURL options
-     *
-     * @return static
-     */
-    public function clearsOptions(): static
-    {
-        $this->options = [];
-        return $this;
-    }
-
-
     /**
      * Sets other extra cURL options
      *
      * @param array $options
+     *
      * @return static
      */
     public function setOptions(array $options): static
@@ -925,11 +986,11 @@ abstract class Curl implements CurlInterface
         return $this->addOptions($options);
     }
 
-
     /**
      * Adds other extra cURL options
      *
      * @param array $options
+     *
      * @return static
      */
     public function addOptions(array $options): static
@@ -941,12 +1002,12 @@ abstract class Curl implements CurlInterface
         return $this;
     }
 
-
     /**
      * Adds another extra cURL option
      *
-     * @param int $key
+     * @param int   $key
      * @param mixed $value
+     *
      * @return static
      */
     public function addOption(int $key, mixed $value): static
@@ -955,6 +1016,16 @@ abstract class Curl implements CurlInterface
         return $this;
     }
 
+    /**
+     * Clears other extra cURL options
+     *
+     * @return static
+     */
+    public function clearsOptions(): static
+    {
+        $this->options = [];
+        return $this;
+    }
 
     /**
      * Returns the result headers
@@ -971,6 +1042,7 @@ abstract class Curl implements CurlInterface
      * Sets the request headers
      *
      * @param array $headers
+     *
      * @return static
      */
     public function setRequestHeaders(array $headers): static
@@ -983,6 +1055,7 @@ abstract class Curl implements CurlInterface
      * Returns the result headers
      *
      * @param array $headers
+     *
      * @return static
      */
     public function addRequestHeaders(array $headers): static
@@ -1002,8 +1075,9 @@ abstract class Curl implements CurlInterface
     /**
      * Returns the result headers
      *
-     * @param string $key
+     * @param string                $key
      * @param string|float|int|null $value
+     *
      * @return static
      */
     public function addRequestHeader(string $key, string|float|int|null $value): static
@@ -1066,7 +1140,7 @@ abstract class Curl implements CurlInterface
      */
     public function getHttpCode(): ?int
     {
-        return get_null((int) $this->result_status['http_code']);
+        return get_null((int)$this->result_status['http_code']);
     }
 
 

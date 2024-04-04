@@ -14,10 +14,10 @@ use Phoundation\Web\Html\Components\Img;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Content
+ * @package   Phoundation\Content
  */
 interface ImageInterface extends ContentInterface
 {
@@ -32,6 +32,7 @@ interface ImageInterface extends ContentInterface
      * Sets the image description
      *
      * @param string|null $description
+     *
      * @return ImageInterface
      */
     public function setDescription(?string $description): ImageInterface;

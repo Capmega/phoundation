@@ -15,10 +15,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class MessagesDropDown extends ElementsBlock
 {
@@ -52,6 +52,7 @@ class MessagesDropDown extends ElementsBlock
      * Sets the messages object
      *
      * @param Messages|null $messages
+     *
      * @return static
      */
     public function setMessages(?Messages $messages): static
@@ -76,6 +77,7 @@ class MessagesDropDown extends ElementsBlock
      * Sets the messages page URL
      *
      * @param Stringable|string|null $messages_url
+     *
      * @return static
      */
     public function setMessagesUrl(Stringable|string|null $messages_url): static

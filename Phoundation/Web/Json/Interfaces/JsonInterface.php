@@ -8,10 +8,10 @@ namespace Phoundation\Web\Json\Interfaces;
  *
  * This class contains methods to assist in building web JSON interfaces
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface JsonInterface
 {
@@ -26,6 +26,7 @@ interface JsonInterface
      * Build and send JSON specific HTTP headers
      *
      * @param string $output
+     *
      * @return void
      */
     public function renderHttpHeaders(string $output): void;

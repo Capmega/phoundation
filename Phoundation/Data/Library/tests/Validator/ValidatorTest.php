@@ -31,8 +31,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isScalar()
-            ->validate();
+                 ->select('test')->isScalar()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -48,8 +48,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isScalar()
-            ->validate();
+                 ->select('test')->isScalar()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -72,8 +72,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isString()
-            ->validate();
+                 ->select('test')->isString()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -89,8 +89,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isString()
-            ->validate();
+                 ->select('test')->isString()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -113,8 +113,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isArray()
-            ->validate();
+                 ->select('test')->isArray()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -130,8 +130,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isArray()
-            ->validate();
+                 ->select('test')->isArray()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -154,8 +154,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isBoolean()
-            ->validate();
+                 ->select('test')->isBoolean()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -171,8 +171,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isBoolean()
-            ->validate();
+                 ->select('test')->isBoolean()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -195,8 +195,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isNumeric()
-            ->validate();
+                 ->select('test')->isNumeric()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -212,8 +212,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isNumeric()
-            ->validate();
+                 ->select('test')->isNumeric()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -236,8 +236,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isInteger()
-            ->validate();
+                 ->select('test')->isInteger()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -253,8 +253,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isInteger()
-            ->validate();
+                 ->select('test')->isInteger()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -277,8 +277,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isFloat()
-            ->validate();
+                 ->select('test')->isFloat()
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -294,8 +294,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isFloat()
-            ->validate();
+                 ->select('test')->isFloat()
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -318,8 +318,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isLessThan(1)
-            ->validate();
+                 ->select('test')->isLessThan(1)
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -335,8 +335,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isLessThan(1)
-            ->validate();
+                 ->select('test')->isLessThan(1)
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -359,8 +359,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isMoreThan(0)
-            ->validate();
+                 ->select('test')->isMoreThan(0)
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -376,8 +376,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isMoreThan(1)
-            ->validate();
+                 ->select('test')->isMoreThan(1)
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }
@@ -400,8 +400,8 @@ class ValidatorTest extends TestCase
         ];
 
         Validator::array($array)
-            ->select('test')->isBetween(0, 2)
-            ->validate();
+                 ->select('test')->isBetween(0, 2)
+                 ->validate();
 
         $this->assertEquals($result, $array);
 
@@ -417,8 +417,8 @@ class ValidatorTest extends TestCase
         $this->expectException(ValidatorException::class);
 
         Validator::array($array)
-            ->select('test')->isBetween(1, 2)
-            ->validate();
+                 ->select('test')->isBetween(1, 2)
+                 ->validate();
 
         $this->assertEquals($result, $array);
     }

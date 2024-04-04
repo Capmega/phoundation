@@ -84,6 +84,53 @@ class Plugin extends DataEntry implements PluginInterface
     // TODO Use hooks after startup!
     public static function start(): void {}
 
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @note IMPORTANT DETAIL: This Plugins::get() method overrides the DataEntry::get() method. It works the same, but
+     *       will return the correct class for the plugin. If, for example, the Phoundation plugin was requested, the
+     *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
+     *       Phoundation\Core\Plugins\Plugin
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null                        $column
+     * @param bool                               $meta_enabled
+     * @param bool                               $force
+     *
+     * @return static
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
+    {
+        $plugin = parent::get($identifier, $column, $meta_enabled, $force);
+        $file   = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
+        $class  = Library::getClassPath($file);
+        $class  = Library::includeClassFile($class);
+
+        return $class::newFromSource($plugin->getSource());
+    }
+
+    /**
+     * Returns if this plugin is disabled or not
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool
+    {
+        return !$this->getEnabled();
+    }
 
     /**
      * Returns if this plugin is enabled or not
@@ -99,6 +146,27 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->getValueTypesafe('bool', 'enabled', false);
     }
 
+    /**
+     * Returns the plugin name
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return basename(dirname(dirname(Library::getClassFile($this))));
+    }
+
+    /**
+     * Sets if this plugin is disabled or not
+     *
+     * @param int|bool|null $disabled
+     *
+     * @return static
+     */
+    public function setDisabled(int|bool|null $disabled): static
+    {
+        return $this->setEnabled(!$disabled);
+    }
 
     /**
      * Sets if this plugin is enabled or not
@@ -118,91 +186,6 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->setValue('enabled', (bool)$enabled);
     }
 
-
-    /**
-     * Returns if this plugin is disabled or not
-     *
-     * @return bool
-     */
-    public function getDisabled(): bool
-    {
-        return !$this->getEnabled();
-    }
-
-
-    /**
-     * Sets if this plugin is disabled or not
-     *
-     * @param int|bool|null $disabled
-     *
-     * @return static
-     */
-    public function setDisabled(int|bool|null $disabled): static
-    {
-        return $this->setEnabled(!$disabled);
-    }
-
-
-    /**
-     * Returns the class path for this plugin
-     *
-     * @return string|null
-     */
-    public function getClass(): ?string
-    {
-        $directory = $this->getPath();
-
-        if ($directory) {
-            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Sets the main class for this plugin
-     *
-     * @param string|null $class
-     *
-     * @return static
-     */
-    public function setClass(?string $class): static
-    {
-        return $this->setValue('class', $class);
-    }
-
-
-    /**
-     * Returns the vendor name for this plugin
-     *
-     * @return string|null
-     */
-    public function getVendor(): ?string
-    {
-        $directory = $this->getPath();
-
-        if ($directory) {
-            return Strings::cut($directory, 'Plugins/', '/');
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Sets the main vendor for this plugin
-     *
-     * @param string|null $vendor
-     *
-     * @return static
-     */
-    public function setVendor(?string $vendor): static
-    {
-        return $this->setValue('vendor', $vendor);
-    }
-
-
     /**
      * Returns the menu_enabled for this object
      *
@@ -212,7 +195,6 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return $this->getValueTypesafe('int', 'menu_enabled', 50);
     }
-
 
     /**
      * Sets the menu_enabled for this object
@@ -226,7 +208,6 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->setValue('menu_enabled', (bool)$menu_enabled);
     }
 
-
     /**
      * Returns the menu_priority for this object
      *
@@ -236,7 +217,6 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return $this->getValueTypesafe('int', 'menu_priority', 50);
     }
-
 
     /**
      * Sets the menu_priority for this object
@@ -256,73 +236,6 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->setValue('menu_priority', $menu_priority);
     }
 
-
-    /**
-     * Sets the priority for this plugin
-     *
-     * @param int|null $priority
-     *
-     * @return static
-     */
-    public function setPriority(?int $priority): static
-    {
-        if ($this->getName() === 'Phoundation') {
-            $priority = 0;
-
-        }
-        else {
-            if (!$priority) {
-                // Default to mid level
-                $priority = 50;
-
-            }
-            elseif (($priority < 0) or ($priority > 100)) {
-                throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be between 0 - 100', [
-                    ':priority' => $priority,
-                ]));
-            }
-        }
-
-        return $this->setTraitPriority($priority);
-    }
-
-
-    /**
-     * Returns the plugin path for this plugin
-     *
-     * @return string
-     */
-    public function getPath(): string
-    {
-        $path = $this->getValueTypesafe('string', 'path');
-
-        if (!$path) {
-            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
-            if ($this->isNew()) {
-                // New object, detect the path automatically
-                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
-            }
-
-            throw new PluginsException(tr('Plugin ":plugin" does not have a class path set', [
-                ':plugin' => get_class($this),
-            ]));
-        }
-
-        return $path;
-    }
-
-
-    /**
-     * Returns the plugin name
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return basename(dirname(dirname(Library::getClassFile($this))));
-    }
-
-
     /**
      * Uninstalls this plugin
      *
@@ -333,6 +246,17 @@ class Plugin extends DataEntry implements PluginInterface
         static::disable();
     }
 
+    /**
+     * Disable this plugin
+     *
+     * @param string|null $comments
+     *
+     * @return void
+     */
+    public function disable(?string $comments = null): void
+    {
+        $this->setStatus('disabled', $comments);
+    }
 
     /**
      * Register this plugin in the database
@@ -371,6 +295,112 @@ class Plugin extends DataEntry implements PluginInterface
              ->save();
     }
 
+    /**
+     * Sets the priority for this plugin
+     *
+     * @param int|null $priority
+     *
+     * @return static
+     */
+    public function setPriority(?int $priority): static
+    {
+        if ($this->getName() === 'Phoundation') {
+            $priority = 0;
+
+        } else {
+            if (!$priority) {
+                // Default to mid level
+                $priority = 50;
+
+            } elseif (($priority < 0) or ($priority > 100)) {
+                throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be between 0 - 100', [
+                    ':priority' => $priority,
+                ]));
+            }
+        }
+
+        return $this->setTraitPriority($priority);
+    }
+
+    /**
+     * Sets the main class for this plugin
+     *
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public function setClass(?string $class): static
+    {
+        return $this->setValue('class', $class);
+    }
+
+    /**
+     * Sets the main vendor for this plugin
+     *
+     * @param string|null $vendor
+     *
+     * @return static
+     */
+    public function setVendor(?string $vendor): static
+    {
+        return $this->setValue('vendor', $vendor);
+    }
+
+    /**
+     * Returns the plugin path for this plugin
+     *
+     * @return string
+     */
+    public function getPath(): string
+    {
+        $path = $this->getValueTypesafe('string', 'path');
+
+        if (!$path) {
+            // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
+            if ($this->isNew()) {
+                // New object, detect the path automatically
+                return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
+            }
+
+            throw new PluginsException(tr('Plugin ":plugin" does not have a class path set', [
+                ':plugin' => get_class($this),
+            ]));
+        }
+
+        return $path;
+    }
+
+    /**
+     * Returns the vendor name for this plugin
+     *
+     * @return string|null
+     */
+    public function getVendor(): ?string
+    {
+        $directory = $this->getPath();
+
+        if ($directory) {
+            return Strings::cut($directory, 'Plugins/', '/');
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the class path for this plugin
+     *
+     * @return string|null
+     */
+    public function getClass(): ?string
+    {
+        $directory = $this->getPath();
+
+        if ($directory) {
+            return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
+        }
+
+        return null;
+    }
 
     /**
      * Delete the plugin from the plugin registry
@@ -385,7 +415,6 @@ class Plugin extends DataEntry implements PluginInterface
         sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
-
     /**
      * Enable this plugin
      *
@@ -397,59 +426,6 @@ class Plugin extends DataEntry implements PluginInterface
     {
         $this->setStatus(null, $comments);
     }
-
-
-    /**
-     * Disable this plugin
-     *
-     * @param string|null $comments
-     *
-     * @return void
-     */
-    public function disable(?string $comments = null): void
-    {
-        $this->setStatus('disabled', $comments);
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
-     *
-     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
-     * object, as long as it exists in the database.
-     *
-     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
-     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they cannot be stored in the database.
-     *
-     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
-     * DataEntryDeletedException will be thrown
-     *
-     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
-     *       DataEntry::getId(), which should return a valid database id
-     *
-     * @note IMPORTANT DETAIL: This Plugins::get() method overrides the DataEntry::get() method. It works the same, but
-     *       will return the correct class for the plugin. If, for example, the Phoundation plugin was requested, the
-     *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
-     *       Phoundation\Core\Plugins\Plugin
-     *
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null                        $column
-     * @param bool                               $meta_enabled
-     * @param bool                               $force
-     *
-     * @return static
-     */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
-    {
-        $plugin = parent::get($identifier, $column, $meta_enabled, $force);
-        $file = DIRECTORY_ROOT . $plugin->getPath() . 'Library/Plugin.php';
-        $class = Library::getClassPath($file);
-        $class = Library::includeClassFile($class);
-
-        return $class::newFromSource($plugin->getSource());
-    }
-
 
     /**
      * Sets the available data keys for the User class

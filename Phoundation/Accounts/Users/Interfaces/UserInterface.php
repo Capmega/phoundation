@@ -20,11 +20,11 @@ use Stringable;
  *
  * This is the default user class.
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 interface UserInterface extends DataEntryInterface
 {
@@ -39,6 +39,7 @@ interface UserInterface extends DataEntryInterface
      * Returns true if the specified password matches the users password
      *
      * @param string $password
+     *
      * @return bool
      */
     public function passwordMatch(string $password): bool;
@@ -61,6 +62,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the nickname for this user
      *
      * @param string|null $remote_id
+     *
      * @return static
      */
     public function setNickname(?string $remote_id): static;
@@ -83,6 +85,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the first_names for this user
      *
      * @param string|null $first_names
+     *
      * @return static
      */
     public function setFirstNames(?string $first_names): static;
@@ -98,6 +101,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the last_names for this user
      *
      * @param string|null $lastnames
+     *
      * @return static
      */
     public function setLastNames(?string $lastnames): static;
@@ -113,6 +117,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the username for this user
      *
      * @param string|null $username
+     *
      * @return static
      */
     public function setUsername(?string $username): static;
@@ -128,6 +133,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the last_sign_in for this user
      *
      * @param string|null $last_sign_in
+     *
      * @return static
      */
     public function setLastSignin(?string $last_sign_in): static;
@@ -143,6 +149,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the update_password for this user
      *
      * @param DateTime|true|null $date_time
+     *
      * @return static
      */
     public function setUpdatePassword(DateTime|bool|null $date_time): static;
@@ -158,6 +165,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the authentication_failures for this user
      *
      * @param int|null $authentication_failures
+     *
      * @return static
      */
     public function setAuthenticationFailures(?int $authentication_failures): static;
@@ -173,6 +181,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the locked_until for this user
      *
      * @param string|null $locked_until
+     *
      * @return static
      */
     public function setLockedUntil(?string $locked_until): static;
@@ -188,6 +197,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the sign_in_count for this user
      *
      * @param int|null $sign_in_count
+     *
      * @return static
      */
     public function setSigninCount(?int $sign_in_count): static;
@@ -203,6 +213,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the fingerprint datetime for this user
      *
      * @param DateTimeInterface|string|int|null $fingerprint
+     *
      * @return static
      */
     public function setFingerprint(DateTimeInterface|string|int|null $fingerprint): static;
@@ -218,6 +229,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the title for this user
      *
      * @param string|null $title
+     *
      * @return static
      */
     public function setTitle(?string $title): static;
@@ -233,6 +245,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the keywords for this user
      *
      * @param array|string|null $keywords
+     *
      * @return static
      */
     public function setKeywords(array|string|null $keywords): static;
@@ -248,6 +261,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the verification_code for this user
      *
      * @param string|null $verification_code
+     *
      * @return static
      */
     public function setVerificationCode(?string $verification_code): static;
@@ -263,6 +277,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the verified_on for this user
      *
      * @param string|null $verified_on
+     *
      * @return static
      */
     public function setVerifiedOn(?string $verified_on): static;
@@ -278,6 +293,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the priority for this user
      *
      * @param int|null $priority
+     *
      * @return static
      */
     public function setPriority(?int $priority): static;
@@ -293,6 +309,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the is_leader for this user
      *
      * @param int|bool|null $is_leader
+     *
      * @return static
      */
     public function setIsLeader(int|bool|null $is_leader): static;
@@ -308,6 +325,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the leader for this user
      *
      * @param int|null $leaders_id
+     *
      * @return static
      */
     public function setLeadersId(?int $leaders_id): static;
@@ -330,6 +348,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the leader for this user
      *
      * @param string|null $leaders_name
+     *
      * @return static
      */
     public function setLeadersName(?string $leaders_name): static;
@@ -345,6 +364,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the latitude for this user
      *
      * @param float|null $latitude
+     *
      * @return static
      */
     public function setLatitude(?float $latitude): static;
@@ -360,6 +380,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the longitude for this user
      *
      * @param float|null $longitude
+     *
      * @return static
      */
     public function setLongitude(?float $longitude): static;
@@ -375,6 +396,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the accuracy for this user
      *
      * @param float|null $accuracy
+     *
      * @return static
      */
     public function setAccuracy(?float $accuracy): static;
@@ -390,6 +412,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the offset_latitude for this user
      *
      * @param float|null $offset_latitude
+     *
      * @return static
      */
     public function setOffsetLatitude(?float $offset_latitude): static;
@@ -405,6 +428,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the offset_longitude for this user
      *
      * @param float|null $offset_longitude
+     *
      * @return static
      */
     public function setOffsetLongitude(?float $offset_longitude): static;
@@ -420,6 +444,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the redirect for this user
      *
      * @param Stringable|string|null $redirect
+     *
      * @return static
      */
     public function setRedirect(Stringable|string|null $redirect = null): static;
@@ -435,6 +460,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the gender for this user
      *
      * @param string|null $gender
+     *
      * @return static
      */
     public function setGender(?string $gender): static;
@@ -450,6 +476,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the birthdate for this user
      *
      * @param DateTimeInterface|string|null $birthdate
+     *
      * @return static
      */
     public function setBirthdate(DateTimeInterface|string|null $birthdate): static;
@@ -459,6 +486,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @param string $password
      * @param string $validation
+     *
      * @return static
      */
     public function changePassword(string $password, string $validation): static;
@@ -468,6 +496,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @param string $password
      * @param string $validation
+     *
      * @return static
      */
     public function validatePassword(string $password, string $validation): static;
@@ -476,6 +505,7 @@ interface UserInterface extends DataEntryInterface
      * Returns the name for this user that can be displayed
      *
      * @param bool $official
+     *
      * @return string
      */
     function getDisplayName(bool $official = false): string;
@@ -519,6 +549,7 @@ interface UserInterface extends DataEntryInterface
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
+     *
      * @return bool
      */
     public function hasAllRights(array|string $rights): bool;
@@ -527,6 +558,7 @@ interface UserInterface extends DataEntryInterface
      * Returns an array of what rights this user misses
      *
      * @param array|string $rights
+     *
      * @return array
      */
     public function getMissingRights(array|string $rights): array;
@@ -535,6 +567,7 @@ interface UserInterface extends DataEntryInterface
      * Returns true if the user has SOME of the specified rights
      *
      * @param array|string $rights
+     *
      * @return bool
      */
     public function hasSomeRights(array|string $rights): bool;
@@ -543,6 +576,7 @@ interface UserInterface extends DataEntryInterface
      * Creates and returns an HTML DataEntry form
      *
      * @param string $name
+     *
      * @return DataEntryFormInterface
      */
     public function getRolesHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;
@@ -550,8 +584,9 @@ interface UserInterface extends DataEntryInterface
     /**
      * Save the user to database
      *
-     * @param bool $force
+     * @param bool        $force
      * @param string|null $comments
+     *
      * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static;
@@ -594,6 +629,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the notifications_hash for this user
      *
      * @param string|null $notifications_hash
+     *
      * @return static
      */
     public function setNotificationsHash(?string $notifications_hash): static;
@@ -630,6 +666,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the remote_id for this user
      *
      * @param int|null $remote_id
+     *
      * @return static
      */
     public function setRemoteId(?int $remote_id): static;
@@ -637,8 +674,9 @@ interface UserInterface extends DataEntryInterface
     /**
      * Returns the remote user for this user
      *
-     * @param string $class
+     * @param string      $class
      * @param string|null $column
+     *
      * @return UserInterface|null
      */
     public function getRemoteUser(string $class, ?string $column = null): ?UserInterface;
@@ -647,6 +685,7 @@ interface UserInterface extends DataEntryInterface
      * Sets the remote user for this user
      *
      * @param UserInterface|null $remote_user
+     *
      * @return static
      */
     public function setRemoteUser(?UserInterface $remote_user): static;

@@ -12,10 +12,10 @@ use Phoundation\Web\Html\Enums\EnumElementInputType;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputNumber extends Input
 {
@@ -46,6 +46,7 @@ class InputNumber extends Input
      * Sets the maximum numeric value for this numeric input
      *
      * @param int|null $max
+     *
      * @return $this
      */
     public function setMax(?int $max): static
@@ -69,6 +70,7 @@ class InputNumber extends Input
      * Sets the minimum numeric value for this numeric input
      *
      * @param int|null $min
+     *
      * @return $this
      */
     public function setMin(?int $min): static
@@ -92,6 +94,7 @@ class InputNumber extends Input
      * Sets the step value for this numeric input
      *
      * @param int|null $step
+     *
      * @return $this
      */
     public function setStep(?int $step): static

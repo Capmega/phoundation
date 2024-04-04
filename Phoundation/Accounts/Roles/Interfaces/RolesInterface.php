@@ -14,11 +14,11 @@ use Stringable;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 interface RolesInterface extends DataListInterface
 {
@@ -26,6 +26,7 @@ interface RolesInterface extends DataListInterface
      * Set the new roles for the current parents to the specified list
      *
      * @param array|null $list
+     *
      * @return static
      */
     public function setRoles(?array $list): static;
@@ -33,10 +34,11 @@ interface RolesInterface extends DataListInterface
     /**
      * Add the specified role to the data list
      *
-     * @param mixed $value
+     * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
      * @return static
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
@@ -45,6 +47,7 @@ interface RolesInterface extends DataListInterface
      * Remove the specified role from the roles list
      *
      * @param RoleInterface|Stringable|array|string|float|int $keys
+     *
      * @return static
      */
     public function deleteKeys(RoleInterface|Stringable|array|string|float|int $keys): static;
@@ -60,6 +63,7 @@ interface RolesInterface extends DataListInterface
      * Load the data for this roles list into the object
      *
      * @param bool $clear
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;
@@ -74,11 +78,12 @@ interface RolesInterface extends DataListInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
 

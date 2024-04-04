@@ -14,10 +14,10 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Mplayer extends Command
 {
@@ -28,6 +28,7 @@ class Mplayer extends Command
      * Play the specified file
      *
      * @param bool $background
+     *
      * @return void
      */
     public function play(bool $background): void

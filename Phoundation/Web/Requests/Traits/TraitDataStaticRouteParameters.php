@@ -13,10 +13,10 @@ use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 trait TraitDataStaticRouteParameters
 {
@@ -48,6 +48,7 @@ trait TraitDataStaticRouteParameters
      * Sets the routing parameters
      *
      * @param RoutingParametersInterface $parameters
+     *
      * @return void
      */
     public static function setParameters(RoutingParametersInterface $parameters): void

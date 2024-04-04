@@ -16,10 +16,10 @@ use Phoundation\Utils\Config;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataConnector
 {
@@ -46,7 +46,8 @@ trait TraitDataConnector
      * Sets the source
      *
      * @param ConnectorInterface|string|null $connector
-     * @param bool $ignore_sql_exceptions
+     * @param bool                           $ignore_sql_exceptions
+     *
      * @return static
      * @throws SqlExceptionInterface
      */

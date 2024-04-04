@@ -19,21 +19,21 @@ use Phoundation\Utils\Arrays;
  *
  * This class embodies a process that will be executed
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
- * @uses ProcessVariables
+ * @package   Phoundation\Os
+ * @uses      ProcessVariables
  */
 class Process extends ProcessCore implements ProcessInterface
 {
     /**
      * Processes constructor.
      *
-     * @param string|null $command
+     * @param string|null                             $command
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null $operating_system
-     * @param string|null $packages
+     * @param string|null                             $operating_system
+     * @param string|null                             $packages
      */
     public function __construct(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
@@ -48,65 +48,13 @@ class Process extends ProcessCore implements ProcessInterface
         }
     }
 
-
-    /**
-     * Create a new process factory
-     *
-     * @param string|null $command
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null $operating_system
-     * @param string|null $packages
-     * @return static
-     */
-    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
-    {
-        return new static($command, $restrictions, $operating_system, $packages);
-    }
-
-
-    /**
-     * Returns true if the process can execute the specified command with sudo privileges
-     *
-     * @param string $command
-     * @param bool $exception
-     * @return bool
-     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands like "true", or "which", etc?
-     */
-    public function sudoAvailable(string $command, bool $exception = false): bool
-    {
-        try {
-            Process::new($this->command, $this->getRestrictions())
-                ->setSudo(true)
-                ->addArgument('--version')
-                ->executeReturnArray();
-
-            return true;
-
-        } catch (CommandNotFoundException) {
-            if ($exception) {
-                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
-                    ':command' => $command
-                ]));
-            }
-
-        } catch (ProcessFailedException) {
-            if ($exception) {
-                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
-                    ':command' => $command
-                ]));
-            }
-        }
-
-        return false;
-    }
-
-
     /**
      * Command exception handler
      *
-     * @param string $command
-     * @param Exception $e
+     * @param string        $command
+     * @param Exception     $e
      * @param callable|null $function
+     *
      * @return void
      */
     protected static function handleException(string $command, Exception $e, ?callable $function = null): void
@@ -126,7 +74,7 @@ class Process extends ProcessCore implements ProcessInterface
             // Handlers were unable to make a clear exception out of this, show the standard command exception
             throw new CommandsException(tr('The command :command failed with ":output"', [
                 ':command' => $command,
-                ':output'  => $data
+                ':output'  => $data,
             ]));
         }
 
@@ -137,7 +85,60 @@ class Process extends ProcessCore implements ProcessInterface
 
         // Something else went wrong, no CLI output available
         throw new CommandsException(tr('The command :command failed for unknown reasons', [
-            ':command' => $command
+            ':command' => $command,
         ]));
+    }
+
+    /**
+     * Returns true if the process can execute the specified command with sudo privileges
+     *
+     * @param string $command
+     * @param bool   $exception
+     *
+     * @return bool
+     * @todo Find a better option than "--version" which may not be available for everything. What about shell commands
+     *       like "true", or "which", etc?
+     */
+    public function sudoAvailable(string $command, bool $exception = false): bool
+    {
+        try {
+            Process::new($this->command, $this->getRestrictions())
+                   ->setSudo(true)
+                   ->addArgument('--version')
+                   ->executeReturnArray();
+
+            return true;
+
+        } catch (CommandNotFoundException) {
+            if ($exception) {
+                throw new NoSudoException(tr('Cannot check for sudo privileges for the ":command" command, the command was not found', [
+                    ':command' => $command,
+                ]));
+            }
+
+        } catch (ProcessFailedException) {
+            if ($exception) {
+                throw new NoSudoException(tr('The current process owner has no sudo privileges available for the ":command" command', [
+                    ':command' => $command,
+                ]));
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Create a new process factory
+     *
+     * @param string|null                             $command
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null                             $operating_system
+     * @param string|null                             $packages
+     *
+     * @return static
+     */
+    public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    {
+        return new static($command, $restrictions, $operating_system, $packages);
     }
 }

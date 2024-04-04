@@ -12,10 +12,10 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 trait TraitChildElement
 {
@@ -42,6 +42,7 @@ trait TraitChildElement
      * Sets the child for this anchor
      *
      * @param ElementInterface|null $child_element
+     *
      * @return $this
      */
     public function setChildElement(?ElementInterface $child_element): static

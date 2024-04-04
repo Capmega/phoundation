@@ -12,10 +12,10 @@ use Phoundation\Seo\Seo;
  *
  * This trait contains methods for DataEntry objects that require a version and description
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryVersion
 {
@@ -29,20 +29,6 @@ trait TraitDataEntryVersion
         return $this->getValueTypesafe('string', 'seo_version');
     }
 
-
-    /**
-     * Sets the seo_version for this object
-     *
-     * @note This method is protected because it should only be called from within DataEntry objects
-     * @param string|null $seo_version
-     * @return static
-     */
-    protected function setSeoVersion(?string $seo_version): static
-    {
-        return $this->setValue('seo_version', $seo_version);
-    }
-
-
     /**
      * Returns the version for this object
      *
@@ -53,11 +39,11 @@ trait TraitDataEntryVersion
         return $this->getValueTypesafe('string', 'version');
     }
 
-
     /**
      * Sets the version for this object
      *
      * @param string|null $version
+     *
      * @return static
      */
     public function setVersion(?string $version): static
@@ -73,5 +59,19 @@ trait TraitDataEntryVersion
         }
 
         return $this->setValue('version', $version);
+    }
+
+    /**
+     * Sets the seo_version for this object
+     *
+     * @note This method is protected because it should only be called from within DataEntry objects
+     *
+     * @param string|null $seo_version
+     *
+     * @return static
+     */
+    protected function setSeoVersion(?string $seo_version): static
+    {
+        return $this->setValue('seo_version', $seo_version);
     }
 }

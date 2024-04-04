@@ -16,10 +16,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This script will create a new role with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./pho system accounts roles add-right -n test -d "This is a test role!"');
@@ -38,13 +38,11 @@ RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each us
                                         also get these rights assigned');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('user', true)->isName()
-    ->select('roles', true)->sanitizeForceArray()->each()->isName()
-    ->validate();
-
+                     ->select('user', true)->isName()
+                     ->select('roles', true)->sanitizeForceArray()->each()->isName()
+                     ->validate();
 
 
 try {
@@ -58,7 +56,7 @@ try {
     }
 
     // Get role and remove rights
-    $user = User::get($argv['user']);
+    $user  = User::get($argv['user']);
     $roles = $user->getRoles();
 
     foreach ($argv['roles'] as $role) {
@@ -74,6 +72,6 @@ try {
         Log::warning(tr('User ":user" was not modified', [':user' => $user->getDisplayName()]));
     }
 
-}catch (DataEntryNotExistsException $e) {
+} catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }

@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
@@ -74,6 +74,7 @@ trait ButtonProperties
      * Set the button type
      *
      * @param EnumInputTypeInterface|null $type
+     *
      * @return Button
      */
     public function setType(?EnumInputTypeInterface $type): static
@@ -110,13 +111,14 @@ trait ButtonProperties
      * Returns the button's anchor URL
      *
      * @param Stringable|string|null $anchor_url
+     *
      * @return Button
      */
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
-        $this->anchor_url = (string) UrlBuilder::getWww($anchor_url);
-        $this->input_type       = null;
+        $this->anchor_url = (string)UrlBuilder::getWww($anchor_url);
+        $this->input_type = null;
 
         return $this;
     }
@@ -137,6 +139,7 @@ trait ButtonProperties
      * Set if the button is outlined or not
      *
      * @param bool $outlined
+     *
      * @return Button
      */
     public function setOutlined(bool $outlined): static
@@ -161,6 +164,7 @@ trait ButtonProperties
      * Set if the button is block or not
      *
      * @param bool $block
+     *
      * @return Button
      */
     public function setBlock(bool $block): static
@@ -185,6 +189,7 @@ trait ButtonProperties
      * Set if the button is flat or not
      *
      * @param bool $flat
+     *
      * @return Button
      */
     public function setFlat(bool $flat): static
@@ -209,6 +214,7 @@ trait ButtonProperties
      * Set if the button is rounded or not
      *
      * @param bool $rounded
+     *
      * @return Button
      */
     public function setRounded(bool $rounded): static
@@ -233,6 +239,7 @@ trait ButtonProperties
      * Set if the button is wrapping or not
      *
      * @param bool $wrapping
+     *
      * @return Button
      */
     public function setWrapping(bool $wrapping): static

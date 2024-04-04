@@ -12,10 +12,10 @@ use JetBrains\PhpStorm\ExpectedValues;
  *
  * This class contains methods to manage HTML flash messages
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Flash
 {
@@ -32,13 +32,22 @@ class Flash
      *
      * @param string $message
      * @param string $type
+     *
      * @return void
      */
-    public function add(string $message, #[ExpectedValues(values: ['info', 'information', 'success', 'notice', 'warning', 'error', 'exception'])] string $type): void
+    public function add(string $message, #[ExpectedValues(values: [
+        'info',
+        'information',
+        'success',
+        'notice',
+        'warning',
+        'error',
+        'exception',
+    ])] string                 $type): void
     {
         $this->messages[] = [
-            'type'    => $type,
-            'message' => $message
+            'type' => $type,
+            'message' => $message,
         ];
     }
 }

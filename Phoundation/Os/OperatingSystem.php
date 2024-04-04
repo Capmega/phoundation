@@ -18,10 +18,10 @@ use Phoundation\Os\Interfaces\OperatingSystemInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class OperatingSystem extends DataEntry implements OperatingSystemInterface
 {
@@ -55,22 +55,11 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
         return null;
     }
 
-
-    /**
-     * Detects the current operating system and returns an operating system object for it
-     *
-     * @return static
-     */
-    public static function detect(): static
-    {
-        throw new UnderConstructionException();
-    }
-
-
     /**
      * Returns either the specified operating system, or the current one
      *
      * @param string|null $operating_system
+     *
      * @return static
      */
     public static function getSpecifiedOrCurrent(?string $operating_system): static
@@ -82,6 +71,15 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
         return static::get($operating_system);
     }
 
+    /**
+     * Detects the current operating system and returns an operating system object for it
+     *
+     * @return static
+     */
+    public static function detect(): static
+    {
+        throw new UnderConstructionException();
+    }
 
     /**
      * @inheritDoc

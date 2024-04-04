@@ -10,11 +10,11 @@ namespace Phoundation\Geo\Library;
  *
  * This is the Init class for the Geo library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Geo
+ * @package   Phoundation\Geo
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -59,7 +59,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_timezones table.
             sql()->schema()->table('geo_timezones')->define()
-                ->setColumns('  
+                 ->setColumns('  
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -92,7 +92,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_continents table.
             sql()->schema()->table('geo_continents')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -127,7 +127,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_countries table.
             sql()->schema()->table('geo_countries')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -197,7 +197,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_states table.
             sql()->schema()->table('geo_states')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -250,7 +250,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_counties table.
             sql()->schema()->table('geo_counties')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -300,7 +300,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_features table.
             sql()->schema()->table('geo_features')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -324,7 +324,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the geo_cities table.
             sql()->schema()->table('geo_cities')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,

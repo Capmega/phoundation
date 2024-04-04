@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Accounts\Users\Password;
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Config;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Utils\Strings;
 
 
@@ -18,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  * This class can apply a large number of validation tests on a single value
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class Sanitize
 {
@@ -51,6 +47,7 @@ class Sanitize
      * Returns a new Validate object
      *
      * @param mixed $source
+     *
      * @return static
      */
     public static function new(mixed $source): static
@@ -75,7 +72,7 @@ class Sanitize
      */
     public function phoneNumber(): static
     {
-        $value  = trim((string) $this->source);
+        $value  = trim((string)$this->source);
         $prefix = (str_starts_with($value, '+') ? '+' : Config::getString('validation.defaults.phones.country-code', '+1'));
         $ext    = Strings::from($value, 'ext', needle_required: true);
         $value  = preg_replace('/[^0-9]+/', '', $value);

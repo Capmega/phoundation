@@ -20,10 +20,10 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 
 
@@ -31,54 +31,54 @@ use Phoundation\Web\Requests\Response;
 $filters_content = FilterForm::new();
 
 $filters = Card::new()
-    ->setCollapseSwitch(true)
-    ->setTitle('Users filters')
-    ->setContent($filters_content->render())
-    ->useForm(true);
+               ->setCollapseSwitch(true)
+               ->setTitle('Users filters')
+               ->setContent($filters_content->render())
+               ->useForm(true);
 
 
 // Build users table
 $buttons = Buttons::new()
-    ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
-    ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
+                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
 // Build rights table
 $table = Rights::new()
-    ->getHtmlDataTable()
-    ->setRowUrl('/accounts/right+:ROW.html');
+               ->getHtmlDataTable()
+               ->setRowUrl('/accounts/right+:ROW.html');
 
 $rights = Card::new()
-    ->setTitle('Active rights')
-    ->setSwitches('reload')
-    ->setContent($table->render())
-    ->useForm(true)
-    ->setButtons($buttons);
+              ->setTitle('Active rights')
+              ->setSwitches('reload')
+              ->setContent($table->render())
+              ->useForm(true)
+              ->setButtons($buttons);
 
 $rights->getForm()
-        ->setAction(UrlBuilder::getCurrent())
-        ->setMethod('POST');
+       ->setAction(UrlBuilder::getCurrent())
+       ->setMethod('POST');
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                ->setMode(EnumDisplayMode::info)
+                ->setTitle(tr('Relevant links'))
+                ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $rights, EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($filters->render() . $rights, EnumDisplaySize::nine)
+            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
@@ -86,6 +86,6 @@ echo $grid->render();
 // Set page meta data
 Response::setHeaderTitle(tr('Rights'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Rights')
-]));
+                                                           '/' => tr('Home'),
+                                                           ''  => tr('Rights'),
+                                                       ]));

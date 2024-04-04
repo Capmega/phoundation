@@ -6,7 +6,6 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
-use Phoundation\Utils\Config;
 
 
 /**
@@ -14,19 +13,19 @@ use Phoundation\Utils\Config;
  *
  * This script displays information about the specified user.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete(User::getAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
-        ]
-    ],
-]));
+                                                            'positions' => [
+                                                                0 => [
+                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                ],
+                                                            ],
+                                                        ]));
 
 CliDocumentation::setUsage('./pho accounts users info USER');
 
@@ -42,8 +41,8 @@ USER                                    The user to display information about. S
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
-    ->validate();
+                     ->select('user')->hasMinCharacters(2)->hasMaxCharacters(255)
+                     ->validate();
 
 
 $user = User::get($argv['user']);

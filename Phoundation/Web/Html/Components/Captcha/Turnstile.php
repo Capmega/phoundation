@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Captcha;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Developer\Debug;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -20,11 +19,11 @@ use Phoundation\Web\Html\Components\Script;
  *
  * Captcha system based on Cloudflare Turnstile.
  *
- * @see https://www.cloudflare.com/products/turnstile/
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       https://www.cloudflare.com/products/turnstile/
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Turnstile extends Captcha
 {
@@ -46,6 +45,23 @@ class Turnstile extends Captcha
         return $this->script;
     }
 
+    /**
+     * Returns true if the token is valid for the specified action
+     *
+     * @param string|null $response
+     * @param string|null $remote_ip
+     * @param string|null $secret
+     *
+     * @return void
+     */
+    public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
+    {
+        if (!$this->isValid($response, $remote_ip, $secret)) {
+            throw new ValidationFailedException(tr('The Turnstile response is invalid for ":remote_ip"', [
+                ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR'],
+            ]));
+        }
+    }
 
     /**
      * Returns true if the token is valid for the specified action
@@ -53,6 +69,7 @@ class Turnstile extends Captcha
      * @param string|null $response
      * @param string|null $remote_ip
      * @param string|null $secret
+     *
      * @return bool
      */
     public function isValid(?string $response, string $remote_ip = null, string $secret = null): bool
@@ -83,12 +100,13 @@ class Turnstile extends Captcha
 
         // Check with Google if captcha passed or not
         $post = Post::new('')
-            ->setPostUrlEncoded(true)
-            ->addPostValues([
-                'secret'    => $secret,
-                'response'  => $response,
-                'remote_ip' => $remote_ip])
-            ->execute();
+                    ->setPostUrlEncoded(true)
+                    ->addPostValues([
+                                        'secret'    => $secret,
+                                        'response'  => $response,
+                                        'remote_ip' => $remote_ip,
+                                    ])
+                    ->execute();
 
         $response = $post->getResultData();
         $response = Json::decode($response);
@@ -102,25 +120,6 @@ class Turnstile extends Captcha
 
         return $response;
     }
-
-
-    /**
-     * Returns true if the token is valid for the specified action
-     *
-     * @param string|null $response
-     * @param string|null $remote_ip
-     * @param string|null $secret
-     * @return void
-     */
-    public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
-    {
-        if (!$this->isValid($response, $remote_ip, $secret)) {
-            throw new ValidationFailedException(tr('The Turnstile response is invalid for ":remote_ip"', [
-                ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR']
-            ]));
-        }
-    }
-
 
     /**
      * Renders and returns the HTML for the google ReCAPTCHA
@@ -139,9 +138,9 @@ class Turnstile extends Captcha
         }
 
         return Script::new()
-            ->setAsync(true)
-            ->setDefer(true)
-            ->setSrc($this->script)
-            ->render() . '<div class="" data-sitekey="' . $key . '"></div>';
+                     ->setAsync(true)
+                     ->setDefer(true)
+                     ->setSrc($this->script)
+                     ->render() . '<div class="" data-sitekey="' . $key . '"></div>';
     }
 }

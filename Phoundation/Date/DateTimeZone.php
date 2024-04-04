@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Exception\DateTimeZoneException;
@@ -18,10 +17,10 @@ use Throwable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Date
+ * @package   Phoundation\Date
  */
 class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
 {
@@ -50,7 +49,7 @@ class DateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
                 case 'display':
                     // The timezone requested by the user
                     $detected = Session::getUser()->getTimezone();
-$detected = 'PDT';
+                    $detected = 'PDT';
                     break;
 
                 default:
@@ -59,7 +58,7 @@ $detected = 'PDT';
 
             if (!$detected) {
                 throw new DateTimeZoneException(tr('Failed to convert requested timezone ":timezone"', [
-                    ':timezone' => $timezone
+                    ':timezone' => $timezone,
                 ]));
             }
 
@@ -68,7 +67,7 @@ $detected = 'PDT';
                 if (!array_key_exists(strtolower($detected), DateTimeZone::listAbbreviations())) {
                     throw new DateTimeException(tr('Detected timezone ":timezone" (from specified ":timezone") is not supported', [
                         ':timezone' => $timezone,
-                        ':detected' => $detected
+                        ':detected' => $detected,
                     ]));
                 }
             }
@@ -81,30 +80,6 @@ $detected = 'PDT';
 
         parent::__construct($timezone);
     }
-
-
-    /**
-     * Returns a new DateTimeZone object
-     *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
-     * @return static
-     */
-    public static function new(\DateTimeZone|DateTimeZone|string|null $timezone): static
-    {
-        return new DateTimeZone($timezone);
-    }
-
-
-    /**
-     * Returns a PHP DateTimeZone object from this Phoundation DateTimeZone object
-     *
-     * @return \DateTimeZone
-     */
-    public function getPhpDateTimeZone(): \DateTimeZone
-    {
-        return new \DateTimeZone($this->getName());
-    }
-
 
     /**
      * Returns the timezone for this server
@@ -125,5 +100,27 @@ $detected = 'PDT';
         }
 
         return $timezone;
+    }
+
+    /**
+     * Returns a new DateTimeZone object
+     *
+     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public static function new(\DateTimeZone|DateTimeZone|string|null $timezone): static
+    {
+        return new DateTimeZone($timezone);
+    }
+
+    /**
+     * Returns a PHP DateTimeZone object from this Phoundation DateTimeZone object
+     *
+     * @return \DateTimeZone
+     */
+    public function getPhpDateTimeZone(): \DateTimeZone
+    {
+        return new \DateTimeZone($this->getName());
     }
 }

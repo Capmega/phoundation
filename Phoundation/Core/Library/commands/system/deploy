@@ -16,46 +16,46 @@ use Phoundation\Filesystem\Restrictions;
  *
  * This script will check for - and report - (and optionally fix) the project and its systems
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
-$restrictions = Restrictions::readonly([DIRECTORY_ROOT . 'config/deploy/'],  tr('Deploy'));
+$restrictions = Restrictions::readonly([DIRECTORY_ROOT . 'config/deploy/'], tr('Deploy'));
 
 CliDocumentation::setAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
-            'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
-        ]
-    ],
-    'arguments' => [
-        '-c / --categories'   => false,
-        '-t / --targets'      => false,
-        '--do-ignore-changes' => false,
-        '--no-ignore-changes' => false,
-        '--do-content-check'  => false,
-        '--no-content-check'  => false,
-        '--do-execute-hooks'  => false,
-        '--no-execute-hooks'  => false,
-        '--do-init'           => false,
-        '--no-init'           => false,
-        '--no-notify'         => false,
-        '--no-compress'       => false,
-        '--no-push'           => false,
-        '--no-parrallel'      => false,
-        '--no-sitemap'        => false,
-        '--no-translate'      => false,
-        '--no-bom-check'      => false,
-        '--no-backup'         => false,
-        '--do-backup'         => false,
-        '--update-sitemap'    => false,
-        '-F / --force'        => false,
-        '--test-syntax'       => false,
-        '--test-unit'         => false
-    ]
-]);
+                                      'positions' => [
+                                          0 => [
+                                              'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
+                                              'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
+                                          ],
+                                      ],
+                                      'arguments' => [
+                                          '-c / --categories'   => false,
+                                          '-t / --targets'      => false,
+                                          '--do-ignore-changes' => false,
+                                          '--no-ignore-changes' => false,
+                                          '--do-content-check'  => false,
+                                          '--no-content-check'  => false,
+                                          '--do-execute-hooks'  => false,
+                                          '--no-execute-hooks'  => false,
+                                          '--do-init'           => false,
+                                          '--no-init'           => false,
+                                          '--no-notify'         => false,
+                                          '--no-compress'       => false,
+                                          '--no-push'           => false,
+                                          '--no-parrallel'      => false,
+                                          '--no-sitemap'        => false,
+                                          '--no-translate'      => false,
+                                          '--no-bom-check'      => false,
+                                          '--no-backup'         => false,
+                                          '--do-backup'         => false,
+                                          '--update-sitemap'    => false,
+                                          '-F / --force'        => false,
+                                          '--test-syntax'       => false,
+                                          '--test-unit'         => false,
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho system deploy TARGET
 ./pho system deploy TARGET --no-init
@@ -140,40 +140,40 @@ TARGET                                  - The target name to which to deploy
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('target')->isOptional()->sanitizeForceArray(',')->each()->isVariable()
-    ->select('--targets')->isOptional()->isBoolean()
-    ->select('-c,--categories')->isOptional()->isBoolean()
-    ->select('--do-ignore-changes')->isOptional()->orColumn('--no-ignore-changes')->isBoolean()
-    ->select('--no-ignore-changes')->isOptional()->orColumn('--do-ignore-changes')->isBoolean()
-    ->select('--do-content-check')->isOptional()->orColumn('--no-content-check')->isBoolean()
-    ->select('--no-content-check')->isOptional()->orColumn('--do-content-check')->isBoolean()
-    ->select('--do-execute-hooks')->isOptional()->orColumn('no-execute-hooks')->isBoolean()
-    ->select('--no-execute-hooks')->isOptional()->orColumn('--do-execute-hooks')->isBoolean()
-    ->select('--do-init')->isOptional()->orColumn('--no-init')->isBoolean()
-    ->select('--no-init')->isOptional()->orColumn('--do-init')->isBoolean()
-    ->select('--do-notify')->isOptional()->orColumn('--no-notify')->isBoolean()
-    ->select('--no-notify')->isOptional()->orColumn('--do-notify')->isBoolean()
-    ->select('--do-compress')->isOptional()->orColumn('--no-compress')->isBoolean()
-    ->select('--no-compress')->isOptional()->orColumn('do-compress')->isBoolean()
-    ->select('--do-push')->isOptional()->orColumn('--no-push')->isBoolean()
-    ->select('--no-push')->isOptional()->orColumn('--do-push')->isBoolean()
-    ->select('--do-parallel')->isOptional()->orColumn('--no-parallel')->isBoolean()
-    ->select('--no-parallel')->isOptional()->orColumn('--do-parallel')->isBoolean()
-    ->select('--do-translate')->isOptional()->orColumn('--no-translate')->isBoolean()
-    ->select('--no-translate')->isOptional()->orColumn('--do-translate')->isBoolean()
-    ->select('--do-bom-check')->isOptional()->orColumn('--no-bom-check')->isBoolean()
-    ->select('--no-bom-check')->isOptional()->orColumn('--do-bom-check')->isBoolean()
-    ->select('--do-backup')->isOptional()->orColumn('--no-backup')->isBoolean()
-    ->select('--no-backup')->isOptional()->orColumn('--do-backup')->isBoolean()
-    ->select('--do-stash')->isOptional()->orColumn('--no-stash')->isBoolean()
-    ->select('--no-stash')->isOptional()->orColumn('--do-stash')->isBoolean()
-    ->select('--do-update-sitemap')->isOptional()->orColumn('--no-update-sitemap')->isBoolean()
-    ->select('--no-update-sitemap')->isOptional()->orColumn('--do-update-sitemap')->isBoolean()
-    ->select('--do-test-syntax')->isOptional()->orColumn('--no-test-syntax')->isBoolean()
-    ->select('--no-test-syntax')->isOptional()->orColumn('--do-test-syntax')->isBoolean()
-    ->select('--do-test-unit')->isOptional()->orColumn('--no-test-unit')->isBoolean()
-    ->select('--no-test-unit')->isOptional()->orColumn('--do-test-unit')->isBoolean()
-    ->validate();
+                     ->select('target')->isOptional()->sanitizeForceArray(',')->each()->isVariable()
+                     ->select('--targets')->isOptional()->isBoolean()
+                     ->select('-c,--categories')->isOptional()->isBoolean()
+                     ->select('--do-ignore-changes')->isOptional()->orColumn('--no-ignore-changes')->isBoolean()
+                     ->select('--no-ignore-changes')->isOptional()->orColumn('--do-ignore-changes')->isBoolean()
+                     ->select('--do-content-check')->isOptional()->orColumn('--no-content-check')->isBoolean()
+                     ->select('--no-content-check')->isOptional()->orColumn('--do-content-check')->isBoolean()
+                     ->select('--do-execute-hooks')->isOptional()->orColumn('no-execute-hooks')->isBoolean()
+                     ->select('--no-execute-hooks')->isOptional()->orColumn('--do-execute-hooks')->isBoolean()
+                     ->select('--do-init')->isOptional()->orColumn('--no-init')->isBoolean()
+                     ->select('--no-init')->isOptional()->orColumn('--do-init')->isBoolean()
+                     ->select('--do-notify')->isOptional()->orColumn('--no-notify')->isBoolean()
+                     ->select('--no-notify')->isOptional()->orColumn('--do-notify')->isBoolean()
+                     ->select('--do-compress')->isOptional()->orColumn('--no-compress')->isBoolean()
+                     ->select('--no-compress')->isOptional()->orColumn('do-compress')->isBoolean()
+                     ->select('--do-push')->isOptional()->orColumn('--no-push')->isBoolean()
+                     ->select('--no-push')->isOptional()->orColumn('--do-push')->isBoolean()
+                     ->select('--do-parallel')->isOptional()->orColumn('--no-parallel')->isBoolean()
+                     ->select('--no-parallel')->isOptional()->orColumn('--do-parallel')->isBoolean()
+                     ->select('--do-translate')->isOptional()->orColumn('--no-translate')->isBoolean()
+                     ->select('--no-translate')->isOptional()->orColumn('--do-translate')->isBoolean()
+                     ->select('--do-bom-check')->isOptional()->orColumn('--no-bom-check')->isBoolean()
+                     ->select('--no-bom-check')->isOptional()->orColumn('--do-bom-check')->isBoolean()
+                     ->select('--do-backup')->isOptional()->orColumn('--no-backup')->isBoolean()
+                     ->select('--no-backup')->isOptional()->orColumn('--do-backup')->isBoolean()
+                     ->select('--do-stash')->isOptional()->orColumn('--no-stash')->isBoolean()
+                     ->select('--no-stash')->isOptional()->orColumn('--do-stash')->isBoolean()
+                     ->select('--do-update-sitemap')->isOptional()->orColumn('--no-update-sitemap')->isBoolean()
+                     ->select('--no-update-sitemap')->isOptional()->orColumn('--do-update-sitemap')->isBoolean()
+                     ->select('--do-test-syntax')->isOptional()->orColumn('--no-test-syntax')->isBoolean()
+                     ->select('--no-test-syntax')->isOptional()->orColumn('--do-test-syntax')->isBoolean()
+                     ->select('--do-test-unit')->isOptional()->orColumn('--no-test-unit')->isBoolean()
+                     ->select('--no-test-unit')->isOptional()->orColumn('--do-test-unit')->isBoolean()
+                     ->validate();
 
 
 // Start deploying
@@ -191,20 +191,20 @@ if ($argv['targets']) {
 } else {
     // Execute deployment
     Project::new()->getDeploy($argv['target'])
-        ->setIgnoreChanges($argv['do_ignore_changes'], $argv['no_ignore_changes'])
-        ->setExecuteHooks($argv['do_execute_hooks'], $argv['no_execute_hooks'])
-        ->setContentCheck($argv['do_content_check'], $argv['no_content_check'])
-        ->setInit($argv['do_init'], $argv['no_init'])
-        ->setNotify($argv['do_notify'], $argv['no_notify'])
-        ->setCompress($argv['do_compress'], $argv['no_compress'])
-        ->setPush($argv['do_push'], $argv['no_push'])
-        ->setParallel($argv['do_parallel'], $argv['no_parallel'])
-        ->setUpdateSitemap($argv['do_update_sitemap'], $argv['no_update_sitemap'])
-        ->setTranslate($argv['do_translate'], $argv['no_translate'])
-        ->setBomCheck($argv['do_bom_check'], $argv['no_bom_check'])
-        ->setBackup($argv['do_backup'], $argv['no_backup'])
-        ->setStash($argv['do_stash'], $argv['no_stash'])
-        ->setTestSyntax($argv['do_test_syntax'], $argv['no_test_syntax'])
-        ->setTestUnit($argv['no_test_unit'], $argv['no_test_unit'])
-        ->execute();
+           ->setIgnoreChanges($argv['do_ignore_changes'], $argv['no_ignore_changes'])
+           ->setExecuteHooks($argv['do_execute_hooks'], $argv['no_execute_hooks'])
+           ->setContentCheck($argv['do_content_check'], $argv['no_content_check'])
+           ->setInit($argv['do_init'], $argv['no_init'])
+           ->setNotify($argv['do_notify'], $argv['no_notify'])
+           ->setCompress($argv['do_compress'], $argv['no_compress'])
+           ->setPush($argv['do_push'], $argv['no_push'])
+           ->setParallel($argv['do_parallel'], $argv['no_parallel'])
+           ->setUpdateSitemap($argv['do_update_sitemap'], $argv['no_update_sitemap'])
+           ->setTranslate($argv['do_translate'], $argv['no_translate'])
+           ->setBomCheck($argv['do_bom_check'], $argv['no_bom_check'])
+           ->setBackup($argv['do_backup'], $argv['no_backup'])
+           ->setStash($argv['do_stash'], $argv['no_stash'])
+           ->setTestSyntax($argv['do_test_syntax'], $argv['no_test_syntax'])
+           ->setTestUnit($argv['no_test_unit'], $argv['no_test_unit'])
+           ->execute();
 }

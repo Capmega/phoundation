@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openbatch.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openbatch.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataBatch
 {
@@ -38,6 +38,7 @@ trait TraitDataBatch
      * Sets if the scan job is a batch
      *
      * @param bool $batch
+     *
      * @return $this
      */
     public function setBatch(bool $batch): static

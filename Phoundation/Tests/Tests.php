@@ -14,10 +14,10 @@ use Phoundation\Os\Processes\Process;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Tests
 {
@@ -38,6 +38,13 @@ class Tests
         Process::new('phpunit')->executePassthru();
     }
 
+    /**
+     * Rebuilds the test cache
+     */
+    public static function rebuildCache(): void
+    {
+        Libraries::rebuildTestsCache();
+    }
 
     /**
      * Clears the test cache
@@ -45,14 +52,5 @@ class Tests
     public static function clearCache(): void
     {
         Libraries::clearTestsCache();
-    }
-
-
-    /**
-     * Rebuilds the test cache
-     */
-    public static function rebuildCache(): void
-    {
-        Libraries::rebuildTestsCache();
     }
 }

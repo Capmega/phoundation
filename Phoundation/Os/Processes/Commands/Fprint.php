@@ -14,10 +14,10 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Fprint extends Command
 {
@@ -25,6 +25,7 @@ class Fprint extends Command
      * Enroll a new fingerprint
      *
      * @param string|int $id
+     *
      * @return int
      */
     public function enroll(string|int $id, EnumExecuteMethodInterface $method = EnumExecuteMethod::background): ?int
@@ -38,8 +39,8 @@ class Fprint extends Command
             $pid = $this->executeBackground();
 
             Log::success(tr('Executed fprint-enroll as a background process with PID ":pid"', [
-                ':pid' => $pid
-            ]), 4);
+                ':pid' => $pid,
+            ]),          4);
 
             return $pid;
         }

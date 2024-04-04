@@ -5,10 +5,10 @@
  *
  * This class can create various HTML tables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
@@ -199,6 +199,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * Sets if the table is header_text or not
      *
      * @param ArrayableInterface|array|string|null $columns
+     *
      * @return static
      */
     public function setColumns(ArrayableInterface|array|string|null $columns): static
@@ -229,6 +230,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * Sets if the table is header_text or not
      *
      * @param string|null $header_text
+     *
      * @return static
      */
     public function setHeaderText(?string $header_text): static
@@ -253,6 +255,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * Sets the label for status column NULL values
      *
      * @param string|null $null_status
+     *
      * @return static
      */
     public function setNullStatus(?string $null_status): static
@@ -272,19 +275,18 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->responsive;
     }
 
-
     /**
-     * Sets if the table will process entities in the source data or not
+     * Sets if the table is responsive or not
      *
-     * @param bool $process_entities
+     * @param bool $responsive
+     *
      * @return static
      */
-    public function setProcessEntities(bool $process_entities): static
+    public function setResponsive(bool $responsive): static
     {
-        $this->process_entities = $process_entities;
+        $this->responsive = $responsive;
         return $this;
     }
-
 
     /**
      * Sets if the table will process entities in the source data or not
@@ -296,19 +298,18 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->process_entities;
     }
 
-
     /**
-     * Sets if the table is responsive or not
+     * Sets if the table will process entities in the source data or not
      *
-     * @param bool $responsive
+     * @param bool $process_entities
+     *
      * @return static
      */
-    public function setResponsive(bool $responsive): static
+    public function setProcessEntities(bool $process_entities): static
     {
-        $this->responsive = $responsive;
+        $this->process_entities = $process_entities;
         return $this;
     }
-
 
     /**
      * Returns if the table is full width or not
@@ -325,6 +326,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * Sets if the table is full width or not
      *
      * @param bool $full_width
+     *
      * @return static
      */
     public function setFullWidth(bool $full_width): static
@@ -363,22 +365,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->anchor_data_attributes;
     }
 
-
-    /**
-     * Returns the table's column conversions
-     *
-     * @return IteratorInterface
-     */
-    public function getConvertColumns(): IteratorInterface
-    {
-        if (empty($this->convert_columns)) {
-            $this->convert_columns = new Iterator();
-        }
-
-        return $this->convert_columns;
-    }
-
-
     /**
      * Returns the table's top buttons
      *
@@ -393,7 +379,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->top_buttons;
     }
 
-
     /**
      * Returns the classes used for <tr> tags
      *
@@ -404,11 +389,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->row_classes;
     }
 
-
     /**
      * Returns the HTML class element attribute
      *
      * @param string|null $classes
+     *
      * @return static
      */
     public function setRowClasses(?string $classes): static
@@ -416,7 +401,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $this->row_classes = $classes;
         return $this;
     }
-
 
     /**
      * Returns the HTML class element attribute for <td> tags
@@ -428,11 +412,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->column_classes;
     }
 
-
     /**
      * Sets the HTML class element attribute for <td> tags
      *
      * @param string|null $classes
+     *
      * @return static
      */
     public function setColumnClasses(?string $classes): static
@@ -440,7 +424,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $this->column_classes = $classes;
         return $this;
     }
-
 
     /**
      * Returns the HTML class element attribute for <td> tags
@@ -452,11 +435,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->anchor_classes;
     }
 
-
     /**
      * Sets the HTML class element attribute for <td> tags
      *
      * @param string|null $classes
+     *
      * @return static
      */
     public function setAnchorClasses(?string $classes): static
@@ -464,7 +447,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $this->anchor_classes = $classes;
         return $this;
     }
-
 
     /**
      * Returns if the first column automatically is converted to checkboxes
@@ -476,11 +458,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->checkbox_selectors;
     }
 
-
     /**
      * Sets if the first column automatically is converted to checkboxes
      *
      * @param EnumTableIdColumnInterface $checkbox_selectors
+     *
      * @return static
      */
     public function setCheckboxSelectors(EnumTableIdColumnInterface $checkbox_selectors): static
@@ -488,7 +470,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $this->checkbox_selectors = $checkbox_selectors;
         return $this;
     }
-
 
     /**
      * Returns the URL that applies to each row
@@ -500,49 +481,18 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->row_url;
     }
 
-
     /**
      * Sets the URL that applies to each row
      *
      * @param Stringable|string|null $row_url
+     *
      * @return static
      */
     public function setRowUrl(Stringable|string|null $row_url): static
     {
-        $this->row_url = (string) $row_url;
+        $this->row_url = (string)$row_url;
         return $this;
     }
-
-
-    /**
-     * Returns the URL that applies to each column
-     *
-     * @return IteratorInterface
-     */
-    public function getColumnUrls(): IteratorInterface
-    {
-        if (empty($this->column_urls)) {
-            $this->column_urls = new Iterator();
-        }
-
-        return $this->column_urls;
-    }
-
-
-    /**
-     * Returns the table headers
-     *
-     * @return IteratorInterface
-     */
-    public function getHeaders(): IteratorInterface
-    {
-        if (empty($this->headers)) {
-            $this->headers = new Iterator();
-        }
-
-        return $this->headers;
-    }
-
 
     /**
      * Returns the table headers
@@ -558,11 +508,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->footers;
     }
 
-
     /**
      * Returns the table headers
      *
      * @param IteratorInterface|array|null $footers
+     *
      * @return static
      */
     public function setFooters(IteratorInterface|array|null $footers): static
@@ -574,7 +524,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $this->footers = $footers;
         return $this;
     }
-
 
     /**
      * Render the table body
@@ -594,6 +543,319 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $this->renderHeaders() . $return . $this->renderFooters();
     }
 
+    /**
+     * Generates and returns the HTML string for a table body from an array source
+     *
+     * This will return all HTML FROM the <tbody> tags around it
+     *
+     * @return string|null The body HTML (all <option> tags) for a <select> tag
+     * @see \Templates\AdminLte\Html\Components\Tables\TemplateHtmlTable::render()
+     * @see \Templates\AdminLte\Html\Components\Tables\TemplateHtmlTable::renderHeaders()
+     * @see ResourceElement::renderBody()
+     * @see ElementInterface::render()
+     */
+    protected function renderBodyQuery(): ?string
+    {
+        $return = '<tbody>';
+
+        if (!$this->source_query) {
+            return null;
+        }
+
+        if (!$this->source_query->rowCount()) {
+            return '';
+        }
+
+        // Process SQL resource
+        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
+            $this->executeCallbacks($row, EnumTableRowType::row, $params);
+            $return .= $this->renderRow($row, array_first($row), $params);
+        }
+
+        return $return . '</tbody>';
+    }
+
+    /**
+     * Returns a table row
+     *
+     * @param array                 $row_values
+     * @param string|float|int|null $key
+     * @param array                 $params
+     *
+     * @return string
+     */
+    protected function renderRow(array $row_values, string|float|int|null $key, array $params): string
+    {
+        if (!$this->headers) {
+            // Auto set headers from the column names
+            $this->getHeaders()->setSource(array_keys($row_values));
+
+            // Update the headers to look pretty for humans
+            foreach ($this->headers as $key => $column_header) {
+                $column_header = str_replace([
+                                                 '-',
+                                                 '_',
+                                             ], ' ', (string)$column_header);
+                $column_header = Strings::capitalize($column_header);
+
+                $this->headers->set($column_header, $key);
+            }
+        }
+
+        // ID is the first value in the row
+        $row_id = reset($row_values);
+
+        $row_data = '';
+        $this->count++;
+
+        // Add data-* in this option?
+        if (array_key_exists($key, $this->source_data)) {
+            $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
+        }
+
+        $return = '<tr' . $row_data . $this->renderRowClassString() . '>';
+        $first  = true;
+
+        foreach ($row_values as $column => $value) {
+            $made_checkbox = false;
+
+            if ($first) {
+                // Convert first column to checkboxes?
+                $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
+                $first = false;
+
+                $params['htmlentities'] = !$made_checkbox;
+                $params['no_url']       = ($made_checkbox or !$value);
+
+                // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
+                if ($value !== null) {
+                    $return .= $this->renderCell($row_id, $column, $value, $params);
+                }
+
+            } else {
+                $params['no_url'] = false;
+                $return           .= $this->renderCell($row_id, $column, $value, $params);
+            }
+        }
+
+        return $return . '</tr>';
+    }
+
+    /**
+     * Returns the table headers
+     *
+     * @return IteratorInterface
+     */
+    public function getHeaders(): IteratorInterface
+    {
+        if (empty($this->headers)) {
+            $this->headers = new Iterator();
+        }
+
+        return $this->headers;
+    }
+
+    /**
+     * Builds and returns the class string
+     *
+     * @return string|null
+     */
+    protected function renderRowClassString(): ?string
+    {
+        if ($this->row_classes) {
+            return ' class="' . $this->row_classes . '"';
+        }
+
+        return null;
+    }
+
+    /**
+     * Changes the first column to a checkbox
+     *
+     * @param string|int            $column
+     * @param string|float|int|null $value
+     * @param bool                  $made_checkbox
+     *
+     * @return string|null
+     */
+    protected function renderCheckboxColumn(string|int $column, string|float|int|null $value, bool &$made_checkbox): string|null
+    {
+        switch ($this->checkbox_selectors) {
+            case EnumTableIdColumn::hidden:
+                return null;
+
+            case EnumTableIdColumn::visible:
+                return (string)$value;
+
+            case EnumTableIdColumn::checkbox:
+                // no break
+
+            default:
+                $made_checkbox = true;
+
+                return InputCheckbox::new()
+                                    ->setName($column . '[]')
+                                    ->setValue($value)
+                                    ->render();
+        }
+    }
+
+    /**
+     * Returns a table cell
+     *
+     * @param string|float|int|null                 $row_id
+     * @param string|float|int|null                 $column
+     * @param Stringable|string|float|int|bool|null $value
+     * @param array                                 $params
+     *
+     * @return string
+     */
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null $value, array $params): string
+    {
+        if (($column === 'status') and $value === null) {
+            // Default status label for when status is NULL
+            $value = $this->null_status;
+        }
+
+        // Use row or column URL's?
+        // Use column convert?
+        $attributes = '';
+        $value      = (string)$value;
+        $url        = $this->getColumnUrls()->get($column, false);
+        $convert    = $this->getConvertColumns()->get($column, false);
+
+        if (!$url and $this->row_url) {
+            $url = $this->row_url;
+        }
+
+        if (isset_get($params['no_url'])) {
+            $url = null;
+        }
+
+        if ($convert) {
+            if (is_callable($convert)) {
+                // Convert this column
+                $converted = $convert($value);
+
+                if (!is_string($converted)) {
+                    throw new OutOfBoundsException(tr('Conversion for column ":column" callback does not return a string as required', [
+                        ':column' => $column,
+                    ]));
+                }
+
+                $value = $converted;
+            }
+
+        } else {
+            if ($params['htmlentities'] and empty($params['skiphtmlentities'][$column])) {
+                $value = htmlspecialchars($value);
+                $value = str_replace(PHP_EOL, '<br>', $value);
+            }
+        }
+
+        if (isset($url)) {
+            $value = $this->renderUrl($row_id, $column, $value, $url);
+        }
+
+        // Add data attributes?
+        if ($this->column_data_attributes) {
+            foreach ($this->column_data_attributes as $data_key => $data_value) {
+                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+            }
+        }
+
+        // Build row with TD tags with attributes
+        return '<td' . $attributes . $this->renderColumnClassString() . '>' . $value . '</td>';
+    }
+
+    /**
+     * Returns the URL that applies to each column
+     *
+     * @return IteratorInterface
+     */
+    public function getColumnUrls(): IteratorInterface
+    {
+        if (empty($this->column_urls)) {
+            $this->column_urls = new Iterator();
+        }
+
+        return $this->column_urls;
+    }
+
+    /**
+     * Returns the table's column conversions
+     *
+     * @return IteratorInterface
+     */
+    public function getConvertColumns(): IteratorInterface
+    {
+        if (empty($this->convert_columns)) {
+            $this->convert_columns = new Iterator();
+        }
+
+        return $this->convert_columns;
+    }
+
+    /**
+     * Builds a URL around the specified column value
+     *
+     * @param mixed  $row_id
+     * @param mixed  $column
+     * @param string $value
+     * @param string $url
+     *
+     * @return string
+     */
+    protected function renderUrl(mixed $row_id, mixed $column, string $value, string $url): string
+    {
+        if ($url) {
+            // Ensure all :ROW and :COLUMN markings are converted
+            $url = str_replace(':ROW', urlencode((string)$row_id), $url);
+            $url = str_replace('%3AROW', urlencode((string)$row_id), $url);
+            $url = str_replace(':COLUMN', urlencode((string)$column), $url);
+            $url = str_replace('%3ACOLUMN', urlencode((string)$column), $url);
+
+            $attributes = '';
+
+            if ($this->anchor_data_attributes) {
+                foreach ($this->anchor_data_attributes as $data_key => $data_value) {
+                    $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+                }
+            }
+
+            return '<a' . $this->renderAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
+        }
+
+        return $url;
+    }
+
+    /**
+     * Builds and returns the class string
+     *
+     * @return string|null
+     */
+    protected function renderAnchorClassString(): ?string
+    {
+        if ($this->anchor_classes) {
+            return ' class="' . $this->anchor_classes . '"';
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds and returns the class string
+     *
+     * @return string|null
+     */
+    protected function renderColumnClassString(): ?string
+    {
+        if ($this->column_classes) {
+            return ' class="' . $this->column_classes . '"';
+        }
+
+        return null;
+    }
 
     /**
      * Generates and returns the HTML string for a table body from an array source
@@ -619,7 +881,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             if (!is_array($row)) {
                 if (!$row instanceof ArrayableInterface) {
                     throw new OutOfBoundsException(tr('The specified table source array is invalid. Format should be [[header columns][row columns][row columns] ...] or contain an object with ArreableInterface Interface. a ":type" was encountered instead', [
-                        ':type' => gettype($row)
+                        ':type' => gettype($row),
                     ]));
                 }
 
@@ -663,40 +925,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         return $return . '</tbody>';
     }
 
-
-    /**
-     * Generates and returns the HTML string for a table body from an array source
-     *
-     * This will return all HTML FROM the <tbody> tags around it
-     *
-     * @return string|null The body HTML (all <option> tags) for a <select> tag
-     *@see \Templates\AdminLte\Html\Components\Tables\TemplateHtmlTable::render()
-     * @see \Templates\AdminLte\Html\Components\Tables\TemplateHtmlTable::renderHeaders()
-     * @see ResourceElement::renderBody()
-     * @see ElementInterface::render()
-     */
-    protected function renderBodyQuery(): ?string
-    {
-        $return = '<tbody>';
-
-        if (!$this->source_query) {
-            return null;
-        }
-
-        if (!$this->source_query->rowCount()) {
-            return '';
-        }
-
-        // Process SQL resource
-        while ($row = $this->source_query->fetch(PDO::FETCH_ASSOC)) {
-            $this->executeCallbacks($row, EnumTableRowType::row, $params);
-            $return .= $this->renderRow($row, array_first($row), $params);
-        }
-
-        return $return . '</tbody>';
-    }
-
-
     /**
      * Render an <option> for "this select has no data and is empty"
      *
@@ -711,7 +939,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return '';
     }
-
 
     /**
      * Render the table headers
@@ -738,10 +965,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
                     case EnumTableIdColumn::checkbox:
                         $return .= '<th>' .
-                                        InputCheckbox::new()
-                                            ->setName($column . '[]')
-                                            ->setValue(1)
-                                            ->render() . '
+                            InputCheckbox::new()
+                                         ->setName($column . '[]')
+                                         ->setValue(1)
+                                         ->render() . '
                                     </th>';
                         break;
 
@@ -757,7 +984,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         return $return . '</tr></thead>';
     }
-
 
     /**
      * Render the table footers
@@ -781,246 +1007,5 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         return $return . '</tr></tfoot>';
-    }
-
-
-    /**
-     * Builds and returns the class string
-     *
-     * @return string|null
-     */
-    protected function renderRowClassString(): ?string
-    {
-        if ($this->row_classes) {
-            return ' class="' . $this->row_classes . '"';
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Builds and returns the class string
-     *
-     * @return string|null
-     */
-    protected function renderColumnClassString(): ?string
-    {
-        if ($this->column_classes) {
-            return ' class="' . $this->column_classes . '"';
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Builds and returns the class string
-     *
-     * @return string|null
-     */
-    protected function renderAnchorClassString(): ?string
-    {
-        if ($this->anchor_classes) {
-            return ' class="' . $this->anchor_classes . '"';
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Returns a table row
-     *
-     * @param array $row_values
-     * @param string|float|int|null $key
-     * @param array $params
-     * @return string
-     */
-    protected function renderRow(array $row_values, string|float|int|null $key, array $params): string
-    {
-        if (!$this->headers) {
-            // Auto set headers from the column names
-            $this->getHeaders()->setSource(array_keys($row_values));
-
-            // Update the headers to look pretty for humans
-            foreach ($this->headers as $key => $column_header) {
-                $column_header = str_replace(['-', '_'], ' ', (string)$column_header);
-                $column_header = Strings::capitalize($column_header);
-
-                $this->headers->set($column_header, $key);
-            }
-        }
-
-        // ID is the first value in the row
-        $row_id = reset($row_values);
-
-        $row_data = '';
-        $this->count++;
-
-        // Add data-* in this option?
-        if (array_key_exists($key, $this->source_data)) {
-            $row_data = ' data-' . $key . '="' . $this->source_data[$key] . '"';
-        }
-
-        $return = '<tr' . $row_data . $this->renderRowClassString() . '>';
-        $first  = true;
-
-        foreach($row_values as $column => $value) {
-            $made_checkbox = false;
-
-            if ($first) {
-                // Convert first column to checkboxes?
-                $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
-                $first = false;
-
-                $params['htmlentities'] = !$made_checkbox;
-                $params['no_url']       = ($made_checkbox or !$value);
-
-                // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
-                if ($value !== null) {
-                    $return .= $this->renderCell($row_id, $column, $value, $params);
-                }
-
-            } else {
-                $params['no_url'] = false;
-                $return .= $this->renderCell($row_id, $column, $value, $params);
-            }
-        }
-
-        return $return . '</tr>';
-    }
-
-
-    /**
-     * Returns a table cell
-     *
-     * @param string|float|int|null $row_id
-     * @param string|float|int|null $column
-     * @param Stringable|string|float|int|bool|null $value
-     * @param array $params
-     * @return string
-     */
-    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null $value, array $params): string
-    {
-        if (($column === 'status') and $value === null) {
-            // Default status label for when status is NULL
-            $value = $this->null_status;
-        }
-
-        // Use row or column URL's?
-        // Use column convert?
-        $attributes = '';
-        $value      = (string) $value;
-        $url        = $this->getColumnUrls()->get($column, false);
-        $convert    = $this->getConvertColumns()->get($column, false);
-
-        if (!$url and $this->row_url) {
-            $url = $this->row_url;
-        }
-
-        if (isset_get($params['no_url'])) {
-            $url = null;
-        }
-
-        if ($convert) {
-            if (is_callable($convert)) {
-                // Convert this column
-                $converted = $convert($value);
-
-                if (!is_string($converted)) {
-                    throw new OutOfBoundsException(tr('Conversion for column ":column" callback does not return a string as required', [
-                        ':column' => $column
-                    ]));
-                }
-
-                $value = $converted;
-            }
-
-        } else {
-            if ($params['htmlentities'] and empty($params['skiphtmlentities'][$column])) {
-                $value = htmlspecialchars($value);
-                $value = str_replace(PHP_EOL, '<br>', $value);
-            }
-        }
-
-        if (isset($url)) {
-            $value = $this->renderUrl($row_id, $column, $value, $url);
-        }
-
-        // Add data attributes?
-        if ($this->column_data_attributes) {
-            foreach ($this->column_data_attributes as $data_key => $data_value) {
-                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
-            }
-        }
-
-        // Build row with TD tags with attributes
-        return '<td' . $attributes . $this->renderColumnClassString() . '>' . $value . '</td>';
-    }
-
-
-    /**
-     * Changes the first column to a checkbox
-     *
-     * @param string|int            $column
-     * @param string|float|int|null $value
-     * @param bool                  $made_checkbox
-     *
-     * @return string|null
-     */
-    protected function renderCheckboxColumn(string|int $column, string|float|int|null $value, bool &$made_checkbox): string|null
-    {
-        switch ($this->checkbox_selectors) {
-            case EnumTableIdColumn::hidden:
-                return null;
-
-            case EnumTableIdColumn::visible:
-                return (string) $value;
-
-            case EnumTableIdColumn::checkbox:
-                // no break
-
-            default:
-                $made_checkbox = true;
-
-                return InputCheckbox::new()
-                    ->setName($column . '[]')
-                    ->setValue($value)
-                    ->render();
-        }
-    }
-
-
-    /**
-     * Builds a URL around the specified column value
-     *
-     * @param mixed $row_id
-     * @param mixed $column
-     * @param string $value
-     * @param string $url
-     * @return string
-     */
-    protected function renderUrl(mixed $row_id, mixed $column, string $value, string $url): string
-    {
-        if ($url) {
-            // Ensure all :ROW and :COLUMN markings are converted
-            $url = str_replace(':ROW'     , urlencode((string) $row_id), $url);
-            $url = str_replace('%3AROW'   , urlencode((string) $row_id), $url);
-            $url = str_replace(':COLUMN'  , urlencode((string) $column), $url);
-            $url = str_replace('%3ACOLUMN', urlencode((string) $column), $url);
-
-            $attributes = '';
-
-            if ($this->anchor_data_attributes) {
-                foreach ($this->anchor_data_attributes as $data_key => $data_value) {
-                    $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
-                }
-            }
-
-            return '<a' . $this->renderAnchorClassString() . ' href="' . UrlBuilder::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
-        }
-
-        return $url;
     }
 }

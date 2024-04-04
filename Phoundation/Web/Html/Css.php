@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
 
-use Phoundation\Cdn\Cdn;
-use Phoundation\Filesystem\File;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
-use Phoundation\Utils\Strings;
 
 
 /**
@@ -16,10 +12,10 @@ use Phoundation\Utils\Strings;
  *
  * This class contains various CSS processing methods
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Css
 {
@@ -35,7 +31,8 @@ class Css
      * Loads the specified CSS file(s) into the page payload
      *
      * @param string|array $files
-     * @param string|null $media
+     * @param string|null  $media
+     *
      * @return void
      */
     public static function loadFiles(string|array $files, ?string $media = null): void
@@ -54,16 +51,16 @@ class Css
      *
      * This function typically should never have to be called by developers as it is a sub function of html_headers()
      *
-     * @see Css::loadFiles()
-     * @see Js::generateHtml()
-     * @see http_headers()
+     * @return string|null The HTML containing <link> tags that is to be included in the <head> tag
+     * @see     Js::generateHtml()
+     * @see     http_headers()
      * @version 1.26.0: Added documentation
      * @example
-     * code
-     * $result = html_generate_css();
-     * /code
+     *          code
+     *          $result = html_generate_css();
+     *          /code
      *
-     * @return string|null The HTML containing <link> tags that is to be included in the <head> tag
+     * @see     Css::loadFiles()
      */
     public static function generateHtml(): ?string
     {
@@ -109,6 +106,7 @@ class Css
      *
      * @param string $html_file
      * @param string $css_file
+     *
      * @return string
      */
     public static function purge(string $html_file, string $css_file): string

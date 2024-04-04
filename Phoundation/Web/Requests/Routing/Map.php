@@ -14,10 +14,10 @@ use Phoundation\Web\Requests\Routing\Interfaces\MapInterface;
  *
  * Maps
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Map implements MapInterface
 {
@@ -40,7 +40,7 @@ class Map implements MapInterface
     /**
      * Map class constructor
      *
-     * @param string $value
+     * @param string     $value
      * @param array|null $map
      */
     public function __construct(string $value, ?array $map)
@@ -53,8 +53,9 @@ class Map implements MapInterface
     /**
      * Returns a new Mapping object
      *
-     * @param string $value
+     * @param string     $value
      * @param array|null $map
+     *
      * @return static
      */
     public static function new(string $value, ?array $map): static
@@ -78,13 +79,14 @@ class Map implements MapInterface
      * Sets map source
      *
      * @param array|null $source
+     *
      * @return static
      */
     public function setSource(?array $source): static
     {
         if (is_array($source) and empty($source)) {
             throw new OutOfBoundsException(tr('Empty map source specified for value ":value". Specify NULL for source if no mapping is required for the value', [
-                ':value' => $this->value
+                ':value' => $this->value,
             ]));
         }
 
@@ -108,6 +110,7 @@ class Map implements MapInterface
      * Sets map value
      *
      * @param string $value
+     *
      * @return static
      */
     public function setValue(string $value): static
@@ -125,6 +128,7 @@ class Map implements MapInterface
      * Translates the given URL with the internal map
      *
      * @param $url
+     *
      * @return string
      */
     public function apply($url): string
@@ -135,8 +139,8 @@ class Map implements MapInterface
             }
 
             Log::success(tr('Applied URL mapping for value ":value"', [
-                ':value' => $this->value
-            ]), 4);
+                ':value' => $this->value,
+            ]),          4);
         }
 
         return $url;

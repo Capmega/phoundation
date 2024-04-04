@@ -14,20 +14,20 @@ use Phoundation\Databases\Sql\Limit;
  *
  * This script can delete users
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
-        ]
-    ]
-]));
+                                                            'positions' => [
+                                                                0 => [
+                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                ],
+                                                            ],
+                                                        ]));
 
 CliDocumentation::setUsage('./pho accounts users delete USER_EMAIL');
 
@@ -42,8 +42,8 @@ USER_EMAIL                              The email address for the user to delete
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('user')->isEmail()
-    ->validate();
+                     ->select('user')->isEmail()
+                     ->validate();
 
 
 // Delete the user

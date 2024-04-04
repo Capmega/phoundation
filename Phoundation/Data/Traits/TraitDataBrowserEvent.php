@@ -12,10 +12,10 @@ use Phoundation\Web\Html\Enums\EnumBrowserEvent;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataBrowserEvent
 {
@@ -41,6 +41,7 @@ trait TraitDataBrowserEvent
      * Sets the source
      *
      * @param EnumBrowserEvent $browser_event
+     *
      * @return static
      */
     public function setBrowserEvent(EnumBrowserEvent $browser_event): static

@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataType
 {
@@ -40,6 +40,7 @@ trait TraitDataType
      * Sets the type
      *
      * @param string|null $type
+     *
      * @return static
      */
     public function setType(?string $type): static

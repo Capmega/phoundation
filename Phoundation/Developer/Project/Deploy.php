@@ -26,10 +26,10 @@ use Throwable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Deploy implements DeployInterface
 {
@@ -46,26 +46,46 @@ class Deploy implements DeployInterface
      * @var array $keys
      */
     protected array $keys = [
-        'server'            => [],      // The target server to which we will deploy
-        'hooks'             => [],      // The hooks to execute
-        'ignore_changes'    => false,   // If true, git changes will be ignored and deploy will be executed anyway
-        'content_check'     => true,    // If true will check content
-        'execute_hooks'     => true,    // If true will execute configured deployment hooks
-        'sync'              => true,    // If true will sync before (optionally) executing an init before deploying
-        'init'              => true,    // If true will execute a system init before deploying
-        'notify'            => true,    // If true will send out notifications about this deploy
-        'minify'            => true,    // If true will execute CDN file minification
-        'push'              => true,    // If true will push changes to the remote git repository
-        'parallel'          => true,    // If true will rsync to a parallel copy of the project instead of to the project directly. This can cause the project to be in an unknown state during deployment
-        'translate'         => true,    // If true will translate the project before deploying
-        'bom_check'         => true,    // If true the system will execute a BOM check on the files
-        'update_file_modes' => true,    // If true will fix file modes after rsync
-        'backup'            => true,    // If true the system will make a backup on the target environments
-        'stash'             => true,    // If true, git will stash changes (if any) and pop those afterwards
-        'update_sitemap'    => true,    // If true will update the sitemap before deploying
-        'force'             => false,   // If true will ignore halting issue and force deploy. DANGEROUS
-        'test_syntax'       => true,    // If true will perform a syntax check before deploying
-        'test_unit'         => true,    // If true will execute a unit test before deploying
+        'server'            => [],
+        // The target server to which we will deploy
+        'hooks'             => [],
+        // The hooks to execute
+        'ignore_changes'    => false,
+        // If true, git changes will be ignored and deploy will be executed anyway
+        'content_check'     => true,
+        // If true will check content
+        'execute_hooks'     => true,
+        // If true will execute configured deployment hooks
+        'sync'              => true,
+        // If true will sync before (optionally) executing an init before deploying
+        'init'              => true,
+        // If true will execute a system init before deploying
+        'notify'            => true,
+        // If true will send out notifications about this deploy
+        'minify'            => true,
+        // If true will execute CDN file minification
+        'push'              => true,
+        // If true will push changes to the remote git repository
+        'parallel'          => true,
+        // If true will rsync to a parallel copy of the project instead of to the project directly. This can cause the project to be in an unknown state during deployment
+        'translate'         => true,
+        // If true will translate the project before deploying
+        'bom_check'         => true,
+        // If true the system will execute a BOM check on the files
+        'update_file_modes' => true,
+        // If true will fix file modes after rsync
+        'backup'            => true,
+        // If true the system will make a backup on the target environments
+        'stash'             => true,
+        // If true, git will stash changes (if any) and pop those afterwards
+        'update_sitemap'    => true,
+        // If true will update the sitemap before deploying
+        'force'             => false,
+        // If true will ignore halting issue and force deploy. DANGEROUS
+        'test_syntax'       => true,
+        // If true will perform a syntax check before deploying
+        'test_unit'         => true,
+        // If true will execute a unit test before deploying
     ];
 
     /**
@@ -94,7 +114,7 @@ class Deploy implements DeployInterface
      * Deploy class constructor
      *
      * @param ProjectInterface $project
-     * @param array|null $target_environments
+     * @param array|null       $target_environments
      */
     public function __construct(ProjectInterface $project, array|null $target_environments)
     {
@@ -103,6 +123,28 @@ class Deploy implements DeployInterface
         $this->targets       = $target_environments ?? Arrays::force($this->configuration['targets']);
     }
 
+    /**
+     * Return all deployment configuration
+     *
+     * @return array
+     * @throws Throwable
+     */
+    protected function getConfig(): array
+    {
+        try {
+            Config::setEnvironment('deploy/deploy', false);
+            $configuration = Config::get('');
+            Config::setEnvironment(ENVIRONMENT);
+            Arrays::ensure($configuration, 'targets');
+
+            return $configuration;
+
+        } catch (Throwable $e) {
+            // Whatever went wrong, make sure that the configuration environment is set back to normal
+            Config::setEnvironment(ENVIRONMENT);
+            throw $e;
+        }
+    }
 
     /**
      * Start the deployment process
@@ -119,7 +161,7 @@ class Deploy implements DeployInterface
             // Read environment config, update global config and then check which sections should be executed
             $env_config = $this->getEnvironmentConfig($environment);
 
-            $this->configuration['execute_hooks'] =  $env_config['execute_hooks'];
+            $this->configuration['execute_hooks'] = $env_config['execute_hooks'];
             $this->configuration['force']         = ($env_config['force'] or FORCE);
 
             if (!$env_config['ignore_changes']) {
@@ -216,11 +258,11 @@ class Deploy implements DeployInterface
             // Build the rsync target
             if (empty($env_config['server']['host'])) {
                 throw new OutOfBoundsException(tr('No host configured for target ":target"', [
-                    ':target' => $environment
+                    ':target' => $environment,
                 ]));
             }
 
-            $rsync_target  = Strings::endsWith($env_config['server']['host'], ':');
+            $rsync_target = Strings::endsWith($env_config['server']['host'], ':');
             $rsync_target .= $env_config['server']['path'];
 
             if ($env_config['server']['user']) {
@@ -235,39 +277,42 @@ class Deploy implements DeployInterface
 
             // Execute rsync
             Log::action(tr('Executing rsync to target ":target"', [
-                ':target' => Strings::endsWith($rsync_target, '/') . $project
+                ':target' => Strings::endsWith($rsync_target, '/') . $project,
             ]));
 
             // First ensure the target base directory exists!
             Process::new('mkdir')
-                ->setServer(Server::new()
-                    ->setHostname($env_config['server']['host'])
-                    ->setPort($env_config['server']['port'])
-                    ->setSshAccount())
-                ->addArguments(['-p', $env_config['server']['path']])
-                ->execute(EnumExecuteMethod::noReturn);
+                   ->setServer(Server::new()
+                                     ->setHostname($env_config['server']['host'])
+                                     ->setPort($env_config['server']['port'])
+                                     ->setSshAccount())
+                   ->addArguments([
+                                      '-p',
+                                      $env_config['server']['path'],
+                                  ])
+                   ->execute(EnumExecuteMethod::noReturn);
 
             // And then rsync!
             Rsync::new()
-                ->setArchive(true)
-                ->setVerbose(true)
-                ->setCompress(true)
-                ->setRemoteSudo($env_config['server']['sudo'])
-                ->setPort($env_config['server']['port'])
-                ->setSource(DIRECTORY_ROOT)
-                ->setTarget(Strings::endsWith($rsync_target, '/') . $project)
-                ->addExclude('.git')
-                ->addExclude('.gitignore')
-                ->addExclude('nohup.out')
-                ->addExclude('data/run')
-                ->addExclude('data/log')
-                ->addExclude('data/tmp')
-                ->addExclude('data/cache')
-                ->addExclude('data/system')
-                ->addExclude('data/sources')
-                ->addExclude('data/cookies')
-                ->addExclude('data/sessions')
-                ->execute();
+                 ->setArchive(true)
+                 ->setVerbose(true)
+                 ->setCompress(true)
+                 ->setRemoteSudo($env_config['server']['sudo'])
+                 ->setPort($env_config['server']['port'])
+                 ->setSource(DIRECTORY_ROOT)
+                 ->setTarget(Strings::endsWith($rsync_target, '/') . $project)
+                 ->addExclude('.git')
+                 ->addExclude('.gitignore')
+                 ->addExclude('nohup.out')
+                 ->addExclude('data/run')
+                 ->addExclude('data/log')
+                 ->addExclude('data/tmp')
+                 ->addExclude('data/cache')
+                 ->addExclude('data/system')
+                 ->addExclude('data/sources')
+                 ->addExclude('data/cookies')
+                 ->addExclude('data/sessions')
+                 ->execute();
 
             static::executeHook('post-rsync,pre-update-file-modes');
 
@@ -288,84 +333,11 @@ class Deploy implements DeployInterface
         return $this;
     }
 
-
-    /**
-     * Try to execute the specified hook
-     *
-     * @param array|string $hooks
-     * @return $this
-     */
-    protected function executeHook(array|string $hooks): static
-    {
-        if ($this->configuration['execute_hooks']) {
-            Hook::new('deploy')->execute($hooks);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Return all deployment configuration
-     *
-     * @return array
-     * @throws Throwable
-     */
-    protected function getConfig(): array
-    {
-        try {
-            Config::setEnvironment('deploy/deploy', false);
-            $configuration = Config::get('');
-            Config::setEnvironment(ENVIRONMENT);
-            Arrays::ensure($configuration, 'targets');
-
-            return $configuration;
-
-        } catch (Throwable $e) {
-            // Whatever went wrong, make sure that the configuration environment is set back to normal
-            Config::setEnvironment(ENVIRONMENT);
-            throw $e;
-        }
-    }
-
-
-    /**
-     * Sets the requested modifier configuration
-     *
-     * @param string $modifier
-     * @param bool|null $do
-     * @param bool|null $dont
-     * @return $this
-     */
-    protected function setModifier(string $modifier, ?bool $do, ?bool $dont): static
-    {
-        if ($do) {
-            if ($dont) {
-                throw new OutOfBoundsException(tr('Both "do" and "dont" modifiers were specified for ":modifier". Please specify only one', [
-                    ':modifier' => $modifier
-                ]));
-
-            }
-
-            $value = true;
-
-        } elseif ($dont) {
-            $value = false;
-
-        } else {
-            $value = null;
-        }
-
-        $this->modifiers[$modifier] = $value;
-
-        return $this;
-    }
-
-
     /**
      * Loads and returns the configuration for the specified environment
      *
      * @param $environment
+     *
      * @return array
      */
     protected function getEnvironmentConfig($environment): array
@@ -375,7 +347,7 @@ class Deploy implements DeployInterface
         try {
             if (!Config::environmentExists('deploy/' . $environment)) {
                 throw new DeployException(tr('The specified environment ":environment" has no configuration file available in DIRECTORY_ROOT/config/deploy/', [
-                    ':environment' => $environment
+                    ':environment' => $environment,
                 ]));
             }
 
@@ -417,64 +389,28 @@ class Deploy implements DeployInterface
         }
     }
 
-
     /**
-     * Sets if hooks should be executed or not
+     * Try to execute the specified hook
      *
-     * @param bool|null $do
-     * @param bool|null $dont
+     * @param array|string $hooks
+     *
      * @return $this
      */
-    public function setExecuteHooks(?bool $do, ?bool $dont): static
+    protected function executeHook(array|string $hooks): static
     {
-        return $this->setModifier('execute_hooks', $do, $dont);
+        if ($this->configuration['execute_hooks']) {
+            Hook::new('deploy')->execute($hooks);
+        }
+
+        return $this;
     }
-
-
-    /**
-     * Sets if content checks should be executed or not
-     *
-     * @param bool|null $do
-     * @param bool|null $dont
-     * @return $this
-     */
-    public function setContentCheck(?bool $do, ?bool $dont): static
-    {
-        return $this->setModifier('content_check', $do, $dont);
-    }
-
-
-    /**
-     * Sets if init should be executed or not
-     *
-     * @param bool|null $do
-     * @param bool|null $dont
-     * @return $this
-     */
-    public function setInit(?bool $do, ?bool $dont): static
-    {
-        return $this->setModifier('init', $do, $dont);
-    }
-
-
-    /**
-     * Sets if notifications should be sent out or not
-     *
-     * @param bool|null $do
-     * @param bool|null $dont
-     * @return $this
-     */
-    public function setNotify(?bool $do, ?bool $dont): static
-    {
-        return $this->setModifier('notifications', $do, $dont);
-    }
-
 
     /**
      * Sets if compression should be used or not
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setCompress(?bool $do, ?bool $dont): static
@@ -482,12 +418,97 @@ class Deploy implements DeployInterface
         return $this->setModifier('compress', $do, $dont);
     }
 
+    /**
+     * Sets the requested modifier configuration
+     *
+     * @param string    $modifier
+     * @param bool|null $do
+     * @param bool|null $dont
+     *
+     * @return $this
+     */
+    protected function setModifier(string $modifier, ?bool $do, ?bool $dont): static
+    {
+        if ($do) {
+            if ($dont) {
+                throw new OutOfBoundsException(tr('Both "do" and "dont" modifiers were specified for ":modifier". Please specify only one', [
+                    ':modifier' => $modifier,
+                ]));
+
+            }
+
+            $value = true;
+
+        } elseif ($dont) {
+            $value = false;
+
+        } else {
+            $value = null;
+        }
+
+        $this->modifiers[$modifier] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Sets if hooks should be executed or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     *
+     * @return $this
+     */
+    public function setExecuteHooks(?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('execute_hooks', $do, $dont);
+    }
+
+    /**
+     * Sets if content checks should be executed or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     *
+     * @return $this
+     */
+    public function setContentCheck(?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('content_check', $do, $dont);
+    }
+
+    /**
+     * Sets if init should be executed or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     *
+     * @return $this
+     */
+    public function setInit(?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('init', $do, $dont);
+    }
+
+    /**
+     * Sets if notifications should be sent out or not
+     *
+     * @param bool|null $do
+     * @param bool|null $dont
+     *
+     * @return $this
+     */
+    public function setNotify(?bool $do, ?bool $dont): static
+    {
+        return $this->setModifier('notifications', $do, $dont);
+    }
 
     /**
      * Sets if git should push all changes to another repository or not
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setPush(?bool $do, ?bool $dont): static
@@ -501,6 +522,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setParallel(?bool $do, ?bool $dont): static
@@ -514,6 +536,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setUpdateSitemap(?bool $do, ?bool $dont): static
@@ -527,6 +550,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setTranslate(?bool $do, ?bool $dont): static
@@ -540,6 +564,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setBomCheck(?bool $do, ?bool $dont): static
@@ -553,6 +578,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setBackup(?bool $do, ?bool $dont): static
@@ -566,6 +592,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setStash(?bool $do, ?bool $dont): static
@@ -579,6 +606,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setTestSyntax(?bool $do, ?bool $dont): static
@@ -592,6 +620,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setTestUnit(?bool $do, ?bool $dont): static
@@ -605,6 +634,7 @@ class Deploy implements DeployInterface
      *
      * @param bool|null $do
      * @param bool|null $dont
+     *
      * @return $this
      */
     public function setIgnoreChanges(?bool $do, ?bool $dont): static

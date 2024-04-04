@@ -13,31 +13,21 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
-class Url {
-    /**
-     * Returns true if the specified string is a full and VALID URL
-     *
-     * @param string $url
-     * @return bool
-     */
-    public static function isValid(string $url): bool
-    {
-        return (bool) filter_var($url, FILTER_VALIDATE_URL);
-    }
-
-
+class Url
+{
     /**
      * Returns true if the specified string is an external URL
      *
      * External here means that the domain is NOT one of the configured domains
      *
      * @param string $url
-     * @param bool $check_sub_domains
+     * @param bool   $check_sub_domains
+     *
      * @return bool
      */
     public static function isExternal(string $url, bool $check_sub_domains = true): bool
@@ -52,6 +42,17 @@ class Url {
         return !static::getDomainType($url, $check_sub_domains);
     }
 
+    /**
+     * Returns true if the specified string is a full and VALID URL
+     *
+     * @param string $url
+     *
+     * @return bool
+     */
+    public static function isValid(string $url): bool
+    {
+        return (bool)filter_var($url, FILTER_VALIDATE_URL);
+    }
 
     /**
      * Returns true if the specified string is an external URL
@@ -59,7 +60,8 @@ class Url {
      * External here means that the domain is NOT one of the configured domains
      *
      * @param string $url
-     * @param bool $check_sub_domains
+     * @param bool   $check_sub_domains
+     *
      * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it's on an external
      */
     public static function getDomainType(string $url, bool $check_sub_domains = true): ?string

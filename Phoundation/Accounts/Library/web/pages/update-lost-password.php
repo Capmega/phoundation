@@ -21,10 +21,10 @@ use Phoundation\Web\Requests\Response;
  * This page allows users to update their lost password. It is typically used when the user lost their password and need
  * a new one. It requires them being signed in using a sign-in key
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
@@ -43,26 +43,26 @@ if (Request::isPostRequestMethod()) {
     try {
         // Validate password data
         $post = PostValidator::new()
-            ->select('password')->isPassword()
-            ->select('passwordv')->isEqualTo('password')
-            ->validate();
+                             ->select('password')->isPassword()
+                             ->select('passwordv')->isEqualTo('password')
+                             ->validate();
 
         // Update the password for this session user
         Session::getUser()->changePassword($post['password'], $post['passwordv'])->save();
 
         // Register a security incident
         Incident::new()
-            ->setSeverity(Severity::medium)
-            ->setType(tr('User lost password update'))
-            ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
-                ':key'  => Session::getSignInKey(),
-                ':user' => Session::getUser()->getLogId()
-            ]))
-            ->setDetails([
-                ':key'  => Session::getSignInKey(),
-                ':user' => Session::getUser()->getLogId()
-            ])
-            ->save();
+                ->setSeverity(Severity::medium)
+                ->setType(tr('User lost password update'))
+                ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
+                    ':key'  => Session::getSignInKey(),
+                    ':user' => Session::getUser()->getLogId(),
+                ]))
+                ->setDetails([
+                                 ':key'  => Session::getSignInKey(),
+                                 ':user' => Session::getUser()->getLogId(),
+                             ])
+                ->save();
 
         // Add a flash message and redirect to the original target
         Request::getFlashMessages()->addSuccessMessage(tr('Your password has been updated'));
@@ -70,13 +70,13 @@ if (Request::isPostRequestMethod()) {
 
     } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
         Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
-            ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+            ':count' => Config::getInteger('security.passwords.size.minimum', 10),
         ]));
 
     } catch (ValidationFailedException $e) {
         Request::getFlashMessages()->addMessage($e);
 
-    }catch (PasswordNotChangedException $e) {
+    } catch (PasswordNotChangedException $e) {
         Request::getFlashMessages()->addWarningMessage(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
@@ -91,8 +91,8 @@ if (isset($updated)) {
 
     // Render the page
     LostPasswordUpdatedPage::new()
-        ->setEmail(Session::getUser()->getEmail())
-        ->render();
+                           ->setEmail(Session::getUser()->getEmail())
+                           ->render();
 
 } else {
     // Set page meta data
@@ -101,6 +101,6 @@ if (isset($updated)) {
 
     // Render the page
     UpdateLostPasswordPage::new()
-        ->setEmail(Session::getUser()->getEmail())
-        ->render();
+                          ->setEmail(Session::getUser()->getEmail())
+                          ->render();
 }

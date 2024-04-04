@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Components\Element;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Icons extends Element
 {
@@ -25,7 +25,20 @@ class Icons extends Element
      *
      * @var string|null $size
      */
-    #[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])]
+    #[ExpectedValues(values: [
+        "xs",
+        "sm",
+        "lg",
+        "2x",
+        "3x",
+        "4x",
+        "5x",
+        "6x",
+        "7x",
+        "8x",
+        "9x",
+        "10x",
+    ])]
     protected ?string $size = null;
 
 
@@ -34,7 +47,20 @@ class Icons extends Element
      *
      * @return string
      */
-    #[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])] public function getSize(): string
+    #[ExpectedValues(values: [
+        "xs",
+        "sm",
+        "lg",
+        "2x",
+        "3x",
+        "4x",
+        "5x",
+        "6x",
+        "7x",
+        "8x",
+        "9x",
+        "10x",
+    ])] public function getSize(): string
     {
         return $this->size;
     }
@@ -44,9 +70,23 @@ class Icons extends Element
      * Sets the icon size
      *
      * @param string $size
+     *
      * @return static
      */
-    public function setSize(#[ExpectedValues(values:["xs", "sm", "lg", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"])] string $size): static
+    public function setSize(#[ExpectedValues(values: [
+        "xs",
+        "sm",
+        "lg",
+        "2x",
+        "3x",
+        "4x",
+        "5x",
+        "6x",
+        "7x",
+        "8x",
+        "9x",
+        "10x",
+    ])] string $size): static
     {
         $this->size = $size;
         return $this;

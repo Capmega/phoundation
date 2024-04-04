@@ -26,10 +26,10 @@ use Stringable;
  *
  * This class contains the basic data entry traits
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 interface DataEntryInterface extends ArrayableInterface, Stringable
 {
@@ -51,9 +51,47 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Returns true if the ID column is the specified column
      *
      * @param string $column
+     *
      * @return bool
      */
     public static function idColumnIs(string $column): bool;
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string;
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string;
+
+    /**
+     * Returns the column that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueColumn(): ?string;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier
+     *
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     *
+     * @param DataEntryInterface|string|int|null $identifier
+     * @param string|null                        $column
+     * @param bool                               $meta_enabled
+     * @param bool                               $force
+     *
+     * @return DataEntryInterface
+     */
+    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -115,6 +153,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Returns id for this database entry that can be used in logs
      *
      * @param bool $allow_create
+     *
      * @return static
      */
     public function setAllowCreate(bool $allow_create): static;
@@ -130,6 +169,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Sets if this DataEntry will allow modification of existing entries
      *
      * @param bool $allow_modify
+     *
      * @return static
      */
     public function setAllowModify(bool $allow_modify): static;
@@ -173,6 +213,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Returns true if this DataEntry has the specified status
      *
      * @param string|null $status
+     *
      * @return bool
      */
     public function isStatus(?string $status): bool;
@@ -189,6 +230,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @param string|null $status
      * @param string|null $comments
+     *
      * @return static
      */
     public function setStatus(?string $status, ?string $comments = null): static;
@@ -211,6 +253,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Delete the specified entries
      *
      * @param string|null $comments
+     *
      * @return static
      */
     public function delete(?string $comments = null): static;
@@ -219,6 +262,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Undelete the specified entries
      *
      * @param string|null $comments
+     *
      * @return static
      */
     public function undelete(?string $comments = null): static;
@@ -241,6 +285,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Sets the column prefix string
      *
      * @param string|null $prefix
+     *
      * @return static
      */
     public function setColumnPrefix(?string $prefix): static;
@@ -268,6 +313,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *       yet
      *
      * @param bool $load
+     *
      * @return MetaInterface|null
      */
     public function getMetaObject(bool $load = false): ?MetaInterface;
@@ -289,8 +335,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Modify the data for this object with the new specified data
      *
-     * @param bool $clear_source
+     * @param bool                           $clear_source
      * @param ValidatorInterface|array|null &$source
+     *
      * @return static
      */
     public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static;
@@ -299,8 +346,10 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Forcibly modify the data for this object with the new specified data, putting the object in readonly mode
      *
      * @note In readonly mode this object will no longer be able to write its data!
-     * @param bool $clear_source
+     *
+     * @param bool                          $clear_source
      * @param ValidatorInterface|array|null $source
+     *
      * @return static
      */
     public function forceApply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static;
@@ -309,6 +358,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Validates the source data and returns it
      *
      * @param ValidatorInterface|array|null $data
+     *
      * @return static
      */
     public function validateMetaState(ValidatorInterface|array|null $data = null): static;
@@ -349,7 +399,8 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Sets the value for the specified data key
      *
      * @param string $column
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return static
      */
     public function addSourceValue(string $column, mixed $value): static;
@@ -357,8 +408,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Will save the data from this data entry to the database
      *
-     * @param bool $force
+     * @param bool        $force
      * @param string|null $comments
+     *
      * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static;
@@ -368,6 +420,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * @param string|null $key_header
      * @param string|null $value_header
+     *
      * @return static
      */
     public function displayCliForm(?string $key_header = null, ?string $value_header = null): static;
@@ -387,49 +440,13 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     public function getDefinitionsObject(): ?DefinitionsInterface;
 
     /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string;
-
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    public static function getDataEntryName(): string;
-
-
-    /**
-     * Returns the column that is unique for this object
-     *
-     * @return string|null
-     */
-    public static function getUniqueColumn(): ?string;
-
-    /**
      * Returns true if this object has the specified status
      *
      * @param string $status
+     *
      * @return bool
      */
     public function hasStatus(string $status): bool;
-
-    /**
-     * Returns a DataEntry object matching the specified identifier
-     *
-     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
-     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
-     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
-     * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     * @param bool $meta_enabled
-     * @param bool $force
-     * @return DataEntryInterface
-     */
-    public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static;
 
     /**
      * Returns the name for this object that can be displayed
@@ -442,6 +459,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Lock this user account
      *
      * @param string|null $comments
+     *
      * @return static
      */
     public function lock(?string $comments = null): static;
@@ -450,6 +468,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Unlock this user account
      *
      * @param string|null $comments
+     *
      * @return static
      */
     public function unlock(?string $comments = null): static;
@@ -465,6 +484,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Loads the specified data into this DataEntry object
      *
      * @param Iterator|array $source
+     *
      * @return static
      */
     public function setSource(Iterator|array $source): static;
@@ -474,6 +494,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Add the complete definitions and source from the specified data entry to this data entry
      *
      * @param DataEntryInterface $data_entry
+     *
      * @return $this
      */
     public function appendDataEntry(DataEntryInterface $data_entry): static;
@@ -482,6 +503,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Add the complete definitions and source from the specified data entry to this data entry
      *
      * @param DataEntryInterface $data_entry
+     *
      * @return $this
      */
     public function prependDataEntry(DataEntryInterface $data_entry): static;
@@ -489,10 +511,11 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
-     * @param string $at_key
+     * @param string             $at_key
      * @param DataEntryInterface $data_entry
-     * @param bool $after
-     * @param bool $strip_meta
+     * @param bool               $after
+     * @param bool               $strip_meta
+     *
      * @return $this
      */
     public function injectDataEntry(string $at_key, DataEntryInterface $data_entry, bool $after = true, bool $strip_meta = true): static;
@@ -500,12 +523,14 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
-     * @param string $at_key
+     * @param string                                  $at_key
      * @param ElementInterface|ElementsBlockInterface $value
-     * @param DefinitionInterface|array|null $definition
-     * @param bool $after
+     * @param DefinitionInterface|array|null          $definition
+     * @param bool                                    $after
+     *
      * @return $this
-     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
+     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at
+     *       the front
      */
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static;
 
@@ -516,8 +541,9 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      *
      * The extracted data entry will have the same class and interface as this
      *
-     * @param array|string $columns
+     * @param array|string           $columns
      * @param EnumMatchModeInterface $match_mode
+     *
      * @return DataEntryInterface
      */
     public function extractDataEntryObject(array|string $columns, EnumMatchModeInterface $match_mode = EnumMatchMode::full): DataEntryInterface;
@@ -533,6 +559,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Sets whether to use random_id
      *
      * @param bool $random_id
+     *
      * @return static
      */
     public function setRandomId(bool $random_id): static;
@@ -565,6 +592,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
      *
      * @param bool $insert_update
+     *
      * @return static
      */
     public function setInsertUpdate(bool $insert_update): static;
@@ -580,6 +608,7 @@ interface DataEntryInterface extends ArrayableInterface, Stringable
      * Sets how many random id retries to perform
      *
      * @param int $max_id_retries
+     *
      * @return static
      */
     public function setMaxIdRetries(int $max_id_retries): static;

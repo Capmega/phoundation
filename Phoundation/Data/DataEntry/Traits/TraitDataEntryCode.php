@@ -10,10 +10,10 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * This trait contains methods for DataEntry objects that require a code
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryCode
 {
@@ -34,7 +34,9 @@ trait TraitDataEntryCode
      * @note This method prefixes each code with a "#" symbol to ensure that codes are never seen as numeric, which
      *       would cause issues with $identifier detection, as $identifier can be numeric (ALWAYS id) or non numeric
      *       (The other unique column)
+     *
      * @param string|null $code
+     *
      * @return static
      */
     public function setCode(?string $code): static

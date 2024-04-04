@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface FormInterface
 {
@@ -32,6 +32,7 @@ interface FormInterface
      * Sets the form action
      *
      * @param Stringable|string|null $action
+     *
      * @return static
      */
     public function setAction(Stringable|string|null $action): static;
@@ -47,6 +48,7 @@ interface FormInterface
      * Sets the form method
      *
      * @param string $method
+     *
      * @return static
      */
     public function setMethod(string $method): static;
@@ -62,6 +64,7 @@ interface FormInterface
      * Sets the form no_validate
      *
      * @param bool $no_validate
+     *
      * @return static
      */
     public function setNoValidate(bool $no_validate): static;
@@ -77,6 +80,7 @@ interface FormInterface
      * Sets the form auto_complete
      *
      * @param string $auto_complete
+     *
      * @return static
      */
     public function setAutoComplete(string $auto_complete): static;
@@ -92,6 +96,7 @@ interface FormInterface
      * Sets the form accept_charset
      *
      * @param string $accept_charset
+     *
      * @return static
      */
     public function setAcceptCharset(string $accept_charset): static;
@@ -107,6 +112,7 @@ interface FormInterface
      * Sets the form rel
      *
      * @param string $rel
+     *
      * @return static
      */
     public function setRel(string $rel): static;
@@ -122,6 +128,7 @@ interface FormInterface
      * Sets the form target
      *
      * @param string $target
+     *
      * @return static
      */
     public function setTarget(string $target): static;

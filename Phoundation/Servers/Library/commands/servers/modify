@@ -8,7 +8,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Servers\Server;
-use Phoundation\Utils\Config;
 
 
 /**
@@ -16,19 +15,19 @@ use Phoundation\Utils\Config;
  *
  * This script will modify a server with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete(Server::getAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT `hostname` FROM `servers` WHERE `hostname` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT `hostname` FROM `servers` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
-        ]
-    ]
-]));
+                                                              'positions' => [
+                                                                  0 => [
+                                                                      'word'   => 'SELECT `hostname` FROM `servers` WHERE `hostname` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                      'noword' => 'SELECT `hostname` FROM `servers` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                  ],
+                                                              ],
+                                                          ]));
 
 CliDocumentation::setUsage('./pho servers modify HOSTNAME [OPTIONS]
 ./pho system servers modify HOSTNAME -l -i --to ENVIRONMENT');
@@ -44,8 +43,8 @@ HOSTNAME                                The server to modify. Always specify ser
 
 // Validate the specified hostname
 $argv = ArgvValidator::new()
-    ->select('hostname')->hasMaxCharacters(128)->isDomain()
-    ->validate();
+                     ->select('hostname')->hasMaxCharacters(128)->isDomain()
+                     ->validate();
 
 
 // Get the server, modify, and save

@@ -16,11 +16,11 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Geo
+ * @package   Phoundation\Geo
  */
 class Timezones extends DataList
 {
@@ -69,11 +69,30 @@ class Timezones extends DataList
         return null;
     }
 
+    /**
+     * Returns an HTML <select> object with all states available in this timezone
+     *
+     * @param string $name
+     *
+     * @return InputSelect
+     */
+    public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
+    {
+        return InputSelect::new()
+                          ->setConnector(static::getDefaultConnectorName())
+                          ->setSourceQuery('SELECT `id`, `name` 
+                                          FROM  `geo_timezones` 
+                                          WHERE `status` IS NULL ORDER BY `name`')
+                          ->setName($name)
+                          ->setNone(tr('Select a timezone'))
+                          ->setObjectEmpty(tr('No timezones available'));
+    }
 
     /**
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
@@ -84,41 +103,22 @@ class Timezones extends DataList
         return $table;
     }
 
-
-    /**
-     * Returns an HTML <select> object with all states available in this timezone
-     *
-     * @param string $name
-     * @return InputSelect
-     */
-    public static function getHtmlTimezonesSelect(string $name = 'timezones_id'): InputSelect
-    {
-        return InputSelect::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `geo_timezones` 
-                                          WHERE `status` IS NULL ORDER BY `name`')
-            ->setName($name)
-            ->setNone(tr('Select a timezone'))
-            ->setObjectEmpty(tr('No timezones available'));
-    }
-
-
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
-            ->setName('timezones_id')
-            ->setNone(tr('Select a timezone'))
-            ->setObjectEmpty(tr('No timezones available'));
+                     ->setName('timezones_id')
+                     ->setNone(tr('Select a timezone'))
+                     ->setObjectEmpty(tr('No timezones available'));
     }
 }

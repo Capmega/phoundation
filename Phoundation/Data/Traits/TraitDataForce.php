@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openforc.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openforc.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataForce
 {
@@ -40,6 +40,7 @@ trait TraitDataForce
      * Sets if force should be used
      *
      * @param bool $force
+     *
      * @return static
      */
     public function setForce(bool $force): static

@@ -21,10 +21,10 @@ use Stringable;
  *
  * This class generates <img> elements
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Img extends Span implements ImgInterface
 {
@@ -85,11 +85,21 @@ class Img extends Span implements ImgInterface
         $this->requires_closing_tag = false;
     }
 
+    /**
+     * Returns the HTML alt element attribute
+     *
+     * @return bool
+     */
+    public function getLazyLoad(): bool
+    {
+        return $this->lazy_load;
+    }
 
     /**
      * Sets the HTML alt element attribute
      *
      * @param bool $lazy_load
+     *
      * @return Img
      */
     public function setLazyLoad(?bool $lazy_load): static
@@ -107,31 +117,6 @@ class Img extends Span implements ImgInterface
         return $this;
     }
 
-
-    /**
-     * Returns the HTML alt element attribute
-     *
-     * @return bool
-     */
-    public function getLazyLoad(): bool
-    {
-        return $this->lazy_load;
-    }
-
-
-    /**
-     * Sets the HTML alt element attribute
-     *
-     * @param string|null $alt
-     * @return Img
-     */
-    public function setAlt(?string $alt): static
-    {
-        $this->alt = $alt;
-        return $this;
-    }
-
-
     /**
      * Returns the HTML alt element attribute
      *
@@ -142,6 +127,18 @@ class Img extends Span implements ImgInterface
         return $this->alt;
     }
 
+    /**
+     * Sets the HTML alt element attribute
+     *
+     * @param string|null $alt
+     *
+     * @return Img
+     */
+    public function setAlt(?string $alt): static
+    {
+        $this->alt = $alt;
+        return $this;
+    }
 
     /**
      * Returns if this image is hosted on an external domain (that is, a domain NOT in the "web.domains" configuration
@@ -153,11 +150,21 @@ class Img extends Span implements ImgInterface
         return $this->external;
     }
 
+    /**
+     * Returns the HTML src element attribute
+     *
+     * @return Stringable|string|null
+     */
+    public function getSrc(): Stringable|string|null
+    {
+        return $this->src;
+    }
 
     /**
      * Sets the HTML src element attribute
      *
      * @param Stringable|string|null $src
+     *
      * @return Img
      */
     public function setSrc(Stringable|string|null $src): static
@@ -214,73 +221,6 @@ class Img extends Span implements ImgInterface
         return $this;
     }
 
-
-    /**
-     * Returns the HTML src element attribute
-     *
-     * @return Stringable|string|null
-     */
-    public function getSrc(): Stringable|string|null
-    {
-        return $this->src;
-    }
-
-
-    /**
-     * Add the system arguments to the arguments list
-     *
-     * @return IteratorInterface
-     */
-    protected function renderAttributes(): IteratorInterface
-    {
-        return parent::renderAttributes()->appendSource([
-            'src' => $this->src,
-            'alt' => $this->alt,
-        ]);
-    }
-
-
-    /**
-     * Returns the lowercase extension of the file
-     *
-     * @param string $url
-     * @return string|null
-     */
-    protected function getExtension(string $url): ?string
-    {
-        $extension = Strings::fromReverse($url, '.');
-        return strtolower($extension);
-    }
-
-
-    /**
-     * Returns the extension of the file
-     *
-     * @param string $extension
-     * @return string|null
-     */
-    protected function getFormat(string $extension): ?string
-    {
-        return match ($extension) {
-            'jpg', 'jpeg' => 'jpg',
-            default => $extension,
-        };
-
-    }
-
-
-    /**
-     * Returns if this image type is accepted or not
-     *
-     * @param string $format
-     * @return bool
-     */
-    protected function isAccepted(string $format): bool
-    {
-        return Request::accepts('image/' . $format);
-    }
-
-
     /**
      * Generates and returns the HTML string for a <select> control
      *
@@ -297,21 +237,6 @@ class Img extends Span implements ImgInterface
         }
 
         return parent::render();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //// :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
@@ -844,6 +769,60 @@ class Img extends Span implements ImgInterface
 //        }
 //
 //        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
+    }
+
+    /**
+     * Add the system arguments to the arguments list
+     *
+     * @return IteratorInterface
+     */
+    protected function renderAttributes(): IteratorInterface
+    {
+        return parent::renderAttributes()->appendSource([
+                                                            'src' => $this->src,
+                                                            'alt' => $this->alt,
+                                                        ]);
+    }
+
+    /**
+     * Returns the lowercase extension of the file
+     *
+     * @param string $url
+     *
+     * @return string|null
+     */
+    protected function getExtension(string $url): ?string
+    {
+        $extension = Strings::fromReverse($url, '.');
+        return strtolower($extension);
+    }
+
+    /**
+     * Returns the extension of the file
+     *
+     * @param string $extension
+     *
+     * @return string|null
+     */
+    protected function getFormat(string $extension): ?string
+    {
+        return match ($extension) {
+            'jpg', 'jpeg' => 'jpg',
+            default       => $extension,
+        };
+
+    }
+
+    /**
+     * Returns if this image type is accepted or not
+     *
+     * @param string $format
+     *
+     * @return bool
+     */
+    protected function isAccepted(string $format): bool
+    {
+        return Request::accepts('image/' . $format);
     }
 
 

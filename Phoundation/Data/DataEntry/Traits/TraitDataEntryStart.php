@@ -13,10 +13,10 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
  *
  * This trait contains methods for DataEntry objects that require a start
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryStart
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryStart
      * Sets the start for this object
      *
      * @param DateTimeInterface|string|null $start
+     *
      * @return static
      */
     public function setStart(DateTimeInterface|string|null $start): static

@@ -13,10 +13,10 @@ use Plugins\Hardware\Devices\Interfaces\DeviceInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Hardware
+ * @package   Plugins\Hardware
  */
 trait TraitDataEntryDeviceObject
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryDeviceObject
      * Sets the devices_id for this object
      *
      * @param int|null $devices_id
+     *
      * @return static
      */
     public function setDevicesId(?int $devices_id): static
@@ -53,7 +54,7 @@ trait TraitDataEntryDeviceObject
         $devices_id = $this->getValueTypesafe('int', 'devices_id');
 
         if ($devices_id) {
-            return Device::get($devices_id,  'id');
+            return Device::get($devices_id, 'id');
         }
 
         return null;
@@ -75,6 +76,7 @@ trait TraitDataEntryDeviceObject
      * Sets the devices_name for this device
      *
      * @param string|null $devices_name
+     *
      * @return static
      */
     public function setDevicesName(?string $devices_name): static

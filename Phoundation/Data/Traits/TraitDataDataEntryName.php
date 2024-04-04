@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opendata_entry_name.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opendata_entry_name.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataDataEntryName
 {
@@ -40,6 +40,7 @@ trait TraitDataDataEntryName
      * Sets the data_entry_name
      *
      * @param string|null $data_entry_name
+     *
      * @return static
      */
     public function setDataEntryName(?string $data_entry_name): static

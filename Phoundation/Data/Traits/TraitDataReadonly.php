@@ -14,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  * This adds readonly state registration to objects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataReadonly
 {
@@ -33,6 +33,7 @@ trait TraitDataReadonly
      * Throws an exception for the given action if the object is readonly
      *
      * @param string $action
+     *
      * @return static
      * @throws DataEntryReadonlyException
      */
@@ -41,7 +42,7 @@ trait TraitDataReadonly
         if ($this->readonly) {
             throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
                 ':action' => $action,
-                ':object' => Strings::fromReverse(get_class($this), '\\')
+                ':object' => Strings::fromReverse(get_class($this), '\\'),
             ]));
         }
 
@@ -49,13 +50,13 @@ trait TraitDataReadonly
             if ($this->isConfigured()) {
                 throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly because it was read from configuration', [
                     ':action' => $action,
-                    ':object' => Strings::fromReverse(get_class($this), '\\')
+                    ':object' => Strings::fromReverse(get_class($this), '\\'),
                 ]));
             }
 
             throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
                 ':action' => $action,
-                ':object' => Strings::fromReverse(get_class($this), '\\')
+                ':object' => Strings::fromReverse(get_class($this), '\\'),
             ]));
         }
 
@@ -78,6 +79,7 @@ trait TraitDataReadonly
      * Sets if this object is readonly or not
      *
      * @param bool $readonly
+     *
      * @return static
      */
     public function setReadonly(bool $readonly): static

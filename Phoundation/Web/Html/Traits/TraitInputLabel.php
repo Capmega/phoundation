@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 
 namespace Phoundation\Web\Html\Traits;
@@ -52,6 +52,7 @@ trait TraitInputLabel
      * Sets the label for the checkbox
      *
      * @param string|null $label
+     *
      * @return static
      */
     public function setLabel(?string $label): static
@@ -76,6 +77,7 @@ trait TraitInputLabel
      * Sets the label_class for the checkbox
      *
      * @param string|null $label_class
+     *
      * @return static
      */
     public function setLabelClass(?string $label_class): static
@@ -100,6 +102,7 @@ trait TraitInputLabel
      * Sets the label_hidden for the checkbox
      *
      * @param bool $label_hidden
+     *
      * @return static
      */
     public function setLabelHidden(bool $label_hidden): static

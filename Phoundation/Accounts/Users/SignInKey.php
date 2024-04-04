@@ -22,8 +22,8 @@ use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Requests\Routing\Route;
 use Stringable;
 
@@ -33,11 +33,11 @@ use Stringable;
  *
  *
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class SignInKey extends DataEntry implements SignInKeyInterface
 {
@@ -51,8 +51,8 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      * SignInKey class constructor
      *
      * @param int|string|DataEntryInterface|null $identifier
-     * @param string|null $column
-     * @param bool|null $meta_enabled
+     * @param string|null                        $column
+     * @param bool|null                          $meta_enabled
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
@@ -60,17 +60,17 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         $this->setAllowNavigation(false);
     }
 
-
     /**
-     * Returns the string version for this object
+     * Sets the allow_navigation for this object
      *
-     * @return string
+     * @param int|bool|null $allow_navigation
+     *
+     * @return static
      */
-    public function __toString(): string
+    public function setAllowNavigation(int|bool|null $allow_navigation): static
     {
-        return $this->getUuid();
+        return $this->setValue('allow_navigation', (bool)$allow_navigation);
     }
-
 
     /**
      * @inheritDoc
@@ -98,6 +98,15 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         return 'uuid';
     }
 
+    /**
+     * Returns the string version for this object
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getUuid();
+    }
 
     /**
      * Returns the valid_until for this object
@@ -109,11 +118,11 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         return $this->getValueTypesafe('int', 'valid_until');
     }
 
-
     /**
      * Sets the allow_navigation for this object
      *
      * @param string|null $valid_until
+     *
      * @return static
      */
     public function setValidUntil(?string $valid_until): static
@@ -121,61 +130,27 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         return $this->setValue('valid_until', $valid_until);
     }
 
-
-    /**
-     * Returns the allow_navigation for this object
-     *
-     * @return bool
-     */
-    public function getAllowNavigation(): bool
-    {
-        return (bool) $this->getValueTypesafe('bool', 'allow_navigation', false);
-    }
-
-
-    /**
-     * Sets the allow_navigation for this object
-     *
-     * @param int|bool|null $allow_navigation
-     * @return static
-     */
-    public function setAllowNavigation(int|bool|null $allow_navigation): static
-    {
-        return $this->setValue('allow_navigation', (bool) $allow_navigation);
-    }
-
-
-    /**
-     * Returns the once for this object
-     *
-     * @return ?bool
-     */
-    public function getOnce(): ?bool
-    {
-        return $this->getValueTypesafe('bool', 'once', true);
-    }
-
-
     /**
      * Sets the once for this object
      *
      * @param bool|null $once
+     *
      * @return static
      */
     public function setOnce(?bool $once): static
     {
         if ($once !== null) {
-            $once = (int) $once;
+            $once = (int)$once;
         }
 
         return $this->setValue('once', $once);
     }
 
-
     /**
      * Generates the requested sign-in key and returns the corresponding UUID
      *
      * @param Stringable|string|null $redirect
+     *
      * @return static
      */
     public function generate(Stringable|string|null $redirect): static
@@ -199,7 +174,6 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         return $this;
     }
 
-
     /**
      * Apply this sign-in key
      *
@@ -210,7 +184,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         // UUID sign in is only available on the web platform
         if (!PLATFORM_WEB) {
             throw new AuthenticationException(tr('Cannot execute sign in key ":uuid" this is only available on PLATFORM_WEB', [
-                ':uuid' => $this->getUuid()
+                ':uuid' => $this->getUuid(),
             ]));
         }
 
@@ -218,7 +192,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         if (!Request::isRequestType(EnumRequestTypes::html)) {
             throw new AuthenticationException(tr('Cannot execute sign in key ":uuid" for HTTP request type ":type" this is only available on web pages', [
                 ':type' => Request::getRequestType(),
-                ':uuid' => $this->getUuid()
+                ':uuid' => $this->getUuid(),
             ]));
         }
 
@@ -226,26 +200,26 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         if ($this->hasStatus('executed')) {
             if ($this->getOnce()) {
                 throw new SignInKeyUsedException(tr('This link ":uuid" has already been used', [
-                    ':uuid' => $this->getUuid()
+                    ':uuid' => $this->getUuid(),
                 ]));
             }
 
-        // No status other than NULL or "executed" allowed!
+            // No status other than NULL or "executed" allowed!
         } elseif ($this->getStatus()) {
             throw new SignInKeyStatusException(tr('This link has status ":status" and can no longer be used', [
-                ':status' => $this->getStatus()
+                ':status' => $this->getStatus(),
             ]));
         }
 
         Log::warning(tr('Accepted UUID key ":key" for user ":user"', [
             ':key'  => $this->getUuid(),
-            ':user' => $this->getUser()->getLogId()
+            ':user' => $this->getUser()->getLogId(),
         ]));
 
         // Update meta-history and set the status to "executed"
         $this->setStatus('executed');
         $this->addToMetaHistory('executed', tr('The sign in key ":uuid" has been executed', [':uuid' => $this->getUuid()]), [
-            ':ip' => Route::getRemoteIp()
+            ':ip' => Route::getRemoteIp(),
         ]);
 
         Session::signKey($this);
@@ -257,6 +231,15 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         return $this;
     }
 
+    /**
+     * Returns the once for this object
+     *
+     * @return ?bool
+     */
+    public function getOnce(): ?bool
+    {
+        return $this->getValueTypesafe('bool', 'once', true);
+    }
 
     /**
      * Returns true if this object's redirect URL
@@ -265,27 +248,27 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function signKeyRedirectUrlMatchesCurrentUrl(): bool
     {
-        return $this->getRedirect() === (string) UrlBuilder::getCurrent();
+        return $this->getRedirect() === (string)UrlBuilder::getCurrent();
     }
-
 
     /**
      * Returns true if this object's redirect URL
      *
      * @param Stringable|String $url
-     * @param string $target
+     * @param string            $target
+     *
      * @return bool
      */
-    public function signKeyAllowsUrl(Stringable|String $url, string $target): bool
+    public function signKeyAllowsUrl(Stringable|string $url, string $target): bool
     {
-        $url = (string) $url;
+        $url = (string)$url;
 
         if ($this->getRedirect() === $url) {
             // Redirect URL is always allowed
             return true;
         }
 
-        if ($url === (string) UrlBuilder::getWww('sign-out')) {
+        if ($url === (string)UrlBuilder::getWww('sign-out')) {
             // sign-out page is always allowed
             return true;
         }
@@ -298,6 +281,15 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         return $this->getAllowNavigation();
     }
 
+    /**
+     * Returns the allow_navigation for this object
+     *
+     * @return bool
+     */
+    public function getAllowNavigation(): bool
+    {
+        return (bool)$this->getValueTypesafe('bool', 'allow_navigation', false);
+    }
 
     /**
      * @inheritDoc
@@ -309,8 +301,8 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             ->add(DefinitionFactory::getUuid($this))
             ->add(DefinitionFactory::getUrl($this, 'redirect'))
             ->add(DefinitionFactory::getDate($this, 'valid_until')
-                ->setLabel(tr('Valid until')))
+                                   ->setLabel(tr('Valid until')))
             ->add(DefinitionFactory::getBoolean($this, 'allow_navigation')
-                ->setLabel(tr('Allow navigation')));
+                                   ->setLabel(tr('Allow navigation')));
     }
 }

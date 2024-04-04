@@ -193,6 +193,137 @@ class Libraries
         }
     }
 
+    /**
+     * Execute a forced initialization.
+     *
+     * This will drop the system database and initialize the sytem from scratch
+     *
+     * @return void
+     */
+    protected static function force(): void
+    {
+        if (Core::isProductionEnvironment()) {
+            throw new AccessDeniedException(tr('For safety reasons, init or setup force is NOT allowed on production environment!'));
+        }
+
+        sql()
+            ->schema()
+            ->database()
+            ->drop();
+        sql()
+            ->schema()
+            ->database()
+            ->create();
+        sql()->use();
+    }
+
+    /**
+     * Ensure that the systems database exists and is accessible
+     *
+     * @return void
+     */
+    protected static function ensureSystemsDatabaseAccessible(): void
+    {
+        if (
+            !sql('system', false)
+                ->schema(false)
+                ->database()
+                ->exists()
+        ) {
+            sql('system', false)
+                ->schema(false)
+                ->database()
+                ->create();
+        }
+
+        // Use the new database, and reset the schema object
+        sql('system')->use();
+        sql('system', false)->resetSchema();
+    }
+
+    /**
+     * Libraries all libraries for system and plugins
+     *
+     * @param bool        $system
+     * @param bool        $plugins
+     * @param bool        $templates
+     * @param string|null $comments
+     * @param array|null  $filter_libraries
+     *
+     * @return int
+     */
+    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
+    {
+        // Get a list of all available libraries and their versions
+        $libraries      = static::listLibraries($system, $plugins, $templates);
+        $post_libraries = $libraries;
+        $library_count  = count($libraries);
+        $update_count   = 0;
+
+        // First, ensure all libraries have the correct structure
+        static::verifyLibraries($libraries);
+
+        Log::action(tr('Initializing libraries'));
+
+        // Keep initializing libraries until none of them have inits available anymore
+        while ($libraries) {
+            // Order to have the nearest next init version first
+            static::orderAndFilterLibraries($libraries, $filter_libraries);
+
+            // Go over the list of libraries and try to update each one
+            foreach ($libraries as $directory => $library) {
+                // Execute the update inits for this library and update the library information and start over
+                if ($library->init($comments)) {
+                    // The library has been initialized. Break so that we can check which library should be updated next.
+                    $update_count++;
+                    break;
+                }
+
+                // This library has nothing more to initialize, remove it from the list
+                Log::success(tr('Finished updates for library ":library"', [
+                    ':library' => $library->getName(),
+                ]));
+
+                unset($libraries[$directory]);
+            }
+        }
+
+        // Post initialize all libraries
+        // Go over the list of libraries and try to update each one
+        if (TEST) {
+            Log::warning('Not executing post init files due to test mode');
+
+        } else {
+            Log::action(tr('Executing post init updates'));
+
+            foreach ($post_libraries as $library) {
+                // Execute the update inits for this library and update the library information and start over
+                if ($library->initPost($comments)) {
+                    // Library has been post initialized. Break so that we can check which library should be updated next.
+                    $update_count++;
+
+                    Log::success(tr('Finished post updates for library ":library"', [
+                        ':library' => $library->getName(),
+                    ]));
+                }
+            }
+        }
+
+        // Rebuild the command cache
+        static::rebuildCommandCache();
+
+        if (!$update_count) {
+            // No libraries were updated
+            Log::success(tr('Finished initialization, no libraries were updated'));
+        } else {
+            Log::success(tr('Finished initialization, executed ":count" updates in ":libraries" libraries', [
+                ':count'     => $update_count,
+                ':libraries' => $library_count,
+            ]));
+        }
+
+        return $update_count;
+    }
 
     /**
      * Returns a list with all libraries
@@ -243,6 +374,170 @@ class Libraries
         return $return;
     }
 
+    /**
+     * Returns a list with all libraries for the specified path
+     *
+     * @param string $directory
+     *
+     * @return array
+     */
+    protected static function listLibraryDirectories(string $directory, bool $has_vendors = false): array
+    {
+        $return    = [];
+        $directory = Strings::endsWith($directory, '/');
+
+        if (!file_exists($directory)) {
+            throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
+                ':directory' => $directory,
+            ]));
+        }
+
+        if ($has_vendors) {
+            // Return the libraries for each vendor
+            $vendors   = scandir($directory);
+            $libraries = [];
+
+            foreach ($vendors as $vendor) {
+                if ($vendor[0] === '.') {
+                    continue;
+                }
+
+                $libraries = array_merge($libraries, static::listLibraryDirectories($directory . $vendor . '/'));
+            }
+
+            return $libraries;
+        }
+
+        // Build library list and return it
+        $libraries = scandir($directory);
+
+        foreach ($libraries as $library) {
+            // Skip hidden files, current and parent directory
+            if ($library[0] === '.') {
+                continue;
+            }
+
+            // Skip the "disabled" directory
+            if ($library === 'disabled') {
+                continue;
+            }
+
+            $file = $directory . $library . '/';
+
+            // Library paths MUST be directories
+            if (is_dir($file)) {
+                $return[$file] = new Library($file);
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Ensure that all libraries have the
+     *
+     * @param array $libraries
+     *
+     * @return void
+     */
+    protected static function verifyLibraries(array $libraries): void
+    {
+        Log::action(tr('Verifying libraries'));
+
+        foreach ($libraries as $library) {
+            $library->verify();
+        }
+    }
+
+    /**
+     * Order the libraries by next_init_version first
+     *
+     * @param array      $libraries
+     * @param array|null $filter_libraries
+     *
+     * @return void
+     */
+    protected static function orderAndFilterLibraries(array &$libraries, array $filter_libraries = null): void
+    {
+        // Prepare libraries filter if specified
+        if ($filter_libraries) {
+            $filter_libraries = Arrays::lowercaseValues($filter_libraries);
+            $filter_libraries = array_flip($filter_libraries);
+        }
+
+        // Remove libraries that have nothing to execute anymore
+        foreach ($libraries as $directory => $library) {
+            if ($filter_libraries) {
+                if (!array_key_exists(strtolower($library->getName()), $filter_libraries)) {
+                    // This library should not be initialized
+                    unset($libraries[$directory]);
+                    continue;
+                }
+            }
+
+            if ($library->getNextInitVersion() === null) {
+                unset($libraries[$directory]);
+            }
+        }
+
+        // Order the libraries
+        uasort($libraries, function ($a, $b) {
+            return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
+        });
+    }
+
+    /**
+     * Rebuilds the PHO command cache
+     *
+     * @return void
+     */
+    public static function rebuildCommandCache(): void
+    {
+        static::clearCommandsCache();
+
+        Log::action(tr('Rebuilding command cache'), 4);
+
+        // Get temporary directory to build cache and the current cache directory
+        $temporary = Directory::getTemporary();
+        $cache     = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Commands cache rebuild')));
+
+        if ($cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $temporary = $temporary->delete();
+            $cache->copy($temporary);
+        }
+
+        foreach (static::listLibraries() as $library) {
+            $library->rebuildCommandCache($cache, $temporary);
+        }
+
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $cache->replaceWithPath($temporary)
+              ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'commands', Restrictions::writable(DIRECTORY_ROOT . 'commands', tr('Commands cache rebuild')))
+                                          ->delete());
+
+        static::$cache_has_been_rebuilt = true;
+        Log::success(tr('Finished rebuilding command cache'));
+    }
+
+    /**
+     * Deletes the PHO commands cache
+     *
+     * @return void
+     */
+    public static function clearCommandsCache(): void
+    {
+        Log::action(tr('Clearing commands caches'), 3);
+        $cache = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))
+                          ->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            Path::new(DIRECTORY_ROOT . '/commands', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
+                ->delete();
+        }
+
+        static::$cache_has_been_cleared = true;
+    }
 
     /**
      * Returns true if the system is initializing
@@ -253,7 +548,6 @@ class Libraries
     {
         return static::$initializing;
     }
-
 
     /**
      * Returns the path for the specified library
@@ -270,7 +564,7 @@ class Libraries
      */
     public static function findLibrary(string $library, bool $system = true, bool $plugin = true, bool $template = true): Library
     {
-        $return = null;
+        $return      = null;
         $directories = [];
 
         if ($system) {
@@ -319,7 +613,6 @@ class Libraries
                                 ->makeWarning();
     }
 
-
     /**
      * Returns the PhpStatistics object for this library
      *
@@ -344,19 +637,18 @@ class Libraries
             // Get statistics for all plugin libraries
             $return['plugins'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, [LIBRARIES::CLASS_DIRECTORY_PLUGINS])
                                           ->getPhpStatistics(true);
-            $return['totals'] = Arrays::addValues($return['totals'], $return['plugins']);
+            $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
             $return['templates'] = Directory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, [LIBRARIES::CLASS_DIRECTORY_TEMPLATES])
                                             ->getPhpStatistics(true);
-            $return['totals'] = Arrays::addValues($return['totals'], $return['templates']);
+            $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 
         return $return;
     }
-
 
     /**
      * Creates and returns an HTML table for the data in this list
@@ -378,287 +670,6 @@ class Libraries
         return $table;
     }
 
-
-    /**
-     * Ensure that the systems database exists and is accessible
-     *
-     * @return void
-     */
-    protected static function ensureSystemsDatabaseAccessible(): void
-    {
-        if (
-            !sql('system', false)
-                ->schema(false)
-                ->database()
-                ->exists()
-        ) {
-            sql('system', false)
-                ->schema(false)
-                ->database()
-                ->create();
-        }
-
-        // Use the new database, and reset the schema object
-        sql('system')->use();
-        sql('system', false)->resetSchema();
-    }
-
-
-    /**
-     * Returns a list with all libraries for the specified path
-     *
-     * @param string $directory
-     *
-     * @return array
-     */
-    protected static function listLibraryDirectories(string $directory, bool $has_vendors = false): array
-    {
-        $return = [];
-        $directory = Strings::endsWith($directory, '/');
-
-        if (!file_exists($directory)) {
-            throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
-                ':directory' => $directory,
-            ]));
-        }
-
-        if ($has_vendors) {
-            // Return the libraries for each vendor
-            $vendors = scandir($directory);
-            $libraries = [];
-
-            foreach ($vendors as $vendor) {
-                if ($vendor[0] === '.') {
-                    continue;
-                }
-
-                $libraries = array_merge($libraries, static::listLibraryDirectories($directory . $vendor . '/'));
-            }
-
-            return $libraries;
-        }
-
-        // Build library list and return it
-        $libraries = scandir($directory);
-
-        foreach ($libraries as $library) {
-            // Skip hidden files, current and parent directory
-            if ($library[0] === '.') {
-                continue;
-            }
-
-            // Skip the "disabled" directory
-            if ($library === 'disabled') {
-                continue;
-            }
-
-            $file = $directory . $library . '/';
-
-            // Library paths MUST be directories
-            if (is_dir($file)) {
-                $return[$file] = new Library($file);
-            }
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Libraries all libraries for system and plugins
-     *
-     * @param bool        $system
-     * @param bool        $plugins
-     * @param bool        $templates
-     * @param string|null $comments
-     * @param array|null  $filter_libraries
-     *
-     * @return int
-     */
-    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
-    {
-        // Get a list of all available libraries and their versions
-        $libraries = static::listLibraries($system, $plugins, $templates);
-        $post_libraries = $libraries;
-        $library_count = count($libraries);
-        $update_count = 0;
-
-        // First, ensure all libraries have the correct structure
-        static::verifyLibraries($libraries);
-
-        Log::action(tr('Initializing libraries'));
-
-        // Keep initializing libraries until none of them have inits available anymore
-        while ($libraries) {
-            // Order to have the nearest next init version first
-            static::orderAndFilterLibraries($libraries, $filter_libraries);
-
-            // Go over the list of libraries and try to update each one
-            foreach ($libraries as $directory => $library) {
-                // Execute the update inits for this library and update the library information and start over
-                if ($library->init($comments)) {
-                    // The library has been initialized. Break so that we can check which library should be updated next.
-                    $update_count++;
-                    break;
-                }
-
-                // This library has nothing more to initialize, remove it from the list
-                Log::success(tr('Finished updates for library ":library"', [
-                    ':library' => $library->getName(),
-                ]));
-
-                unset($libraries[$directory]);
-            }
-        }
-
-        // Post initialize all libraries
-        // Go over the list of libraries and try to update each one
-        if (TEST) {
-            Log::warning('Not executing post init files due to test mode');
-
-        }
-        else {
-            Log::action(tr('Executing post init updates'));
-
-            foreach ($post_libraries as $library) {
-                // Execute the update inits for this library and update the library information and start over
-                if ($library->initPost($comments)) {
-                    // Library has been post initialized. Break so that we can check which library should be updated next.
-                    $update_count++;
-
-                    Log::success(tr('Finished post updates for library ":library"', [
-                        ':library' => $library->getName(),
-                    ]));
-                }
-            }
-        }
-
-        // Rebuild the command cache
-        static::rebuildCommandCache();
-
-        if (!$update_count) {
-            // No libraries were updated
-            Log::success(tr('Finished initialization, no libraries were updated'));
-        }
-        else {
-            Log::success(tr('Finished initialization, executed ":count" updates in ":libraries" libraries', [
-                ':count'     => $update_count,
-                ':libraries' => $library_count,
-            ]));
-        }
-
-        return $update_count;
-    }
-
-
-    /**
-     * Ensure that all libraries have the
-     *
-     * @param array $libraries
-     *
-     * @return void
-     */
-    protected static function verifyLibraries(array $libraries): void
-    {
-        Log::action(tr('Verifying libraries'));
-
-        foreach ($libraries as $library) {
-            $library->verify();
-        }
-    }
-
-
-    /**
-     * Deletes the PHO commands cache
-     *
-     * @return void
-     */
-    public static function clearCommandsCache(): void
-    {
-        Log::action(tr('Clearing commands caches'), 3);
-        $cache = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, 'Libraries::clearCommandsCache()'))
-                          ->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            Path::new(DIRECTORY_ROOT . '/commands', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
-                ->delete();
-        }
-
-        static::$cache_has_been_cleared = true;
-    }
-
-
-    /**
-     * Deletes the web pages cache
-     *
-     * @return void
-     */
-    public static function clearWebCache(): void
-    {
-        Log::action(tr('Clearing web caches'), 3);
-        $cache = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))
-                          ->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
-                ->delete();
-        }
-    }
-
-
-    /**
-     * Deletes the tests cache
-     *
-     * @return void
-     */
-    public static function clearTestsCache(): void
-    {
-        Log::action(tr('Clearing test caches'), 3);
-        $cache = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache()'))
-                          ->clearTreeSymlinks(true);
-
-        if (!$cache->exists()) {
-            Path::new(DIRECTORY_ROOT . '/tests', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
-                ->delete();
-        }
-    }
-
-
-    /**
-     * Rebuilds the PHO command cache
-     *
-     * @return void
-     */
-    public static function rebuildCommandCache(): void
-    {
-        static::clearCommandsCache();
-
-        Log::action(tr('Rebuilding command cache'), 4);
-
-        // Get temporary directory to build cache and the current cache directory
-        $temporary = Directory::getTemporary();
-        $cache = Directory::new(DIRECTORY_COMMANDS, Restrictions::writable(DIRECTORY_COMMANDS, tr('Commands cache rebuild')));
-
-        if ($cache->exists()) {
-            // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
-            $cache->copy($temporary);
-        }
-
-        foreach (static::listLibraries() as $library) {
-            $library->rebuildCommandCache($cache, $temporary);
-        }
-
-        // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis(Path::new(DIRECTORY_ROOT . 'commands', Restrictions::writable(DIRECTORY_ROOT . 'commands', tr('Commands cache rebuild')))
-                                          ->delete());
-
-        static::$cache_has_been_rebuilt = true;
-        Log::success(tr('Finished rebuilding command cache'));
-    }
-
-
     /**
      * Rebuilds the web pages cache
      *
@@ -672,7 +683,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
-        $cache = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, tr('Commands web rebuild')));
+        $cache     = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, tr('Commands web rebuild')));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -693,6 +704,22 @@ class Libraries
         Log::success(tr('Finished rebuilding web cache'));
     }
 
+    /**
+     * Deletes the web pages cache
+     *
+     * @return void
+     */
+    public static function clearWebCache(): void
+    {
+        Log::action(tr('Clearing web caches'), 3);
+        $cache = Directory::new(DIRECTORY_WEB, Restrictions::writable(DIRECTORY_WEB, 'Libraries::clearWebCache()'))
+                          ->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            Path::new(DIRECTORY_ROOT . 'web', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
+                ->delete();
+        }
+    }
 
     /**
      * Rebuilds the tests cache
@@ -707,7 +734,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = Directory::getTemporary();
-        $cache = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', tr('Commands tests rebuild')));
+        $cache     = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', tr('Commands tests rebuild')));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
@@ -728,6 +755,22 @@ class Libraries
         Log::success(tr('Finished rebuilding tests cache'));
     }
 
+    /**
+     * Deletes the tests cache
+     *
+     * @return void
+     */
+    public static function clearTestsCache(): void
+    {
+        Log::action(tr('Clearing test caches'), 3);
+        $cache = Directory::new(DIRECTORY_DATA . 'system/cache/tests', Restrictions::writable(DIRECTORY_DATA . 'system/cache/tests', 'Libraries::clearTestsCache()'))
+                          ->clearTreeSymlinks(true);
+
+        if (!$cache->exists()) {
+            Path::new(DIRECTORY_ROOT . '/tests', Restrictions::writable(DIRECTORY_ROOT, 'Libraries::clearWebCache()'))
+                ->delete();
+        }
+    }
 
     /**
      * Returns true if in this process the commands cache has been cleared
@@ -739,7 +782,6 @@ class Libraries
         return static::$cache_has_been_cleared;
     }
 
-
     /**
      * Returns true if in this process the commands cache has been rebuilt
      *
@@ -749,70 +791,6 @@ class Libraries
     {
         return static::$cache_has_been_rebuilt;
     }
-
-
-    /**
-     * Order the libraries by next_init_version first
-     *
-     * @param array      $libraries
-     * @param array|null $filter_libraries
-     *
-     * @return void
-     */
-    protected static function orderAndFilterLibraries(array &$libraries, array $filter_libraries = null): void
-    {
-        // Prepare libraries filter if specified
-        if ($filter_libraries) {
-            $filter_libraries = Arrays::lowercaseValues($filter_libraries);
-            $filter_libraries = array_flip($filter_libraries);
-        }
-
-        // Remove libraries that have nothing to execute anymore
-        foreach ($libraries as $directory => $library) {
-            if ($filter_libraries) {
-                if (!array_key_exists(strtolower($library->getName()), $filter_libraries)) {
-                    // This library should not be initialized
-                    unset($libraries[$directory]);
-                    continue;
-                }
-            }
-
-            if ($library->getNextInitVersion() === null) {
-                unset($libraries[$directory]);
-            }
-        }
-
-        // Order the libraries
-        uasort($libraries, function ($a, $b) {
-            return version_compare($a->getNextInitVersion(), $b->getNextInitVersion());
-        });
-    }
-
-
-    /**
-     * Execute a forced initialization.
-     *
-     * This will drop the system database and initialize the sytem from scratch
-     *
-     * @return void
-     */
-    protected static function force(): void
-    {
-        if (Core::isProductionEnvironment()) {
-            throw new AccessDeniedException(tr('For safety reasons, init or setup force is NOT allowed on production environment!'));
-        }
-
-        sql()
-            ->schema()
-            ->database()
-            ->drop();
-        sql()
-            ->schema()
-            ->database()
-            ->create();
-        sql()->use();
-    }
-
 
     /**
      * Returns the highest registered version number
@@ -845,7 +823,7 @@ class Libraries
             ->setType('f')
             ->setName('*.php')
             ->setCallback(function ($file) {
-                $test = strtolower($file);
+                $test  = strtolower($file);
                 $tests = [
                     'Tests/bootstrap.php',
                 ];
@@ -900,7 +878,7 @@ class Libraries
                 ->setType('f')
                 ->setName('*.php')
                 ->setCallback(function ($file) {
-                    $test = strtolower($file);
+                    $test  = strtolower($file);
                     $tests = [
                         'Tests/bootstrap.php',
                     ];

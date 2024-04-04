@@ -90,7 +90,7 @@ if (!$connector) {
 }
 
 if (empty($_CONFIG['db'][$connector])) {
-    throw new CoreException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', array(':connector' => $connector)), 'not-exists');
+    throw new CoreException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', [':connector' => $connector]), 'not-exists');
 }
 
 $connector_data = $_CONFIG['db'][$connector];
@@ -114,17 +114,17 @@ if ($all) {
          * Use the default database for the specified connector
          * If not, use the list of specified databases
          */
-        $databases = array($_CONFIG['db'][$connector]['db']);
+        $databases = [$_CONFIG['db'][$connector]['db']];
     }
 
     /*
      * Confirm that the required databases exist on the server specified by the connector
      */
     foreach ($databases as $database) {
-        $exist = sql_get('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = :TABLE_SCHEMA GROUP BY `TABLE_SCHEMA` LIMIT 1', 'TABLE_SCHEMA', array(':TABLE_SCHEMA' => $database), $connector);
+        $exist = sql_get('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = :TABLE_SCHEMA GROUP BY `TABLE_SCHEMA` LIMIT 1', 'TABLE_SCHEMA', [':TABLE_SCHEMA' => $database], $connector);
 
         if (!$exist) {
-            throw new CoreException(tr('Specified database ":database" does not exist', array(':database' => $database)), 'not-exists');
+            throw new CoreException(tr('Specified database ":database" does not exist', [':database' => $database]), 'not-exists');
         }
     }
 }
@@ -149,10 +149,13 @@ switch (cli_method()) {
                 break;
 
             case '':
-                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', [':method' => cli_method()]), 'not-specified');
 
             default:
-                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', [
+                    ':method'    => cli_method(),
+                    ':submethod' => cli_method(1),
+                ]),                     'unknown-method');
         }
 
         break;
@@ -177,17 +180,26 @@ switch (cli_method()) {
                 $tables = s_get_tables($tables, $databases);
 
                 if ($all) {
-                    log_console(tr('Changing default charset for tables (:count) for connector/host/database ":connector/:host/all databases"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':count' => $tables->rowCount())), 'white');
+                    log_console(tr('Changing default charset for tables (:count) for connector/host/database ":connector/:host/all databases"', [
+                        ':connector' => $connector,
+                        ':host'      => $_CONFIG['db'][$connector]['host'],
+                        ':count'     => $tables->rowCount(),
+                    ]),         'white');
 
                 } else {
-                    log_console(tr('Changing default charset for tables (:count) in connector/host/database ":connector/:host/:database"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':database' => $database, ':count' => $tables->rowCount())), 'white');
+                    log_console(tr('Changing default charset for tables (:count) in connector/host/database ":connector/:host/:database"', [
+                        ':connector' => $connector,
+                        ':host'      => $_CONFIG['db'][$connector]['host'],
+                        ':database'  => $database,
+                        ':count'     => $tables->rowCount(),
+                    ]),         'white');
                 }
 
-                log_console(Strings::size(tr('Database'), 40).tr('Table'), 'cyan');
+                log_console(Strings::size(tr('Database'), 40) . tr('Table'), 'cyan');
 
                 while ($table = sql_fetch($tables)) {
-                    log_console(Strings::size($table['TABLE_SCHEMA'], 40).$table['TABLE_NAME']);
-                    sql_query('ALTER TABLE `'.$table['TABLE_SCHEMA'].'`.`'.$table['TABLE_NAME'].'` CONVERT TO CHARACTER SET "'.$charset.'"', null, null, $connector);
+                    log_console(Strings::size($table['TABLE_SCHEMA'], 40) . $table['TABLE_NAME']);
+                    sql_query('ALTER TABLE `' . $table['TABLE_SCHEMA'] . '`.`' . $table['TABLE_NAME'] . '` CONVERT TO CHARACTER SET "' . $charset . '"', null, null, $connector);
                 }
         }
 
@@ -207,7 +219,11 @@ switch (cli_method()) {
                 cli_no_arguments_left();
 
                 if (VERBOSE) {
-                    log_console(tr('Databases (:count) for connector/host ":connector/:host"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':count' => $databases->rowCount())), 'white');
+                    log_console(tr('Databases (:count) for connector/host ":connector/:host"', [
+                        ':connector' => $connector,
+                        ':host'      => $_CONFIG['db'][$connector]['host'],
+                        ':count'     => $databases->rowCount(),
+                    ]),         'white');
                 }
 
                 log_console(tr('Database'), 'cyan');
@@ -232,17 +248,26 @@ switch (cli_method()) {
 
                 if (VERBOSE) {
                     if ($all) {
-                        log_console(tr('Tables (:count) for connector/host/database ":connector/:host/all databases"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':count' => $tables->rowCount())), 'white');
+                        log_console(tr('Tables (:count) for connector/host/database ":connector/:host/all databases"', [
+                            ':connector' => $connector,
+                            ':host'      => $_CONFIG['db'][$connector]['host'],
+                            ':count'     => $tables->rowCount(),
+                        ]),         'white');
 
                     } else {
-                        log_console(tr('Tables (:count) for connector/host/database ":connector/:host/:database"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':database' => $database, ':count' => $tables->rowCount())), 'white');
+                        log_console(tr('Tables (:count) for connector/host/database ":connector/:host/:database"', [
+                            ':connector' => $connector,
+                            ':host'      => $_CONFIG['db'][$connector]['host'],
+                            ':database'  => $database,
+                            ':count'     => $tables->rowCount(),
+                        ]),         'white');
                     }
                 }
 
-                log_console(Strings::size(tr('Database'), 40).tr('Table'), 'cyan');
+                log_console(Strings::size(tr('Database'), 40) . tr('Table'), 'cyan');
 
                 while ($table = sql_fetch($tables)) {
-                    log_console(Strings::size($table['TABLE_SCHEMA'], 40).$table['TABLE_NAME']);
+                    log_console(Strings::size($table['TABLE_SCHEMA'], 40) . $table['TABLE_NAME']);
                 }
 
                 break;
@@ -252,35 +277,35 @@ switch (cli_method()) {
             case 'foreign-key':
                 // FALLTHROUGH
             case 'foreign-keys':
-                $filter      = cli_argument('--filter'     , true);
-                $reference   = cli_argument('--reference'  , true);
-                $constraint  = cli_argument('--constraint' , true);
-                $database    = cli_argument('--database'   , true);
+                $filter      = cli_argument('--filter', true);
+                $reference   = cli_argument('--reference', true);
+                $constraint  = cli_argument('--constraint', true);
+                $database    = cli_argument('--database', true);
                 $foreign_key = cli_argument('--foreign-key', true, cli_argument('--fk', true));
 
                 cli_no_arguments_left();
 
-                $where       = ' WHERE `referenced_table_name` IS NOT NULL ';
-                $execute     = array();
+                $where   = ' WHERE `referenced_table_name` IS NOT NULL ';
+                $execute = [];
 
                 if ($foreign_key) {
-                    $having[] = ' `foreign_key` LIKE :foreign_key ';
-                    $execute[':foreign_key'] = '%'.$foreign_key.'%';
+                    $having[]                = ' `foreign_key` LIKE :foreign_key ';
+                    $execute[':foreign_key'] = '%' . $foreign_key . '%';
                 }
 
                 if ($database) {
-                    $having[] = ' `database` LIKE :database ';
-                    $execute[':database'] = '%'.$database.'%';
+                    $having[]             = ' `database` LIKE :database ';
+                    $execute[':database'] = '%' . $database . '%';
                 }
 
                 if ($constraint) {
-                    $having[] = ' `constraint` LIKE :constraint ';
-                    $execute[':constraint'] = '%'.$constraint.'%';
+                    $having[]               = ' `constraint` LIKE :constraint ';
+                    $execute[':constraint'] = '%' . $constraint . '%';
                 }
 
                 if ($reference) {
-                    $having[] = ' `references` LIKE :reference ';
-                    $execute[':reference'] = '%'.$reference.'%';
+                    $having[]              = ' `references` LIKE :reference ';
+                    $execute[':reference'] = '%' . $reference . '%';
                 }
 
                 $r = sql_query('SELECT `information_schema`.`key_column_usage`.`constraint_name`  AS `constraint`,
@@ -288,14 +313,14 @@ switch (cli_method()) {
                                        CONCAT(`information_schema`.`key_column_usage`.`table_name`           , ".", `information_schema`.`key_column_usage`.`column_name`)            AS `foreign_key`,
                                        CONCAT(`information_schema`.`key_column_usage`.`referenced_table_name`, ".", `information_schema`.`key_column_usage`.`referenced_column_name`) AS `references`
 
-                                FROM   `information_schema`.`key_column_usage` '.$where.(empty($having) ? '' : ' HAVING '.implode(' AND ', $having)), $execute);
+                                FROM   `information_schema`.`key_column_usage` ' . $where . (empty($having) ? '' : ' HAVING ' . implode(' AND ', $having)), $execute);
 
                 if ($r->rowCount()) {
-                    log_console(tr('Listing ":count" foreign key references', array(':count' => $r->rowCount())), 'white');
+                    log_console(tr('Listing ":count" foreign key references', [':count' => $r->rowCount()]), 'white');
                     log_console(tr('Database           Constraint name                          Foreign key                              References'), 'cyan');
 
                     while ($row = sql_fetch($r)) {
-                        $row = Strings::size($row['database'], 18, ' ').' '.Strings::size($row['constraint'], 40, ' ').' '.Strings::size($row['foreign_key'], 40, ' ').' '.$row['references'];
+                        $row = Strings::size($row['database'], 18, ' ') . ' ' . Strings::size($row['constraint'], 40, ' ') . ' ' . Strings::size($row['foreign_key'], 40, ' ') . ' ' . $row['references'];
 
                         if (!$filter or strstr($row, $filter)) {
                             log_console($row);
@@ -309,10 +334,13 @@ switch (cli_method()) {
                 break;
 
             case '':
-                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', [':method' => cli_method()]), 'not-specified');
 
             default:
-                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', [
+                    ':method'    => cli_method(),
+                    ':submethod' => cli_method(1),
+                ]),                     'unknown-method');
         }
 
         break;
@@ -351,16 +379,21 @@ switch (cli_method()) {
 
                 while ($database = sql_fetch($databases)) {
                     try {
-                        log_console(tr('Checking database ":database"', array(':database' => $database['database'])));
+                        log_console(tr('Checking database ":database"', [':database' => $database['database']]));
                         mysqlr_monitor_database($database);
                         sleep(1);
 
-                    }catch(Exception $e) {
-                        $message = tr('mysqlr_monitor_database(): Failed to on database ":database", encountered error ":error"', array(':database' => $database['database'], ':error' => $e->getMessage()));
+                    } catch (Exception $e) {
+                        $message = tr('mysqlr_monitor_database(): Failed to on database ":database", encountered error ":error"', [
+                            ':database' => $database['database'],
+                            ':error'    => $e->getMessage(),
+                        ]);
 
-                        mysqlr_add_log(array('databases_id' => $database['id'],
-                                             'type'         => 'other',
-                                             'message'      => $message));
+                        mysqlr_add_log([
+                                           'databases_id' => $database['id'],
+                                           'type'         => 'other',
+                                           'message'      => $message,
+                                       ]);
                         mysqlr_update_replication_status($database, 'error');
                         log_console($message, 'red');
                         sleep(1);
@@ -382,10 +415,17 @@ switch (cli_method()) {
                         break;
 
                     case '':
-                        throw new CoreException(tr('No sub method specified for the methods ":method0" ":method1"', array(':method0' => cli_method(), ':method1' => cli_method(1))), 'no-method');
+                        throw new CoreException(tr('No sub method specified for the methods ":method0" ":method1"', [
+                            ':method0' => cli_method(),
+                            ':method1' => cli_method(1),
+                        ]),                     'no-method');
 
                     default:
-                        throw new CoreException(tr('Unknown sub method ":method2" specified for the methods ":method0" ":method1"', array(':method0' => cli_method(), ':method1' => cli_method(1), ':method2' => cli_method(2))), 'unknown-method');
+                        throw new CoreException(tr('Unknown sub method ":method2" specified for the methods ":method0" ":method1"', [
+                            ':method0' => cli_method(),
+                            ':method1' => cli_method(1),
+                            ':method2' => cli_method(2),
+                        ]),                     'unknown-method');
                 }
 
                 break;
@@ -395,7 +435,7 @@ switch (cli_method()) {
                  * Get arguments and needed data
                  */
                 $server_restrictions                 = cli_arguments('--hostname,--database');
-                $force_channel          = cli_arguments('--force-channel');
+                $force_channel                       = cli_arguments('--force-channel');
                 $server_restrictions['root_db_user'] = 'root';
                 $server_restrictions['arguments']    = '-q';
                 cli_no_arguments_left();
@@ -410,8 +450,8 @@ switch (cli_method()) {
                  * Setup slave with master info
                  */
                 log_console(tr('Preparing slave'), 'white');
-                $master['force_channel']  = $force_channel;
-                $slave                    = mysqlr_slave_replication_setup($master);
+                $master['force_channel'] = $force_channel;
+                $slave                   = mysqlr_slave_replication_setup($master);
                 break;
 
             case 'pause':
@@ -457,10 +497,13 @@ switch (cli_method()) {
                 break;
 
             case '':
-                throw new CoreException(tr('No sub method specified for the method ":method"', array(':method' => cli_method())), 'no-method');
+                throw new CoreException(tr('No sub method specified for the method ":method"', [':method' => cli_method()]), 'no-method');
 
             default:
-                throw new CoreException(tr('Unknown sub method ":submethod" specified for the method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for the method ":method"', [
+                    ':method'    => cli_method(),
+                    ':submethod' => cli_method(1),
+                ]),                     'unknown-method');
         }
 
         break;
@@ -473,21 +516,25 @@ switch (cli_method()) {
 
         $count = mysql_register_databases($server_restrictions);
 
-        log_console(tr('Added ":count" databases for server ":server"', array(':server' => $server_restrictions['name'], ':count' => $count)), 'green');
+        log_console(tr('Added ":count" databases for server ":server"', [
+            ':server' => $server_restrictions['name'],
+            ':count'  => $count,
+        ]),         'green');
         break;
 
     case '':
         throw new CoreException(tr('No method specified'), 'not-specified');
 
     default:
-        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', [':method' => cli_method()]), 'unknown-method');
 }
 
 
 /*
  *
  */
-function s_get_tables($tables, $databases) {
+function s_get_tables($tables, $databases)
+{
     global $all, $all_tables, $connector;
 
     try {
@@ -500,7 +547,7 @@ function s_get_tables($tables, $databases) {
                  * Show specified tables from all databases
                  */
                 $tables = sql_in($tables);
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` IN ('.implode(',', array_keys($tables)).') GROUP BY `TABLE_NAME`', $tables, null, $connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` IN (' . implode(',', array_keys($tables)) . ') GROUP BY `TABLE_NAME`', $tables, null, $connector);
 
             } else {
                 /*
@@ -514,7 +561,7 @@ function s_get_tables($tables, $databases) {
              * Show all tables from specified databases
              */
             $databases = sql_in($databases);
-            $databases = sql_list('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN ('.implode(',', array_keys($databases)).') GROUP BY `TABLE_SCHEMA` ORDER BY `TABLE_SCHEMA` ASC', $databases, null, $connector);
+            $databases = sql_list('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') GROUP BY `TABLE_SCHEMA` ORDER BY `TABLE_SCHEMA` ASC', $databases, null, $connector);
             $databases = sql_in($databases);
 
             if ($tables) {
@@ -523,20 +570,22 @@ function s_get_tables($tables, $databases) {
                  */
                 $tables = sql_in($tables, ':table');
                 $in     = array_merge($databases, $tables);
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN ('.implode(',', array_keys($databases)).') AND `TABLE_NAME` IN ('.implode(',', array_keys($tables)).')  GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $in, null, $connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') AND `TABLE_NAME` IN (' . implode(',', array_keys($tables)) . ')  GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $in, null, $connector);
 
             } else {
                 /*
                  * Show specified tables from specified databases
                  */
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN ('.implode(',', array_keys($databases)).') GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $databases, null, $connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $databases, null, $connector);
             }
         }
 
         return $tables;
 
-    }catch(Exception $e) {
+    } catch (Exception $e) {
         throw new CoreException(tr('s_get_tables(): Failed'), $e);
     }
 }
+
+
 ?>

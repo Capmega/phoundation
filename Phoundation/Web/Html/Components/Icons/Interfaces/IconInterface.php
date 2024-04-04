@@ -11,10 +11,10 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface IconInterface extends ElementInterface
 {
@@ -29,7 +29,8 @@ interface IconInterface extends ElementInterface
      * Sets the icon for this object
      *
      * @param string|null $icon
-     * @param string $subclass
+     * @param string      $subclass
+     *
      * @return static
      */
     public function setIcon(?string $icon, string $subclass = ''): static;
@@ -50,6 +51,7 @@ interface IconInterface extends ElementInterface
      * Sets the type of mode for the element or element block
      *
      * @param EnumDisplayModeInterface|string $mode
+     *
      * @return static
      */
     public function setMode(EnumDisplayModeInterface|string $mode): static;

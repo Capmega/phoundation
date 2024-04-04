@@ -3,7 +3,6 @@
 
 declare(strict_types=1);
 
-use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -12,20 +11,20 @@ use Phoundation\Data\Validator\ArgvValidator;
 /**
  * Script system/plugins/scan
  *
- * This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the core_plugins
- * database table accordingly
+ * This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the
+ * core_plugins database table accordingly
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Core
+ * @category  Function reference
+ * @package   Phoundation\Core
  */
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-c,--clear' => false
-    ]
-]);
+                                      'arguments' => [
+                                          '-c,--clear' => false,
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho system plugins scan');
 
@@ -44,8 +43,8 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-c,--clear')->isOptional()->isBoolean()
-    ->validate();
+                     ->select('-c,--clear')->isOptional()->isBoolean()
+                     ->validate();
 
 
 // Clear the plugin registration?
@@ -56,6 +55,6 @@ if ($argv['clear']) {
 
 // Display the results of the plugin scan
 Plugins::new()
-    ->scan()
-    ->getAvailable()
-        ->displayCliTable();
+       ->scan()
+       ->getAvailable()
+       ->displayCliTable();

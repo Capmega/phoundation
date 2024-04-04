@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 
 /**
@@ -14,10 +12,10 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
  *
  * This class contains basic template functionalities. All template classes must extend this class!
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface TemplateRendererInterface
 {
@@ -25,6 +23,7 @@ interface TemplateRendererInterface
      * Sets the parent rendering function
      *
      * @param callable $render_function
+     *
      * @return static
      */
     public function setParentRenderFunction(callable $render_function): static;
@@ -40,6 +39,7 @@ interface TemplateRendererInterface
      * Sets the element to be rendered
      *
      * @param RenderInterface $component
+     *
      * @return static
      */
     public function setComponent(RenderInterface $component): static;

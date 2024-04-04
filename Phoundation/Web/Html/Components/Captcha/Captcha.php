@@ -17,10 +17,10 @@ use Phoundation\Web\Html\Components\ElementsBlock;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class Captcha extends ElementsBlock implements CaptchaInterface
 {
@@ -28,6 +28,7 @@ abstract class Captcha extends ElementsBlock implements CaptchaInterface
      * Returns a new Captcha for the configured provider
      *
      * @param IteratorInterface|array|string|PDOStatement|null $source
+     *
      * @return static
      */
     public static function new(IteratorInterface|array|string|PDOStatement|null $source = null): static
@@ -41,7 +42,7 @@ abstract class Captcha extends ElementsBlock implements CaptchaInterface
 
             default:
                 throw new OutOfBoundsException(tr('Unknown captcha provider ":provider" specified', [
-                    ':provider' => Config::getString('', 'recaptcha')
+                    ':provider' => Config::getString('', 'recaptcha'),
                 ]));
         }
     }

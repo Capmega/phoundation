@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 
 declare(strict_types=1);
@@ -36,18 +36,6 @@ class Incidents extends DataList
         parent::__construct();
     }
 
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'developer_incidents';
-    }
-
-
     /**
      * Returns the name of this DataEntry class
      *
@@ -57,7 +45,6 @@ class Incidents extends DataList
     {
         return Incident::class;
     }
-
 
     /**
      * Returns the field that is unique for this object
@@ -69,11 +56,11 @@ class Incidents extends DataList
         return null;
     }
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
@@ -84,28 +71,38 @@ class Incidents extends DataList
         return $table;
     }
 
-
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      * @throws SqlExceptionInterface
      */
     public function getHtmlSelect(string $value_column = 'title', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                          ->setConnector(static::getDefaultConnectorName())
+                          ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `title` ASC')
-            ->setName('incidents_id')
-            ->setNone(tr('Select an incident'))
-            ->setObjectEmpty(tr('No incidents available'));
+                          ->setName('incidents_id')
+                          ->setNone(tr('Select an incident'))
+                          ->setObjectEmpty(tr('No incidents available'));
+    }
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'developer_incidents';
     }
 }

@@ -22,10 +22,10 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
  *
  * This script will monitor the specified service (by name) and alert and restart when it stops
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho monitor service PROCESS_NAME');
 
@@ -34,9 +34,16 @@ CliDocumentation::setHelp('This command will monitor the specified service (by n
 
 // Get the arguments
 $argv = ArgvValidator::new()
-    ->select('service')->isVariable()->sanitizeTrim()->sanitizeLowercase()->isInArray(['apache', 'mysql', 'php', 'redis', 'mongo', 'memcached'])
-    ->select('-m,--minimum', true)->isOptional()->isNatural()
-    ->validate();
+                     ->select('service')->isVariable()->sanitizeTrim()->sanitizeLowercase()->isInArray([
+                                                                                                           'apache',
+                                                                                                           'mysql',
+                                                                                                           'php',
+                                                                                                           'redis',
+                                                                                                           'mongo',
+                                                                                                           'memcached',
+                                                                                                       ])
+                     ->select('-m,--minimum', true)->isOptional()->isNatural()
+                     ->validate();
 
 
 // Ensure that the process command has sudo privileges
@@ -51,13 +58,13 @@ try {
     // Is it up?
     if (!$pids) {
         throw MonitorException::new(tr('The service ":service" no longer has active processes on this server', [
-            ':service' => $argv['service']
+            ':service' => $argv['service'],
         ]))->makeWarning();
     }
 
     if (count($pids) < $argv['minimum']) {
         throw MonitorException::new(tr('The service ":service" has ":count" processes available, less than the minimum number of ":minimum"', [
-            ':count'   => count($pids),
+            ':count' => count($pids),
             ':minimum' => $argv['minimum'],
             ':service' => $argv['service'],
         ]))->makeWarning();
@@ -73,23 +80,26 @@ try {
     Log::warning(tr('Trying to restart service'));
 
     $status = Service::new()->setServiceName($argv['service'])->restart()->status();
-    $status = Arrays::getMatches($status, ['loaded', 'active'], Utils::MATCH_ANY | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE);
+    $status = Arrays::getMatches($status, [
+        'loaded',
+        'active',
+    ],                           Utils::MATCH_ANY | Utils::MATCH_ANYWHERE | Utils::MATCH_NO_CASE);
 
     if (count($status) == 2) {
         Notification::new()
-            ->setMode(EnumDisplayMode::warning)
-            ->setRoles('administrator')
-            ->setTitle(tr('Restarted dead service'))
-            ->setMessage(tr('Service ":service" was down but successfully restarted', [':service' => $argv['service']]))
-            ->setDetails([':service' => $argv['service']])
-            ->send(true);
+                    ->setMode(EnumDisplayMode::warning)
+                    ->setRoles('administrator')
+                    ->setTitle(tr('Restarted dead service'))
+                    ->setMessage(tr('Service ":service" was down but successfully restarted', [':service' => $argv['service']]))
+                    ->setDetails([':service' => $argv['service']])
+                    ->send(true);
     } else {
         Notification::new()
-            ->setMode(EnumDisplayMode::error)
-            ->setRoles('administrator')
-            ->setTitle(tr('Restarted dead service'))
-            ->setMessage(tr('Service ":service" was down but successfully restarted', [':service' => $argv['service']]))
-            ->setDetails([':service' => $argv['service']])
-            ->send(true);
+                    ->setMode(EnumDisplayMode::error)
+                    ->setRoles('administrator')
+                    ->setTitle(tr('Restarted dead service'))
+                    ->setMessage(tr('Service ":service" was down but successfully restarted', [':service' => $argv['service']]))
+                    ->setDetails([':service' => $argv['service']])
+                    ->send(true);
     }
 }

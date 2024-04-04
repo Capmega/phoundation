@@ -22,10 +22,10 @@ use Stringable;
  *
  * Creates a date navigator HTML structure
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class DateNavigator extends ElementsBlock
 {
@@ -88,11 +88,12 @@ class DateNavigator extends ElementsBlock
      * Sets the prev button link
      *
      * @param Stringable|string $link
+     *
      * @return $this
      */
     public function setPrevLink(Stringable|string $link): static
     {
-        $this->prev_link = (string) $link;
+        $this->prev_link = (string)$link;
         return $this;
     }
 
@@ -112,11 +113,12 @@ class DateNavigator extends ElementsBlock
      * Sets the selector button link
      *
      * @param Stringable|string $link
+     *
      * @return $this
      */
     public function setSelectorLink(Stringable|string $link): static
     {
-        $this->selector_link = (string) $link;
+        $this->selector_link = (string)$link;
         return $this;
     }
 
@@ -136,11 +138,12 @@ class DateNavigator extends ElementsBlock
      * Sets the next button link
      *
      * @param Stringable|string $link
+     *
      * @return $this
      */
     public function setNextLink(Stringable|string $link): static
     {
-        $this->next_link = (string) $link;
+        $this->next_link = (string)$link;
         return $this;
     }
 
@@ -160,6 +163,7 @@ class DateNavigator extends ElementsBlock
      * Sets the next button link
      *
      * @param bool $disabled
+     *
      * @return $this
      */
     public function setNextDisabled(bool $disabled): static
@@ -179,7 +183,7 @@ class DateNavigator extends ElementsBlock
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see ElementInterface::render()
+     * @see  ElementInterface::render()
      */
     public function render(): ?string
     {
@@ -193,35 +197,35 @@ class DateNavigator extends ElementsBlock
 
         // Build the date selector
         return Grid::new()
-            ->addRow()
-            ->addColumn(GridColumn::new()
-                ->setSize(2)
-                ->addClass('mb-3')
-                ->setContent(Button::new()
-                    ->setName('nav_prev')
-                    ->setBlock(true)
-                    ->setContent(tr('<'))
-                    ->setMode(EnumDisplayMode::primary)
-                    ->setAnchorUrl($this->prev_link)
-                    ->render()))
-            ->addColumn(GridColumn::new()
-                ->setSize(8)
-                ->addClass('mb-3')
-                ->setContent(Form::new()
-                    ->setMethod('get')
-                    ->setAction($this->selector_link)
-                    ->setContent(InputDate::new()
-                        ->setId('date')
-                        ->setAutoSubmit(true)
-                        ->addClasses('text-center')
-                        ->setValue($this->date)
-                        ->setMax(DateTime::getToday('user')))
-                    ->render()))
-            ->addColumn(GridColumn::new()
-                ->setSize(2)
-                ->addClass('mb-3')
-                ->setContent($this->next_button->render()))
-            ->render();
+                   ->addRow()
+                   ->addColumn(GridColumn::new()
+                                         ->setSize(2)
+                                         ->addClass('mb-3')
+                                         ->setContent(Button::new()
+                                                            ->setName('nav_prev')
+                                                            ->setBlock(true)
+                                                            ->setContent(tr('<'))
+                                                            ->setMode(EnumDisplayMode::primary)
+                                                            ->setAnchorUrl($this->prev_link)
+                                                            ->render()))
+                   ->addColumn(GridColumn::new()
+                                         ->setSize(8)
+                                         ->addClass('mb-3')
+                                         ->setContent(Form::new()
+                                                          ->setMethod('get')
+                                                          ->setAction($this->selector_link)
+                                                          ->setContent(InputDate::new()
+                                                                                ->setId('date')
+                                                                                ->setAutoSubmit(true)
+                                                                                ->addClasses('text-center')
+                                                                                ->setValue($this->date)
+                                                                                ->setMax(DateTime::getToday('user')))
+                                                          ->render()))
+                   ->addColumn(GridColumn::new()
+                                         ->setSize(2)
+                                         ->addClass('mb-3')
+                                         ->setContent($this->next_button->render()))
+                   ->render();
 
 //        return parent::render(); // TODO: Change the autogenerated stub
     }

@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryManufacturer
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryManufacturer
      * Sets the manufacturer for this object
      *
      * @param Stringable|string|null $manufacturer
+     *
      * @return static
      */
     public function setManufacturer(Stringable|string|null $manufacturer): static
     {
-        return $this->setValue('manufacturer', (string) $manufacturer);
+        return $this->setValue('manufacturer', (string)$manufacturer);
     }
 }

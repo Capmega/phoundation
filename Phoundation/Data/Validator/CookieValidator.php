@@ -17,10 +17,10 @@ use Phoundation\Utils\Strings;
  *
  * $_REQUEST will be cleared automatically as this array should not  be used.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class CookieValidator extends Validator
 {
@@ -35,37 +35,25 @@ class CookieValidator extends Validator
     /**
      * CookieValidator constructor.
      *
-     * @note This class will purge the $_REQUEST array as this array contains a mix of $_COOKIE and $_COOKIE variables which
-     *       should never be used
+     * @note This class will purge the $_REQUEST array as this array contains a mix of $_COOKIE and $_COOKIE variables
+     *       which should never be used
      *
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    protected function __construct(?ValidatorInterface $parent = null) {
+    protected function __construct(?ValidatorInterface $parent = null)
+    {
         $this->construct($parent, static::$cookies);
     }
 
-
     /**
-     * Returns a new $_COOKIE data Validator object
+     * Link $_COOKIE and $_COOKIE and $argv data to internal arrays to ensure developers cannot access them until
+     * validation has been completed
      *
-     * @param ValidatorInterface|null $parent
-     * @return static
-     */
-    public static function new(?ValidatorInterface $parent = null): static
-    {
-        return new static($parent);
-    }
-
-
-    /**
-     * Link $_COOKIE and $_COOKIE and $argv data to internal arrays to ensure developers cannot access them until validation
-     * has been completed
-     *
-     * @note This class will purge the $_REQUEST array as this array contains a mix of $_COOKIE and $_COOKIE variables which
-     *       should never be used
+     * @note This class will purge the $_REQUEST array as this array contains a mix of $_COOKIE and $_COOKIE variables
+     *       which should never be used
      *
      * @return void
      */
@@ -79,11 +67,21 @@ class CookieValidator extends Validator
         $_COOKIE = [];
     }
 
+    /**
+     * Returns the submitted array keys
+     *
+     * @return array|null
+     */
+    public static function getKeys(): ?array
+    {
+        return array_keys(static::$cookies);
+    }
 
     /**
      * Throws an exception if there are still arguments left in the COOKIE source
      *
      * @param bool $apply
+     *
      * @return static
      * @throws ValidationFailedException
      */
@@ -105,13 +103,13 @@ class CookieValidator extends Validator
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
                 $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field
+                    ':field' => $field,
                 ]);
             }
         }
 
         throw ValidationFailedException::new(tr('Unknown COOKIE fields ":fields" encountered', [
-            ':fields' => Strings::force($fields, ', ')
+            ':fields' => Strings::force($fields, ', '),
         ]))->addData($messages)->makeWarning()->log();
     }
 
@@ -120,7 +118,8 @@ class CookieValidator extends Validator
      * Add the specified value for key to the internal COOKIE array
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return void
      */
     public static function addData(string $key, mixed $value): void
@@ -128,22 +127,23 @@ class CookieValidator extends Validator
         static::$cookies[$key] = $value;
     }
 
-
     /**
-     * Returns the submitted array keys
+     * Returns a new $_COOKIE data Validator object
      *
-     * @return array|null
+     * @param ValidatorInterface|null $parent
+     *
+     * @return static
      */
-    public static function getKeys(): ?array
+    public static function new(?ValidatorInterface $parent = null): static
     {
-        return array_keys(static::$cookies);
+        return new static($parent);
     }
-
 
     /**
      * Force a return of all COOKIE data without check
      *
      * @param string|null $prefix
+     *
      * @return array|null
      */
     public function &getSource(?string $prefix = null): ?array
@@ -180,6 +180,7 @@ class CookieValidator extends Validator
      * Selects the specified key within the array that we are validating
      *
      * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
+     *
      * @return static
      */
     public function select(string|int $field): static

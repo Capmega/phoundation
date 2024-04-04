@@ -14,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  * This class contains various "sha256" commands
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Sha256 extends Command
 {
@@ -25,6 +25,7 @@ class Sha256 extends Command
      * Returns a SHA256 hash for the specified file
      *
      * @param string $file The file to get the sha256 hash from
+     *
      * @return string
      */
     public function sha256(string $file): string
@@ -40,7 +41,7 @@ class Sha256 extends Command
 
         } catch (ProcessFailedException $e) {
             // The command sha256sum failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('sha256sum', $e, function() use ($file) {
+            static::handleException('sha256sum', $e, function () use ($file) {
                 File::new($file)->checkReadable();
             });
         }

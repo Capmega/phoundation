@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * This trait contains methods for DataEntry objects that require a message
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryMessage
 {
@@ -34,13 +34,14 @@ trait TraitDataEntryMessage
      * Sets the message for this object
      *
      * @param string|null $message
+     *
      * @return static
      */
     public function setMessage(?string $message): static
     {
-        if (strlen((string) $message) > 65536) {
+        if (strlen((string)$message) > 65536) {
             throw new OutOfBoundsException(tr('Specified message length ":length" is invalid, it should be 65536 characters or less', [
-                ':length' => strlen($message)
+                ':length' => strlen($message),
             ]));
         }
 

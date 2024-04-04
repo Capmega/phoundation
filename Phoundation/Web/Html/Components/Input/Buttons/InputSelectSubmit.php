@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
@@ -46,12 +46,12 @@ class InputSelectSubmit extends InputSelect
          * @params midex buttons The buttons to be shown. This may be specified by array, or PDO SQL statement
          * @return string The HTML for the button selector
          */
-        array_params ($params);
-        array_default($params, 'name'      , 'multisubmit');
-        array_default($params, 'id'        , '');
+        array_params($params);
+        array_default($params, 'name', 'multisubmit');
+        array_default($params, 'id', '');
         array_default($params, 'autosubmit', true);
-        array_default($params, 'none'      , tr('Select action'));
-        array_default($params, 'buttons'   , []);
+        array_default($params, 'none', tr('Select action'));
+        array_default($params, 'buttons', []);
 
         /*
          * Build the html_select resource from the buttons
@@ -80,7 +80,7 @@ class InputSelectSubmit extends InputSelect
             }
 
             throw new HtmlException(tr('Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', [
-                ':type' => $type
+                ':type' => $type,
             ]));
         }
 

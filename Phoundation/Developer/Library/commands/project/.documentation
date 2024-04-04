@@ -6,17 +6,16 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 
 
-
 /**
  * system/plugins/.documentation script
  *
  * This script contains documentation for the plugins scripts
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Core
+ * @category  Function reference
+ * @package   Phoundation\Core
  */
 CliDocumentation::setUsage('./pho project/...');
 

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Geo\Cities\City;
 use Phoundation\Geo\Countries\Country;
-use Phoundation\Geo\States\State;
 
 
 /**
@@ -15,10 +12,10 @@ use Phoundation\Geo\States\State;
  *
  * This trait contains methods for DataEntry objects that require GEO country data
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryCountry
 {
@@ -37,6 +34,7 @@ trait TraitDataEntryCountry
      * Sets the countries_id for this user
      *
      * @param int|null $countries_id
+     *
      * @return static
      */
     public function setCountriesId(?int $countries_id): static
@@ -77,6 +75,7 @@ trait TraitDataEntryCountry
      * Sets the countries_name for this user
      *
      * @param string|null $countries_name
+     *
      * @return static
      */
     public function setCountriesName(?string $countries_name): static

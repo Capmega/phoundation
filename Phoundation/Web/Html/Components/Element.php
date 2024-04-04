@@ -55,23 +55,11 @@ abstract class Element implements ElementInterface
      */
     public function __construct(?string $content = null)
     {
-        $this->classes = new Iterator();
+        $this->classes    = new Iterator();
         $this->attributes = new Iterator();
 
         $this->setContent($content);
     }
-
-
-    /**
-     * Returns a new ElementAttributes class
-     *
-     * @return $this
-     */
-    public static function new(?string $content = null): static
-    {
-        return new static($content);
-    }
-
 
     /**
      * Returns the rendered version of this element
@@ -82,49 +70,6 @@ abstract class Element implements ElementInterface
     {
         return (string)$this->render();
     }
-
-
-    /**
-     * Sets the type of element to display
-     *
-     * @param EnumElement|string|null $element
-     *
-     * @return static
-     */
-    public function setElement(EnumElement|string|null $element): static
-    {
-        if (is_enum($element)) {
-            $element = $element->value;
-        }
-
-        if ($element) {
-            $this->requires_closing_tag = match ($element) {
-                'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
-                default                                                                                              => true,
-            };
-
-        }
-        elseif ($element !== null) {
-            throw new OutOfBoundsException(tr('Invalid element ":element" specified, must be NULL or valid HTML element', [
-                ':element' => $element,
-            ]));
-        }
-
-        $this->element = $element;
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML class element attribute
-     *
-     * @return string
-     */
-    public function getElement(): string
-    {
-        return $this->element;
-    }
-
 
     /**
      * Renders and returns the HTML for this object using the template renderer if available
@@ -144,8 +89,7 @@ abstract class Element implements ElementInterface
             if ($this->tooltip->getUseIcon()) {
                 if ($this->tooltip->getRenderBefore()) {
                     $this->classes->add(true, 'has-tooltip-icon-left');
-                }
-                else {
+                } else {
                     $this->classes->add(true, 'has-tooltip-icon-right');
                 }
             }
@@ -189,7 +133,7 @@ abstract class Element implements ElementInterface
 
             }
 
-            $render = $this->render . ' />';
+            $render       = $this->render . ' />';
             $this->render = null;
 
             return $render . $postfix;
@@ -202,8 +146,7 @@ abstract class Element implements ElementInterface
                                      ->setParentRenderFunction($render_function)
                                      ->render() . $postfix;
 
-        }
-        else {
+        } else {
             // The template component does not exist, return the basic Phoundation version
             Log::warning(tr('No template render class found for element component ":component", rendering basic HTML', [
                 ':component' => get_class($this),
@@ -226,23 +169,15 @@ abstract class Element implements ElementInterface
         return $render;
     }
 
-
     /**
-     * Builds and returns the class string
+     * Returns a new ElementAttributes class
      *
-     * @return string|null
+     * @return $this
      */
-    protected function renderClassString(): ?string
+    public static function new(?string $content = null): static
     {
-        $class = $this->getClass();
-
-        if ($class) {
-            return ' class="' . $class . '"';
-        }
-
-        return null;
+        return new static($content);
     }
-
 
     /**
      * Add the system arguments to the arguments list
@@ -277,8 +212,7 @@ abstract class Element implements ElementInterface
                 if ($value === null) {
                     $return['data-' . $key] = null;
 
-                }
-                else {
+                } else {
                     $return['data-' . $key] = Strings::force($value, ' ');
                 }
             }
@@ -293,5 +227,60 @@ abstract class Element implements ElementInterface
 
         // Merge the system values over the set attributes
         return $this->attributes->appendSource($return);
+    }
+
+    /**
+     * Returns the HTML class element attribute
+     *
+     * @return string
+     */
+    public function getElement(): string
+    {
+        return $this->element;
+    }
+
+    /**
+     * Sets the type of element to display
+     *
+     * @param EnumElement|string|null $element
+     *
+     * @return static
+     */
+    public function setElement(EnumElement|string|null $element): static
+    {
+        if (is_enum($element)) {
+            $element = $element->value;
+        }
+
+        if ($element) {
+            $this->requires_closing_tag = match ($element) {
+                'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr' => false,
+                default                                                                                              => true,
+            };
+
+        } elseif ($element !== null) {
+            throw new OutOfBoundsException(tr('Invalid element ":element" specified, must be NULL or valid HTML element', [
+                ':element' => $element,
+            ]));
+        }
+
+        $this->element = $element;
+        return $this;
+    }
+
+    /**
+     * Builds and returns the class string
+     *
+     * @return string|null
+     */
+    protected function renderClassString(): ?string
+    {
+        $class = $this->getClass();
+
+        if ($class) {
+            return ' class="' . $class . '"';
+        }
+
+        return null;
     }
 }

@@ -10,7 +10,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -20,10 +19,10 @@ use Phoundation\Web\Requests\Response;
  *
  * $_REQUEST will be cleared automatically as this array should not  be used.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class PostValidator extends Validator
 {
@@ -60,22 +59,10 @@ class PostValidator extends Validator
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    protected function __construct(?ValidatorInterface $parent = null) {
+    protected function __construct(?ValidatorInterface $parent = null)
+    {
         $this->construct($parent, static::$post);
     }
-
-
-    /**
-     * Returns a new $_POST data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     * @return static
-     */
-    public static function new(?ValidatorInterface $parent = null): static
-    {
-        return new static($parent);
-    }
-
 
     /**
      * Link $_POST data to internal arrays to ensure developers cannot access them until validation
@@ -97,56 +84,6 @@ class PostValidator extends Validator
         $_REQUEST = [];
     }
 
-
-    /**
-     * Throws an exception if there are still arguments left in the POST source
-     *
-     * @param bool $apply
-     * @return static
-     * @throws ValidationFailedException
-     */
-    public function noArgumentsLeft(bool $apply = true): static
-    {
-        if (!$apply) {
-            return $this;
-        }
-
-        if (count($this->selected_fields) === count(static::$post)) {
-            return $this;
-        }
-
-        $messages = [];
-        $fields   = [];
-        $post     = array_keys(static::$post);
-
-        foreach ($post as $field) {
-            if (!in_array($field, $this->selected_fields)) {
-                $fields[]   = $field;
-                $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field
-                ]);
-            }
-        }
-
-        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
-            ':fields' => Strings::force($fields, ', ')
-        ]))->addData($messages)->makeWarning()->log();
-    }
-
-
-    /**
-     * Add the specified value for key to the internal GET array
-     *
-     * @param string $key
-     * @param mixed $value
-     * @return void
-     */
-    public static function addData(string $key, mixed $value): void
-    {
-        static::$post[$key] = $value;
-    }
-
-
     /**
      * Returns the submitted array keys
      *
@@ -156,99 +93,6 @@ class PostValidator extends Validator
     {
         return array_keys(static::$post);
     }
-
-
-    /**
-     * Force a return of all POST data without check
-     *
-     * @param string|null $prefix
-     * @return array|null
-     */
-    public function &getSource(?string $prefix = null): ?array
-    {
-        if (!$prefix) {
-            return $this->source;
-        }
-
-        $return = [];
-
-        foreach ($this->source as $key => $value) {
-            if (str_starts_with($key, $prefix)) {
-                $return[Strings::from($key, $prefix)] = $value;
-            }
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Force a return of a single POST key value
-     *
-     * @return array
-     */
-    public function getSourceKey(string $key): mixed
-    {
-        Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
-        return isset_get($this->source[$key]);
-    }
-
-
-    /**
-     * Selects the specified key within the array that we are validating
-     *
-     * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
-     * @return static
-     */
-    public function select(string|int $field): static
-    {
-        return $this->standardSelect($field);
-    }
-
-
-    /**
-     * Returns the requested button from the specified source
-     *
-     * @param array $source
-     * @param string $post_key
-     * @param bool $prefix
-     * @param bool $remove
-     * @return array|null
-     */
-    protected static function getButton(array &$source, string $post_key, bool $prefix, bool $remove): array|null
-    {
-        if ($prefix) {
-            // Search for the specified prefix code for the button
-            foreach ($source as $key => $value) {
-                if (str_starts_with($key, $post_key)) {
-                    $post_key = $key;
-                    $button = trim((string) $value);
-                    break;
-                }
-            }
-
-            if (!isset($button)) {
-                // No button with specified prefix found
-                return null;
-            }
-
-        } else {
-            // Button must be an exact match
-            if (!array_key_exists($post_key, $source)) {
-                // Button was not pressed
-                return null;
-            }
-
-            $button = trim((string) $source[$post_key]);
-        }
-
-        if ($remove) {
-            unset($source[$post_key]);
-        }
-
-        return [$post_key => $button];
-    }
-
 
     /**
      * Returns the value for the specified submit button for POST requests
@@ -272,9 +116,10 @@ class PostValidator extends Validator
      *       the value "2342897342" instead of "delete_2342897342"
      *
      * @param string $post_key
-     * @param bool $prefix      Will not return the specified POST $post_key value but scan for a POST key that starts
-     *                          with $post_key, and return that value.
-     * @param bool $return_key  If true, will return the found POST_KEY instead of the value.
+     * @param bool   $prefix     Will not return the specified POST $post_key value but scan for a POST key that starts
+     *                           with $post_key, and return that value.
+     * @param bool   $return_key If true, will return the found POST_KEY instead of the value.
+     *
      * @return string|true|null
      */
     public static function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
@@ -288,8 +133,8 @@ class PostValidator extends Validator
 
         if ($button) {
             // We had it from cache. Get button key and value
-            $key   = (string) key($button);
-            $value = (string) current($button);
+            $key   = (string)key($button);
+            $value = (string)current($button);
 
         } else {
             // Not cached. Get button from post and remove it there, then store it in cache
@@ -301,23 +146,23 @@ class PostValidator extends Validator
             }
 
             // Get button key and value
-            $key   = (string) key($button);
-            $value = (string) current($button);
+            $key   = (string)key($button);
+            $value = (string)current($button);
 
             // Quick validate button value. Don't allow weird shit
             if ($key) {
                 if ((strlen($key) > 255) or !ctype_print($key)) {
                     throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
-                        'submit' => tr('The specified submit button is invalid'),
-                    ]);
+                                                                                                             'submit' => tr('The specified submit button is invalid'),
+                                                                                                         ]);
                 }
             }
 
             if ($value) {
                 if ((strlen($value) > 255) or !ctype_print($value)) {
                     throw ValidationFailedException::new(tr('Invalid submit button specified'))->addData([
-                        'submit' => tr('The specified submit button is invalid'),
-                    ]);
+                                                                                                             'submit' => tr('The specified submit button is invalid'),
+                                                                                                         ]);
                 }
             }
 
@@ -341,6 +186,157 @@ class PostValidator extends Validator
         return $value;
     }
 
+    /**
+     * Returns the requested button from the specified source
+     *
+     * @param array  $source
+     * @param string $post_key
+     * @param bool   $prefix
+     * @param bool   $remove
+     *
+     * @return array|null
+     */
+    protected static function getButton(array &$source, string $post_key, bool $prefix, bool $remove): array|null
+    {
+        if ($prefix) {
+            // Search for the specified prefix code for the button
+            foreach ($source as $key => $value) {
+                if (str_starts_with($key, $post_key)) {
+                    $post_key = $key;
+                    $button   = trim((string)$value);
+                    break;
+                }
+            }
+
+            if (!isset($button)) {
+                // No button with specified prefix found
+                return null;
+            }
+
+        } else {
+            // Button must be an exact match
+            if (!array_key_exists($post_key, $source)) {
+                // Button was not pressed
+                return null;
+            }
+
+            $button = trim((string)$source[$post_key]);
+        }
+
+        if ($remove) {
+            unset($source[$post_key]);
+        }
+
+        return [$post_key => $button];
+    }
+
+    /**
+     * Throws an exception if there are still arguments left in the POST source
+     *
+     * @param bool $apply
+     *
+     * @return static
+     * @throws ValidationFailedException
+     */
+    public function noArgumentsLeft(bool $apply = true): static
+    {
+        if (!$apply) {
+            return $this;
+        }
+
+        if (count($this->selected_fields) === count(static::$post)) {
+            return $this;
+        }
+
+        $messages = [];
+        $fields   = [];
+        $post     = array_keys(static::$post);
+
+        foreach ($post as $field) {
+            if (!in_array($field, $this->selected_fields)) {
+                $fields[]   = $field;
+                $messages[] = tr('Unknown field ":field" encountered', [
+                    ':field' => $field,
+                ]);
+            }
+        }
+
+        throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
+            ':fields' => Strings::force($fields, ', '),
+        ]))->addData($messages)->makeWarning()->log();
+    }
+
+    /**
+     * Add the specified value for key to the internal GET array
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return void
+     */
+    public static function addData(string $key, mixed $value): void
+    {
+        static::$post[$key] = $value;
+    }
+
+    /**
+     * Returns a new $_POST data Validator object
+     *
+     * @param ValidatorInterface|null $parent
+     *
+     * @return static
+     */
+    public static function new(?ValidatorInterface $parent = null): static
+    {
+        return new static($parent);
+    }
+
+    /**
+     * Force a return of all POST data without check
+     *
+     * @param string|null $prefix
+     *
+     * @return array|null
+     */
+    public function &getSource(?string $prefix = null): ?array
+    {
+        if (!$prefix) {
+            return $this->source;
+        }
+
+        $return = [];
+
+        foreach ($this->source as $key => $value) {
+            if (str_starts_with($key, $prefix)) {
+                $return[Strings::from($key, $prefix)] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Force a return of a single POST key value
+     *
+     * @return array
+     */
+    public function getSourceKey(string $key): mixed
+    {
+        Log::warning(tr('Forceably returned $_POST[:key] without data validation!', [':key' => $key]));
+        return isset_get($this->source[$key]);
+    }
+
+    /**
+     * Selects the specified key within the array that we are validating
+     *
+     * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
+     *
+     * @return static
+     */
+    public function select(string|int $field): static
+    {
+        return $this->standardSelect($field);
+    }
 
     /**
      * Clears the internal POST array
@@ -360,6 +356,7 @@ class PostValidator extends Validator
      * Will throw a PostValidationFailedException if validation fails
      *
      * @param bool $clean_source
+     *
      * @return array
      * @throws PostValidationFailedException
      */

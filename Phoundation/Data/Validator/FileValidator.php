@@ -16,10 +16,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * $_REQUEST will be cleared automatically as this array should not  be used.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class FileValidator
 {
@@ -29,7 +29,7 @@ class FileValidator
     /**
      * FileValidator constructor
      *
-     * @param string $source
+     * @param string                  $source
      * @param ValidatorInterface|null $parent
      */
     public function __construct(string $source, ?ValidatorInterface $parent = null)
@@ -100,6 +100,7 @@ class FileValidator
      * Validates that the file is smaller than the specified number of bytes
      *
      * @param int $size
+     *
      * @return FileValidator
      */
     public function isSmallerThan(int $size): FileValidator

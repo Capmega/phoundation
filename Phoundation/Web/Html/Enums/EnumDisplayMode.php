@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
  *
  * The different display modes for elements or element blocks
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 enum EnumDisplayMode: string implements EnumDisplayModeInterface
 {
@@ -51,6 +51,7 @@ enum EnumDisplayMode: string implements EnumDisplayModeInterface
      * Returns the primary mode for the given mode which might be an alias
      *
      * @param EnumDisplayModeInterface $mode
+     *
      * @return EnumDisplayModeInterface
      */
     public static function getPrimary(EnumDisplayModeInterface $mode): EnumDisplayModeInterface
@@ -79,8 +80,8 @@ enum EnumDisplayMode: string implements EnumDisplayModeInterface
             EnumDisplayMode::dark        => $mode,
             EnumDisplayMode::null,
             EnumDisplayMode::unknown     => EnumDisplayMode::null,
-            default => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
-                ':mode' => $mode
+            default                      => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
+                ':mode' => $mode,
             ]))
         };
     }

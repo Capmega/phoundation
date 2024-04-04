@@ -14,10 +14,10 @@ use Phoundation\Utils\Config;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class HeaderPanel extends Panel
 {
@@ -54,6 +54,7 @@ class HeaderPanel extends Panel
      * Sets if a mini header panel will be rendered
      *
      * @param bool $mini
+     *
      * @return HeaderPanel
      */
     public function setMini(bool $mini): static

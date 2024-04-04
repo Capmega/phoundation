@@ -10,11 +10,11 @@ namespace Phoundation\Os\Library;
  *
  * This is the Init class for the Os library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -54,7 +54,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_roles table.
             sql()->schema()->table('os_tasks')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,

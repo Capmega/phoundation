@@ -10,11 +10,11 @@ namespace Phoundation\Databases\Library;
  *
  * This is the Init class for the Accounts library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -53,7 +53,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the database_mounts table.
             sql()->schema()->table('databases_connectors')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -103,12 +103,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.24', function () {
             sql()->schema()->table('databases_connectors')->alter()
-                ->addColumn('`sync` tinyint DEFAULT 0 NOT NULL', 'AFTER `statistics`');
+                 ->addColumn('`sync` tinyint DEFAULT 0 NOT NULL', 'AFTER `statistics`');
 
         })->addUpdate('0.0.25', function () {
             sql()->schema()->table('databases_connectors')->alter()
-                ->addColumn('`environment` varchar(32) NULL DEFAULT NULL', 'AFTER `seo_name`')
-                ->addIndex('KEY `environment` (`environment`)');
+                 ->addColumn('`environment` varchar(32) NULL DEFAULT NULL', 'AFTER `seo_name`')
+                 ->addIndex('KEY `environment` (`environment`)');
         });
     }
 }

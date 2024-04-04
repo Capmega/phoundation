@@ -13,10 +13,10 @@ use Phoundation\Servers\Server;
  *
  * This class is the main SQL database access class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Tunnel extends Server
 {
@@ -28,21 +28,21 @@ class Tunnel extends Server
     public function test(): static
     {
         $this->instance = 'test';
-        $port = 6000;
-        $restrictions = servers_get($restrictions, true);
+        $port           = 6000;
+        $restrictions   = servers_get($restrictions, true);
 
         if (!$restrictions['database_accounts_id']) {
             throw new SqlException(tr('Cannot test SQL over SSH tunnel, server ":server" has no database account linked', [':server' => $restrictions['domain']]));
         }
 
         $this->makeConnector($this->instance, [
-            'port' => $port,
-            'user' => $restrictions['db_username'],
-            'pass' => $restrictions['db_password'],
+            'port'       => $port,
+            'user'       => $restrictions['db_username'],
+            'pass'       => $restrictions['db_password'],
             'ssh_tunnel' => [
                 'source_port' => $port,
-                'domain' => $restrictions['domain']
-            ]
+                'domain'      => $restrictions['domain'],
+            ],
         ]);
 
         $this->get('SELECT TRUE', true, null, $this->instance);

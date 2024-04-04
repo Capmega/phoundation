@@ -7,8 +7,8 @@ namespace Phoundation\Geo\GeoIp;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Wget;
 use Phoundation\Utils\Config;
@@ -22,17 +22,17 @@ use Throwable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Geo
+ * @package   Phoundation/Geo
  */
 class MaxMindImport extends GeoIpImport
 {
     /**
      * Import class constructor
      *
-     * @param bool $demo
+     * @param bool     $demo
      * @param int|null $min
      * @param int|null $max
      */
@@ -58,7 +58,7 @@ class MaxMindImport extends GeoIpImport
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
-        $directory        = $wget->setTimeout(1200)->setExecutionDirectoryToTemp()->getExecutionDirectory();
+        $directory   = $wget->setTimeout(1200)->setExecutionDirectoryToTemp()->getExecutionDirectory();
 
         Log::action(tr('Storing GeoIP files in directory ":directory"', [':directory' => $directory]));
 
@@ -74,13 +74,47 @@ class MaxMindImport extends GeoIpImport
         return $directory;
     }
 
+    /**
+     * Returns a list of MaxMind files that will be downloaded
+     *
+     * @note Using this functionality requires an account on https://www.maxmind.com/
+     *
+     * @note The list of these files can be found on https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/geoip/downloads
+     *
+     * @param bool $return_sha_files
+     *
+     * @return array
+     */
+    protected static function getMaxMindFiles(bool $return_sha_files): array
+    {
+        $files = [
+            'geolite2-asn.tar.gz' => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
+            'cities.tar.gz'       => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
+            'countries.tar.gz'    => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
+        ];
+
+        $sha_files = [
+            'geolite2-asn.tar.gz.sha256' => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
+            'cities.tar.gz.sha256'       => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
+            'countries.tar.gz.sha256'    => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
+        ];
+
+        if ($return_sha_files) {
+            // Return the list of files AND the sha256 files
+            return array_merge($sha_files, $files);
+        }
+
+        // Return only the files themselves
+        return $files;
+    }
 
     /**
      * Process downloaded GeoIP files
      *
-     * @param Stringable|string $source_path
-     * @param Stringable|string|null $target_path
+     * @param Stringable|string                       $source_path
+     * @param Stringable|string|null                  $target_path
      * @param RestrictionsInterface|array|string|null $restrictions = null
+     *
      * @return string
      */
     public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
@@ -117,10 +151,10 @@ class MaxMindImport extends GeoIpImport
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
                 $directory = File::new($source_path . $file, $restrictions)
-                    ->checkReadable()
-                    ->checkSha256($shas[$file])
-                    ->untar()
-                    ->getSingleDirectory('/GeoLite2.+?/i');
+                                 ->checkReadable()
+                                 ->checkSha256($shas[$file])
+                                 ->untar()
+                                 ->getSingleDirectory('/GeoLite2.+?/i');
 
                 // Move the file to the target path and delete the source path
                 $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_path);
@@ -141,39 +175,5 @@ class MaxMindImport extends GeoIpImport
         }
 
         return $target_path;
-    }
-
-
-    /**
-     * Returns a list of MaxMind files that will be downloaded
-     *
-     * @note Using this functionality requires an account on https://www.maxmind.com/
-     *
-     * @note The list of these files can be found on https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/geoip/downloads
-     *
-     * @param bool $return_sha_files
-     * @return array
-     */
-    protected static function getMaxMindFiles(bool $return_sha_files): array
-    {
-        $files = [
-            'geolite2-asn.tar.gz' => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
-            'cities.tar.gz'       => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
-            'countries.tar.gz'    => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=YOUR_LICENSE_KEY&suffix=tar.gz',
-        ];
-
-        $sha_files = [
-            'geolite2-asn.tar.gz.sha256' => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
-            'cities.tar.gz.sha256'       => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
-            'countries.tar.gz.sha256'    => 'https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=YOUR_LICENSE_KEY&suffix=tar.gz.sha256',
-        ];
-
-        if ($return_sha_files) {
-            // Return the list of files AND the sha256 files
-            return array_merge($sha_files, $files);
-        }
-
-        // Return only the files themselves
-        return $files;
     }
 }

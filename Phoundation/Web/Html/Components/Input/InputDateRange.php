@@ -20,10 +20,10 @@ use Phoundation\Web\Requests\Response;
  *
  * Standard HTML date range input control
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputDateRange extends InputText
 {
@@ -80,6 +80,7 @@ class InputDateRange extends InputText
      * Sets the date range mounting selector
      *
      * @param string|null $selector
+     *
      * @return $this
      */
     public function setParentSelector(?string $selector): static
@@ -88,6 +89,28 @@ class InputDateRange extends InputText
         return $this;
     }
 
+    /**
+     * Specify what pre-programmed ranges to use
+     *
+     * @param string $ranges
+     *
+     * @return $this
+     */
+    public function useRanges(string $ranges): static
+    {
+        switch ($ranges) {
+            case 'default':
+                $this->getRanges()->useDefault();
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown ranges ":ranges" specified, specify one of "default"', [
+                    ':ranges' => $ranges,
+                ]));
+        }
+
+        return $this;
+    }
 
     /**
      * Returns the date ranges object
@@ -102,30 +125,6 @@ class InputDateRange extends InputText
 
         return $this->ranges;
     }
-
-
-    /**
-     * Specify what pre-programmed ranges to use
-     *
-     * @param string $ranges
-     * @return $this
-     */
-    public function useRanges(string $ranges): static
-    {
-        switch ($ranges) {
-            case 'default':
-                $this->getRanges()->useDefault();
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown ranges ":ranges" specified, specify one of "default"', [
-                    ':ranges' => $ranges
-                ]));
-        }
-
-        return $this;
-    }
-
 
     /**
      * Render and return the HTML for this Input Element
@@ -145,8 +144,8 @@ class InputDateRange extends InputText
 
         // Setup & configuration script for daterangepicker
         Script::new()
-            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-            ->setContent('
+              ->setJavascriptWrapper(EnumJavascriptWrappers::window)
+              ->setContent('
                 $("[name=' . $this->getName() . ']").daterangepicker(
                 {
                     onSelect: function(dateText, inst) {
@@ -160,7 +159,7 @@ class InputDateRange extends InputText
                 function (start, end) {
 //                  $("[name=' . $this->getName() . ']").html(start.format("MMMM D, YYYY") + " - " + end.format("MMMM D, YYYY"))
                 });')
-            ->render();
+              ->render();
 
         return parent::render();
     }

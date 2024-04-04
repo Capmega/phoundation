@@ -15,10 +15,10 @@ use Phoundation\Geo\Import;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho geo import');
 
@@ -56,11 +56,11 @@ ARGUMENTS
 
 
 $argv = ArgvValidator::new()
-    ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->isDirectory(DIRECTORY_DATA)
-    ->select('-l,--no-download')->isOptional(false)->isBoolean()
-    ->select('-i,--no-import')->isOptional(false)->isBoolean()
-    ->select('--ignore-sha-fail')->isOptional(false)->isBoolean()
-    ->validate();
+                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->isDirectory(DIRECTORY_DATA)
+                     ->select('-l,--no-download')->isOptional(false)->isBoolean()
+                     ->select('-i,--no-import')->isOptional(false)->isBoolean()
+                     ->select('--ignore-sha-fail')->isOptional(false)->isBoolean()
+                     ->validate();
 
 
 // Download

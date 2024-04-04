@@ -13,10 +13,10 @@ use Phoundation\Data\Interfaces\IteratorInterface;
  *
  * This class is an abstract HTML element object class that can display resource data
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface ResourceElementInterface extends ElementInterface
 {
@@ -24,6 +24,7 @@ interface ResourceElementInterface extends ElementInterface
      * Set the HTML none element attribute
      *
      * @param string|null $none
+     *
      * @return static
      */
     public function setNone(?string $none): static;
@@ -46,6 +47,7 @@ interface ResourceElementInterface extends ElementInterface
      * Sets the HTML empty element attribute
      *
      * @param string|null $empty
+     *
      * @return static
      */
     public function setObjectEmpty(?string $empty): static;
@@ -61,6 +63,7 @@ interface ResourceElementInterface extends ElementInterface
      * Sets whether query sources will be cached or not
      *
      * @param bool $cache
+     *
      * @return static
      */
     public function setCache(bool $cache): static;
@@ -69,6 +72,7 @@ interface ResourceElementInterface extends ElementInterface
      * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
      *
      * @param bool $hide_empty
+     *
      * @return static
      */
     public function setHideEmpty(bool $hide_empty): static;
@@ -91,7 +95,8 @@ interface ResourceElementInterface extends ElementInterface
      * Sets the array source
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|string|null $execute
+     * @param array|string|null                                $execute
+     *
      * @return static
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source, array|string|null $execute = null): static;
@@ -107,7 +112,8 @@ interface ResourceElementInterface extends ElementInterface
      * Sets a query source
      *
      * @param PDOStatement|string|null $source_query
-     * @param array|string|null $execute
+     * @param array|string|null        $execute
+     *
      * @return $this
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null): static;
@@ -117,7 +123,9 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
+     *
      * @param array $source_data
+     *
      * @return static
      */
     public function setSourceData(array $source_data): static;

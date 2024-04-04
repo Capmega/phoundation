@@ -10,11 +10,11 @@ namespace Phoundation\Servers\Library;
  *
  * This is the Init class for the Servers library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Servers
+ * @package   Phoundation\Servers
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -54,7 +54,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the sshaccounts table.
             sql()->schema()->table('ssh_accounts')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -81,7 +81,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the servers table.
             sql()->schema()->table('servers')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -147,17 +147,17 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add support for SSH accounts key file
             // Add support for server name / seo_name
             sql()->schema()
-                ->table('ssh_accounts')
-                    ->alter()
-                        ->addColumn('`file` VARCHAR(255) NULL DEFAULT NULL', 'AFTER `description`');
+                 ->table('ssh_accounts')
+                 ->alter()
+                 ->addColumn('`file` VARCHAR(255) NULL DEFAULT NULL', 'AFTER `description`');
 
             sql()->schema()
-                ->table('servers')
-                    ->alter()
-                        ->addColumn('`name` varchar(128) NOT NULL,'    , 'AFTER `code`')
-                        ->addColumn('`seo_name` varchar(128) NOT NULL,', 'AFTER `name`')
-                        ->addIndex('UNIQUE KEY `name` (`name`)')
-                        ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
+                 ->table('servers')
+                 ->alter()
+                 ->addColumn('`name` varchar(128) NOT NULL,', 'AFTER `code`')
+                 ->addColumn('`seo_name` varchar(128) NOT NULL,', 'AFTER `name`')
+                 ->addIndex('UNIQUE KEY `name` (`name`)')
+                 ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
         });
     }
 }

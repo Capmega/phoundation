@@ -16,18 +16,18 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
  *
  * This script can send out emails
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-l,--limit'        => true,
-        '-r,--auto-restart' => false,
-        '-b,--background'   => false
-    ]
-]);
+                                      'arguments' => [
+                                          '-l,--limit' => true,
+                                          '-r,--auto-restart' => false,
+                                          '-b,--background' => false,
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho email send');
 
@@ -51,18 +51,18 @@ ARGUMENTS
 // Validate the arguments
 $count = 0;
 $argv  = ArgvValidator::new()
-    ->select('-l,--limit', true)->isOptional(50)->isPositive()->isLessThan(5000)
-    ->select('-r,--auto-restart')->isOptional(false)->isBoolean()
-    ->select('-b,--background')->isOptional(false)->isBoolean()
-    ->validate();
+                      ->select('-l,--limit', true)->isOptional(50)->isPositive()->isLessThan(5000)
+                      ->select('-r,--auto-restart')->isOptional(false)->isBoolean()
+                      ->select('-b,--background')->isOptional(false)->isBoolean()
+                      ->validate();
 
 
 // Load the pending emails
 $emails = Emails::new();
 $emails->getQueryBuilder()
-    ->addSelect('*')
-    ->addWhere('`status` IS NOT NULL AND `status` = "PENDING-SEND"')
-    ->setLimit($argv['limit']);
+       ->addSelect('*')
+       ->addWhere('`status` IS NOT NULL AND `status` = "PENDING-SEND"')
+       ->setLimit($argv['limit']);
 
 
 // Send the pending emails
@@ -88,10 +88,13 @@ if ($count) {
 
             // Restart the command
             PhoCommand::new('emails/send')
-                ->addArgument('--auto-restart')
-                ->addArgument($argv['background'] ? '--background' : null)
-                ->addArguments($argv['limit'] ? ['--limit', $argv['limit']] : null)
-                ->execute($method);
+                      ->addArgument('--auto-restart')
+                      ->addArgument($argv['background'] ? '--background' : null)
+                      ->addArguments($argv['limit'] ? [
+                          '--limit',
+                          $argv['limit'],
+                      ] : null)
+                      ->execute($method);
         }
     }
 

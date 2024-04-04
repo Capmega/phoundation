@@ -15,10 +15,10 @@ use Phoundation\Utils\Json;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataTree
 {
@@ -45,6 +45,7 @@ trait TraitDataTree
      * Sets the tree data
      *
      * @param TreeInterface|array|string|null $tree
+     *
      * @return static
      */
     public function setTree(TreeInterface|array|string|null $tree): static
@@ -57,7 +58,7 @@ trait TraitDataTree
             if (!is_array($tree)) {
                 if (!($tree instanceof TreeInterface)) {
                     throw OutOfBoundsException::new(tr('Cannot use specified data as source for tree, it is not tree data'))
-                        ->setData(['tree' => $tree]);
+                                              ->setData(['tree' => $tree]);
                 }
             }
         }

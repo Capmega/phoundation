@@ -12,10 +12,10 @@ use JetBrains\PhpStorm\ExpectedValues;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 trait TraitBackground
 {
@@ -24,7 +24,14 @@ trait TraitBackground
      *
      * @var string|null $background
      */
-    #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
+    #[ExpectedValues([
+        null,
+        'primary',
+        'info',
+        'warning',
+        'danger',
+        'success',
+    ])]
     protected ?string $background = null;
 
 
@@ -33,7 +40,14 @@ trait TraitBackground
      *
      * @return string|null
      */
-    #[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])]
+    #[ExpectedValues([
+        null,
+        'primary',
+        'info',
+        'warning',
+        'danger',
+        'success',
+    ])]
     public function getBackground(): ?string
     {
         return $this->background;
@@ -44,9 +58,17 @@ trait TraitBackground
      * Returns the type of infobox to show
      *
      * @param string|null $background
+     *
      * @return static
      */
-    public function setBackground(#[ExpectedValues([null, 'primary', 'info', 'warning', 'danger', 'success'])] ?string $background): static
+    public function setBackground(#[ExpectedValues([
+        null,
+        'primary',
+        'info',
+        'warning',
+        'danger',
+        'success',
+    ])] ?string $background): static
     {
         $this->background = $background;
         return $this;

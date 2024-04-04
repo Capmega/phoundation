@@ -15,10 +15,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface ElementAttributesInterface
 {
@@ -35,9 +35,23 @@ interface ElementAttributesInterface
     public static function new(): static;
 
     /**
+     * Ensures that the specified object has ElementAttributes
+     *
+     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
+     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
+     *
+     * @param object|string $class
+     *
+     * @return void
+     * @see  ElementAttributes::ensureElementAttributesTrait()
+     */
+    static function canRenderHtml(object|string $class): void;
+
+    /**
      * Sets the HTML id element attribute
      *
      * @param string|null $id
+     *
      * @return static
      */
     function setId(?string $id): static;
@@ -53,6 +67,7 @@ interface ElementAttributesInterface
      * Sets the HTML name element attribute
      *
      * @param string|null $name
+     *
      * @return static
      */
     function setName(?string $name): static;
@@ -103,6 +118,7 @@ interface ElementAttributesInterface
      * Set the HTML tabindex element attribute
      *
      * @param int|null $tabindex
+     *
      * @return static
      */
     function setTabIndex(?int $tabindex): static;
@@ -118,6 +134,7 @@ interface ElementAttributesInterface
      * Sets the HTML class element attribute
      *
      * @param bool $auto_focus
+     *
      * @return static
      */
     public function setAutofocus(bool $auto_focus): static;
@@ -133,6 +150,7 @@ interface ElementAttributesInterface
      * Set the HTML disabled element attribute
      *
      * @param bool $disabled
+     *
      * @return static
      */
     function setDisabled(bool $disabled): static;
@@ -148,6 +166,7 @@ interface ElementAttributesInterface
      * Set the HTML readonly element attribute
      *
      * @param bool $readonly
+     *
      * @return static
      */
     function setReadonly(bool $readonly): static;
@@ -163,7 +182,8 @@ interface ElementAttributesInterface
      * Sets the content of the element
      *
      * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
@@ -172,6 +192,7 @@ interface ElementAttributesInterface
      * Adds the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
+     *
      * @return static
      */
     function addContent(Stringable|string|float|int|null $content): static;
@@ -187,6 +208,7 @@ interface ElementAttributesInterface
      * Sets the height of the element to display
      *
      * @param int|null $height
+     *
      * @return static
      */
     function setHeight(?int $height): static;
@@ -202,6 +224,7 @@ interface ElementAttributesInterface
      * Sets the width of the element to display
      *
      * @param int|null $width
+     *
      * @return static
      */
     function setWidth(?int $width): static;
@@ -217,6 +240,7 @@ interface ElementAttributesInterface
      * Set if the button is right aligned or not
      *
      * @param bool $right
+     *
      * @return static
      */
     function setRight(bool $right): static;
@@ -227,15 +251,4 @@ interface ElementAttributesInterface
      * @return string
      */
     function getRight(): string;
-
-    /**
-     * Ensures that the specified object has ElementAttributes
-     *
-     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
-     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
-     * @param object|string $class
-     * @return void
-     * @see ElementAttributes::ensureElementAttributesTrait()
-     */
-    static function canRenderHtml(object|string $class): void;
- }
+}

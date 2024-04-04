@@ -16,10 +16,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class A extends Span implements AInterface
 {
@@ -50,12 +50,13 @@ class A extends Span implements AInterface
      * Sets the href for this anchor
      *
      * @param UrlBuilderInterface|string|null $href
+     *
      * @return $this
      */
     public function setHref(UrlBuilderInterface|string|null $href): static
     {
         // Run the href through UrlBuilder to ensure that preconfigured URL's like "sign-out" are converted to full URLs
-        $this->attributes->set((string) UrlBuilder::getWww($href), 'href');
+        $this->attributes->set((string)UrlBuilder::getWww($href), 'href');
         return $this;
     }
 
@@ -75,6 +76,7 @@ class A extends Span implements AInterface
      * Sets the target for this anchor
      *
      * @param EnumAnchorTargetInterface|null $target
+     *
      * @return $this
      */
     public function setTarget(?EnumAnchorTargetInterface $target): static
@@ -95,7 +97,7 @@ class A extends Span implements AInterface
                 // This A element already has content, can't have a parent AND content!
                 throw new OutOfBoundsException(tr('Cannot render A element, it has child element ":child" and content ":content". It must have one or the other', [
                     ':parent'  => get_class($this->child_element),
-                    ':content' => $this->content
+                    ':content' => $this->content,
                 ]));
             }
 

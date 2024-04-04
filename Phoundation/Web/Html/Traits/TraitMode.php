@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplayModeInterface;
  *
  * Manages display modes for elements or element blocks
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 trait TraitMode
 {
@@ -43,6 +43,7 @@ trait TraitMode
      * Sets the type of mode for the element or element block
      *
      * @param EnumDisplayModeInterface|string $mode
+     *
      * @return static
      */
     public function setMode(EnumDisplayModeInterface|string $mode): static

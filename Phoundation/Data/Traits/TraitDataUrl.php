@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataUrl
 {
@@ -41,11 +41,12 @@ trait TraitDataUrl
      * Sets the url
      *
      * @param Stringable|string|null $url
+     *
      * @return static
      */
     public function setUrl(Stringable|string|null $url): static
     {
-        $this->url = get_null((string) $url);
+        $this->url = get_null((string)$url);
         return $this;
     }
 }

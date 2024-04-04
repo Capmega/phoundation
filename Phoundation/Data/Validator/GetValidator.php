@@ -6,7 +6,6 @@ namespace Phoundation\Data\Validator;
 
 
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
-use Phoundation\Data\Validator\Exception\PostValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -20,10 +19,10 @@ use Phoundation\Utils\Strings;
  *
  * $_REQUEST will be cleared automatically as this array should not  be used.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class GetValidator extends Validator
 {
@@ -43,22 +42,10 @@ class GetValidator extends Validator
      *
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(?ValidatorInterface $parent = null) {
+    public function __construct(?ValidatorInterface $parent = null)
+    {
         $this->construct($parent, static::$get);
     }
-
-
-    /**
-     * Returns a new $_GET data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     * @return GetValidator
-     */
-    public static function new(?ValidatorInterface $parent = null): GetValidator
-    {
-        return new static($parent);
-    }
-
 
     /**
      * Link $_GET and $_GET and $argv data to internal arrays to ensure developers cannot access them until validation
@@ -80,11 +67,11 @@ class GetValidator extends Validator
         $_REQUEST = [];
     }
 
-
     /**
      * Throws an exception if there are still arguments left in the GET source
      *
      * @param bool $apply
+     *
      * @return static
      */
     public function noArgumentsLeft(bool $apply = true): static
@@ -102,22 +89,22 @@ class GetValidator extends Validator
         foreach ($get as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field
+                    ':field' => $field,
                 ]);
             }
         }
 
         throw ValidatorException::new(tr('Unknown GET fields ":fields" encountered', [
-            ':fields' => Strings::force($get, ', ')
+            ':fields' => Strings::force($get, ', '),
         ]))->addData($messages)->makeWarning()->log();
     }
-
 
     /**
      * Add the specified value for key to the internal GET array
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return void
      */
     public static function addData(string $key, mixed $value): void
@@ -125,11 +112,23 @@ class GetValidator extends Validator
         static::$get[$key] = $value;
     }
 
+    /**
+     * Returns a new $_GET data Validator object
+     *
+     * @param ValidatorInterface|null $parent
+     *
+     * @return GetValidator
+     */
+    public static function new(?ValidatorInterface $parent = null): GetValidator
+    {
+        return new static($parent);
+    }
 
     /**
      * Selects the specified key within the array that we are validating
      *
      * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
+     *
      * @return static
      */
     public function select(string|int $field): static
@@ -156,6 +155,7 @@ class GetValidator extends Validator
      * Will throw a GetValidationFailedException if validation fails
      *
      * @param bool $clean_source
+     *
      * @return array
      * @throws GetValidationFailedException
      */

@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryModel
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryModel
      * Sets the model for this object
      *
      * @param Stringable|string|null $model
+     *
      * @return static
      */
     public function setModel(Stringable|string|null $model): static
     {
-        return $this->setValue('model', (string) $model);
+        return $this->setValue('model', (string)$model);
     }
 }

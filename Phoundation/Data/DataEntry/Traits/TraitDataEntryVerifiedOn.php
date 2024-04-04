@@ -10,10 +10,10 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * This trait contains methods for DataEntry objects that require a verification date
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryVerifiedOn
 {
@@ -32,6 +32,7 @@ trait TraitDataEntryVerifiedOn
      * Sets the verified_on for this user
      *
      * @param string|null $verified_on
+     *
      * @return static
      */
     public function setVerifiedOn(?string $verified_on): static

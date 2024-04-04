@@ -16,10 +16,10 @@ use Stringable;
  *
  * This class manages the PHP "composer" command
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Composer extends Command
 {
@@ -27,8 +27,8 @@ class Composer extends Command
      * Composer class constructor
      *
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|null $operating_system
-     * @param string|null $packages
+     * @param Stringable|string|null                  $operating_system
+     * @param string|null                             $packages
      */
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
@@ -41,6 +41,7 @@ class Composer extends Command
      * Returns an array containing the found files
      *
      * @param EnumExecuteMethodInterface $method
+     *
      * @return IteratorInterface|array|string|int|bool|null
      */
     public function update(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): IteratorInterface|array|string|int|bool|null
@@ -48,7 +49,7 @@ class Composer extends Command
         array_unshift($this->arguments, [
             'escape_argument' => true,
             'escape_quotes'   => true,
-            'argument'        => 'update'
+            'argument'        => 'update',
         ]);
 
         return $this->execute($method);

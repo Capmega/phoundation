@@ -14,10 +14,10 @@ use Phoundation\Date\DateTime;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openstop_datetime.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openstop_datetime.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataStopDateTime
 {
@@ -44,7 +44,8 @@ trait TraitDataStopDateTime
      * Sets the stop_datetime date time
      *
      * @param \DateTime|DateTimeInterface|string|null $stop_datetime
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null                $timezone
+     *
      * @return static
      */
     public function setStopDateTime(\DateTime|DateTimeInterface|string|null $stop_datetime, DateTimeZone|string|null $timezone = null): static

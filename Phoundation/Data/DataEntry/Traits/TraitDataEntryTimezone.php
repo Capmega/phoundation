@@ -13,10 +13,10 @@ use Phoundation\Geo\Timezones\Timezone;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryTimezone
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryTimezone
      * Sets the timezones_id for this user
      *
      * @param int|null $timezones_id
+     *
      * @return static
      */
     public function setTimezonesId(?int $timezones_id): static
@@ -75,6 +76,7 @@ trait TraitDataEntryTimezone
      * Sets the timezones_name for this user
      *
      * @param string|null $timezones_name
+     *
      * @return static
      */
     public function setTimezonesName(?string $timezones_name): static

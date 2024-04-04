@@ -19,11 +19,11 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * In order to be able to set up, one conditions must be met: There is no configuration file available
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Core
+ * @category  Function reference
+ * @package   Phoundation\Core
  */
 
 CliDocumentation::setUsage('./pho system setup [OPTIONS]
@@ -57,19 +57,19 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('--no-password-validation')->isOptional(false)->isBoolean()
-    ->select('--project')->isOptional(false)->isBoolean()
-    ->select('--import')->isOptional(false)->isBoolean()
-    ->select('--demo')->isOptional(false)->isBoolean()
-    ->select('--min', true)->isOptional(0)->isNatural()
-    ->select('--max', true)->isOptional(100)->isNatural()
-    ->validate();
+                     ->select('--no-password-validation')->isOptional(false)->isBoolean()
+                     ->select('--project')->isOptional(false)->isBoolean()
+                     ->select('--import')->isOptional(false)->isBoolean()
+                     ->select('--demo')->isOptional(false)->isBoolean()
+                     ->select('--min', true)->isOptional(0)->isNatural()
+                     ->select('--max', true)->isOptional(100)->isNatural()
+                     ->validate();
 
 
 // Validate and create project
 if (!Project::projectFileExists()) {
     $create = true;
- } elseif ($argv['project']) {
+} elseif ($argv['project']) {
     if (!FORCE) {
         throw new OutOfBoundsException(tr('Cannot setup system, project file "config/project" already exists. Please re-run this script with -F / --force option'));
     }

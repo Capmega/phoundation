@@ -14,10 +14,10 @@ use Phoundation\Exception\UnderConstructionException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Database extends SchemaAbstract
 {
@@ -42,19 +42,6 @@ class Database extends SchemaAbstract
      */
     protected array $tables = [];
 
-
-    /**
-     * Returns if the database exists in the database or not
-     *
-     * @return bool
-     */
-    public function exists(): bool
-    {
-        // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
-    }
-
-
     /**
      * Returns the database name
      *
@@ -64,7 +51,6 @@ class Database extends SchemaAbstract
     {
         return $this->sql->getDatabase();
     }
-
 
     /**
      * Sets the database name
@@ -80,18 +66,18 @@ class Database extends SchemaAbstract
         throw new UnderConstructionException();
     }
 
-
     /**
      * Create this database
      *
      * @param bool $use
+     *
      * @return static
      */
     public function create(bool $use = true): static
     {
         if ($this->exists()) {
             throw new SqlException(tr('Cannot create database ":name", it already exists', [
-                ':name' => $this->sql->getDatabase()
+                ':name' => $this->sql->getDatabase(),
             ]));
         }
 
@@ -100,7 +86,7 @@ class Database extends SchemaAbstract
         // This query can only partially use bound variables!
         $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:charset COLLATE=:collate', [
             ':charset' => $this->configuration['charset'],
-            ':collate' => $this->configuration['collate']
+            ':collate' => $this->configuration['collate'],
         ]);
 
         if ($use) {
@@ -110,6 +96,29 @@ class Database extends SchemaAbstract
         return $this;
     }
 
+    /**
+     * Returns if the database exists in the database or not
+     *
+     * @return bool
+     */
+    public function exists(): bool
+    {
+        // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
+        return (bool)sql()->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
+    }
+
+    /**
+     * Use the specified database name
+     *
+     * @param string $name
+     *
+     * @return static
+     */
+    protected function use(string $name): static
+    {
+        $this->sql->use($name);
+        return $this;
+    }
 
     /**
      * Drop this database
@@ -121,38 +130,25 @@ class Database extends SchemaAbstract
         // This query cannot use bound variables!
         Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
             ':instance' => $this->sql->getConnector(),
-            ':database' => $this->sql->getDatabase()
-        ]), 5);
+            ':database' => $this->sql->getDatabase(),
+        ]),          5);
 
         $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
         return $this;
     }
 
-
-    /**
-     * Use the specified database name
-     *
-     * @param string $name
-     * @return static
-     */
-    protected function use(string $name): static
-    {
-        $this->sql->use($name);
-        return $this;
-    }
-
-
     /**
      * Access a new Table object for the currently selected database
      *
      * @param string $name
+     *
      * @return Table
      */
     public function table(string $name): Table
     {
         // If we don't have this table yet, create it now
         if (!array_key_exists($name, $this->tables)) {
-            $this->tables[$name] = new Table( $name, $this->sql, $this);
+            $this->tables[$name] = new Table($name, $this->sql, $this);
         }
 
         return $this->tables[$name];
@@ -163,6 +159,7 @@ class Database extends SchemaAbstract
      * Load the table parameters from the database
      *
      * @param bool $clear
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static

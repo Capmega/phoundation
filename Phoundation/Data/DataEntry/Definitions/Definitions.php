@@ -19,10 +19,10 @@ use Stringable;
  *
  * Contains a collection of Definition objects for a DataEntry class and can validate the values
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class Definitions extends Iterator implements DefinitionsInterface
 {
@@ -45,17 +45,18 @@ class Definitions extends Iterator implements DefinitionsInterface
     /**
      * Adds the specified Definition object to the definitions list
      *
-     * @param mixed $value
+     * @param mixed                            $value
      * @param float|Stringable|int|string|null $key
-     * @param bool $skip_null
-     * @param bool $exception
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
      * @return $this
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!($value instanceof DefinitionInterface)) {
             throw new OutOfBoundsException(tr('Cannot add variable ":value" to the DataEntry definitions list, it is not a DefinitionInterface object', [
-                ':value' => $value
+                ':value' => $value,
             ]));
         }
 
@@ -77,26 +78,13 @@ class Definitions extends Iterator implements DefinitionsInterface
         return current($this->source);
     }
 
-
-    /**
-     * Returns the specified column
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool $exception
-     * @return DefinitionInterface
-     */
-    public function get(Stringable|string|float|int $key, bool $exception = true): DefinitionInterface
-    {
-        return parent::get($key, $exception);
-    }
-
-
     /**
      * Returns the specified column
      *
      * @param Stringable|string|float|int $key
      * @param Stringable|string|float|int $target
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return DefinitionInterface
      */
     public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
@@ -105,12 +93,12 @@ class Definitions extends Iterator implements DefinitionsInterface
         return parent::renameKey($key, $target, $exception)->setColumn($target);
     }
 
-
     /**
      * Direct method to hide entries
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return static
      */
     public function hide(Stringable|string|float|int $key, bool $exception = true): static
@@ -119,12 +107,25 @@ class Definitions extends Iterator implements DefinitionsInterface
         return $this;
     }
 
+    /**
+     * Returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return DefinitionInterface
+     */
+    public function get(Stringable|string|float|int $key, bool $exception = true): DefinitionInterface
+    {
+        return parent::get($key, $exception);
+    }
 
     /**
      * Direct method to show entries
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return static
      */
     public function show(Stringable|string|float|int $key, bool $exception = true): static
@@ -149,6 +150,7 @@ class Definitions extends Iterator implements DefinitionsInterface
      * Sets if meta-information is visible at all, or not
      *
      * @param bool $meta_visible
+     *
      * @return static
      */
     public function setMetaVisible(bool $meta_visible): static

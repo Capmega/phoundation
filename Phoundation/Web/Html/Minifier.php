@@ -13,10 +13,10 @@ use Phoundation\Core\Log\Log;
  *
  * This class continas required functionalities to minify Html, Css and Javascript
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Minifier
 {
@@ -24,6 +24,7 @@ class Minifier
      * Return the specified HTML minified
      *
      * @param string $html
+     *
      * @return string
      */
     public static function html(string $html): string
@@ -36,8 +37,14 @@ class Minifier
 //        include_once(DIRECTORY_ROOT.'libs/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
 
         $html = Minify_HTML::minify($html, [
-            'cssMinifier' => ['Minify_CSS'  , 'minify'],
-            'jsMinifier'  => ['\JSMin\JSMin', 'minify']
+            'cssMinifier' => [
+                'Minify_CSS',
+                'minify',
+            ],
+            'jsMinifier'  => [
+                '\JSMin\JSMin',
+                'minify',
+            ],
         ]);
 
 // :FIX: This is a temp fix because the minifier appears to use \n as a space?
@@ -52,6 +59,7 @@ class Minifier
      * Minify the specified CSS file
      *
      * @param string $file
+     *
      * @return string The filename of the minified file
      */
     public static function css(string $file): string
@@ -65,6 +73,7 @@ class Minifier
      * Minify the specified Javascript file
      *
      * @param string $file
+     *
      * @return string The filename of the minified file
      */
     public static function js(string $file): string

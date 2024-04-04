@@ -10,10 +10,10 @@ namespace Phoundation\Web\Html\Components\Input\Interfaces;
  *
  * This interface describes the basic input class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface RenderInterface
 {
@@ -27,7 +27,7 @@ interface RenderInterface
      *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
      *
      * @return string|null
-     * @see Element::render(), ElementsBlock::render()
+     * @see  Element::render(), ElementsBlock::render()
      */
     public function render(): ?string;
 }

@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryProduct
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryProduct
      * Sets the product for this object
      *
      * @param Stringable|string|null $product
+     *
      * @return static
      */
     public function setProduct(Stringable|string|null $product): static
     {
-        return $this->setValue('product', (string) $product);
+        return $this->setValue('product', (string)$product);
     }
 }

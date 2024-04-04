@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * This trait contains methods for DataEntry objects that require a file
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryFile
 {
@@ -34,13 +34,14 @@ trait TraitDataEntryFile
      * Sets the file for this object
      *
      * @param string|null $file
+     *
      * @return static
      */
     public function setFile(?string $file): static
     {
-        if (strlen((string) $file) > 2048) {
+        if (strlen((string)$file) > 2048) {
             throw new OutOfBoundsException(tr('Specified file ":file" is invalid, the string should be no longer than 2048 characters', [
-                ':file' => $file
+                ':file' => $file,
             ]));
         }
 

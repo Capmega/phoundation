@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace  Phoundation\Data\Traits;
+namespace Phoundation\Data\Traits;
 
 use DateTimeZone;
 use Phoundation\Date\DateTime;
@@ -17,7 +17,7 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataDate
 {
@@ -44,7 +44,8 @@ trait TraitDataDate
      * Sets the date
      *
      * @param DateTime|DateTimeInterface|string|null $date
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null               $timezone
+     *
      * @return static
      */
     public function setDate(DateTime|DateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
@@ -56,7 +57,7 @@ trait TraitDataDate
                 $this->date = null;
 
             } else {
-                $this->date = new DateTime((string) $date, $timezone);
+                $this->date = new DateTime((string)$date, $timezone);
             }
         }
 

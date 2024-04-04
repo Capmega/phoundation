@@ -17,10 +17,10 @@ use Phoundation\Web\Html\Components\Img;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Content
+ * @package   Phoundation\Content
  */
 class Image extends Content implements ImageInterface
 {
@@ -52,20 +52,6 @@ class Image extends Content implements ImageInterface
         return $convert;
     }
 
-
-    /**
-     * Sets the image description
-     *
-     * @param string|null $description
-     * @return ImageInterface
-     */
-    public function setDescription(?string $description): ImageInterface
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-
     /**
      * Returns the image description
      *
@@ -76,6 +62,18 @@ class Image extends Content implements ImageInterface
         return $this->description;
     }
 
+    /**
+     * Sets the image description
+     *
+     * @param string|null $description
+     *
+     * @return ImageInterface
+     */
+    public function setDescription(?string $description): ImageInterface
+    {
+        $this->description = $description;
+        return $this;
+    }
 
     /**
      * Return basic information about this image
@@ -85,8 +83,8 @@ class Image extends Content implements ImageInterface
     public function getInformation(): array
     {
         $return = [
-            'file' => $this->path,
-            'exists' => file_exists($this->path)
+            'file'   => $this->path,
+            'exists' => file_exists($this->path),
         ];
 
         if ($return['exists']) {
@@ -99,12 +97,12 @@ class Image extends Content implements ImageInterface
 
         if (Strings::until($return['mimetype'], '/') === 'image') {
             $return['is_image'] = true;
-            $dimensions = getimagesize($this->path);
+            $dimensions         = getimagesize($this->path);
 
             $return['bits']       = $dimensions['bits'];
             $return['dimensions'] = [
                 'width'  => $dimensions[0],
-                'height' => $dimensions[1]
+                'height' => $dimensions[1],
             ];
 
             $return['exif'] = $this->getExifInformation();
@@ -115,20 +113,6 @@ class Image extends Content implements ImageInterface
 
         return $return;
     }
-
-
-    /**
-     * Returns an HTML Img element for this image
-     *
-     * @return Img
-     */
-    public function getHtmlElement(): Img
-    {
-        return Img::new()
-            ->setSrc($this->path)
-            ->setAlt($this->description);
-    }
-
 
     /**
      * Returns EXIF information for the current image
@@ -141,10 +125,22 @@ class Image extends Content implements ImageInterface
 
         if (!$exif) {
             throw new ImagesException(tr('Failed to read EXIF information from image file ":file"', [
-                ':file' => $this->path
+                ':file' => $this->path,
             ]));
         }
 
         return $exif;
+    }
+
+    /**
+     * Returns an HTML Img element for this image
+     *
+     * @return Img
+     */
+    public function getHtmlElement(): Img
+    {
+        return Img::new()
+                  ->setSrc($this->path)
+                  ->setAlt($this->description);
     }
 }

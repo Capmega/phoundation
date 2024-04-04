@@ -10,10 +10,10 @@ namespace Phoundation\Developer\Sync;
  *
  * This class contains functionalities to manage the remote host whilst syncing
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Host
 {
@@ -58,6 +58,7 @@ class Host
      * Sets if the system will initialize after syncing
      *
      * @param bool $init
+     *
      * @return Remote
      */
     public function setInit(bool $init): Remote
@@ -82,6 +83,7 @@ class Host
      * Sets if the sync should use locking or not
      *
      * @param bool $lock
+     *
      * @return Remote
      */
     public function setLock(bool $lock): Remote
@@ -90,51 +92,28 @@ class Host
         return $this;
     }
 
+    /**
+     * Lock all databases in readonly for this projects so that we can dump them
+     *
+     * @return void
+     */
+    protected function unlockSystem(): void {}
 
     /**
      * Lock all databases in readonly for this projects so that we can dump them
      *
      * @return void
      */
-    protected function lockSystem(): void
-    {
-
-    }
-
-
-    /**
-     * Lock all databases in readonly for this projects so that we can dump them
-     *
-     * @return void
-     */
-    protected function unlockSystem(): void
-    {
-
-    }
-
-
-    /**
-     * Lock all databases in readonly for this projects so that we can dump them
-     *
-     * @return void
-     */
-    protected function lockRemoteSqlDatabase(string $database): void
-    {
-
-    }
-
+    protected function lockRemoteSqlDatabase(string $database): void {}
 
     /**
      * Lock specified SQL database in readonly for this projects so that we can dump them
      *
      * @param string $database
+     *
      * @return void
      */
-    protected function unlockRemoteSqlDatabase(string $database): void
-    {
-
-    }
-
+    protected function unlockRemoteSqlDatabase(string $database): void {}
 
     /**
      * Dumps all the databases for this project
@@ -148,83 +127,54 @@ class Host
         $this->dumpAllRedis();
     }
 
-
     /**
      * Dumps the SQL databases for this project
      *
      * @return void
      */
-    protected function dumpAllSql(): void
-    {
-
-    }
-
-
-    /**
-     * Dumps the SQL databases for this project
-     *
-     * @return void
-     */
-    protected function dumpSql(): void
-    {
-
-    }
-
+    protected function dumpAllSql(): void {}
 
     /**
      * Dumps the Mongo databases for this project
      *
      * @return void
      */
-    protected function dumpAllMongo(): void
-    {
+    protected function dumpAllMongo(): void {}
 
-    }
+    /**
+     * Dumps the Redis databases for this project
+     *
+     * @return void
+     */
+    protected function dumpAllRedis(): void {}
 
+    /**
+     * Dumps the SQL databases for this project
+     *
+     * @return void
+     */
+    protected function dumpSql(): void {}
 
     /**
      * Dumps the Mongo databases for this project
      *
      * @return void
      */
-    protected function dumpMongo(): void
-    {
-
-    }
-
+    protected function dumpMongo(): void {}
 
     /**
      * Dumps the Redis databases for this project
      *
      * @return void
      */
-    protected function dumpAllRedis(): void
-    {
-
-    }
-
-
-    /**
-     * Dumps the Redis databases for this project
-     *
-     * @return void
-     */
-    protected function dumpRedis(): void
-    {
-
-    }
-
+    protected function dumpRedis(): void {}
 
     /**
      * Copy all databases
      *
      * @return void
      */
-    protected function copyDatabases(): void
-    {
-
-    }
-
+    protected function copyDatabases(): void {}
 
     /**
      * Imports all the databases for this project
@@ -240,16 +190,19 @@ class Host
         $this->lockSystem();
     }
 
+    /**
+     * Lock all databases in readonly for this projects so that we can dump them
+     *
+     * @return void
+     */
+    protected function lockSystem(): void {}
 
     /**
      * Imports the SQL databases for this project
      *
      * @return void
      */
-    protected function importSql(): void
-    {
-
-    }
+    protected function importSql(): void {}
 
 
     /**
@@ -257,10 +210,7 @@ class Host
      *
      * @return void
      */
-    protected function importMongo(): void
-    {
-
-    }
+    protected function importMongo(): void {}
 
 
     /**
@@ -268,8 +218,5 @@ class Host
      *
      * @return void
      */
-    protected function importRedis(): void
-    {
-
-    }
+    protected function importRedis(): void {}
 }

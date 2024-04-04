@@ -14,10 +14,10 @@ use Phoundation\Web\Html\Components\ResourceElement;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface InputSelectInterface extends ResourceElementInterface
 {
@@ -25,6 +25,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets if the select element allows multiple options to be selected
      *
      * @param bool $multiple
+     *
      * @return static
      */
     public function setMultiple(bool $multiple): static;
@@ -47,6 +48,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets the auto complete setting
      *
      * @param bool $auto_complete
+     *
      * @return $this
      */
     public function setAutoComplete(bool $auto_complete): static;
@@ -55,6 +57,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets if there is only one option, it should automatically be selected
      *
      * @param bool $auto_select
+     *
      * @return static
      */
     public function setAutoSelect(bool $auto_select): static;
@@ -93,7 +96,8 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets multiple selected options
      *
      * @param array|string|int|null $selected
-     * @param bool $value
+     * @param bool                  $value
+     *
      * @return static
      */
     public function setSelected(array|string|int|null $selected = null, bool $value = false): static;
@@ -102,7 +106,8 @@ interface InputSelectInterface extends ResourceElementInterface
      * Adds a single or multiple selected options
      *
      * @param array|string|int|null $selected
-     * @param bool $value
+     * @param bool                  $value
+     *
      * @return static
      */
     public function addSelected(array|string|int|null $selected, bool $value = false): static;
@@ -125,6 +130,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Adds all multiple class element attributes for option elements
      *
      * @param array|string|null $option_classes
+     *
      * @return static
      */
     public function setOptionClasses(array|string|null $option_classes): static;
@@ -133,6 +139,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Adds multiple class element attributes for option elements
      *
      * @param array|string|null $option_classes
+     *
      * @return static
      */
     public function addOptionClasses(array|string|null $option_classes): static;
@@ -141,6 +148,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Adds an class element attribute for option elements
      *
      * @param string $option_class
+     *
      * @return static
      */
     public function addOptionClass(string $option_class): static;
@@ -185,6 +193,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets if the select element has a search
      *
      * @param bool $search
+     *
      * @return static
      */
     public function setSearch(bool $search): static;
@@ -200,6 +209,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets if the select element has a clear_button
      *
      * @param bool $clear_button
+     *
      * @return static
      */
     public function setClearButton(bool $clear_button): static;
@@ -215,6 +225,7 @@ interface InputSelectInterface extends ResourceElementInterface
      * Sets if the select element has custom_content
      *
      * @param string|null $custom_content
+     *
      * @return static
      */
     public function setCustomContent(?string $custom_content): static;

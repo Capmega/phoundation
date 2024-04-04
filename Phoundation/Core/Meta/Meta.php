@@ -30,27 +30,49 @@ use Throwable;
  *
  * This class keeps track of metadata for database entries throughout phoundation projects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Core
+ * @package   \Phoundation\Core
  */
 class Meta implements MetaInterface
 {
-    /**
-     * The database entry for this meta id
-     *
-     * @var int|null
-     */
-    protected ?int $id = null;
-
     /**
      * If true will store and process metadata. If false, it won't
      *
      * @var bool $enabled
      */
     protected static bool $enabled = true;
-
+    /**
+     * If true will buffer all meta updates until the system shuts down
+     *
+     * @var bool $buffer
+     */
+    protected static bool $buffer;
+    /**
+     * Maximum buffer size until a flush is forced
+     *
+     * @var int $max_buffer
+     */
+    protected static int $max_buffer = 50;
+    /**
+     * In case buffer mode is enabled, all meta updates will be stored here until flushing
+     *
+     * @var array $updates
+     */
+    protected static array $updates = [];
+    /**
+     * In case buffer mode is enabled, this is the buffer pointer
+     *
+     * @var int $pointer
+     */
+    protected static int $pointer = 1;
+    /**
+     * The database entry for this meta id
+     *
+     * @var int|null
+     */
+    protected ?int $id = null;
     /**
      * The history of this meta entry
      *
@@ -59,39 +81,10 @@ class Meta implements MetaInterface
     protected array $history = [];
 
     /**
-     * If true will buffer all meta updates until the system shuts down
-     *
-     * @var bool $buffer
-     */
-    protected static bool $buffer;
-
-    /**
-     * Maximum buffer size until a flush is forced
-     *
-     * @var int $max_buffer
-     */
-    protected static int $max_buffer = 50;
-
-        /**
-     * In case buffer mode is enabled, all meta updates will be stored here until flushing
-     *
-     * @var array $updates
-     */
-    protected static array $updates = [];
-
-    /**
-     * In case buffer mode is enabled, this is the buffer pointer
-     *
-     * @var int $pointer
-     */
-    protected static int $pointer = 1;
-
-
-    /**
      * Meta constructor
      *
      * @param int|null $id
-     * @param bool $load
+     * @param bool     $load
      */
     public function __construct(?int $id = null, bool $load = true)
     {
@@ -141,30 +134,23 @@ class Meta implements MetaInterface
         }
     }
 
-
     /**
-     * Returns the Meta id
+     * Load data for the specified meta id
      *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return (string) $this->id;
-    }
-
-
-    /**
-     * Returns a new Meta object
+     * @param int $id
      *
-     * @param bool $load
-     * @return static
-     * @throws Exception
+     * @return void
      */
-    public static function new(bool $load = true): static
+    protected function load(int $id): void
     {
-        return new static(null, $load);
-    }
+        $this->id = sql()->getInteger('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
 
+        if (!$this->id) {
+            throw new DataEntryNotExistsException(tr('The specified meta id ":id" does not exist', [
+                ':id' => $id,
+            ]));
+        }
+    }
 
     /**
      * Returns if meta system is enabled or not
@@ -176,7 +162,6 @@ class Meta implements MetaInterface
         return static::$enabled;
     }
 
-
     /**
      * Enable meta data processing
      *
@@ -186,7 +171,6 @@ class Meta implements MetaInterface
     {
         static::$enabled = true;
     }
-
 
     /**
      * Disable meta data processing
@@ -198,12 +182,12 @@ class Meta implements MetaInterface
         static::$enabled = false;
     }
 
-
     /**
      * Returns a metadata object for the specified id
      *
      * @param int|null $id
-     * @param bool $load
+     * @param bool     $load
+     *
      * @return static
      */
     public static function get(?int $id = null, bool $load = true): static
@@ -211,54 +195,12 @@ class Meta implements MetaInterface
         return new static($id, $load);
     }
 
-
-    /**
-     * Returns the id for this metadata object
-     *
-     * @return int
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-
-    /**
-     * Erases all meta-history for the specified meta ids
-     *
-     * @param array|string|int $ids
-     * @return void
-     */
-    public static function eraseEntries(array|string|int $ids): void
-    {
-        // Erase the specified meta-entries, the history will cascade
-        if ($ids) {
-            $ids = SqlQueries::in(Arrays::force($ids));
-            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . SqlQueries::inColumns($ids) . ')', $ids);
-        }
-    }
-
-
-    /**
-     * Erases all meta history for this meta id
-     *
-     * @return void
-     */
-    public function erase(): void
-    {
-        if (empty($this->id)) {
-            throw new OutOfBoundsException(tr('Cannot erase this meta object, it does not yet exist in the database'));
-        }
-
-        static::eraseEntries($this->id);
-    }
-
-
     /**
      * Erases all meta history for entries from before the $before date
      *
      * @param DateTime|string $before
-     * @param int $limit
+     * @param int             $limit
+     *
      * @return void
      */
     public static function purge(DateTime|string $before, int $limit = 10_000): void
@@ -272,16 +214,29 @@ class Meta implements MetaInterface
         ]);
     }
 
+    /**
+     * Returns a new Meta object
+     *
+     * @param bool $load
+     *
+     * @return static
+     * @throws Exception
+     */
+    public static function new(bool $load = true): static
+    {
+        return new static(null, $load);
+    }
 
     /**
      * Erases all meta entries that have no database entries using them.
      *
      * @param int $limit
+     *
      * @return int
      */
     public static function deorphan(int $limit = 1_000_000): int
     {
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
         Validate::new($limit)->isMoreThan(0);
 
         $ids = [];
@@ -293,12 +248,12 @@ throw new UnderConstructionException();
         return count($ids);
     }
 
-
     /**
      * Creates a new meta entry and returns the database id for it
      *
      * @param string|null $comments
      * @param string|null $data
+     *
      * @return Meta
      */
     public static function init(?string $comments = null, ?string $data = null): Meta
@@ -314,13 +269,13 @@ throw new UnderConstructionException();
         return new Meta(0);
     }
 
-
     /**
      * Creates a new meta entry and returns the database id for it
      *
-     * @param string $action
+     * @param string      $action
      * @param string|null $comments
      * @param string|null $data
+     *
      * @return static
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static
@@ -330,10 +285,10 @@ throw new UnderConstructionException();
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
                     ':created_by_' . static::$pointer => Session::getUser()->getId(),
-                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source_' . static::$pointer     => (string)(PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
-                    ':data_' . static::$pointer       => $data
+                    ':data_' . static::$pointer       => $data,
                 ];
             } else {
                 // Insert the action in the meta_history table
@@ -341,10 +296,10 @@ throw new UnderConstructionException();
                                     VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
                     ':created_by' => Session::getUser()->getId(),
-                    ':source'     => (string) (PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source'     => (string)(PLATFORM_WEB ? UrlBuilder::getCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,
-                    ':data'       => $data
+                    ':data'       => $data,
                 ]);
             }
         }
@@ -357,19 +312,15 @@ throw new UnderConstructionException();
         return $this;
     }
 
-
     /**
-     * Creates and returns an HTML table for the data in this list
+     * Returns the id for this metadata object
      *
-     * @param array|string|null $columns
-     * @return HtmlTableInterface
+     * @return int
      */
-    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    public function getId(): int
     {
-        // Create and return the table
-        return HtmlTable::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
+        return $this->id;
     }
-
 
     /**
      * Flush the entire meta buffer to the database.
@@ -381,15 +332,15 @@ throw new UnderConstructionException();
         try {
             if (static::$updates) {
                 Log::action(tr('Flushing ":count" meta entries to database', [
-                    ':count' => count(static::$updates)
-                ]), 4);
+                    ':count' => count(static::$updates),
+                ]),         4);
 
                 $values  = ' (:meta_id_:ID , :created_by_:ID , :action_:ID , :source_:ID , :comments_:ID , :data_:ID)';
                 $execute = [];
 
                 // Build query and execute arrays
                 foreach (static::$updates as $pointer => $update) {
-                    $query[] = str_replace(':ID', (string) $pointer, $values);
+                    $query[] = str_replace(':ID', (string)$pointer, $values);
                     $execute = array_merge($execute, $update);
                 }
 
@@ -405,28 +356,63 @@ throw new UnderConstructionException();
 
         } catch (Throwable $e) {
             Log::error(tr('Failed to flush ":count" meta entries with following exception', [
-                ':count' => count(static::$updates)
+                ':count' => count(static::$updates),
             ]));
 
             Log::error($e);
         }
     }
 
+    /**
+     * Returns the Meta id
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return (string)$this->id;
+    }
 
     /**
-     * Load data for the specified meta id
+     * Erases all meta history for this meta id
      *
-     * @param int $id
      * @return void
      */
-    protected function load(int $id): void
+    public function erase(): void
     {
-        $this->id = sql()->getInteger('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
-
-        if (!$this->id) {
-            throw new DataEntryNotExistsException(tr('The specified meta id ":id" does not exist', [
-                ':id' => $id
-            ]));
+        if (empty($this->id)) {
+            throw new OutOfBoundsException(tr('Cannot erase this meta object, it does not yet exist in the database'));
         }
+
+        static::eraseEntries($this->id);
+    }
+
+    /**
+     * Erases all meta-history for the specified meta ids
+     *
+     * @param array|string|int $ids
+     *
+     * @return void
+     */
+    public static function eraseEntries(array|string|int $ids): void
+    {
+        // Erase the specified meta-entries, the history will cascade
+        if ($ids) {
+            $ids = SqlQueries::in(Arrays::force($ids));
+            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . SqlQueries::inColumns($ids) . ')', $ids);
+        }
+    }
+
+    /**
+     * Creates and returns an HTML table for the data in this list
+     *
+     * @param array|string|null $columns
+     *
+     * @return HtmlTableInterface
+     */
+    public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
+    {
+        // Create and return the table
+        return HtmlTable::new()->setSourceQuery('SELECT * FROM `meta_history` WHERE `meta_id` = :meta_id', [':meta_id' => $this->id]);
     }
 }

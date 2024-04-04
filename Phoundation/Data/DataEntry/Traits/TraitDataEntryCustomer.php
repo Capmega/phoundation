@@ -12,10 +12,10 @@ use Phoundation\Business\Customers\Customer;
  *
  * This trait contains methods for DataEntry objects that require a customer
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryCustomer
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryCustomer
      * Sets the customers_id for this object
      *
      * @param int|null $customers_id
+     *
      * @return static
      */
     public function setCustomersId(?int $customers_id): static
@@ -74,6 +75,7 @@ trait TraitDataEntryCustomer
      * Sets the customers_name for this user
      *
      * @param string|null $customer_name
+     *
      * @return static
      */
     public function setCustomersName(?string $customer_name): static

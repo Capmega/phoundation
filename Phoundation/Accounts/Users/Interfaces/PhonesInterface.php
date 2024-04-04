@@ -14,11 +14,11 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 interface PhonesInterface extends DataListInterface
 {
@@ -26,6 +26,7 @@ interface PhonesInterface extends DataListInterface
      * Sets the parent
      *
      * @param DataEntryInterface $parent
+     *
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static;
@@ -34,6 +35,7 @@ interface PhonesInterface extends DataListInterface
      * Returns Phones list object with phones for the specified user.
      *
      * @param bool $clear
+     *
      * @return static
      * @throws SqlMultipleResultsException , NotExistsException
      */

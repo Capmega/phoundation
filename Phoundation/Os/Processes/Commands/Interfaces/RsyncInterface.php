@@ -13,10 +13,10 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 interface RsyncInterface
 {
@@ -31,6 +31,7 @@ interface RsyncInterface
      * Sets if destination files should be deleted if not existing on source
      *
      * @param bool $delete
+     *
      * @return static
      */
     public function setDelete(bool $delete): static;
@@ -46,6 +47,7 @@ interface RsyncInterface
      * Sets if file progress should be displayed or not
      *
      * @param bool $progress
+     *
      * @return static
      */
     public function setProgress(bool $progress): static;
@@ -68,6 +70,7 @@ interface RsyncInterface
      * Adds the specified paths to the list that will be excluded
      *
      * @param array|string $paths
+     *
      * @return static
      */
     public function addExclude(array|string $paths): static;
@@ -76,6 +79,7 @@ interface RsyncInterface
      * Sets the specified paths to the list that will be excluded
      *
      * @param array|string $paths
+     *
      * @return static
      */
     public function setExclude(array|string $paths): static;
@@ -91,6 +95,7 @@ interface RsyncInterface
      * Sets if archive mode should be used
      *
      * @param bool $archive
+     *
      * @return static
      */
     public function setArchive(bool $archive): static;
@@ -106,6 +111,7 @@ interface RsyncInterface
      * Sets if output should be more verbose
      *
      * @param bool $verbose
+     *
      * @return static
      */
     public function setVerbose(bool $verbose): static;
@@ -121,6 +127,7 @@ interface RsyncInterface
      * Sets if non-error messages should be  suppressed
      *
      * @param bool $quiet
+     *
      * @return static
      */
     public function setQuiet(bool $quiet): static;
@@ -136,6 +143,7 @@ interface RsyncInterface
      * Returns if rsync should be executed using sudo on the remote host
      *
      * @param string|bool|null $sudo
+     *
      * @return static
      */
     public function setRemoteSudo(string|bool|null $sudo): static;
@@ -151,6 +159,7 @@ interface RsyncInterface
      * Sets the remote rsync command
      *
      * @param string|null $rsync_path
+     *
      * @return static
      */
     public function setRsyncPath(?string $rsync_path): static;
@@ -166,6 +175,7 @@ interface RsyncInterface
      * Sets if rsync will ignore symlinks that point outside the tree
      *
      * @param bool $safe_links
+     *
      * @return static
      */
     public function setSafeLink(bool $safe_links): static;
@@ -181,6 +191,7 @@ interface RsyncInterface
      * Sets if compression should be used during the transfer
      *
      * @param bool $compress
+     *
      * @return static
      */
     public function setCompress(bool $compress): static;
@@ -189,6 +200,7 @@ interface RsyncInterface
      * Returns the full command line
      *
      * @param bool $background
+     *
      * @return string
      */
     public function getFullCommandLine(bool $background = false): string;
@@ -197,6 +209,7 @@ interface RsyncInterface
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethodInterface $method
+     *
      * @return string|int|bool|array|null
      */
     public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null;

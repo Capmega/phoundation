@@ -16,14 +16,14 @@ use Phoundation\Utils\Config;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Tmp
+ * @package   Phoundation\Tmp
  */
 class Tmp
 {
-   /**
+    /**
      * Clear all temp files and directories
      *
      * @return void
@@ -33,14 +33,14 @@ class Tmp
         Log::action(tr('Clearing all temporary files'), 3);
 
         // Delete all private temporary files
-        Directory::new(DIRECTORY_TMP   , Restrictions::writable(DIRECTORY_TMP, tr('Clear tmp directories')))
-            ->delete()
-            ->ensure();
+        Directory::new(DIRECTORY_TMP, Restrictions::writable(DIRECTORY_TMP, tr('Clear tmp directories')))
+                 ->delete()
+                 ->ensure();
 
         // Delete all public temporary files
         Directory::new(DIRECTORY_PUBTMP, Restrictions::writable(DIRECTORY_PUBTMP, tr('Clear tmp directories')))
-            ->delete()
-            ->ensure();
+                 ->delete()
+                 ->ensure();
 
         Log::success(tr('Cleared all temporary files'));
     }
@@ -50,6 +50,7 @@ class Tmp
      * Clean up old temp files
      *
      * @param int|null $age_in_minutes
+     *
      * @return void
      */
     public static function clean(?int $age_in_minutes): void
@@ -59,7 +60,7 @@ class Tmp
         }
 
         Log::action(tr('Cleaning temporary files older than ":age" minutes', [
-            ':age' => $age_in_minutes
+            ':age' => $age_in_minutes,
         ]));
 
         Find::new()

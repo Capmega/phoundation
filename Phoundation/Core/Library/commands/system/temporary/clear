@@ -15,10 +15,10 @@ use Phoundation\Utils\Strings;
  *
  * This script can be used to test the authentication for the specified user
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 CliDocumentation::setUsage('./pho system temporary clear PATH [OPTIONS]
@@ -36,9 +36,9 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('path')->isOptional()->isFile()
-    ->select('-p,--public')->isOptional()->isBoolean()
-    ->validate();
+                     ->select('path')->isOptional()->isFile()
+                     ->select('-p,--public')->isOptional()->isBoolean()
+                     ->validate();
 
 
 // Ensure that the path starts from the correct temporary directory

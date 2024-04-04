@@ -10,11 +10,11 @@ namespace Phoundation\Business\Library;
  *
  * This is the Init class for the Business library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Business
+ * @package   Phoundation\Business
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -43,6 +43,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     /**
      * The list of version updates available for this library
      *f
+     *
      * @return void
      */
     public function updates(): void
@@ -58,7 +59,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for customers
             sql()->schema()->table('business_customers')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -108,7 +109,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for providers
             sql()->schema()->table('business_providers')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -150,7 +151,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for companies
             sql()->schema()->table('business_companies')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -184,7 +185,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for branches
             sql()->schema()->table('business_branches')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -212,7 +213,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for departments
             sql()->schema()->table('business_departments')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -243,7 +244,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for employees
             sql()->schema()->table('business_employees')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -281,7 +282,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for invoices
             sql()->schema()->table('business_invoices')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -318,7 +319,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
             // Add table for invoices
             sql()->schema()->table('business_invoices_items')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,

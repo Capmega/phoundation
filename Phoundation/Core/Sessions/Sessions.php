@@ -17,20 +17,41 @@ use Phoundation\Utils\Config;
  *
  * Manage session data storage.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Sessions
 {
     /**
      * Sessions class constructor
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
+    /**
+     * Clean up old sessions
+     *
+     * @param int|null $age_in_minutes
+     *
+     * @return void
+     */
+    public static function clean(?int $age_in_minutes): void
+    {
+        if (!$age_in_minutes) {
+            $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
+        }
+
+        Log::action(tr('Cleaning session files older than ":age" minutes', [
+            ':age' => $age_in_minutes,
+        ]));
+
+        Find::new()
+            ->setPath(DIRECTORY_DATA . 'tmp/')
+            ->setOlderThan($age_in_minutes)
+            ->setExecute('rf {} -rf')
+            ->executeNoReturn();
+    }
 
     /**
      * Returns a new sessions object
@@ -42,23 +63,23 @@ class Sessions
         return new Sessions();
     }
 
-
     /**
      * Close the specified session
      *
      * @param SessionInterface|int $session
+     *
      * @return void
      */
     public function close(SessionInterface|int $session): void
     {
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
     }
-
 
     /**
      * Drop all sessions for the specified user, this user will be signed out on every device
      *
      * @param UserInterface|int $user
+     *
      * @return void
      */
     public function drop(UserInterface|int $user): void
@@ -66,7 +87,6 @@ throw new UnderConstructionException();
         //throw new UnderConstructionException();
 
     }
-
 
     /**
      * Drop all sessions, everyone will be signed out
@@ -76,29 +96,5 @@ throw new UnderConstructionException();
     public function dropAll(): void
     {
         throw new UnderConstructionException();
-    }
-
-
-    /**
-     * Clean up old sessions
-     *
-     * @param int|null $age_in_minutes
-     * @return void
-     */
-    public static function clean(?int $age_in_minutes): void
-    {
-        if (!$age_in_minutes) {
-            $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
-        }
-
-        Log::action(tr('Cleaning session files older than ":age" minutes', [
-            ':age' => $age_in_minutes
-        ]));
-
-        Find::new()
-            ->setPath(DIRECTORY_DATA . 'tmp/')
-            ->setOlderThan($age_in_minutes)
-            ->setExecute('rf {} -rf')
-            ->executeNoReturn();
     }
 }

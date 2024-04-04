@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Strings;
 
 
@@ -13,10 +12,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataStaticExecuted
 {
@@ -57,6 +56,7 @@ trait TraitDataStaticExecuted
      * Returns the executed path
      *
      * @param bool $from_root
+     *
      * @return string
      */
     public static function getExecutedPath(bool $from_root = false): string
@@ -84,6 +84,7 @@ trait TraitDataStaticExecuted
      * Returns the executed path
      *
      * @param bool $from_root
+     *
      * @return string
      */
     public static function getCurrentExecutedPath(bool $from_root = false): string
@@ -107,6 +108,7 @@ trait TraitDataStaticExecuted
      * Sets the executed path
      *
      * @param string $executed
+     *
      * @return void
      */
     protected static function addExecutedPath(string $executed): void

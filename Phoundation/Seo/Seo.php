@@ -14,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Seo
 {
@@ -29,14 +29,15 @@ class Seo
      * exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still
      * found, this number will be incremented each loop, until the string is no longer found
      *
-     * @param array|string $source
-     * @param string $table
+     * @param array|string   $source
+     * @param string         $table
      * @param array|int|null $ownid
-     * @param string $column
-     * @param string $replace
-     * @param null $first_suffix
-     * @param string|null $connector_name   If specified, use the specified database connector instead of the default
-     *                                      database connector
+     * @param string         $column
+     * @param string         $replace
+     * @param null           $first_suffix
+     * @param string|null    $connector_name If specified, use the specified database connector instead of the default
+     *                                       database connector
+     *
      * @return string|null                  The specified $source string seo optimized, which does not yet exist in the
      *                                      specified $table
      * @see Seo::string()
@@ -101,7 +102,7 @@ class Seo
                 if (!is_numeric($ownid[$key])) {
                     if (!is_scalar($ownid[$key])) {
                         throw new OutOfBoundsException(tr('Invalid $ownid array value datatype specified, should be scalar and numeric, but is ":type"', [
-                            ':type' => gettype($ownid[$key])
+                            ':type' => gettype($ownid[$key]),
                         ]));
                     }
 
@@ -112,7 +113,7 @@ class Seo
 
             } else {
                 throw new OutOfBoundsException(tr('Invalid $ownid datatype specified, should be either scalar, or array, but is ":type"', [
-                    ':type' => gettype($ownid)
+                    ':type' => gettype($ownid),
                 ]));
             }
 
@@ -127,7 +128,7 @@ class Seo
                 if ($id) {
                     if ($first_suffix) {
                         $source[key($first)] = reset($first) . trim(static::string($first_suffix, $replace));
-                        $first_suffix = null;
+                        $first_suffix        = null;
                         $id--;
 
                     } else {
@@ -147,7 +148,7 @@ class Seo
 
                 } else {
                     if ($first_suffix) {
-                        $source = $source . trim(static::string($first_suffix, $replace));
+                        $source       = $source . trim(static::string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
 
@@ -181,8 +182,16 @@ class Seo
             $source2 = Strings::convertAccents($source);
 
             //remove special chars
-            $from = array("'", '"', '\\');
-            $to = array('', '', '');
+            $from    = [
+                "'",
+                '"',
+                '\\',
+            ];
+            $to      = [
+                '',
+                '',
+                '',
+            ];
             $source3 = str_replace($from, $to, $source2);
 
             //remove double spaces
@@ -203,8 +212,16 @@ class Seo
             $source2 = Strings::convertAccents($source);
 
             //remove special chars
-            $from = array("'", '"', '\\');
-            $to = array('', '', '');
+            $from    = [
+                "'",
+                '"',
+                '\\',
+            ];
+            $to      = [
+                '',
+                '',
+                '',
+            ];
             $source3 = str_replace($from, $to, $source2);
 
             //remove double spaces

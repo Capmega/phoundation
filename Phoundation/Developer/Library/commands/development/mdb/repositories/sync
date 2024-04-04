@@ -19,10 +19,10 @@ use Phoundation\Utils\Strings;
  *
  * This script can sync MDB repositories
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Development
+ * @package   Phoundation\Development
  */
 CliDocumentation::setHelp('The development/mdb/repositories/sync script synchronizes all MDB repositories
 
@@ -50,9 +50,9 @@ $target_restrictions = Restrictions::new('~', true);
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->isFile('data/sources', $source_restrictions)
-    ->select('-t,--target')->isOptional('~/projects/mdb')->isDirectory('~/projects/mdb', $target_restrictions, false)
-    ->validate();
+                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->isFile('data/sources', $source_restrictions)
+                     ->select('-t,--target')->isOptional('~/projects/mdb')->isDirectory('~/projects/mdb', $target_restrictions, false)
+                     ->validate();
 
 
 // Get repositories and target path
@@ -61,7 +61,7 @@ $target       = Directory::new($argv['target'], $target_restrictions);
 $repositories = $repositories->getContentsAsIterator();
 
 Log::information(tr('About to sync ":count" repositories, this might take a while...', [
-    ':count' => $repositories->getCount()
+    ':count' => $repositories->getCount(),
 ]));
 
 
@@ -73,14 +73,14 @@ foreach ($repositories as $repository) {
 
     if ($path->exists()) {
         Log::action(tr('Fetching all for MDB repository ":repository"', [
-            ':repository' => $repository
+            ':repository' => $repository,
         ]));
 
         Git::new($path)->fetchAll();
 
     } else {
         Log::action(tr('Cloning MDB repository ":repository"', [
-            ':repository' => $repository
+            ':repository' => $repository,
         ]));
 
         // Repo does not yet exist, clone it
@@ -89,5 +89,5 @@ foreach ($repositories as $repository) {
 }
 
 Log::success(tr('Finished MDB repository sync, MDB repositories size is now ":size"', [
-    ':size' => Numbers::getHumanReadableBytes(Directory::new($argv['target'])->getSize())
+    ':size' => Numbers::getHumanReadableBytes(Directory::new($argv['target'])->getSize()),
 ]));

@@ -22,41 +22,37 @@ use Phoundation\Utils\Strings;
  *
  * This class validates data from untrusted $argv
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
-    /**
-     * Tracks if for selecting the current value, we have to take the current argument or the next
-     *
-     * @var bool $next
-     */
-    protected bool $next = false;
-
-    /**
-     * The fields that were originally selected as they might be expected on the CLI, like "-u,users"
-     *
-     * @var string|null $cli_fields
-     */
-    protected ?string $cli_fields = null;
-
     /**
      * Internal $argv array until validation has been completed
      *
      * @var array $argv
      */
     protected static array $argv = [];
-
     /**
      * Internal backup array of $argv
      *
      * @var array $backup
      */
     protected static array $backup = [];
-
+    /**
+     * Tracks if for selecting the current value, we have to take the current argument or the next
+     *
+     * @var bool $next
+     */
+    protected bool $next = false;
+    /**
+     * The fields that were originally selected as they might be expected on the CLI, like "-u,users"
+     *
+     * @var string|null $cli_fields
+     */
+    protected ?string $cli_fields = null;
 
     /**
      * Validator constructor.
@@ -76,23 +72,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->construct($parent);
     }
 
-
-    /**
-     * Returns a new Command Line Arguments data Validator object
-     *
-     * @param ValidatorInterface|null $parent
-     * @return static
-     */
-    public static function new(?ValidatorInterface $parent = null): static
-    {
-        return new static($parent);
-    }
-
-
     /**
      * Move all $argv data to internal array to ensure developers cannot access them until validation has been completed
      *
      * @param array $argv
+     *
      * @return void
      */
     public static function hideData(array &$argv): void
@@ -120,11 +104,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $argv = [];
     }
 
-
     /**
      * Expand "single dash + multiple letters" entries to individual "single dash + single letter" entries
      *
      * @param array $argv
+     *
      * @return array
      */
     protected static function expandSingleDashMultipleLetters(array $argv): array
@@ -136,7 +120,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 // Expand
                 $length = strlen($value);
 
-                for($i = 1; $i < $length; $i++) {
+                for ($i = 1; $i < $length; $i++) {
                     $return[] = '-' . $value[$i];
                 }
 
@@ -148,7 +132,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $return;
     }
 
-
     /**
      * Recovers an untouched backup of the command line arguments to the internal $argv array
      *
@@ -158,7 +141,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         static::$argv = static::$backup;
     }
-
 
     /**
      * Returns an untouched backup of the command line arguments to the internal $argv array
@@ -170,65 +152,154 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return static::$backup;
     }
 
+    /**
+     * Returns the number of command line arguments still available.
+     *
+     * @return int
+     */
+    public static function count(): int
+    {
+        return count(static::$argv);
+    }
 
     /**
-     * Check if selecting is allowed
+     * Returns the number of command line command arguments still available.
+     *
+     * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
+     *       separated by a -. Modifier arguments may have or not have values accompanying them.
+     * @note Methods are arguments NOT starting with - or --
+     * @note As soon as non-command arguments start we can no longer discern if a value like "system" is actually a
+     *       command or a value linked to an argument. Because of this, as soon as modifier arguments start, commands
+     *       may no longer be specified. An exception to this are system modifier arguments because system modifier
+     *       arguments are filtered out BEFORE commands are processed.
+     *
+     * @return int
+     */
+    public static function getCommandCount(): int
+    {
+        $count = 0;
+
+        foreach (static::$argv as $argument) {
+            if (!trim($argument)) {
+                // Ignore empty items
+                continue;
+            }
+
+            if (str_starts_with($argument, '-')) {
+                break;
+            }
+
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Returns an array of command line commands
+     *
+     * @return array
+     */
+    public static function getCommands(): array
+    {
+        $commands = [];
+
+        // Scan all arguments until named parameters start
+        foreach (static::$argv as $argument) {
+            if (!trim($argument)) {
+                // Ignore empty items
+                continue;
+            }
+
+            if (str_starts_with($argument, '-')) {
+                break;
+            }
+
+            $commands[] = $argument;
+        }
+
+        return $commands;
+    }
+
+    /**
+     * Returns an array of all UNVALIDATED command line arguments that are left
+     *
+     * @return array
+     */
+    public static function getArguments(): array
+    {
+        return array_values(static::$argv);
+    }
+
+    /**
+     * Remove the specified method from the arguments list
+     *
+     * @param string $method
      *
      * @return void
      */
-    protected function checkSelectAllowed(bool $selecting_all): void
+    public static function removeCommand(string $method): void
     {
-        static $select_allowed = true;
+        $key = array_search($method, static::$argv);
 
-        if (!$select_allowed) {
-            throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll()'));
-        }
-
-        // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
-        $select_allowed = !$selecting_all;
-    }
-
-
-    /**
-     * Initializes a select() request
-     *
-     * @param string|int $fields
-     * @return string
-     */
-    protected function initSelect(string|int $fields, string|bool $next = false): string
-    {
-        if ($this->source === null) {
-            throw new OutOfBoundsException(tr('Cannot select fields ":fields", no source array specified', [
-                ':fields' => $fields
+        if ($key === false) {
+            throw new ValidatorException(tr('Cannot remove method ":method", it does not exist', [
+                ':method' => $method,
             ]));
         }
 
-        if (!$fields) {
-            throw new OutOfBoundsException(tr('No field specified'));
-        }
-
-        // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
-        $fields = Strings::until($fields, ' ');
-
-        // Unset various values first to ensure the byref link is broken
-        unset($this->process_value);
-        unset($this->process_values);
-        unset($this->selected_value);
-
-        $this->process_value_failed = false;
-        $this->selected_is_optional = false;
-        $this->selected_is_default  = false;
-        $this->cli_fields           = $fields;
-        $this->next                 = $next;
-
-        return $fields;
+        unset(static::$argv[$key]);
     }
 
+    /**
+     * Find the specified method, basically any argument without - or --
+     *
+     * The result will be removed from $argv, but will remain stored in a static
+     * variable which will return the same result every subsequent function call
+     *
+     * @param int|null    $index   The method number that is requested. 0 (default) is the first method, 1 the second,
+     *                             etc.
+     * @param string|null $default The value to be returned if no method was found
+     *
+     * @return string              The results of the executed SSH commands in an array, each entry containing one line
+     *                             of the output
+     *
+     * @see cli_arguments()
+     * @see CliCommand::argument()
+     */
+    protected static function method(?int $index = null, ?string $default = null): string
+    {
+        global $argv;
+        static $method = [];
+
+        if (isset($method[$index])) {
+            $reappeared = array_search($method[$index], $argv);
+
+            if (is_numeric($reappeared)) {
+                // The argument has been re-added to $argv. This is very likely happened by safe_exec() that included
+                // the specified script into itself, and had to reset the arguments array
+                unset($argv[$reappeared]);
+            }
+
+            return $method[$index];
+        }
+
+        foreach ($argv as $key => $value) {
+            if (!str_starts_with($value, '-')) {
+                unset($argv[$key]);
+                $method[$index] = $value;
+                return $value;
+            }
+        }
+
+        return $default;
+    }
 
     /**
      * Selects all arguments
      *
      * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     *
      * @return static
      */
     public function selectAll(string|int $fields): static
@@ -269,12 +340,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (!$clean_field) {
             throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
-                ':field' => $field
+                ':field' => $field,
             ]));
         }
 
         // Get the value from the argument list
-        $value = static::$argv;
+        $value        = static::$argv;
         static::$argv = [];
 
         // Add the cleaned field to the source array
@@ -282,7 +353,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
-                ':key' => $clean_field
+                ':key' => $clean_field,
             ]));
         }
 
@@ -296,12 +367,65 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $this;
     }
 
+    /**
+     * Check if selecting is allowed
+     *
+     * @return void
+     */
+    protected function checkSelectAllowed(bool $selecting_all): void
+    {
+        static $select_allowed = true;
+
+        if (!$select_allowed) {
+            throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll()'));
+        }
+
+        // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
+        $select_allowed = !$selecting_all;
+    }
+
+    /**
+     * Initializes a select() request
+     *
+     * @param string|int $fields
+     *
+     * @return string
+     */
+    protected function initSelect(string|int $fields, string|bool $next = false): string
+    {
+        if ($this->source === null) {
+            throw new OutOfBoundsException(tr('Cannot select fields ":fields", no source array specified', [
+                ':fields' => $fields,
+            ]));
+        }
+
+        if (!$fields) {
+            throw new OutOfBoundsException(tr('No field specified'));
+        }
+
+        // Make sure the field value doesn't have any extras like -e,--email EMAIL <<< The EMAIL part is extra
+        $fields = Strings::until($fields, ' ');
+
+        // Unset various values first to ensure the byref link is broken
+        unset($this->process_value);
+        unset($this->process_values);
+        unset($this->selected_value);
+
+        $this->process_value_failed = false;
+        $this->selected_is_optional = false;
+        $this->selected_is_default  = false;
+        $this->cli_fields           = $fields;
+        $this->next                 = $next;
+
+        return $fields;
+    }
 
     /**
      * Selects the specified key within the command line arguments that we are validating
      *
-     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     * @param string|int  $fields The array key (or HTML form field) that needs to be validated / sanitized
      * @param string|bool $next
+     *
      * @return static
      */
     public function select(string|int $fields, string|bool $next = false): static
@@ -342,7 +466,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (!$clean_field) {
             throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
-                ':field' => $field
+                ':field' => $field,
             ]));
         }
 
@@ -357,16 +481,16 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (in_array($clean_field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
-                ':key' => $clean_field
+                ':key' => $clean_field,
             ]));
         }
 
-        if (!$field and str_starts_with((string) $value, '-')) {
+        if (!$field and str_starts_with((string)$value, '-')) {
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can't
             // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
             // the value back on the arguments list
             static::$argv[] = $value;
-            $value = null;
+            $value          = null;
         }
 
         // Add the cleaned field to the source array
@@ -382,331 +506,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return $this;
     }
 
-
-    /**
-     * Returns the $argv array
-     *
-     * @return array
-     */
-    public function getArgv(): array
-    {
-        global $argv;
-        return $argv;
-    }
-
-
-    /**
-     * Throws an exception if there are still arguments left in the argv source
-     *
-     * @param bool $apply
-     * @return static
-     */
-    protected function noArgumentsLeft(bool $apply = true): static
-    {
-        if (!$apply) {
-             return $this;
-        }
-
-        if (empty(static::$argv)) {
-            return $this;
-        }
-
-        throw CliInvalidArgumentsException::new(tr('Invalid command line arguments ":arguments" encountered', [
-            ':arguments' => Strings::force(static::$argv, ', ')
-        ]))->makeWarning();
-    }
-
-
-    /**
-     * Returns the number of command line arguments still available.
-     *
-     * @return int
-     */
-    public static function count(): int
-    {
-        return count(static::$argv);
-    }
-
-
-    /**
-     * Returns the number of command line command arguments still available.
-     *
-     * @note Modifier arguments start with - or --. - only allows a letter whereas -- allows one or multiple words
-     *       separated by a -. Modifier arguments may have or not have values accompanying them.
-     * @note Methods are arguments NOT starting with - or --
-     * @note As soon as non-command arguments start we can no longer discern if a value like "system" is actually a
-     *       command or a value linked to an argument. Because of this, as soon as modifier arguments start, commands
-     *       may no longer be specified. An exception to this are system modifier arguments because system modifier
-     *       arguments are filtered out BEFORE commands are processed.
-     *
-     * @return int
-     */
-    public static function getCommandCount(): int
-    {
-        $count = 0;
-
-        foreach (static::$argv as $argument) {
-            if (!trim($argument)) {
-                // Ignore empty items
-                continue;
-            }
-
-            if (str_starts_with($argument, '-')) {
-                break;
-            }
-
-            $count++;
-        }
-
-        return $count;
-    }
-
-
-    /**
-     * Returns an array of command line commands
-     *
-     * @return array
-     */
-    public static function getCommands(): array
-    {
-        $commands = [];
-
-        // Scan all arguments until named parameters start
-        foreach (static::$argv as $argument) {
-            if (!trim($argument)) {
-                // Ignore empty items
-                continue;
-            }
-
-            if (str_starts_with($argument, '-')) {
-                break;
-            }
-
-            $commands[] = $argument;
-        }
-
-        return $commands;
-    }
-
-
-    /**
-     * Returns an array of all UNVALIDATED command line arguments that are left
-     *
-     * @return array
-     */
-    public static function getArguments(): array
-    {
-        return array_values(static::$argv);
-    }
-
-
-    /**
-     * This method will make sure that either this field OR the other specified field will have a value
-     *
-     * @note: This or works slightly different form the ValidatorBasics::xor(). If the specified field data is not found
-     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
-     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
-     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
-     *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
-     *
-     * @param string $field
-     * @param bool $rename
-     * @return static
-     *
-     * @see Validator::isOptional()
-     * @see Validator::orColumn()
-     */
-    public function xor(string $field, bool $rename = false): static
-    {
-        if (!str_starts_with($field, (string) $this->field_prefix)) {
-            $field = $this->field_prefix . $field;
-        }
-
-        if ($this->selected_field === $field) {
-            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
-        }
-
-        if (isset_get($this->source[$this->selected_field])) {
-            // The currently selected field exists, the specified field cannot exist
-            if (isset_get($this->source[$field]) or static::argument($this->cli_fields, $this->next, true)) {
-                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
-                    ':field' => $field,
-                    ':selected_field' => $this->selected_field
-                ]));
-            }
-
-            if ($rename) {
-                // Rename this field to the specified field
-                $this->rename($field);
-            }
-        } else {
-            // The currently selected field does not exist, the specified field MUST exist
-            if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
-                $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
-                    ':field' => $field
-                ]));
-
-            } else {
-                // Yay, the alternate field exists, so this one can be made optional.
-                $this->isOptional();
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * This method will make sure that either this field OR the other specified field optionally will have a value
-     *
-     * @note: This or works slightly different form the ValidatorBasics::or(). If the specified field data is not found
-     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
-     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
-     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
-     *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
-     * @param string $field
-     * @return static
-     *
-     * @see Validator::isOptional()
-     * @see Validator::xorColumn()
-     */
-    public function or(string $field): static
-    {
-        if (!str_starts_with($field, (string) $this->field_prefix)) {
-            $field = $this->field_prefix . $field;
-        }
-
-        if ($this->selected_field === $field) {
-            throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
-        }
-
-        if (!isset_get($this->source[$this->selected_field])) {
-            if (!$this->selected_is_optional) {
-                // The currently selected field is required but does not exist, so the other must exist
-                if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
-                    $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
-                        ':field' => $field
-                    ]));
-
-                } else {
-                    // Yay, the alternate field exists, so this one can be made optional.
-                    $this->isOptional();
-                }
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Remove the specified method from the arguments list
-     *
-     * @param string $method
-     * @return void
-     */
-    public static function removeCommand(string $method): void
-    {
-        $key = array_search($method, static::$argv);
-
-        if ($key === false) {
-            throw new ValidatorException(tr('Cannot remove method ":method", it does not exist', [
-                ':method' => $method
-            ]));
-        }
-
-        unset(static::$argv[$key]);
-    }
-
-
-    /**
-     * Called at the end of defining all validation rules.
-     *
-     * This method will check the failures array and if any failures were registered, it will throw an exception
-     *
-     * @note For command line arguments, this will check if any unvalidated arguments were left and throw a validation
-     *       exception if there are
-     * @param bool $clean_source
-     * @return array
-     */
-    public function validate(bool $clean_source = true): array
-    {
-        if ($clean_source) {
-            $this->noArgumentsLeft();
-        }
-
-        return parent::validate();
-    }
-
-
-    /**
-     * Adds the STDIN stream to the ARGV source with the specified key
-     *
-     * @note If the key already exists in the internal argv source, then an exception will be thrown
-     * @param string $key
-     * @return $this
-     */
-    public function addStdInStreamAsKey(string $key): static
-    {
-        if (CliCommand::hasStdInStream()) {
-            if (in_array($key, static::$argv)) {
-                throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key already exists', [
-                    ':key' => $key
-                ]));
-            }
-
-            static::$argv[] = $key;
-            static::$argv[] = CliCommand::readStdInStream();
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Find the specified method, basically any argument without - or --
-     *
-     * The result will be removed from $argv, but will remain stored in a static
-     * variable which will return the same result every subsequent function call
-     *
-     * @param int|null    $index   The method number that is requested. 0 (default) is the first method, 1 the second,
-     *                             etc.
-     * @param string|null $default The value to be returned if no method was found
-     * @return string              The results of the executed SSH commands in an array, each entry containing one line
-     *                             of the output
-     *
-     * @see cli_arguments()
-     * @see CliCommand::argument()
-     */
-    protected static function method(?int $index = null, ?string $default = null): string
-    {
-        global $argv;
-        static $method = [];
-
-        if (isset($method[$index])) {
-            $reappeared = array_search($method[$index], $argv);
-
-            if (is_numeric($reappeared)) {
-                // The argument has been re-added to $argv. This is very likely happened by safe_exec() that included
-                // the specified script into itself, and had to reset the arguments array
-                unset($argv[$reappeared]);
-            }
-
-            return $method[$index];
-        }
-
-        foreach ($argv as $key => $value) {
-            if (!str_starts_with($value, '-')) {
-                unset($argv[$key]);
-                $method[$index] = $value;
-                return $value;
-            }
-        }
-
-        return $default;
-    }
-
-
     /**
      * Returns arguments from the command line
      *
@@ -717,12 +516,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *                                      value from $argv[$key] will be selected. If set as a string value, the $argv
      *                                      key where the value is equal to $key will be selected. If set specified as
      *                                      an array, all entries in the specified array will be selected.
-     * @param string|bool $next             When set to true, it REQUIRES that the specified key contains a next
+     * @param string|bool           $next   When set to true, it REQUIRES that the specified key contains a next
      *                                      argument, and this will be returned. If set to "all", it will return all
      *                                      following arguments. If set to "optional", a next argument will be returned,
      *                                      if available.
-     * @param bool $test                    If true, will not remove the variable from the internal $argv, it will just
+     * @param bool                  $test   If true, will not remove the variable from the internal $argv, it will just
      *                                      return the values to test them
+     *
      * @return mixed                        If $next is null, it will return a boolean value, true if the specified key
      *                                      exists, false if not. If $next is true or "optional", the next value will be
      *                                      returned as a string. However, if "optional" was used, and the next value
@@ -821,7 +621,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 0       => null,
                 1       => current($results),
                 default => throw CliArgumentsException::new(tr('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
-                    ':results' => $results
+                    ':results' => $results,
                 ]))->makeWarning()
             };
         }
@@ -873,10 +673,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 throw CliArgumentsException::new($e)->makeWarning();
             }
 
-            if (str_starts_with((string) $value, '-')) {
+            if (str_starts_with((string)$value, '-')) {
                 throw CliArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys'  => $keys,
-                    ':value' => $value
+                    ':value' => $value,
                 ]))->addData(['keys' => $keys])->makeWarning();
             }
 
@@ -890,13 +690,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         return true;
     }
 
-
     /**
      * Returns the key that will be used internally as an argument key
      *
      * Keys may be specified by words, letters, or both. If both were specified, prefer the word
      *
      * @param array $keys
+     *
      * @return string
      */
     protected static function getReturnKey(array $keys): string
@@ -912,13 +712,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 // This key MUST have more than one letter!
                 if (strlen($key) <= 3) {
                     throw new ValidationFailedException(tr('Specified word argument ":argument" starts with -- and must have more than one alpha-numeric character after!', [
-                        ':argument' => $key
+                        ':argument' => $key,
                     ]));
                 }
 
                 if (!preg_match('/^--(?:[a-z0-9]+-?)+$/i', $key)) {
                     throw new ValidationFailedException(tr('Specified word argument ":argument" is invalid, it must follow the expression /^--(?:[a-z0-9]+-)+]$/i', [
-                        ':argument' => $key
+                        ':argument' => $key,
                     ]));
                 }
 
@@ -929,14 +729,14 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 // This key MUST have only one letter!
                 if (strlen($key) > 2) {
                     throw new ValidationFailedException(tr('Specified letter argument ":argument" starts with - and must have only one alpha-numeric character after!', [
-                        ':argument' => $key
+                        ':argument' => $key,
                     ]));
 
                 }
 
                 if (!preg_match('/^-[a-z0-9]$/i', $key)) {
                     throw new ValidationFailedException(tr('Specified letter argument ":argument" is invalid, it must follow the expression /^-[a-z0-9]$/i', [
-                        ':argument' => $key
+                        ':argument' => $key,
                     ]));
                 }
 
@@ -945,11 +745,202 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             } else {
                 throw new OutOfBoundsException(tr('Specified key ":key" is invalid, a key must start with - or --', [
-                    ':key' => $key
+                    ':key' => $key,
                 ]));
             }
         }
 
         return $return;
+    }
+
+    /**
+     * Returns a new Command Line Arguments data Validator object
+     *
+     * @param ValidatorInterface|null $parent
+     *
+     * @return static
+     */
+    public static function new(?ValidatorInterface $parent = null): static
+    {
+        return new static($parent);
+    }
+
+    /**
+     * Returns the $argv array
+     *
+     * @return array
+     */
+    public function getArgv(): array
+    {
+        global $argv;
+        return $argv;
+    }
+
+    /**
+     * This method will make sure that either this field OR the other specified field will have a value
+     *
+     * @note: This or works slightly different form the ValidatorBasics::xor(). If the specified field data is not found
+     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
+     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
+     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
+     *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
+     *
+     * @param string $field
+     * @param bool   $rename
+     *
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::orColumn()
+     */
+    public function xor(string $field, bool $rename = false): static
+    {
+        if (!str_starts_with($field, (string)$this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
+        if ($this->selected_field === $field) {
+            throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
+        }
+
+        if (isset_get($this->source[$this->selected_field])) {
+            // The currently selected field exists, the specified field cannot exist
+            if (isset_get($this->source[$field]) or static::argument($this->cli_fields, $this->next, true)) {
+                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
+                    ':field'          => $field,
+                    ':selected_field' => $this->selected_field,
+                ]));
+            }
+
+            if ($rename) {
+                // Rename this field to the specified field
+                $this->rename($field);
+            }
+        } else {
+            // The currently selected field does not exist, the specified field MUST exist
+            if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
+                $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
+                    ':field' => $field,
+                ]));
+
+            } else {
+                // Yay, the alternate field exists, so this one can be made optional.
+                $this->isOptional();
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * This method will make sure that either this field OR the other specified field optionally will have a value
+     *
+     * @note: This or works slightly different form the ValidatorBasics::or(). If the specified field data is not found
+     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
+     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
+     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
+     *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
+     *
+     * @param string $field
+     *
+     * @return static
+     *
+     * @see Validator::isOptional()
+     * @see Validator::xorColumn()
+     */
+    public function or(string $field): static
+    {
+        if (!str_starts_with($field, (string)$this->field_prefix)) {
+            $field = $this->field_prefix . $field;
+        }
+
+        if ($this->selected_field === $field) {
+            throw new ValidatorException(tr('Cannot validate OR field ":field" with itself', [':field' => $field]));
+        }
+
+        if (!isset_get($this->source[$this->selected_field])) {
+            if (!$this->selected_is_optional) {
+                // The currently selected field is required but does not exist, so the other must exist
+                if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
+                    $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
+                        ':field' => $field,
+                    ]));
+
+                } else {
+                    // Yay, the alternate field exists, so this one can be made optional.
+                    $this->isOptional();
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * This method will check the failures array and if any failures were registered, it will throw an exception
+     *
+     * @note For command line arguments, this will check if any unvalidated arguments were left and throw a validation
+     *       exception if there are
+     *
+     * @param bool $clean_source
+     *
+     * @return array
+     */
+    public function validate(bool $clean_source = true): array
+    {
+        if ($clean_source) {
+            $this->noArgumentsLeft();
+        }
+
+        return parent::validate();
+    }
+
+    /**
+     * Throws an exception if there are still arguments left in the argv source
+     *
+     * @param bool $apply
+     *
+     * @return static
+     */
+    protected function noArgumentsLeft(bool $apply = true): static
+    {
+        if (!$apply) {
+            return $this;
+        }
+
+        if (empty(static::$argv)) {
+            return $this;
+        }
+
+        throw CliInvalidArgumentsException::new(tr('Invalid command line arguments ":arguments" encountered', [
+            ':arguments' => Strings::force(static::$argv, ', '),
+        ]))->makeWarning();
+    }
+
+    /**
+     * Adds the STDIN stream to the ARGV source with the specified key
+     *
+     * @note If the key already exists in the internal argv source, then an exception will be thrown
+     *
+     * @param string $key
+     *
+     * @return $this
+     */
+    public function addStdInStreamAsKey(string $key): static
+    {
+        if (CliCommand::hasStdInStream()) {
+            if (in_array($key, static::$argv)) {
+                throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key already exists', [
+                    ':key' => $key,
+                ]));
+            }
+
+            static::$argv[] = $key;
+            static::$argv[] = CliCommand::readStdInStream();
+        }
+
+        return $this;
     }
 }

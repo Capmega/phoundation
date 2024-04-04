@@ -34,10 +34,10 @@ use Phoundation\Web\Html\Traits\TraitMode;
  *
  * This standard webinterface class contains the basic functionalities to render web panels
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
@@ -129,6 +129,16 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     protected Modals $modals;
 
+    /**
+     * Panel class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $content
+     */
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $content = null)
+    {
+        parent::__construct($content);
+        $this->background_color = EnumBootstrapColor::primary;
+    }
 
     /**
      * Returns the logos iterator
@@ -144,7 +154,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         return $this->logos;
     }
 
-
     /**
      * Returns the menus iterator
      *
@@ -158,7 +167,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
 
         return $this->menus;
     }
-
 
     /**
      * Returns the buttons iterator
@@ -174,7 +182,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         return $this->buttons;
     }
 
-
     /**
      * Returns the breadcrumbs iterator
      *
@@ -188,7 +195,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
 
         return $this->breadcrumbs;
     }
-
 
     /**
      * Returns the texts iterator
@@ -204,7 +210,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         return $this->texts;
     }
 
-
     /**
      * Returns the avatars iterator
      *
@@ -218,7 +223,6 @@ abstract class Panel extends ElementsBlock implements PanelInterface
 
         return $this->avatars;
     }
-
 
     /**
      * Returns the icons iterator
@@ -234,23 +238,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
         return $this->icons;
     }
 
-
-    /**
-     * Panel class constructor
-     *
-     * @param IteratorInterface|PDOStatement|array|string|null $content
-     */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $content = null)
-    {
-        parent::__construct($content);
-        $this->background_color = EnumBootstrapColor::primary;
-    }
-
-
     /**
      * Sets the panel menu
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setMenu(?MenuInterface $menu): static
@@ -286,6 +278,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * Sets the panel profile image
      *
      * @param ImageMenu $profile_image
+     *
      * @return static
      */
     public function setProfileImage(ImageMenu $profile_image): static
@@ -310,6 +303,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * Sets the panel profile image
      *
      * @param ImageInterface|string $logo
+     *
      * @return static
      */
     public function setLogo(ImageInterface|string $logo): static
@@ -353,6 +347,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * Access to the elements object
      *
      * @param IteratorInterface|array $elements
+     *
      * @return TopPanel
      */
     public function setElementsObject(IteratorInterface|array $elements): static
@@ -381,6 +376,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * Sets the notifications drop-down object
      *
      * @param NotificationsDropDown $notifications
+     *
      * @return static
      */
     public function setNotificationsDropDown(NotificationsDropDown $notifications): static
@@ -408,6 +404,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * Sets the notifications drop-down object
      *
      * @param MessagesDropDown $messages
+     *
      * @return static
      */
     public function setMessagesDropDown(MessagesDropDown $messages): static
@@ -435,6 +432,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      * Sets the notifications drop-down object
      *
      * @param LanguagesDropDown $languages
+     *
      * @return static
      */
     public function setLanguagesDropDown(LanguagesDropDown $languages): static

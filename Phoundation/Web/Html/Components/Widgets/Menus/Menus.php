@@ -16,10 +16,10 @@ use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 class Menus extends Iterator implements IteratorInterface, MenusInterface
 {
@@ -27,23 +27,6 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      * @var array $menus
      */
     protected array $menus = [];
-
-
-    /**
-     * Returns the specified menu
-     *
-     * @param string $menu
-     * @return MenuInterface|null
-     */
-    public function getMenu(string $menu): ?MenuInterface
-    {
-        if (empty($this->menus[$menu])) {
-            $this->menus[$menu] = Menu::new();
-        }
-
-        return $this->menus[$menu];
-    }
-
 
     /**
      * Returns the primary menu
@@ -55,11 +38,27 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
         return $this->getMenu('primary');
     }
 
+    /**
+     * Returns the specified menu
+     *
+     * @param string $menu
+     *
+     * @return MenuInterface|null
+     */
+    public function getMenu(string $menu): ?MenuInterface
+    {
+        if (empty($this->menus[$menu])) {
+            $this->menus[$menu] = Menu::new();
+        }
+
+        return $this->menus[$menu];
+    }
 
     /**
      * Sets the primary menu
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setPrimaryMenu(?MenuInterface $menu): static
@@ -84,6 +83,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      * Sets the secondary menu
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setSecondaryMenu(?MenuInterface $menu): static
@@ -97,7 +97,9 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      * Set multiple menus
      *
      * @note This will clear all already defined menus
+     *
      * @param array $menus
+     *
      * @return static
      */
     public function setMenus(array $menus): static
@@ -111,6 +113,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      * Add multiple menus
      *
      * @param array $menus
+     *
      * @return static
      */
     public function addMenus(array $menus): static
@@ -126,8 +129,9 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
     /**
      * Add a menu
      *
-     * @param string $name
+     * @param string             $name
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function addMenu(string $name, MenuInterface|null $menu): static
@@ -145,6 +149,7 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
      *
      * @param bool $clear
      * @param bool $only_if_empty
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static

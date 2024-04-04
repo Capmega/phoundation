@@ -17,10 +17,10 @@ use Phoundation\Web\Html\Enums\EnumElement;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
@@ -47,37 +47,37 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         ];
 
         $this->definitions = Definitions::new()
-            ->add(Definition::new(null, 'entry_status')
-                ->setLabel(tr('Status'))
-                ->setSize(4)
-                ->setOptional(true)
-                ->setElement(EnumElement::select)
-                ->setValue(isset_get($this->source['entry_status']))
-                ->setKey(true, 'auto_submit')
-                ->setDataSource($this->states))
-            ->add(Definition::new(null, 'roles_id')
-                ->setLabel(tr('Role'))
-                ->setSize(4)
-                ->setOptional(true)
-                ->setElement(EnumElement::select)
-                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Roles::new()->getHtmlSelect()
-                        ->setAutoSubmit(true)
-                        ->setName($field_name)
-                        ->setNone(tr('Select'))
-                        ->setSelected(isset_get($this->source[$key]));
-                }))
-            ->add(Definition::new(null, 'rights_id')
-                ->setLabel(tr('Right'))
-                ->setSize(4)
-                ->setOptional(true)
-                ->setElement(EnumElement::select)
-                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Rights::new()->getHtmlSelect()
-                        ->setAutoSubmit(true)
-                        ->setName($field_name)
-                        ->setNone(tr('Select'))
-                        ->setSelected(isset_get($this->source[$key]));
-                }));
+                                        ->add(Definition::new(null, 'entry_status')
+                                                        ->setLabel(tr('Status'))
+                                                        ->setSize(4)
+                                                        ->setOptional(true)
+                                                        ->setElement(EnumElement::select)
+                                                        ->setValue(isset_get($this->source['entry_status']))
+                                                        ->setKey(true, 'auto_submit')
+                                                        ->setDataSource($this->states))
+                                        ->add(Definition::new(null, 'roles_id')
+                                                        ->setLabel(tr('Role'))
+                                                        ->setSize(4)
+                                                        ->setOptional(true)
+                                                        ->setElement(EnumElement::select)
+                                                        ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                                            return Roles::new()->getHtmlSelect()
+                                                                        ->setAutoSubmit(true)
+                                                                        ->setName($field_name)
+                                                                        ->setNone(tr('Select'))
+                                                                        ->setSelected(isset_get($this->source[$key]));
+                                                        }))
+                                        ->add(Definition::new(null, 'rights_id')
+                                                        ->setLabel(tr('Right'))
+                                                        ->setSize(4)
+                                                        ->setOptional(true)
+                                                        ->setElement(EnumElement::select)
+                                                        ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                                            return Rights::new()->getHtmlSelect()
+                                                                         ->setAutoSubmit(true)
+                                                                         ->setName($field_name)
+                                                                         ->setNone(tr('Select'))
+                                                                         ->setSelected(isset_get($this->source[$key]));
+                                                        }));
     }
 }

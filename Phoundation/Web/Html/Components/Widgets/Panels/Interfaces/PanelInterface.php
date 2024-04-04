@@ -21,10 +21,10 @@ use Phoundation\Web\Html\Components\Widgets\ProfileImage;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 interface PanelInterface extends ElementsBlockInterface
 {
@@ -32,7 +32,8 @@ interface PanelInterface extends ElementsBlockInterface
      * Set the panel source and ensure all URL's are absolute
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
+     * @param array|null                                       $execute
+     *
      * @return static
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
@@ -41,6 +42,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Sets the panel menu
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setMenu(?MenuInterface $menu): static;
@@ -63,6 +65,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Sets the panel profile image
      *
      * @param ImageMenu $profile_image
+     *
      * @return static
      */
     public function setProfileImage(ImageMenu $profile_image): static;
@@ -78,6 +81,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Sets the panel profile image
      *
      * @param ImageInterface|string $logo
+     *
      * @return static
      */
     public function setLogo(ImageInterface|string $logo): static;
@@ -100,6 +104,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Access to the elements object
      *
      * @param IteratorInterface|array $elements
+     *
      * @return TopPanel
      */
     public function setElementsObject(IteratorInterface|array $elements): static;
@@ -115,6 +120,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Sets the notifications drop-down object
      *
      * @param NotificationsDropDown $notifications
+     *
      * @return static
      */
     public function setNotificationsDropDown(NotificationsDropDown $notifications): static;
@@ -130,6 +136,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Sets the notifications drop-down object
      *
      * @param MessagesDropDown $messages
+     *
      * @return static
      */
     public function setMessagesDropDown(MessagesDropDown $messages): static;
@@ -145,6 +152,7 @@ interface PanelInterface extends ElementsBlockInterface
      * Sets the notifications drop-down object
      *
      * @param LanguagesDropDown $languages
+     *
      * @return static
      */
     public function setLanguagesDropDown(LanguagesDropDown $languages): static;

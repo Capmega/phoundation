@@ -16,10 +16,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class FilterForm extends DataEntryForm
 {
@@ -35,26 +35,11 @@ class FilterForm extends DataEntryForm
         $this->useForm(true)->getForm()->setMethod('GET')->setAction(UrlBuilder::getWww());
     }
 
-
-    /**
-     * Returns value for the specified key
-     *
-     * @note This is the standard Iterator::getSourceKey, but here $exception is by default false
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool $exception
-     * @return mixed
-     */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
-    {
-        return parent::get($key, $exception);
-    }
-
-
     /**
      * Apply the filters from the Validator
      *
      * @param bool $clear_source
+     *
      * @return $this
      */
     public function apply(bool $clear_source = true): static
@@ -84,5 +69,20 @@ class FilterForm extends DataEntryForm
         }
 
         return $this;
+    }
+
+    /**
+     * Returns value for the specified key
+     *
+     * @note This is the standard Iterator::getSourceKey, but here $exception is by default false
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
+    {
+        return parent::get($key, $exception);
     }
 }

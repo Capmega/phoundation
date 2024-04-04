@@ -13,18 +13,19 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * This class contains various "zip" commands
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Zip extends Command
 {
     /**
      * Unzips the specified file
      *
-     * @param string $file The file to be unzipped.
+     * @param string      $file The file to be unzipped.
      * @param string|null $target_path
+     *
      * @return void
      */
     public function unzip(string $file, ?string $target_path = null): void
@@ -42,7 +43,7 @@ class Zip extends Command
 
         } catch (ProcessFailedException $e) {
             // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('unzip', $e, function() use ($file) {
+            static::handleException('unzip', $e, function () use ($file) {
                 File::new($file)->checkReadable();
             });
         }

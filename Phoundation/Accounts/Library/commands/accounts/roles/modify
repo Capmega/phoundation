@@ -7,7 +7,6 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -16,10 +15,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This script will create a new role with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho accounts roles create -n NAME [OPTIONS]
 ./pho system accounts roles create -n test -d "This is a test role!"');
@@ -39,11 +38,11 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('role', true)->isName()
-    ->select('-n,--name', true)->isOptional(null)->isName()
-    ->select('-d,--description', true)->isOptional(null)->isDescription()
-    ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
-    ->validate();
+                     ->select('role', true)->isName()
+                     ->select('-n,--name', true)->isOptional(null)->isName()
+                     ->select('-d,--description', true)->isOptional(null)->isDescription()
+                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->validate();
 
 
 // Ensure that specified roles exist

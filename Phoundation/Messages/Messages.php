@@ -14,11 +14,11 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundations\Messages
+ * @package   Phoundations\Messages
  */
 class Messages extends DataList
 {
@@ -34,18 +34,6 @@ class Messages extends DataList
         parent::__construct();
     }
 
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'messages';
-    }
-
-
     /**
      * Returns the name of this DataEntry class
      *
@@ -55,7 +43,6 @@ class Messages extends DataList
     {
         return Message::class;
     }
-
 
     /**
      * Returns the field that is unique for this object
@@ -67,27 +54,37 @@ class Messages extends DataList
         return null;
     }
 
-
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'title', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return InputSelect::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
+                          ->setConnector(static::getDefaultConnectorName())
+                          ->setSourceQuery('SELECT   `' . $key_column . '`, `' . $value_column . '` 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `title` ASC')
-            ->setName('messages_id')
-            ->setNone(tr('Select a message'))
-            ->setObjectEmpty(tr('No messages available'));
+                          ->setName('messages_id')
+                          ->setNone(tr('Select a message'))
+                          ->setObjectEmpty(tr('No messages available'));
+    }
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'messages';
     }
 }

@@ -10,7 +10,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Filesystem\File;
 use Phoundation\Servers\SshAccount;
-use Phoundation\Utils\Config;
 
 
 /**
@@ -18,19 +17,19 @@ use Phoundation\Utils\Config;
  *
  * This script will create a new account with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
-        ]
-    ]
-]));
+                                                                  'positions' => [
+                                                                      0 => [
+                                                                          'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                          'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                      ],
+                                                                  ],
+                                                              ]));
 
 CliDocumentation::setUsage('./pho servers accounts modify IDENTIFIER [OPTIONS]
 ./pho system servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
@@ -44,8 +43,8 @@ IDENTIFIER                              The identifier (id or name) for the SSH 
 
 // Validate the specified hostname
 $argv = ArgvValidator::new()
-    ->select('identifier')->hasMaxCharacters(128)->isDomain()
-    ->validate();
+                     ->select('identifier')->hasMaxCharacters(128)->isDomain()
+                     ->validate();
 
 
 // Load account, ensure the new account name doesn't exist yet

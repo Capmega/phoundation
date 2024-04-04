@@ -16,10 +16,10 @@ use Phoundation\Web\Html\Components\Span;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface ElementsBlockInterface extends RenderInterface, IteratorInterface
 {
@@ -27,6 +27,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * Sets the content of the element to display
      *
      * @param bool $use_form
+     *
      * @return static
      */
     public function useForm(bool $use_form): static;
@@ -42,6 +43,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * Returns the form of this objects block
      *
      * @param FormInterface|null $form
+     *
      * @return static
      */
     public function setForm(?FormInterface $form): static;
@@ -50,6 +52,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * If set true, when this element renders it will only return the contents
      *
      * @param bool $enable
+     *
      * @return $this
      */
     public function setRenderContentsOnly(bool $enable): static;
@@ -79,6 +82,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * Sets the definition
      *
      * @param DefinitionInterface|null $definition
+     *
      * @return static
      */
     public function setDefinition(DefinitionInterface|null $definition): static;
@@ -94,6 +98,7 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * Sets the anchor for this element
      *
      * @param AInterface|null $anchor
+     *
      * @return Span
      */
     public function setAnchor(?AInterface $anchor): static;

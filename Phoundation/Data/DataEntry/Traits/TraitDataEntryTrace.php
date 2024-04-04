@@ -12,10 +12,10 @@ use Phoundation\Utils\Json;
  *
  * This trait contains methods for DataEntry objects that require a trace
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryTrace
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryTrace
      * Sets the trace for this object
      *
      * @param array|string|null $trace
+     *
      * @return static
      */
     public function setTrace(array|string|null $trace): static

@@ -13,10 +13,10 @@ use Phoundation\Data\Categories\Interfaces\CategoryInterface;
  *
  * This trait contains methods for DataEntry objects that require a category
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryCategory
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryCategory
      * Sets the categories_id for this object
      *
      * @param int|null $categories_id
+     *
      * @return static
      */
     public function setCategoriesId(?int $categories_id): static
@@ -75,6 +76,7 @@ trait TraitDataEntryCategory
      * Returns the categories_name for this object
      *
      * @param string|null $categories_name
+     *
      * @return static
      */
     public function setCategoriesName(?string $categories_name): static

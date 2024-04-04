@@ -12,10 +12,10 @@ use Stringable;
  *
  * This trait contains methods for DataEntry objects that requires a url
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryUrl
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryUrl
      * Sets the url for this object
      *
      * @param Stringable|string|null $url
+     *
      * @return static
      */
     public function setUrl(Stringable|string|null $url): static
     {
-        return $this->setValue('url', (string) $url);
+        return $this->setValue('url', (string)$url);
     }
 }

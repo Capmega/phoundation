@@ -11,7 +11,6 @@ use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumMatchMode;
 
 
@@ -20,12 +19,15 @@ use Phoundation\Utils\Enums\EnumMatchMode;
  *
  * This script will import the specified database file into the specified database
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
-$restrictions = Restrictions::readonly([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP],  tr('Import'));
+$restrictions = Restrictions::readonly([
+                                           DIRECTORY_DATA . 'sources/',
+                                           DIRECTORY_TMP,
+                                       ], tr('Import'));
 
 CliDocumentation::setUsage('./pho system databases import -d mysql -b system -f system.sql');
 
@@ -55,46 +57,49 @@ ARGUMENTS
                                         (defaults to 3600)');
 
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-f,--file' => [
-            'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },
-            'noword' => function ()      use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan(        '*.{sql,sql.gz}'); },
-        ],
-        '-c,--connector' => [
-            'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name',EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'); },
-            'noword' => function ()      { return Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'); },
-        ],
-        '-b,--database' => [
-            'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
-            'noword' => function ()      { return sql()->listScalar('SHOW DATABASES'); },
-        ],
-        '-t,--timeout' => true,
-        '--no-init'    => false,
-        '--no-drop'    => false,
-    ]
-]);
+                                      'arguments' => [
+                                          '-f,--file'      => [
+                                              'word'   => function ($word) use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan($word . '*.{sql,sql.gz}'); },
+                                              'noword' => function () use ($restrictions) { return Directory::new(DIRECTORY_DATA . 'sources/', $restrictions)->scan('*.{sql,sql.gz}'); },
+                                          ],
+                                          '-c,--connector' => [
+                                              'word'   => function ($word) { return Connectors::new()->load(true, true)->keepValues('sys', 'name', EnumMatchMode::starts_with)->getAllRowsSingleColumn('name'); },
+                                              'noword' => function () { return Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'); },
+                                          ],
+                                          '-b,--database'  => [
+                                              'word'   => function ($word) { return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']); },
+                                              'noword' => function () { return sql()->listScalar('SHOW DATABASES'); },
+                                          ],
+                                          '-t,--timeout'   => true,
+                                          '--no-init'      => false,
+                                          '--no-drop'      => false,
+                                      ],
+                                  ]);
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--file'     , true)->isFile([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP], $restrictions)
-    ->select('-b,--database' , true)->isVariable()
-    ->select('-c,--comments' , true)->isOptional()->isPrintable()
-    ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'))
-    ->select('-t,--timeout'  , true)->isOptional(3600)->isNatural(true)
-    ->select('--no-drop')->isOptional(false)->isBoolean()
-    ->select('--no-init')->isOptional(false)->isBoolean()
-    ->validate();
+                     ->select('-f,--file', true)->isFile([
+                                                             DIRECTORY_DATA . 'sources/',
+                                                             DIRECTORY_TMP,
+                                                         ], $restrictions)
+                     ->select('-b,--database', true)->isVariable()
+                     ->select('-c,--comments', true)->isOptional()->isPrintable()
+                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(true, true)->getAllRowsSingleColumn('name'))
+                     ->select('-t,--timeout', true)->isOptional(3600)->isNatural(true)
+                     ->select('--no-drop')->isOptional(false)->isBoolean()
+                     ->select('--no-init')->isOptional(false)->isBoolean()
+                     ->validate();
 
 
 // Execute the import for the specified driver
 Import::new()
-    ->setConnector($argv['connector'], true)
-    ->setDatabase($argv['database'])
-    ->setDrop(!$argv['no_drop'])
-    ->setFile($argv['file'])
-    ->setTimeout($argv['timeout'])
-    ->import();
+      ->setConnector($argv['connector'], true)
+      ->setDatabase($argv['database'])
+      ->setDrop(!$argv['no_drop'])
+      ->setFile($argv['file'])
+      ->setTimeout($argv['timeout'])
+      ->import();
 
 
 // Execute init?

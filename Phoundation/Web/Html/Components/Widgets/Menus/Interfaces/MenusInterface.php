@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 
 namespace Phoundation\Web\Html\Components\Widgets\Menus\Interfaces;
@@ -21,6 +21,7 @@ interface MenusInterface extends IteratorInterface
      * Returns the specified menu
      *
      * @param string $menu
+     *
      * @return MenuInterface|null
      */
     public function getMenu(string $menu): ?MenuInterface;
@@ -36,6 +37,7 @@ interface MenusInterface extends IteratorInterface
      * Sets the primary menu
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setPrimaryMenu(?MenuInterface $menu): static;
@@ -51,6 +53,7 @@ interface MenusInterface extends IteratorInterface
      * Sets the secondary menu
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setSecondaryMenu(?MenuInterface $menu): static;
@@ -59,7 +62,9 @@ interface MenusInterface extends IteratorInterface
      * Set multiple menus
      *
      * @note This will clear all already defined menus
+     *
      * @param array $menus
+     *
      * @return static
      */
     public function setMenus(array $menus): static;
@@ -68,6 +73,7 @@ interface MenusInterface extends IteratorInterface
      * Add multiple menus
      *
      * @param array $menus
+     *
      * @return static
      */
     public function addMenus(array $menus): static;
@@ -75,8 +81,9 @@ interface MenusInterface extends IteratorInterface
     /**
      * Add a menu
      *
-     * @param string $name
+     * @param string             $name
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function addMenu(string $name, MenuInterface|null $menu): static;
@@ -86,6 +93,7 @@ interface MenusInterface extends IteratorInterface
      *
      * @param bool $clear
      * @param bool $only_if_empty
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;

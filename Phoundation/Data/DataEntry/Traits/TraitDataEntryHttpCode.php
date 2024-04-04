@@ -10,10 +10,10 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * This trait contains methods for DataEntry objects that require an http_code
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryHttpCode
 {
@@ -32,6 +32,7 @@ trait TraitDataEntryHttpCode
      * Sets the http_code for this object
      *
      * @param int|null $http_code
+     *
      * @return static
      */
     public function setHttpCode(?int $http_code): static

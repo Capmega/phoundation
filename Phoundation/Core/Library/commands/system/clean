@@ -16,10 +16,10 @@ use Phoundation\Filesystem\Restrictions;
  *
  * This script can be used to test the authentication for the specified user
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 CliDocumentation::setUsage('./pho system clean [OPTIONS]
@@ -50,18 +50,18 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-a,--days')->isOptional()->isNumeric()
-    ->select('-d,--date')->isOptional()->xor('days')->isDate()
-    ->select('-t,--timestamp')->isOptional()->xor('date')->isNumeric()
-    ->select('-s,--shred')->isOptional()->isBoolean()
-    ->validate();
+                     ->select('-a,--days')->isOptional()->isNumeric()
+                     ->select('-d,--date')->isOptional()->xor('days')->isDate()
+                     ->select('-t,--timestamp')->isOptional()->xor('date')->isNumeric()
+                     ->select('-s,--shred')->isOptional()->isBoolean()
+                     ->validate();
 
 
 // Convert timestamp to ISO-8601 date
 if ($argv['date']) {
     $argv['date'] = DateTime::new($argv['timestamp'])->format('Y-m-d H:i:s');
 
-} elseif ($argv['days']){
+} elseif ($argv['days']) {
     $sub          = \Phoundation\Date\DateInterval::new($argv['days'] . ' days');
     $argv['date'] = DateTime::new()->sub($sub)->format('Y-m-d H:i:s');
 
@@ -81,8 +81,8 @@ $paths = [
 foreach ($paths as $path) {
     // Configure find to find all files and directories older than $argv[date]
     $find = Directory::new($path, Restrictions::new($path, true))
-        ->find()
-        ->olderThan($argv['date']);
+                     ->find()
+                     ->olderThan($argv['date']);
 
     // Delete or shred?
     if ($argv['shred']) {

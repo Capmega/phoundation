@@ -15,29 +15,26 @@ use Phoundation\Filesystem\Restrictions;
  *
  * This script can apply various conversions to the specified image
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho image convert IMAGE');
 
 CliDocumentation::setHelp('This command can apply various conversions to the specified image');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('method')->isName()
-    ->select('file')->isFile(true)
-    ->validate();
-
+                     ->select('method')->isName()
+                     ->select('file')->isFile(true)
+                     ->validate();
 
 
 // Get image and crop it
 $image = Image::new($argv['file'], Restrictions::new(DIRECTORY_DATA, true));
 $image->convert()->crop();
-
 
 
 // Display image information

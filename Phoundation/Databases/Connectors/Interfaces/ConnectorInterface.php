@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors\Interfaces;
 
-use MongoDB\Exception\UnsupportedException;
-
 
 /**
  * SqlConnector class
  *
  * This class represents a single SQL connector coming either from configuration or DB storage
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 interface ConnectorInterface
 {
@@ -37,6 +35,7 @@ interface ConnectorInterface
      * Sets the type for this connector
      *
      * @param string|null $type
+     *
      * @return static
      */
     public function setType(?string $type): static;
@@ -52,6 +51,7 @@ interface ConnectorInterface
      * Sets the driver for this connector
      *
      * @param string|null $driver
+     *
      * @return static
      */
     public function setDriver(?string $driver): static;
@@ -67,6 +67,7 @@ interface ConnectorInterface
      * Sets the pdo_attributes for this connector
      *
      * @param string|null $pdo_attributes
+     *
      * @return static
      */
     public function setPdoAttributes(?string $pdo_attributes): static;
@@ -82,6 +83,7 @@ interface ConnectorInterface
      * Sets the mode for this connector
      *
      * @param string|null $mode
+     *
      * @return static
      */
     public function setMode(?string $mode): static;
@@ -97,6 +99,7 @@ interface ConnectorInterface
      * Sets the limit_max for this connector
      *
      * @param int|null $limit_max
+     *
      * @return static
      */
     public function setLimitMax(?int $limit_max): static;
@@ -112,6 +115,7 @@ interface ConnectorInterface
      * Sets the auto_increment for this connector
      *
      * @param int|null $auto_increment
+     *
      * @return static
      */
     public function setAutoIncrement(?int $auto_increment): static;
@@ -127,6 +131,7 @@ interface ConnectorInterface
      * Sets the ssh_tunnels_id for this connector
      *
      * @param int|null $ssh_tunnels_id
+     *
      * @return static
      */
     public function setSshTunnelsId(int|null $ssh_tunnels_id): static;
@@ -142,6 +147,7 @@ interface ConnectorInterface
      * Sets the log flag for this connector
      *
      * @param int|bool|null $log
+     *
      * @return static
      */
     public function setLog(int|bool|null $log): static;
@@ -157,6 +163,7 @@ interface ConnectorInterface
      * Sets the persist flag for this connector
      *
      * @param int|bool|null $persist
+     *
      * @return static
      */
     public function setPersist(int|bool|null $persist): static;
@@ -172,6 +179,7 @@ interface ConnectorInterface
      * Sets the init flag for this connector
      *
      * @param int|bool|null $init
+     *
      * @return static
      */
     public function setInit(int|bool|null $init): static;
@@ -187,6 +195,7 @@ interface ConnectorInterface
      * Sets the buffered for this connector
      *
      * @param int|bool|null $buffered
+     *
      * @return static
      */
     public function setBuffered(int|bool|null $buffered): static;
@@ -202,6 +211,7 @@ interface ConnectorInterface
      * Sets the statistics for this connector
      *
      * @param int|bool|null $statistics
+     *
      * @return static
      */
     public function setStatistics(int|bool|null $statistics): static;

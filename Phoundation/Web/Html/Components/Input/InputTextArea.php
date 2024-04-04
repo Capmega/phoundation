@@ -13,10 +13,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputTextArea extends Input
 {
@@ -46,7 +46,7 @@ class InputTextArea extends Input
 
         $this->requires_closing_tag = true;
         $this->element              = 'textarea';
-        $this->input_type                 = null;
+        $this->input_type           = null;
     }
 
 
@@ -65,6 +65,7 @@ class InputTextArea extends Input
      * Sets the number of cols to use for this text area
      *
      * @param int|null $cols
+     *
      * @return $this
      */
     public function setCols(?int $cols): static
@@ -89,6 +90,7 @@ class InputTextArea extends Input
      * Sets the number of rows to use for this text area
      *
      * @param int|null $rows
+     *
      * @return $this
      */
     public function setRows(?int $rows): static
@@ -113,6 +115,7 @@ class InputTextArea extends Input
      * Sets the minimum length this text area
      *
      * @param int|null $minlength
+     *
      * @return $this
      */
     public function setMinLength(?int $minlength): static
@@ -136,6 +139,7 @@ class InputTextArea extends Input
      * Sets the maximum length this text area
      *
      * @param int|null $maxlength
+     *
      * @return $this
      */
     public function setMaxLength(?int $maxlength): static
@@ -159,6 +163,7 @@ class InputTextArea extends Input
      * Sets the auto complete setting
      *
      * @param bool $auto_complete
+     *
      * @return $this
      */
     public function setAutoComplete(bool $auto_complete): static

@@ -18,10 +18,10 @@ use Phoundation\Exception\UnderConstructionException;
  *
  * This class is the quick access to all database connectors, SQL or NoSQL alike
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Databases
 {
@@ -68,7 +68,14 @@ class Databases
      */
     public static function getDrivers(): array
     {
-        return ['mysql', 'redis', 'mongo', 'mongodb', 'elastic', 'elasticsearch'];
+        return [
+            'mysql',
+            'redis',
+            'mongo',
+            'mongodb',
+            'elastic',
+            'elasticsearch',
+        ];
     }
 
 
@@ -76,14 +83,15 @@ class Databases
      * Returns a Database connector for the specified connector
      *
      * @param ConnectorInterface $connector
-     * @param bool $use_database
+     * @param bool               $use_database
+     *
      * @return DatabaseInterface
      * @throws Exception
      */
     public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'   => Databases::sql($connector, $use_database),
+            'sql' => Databases::sql($connector, $use_database),
             default => throw new UnderConstructionException(),
         };
     }
@@ -93,7 +101,8 @@ class Databases
      * Access SQL database connectors
      *
      * @param ConnectorInterface|string $connector
-     * @param bool $use_database
+     * @param bool                      $use_database
+     *
      * @return SqlInterface
      */
     public static function sql(ConnectorInterface|string $connector = 'system', bool $use_database = true): SqlInterface
@@ -108,7 +117,7 @@ class Databases
 
             if (!$connector_name) {
                 throw new ConnectorException(tr('Specified connector ":connector" has empty name', [
-                    ':connector' => $connector->getSource()
+                    ':connector' => $connector->getSource(),
                 ]));
             }
 
@@ -131,6 +140,7 @@ class Databases
      * Access Memcached database connectors
      *
      * @param string|null $connector
+     *
      * @return Mc
      * @throws Exception
      */
@@ -155,6 +165,7 @@ class Databases
      * Access Redis database connectors
      *
      * @param string|null $connector
+     *
      * @return Redis
      * @throws Exception
      */
@@ -179,6 +190,7 @@ class Databases
      * Access Mongo database connectors
      *
      * @param string|null $connector
+     *
      * @return Mongo
      * @throws Exception
      */
@@ -203,6 +215,7 @@ class Databases
      * Access NullDb database connectors
      *
      * @param string|null $connector
+     *
      * @return NullDb
      * @throws Exception
      */

@@ -8,7 +8,6 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\Limit;
 
 
 /**
@@ -16,19 +15,19 @@ use Phoundation\Databases\Sql\Limit;
  *
  * This script will modify a user with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete(User::getAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL',
-            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL'
-        ]
-    ],
-]));
+                                                            'positions' => [
+                                                                0 => [
+                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL',
+                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL',
+                                                                ],
+                                                            ],
+                                                        ]));
 
 CliDocumentation::setUsage('./pho accounts users modify USER [OPTIONS]
 ./pho system users modify USER -l -i --to ENVIRONMENT');
@@ -57,11 +56,11 @@ EXTRA INFORMATION
 
 // Validate user
 $argv = ArgvValidator::new()
-    ->select('user', true)->hasMaxCharacters(128)->isEmail()
-    ->select('roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
-    ->select('emails', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
-    ->select('phones', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
-    ->validate();
+                     ->select('user', true)->hasMaxCharacters(128)->isEmail()
+                     ->select('roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
+                     ->select('emails', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
+                     ->select('phones', true)->isOptional()->sanitizeForceArray()->each()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
+                     ->validate();
 
 
 // Ensure that the specified roles exist
@@ -76,10 +75,10 @@ if ($argv['roles']) {
 
 // Get the user and modify, then update roles
 $user = User::find([
-    'username' => $argv['user'],
-    'email'    => $argv['user'],
-    'code'     => $argv['user'],
-], filter: 'OR')->apply()->save();
+                       'username' => $argv['user'],
+                       'email'    => $argv['user'],
+                       'code'     => $argv['user'],
+                   ], filter: 'OR')->apply()->save();
 $user->getRoles()->setRoles($argv['roles']);
 $user->getEmails()->apply()->save();
 $user->getPhones()->apply()->save();

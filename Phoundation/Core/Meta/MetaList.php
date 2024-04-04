@@ -20,10 +20,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class MetaList
 {
@@ -43,29 +43,17 @@ class MetaList
         $this->meta_list = $meta_list;
     }
 
-
-    /**
-     * Returns a new MetaList object
-     *
-     * @param array|string $meta_list
-     * @return MetaList
-     */
-    public static function new(array|string $meta_list): MetaList
-    {
-        return new MetaList($meta_list);
-    }
-
-
     /**
      * Returns a DataTable object
      *
      * @param array|string|null $columns
+     *
      * @return HtmlDataTableInterface
      */
     public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
     {
         // Create and return the table
-        $in     = SqlQueries::in($this->meta_list);
+        $in = SqlQueries::in($this->meta_list);
         $source = sql()->list('SELECT    `meta_history`.`id`,
                                                `meta_history`.`created_by`,
                                                DATE_FORMAT(`meta_history`.`created_on`, "%Y-%m-%d %h:%m:%s") AS `date_time`,
@@ -94,7 +82,10 @@ class MetaList
             }
 
             if (isset_get($row['data']['to'])) {
-                foreach (['to', 'from'] as $section) {
+                foreach ([
+                    'to',
+                    'from',
+                ] as $section) {
                     unset($row['data'][$section]['id']);
                     unset($row['data'][$section]['created_by']);
                     unset($row['data'][$section]['created_on']);
@@ -135,23 +126,35 @@ class MetaList
 
         unset($row);
 
-         $table = HtmlDataTable::new()
-            ->setId('meta')
-            ->setCheckboxSelectors(EnumTableIdColumn::visible)
-            ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
-            ->setOrder([0 => 'desc'])
-            ->setProcessEntities(false)
-            ->setSource($source);
+        $table = HtmlDataTable::new()
+                              ->setId('meta')
+                              ->setCheckboxSelectors(EnumTableIdColumn::visible)
+                              ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
+                              ->setOrder([0 => 'desc'])
+                              ->setProcessEntities(false)
+                              ->setSource($source);
 
-         $table->getHeaders()->setSource([
-             tr('Date'),
-             tr('User'),
-             tr('Action'),
-             tr('Source'),
-             tr('Changes'),
-             tr('Comments'),
-         ]);
+        $table->getHeaders()->setSource([
+                                            tr('Date'),
+                                            tr('User'),
+                                            tr('Action'),
+                                            tr('Source'),
+                                            tr('Changes'),
+                                            tr('Comments'),
+                                        ]);
 
         return $table;
+    }
+
+    /**
+     * Returns a new MetaList object
+     *
+     * @param array|string $meta_list
+     *
+     * @return MetaList
+     */
+    public static function new(array|string $meta_list): MetaList
+    {
+        return new MetaList($meta_list);
     }
 }

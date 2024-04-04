@@ -8,7 +8,6 @@ use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
@@ -23,10 +22,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Card extends Widget
 {
@@ -117,6 +116,7 @@ class Card extends Widget
      * Sets the buttons for this card
      *
      * @param ButtonsInterface|ButtonInterface|null $buttons
+     *
      * @return static
      */
     public function setButtons(ButtonsInterface|ButtonInterface|null $buttons): static
@@ -164,6 +164,7 @@ class Card extends Widget
      * Sets a list of enabled switches
      *
      * @param array|string|null $switches
+     *
      * @return static
      */
     public function setSwitches(array|string|null $switches = null): static
@@ -197,7 +198,7 @@ class Card extends Widget
 
                 default:
                     throw new OutOfBoundsException(tr('Unknown switch ":switch" specified', [
-                        ':switch' => $switch
+                        ':switch' => $switch,
                     ]));
             }
         }
@@ -221,6 +222,7 @@ class Card extends Widget
      * Returns extra header content for the card
      *
      * @param string|null $header_content
+     *
      * @return static
      */
     public function setHeaderContent(?string $header_content): static
@@ -245,6 +247,7 @@ class Card extends Widget
      * Sets if the card can collapse
      *
      * @param bool $collapse_switch
+     *
      * @return static
      */
     public function setCollapseSwitch(bool $collapse_switch): static
@@ -269,6 +272,7 @@ class Card extends Widget
      * Sets if the card is collapsed or not
      *
      * @param bool $collapsed
+     *
      * @return static
      */
     public function setCollapsed(bool $collapsed): static
@@ -301,6 +305,7 @@ class Card extends Widget
      * Sets if the card can close
      *
      * @param bool $close_switch
+     *
      * @return static
      */
     public function setCloseSwitch(bool $close_switch): static
@@ -325,6 +330,7 @@ class Card extends Widget
      * Sets if the card can reload
      *
      * @param bool $reload_switch
+     *
      * @return static
      */
     public function setReloadSwitch(bool $reload_switch): static
@@ -349,6 +355,7 @@ class Card extends Widget
      * Sets if the card can maximize
      *
      * @param bool $maximize_switch
+     *
      * @return static
      */
     public function setMaximizeSwitch(bool $maximize_switch): static
@@ -373,6 +380,7 @@ class Card extends Widget
      * Sets if this card is shown with outline color or not
      *
      * @param bool $outline
+     *
      * @return static
      */
     public function setOutline(bool $outline): static
@@ -411,6 +419,7 @@ class Card extends Widget
      * Returns the Tabs object
      *
      * @param bool $create
+     *
      * @return TabsInterface|null
      */
     public function getTabsObject(bool $create = true): ?TabsInterface

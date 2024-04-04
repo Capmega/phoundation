@@ -10,14 +10,14 @@ use Phoundation\Web\Requests\Response;
 
 // Build the page content
 echo Card::new()
-    ->setContent(Libraries::getHtmlDataTable()->render())
-    ->render();
+         ->setContent(Libraries::getHtmlDataTable()->render())
+         ->render();
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Libraries'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'            => tr('Home'),
-    '/phoundation' => tr('Phoundation'),
-    ''             => tr('Libraries')
-]));
+                                                           '/'            => tr('Home'),
+                                                           '/phoundation' => tr('Phoundation'),
+                                                           ''             => tr('Libraries'),
+                                                       ]));

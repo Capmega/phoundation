@@ -14,10 +14,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputDate extends InputText
 {
@@ -37,7 +37,8 @@ class InputDate extends InputText
      * Sets the value for the input element
      *
      * @param DateTime|Stringable|string|float|int|null $value
-     * @param bool $make_safe
+     * @param bool                                      $make_safe
+     *
      * @return static
      */
     public function setValue(DateTime|Stringable|string|float|int|null $value, bool $make_safe = true): static
@@ -65,15 +66,16 @@ class InputDate extends InputText
      * Sets the maximum numeric value for this numeric input
      *
      * @param DateTime|Stringable|string|null $max
+     *
      * @return $this
      */
     public function setMax(DateTime|Stringable|string|null $max): static
     {
-        if ($max instanceof DateTime){
+        if ($max instanceof DateTime) {
             $max = $max->format('Y-m-d');
         }
 
-        return $this->setAttribute(get_null((string) $max), 'max');
+        return $this->setAttribute(get_null((string)$max), 'max');
     }
 
 
@@ -92,14 +94,15 @@ class InputDate extends InputText
      * Sets the minimum numeric value for this numeric input
      *
      * @param DateTime|Stringable|string|null $min
+     *
      * @return $this
      */
     public function setMin(DateTime|Stringable|string|null $min): static
     {
-        if ($min instanceof DateTime){
+        if ($min instanceof DateTime) {
             $min = $min->format('Y-m-d');
         }
 
-        return $this->setAttribute(get_null((string) $min), 'min');
+        return $this->setAttribute(get_null((string)$min), 'min');
     }
 }

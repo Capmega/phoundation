@@ -28,6 +28,73 @@ use Throwable;
  */
 class Date
 {
+    /**
+     * ???
+     *
+     * @param int        $timestamp
+     * @param null|int   $now
+     * @param null|array $periods
+     *
+     * @return null|string
+     * @todo Check this function, what does it do, should it return null or exception on failure??
+     */
+    public static function relative(int $timestamp, ?int $now = null, ?array $periods = null): ?string
+    {
+        if (!$now) {
+            $now = time();
+        }
+
+        if (!$periods) {
+            $periods = [
+                10       => tr('Right now'),
+                86400    => tr('Today'),
+                604800   => tr('Last week'),
+                31536000 => tr('This year'),
+            ];
+        }
+
+        usort($periods);
+
+        foreach ($periods as $time => $label) {
+            if ($timestamp < $time) {
+                return $label;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Return a random date
+     *
+     * @param null|DateTime $min
+     * @param null|DateTime $max
+     *
+     * @return DateTime
+     * @throws Exception
+     */
+    public static function random(?DateTime $min = null, ?DateTime $max = null): DateTime
+    {
+        if ($min) {
+            $min = new DateTime(Date::convert($min, 'y-m-d'));
+            $min = $min->getTimestamp();
+
+        } else {
+            $min = 1;
+        }
+
+        if ($max) {
+            $max = new DateTime(Date::convert($max, 'y-m-d'));
+            $max = $max->getTimestamp();
+
+        } else {
+            $max = 2147483647;
+        }
+
+        $timestamp = random_int($min, $max);
+        return date("Y-m-d", $timestamp);
+    }
+
     public static function convert(int|float|DateTime|null $date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null)
     {
         // Ensure we have some valid date string
@@ -39,7 +106,7 @@ class Date
             return '';
 
         } elseif (is_numeric($date)) {
-            $date = date('Y-m-d H:i:s', (int) $date);
+            $date = date('Y-m-d H:i:s', (int)$date);
         }
 
         /*
@@ -116,7 +183,7 @@ class Date
 
                 default:
                     throw new OutOfBoundsException(tr('Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See configuration formats.date.force1224', [
-                        ':format' => Config::get('formats.date.' . $requested_format, '24')
+                        ':format' => Config::get('formats.date.' . $requested_format, '24'),
                     ]));
             }
         }
@@ -133,7 +200,7 @@ class Date
         } else {
             if (!($date instanceof DateTime)) {
                 throw new OutOfBoundsException(tr('Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', [
-                    ':type' => gettype($date)
+                    ':type' => gettype($date),
                 ]));
             }
         }
@@ -156,167 +223,13 @@ class Date
 
             return Date::translate($return);
 
-        }catch(Throwable $e) {
-            throw new DateException(tr('Failed to convert to format ":format" because ":e"', [':format' => $format, ':e' => $e]));
+        } catch (Throwable $e) {
+            throw new DateException(tr('Failed to convert to format ":format" because ":e"', [
+                ':format' => $format,
+                ':e'      => $e,
+            ]));
         }
     }
-
-
-    /**
-     * ???
-     *
-     * @todo Check this function, what does it do, should it return null or exception on failure??
-     * @param int $timestamp
-     * @param null|int $now
-     * @param null|array $periods
-     * @return null|string
-     */
-    public static function relative(int $timestamp, ?int $now = null, ?array $periods = null): ?string
-    {
-        if (!$now) {
-            $now = time();
-        }
-
-        if (!$periods) {
-            $periods = [
-                10       => tr('Right now'),
-                86400    => tr('Today'),
-                604800   => tr('Last week'),
-                31536000 => tr('This year')
-            ];
-        }
-
-        usort($periods);
-
-        foreach ($periods as $time => $label) {
-            if ($timestamp < $time) {
-                return $label;
-            }
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Return a random date
-     *
-     * @param null|DateTime $min
-     * @param null|DateTime $max
-     * @return DateTime
-     * @throws Exception
-     */
-    public static function random(?DateTime $min = null, ?DateTime $max = null): DateTime
-    {
-        if ($min) {
-            $min = new DateTime(Date::convert($min, 'y-m-d'));
-            $min = $min->getTimestamp();
-
-        } else {
-            $min = 1;
-        }
-
-        if ($max) {
-            $max = new DateTime(Date::convert($max, 'y-m-d'));
-            $max = $max->getTimestamp();
-
-        } else {
-            $max = 2147483647;
-        }
-
-        $timestamp  = random_int($min, $max);
-        return date("Y-m-d", $timestamp);
-    }
-
-
-    /**
-     * Returns the HTML for a timezone selection HTML select
-     *
-     * @param null $params
-     * @return string
-     * @throws CoreException
-     */
-    public static function timezonesSelect($params = null)
-    {
-        Arrays::ensure($params);
-        Arrays::default($params, 'name', 'timezone');
-
-        $params['resource'] = Date::timezonesList();
-        asort($params['resource']);
-
-// :DELETE: Remove MySQL requirement because production users will not have access to "mysql" database
-        //$params['resource'] = Sql::query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
-        //                                                SUBSTR(`Name`, 7)  AS `name`
-        //
-        //                                 FROM     `mysql`.`time_zone_name`
-        //
-        //                                 WHERE    `Name` LIKE "posix%"
-        //
-        //                                 ORDER BY `id`');
-
-        return html_select($params);
-    }
-
-
-    /**
-     * Returns true if the specified timezone exists, false if not
-     *
-     * @param string $timezone
-     * @return bool
-     */
-    public static function timezonesExists(string $timezone): bool
-    {
-        return isset_get(Date::timezonesList()[strtolower($timezone)]);
-    }
-
-
-    /**
-     * Returns a list of all timezones supported by PHP
-     */
-    public static function timezonesList() {
-        $list = [];
-
-        foreach (timezone_abbreviations_list() as $zones) {
-            foreach ($zones as $timezone) {
-                if (empty($timezone['timezone_id'])) continue;
-
-                $list[strtolower($timezone['timezone_id'])] = $timezone['timezone_id'];
-            }
-        }
-
-        return $list;
-    }
-
-
-    /**
-     * Return the specified $date with the specified $interval applied.
-     * If $date is null, the default date from Date::convert() will be used
-     * $interval must be a valid ISO 8601 specification (see http://php.net/manual/en/dateinterval.construct.php)
-     * If $interval is "negative", i.e. preceded by a - sign, the interval will be subtraced. Else the interval will be added
-     * Return date will be formatted according to Date::convert() $format
-     *
-     * @param DateTime $date
-     * @param DateInterval $interval
-     * @param string|null $format
-     * @return array|DateTime|string|string[]
-     * @throws Exception
-     */
-    public static function interval(DateTime $date, DateInterval $interval, ?string $format = null)
-    {
-throw new UnderConstructionException();
-        $date = Date::convert($date, 'd-m-Y');
-        $date = new DateTime($date);
-
-        if (substr($interval, 0, 1) == '-') {
-            $date->sub(new DateInterval(substr($interval, 1)));
-
-        } else {
-            $date->add(new DateInterval($interval));
-        }
-
-        return Date::convert($date, $format);
-    }
-
 
     /**
      * Translate the specified day and month names
@@ -329,21 +242,22 @@ throw new UnderConstructionException();
      *
      * So for now we have this barf solution
      *
-     * @todo REIMPLEMENT
-     * @version 2.8.15: Added function and documentation
+     * @param DateTime|string $date
+     *
+     * @return string The result
      * @example When executed with LANGUAGE "es"
-     * code
-     * $result = Date::translate('Saturday, 14 September 2019');
-     * showdie($result);
-     * /code
+     *          code
+     *          $result = Date::translate('Saturday, 14 September 2019');
+     *          showdie($result);
+     *          /code
      *
      * This would return
      * code
      * Sabado, 18 Septiembre 2019
      * /code
      *
-     * @param DateTime|string $date
-     * @return string The result
+     * @todo    REIMPLEMENT
+     * @version 2.8.15: Added function and documentation
      */
     public static function translate(DateTime|string $date): string
     {
@@ -395,7 +309,7 @@ throw new UnderConstructionException();
             'Wed'       => tr('Wed'),
             'Thu'       => tr('Thu'),
             'Fri'       => tr('Fri'),
-            'Sat'       => tr('Sat')
+            'Sat'       => tr('Sat'),
         ];
 
         foreach ($words as $english => $translation) {
@@ -405,11 +319,102 @@ throw new UnderConstructionException();
         return $date;
     }
 
+    /**
+     * Returns the HTML for a timezone selection HTML select
+     *
+     * @param null $params
+     *
+     * @return string
+     * @throws CoreException
+     */
+    public static function timezonesSelect($params = null)
+    {
+        Arrays::ensure($params);
+        Arrays::default($params, 'name', 'timezone');
+
+        $params['resource'] = Date::timezonesList();
+        asort($params['resource']);
+
+// :DELETE: Remove MySQL requirement because production users will not have access to "mysql" database
+        //$params['resource'] = Sql::query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
+        //                                                SUBSTR(`Name`, 7)  AS `name`
+        //
+        //                                 FROM     `mysql`.`time_zone_name`
+        //
+        //                                 WHERE    `Name` LIKE "posix%"
+        //
+        //                                 ORDER BY `id`');
+
+        return html_select($params);
+    }
+
+    /**
+     * Returns a list of all timezones supported by PHP
+     */
+    public static function timezonesList()
+    {
+        $list = [];
+
+        foreach (timezone_abbreviations_list() as $zones) {
+            foreach ($zones as $timezone) {
+                if (empty($timezone['timezone_id'])) {
+                    continue;
+                }
+
+                $list[strtolower($timezone['timezone_id'])] = $timezone['timezone_id'];
+            }
+        }
+
+        return $list;
+    }
+
+    /**
+     * Returns true if the specified timezone exists, false if not
+     *
+     * @param string $timezone
+     *
+     * @return bool
+     */
+    public static function timezonesExists(string $timezone): bool
+    {
+        return isset_get(Date::timezonesList()[strtolower($timezone)]);
+    }
+
+    /**
+     * Return the specified $date with the specified $interval applied.
+     * If $date is null, the default date from Date::convert() will be used
+     * $interval must be a valid ISO 8601 specification (see http://php.net/manual/en/dateinterval.construct.php)
+     * If $interval is "negative", i.e. preceded by a - sign, the interval will be subtraced. Else the interval will be
+     * added Return date will be formatted according to Date::convert() $format
+     *
+     * @param DateTime     $date
+     * @param DateInterval $interval
+     * @param string|null  $format
+     *
+     * @return array|DateTime|string|string[]
+     * @throws Exception
+     */
+    public static function interval(DateTime $date, DateInterval $interval, ?string $format = null)
+    {
+        throw new UnderConstructionException();
+        $date = Date::convert($date, 'd-m-Y');
+        $date = new DateTime($date);
+
+        if (substr($interval, 0, 1) == '-') {
+            $date->sub(new DateInterval(substr($interval, 1)));
+
+        } else {
+            $date->add(new DateInterval($interval));
+        }
+
+        return Date::convert($date, $format);
+    }
 
     /**
      * Returns a string representation of how long ago the specified date was, from now
      *
      * @param Date|DateTime|string|int $date
+     *
      * @return string
      */
     public static function getAge(Date|DateTime|string|int $date): string
@@ -418,7 +423,7 @@ throw new UnderConstructionException();
             $date = new DateTime(strtotime($date));
         }
 
-        $now = new DateTime();
+        $now  = new DateTime();
         $diff = $now->diff($date);
 
         if ($diff->y) {

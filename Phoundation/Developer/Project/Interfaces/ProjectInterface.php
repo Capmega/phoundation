@@ -10,10 +10,10 @@ namespace Phoundation\Developer\Project\Interfaces;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 interface ProjectInterface
 {
@@ -21,6 +21,7 @@ interface ProjectInterface
      * Returns true if the specified filesystem location contains a valid Phoundation project installation
      *
      * @param string $directory
+     *
      * @return bool
      */
     public function isPhoundationProject(string $directory): bool;
@@ -30,8 +31,9 @@ interface ProjectInterface
      *
      * @param string|null $branch
      * @param string|null $message
-     * @param bool $signed
+     * @param bool        $signed
      * @param string|null $phoundation_path
+     *
      * @return static
      */
     public function updateLocalProject(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null): static;

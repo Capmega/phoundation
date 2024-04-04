@@ -10,7 +10,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
-use Phoundation\Utils\Config;
 
 
 /**
@@ -18,23 +17,23 @@ use Phoundation\Utils\Config;
  *
  * This script will create a new role with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author   Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license  http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyrole Copyrole (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package  Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
-        ],
-        -1 => [
-            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
-        ]
-    ],
-]);
+                                      'positions' => [
+                                          0  => [
+                                              'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                              'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                          ],
+                                          -1 => [
+                                              'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                              'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                          ],
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
 ./pho system accounts users add-roles -n test -d "This is a test role!"');
@@ -53,9 +52,9 @@ ROLE[,ROLE,ROLE,...]                    The roles linked with the role. Each use
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('user', true)->isEmail()
-    ->select('roles', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
-    ->validate();
+                     ->select('user', true)->isEmail()
+                     ->select('roles', true)->isOptional(null)->sanitizeForceArray()->each()->isName()
+                     ->validate();
 
 
 try {
@@ -85,6 +84,6 @@ try {
         Log::warning(tr('User ":user" was not modified', [':user' => $user->getDisplayName()]));
     }
 
-}catch (DataEntryNotExistsException $e) {
+} catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }

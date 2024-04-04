@@ -18,32 +18,32 @@ use Phoundation\Filesystem\Directory;
  *
  * This script can be used to test the authentication for the specified user
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-b,--branch' => [
-            'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->getMatchingKeys($word); },
-            'noword' => function ()      { return Phoundation::new()->getPhoundationBranches()->getKeys(); },
-        ],
-        '-p,--phoundation' => [
-            'word'   => function ($word) { return Directory::new('/var/www/html', '/var/www/html')->scan($word. '*'); },
-            'noword' => function ()      { return Directory::new('/var/www/html', '/var/www/html')->scan(); },
-        ],
-        '-c,--check'       => false,
-        '-l,--local'       => false,
-        '-m,--message'     => true,
-        '--no-commit'      => false,
-        '--no-phoundation' => false,
-        '-n,--no-plugins'  => false,
-        '-s,--signed'      => false,
-        '--no-caching'     => false,
-    ]
-]);
+                                      'arguments' => [
+                                          '-b,--branch'      => [
+                                              'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->getMatchingKeys($word); },
+                                              'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getKeys(); },
+                                          ],
+                                          '-p,--phoundation' => [
+                                              'word'   => function ($word) { return Directory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
+                                              'noword' => function () { return Directory::new('/var/www/html', '/var/www/html')->scan(); },
+                                          ],
+                                          '-c,--check'       => false,
+                                          '-l,--local'       => false,
+                                          '-m,--message'     => true,
+                                          '--no-commit'      => false,
+                                          '--no-phoundation' => false,
+                                          '-n,--no-plugins'  => false,
+                                          '-s,--signed'      => false,
+                                          '--no-caching'     => false,
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho system update [OPTIONS]
 ./pho system update -b BRANCH
@@ -86,17 +86,17 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-b,--branch', true)->isOptional()->isVariable()
-    ->select('-c,--check')->isOptional()->isBoolean()
-    ->select('-l,--local')->isOptional()->isBoolean()
-    ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
-    ->select('--no-commit')->isOptional()->isBoolean()
-    ->select('-n,--no-plugins')->isOptional()->isBoolean()
-    ->select('--no-phoundation')->isOptional()->isBoolean()
-    ->select('-p,--phoundation', true)->isOptional()->isPrintable()
-    ->select('-s,--signed')->isOptional(false)->isBoolean()
-    ->select('--no-caching')->isOptional(false)->isBoolean()
-    ->validate();
+                     ->select('-b,--branch', true)->isOptional()->isVariable()
+                     ->select('-c,--check')->isOptional()->isBoolean()
+                     ->select('-l,--local')->isOptional()->isBoolean()
+                     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+                     ->select('--no-commit')->isOptional()->isBoolean()
+                     ->select('-n,--no-plugins')->isOptional()->isBoolean()
+                     ->select('--no-phoundation')->isOptional()->isBoolean()
+                     ->select('-p,--phoundation', true)->isOptional()->isPrintable()
+                     ->select('-s,--signed')->isOptional(false)->isBoolean()
+                     ->select('--no-caching')->isOptional(false)->isBoolean()
+                     ->validate();
 
 
 // Load all the Phoundation classes into memory to avoid newer -and possibly incompatible- classes being loaded in the

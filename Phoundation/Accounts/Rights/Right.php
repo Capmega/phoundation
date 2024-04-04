@@ -26,11 +26,11 @@ use Phoundation\Web\Html\Enums\EnumElementInputType;
  *
  *
  *
- * @see DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class Right extends DataEntry implements RightInterface
 {
@@ -42,8 +42,8 @@ class Right extends DataEntry implements RightInterface
      * Right class constructor
      *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     * @param bool|null $meta_enabled
+     * @param string|null                        $column
+     * @param bool|null                          $meta_enabled
      */
     public function __construct(DataEntryInterface|string|int|null $identifier = null, ?string $column = null, ?bool $meta_enabled = null)
     {
@@ -90,10 +90,12 @@ class Right extends DataEntry implements RightInterface
      * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     *
      * @param DataEntryInterface|string|int|null $identifier
-     * @param string|null $column
-     * @param bool $meta_enabled
-     * @param bool $force
+     * @param string|null                        $column
+     * @param bool                               $meta_enabled
+     * @param bool                               $force
+     *
      * @return Right
      */
     public static function get(DataEntryInterface|string|int|null $identifier, ?string $column = null, bool $meta_enabled = false, bool $force = false): static
@@ -116,7 +118,7 @@ class Right extends DataEntry implements RightInterface
     {
         if ($this->isNew()) {
             throw new AccountsException(tr('Cannot access roles for right ":right", the right has not yet been saved', [
-                ':right' => $this->getLogId()
+                ':right' => $this->getLogId(),
             ]));
         }
 
@@ -133,15 +135,15 @@ class Right extends DataEntry implements RightInterface
     {
         $definitions
             ->add(DefinitionFactory::getName($this)
-                ->setInputType(EnumElementInputType::name)
-                ->setSize(12)
-                ->setMaxlength(64)
-                ->setHelpText(tr('The name for this right'))
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
-                }))
+                                   ->setInputType(EnumElementInputType::name)
+                                   ->setSize(12)
+                                   ->setMaxlength(64)
+                                   ->setHelpText(tr('The name for this right'))
+                                   ->addValidationFunction(function (ValidatorInterface $validator) {
+                                       $validator->isUnique(tr('value ":name" already exists', [':name' => $validator->getSelectedValue()]));
+                                   }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(DefinitionFactory::getDescription($this)
-                ->setHelpText(tr('The description for this right')));
+                                   ->setHelpText(tr('The description for this right')));
     }
 }

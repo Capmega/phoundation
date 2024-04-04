@@ -15,10 +15,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class SignInForm extends Form
 {
@@ -73,6 +73,7 @@ class SignInForm extends Form
      * Sets the signin URL
      *
      * @param Stringable|string $sign_in_url
+     *
      * @return static
      */
     public function setSignInUrl(Stringable|string $sign_in_url): static
@@ -97,6 +98,7 @@ class SignInForm extends Form
      * Sets the register URL
      *
      * @param Stringable|string $register_url
+     *
      * @return static
      */
     public function setRegisterUrl(Stringable|string $register_url): static
@@ -121,6 +123,7 @@ class SignInForm extends Form
      * Sets the register URL
      *
      * @param Stringable|string $forgot_password_url
+     *
      * @return static
      */
     public function setForgotPasswordUrl(Stringable|string $forgot_password_url): static

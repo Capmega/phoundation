@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 namespace Phoundation\Web\Requests;
@@ -19,7 +19,6 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Core;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
@@ -40,7 +39,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\File;
 use Phoundation\Filesystem\Interfaces\FileInterface;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
@@ -206,26 +204,11 @@ abstract class Request implements RequestInterface
      */
     protected static PanelsInterface $panels;
 
-
-    /**
-     * Returns the routing parameters for this request
-     *
-     * @return RoutingParametersInterface
-     */
-    public static function getRoutingParameters(): RoutingParametersInterface
-    {
-        if (empty(static::$parameters)) {
-            throw new OutOfBoundsException(tr('Cannot return routing parameters from this request, no routing parameters have been set'));
-        }
-
-        return static::$parameters;
-    }
-
-
     /**
      * Sets the routing parameters for this request
      *
      * @param RoutingParametersInterface $parameters
+     *
      * @return void
      */
     public static function setRoutingParameters(RoutingParametersInterface $parameters): void
@@ -236,143 +219,13 @@ abstract class Request implements RequestInterface
 
         if (!$parameters->getTemplate()) {
             throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
-                ':pattern' => static::getRoutingParameters()->getPattern()
+                ':pattern' => static::getRoutingParameters()->getPattern(),
             ]));
         }
 
         static::$parameters = $parameters;
         static::setTemplate($parameters->getTemplateObject());
     }
-
-
-    /**
-     * Returns the current tab index and automatically increments it
-     *
-     * @return MenusInterface
-     */
-    public static function getMenusObject(): MenusInterface
-    {
-        if (!isset(static::$menus)) {
-            // Menus have not yet been initialized, do so now.
-            static::$menus = new Menus();
-        }
-
-        return static::$menus;
-    }
-
-
-    /**
-     * Sets the current tab index and automatically increments it
-     *
-     * @param MenusInterface $menus
-     * @return void
-     */
-    public static function setMenusObject(MenusInterface $menus): void
-    {
-        static::$menus = $menus;
-    }
-
-
-    /**
-     * Returns the current panels configured for this page
-     *
-     * @return PanelsInterface
-     */
-    public static function getPanelsObject(): PanelsInterface
-    {
-        if (!isset(static::$panels)) {
-            // Menus have not yet been initialized, do so now.
-            static::$panels = new Panels();
-        }
-
-        return static::$panels;
-    }
-
-
-    /**
-     * Sets the current panels configured for this page
-     *
-     * @param PanelsInterface $panels
-     * @return void
-     */
-    public static function setPanelsObject(PanelsInterface $panels): void
-    {
-        static::$panels = $panels;
-    }
-
-
-    /**
-     * Returns the file executed for this request
-     *
-     * @return bool
-     */
-    public static function getMainContentsOnly(): bool
-    {
-        return static::$main_contents_only;
-    }
-
-
-    /**
-     * Returns the file executed for this request
-     *
-     * @param bool $main_contents_only
-     * @return void
-     */
-    public static function setMainContentsOnly(bool $main_contents_only): void
-    {
-        static::$main_contents_only = $main_contents_only;
-    }
-
-
-    /**
-     * Returns the file executed for this request
-     *
-     * @return bool
-     */
-    public static function getAttachment(): bool
-    {
-        return static::$attachment;
-    }
-
-
-    /**
-     * Returns the file executed for this request
-     *
-     * @param bool $attachment
-     * @return void
-     */
-    public static function setAttachment(bool $attachment): void
-    {
-        static::$attachment = $attachment;
-    }
-
-
-    /**
-     * Returns if the request is a system page
-     *
-     * @return bool
-     */
-    public static function getSystem(): bool
-    {
-        return static::$system;
-    }
-
-
-    /**
-     * Sets if the request is a system page
-     *
-     * @param bool $system
-     * @return void
-     */
-    public static function setSystem(bool $system): void
-    {
-        if (static::$system) {
-            throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
-        }
-
-        static::$system = $system;
-    }
-
 
     /**
      * Returns the current Template for this page
@@ -389,11 +242,11 @@ abstract class Request implements RequestInterface
         return static::$template;
     }
 
-
     /**
      * Sets the template to the specified template name
      *
      * @param TemplateInterface $template
+     *
      * @return void
      */
     public static function setTemplate(TemplateInterface $template): void
@@ -402,6 +255,117 @@ abstract class Request implements RequestInterface
         static::$page     = $template->getPage();
     }
 
+    /**
+     * Returns the routing parameters for this request
+     *
+     * @return RoutingParametersInterface
+     */
+    public static function getRoutingParameters(): RoutingParametersInterface
+    {
+        if (empty(static::$parameters)) {
+            throw new OutOfBoundsException(tr('Cannot return routing parameters from this request, no routing parameters have been set'));
+        }
+
+        return static::$parameters;
+    }
+
+    /**
+     * Returns the current tab index and automatically increments it
+     *
+     * @return MenusInterface
+     */
+    public static function getMenusObject(): MenusInterface
+    {
+        if (!isset(static::$menus)) {
+            // Menus have not yet been initialized, do so now.
+            static::$menus = new Menus();
+        }
+
+        return static::$menus;
+    }
+
+    /**
+     * Sets the current tab index and automatically increments it
+     *
+     * @param MenusInterface $menus
+     *
+     * @return void
+     */
+    public static function setMenusObject(MenusInterface $menus): void
+    {
+        static::$menus = $menus;
+    }
+
+    /**
+     * Returns the current panels configured for this page
+     *
+     * @return PanelsInterface
+     */
+    public static function getPanelsObject(): PanelsInterface
+    {
+        if (!isset(static::$panels)) {
+            // Menus have not yet been initialized, do so now.
+            static::$panels = new Panels();
+        }
+
+        return static::$panels;
+    }
+
+    /**
+     * Sets the current panels configured for this page
+     *
+     * @param PanelsInterface $panels
+     *
+     * @return void
+     */
+    public static function setPanelsObject(PanelsInterface $panels): void
+    {
+        static::$panels = $panels;
+    }
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @return bool
+     */
+    public static function getMainContentsOnly(): bool
+    {
+        return static::$main_contents_only;
+    }
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @param bool $main_contents_only
+     *
+     * @return void
+     */
+    public static function setMainContentsOnly(bool $main_contents_only): void
+    {
+        static::$main_contents_only = $main_contents_only;
+    }
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @return bool
+     */
+    public static function getAttachment(): bool
+    {
+        return static::$attachment;
+    }
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @param bool $attachment
+     *
+     * @return void
+     */
+    public static function setAttachment(bool $attachment): void
+    {
+        static::$attachment = $attachment;
+    }
 
     /**
      * Returns the current TemplatePage used for this page
@@ -413,27 +377,18 @@ abstract class Request implements RequestInterface
         return static::$page;
     }
 
-
-    /**
-     * Returns the page flash messages
-     *
-     * @return FlashMessagesInterface|null
-     */
-    public static function getFlashMessages(): ?FlashMessagesInterface
-    {
-        return static::$flash_messages;
-    }
-
-
     /**
      * Returns requested main mimetype, or if requested mimetype is accepted or not
      *
      * The function will return true if the specified mimetype is supported, or false, if not
      *
+     * @param string $mimetype The mimetype that hopefully is accepted by the client
+     *
+     * @return mixed True if the client accepts it, false if not
      * @see Request::acceptsLanguages()
-     * code
-     * // This will return true
-     * $result = accepts('image/webp');
+     *      code
+     *      // This will return true
+     *      $result = accepts('image/webp');
      *
      * // This will return false
      * $result = accepts('image/foobar');
@@ -447,8 +402,6 @@ abstract class Request implements RequestInterface
      * Foo...bar
      * /code
      *
-     * @param string $mimetype The mimetype that hopefully is accepted by the client
-     * @return mixed True if the client accepts it, false if not
      */
     public static function accepts(string $mimetype): bool
     {
@@ -470,75 +423,6 @@ abstract class Request implements RequestInterface
         // Return if the client supports the specified mimetype
         return isset($headers[$mimetype]);
     }
-
-
-    /**
-     * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list
-     * of languages / locales accepted by the HTTP client
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see accepts()
-     * @note: This function is called by the startup system and its output stored in $core->register['accept_language'].
-     *        There is typically no need to execute this function on any other places
-     * @version 1.27.0: Added function and documentation
-     *
-     * @return array The list of accepted languages and locales as specified by the HTTP client
-     */
-    public static function acceptsLanguages(): array
-    {
-        if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            // No accept language headers were specified
-            $return  = [
-                '1.0' => [
-                    'language' => Config::get('languages.default', 'en'),
-                    'locale'   => Strings::cut(Config::get('locale.LC_ALL', 'US'), '_', '.')
-                ]
-            ];
-
-        } else {
-            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-            $headers = Arrays::force($headers, ',');
-            $default = array_shift($headers);
-            $return  = [
-                '1.0' => [
-                    'language' => Strings::until($default, '-'),
-                    'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null)
-                ]
-            ];
-
-            if (empty($return['1.0']['language'])) {
-                // Specified accepts language headers contain no language
-                $return['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
-            }
-
-            if (empty($return['1.0']['locale'])) {
-                // Specified accept language headers contain no locale
-                $return['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
-            }
-
-            foreach ($headers as $header) {
-                $requested =  Strings::until($header, ';');
-                $requested =  [
-                    'language' => Strings::until($requested, '-'),
-                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null)
-                ];
-
-                if (empty(Config::get('language.supported', [])[$requested['language']])) {
-                    continue;
-                }
-
-                $return[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
-            }
-        }
-
-        krsort($return);
-        return $return;
-    }
-
 
     /**
      * Detects and returns what language the user prefers to see
@@ -574,20 +458,87 @@ abstract class Request implements RequestInterface
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
-                    ->setUrl('developer/incidents.html')
-                    ->setMode(EnumDisplayMode::warning)
-                    ->setCode('unsupported-languages-requested')
-                    ->setRoles('developer')
-                    ->setTitle(tr('Unsupported language requested by client'))
-                    ->setMessage(tr('None of the requested languages ":languages" is supported', [
-                        ':languages' => $requested
-                    ]))
-                    ->send();
+                            ->setUrl('developer/incidents.html')
+                            ->setMode(EnumDisplayMode::warning)
+                            ->setCode('unsupported-languages-requested')
+                            ->setRoles('developer')
+                            ->setTitle(tr('Unsupported language requested by client'))
+                            ->setMessage(tr('None of the requested languages ":languages" is supported', [
+                                ':languages' => $requested,
+                            ]))
+                            ->send();
 
                 return Config::getString('languages.default', 'en');
         }
     }
 
+    /**
+     * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list
+     * of languages / locales accepted by the HTTP client
+     *
+     * @return array The list of accepted languages and locales as specified by the HTTP client
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   system
+     * @see       accepts()
+     * @note      : This function is called by the startup system and its output stored in
+     *            $core->register['accept_language']. There is typically no need to execute this function on any other
+     *            places
+     * @version   1.27.0: Added function and documentation
+     *
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     */
+    public static function acceptsLanguages(): array
+    {
+        if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            // No accept language headers were specified
+            $return = [
+                '1.0' => [
+                    'language' => Config::get('languages.default', 'en'),
+                    'locale'   => Strings::cut(Config::get('locale.LC_ALL', 'US'), '_', '.'),
+                ],
+            ];
+
+        } else {
+            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $headers = Arrays::force($headers, ',');
+            $default = array_shift($headers);
+            $return  = [
+                '1.0' => [
+                    'language' => Strings::until($default, '-'),
+                    'locale'   => (str_contains($default, '-') ? Strings::from($default, '-') : null),
+                ],
+            ];
+
+            if (empty($return['1.0']['language'])) {
+                // Specified accepts language headers contain no language
+                $return['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
+            }
+
+            if (empty($return['1.0']['locale'])) {
+                // Specified accept language headers contain no locale
+                $return['1.0']['locale'] = Strings::cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+            }
+
+            foreach ($headers as $header) {
+                $requested = Strings::until($header, ';');
+                $requested = [
+                    'language' => Strings::until($requested, '-'),
+                    'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
+                ];
+
+                if (empty(Config::get('language.supported', [])[$requested['language']])) {
+                    continue;
+                }
+
+                $return[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
+            }
+        }
+
+        krsort($return);
+        return $return;
+    }
 
     /**
      * Returns the port used for this request. When on command line, assume the default from configuration
@@ -597,7 +548,7 @@ abstract class Request implements RequestInterface
     public static function getPort(): int
     {
         if (PLATFORM_WEB) {
-            return (int) $_SERVER['SERVER_PORT'];
+            return (int)$_SERVER['SERVER_PORT'];
         }
 
         // We're on a command line
@@ -616,7 +567,6 @@ abstract class Request implements RequestInterface
         // Return default HTTP port
         return 80;
     }
-
 
     /**
      * Returns the request method for this page
@@ -648,42 +598,6 @@ abstract class Request implements RequestInterface
         return null;
     }
 
-
-    /**
-     * Returns the request method for this page
-     *
-     * @return string
-     */
-    #[ExpectedValues(values: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])]
-    public static function getRequestMethod(): string
-    {
-        return strtoupper($_SERVER['REQUEST_METHOD']);
-    }
-
-
-    /**
-     * Returns if this request is the specified method
-     *
-     * @param string $method
-     * @return bool
-     */
-    public static function isRequestMethod(#[ExpectedValues(values: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])] string $method): bool
-    {
-        return static::getRequestMethod() === strtoupper($method);
-    }
-
-
-    /**
-     * Returns if this request is a POST method
-     *
-     * @return bool
-     */
-    public static function isPostRequestMethod(): bool
-    {
-        return static::isRequestMethod('POST');
-    }
-
-
     /**
      * Return the domain for this page, or the primary domain on CLI
      *
@@ -693,7 +607,6 @@ abstract class Request implements RequestInterface
     {
         return Domains::getCurrent();
     }
-
 
     /**
      * Return the protocol for this page, or the primary domain on CLI
@@ -709,11 +622,11 @@ abstract class Request implements RequestInterface
         return Strings::until(Config::getString('web.domains.primary.web'), '://');
     }
 
-
     /**
      * Return the URL for this page
      *
      * @param bool $no_queries
+     *
      * @return string
      */
     public static function getUrl(bool $no_queries = false): string
@@ -721,31 +634,19 @@ abstract class Request implements RequestInterface
         return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
     }
 
-
     /**
      * Return the request URI for this page
      *
      * @note On the CLI platform this method will return "/"
+     *
      * @param bool $no_queries
+     *
      * @return string
      */
     public static function getUri(bool $no_queries = false): string
     {
         return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
     }
-
-
-    /**
-     * Return the complete request URL for this page (WITH domain)
-     *
-     * @param string $type
-     * @return string
-     */
-    public static function getRootUrl(string $type = 'web'): string
-    {
-        return static::$parameters->getRootUrl($type);
-    }
-
 
     /**
      * Returns the request URI for this page (WITHOUT domain)
@@ -761,43 +662,40 @@ abstract class Request implements RequestInterface
         return $uri;
     }
 
-
     /**
-     * Will throw an AccessDeniedException if the current session user is "guest"
+     * Return the complete request URL for this page (WITH domain)
      *
-     * @param string|int|null $new_target
-     * @return void
+     * @param string $type
+     *
+     * @return string
      */
-    public static function checkRequireNotGuestUser(string|int|null $new_target = '401'): void
+    public static function getRootUrl(string $type = 'web'): string
     {
-        if (Session::getUser()->isGuest()) {
-            throw AuthenticationException::new(tr('You have to sign in to view this page'))
-                ->setNewTarget($new_target);
-        }
+        return static::$parameters->getRootUrl($type);
     }
 
-
     /**
      * Will throw an AccessDeniedException if the current session user is "guest"
      *
      * @param string|int|null $new_target
+     *
      * @return void
      */
     public static function checkRequireGuestUser(string|int|null $new_target = 'index'): void
     {
         if (Session::getUser()->isGuest()) {
             throw AuthenticationException::new(tr('You have to sign out to view this page'))
-                ->setNewTarget($new_target);
+                                         ->setNewTarget($new_target);
         }
     }
-
 
     /**
      * Will throw an AccessDeniedException if the current session user does not have ALL the specified rights
      *
      * @param array|Stringable|string $rights
-     * @param string|int|null $missing_rights_target
-     * @param string|int|null $guest_target
+     * @param string|int|null         $missing_rights_target
+     * @param string|int|null         $guest_target
+     *
      * @return void
      */
     public static function requiresAllRights(array|Stringable|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
@@ -806,17 +704,32 @@ abstract class Request implements RequestInterface
 
         if (!Session::getUser()->hasAllRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
-                ->setNewTarget($missing_rights_target);
+                                       ->setNewTarget($missing_rights_target);
         }
     }
 
+    /**
+     * Will throw an AccessDeniedException if the current session user is "guest"
+     *
+     * @param string|int|null $new_target
+     *
+     * @return void
+     */
+    public static function checkRequireNotGuestUser(string|int|null $new_target = '401'): void
+    {
+        if (Session::getUser()->isGuest()) {
+            throw AuthenticationException::new(tr('You have to sign in to view this page'))
+                                         ->setNewTarget($new_target);
+        }
+    }
 
     /**
      * Will throw an AccessDeniedException if the current session user does not have SOME of the specified rights
      *
-     * @param array|string $rights
+     * @param array|string    $rights
      * @param string|int|null $missing_rights_target
      * @param string|int|null $guest_target
+     *
      * @return void
      */
     public static function requiresSomeRights(array|string $rights, string|int|null $missing_rights_target = 403, string|int|null $guest_target = 401): void
@@ -825,17 +738,238 @@ abstract class Request implements RequestInterface
 
         if (!Session::getUser()->hasSomeRights($rights)) {
             throw AccessDeniedException::new(tr('You do not have the required rights to view this page'))
-                ->setNewTarget($missing_rights_target);
+                                       ->setNewTarget($missing_rights_target);
         }
     }
 
+    /**
+     * Will throw an InvalidRequestTypeException if the current request type does not match the specified request type
+     *
+     * @param EnumRequestTypes $type The call type you wish to compare to
+     *
+     * @return void
+     */
+    public static function checkRequestType(EnumRequestTypes $type): void
+    {
+        if (!static::isRequestType($type)) {
+            throw new InvalidRequestTypeException(tr('Requested request type ":requested" does not match current request type ":current"', [
+                ':required' => $type,
+                ':current'  => static::$request_type,
+            ]));
+        }
+    }
+
+    /**
+     * Returns the data sent to this executed file
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return void
+     */
+    public static function addValue(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
+    {
+        if (empty(static::$source)) {
+            static::$source = new Iterator();
+        }
+
+        static::$source->add($value, $key, $skip_null, $exception);
+    }
+
+    /**
+     * Returns the data sent to this executed file
+     *
+     * @return IteratorInterface|null
+     */
+    public static function getSource(): ?IteratorInterface
+    {
+        return static::$source;
+    }
+
+    /**
+     * Returns the value for the specified data key, if exist. If not, the default value will be returned
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public static function getValue(string $key, mixed $default = null): mixed
+    {
+        return static::$source?->get($key, false) ?? $default;
+    }
+
+    /**
+     * Returns the number of pages we have recursed into.
+     *
+     * Returns 0 for the first page, 1 for the next, etc.
+     *
+     * @return int
+     */
+    public static function getStackLevel(): int
+    {
+        return static::$stack_level;
+    }
+
+    /**
+     * Returns the HTML unique hash
+     *
+     * @return string
+     */
+    public static function getHash(): string
+    {
+        return static::$hash;
+    }
+
+    /**
+     * Will throw a Http404Exception when this page is executed directly from Route
+     *
+     * @param string|null $message
+     *
+     * @return void
+     */
+    public static function cannotBeExecutedDirectly(?string $message = null): void
+    {
+        if (static::isExecutedDirectly()) {
+            if (!$message) {
+                $message = tr('The target ":target" cannot be accessed directly', [
+                    ':page' => static::getTarget()->getPath('root'),
+                ]);
+            }
+
+            throw Http404Exception::new($message)->makeWarning();
+        }
+    }
+
+    /**
+     * Returns if this page is executed directly from Route, or if its executed by executeReturn() call
+     *
+     * @return bool
+     */
+    public static function isExecutedDirectly(): bool
+    {
+        return !static::$stack_level;
+    }
+
+    /**
+     * Kill this web page script process
+     *
+     * @note Even if $exit_message was specified, the normal shutdown functions will still be called
+     *
+     * @param string|null $exit_message If specified, this message will be displayed and the process will be terminated
+     * @param bool        $sig_kill
+     *
+     * @return never
+     * @todo Implement this and add required functionality
+     */
+    #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
+    {
+        // If something went really, really wrong...
+        if ($sig_kill) {
+            exit($exit_message);
+        }
+
+        // POST-requests should always show a flash message for feedback!
+        if (static::isPostRequestMethod()) {
+            if (!static::getFlashMessages()?->getCount()) {
+                Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
+            }
+        }
+
+        switch (Response::getHttpCode()) {
+            case 200:
+                // no break
+            case 301:
+                // no break
+            case 302:
+                // no break
+            case 304:
+                Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
+                    ':script'    => static::getExecutedPath(true),
+                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':http_code' => Response::getHttpCode(),
+                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                ]));
+                break;
+
+            default:
+                Log::warning(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
+                    ':script'    => static::getExecutedPath(true),
+                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
+                    ':http_code' => Response::getHttpCode(),
+                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
+                ]));
+        }
+
+        // Normal kill request
+        Log::action(tr('Killing web page process'), 2);
+        exit();
+    }
+
+    /**
+     * Returns if this request is a POST method
+     *
+     * @return bool
+     */
+    public static function isPostRequestMethod(): bool
+    {
+        return static::isRequestMethod('POST');
+    }
+
+    /**
+     * Returns if this request is the specified method
+     *
+     * @param string $method
+     *
+     * @return bool
+     */
+    public static function isRequestMethod(#[ExpectedValues(values: [
+        'GET',
+        'HEAD',
+        'POST',
+        'PUT',
+        'DELETE',
+        'CONNECT',
+        'OPTIONS',
+        'TRACE',
+        'PATCH',
+    ])] string $method): bool
+    {
+        return static::getRequestMethod() === strtoupper($method);
+    }
+
+    /**
+     * Returns the request method for this page
+     *
+     * @return string
+     */
+    #[ExpectedValues(values: [
+        'GET',
+        'HEAD',
+        'POST',
+        'PUT',
+        'DELETE',
+        'CONNECT',
+        'OPTIONS',
+        'TRACE',
+        'PATCH',
+    ])]
+    public static function getRequestMethod(): string
+    {
+        return strtoupper($_SERVER['REQUEST_METHOD']);
+    }
 
     /**
      * Ensures that this session user has all the specified rights, or a redirect will happen
      *
-     * @param array|string $rights
+     * @param array|string    $rights
      * @param string|int|null $rights_redirect
      * @param string|int|null $guest_redirect
+     *
      * @return void
      */
     protected static function hasRightsOrRedirects(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
@@ -866,43 +1000,43 @@ abstract class Request implements RequestInterface
 
             $current        = Response::getRedirect(UrlBuilder::getCurrent());
             $guest_redirect = UrlBuilder::getWww($guest_redirect)
-                ->addQueries($current ? 'redirect=' . $current : null);
+                                        ->addQueries($current ? 'redirect=' . $current : null);
 
             Incident::new()
-                ->setType('401 - Unauthorized')
-                ->setSeverity(Severity::low)
-                ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
-                    ':target'      => static::$target->getPath('web'),
-                    ':real_target' => static::$target->getPath('web'),
-                    ':redirect'    => $guest_redirect,
-                    ':rights'      => Strings::force($rights, ', ')
-                ]))
-                ->setDetails([
-                    'user'        => 0,
-                    'uri'         => static::getUri(),
-                    'target'      => static::$target->getPath('web'),
-                    'real_target' => static::$target->getPath('web'),
-                    'rights'      => $rights
-                ])
-                ->save();
+                    ->setType('401 - Unauthorized')
+                    ->setSeverity(Severity::low)
+                    ->setTitle(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
+                        ':target'      => static::$target->getPath('web'),
+                        ':real_target' => static::$target->getPath('web'),
+                        ':redirect'    => $guest_redirect,
+                        ':rights'      => Strings::force($rights, ', '),
+                    ]))
+                    ->setDetails([
+                                     'user'        => 0,
+                                     'uri'         => static::getUri(),
+                                     'target'      => static::$target->getPath('web'),
+                                     'real_target' => static::$target->getPath('web'),
+                                     'rights'      => $rights,
+                                 ])
+                    ->save();
 
             if (static::isRequestType(EnumRequestTypes::api)) {
                 // This method will exit
                 Json::reply([
-                    '__system' => [
-                        'http_code' => 401
-                    ]
-                ]);
+                                '__system' => [
+                                    'http_code' => 401,
+                                ],
+                            ]);
             }
 
             if (static::isRequestType(EnumRequestTypes::ajax)) {
                 // This method will exit
                 Json::reply([
-                    '__system' => [
-                        'http_code' => 401,
-                        'location'  => (string) UrlBuilder::getAjax('sign-in')
-                    ]
-                ]);
+                                '__system' => [
+                                    'http_code' => 401,
+                                    'location'  => (string)UrlBuilder::getAjax('sign-in'),
+                                ],
+                            ]);
             }
 
             // This method will exit
@@ -918,57 +1052,57 @@ abstract class Request implements RequestInterface
         if (Rights::getNotExist($rights)) {
             // One or more of the rights do not exist
             Incident::new()
-                ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
-                    ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
-                    ':target'      => static::$target->getPath('web'),
-                    ':real_target' => static::$main_target->getPath('web'),
-                    ':redirect'    => $rights_redirect
-                ]))
-                ->setDetails([
-                    'user'           => Session::getUser()->getLogId(),
-                    'uri'            => static::getUri(),
-                    'target'         => static::$target->getPath('web'),
-                    'real_target'    => static::$main_target->getPath('web'),
-                    'rights'         => $rights,
-                    'missing_rights' => Rights::getNotExist($rights)
-                ])
-                ->notifyRoles('accounts')
-                ->save();
+                    ->setType('Non existing rights')->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                    ->setTitle(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
+                        ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
+                        ':target'      => static::$target->getPath('web'),
+                        ':real_target' => static::$main_target->getPath('web'),
+                        ':redirect'    => $rights_redirect,
+                    ]))
+                    ->setDetails([
+                                     'user'           => Session::getUser()->getLogId(),
+                                     'uri'            => static::getUri(),
+                                     'target'         => static::$target->getPath('web'),
+                                     'real_target'    => static::$main_target->getPath('web'),
+                                     'rights'         => $rights,
+                                     'missing_rights' => Rights::getNotExist($rights),
+                                 ])
+                    ->notifyRoles('accounts')
+                    ->save();
 
         } else {
             // Registered user does not have the required rights
             Incident::new()
-                ->setType('403 - Forbidden')
-                ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
-                ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
-                    ':user'        => Session::getUser()->getLogId(),
-                    ':rights'      => Session::getUser()->getMissingRights($rights),
-                    ':target'      => static::$target->getPath('web'),
-                    ':real_target' => static::$main_target->getPath('web'),
-                    ':redirect'    => $rights_redirect
-                ]))
-                ->setDetails([
-                    'user'        => Session::getUser()->getLogId(),
-                    'uri'         => static::getUri(),
-                    'target'      => static::$target->getPath('web'),
-                    'real_target' => static::$main_target->getPath('web'),
-                    'rights'      => Session::getUser()->getMissingRights($rights),
-                ])
-                ->notifyRoles('accounts')
-                ->save();
+                    ->setType('403 - Forbidden')
+                    ->setSeverity(in_array('admin', Session::getUser()->getMissingRights($rights)) ? Severity::high : Severity::medium)
+                    ->setTitle(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
+                        ':user'        => Session::getUser()->getLogId(),
+                        ':rights'      => Session::getUser()->getMissingRights($rights),
+                        ':target'      => static::$target->getPath('web'),
+                        ':real_target' => static::$main_target->getPath('web'),
+                        ':redirect'    => $rights_redirect,
+                    ]))
+                    ->setDetails([
+                                     'user'        => Session::getUser()->getLogId(),
+                                     'uri'         => static::getUri(),
+                                     'target'      => static::$target->getPath('web'),
+                                     'real_target' => static::$main_target->getPath('web'),
+                                     'rights'      => Session::getUser()->getMissingRights($rights),
+                                 ])
+                    ->notifyRoles('accounts')
+                    ->save();
         }
 
         // This method will exit
         static::executeSystem($rights_redirect);
     }
 
-
     /**
      * Returns true if the current URL has sign-key restrictions
      *
      * @param array|string $rights
-     * @param string $target
+     * @param string       $target
+     *
      * @return void
      */
     protected static function hasSignKeyRestrictions(array|string $rights, string $target): void
@@ -978,150 +1112,57 @@ abstract class Request implements RequestInterface
         // User signed in with "sign-in" key that may have additional restrictions
         if (!static::isRequestType(EnumRequestTypes::html)) {
             Incident::new()
-                ->setType('401 - Unauthorized')
-                ->setSeverity(Severity::low)
-                ->setTitle(tr('Session keys cannot be used on ":type" requests', [
-                    ':type' => static::getRequestType(),
-                ]))
-                ->setDetails([
-                    'user'         => $key->getUser()->getLogId(),
-                    'uri'          => static::getUri(),
-                    'target'       => static::$target->getPath('web'),
-                    'real_target'  => Strings::from($target, DIRECTORY_ROOT),
-                    'rights'       => $rights,
-                    ':sign_in_key' => $key->getUuid()
-                ])
-                ->save();
+                    ->setType('401 - Unauthorized')
+                    ->setSeverity(Severity::low)
+                    ->setTitle(tr('Session keys cannot be used on ":type" requests', [
+                        ':type' => static::getRequestType(),
+                    ]))
+                    ->setDetails([
+                                     'user'         => $key->getUser()->getLogId(),
+                                     'uri'          => static::getUri(),
+                                     'target'       => static::$target->getPath('web'),
+                                     'real_target'  => Strings::from($target, DIRECTORY_ROOT),
+                                     'rights'       => $rights,
+                                     ':sign_in_key' => $key->getUuid(),
+                                 ])
+                    ->save();
 
             static::executeSystem(401);
         }
 
         if (!$key->signKeyAllowsUrl(UrlBuilder::getCurrent(), $target)) {
             Incident::new()
-                ->setType('401 - Unauthorized')
-                ->setSeverity(Severity::low)
-                ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
-                    ':url'   => UrlBuilder::getCurrent(),
-                    ':allow' => $key->getRedirect(),
-                    ':uuid'  => $key->getUuid()
-                ]))
-                ->setDetails([
-                    ':url'      => UrlBuilder::getCurrent(),
-                    ':users_id' => $key->getUsersId(),
-                    ':allow'    => $key->getRedirect(),
-                    ':uuid'     => $key->getUuid()
-                ])
-                ->save();
+                    ->setType('401 - Unauthorized')
+                    ->setSeverity(Severity::low)
+                    ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
+                        ':url'   => UrlBuilder::getCurrent(),
+                        ':allow' => $key->getRedirect(),
+                        ':uuid'  => $key->getUuid(),
+                    ]))
+                    ->setDetails([
+                                     ':url'      => UrlBuilder::getCurrent(),
+                                     ':users_id' => $key->getUsersId(),
+                                     ':allow'    => $key->getRedirect(),
+                                     ':uuid'     => $key->getUuid(),
+                                 ])
+                    ->save();
 
             // This method will exit
             static::executeSystem(401);
         }
     }
 
-
     /**
-     * Returns the file executed for this request
+     * Will return true if the specified $type is equal to the request type
      *
-     * @return IteratorInterface
-     */
-    public static function getTargets(): IteratorInterface
-    {
-        if (empty(static::$targets)) {
-            static::$targets = new Iterator();
-        }
-
-        return static::$targets;
-    }
-
-
-    /**
-     * Returns the file executed for this request
+     * @param EnumRequestTypes $type The call type you wish to compare to
      *
-     * @return FileInterface
+     * @return bool This function will return true if $type matches core::callType, or false if it does not.
      */
-    public static function getTarget(): FileInterface
+    public static function isRequestType(EnumRequestTypes $type): bool
     {
-        return static::$target;
+        return ($type === static::$request_type);
     }
-
-
-    /**
-     * Sets the target for this request
-     *
-     * @param FileInterface|string $target
-     * @return void
-     */
-    protected static function setTarget(FileInterface|string $target): void
-    {
-        static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
-        static::$target->checkRestrictions(false);
-
-        static::getTargets()->add(static::$target);
-        static::addExecutedPath($target); // TODO We should get this from targets
-
-        // Store request hash used for caching, store real / original target
-        if (empty(static::$main_target)) {
-            if (PLATFORM_WEB) {
-                static::$hash = sha1($_SERVER['REQUEST_URI']);
-
-            } else {
-                static::$hash = sha1(Strings::force($_SERVER['argv']));
-            }
-
-            static::$main_target = static::$target;
-
-            if (PLATFORM_WEB) {
-                // Start the main web target buffer
-                ob_start();
-            }
-        }
-
-        // Determine the target request type
-        static::detectRequestType();
-    }
-
-
-    /**
-     * Determines what type of web request was made
-     *
-     * @return void
-     */
-    public static function detectRequestType(): void
-    {
-        if (PLATFORM_CLI) {
-            // We're running on the command line
-            $request_type = EnumRequestTypes::cli;
-
-        } else {
-            if (str_contains(static::$target, '/admin/')) {
-                $request_type = EnumRequestTypes::admin;
-
-            } elseif (str_contains(static::$target, '/ajax/')) {
-                $request_type = EnumRequestTypes::ajax;
-
-            } elseif (str_contains(static::$target, '/api/')) {
-                $request_type = EnumRequestTypes::api;
-
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                $request_type = EnumRequestTypes::file;
-
-            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
-                $request_type = EnumRequestTypes::api;
-
-            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
-                $request_type = EnumRequestTypes::amp;
-
-            } elseif (is_numeric(substr(static::$target, -3, 3))) {
-                $request_type = EnumRequestTypes::system;
-
-            } else {
-                $request_type = EnumRequestTypes::html;
-            }
-        }
-
-        static::setRequestType($request_type);
-    }
-
 
     /**
      * Returns the type of web request type is running. Will be one of html, ajax, api, or file.
@@ -1133,40 +1174,11 @@ abstract class Request implements RequestInterface
         return static::$request_type;
     }
 
-
-    /**
-     * Will return true if the specified $type is equal to the request type
-     *
-     * @param EnumRequestTypes $type The call type you wish to compare to
-     * @return bool This function will return true if $type matches core::callType, or false if it does not.
-     */
-    public static function isRequestType(EnumRequestTypes $type): bool
-    {
-        return ($type === static::$request_type);
-    }
-
-
-    /**
-     * Will throw an InvalidRequestTypeException if the current request type does not match the specified request type
-     *
-     * @param EnumRequestTypes $type The call type you wish to compare to
-     * @return void
-     */
-    public static function checkRequestType(EnumRequestTypes $type): void
-    {
-        if (!static::isRequestType($type)) {
-            throw new InvalidRequestTypeException(tr('Requested request type ":requested" does not match current request type ":current"', [
-                ':required' => $type,
-                ':current'  => static::$request_type,
-            ]));
-        }
-    }
-
-
     /**
      * Attempts to set the request type to the
      *
      * @param EnumRequestTypes $request_type
+     *
      * @return void
      */
     public static function setRequestType(EnumRequestTypes $request_type): void
@@ -1221,12 +1233,12 @@ abstract class Request implements RequestInterface
         switch ($request_type) {
             case EnumRequestTypes::unsupported:
                 throw new OutOfBoundsException(tr('Unsupported web request type ":type" encountered', [
-                    ':type' => static::getRequestType()
+                    ':type' => static::getRequestType(),
                 ]));
 
             case EnumRequestTypes::unknown:
                 throw new OutOfBoundsException(tr('Unknown web request type ":type" encountered', [
-                    ':type' => static::getRequestType()
+                    ':type' => static::getRequestType(),
                 ]));
 
             default:
@@ -1234,208 +1246,13 @@ abstract class Request implements RequestInterface
         }
     }
 
-
-    /**
-     * Returns the data sent to this executed file
-     *
-     * @param mixed $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
-     * @return void
-     */
-    public static function addValue(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): void
-    {
-        if (empty(static::$source)) {
-            static::$source = new Iterator();
-        }
-
-        static::$source->add($value, $key, $skip_null, $exception);
-    }
-
-
-    /**
-     * Returns the data sent to this executed file
-     *
-     * @return IteratorInterface|null
-     */
-    public static function getSource(): ?IteratorInterface
-    {
-        return static::$source;
-    }
-
-
-    /**
-     * Returns the value for the specified data key, if exist. If not, the default value will be returned
-     *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public static function getValue(string $key, mixed $default = null): mixed
-    {
-        return static::$source?->get($key, false) ?? $default;
-    }
-
-
-    /**
-     * Returns if this page is executed directly from Route, or if its executed by executeReturn() call
-     *
-     * @return bool
-     */
-    public static function isExecutedDirectly(): bool
-    {
-        return !static::$stack_level;
-    }
-
-
-    /**
-     * Returns the number of pages we have recursed into.
-     *
-     * Returns 0 for the first page, 1 for the next, etc.
-     *
-     * @return int
-     */
-    public static function getStackLevel(): int
-    {
-        return static::$stack_level;
-    }
-
-
-    /**
-     * Returns the HTML unique hash
-     *
-     * @return string
-     */
-    public static function getHash(): string
-    {
-        return static::$hash;
-    }
-
-
-    /**
-     * Try to send this page from cache, if available
-     *
-     * @return string|null
-     */
-    protected static function tryCache(): ?string
-    {
-        // Do we have a cached version available?
-        $cache = Cache::read(static::$hash, 'pages');
-
-        if ($cache) {
-            try {
-                Log::action(tr('Sending cached reply to client'), 3);
-
-                $cache = Json::decode($cache);
-
-                Response::setHttpHeaders($cache['headers']);
-                Response::addOutput($cache['output']);
-                Response::send();
-
-            } catch (Throwable $e) {
-                // Cache failed!
-                Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
-                    ':page' => static::$hash,
-                ]));
-
-                Log::exception($e);
-            }
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Will throw a Http404Exception when this page is executed directly from Route
-     *
-     * @param string|null $message
-     * @return void
-     */
-    public static function cannotBeExecutedDirectly(?string $message = null): void
-    {
-        if (static::isExecutedDirectly()) {
-            if (!$message) {
-                $message = tr('The target ":target" cannot be accessed directly', [
-                    ':page' => static::getTarget()->getPath('root')
-                ]);
-            }
-
-            throw Http404Exception::new($message)->makeWarning();
-        }
-    }
-
-
-    /**
-     * This method will prepare the static::$page variable
-     *
-     * @return void
-     */
-    protected static function preparePage(): void
-    {
-        switch (static::getRequestType()) {
-            case EnumRequestTypes::api:
-                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
-                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
-                    ':template' => static::$template->getName(),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE
-                ]));
-
-                static::$page = new Api();
-                break;
-
-            case EnumRequestTypes::ajax:
-                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE
-                ]));
-
-                static::$page = new Ajax();
-                break;
-
-            default:
-                Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
-                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
-                    ':template' => static::$template->getName(),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE
-                ]));
-
-                // static::$page should already be defined at this stage
-                if (empty(static::$page)) {
-                    throw new OutOfBoundsException(tr('Cannot execute HTML page request for target ":target", no template specified', [
-                        ':target' => static::$target
-                    ]));
-                }
-
-                if (!static::$stack_level) {
-                    // Start session only for AJAX and HTML requests
-                    if (!static::isRequestType(EnumRequestTypes::api)) {
-                        Session::startup();
-                    }
-
-                    if (static::$flash_messages) {
-                        // Merge the flash messages from sessions into page flash messages.
-                        static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
-
-                    } else {
-                        // Initialize the flash messages
-                        static::$flash_messages = Session::getFlashMessages();
-                    }
-                }
-        }
-    }
-
-
     /**
      * Executes the specified system page
      *
-     * @param int $http_code
+     * @param int            $http_code
      * @param Throwable|null $e
-     * @param string|null $message
+     * @param string|null    $message
+     *
      * @return never
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
@@ -1443,11 +1260,11 @@ abstract class Request implements RequestInterface
         SystemRequest::new()->execute($http_code, $e, $message);
     }
 
-
     /**
      * Execute the specified target for this request and returns the output
      *
      * @param FileInterface|string $target
+     *
      * @return string|null
      */
     public static function execute(FileInterface|string $target): ?string
@@ -1504,12 +1321,12 @@ abstract class Request implements RequestInterface
         return $return;
     }
 
-
     /**
      * Process a FileNotFoundException
      *
      * @param FileNotExistException $e
-     * @param FileInterface|string $target
+     * @param FileInterface|string  $target
+     *
      * @return never
      * @throws FileNotExistException
      */
@@ -1517,19 +1334,195 @@ abstract class Request implements RequestInterface
     {
         if (static::$stack_level >= 0) {
             Log::warning(tr('Sub target ":target" does not exist, displaying 500 instead', [
-                ':target' => $target
+                ':target' => $target,
             ]));
 
             throw $e;
         }
 
         Log::warning(tr('Main target ":target" does not exist, displaying 404 instead', [
-            ':target' => $target
+            ':target' => $target,
         ]));
 
         Request::executeSystem(404);
     }
 
+    /**
+     * This method will prepare the static::$page variable
+     *
+     * @return void
+     */
+    protected static function preparePage(): void
+    {
+        switch (static::getRequestType()) {
+            case EnumRequestTypes::api:
+                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
+                    ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]));
+
+                static::$page = new Api();
+                break;
+
+            case EnumRequestTypes::ajax:
+                Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]));
+
+                static::$page = new Ajax();
+                break;
+
+            default:
+                Log::information(tr('Executing page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                    ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
+                    ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]));
+
+                // static::$page should already be defined at this stage
+                if (empty(static::$page)) {
+                    throw new OutOfBoundsException(tr('Cannot execute HTML page request for target ":target", no template specified', [
+                        ':target' => static::$target,
+                    ]));
+                }
+
+                if (!static::$stack_level) {
+                    // Start session only for AJAX and HTML requests
+                    if (!static::isRequestType(EnumRequestTypes::api)) {
+                        Session::startup();
+                    }
+
+                    if (static::$flash_messages) {
+                        // Merge the flash messages from sessions into page flash messages.
+                        static::$flash_messages->pullMessagesFrom(Session::getFlashMessages());
+
+                    } else {
+                        // Initialize the flash messages
+                        static::$flash_messages = Session::getFlashMessages();
+                    }
+                }
+        }
+    }
+
+    /**
+     * Returns the file executed for this request
+     *
+     * @return FileInterface
+     */
+    public static function getTarget(): FileInterface
+    {
+        return static::$target;
+    }
+
+    /**
+     * Sets the target for this request
+     *
+     * @param FileInterface|string $target
+     *
+     * @return void
+     */
+    protected static function setTarget(FileInterface|string $target): void
+    {
+        static::$target = File::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+        static::$target->checkRestrictions(false);
+
+        static::getTargets()->add(static::$target);
+        static::addExecutedPath($target); // TODO We should get this from targets
+
+        // Store request hash used for caching, store real / original target
+        if (empty(static::$main_target)) {
+            if (PLATFORM_WEB) {
+                static::$hash = sha1($_SERVER['REQUEST_URI']);
+
+            } else {
+                static::$hash = sha1(Strings::force($_SERVER['argv']));
+            }
+
+            static::$main_target = static::$target;
+
+            if (PLATFORM_WEB) {
+                // Start the main web target buffer
+                ob_start();
+            }
+        }
+
+        // Determine the target request type
+        static::detectRequestType();
+    }
+
+    /**
+     * Returns the page flash messages
+     *
+     * @return FlashMessagesInterface|null
+     */
+    public static function getFlashMessages(): ?FlashMessagesInterface
+    {
+        return static::$flash_messages;
+    }
+
+    /**
+     * Try to send this page from cache, if available
+     *
+     * @return string|null
+     */
+    protected static function tryCache(): ?string
+    {
+        // Do we have a cached version available?
+        $cache = Cache::read(static::$hash, 'pages');
+
+        if ($cache) {
+            try {
+                Log::action(tr('Sending cached reply to client'), 3);
+
+                $cache = Json::decode($cache);
+
+                Response::setHttpHeaders($cache['headers']);
+                Response::addOutput($cache['output']);
+                Response::send();
+
+            } catch (Throwable $e) {
+                // Cache failed!
+                Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
+                    ':page' => static::$hash,
+                ]));
+
+                Log::exception($e);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns if the request is a system page
+     *
+     * @return bool
+     */
+    public static function getSystem(): bool
+    {
+        return static::$system;
+    }
+
+    /**
+     * Sets if the request is a system page
+     *
+     * @param bool $system
+     *
+     * @return void
+     */
+    public static function setSystem(bool $system): void
+    {
+        if (static::$system) {
+            throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
+        }
+
+        static::$system = $system;
+    }
 
     /**
      * Executes the specified target, processes default exceptions, and returns the results
@@ -1566,7 +1559,7 @@ abstract class Request implements RequestInterface
             Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
                 ':target' => static::$target,
                 ':user'   => Session::getUser()->getDisplayId(),
-                ':new'    => $new_target
+                ':new'    => $new_target,
             ]));
 
             return static::execute($new_target);
@@ -1582,59 +1575,58 @@ abstract class Request implements RequestInterface
         }
     }
 
-
     /**
-     * Kill this web page script process
+     * Returns the file executed for this request
      *
-     * @note Even if $exit_message was specified, the normal shutdown functions will still be called
-     * @param string|null $exit_message If specified, this message will be displayed and the process will be terminated
-     * @param bool $sig_kill
-     * @return never
-     * @todo Implement this and add required functionality
+     * @return IteratorInterface
      */
-    #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
+    public static function getTargets(): IteratorInterface
     {
-        // If something went really, really wrong...
-        if ($sig_kill) {
-            exit($exit_message);
+        if (empty(static::$targets)) {
+            static::$targets = new Iterator();
         }
 
-        // POST-requests should always show a flash message for feedback!
-        if (static::isPostRequestMethod()) {
-            if (!static::getFlashMessages()?->getCount()) {
-                Log::warning('Detected POST request without a flash message to give user feedback on what happened with this request!');
+        return static::$targets;
+    }
+
+    /**
+     * Determines what type of web request was made
+     *
+     * @return void
+     */
+    public static function detectRequestType(): void
+    {
+        if (PLATFORM_CLI) {
+            // We're running on the command line
+            $request_type = EnumRequestTypes::cli;
+
+        } else {
+            if (str_contains(static::$target, '/admin/')) {
+                $request_type = EnumRequestTypes::admin;
+
+            } elseif (str_contains(static::$target, '/ajax/')) {
+                $request_type = EnumRequestTypes::ajax;
+
+            } elseif (str_contains(static::$target, '/api/')) {
+                $request_type = EnumRequestTypes::api;
+
+            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'api')) and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                $request_type = EnumRequestTypes::file;
+
+            } elseif ((str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])) {
+                $request_type = EnumRequestTypes::api;
+
+            } elseif (Config::get('web.html.amp.enabled', false) and !empty($_GET['amp'])) {
+                $request_type = EnumRequestTypes::amp;
+
+            } elseif (is_numeric(substr(static::$target, -3, 3))) {
+                $request_type = EnumRequestTypes::system;
+
+            } else {
+                $request_type = EnumRequestTypes::html;
             }
         }
 
-        switch (Response::getHttpCode()) {
-            case 200:
-                // no break
-            case 301:
-                // no break
-            case 302:
-                // no break
-            case 304:
-                Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
-                    ':script'    => static::getExecutedPath(true),
-                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                    ':http_code' => Response::getHttpCode(),
-                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
-                ]));
-                break;
-
-            default:
-                Log::warning(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
-                    ':script'    => static::getExecutedPath(true),
-                    ':time'      => Time::difference(STARTTIME, microtime(true), 'auto', 5),
-                    ':usage'     => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-                    ':http_code' => Response::getHttpCode(),
-                    ':sent'      => Numbers::getHumanReadableBytes(Response::getBytesSent()),
-                ]));
-        }
-
-        // Normal kill request
-        Log::action(tr('Killing web page process'), 2);
-        exit();
+        static::setRequestType($request_type);
     }
 }

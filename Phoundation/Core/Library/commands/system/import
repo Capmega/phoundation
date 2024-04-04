@@ -9,7 +9,6 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 
 
-
 /**
  * Script system/import
  *
@@ -19,10 +18,10 @@ use Phoundation\Developer\Project\Project;
  * geo data (continents, countries, states, counties, cities, etc) (under construction)
  * geoip data  (under construction)
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho system import');
 
@@ -49,14 +48,12 @@ ARGUMENTS
                                         in each library');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-d,--demo')->isOptional()->isBoolean()
-    ->select('--min', true)->isOptional(10)->isNatural()
-    ->select('--max', true)->isOptional(1000)->isNatural()
-    ->validate();
-
+                     ->select('-d,--demo')->isOptional()->isBoolean()
+                     ->select('--min', true)->isOptional(10)->isNatural()
+                     ->select('--max', true)->isOptional(1000)->isNatural()
+                     ->validate();
 
 
 Log::information(tr('Importing languages, this may take a few seconds...'));

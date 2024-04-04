@@ -17,10 +17,10 @@ use Phoundation\Utils\Strings;
  *
  * This class helps building queries with multiple variables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class QueryObject implements QueryObjectInterface
 {
@@ -137,11 +137,62 @@ class QueryObject implements QueryObjectInterface
         }
     }
 
+    /**
+     * Add the FROM part of the query
+     *
+     * @param string     $from
+     * @param array|null $execute
+     *
+     * @return static
+     */
+    public function addFrom(string $from, ?array $execute = null): static
+    {
+        $this->from[] = $from;
+
+        return $this->addExecuteArray($execute);
+    }
+
+    /**
+     * Add the specified execute array to the internal execute array
+     *
+     * @param array|null $execute
+     *
+     * @return static
+     */
+    public function addExecuteArray(?array $execute): static
+    {
+        if ($execute) {
+            foreach ($execute as $key => $value) {
+                $this->addExecute($key, $value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a JOIN part of the query
+     *
+     * @param string                $column
+     * @param string|float|int|null $value
+     *
+     * @return static
+     */
+    public function addExecute(string $column, string|float|int|null $value): static
+    {
+        if (!$this->execute) {
+            $this->execute = [];
+        }
+
+        $this->execute[Strings::startsWith($column, ':')] = $value;
+        return $this;
+    }
 
     /**
      * QueryObject class constructor
      *
      * @param DataEntryInterface|DataListInterface|null $parent
+     *
      * @return static
      */
     public static function new(DataEntryInterface|DataListInterface|null $parent = null): static
@@ -149,12 +200,12 @@ class QueryObject implements QueryObjectInterface
         return new static($parent);
     }
 
-
     /**
      * Make this a SELECT query by adding the select clause here
      *
-     * @param string $select
+     * @param string     $select
      * @param array|null $execute
+     *
      * @return static
      */
     public function addSelect(string $select, ?array $execute = null): static
@@ -175,12 +226,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string $delete
+     * @param string     $delete
      * @param array|null $execute
+     *
      * @return static
      */
     public function addDelete(string $delete, ?array $execute = null): static
@@ -201,12 +252,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
     /**
      * Make this a UPDATE query by adding the select clause here
      *
-     * @param string $update
+     * @param string     $update
      * @param array|null $execute
+     *
      * @return static
      */
     public function addUpdate(string $update, ?array $execute = null): static
@@ -223,27 +274,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
-    /**
-     * Add the FROM part of the query
-     *
-     * @param string $from
-     * @param array|null $execute
-     * @return static
-     */
-    public function addFrom(string $from, ?array $execute = null): static
-    {
-        $this->from[] = $from;
-
-        return $this->addExecuteArray($execute);
-    }
-
-
     /**
      * Add a JOIN part of the query
      *
-     * @param string $join
+     * @param string     $join
      * @param array|null $execute
+     *
      * @return static
      */
     public function addJoin(string $join, ?array $execute = null): static
@@ -255,12 +291,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
     /**
      * Add a WHERE part of the query
      *
-     * @param string $where
+     * @param string     $where
      * @param array|null $execute
+     *
      * @return static
      */
     public function addWhere(string $where, ?array $execute = null): static
@@ -272,12 +308,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
     /**
      * Add a GROUP BY part of the query
      *
-     * @param string $group_by
+     * @param string     $group_by
      * @param array|null $execute
+     *
      * @return static
      */
     public function addGroupBy(string $group_by, ?array $execute = null): static
@@ -289,12 +325,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
     /**
      * Add a HAVING part of the query
      *
-     * @param string $having
+     * @param string     $having
      * @param array|null $execute
+     *
      * @return static
      */
     public function addHaving(string $having, ?array $execute = null): static
@@ -306,12 +342,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
     /**
      * Add a ORDER BY part of the query
      *
-     * @param string $order_by
+     * @param string     $order_by
      * @param array|null $execute
+     *
      * @return static
      */
     public function addOrderBy(string $order_by, ?array $execute = null): static
@@ -323,30 +359,12 @@ class QueryObject implements QueryObjectInterface
         return $this->addExecuteArray($execute);
     }
 
-
-    /**
-     * Add a JOIN part of the query
-     *
-     * @param string $column
-     * @param string|float|int|null $value
-     * @return static
-     */
-    public function addExecute(string $column, string|float|int|null $value): static
-    {
-        if (!$this->execute) {
-            $this->execute = [];
-        }
-
-        $this->execute[Strings::startsWith($column, ':')] = $value;
-        return $this;
-    }
-
-
     /**
      * Add a ORDER BY part of the query
      *
      * @param int $count
      * @param int $offset
+     *
      * @return static
      */
     public function setLimit(int $count, int $offset = 0): static
@@ -357,12 +375,12 @@ class QueryObject implements QueryObjectInterface
         return $this;
     }
 
-
     /**
      * Returns a column comparison and adds the bound variable to the execute list
      *
-     * @param string $column
+     * @param string                $column
      * @param array|string|int|null $value
+     *
      * @return string
      */
     public function compareQuery(string $column, array|string|int|null $value): string
@@ -391,35 +409,16 @@ class QueryObject implements QueryObjectInterface
 
                 foreach ($value as $scalar) {
                     $this->execute[$column . $count++] = $scalar;
-                    $columns[] = $column . ($count++);
+                    $columns[]                         = $column . ($count++);
                 }
 
                 return ' = IN (' . implode(', ', $columns) . ') ';
         }
 
         throw new OutOfBoundsException(tr('Unknown / unsupported datatype specified for value ":value"', [
-            ':value' => $value
+            ':value' => $value,
         ]));
     }
-
-
-    /**
-     * Add the specified execute array to the internal execute array
-     *
-     * @param array|null $execute
-     * @return static
-     */
-    public function addExecuteArray(?array $execute): static
-    {
-        if ($execute) {
-            foreach ($execute as $key => $value) {
-                $this->addExecute($key, $value);
-            }
-        }
-
-        return $this;
-    }
-
 
     /**
      * Returns all predefines for this query builder
@@ -435,8 +434,9 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add the specified predefined column
      *
-     * @param string $name
+     * @param string   $name
      * @param callable $callback
+     *
      * @return static
      */
     public function addPredefine(string $name, callable $callback): static

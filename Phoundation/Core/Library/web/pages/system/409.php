@@ -6,17 +6,17 @@
  * This is the page that will be shown when the specified could not be completed due to a conflict with the current
  * state of the target resource
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -38,15 +38,15 @@ switch (Request::getRequestType()) {
 
 // Build the error page
 echo Template::new('system/http-error')->setSource([
-    ':h2'     => '409',
-    ':h3'     => tr('Conflict'),
-    ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
-        ':url' => Request::getReferer(true)
-    ]),
-    ':type'   => 'warning',
-    ':search' => tr('Search'),
-    ':action' => UrlBuilder::getWww('search/')
-])->render();
+                                                       ':h2'     => '409',
+                                                       ':h3'     => tr('Conflict'),
+                                                       ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
+                                                           ':url' => Request::getReferer(true),
+                                                       ]),
+                                                       ':type'   => 'warning',
+                                                       ':search' => tr('Search'),
+                                                       ':action' => UrlBuilder::getWww('search/'),
+                                                   ])->render();
 
 
 // Set page meta data

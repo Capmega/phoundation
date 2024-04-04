@@ -12,10 +12,10 @@ use Phoundation\Web\Html\Enums\EnumContainerTier;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 trait TraitUsesTier
 {
@@ -26,20 +26,6 @@ trait TraitUsesTier
      */
     protected EnumContainerTier $tier = EnumContainerTier::md;
 
-
-    /**
-     * Sets the type for this container
-     *
-     * @param EnumContainerTier $tier
-     * @return static
-     */
-    public function setTier(EnumContainerTier $tier): static
-    {
-        $this->tier = $tier;
-        return $this;
-    }
-
-
     /**
      * Returns the type for this container
      *
@@ -48,5 +34,18 @@ trait TraitUsesTier
     public function getTier(): EnumContainerTier
     {
         return $this->tier;
+    }
+
+    /**
+     * Sets the type for this container
+     *
+     * @param EnumContainerTier $tier
+     *
+     * @return static
+     */
+    public function setTier(EnumContainerTier $tier): static
+    {
+        $this->tier = $tier;
+        return $this;
     }
 }

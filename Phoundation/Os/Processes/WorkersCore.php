@@ -19,11 +19,11 @@ use Phoundation\Utils\Strings;
  *
  * This class can manage worker processes running in the background
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
- * @uses ProcessVariables
+ * @package   Phoundation\Os
+ * @uses      ProcessVariables
  */
 class WorkersCore extends ProcessCore implements WorkersCoreInterface
 {
@@ -120,6 +120,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets if this process waits for the workers to finish before returning
      *
      * @param bool $wait_worker_finish
+     *
      * @return static
      */
     public function setWaitWorkerFinish(bool $wait_worker_finish): static
@@ -144,11 +145,12 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets the minimum number of workers required
      *
      * @param int|null $minimum
+     *
      * @return static
      */
     public function setMinimumWorkers(?int $minimum): static
     {
-        $this->minimum = (int) $minimum;
+        $this->minimum = (int)$minimum;
         return $this;
     }
 
@@ -168,11 +170,12 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets the maximum number of workers required
      *
      * @param int|null $maximum
+     *
      * @return static
      */
     public function setMaximumWorkers(?int $maximum): static
     {
-        $this->maximum = (int) $maximum;
+        $this->maximum = (int)$maximum;
         return $this;
     }
 
@@ -192,6 +195,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
      * @param int $wait_sleep
+     *
      * @return static
      */
     public function setWaitSleep(int $wait_sleep): static
@@ -202,7 +206,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
 
 
     /**
-     * Returns number of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
+     * Returns number of time in milliseconds that the process cycle should sleep each cycle while checking alive
+     * workers
      *
      * @return int
      */
@@ -216,6 +221,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets number of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
      *
      * @param int $cycle_sleep
+     *
      * @return static
      */
     public function setCycleSleep(int $cycle_sleep): static
@@ -240,6 +246,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets the variable values list that this master worker will process
      *
      * @param string $key
+     *
      * @return static
      */
     public function setKey(string $key): static
@@ -270,6 +277,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      * Sets the variable values list that this master worker will process
      *
      * @param array $values
+     *
      * @return static
      */
     public function setValues(array $values): static
@@ -278,7 +286,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         foreach ($values as $value) {
             if (!is_scalar($value)) {
                 throw new OutOfBoundsException(tr('Specified value ":value" from the values list is invalid, it should be scalar', [
-                    ':value' => $value
+                    ':value' => $value,
                 ]));
             }
         }
@@ -286,19 +294,6 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         $this->values = $values;
         return $this;
     }
-
-
-    /**
-     * Returns the current number of workers running
-     *
-     * @return int
-     */
-    public function getCurrent(): int
-    {
-        $this->cleanWorkers();
-        return count($this->workers);
-    }
-
 
     /**
      * Start running the workers as background processes
@@ -318,7 +313,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
 
         $current = 0;
 
-        while(true) {
+        while (true) {
             if (!$this->values) {
                 Log::success(tr('Finished processing values list with ":count" workers', [':count' => $this->workers_executed]));
                 break;
@@ -328,7 +323,10 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 $this->startWorker();
 
             } else {
-                Log::warning(tr('Current number of workers ":current" is higher than the maximum of ":max", not starting new workers', [':current' => $current, ':max' => $this->maximum]), 4);
+                Log::warning(tr('Current number of workers ":current" is higher than the maximum of ":max", not starting new workers', [
+                    ':current' => $current,
+                    ':max'     => $this->maximum,
+                ]),          4);
             }
 
             usleep($this->cycle_sleep * 1000);
@@ -336,7 +334,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         }
 
         if ($this->wait_worker_finish) {
-            while(true) {
+            while (true) {
                 $current = $this->getCurrent();
 
                 Log::notice(tr('Waiting for ":count" workers to finish', [':count' => $current]));
@@ -351,20 +349,6 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         }
     }
 
-
-    /**
-     * Stop all background-running workers
-     *
-     * @return void
-     */
-    public function stop(): void
-    {
-        foreach ($this->workers as $worker) {
-            $worker->kill();
-        }
-    }
-
-
     /**
      * Start a background worker
      *
@@ -377,8 +361,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         $worker->setVariables([$this->key => $value]);
 
         Log::action(tr('Starting worker with command ":command"', [
-            ':command' => $worker->getFullCommandLine()
-        ]), 3);
+            ':command' => $worker->getFullCommandLine(),
+        ]),         3);
 
         $worker->executeBackground();
 
@@ -388,10 +372,20 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         Log::success(tr('Started worker with PID ":pid" for ":label" ":value"', [
             ':pid'   => $worker->getPid(),
             ':label' => not_empty($this->label, tr('value')),
-            ':value' => $value
+            ':value' => $value,
         ]));
     }
 
+    /**
+     * Returns the current number of workers running
+     *
+     * @return int
+     */
+    public function getCurrent(): int
+    {
+        $this->cleanWorkers();
+        return count($this->workers);
+    }
 
     /**
      * Clean gone workers from the workers list
@@ -418,6 +412,18 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
             // This worker is dead, remove it from the list
             Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
             unset($this->workers[$pid]);
+        }
+    }
+
+    /**
+     * Stop all background-running workers
+     *
+     * @return void
+     */
+    public function stop(): void
+    {
+        foreach ($this->workers as $worker) {
+            $worker->kill();
         }
     }
 }

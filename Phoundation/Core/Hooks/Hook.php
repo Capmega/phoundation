@@ -21,11 +21,11 @@ use Throwable;
  * DIRECTORY_DATA/system/hooks/HOOK and DIRECTORY_DATA/system/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook
  * scripts that all have to do with the same system, to group them together. HOOK is the script to be executed
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Hook implements HookInterface
 {
@@ -58,23 +58,11 @@ class Hook implements HookInterface
         }
     }
 
-
-    /**
-     * Returns a new Hook object
-     *
-     * @param string|null $class
-     * @return static
-     */
-    public static function new(?string $class = null): static
-    {
-        return new static($class);
-    }
-
-
     /**
      * Attempts to execute the specified hooks
      *
      * @param array|string $hooks
+     *
      * @return $this
      */
     public function execute(array|string $hooks, ?array $params = null): static
@@ -93,14 +81,14 @@ class Hook implements HookInterface
             // Try executing it!
             try {
                 Log::action(tr('Executing hook ":hook"', [
-                    ':hook' => $this->class . '/' . $hook
+                    ':hook' => $this->class . '/' . $hook,
                 ]));
 
                 include($file);
 
             } catch (Throwable $e) {
                 Log::error(tr('Hook ":hook" failed to execute with the following exception', [
-                    ':hook' => $hook
+                    ':hook' => $hook,
                 ]));
 
                 Log::error($e);
@@ -108,5 +96,17 @@ class Hook implements HookInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Returns a new Hook object
+     *
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public static function new(?string $class = null): static
+    {
+        return new static($class);
     }
 }

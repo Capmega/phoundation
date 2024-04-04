@@ -12,10 +12,10 @@ use Stringable;
  *
  * This class manages the "find" command
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 interface FindInterface extends CommandInterface
 {
@@ -23,6 +23,7 @@ interface FindInterface extends CommandInterface
      * Sets the path in which to find
      *
      * @param PathInterface|string|null $path
+     *
      * @return $this
      */
     public function setPath(PathInterface|string|null $path): static;
@@ -31,7 +32,9 @@ interface FindInterface extends CommandInterface
      * Sets if find should descend into other filesystems
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
+     *
      * @param PathInterface|string|null $find_path
+     *
      * @return static
      */
     public function setFindPath(PathInterface|string|null $find_path): static;
@@ -47,7 +50,9 @@ interface FindInterface extends CommandInterface
      * Sets if find should descend into other filesystems
      *
      * @note This is true by default for security to avoid searching on remote filesystems by accident
+     *
      * @param bool $mount
+     *
      * @return static
      */
     public function setMount(bool $mount): static;
@@ -71,6 +76,7 @@ interface FindInterface extends CommandInterface
      * Sets if find should find follow_symlinks files
      *
      * @param bool $follow_symlinks
+     *
      * @return static
      */
     public function setFollowSymlinks(bool $follow_symlinks): static;
@@ -87,6 +93,7 @@ interface FindInterface extends CommandInterface
      * Sets if find should find empty files
      *
      * @param bool $empty
+     *
      * @return static
      */
     public function setEmpty(bool $empty): static;
@@ -102,6 +109,7 @@ interface FindInterface extends CommandInterface
      * Sets the iname
      *
      * @param string|null $iname
+     *
      * @return static
      */
     public function setIname(?string $iname): static;
@@ -117,6 +125,7 @@ interface FindInterface extends CommandInterface
      * Sets the size in which to find
      *
      * @param Stringable|string $size
+     *
      * @return $this
      */
     public function setSize(Stringable|string $size): static;
@@ -132,6 +141,7 @@ interface FindInterface extends CommandInterface
      * Sets the last modified time in minutes for which to find
      *
      * @param Stringable|string $mtime
+     *
      * @return $this
      */
     public function setMtime(Stringable|string $mtime): static;
@@ -147,6 +157,7 @@ interface FindInterface extends CommandInterface
      * Sets the access time in minutes for which to find
      *
      * @param Stringable|string $atime
+     *
      * @return $this
      */
     public function setAtime(Stringable|string $atime): static;
@@ -162,6 +173,7 @@ interface FindInterface extends CommandInterface
      * Sets the file status change time in minutes for which to find
      *
      * @param Stringable|string $ctime
+     *
      * @return $this
      */
     public function setCtime(Stringable|string $ctime): static;
@@ -177,6 +189,7 @@ interface FindInterface extends CommandInterface
      * Sets the file types in which to find
      *
      * @param Stringable|array|string $types
+     *
      * @return $this
      */
     public function setTypes(Stringable|array|string $types): static;
@@ -192,6 +205,7 @@ interface FindInterface extends CommandInterface
      * Sets the regex in which to find
      *
      * @param string|null $regex
+     *
      * @return $this
      */
     public function setRegex(?string $regex): static;
@@ -207,6 +221,7 @@ interface FindInterface extends CommandInterface
      * Sets the depth in which to find
      *
      * @param bool $depth
+     *
      * @return $this
      */
     public function setDepth(bool $depth): static;
@@ -222,6 +237,7 @@ interface FindInterface extends CommandInterface
      * Sets the min_depth in which to find
      *
      * @param int|null $min_depth
+     *
      * @return $this
      */
     public function setMinDepth(?int $min_depth): static;
@@ -237,6 +253,7 @@ interface FindInterface extends CommandInterface
      * Sets the max_depth in which to find
      *
      * @param int|null $max_depth
+     *
      * @return $this
      */
     public function setMaxDepth(?int $max_depth): static;
@@ -252,6 +269,7 @@ interface FindInterface extends CommandInterface
      * Sets the callback in which to find
      *
      * @param callable|null $callback
+     *
      * @return $this
      */
     public function setCallback(?callable $callback): static;
@@ -267,6 +285,7 @@ interface FindInterface extends CommandInterface
      * Sets what shell command to execute on each file
      *
      * @param string|null $exec
+     *
      * @return $this
      */
     public function setExec(?string $exec = null): static;
@@ -293,6 +312,7 @@ interface FindInterface extends CommandInterface
      * s      socket
      *
      * @param string $type
+     *
      * @return $this
      */
     public function setType(string $type): static;

@@ -22,11 +22,11 @@ declare(strict_types=1);
  *                        in the databaes to be the version number that follows
  *                        this option
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package template
+ * @category  Function reference
+ * @package   template
  */
 
 use Phoundation\Core\Log\Log;
@@ -36,7 +36,6 @@ use Phoundation\Utils\Config;
 
 // Ensure no arguments
 $argv = ArgvValidator::new()->validate();
-
 
 
 // Drop the core database

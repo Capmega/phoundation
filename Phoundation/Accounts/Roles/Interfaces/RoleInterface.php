@@ -15,11 +15,11 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 interface RoleInterface extends DataEntryInterface
 {
@@ -41,6 +41,7 @@ interface RoleInterface extends DataEntryInterface
      * * Creates and returns an HTML DataEntry form
      *
      * @param string $name
+     *
      * @return DataEntryFormInterface
      */
     public function getRightsHtmlDataEntryForm(string $name = 'roles_id[]'): DataEntryFormInterface;

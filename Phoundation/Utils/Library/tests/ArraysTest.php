@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Phoundation\Utils\Arrays;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use PHPUnit\Framework\TestCase;
 
 
@@ -17,7 +17,10 @@ class ArraysTest extends TestCase
     public function testNextKey()
     {
         // Test normal operation
-        $array = ['a' => 1, 'b' => 2];
+        $array = [
+            'a' => 1,
+            'b' => 2,
+        ];
 
         $this->assertEquals('b', Arrays::nextKey($array, 'a'));
 
@@ -27,9 +30,9 @@ class ArraysTest extends TestCase
 
         // Test failures
         $this->expectException(OutOfBoundsException::class);
-        $this->assertEquals(null, Arrays::nextKey($array,'c'));
+        $this->assertEquals(null, Arrays::nextKey($array, 'c'));
 
         $this->expectException(OutOfBoundsException::class);
-        $this->assertEquals(null, Arrays::nextKey($array,'b'));
+        $this->assertEquals(null, Arrays::nextKey($array, 'b'));
     }
 }

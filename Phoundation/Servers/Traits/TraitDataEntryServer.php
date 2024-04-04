@@ -13,10 +13,10 @@ use Phoundation\Servers\Server;
  *
  * This trait contains methods for DataEntry objects that require a server
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryServer
 {
@@ -25,23 +25,11 @@ trait TraitDataEntryServer
      */
     protected ?ServerInterface $server;
 
-
-    /**
-     * Returns the servers_id for this object
-     *
-     * @return int|null
-     */
-    public function getServersId(): ?int
-    {
-        return $this->getValueTypesafe('int', 'servers_id');
-
-    }
-
-
     /**
      * Sets the servers_id for this object
      *
      * @param int|null $servers_id
+     *
      * @return static
      */
     public function setServersId(?int $servers_id): static
@@ -50,6 +38,15 @@ trait TraitDataEntryServer
         return $this->setValue('servers_id', $servers_id);
     }
 
+    /**
+     * Returns the servers hostname for this object
+     *
+     * @return string|null
+     */
+    public function getServersHostname(): ?string
+    {
+        return $this->getServer()?->getHostname();
+    }
 
     /**
      * Returns the ServerInterface object for this object
@@ -70,6 +67,7 @@ trait TraitDataEntryServer
      * Sets the ServerInterface object for this object
      *
      * @param ServerInterface|null $server
+     *
      * @return static
      */
     public function setServer(?ServerInterface $server): static
@@ -82,22 +80,22 @@ trait TraitDataEntryServer
         return $this->setServersId(null);
     }
 
-
     /**
-     * Returns the servers hostname for this object
+     * Returns the servers_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getServersHostname(): ?string
+    public function getServersId(): ?int
     {
-        return $this->getServer()?->getHostname();
-    }
+        return $this->getValueTypesafe('int', 'servers_id');
 
+    }
 
     /**
      * Sets the server hostname for this object
      *
      * @param string|null $hostname
+     *
      * @return static
      */
     public function setServersHostname(?string $hostname): static

@@ -12,10 +12,10 @@ use Phoundation\Web\Html\Html;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataServiceName
 {
@@ -42,7 +42,8 @@ trait TraitDataServiceName
      * Sets the service name
      *
      * @param string|null $service_name
-     * @param bool $make_safe
+     * @param bool        $make_safe
+     *
      * @return static
      */
     public function setServiceName(?string $service_name, bool $make_safe = true): static

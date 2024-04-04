@@ -14,10 +14,10 @@ use Phoundation\Geo\GeoIp\GeoIp;
  *
  * This trait contains methods for DataEntry objects that require GEO data (country, state and city)
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataGeoIp
 {
@@ -37,6 +37,7 @@ trait TraitDataGeoIp
      * Set GeoIP data
      *
      * @param GeoIp|null $geo_ip
+     *
      * @return $this
      */
     public function setGeoIp(?GeoIp $geo_ip): static

@@ -16,10 +16,10 @@ use Phoundation\Utils\Arrays;
  *
  * This class is used to easily execute Phoundation commands
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
 {
@@ -27,7 +27,7 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
      * PhoCommand class constructor.
      *
      * @param array|string|null $commands
-     * @param bool $which_command
+     * @param bool              $which_command
      */
     public function __construct(array|string|null $commands, bool $which_command = true)
     {
@@ -37,8 +37,11 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
         parent::__construct(Restrictions::new(DIRECTORY_ROOT . 'pho'));
 
         $this->setCommand(DIRECTORY_ROOT . 'pho', $which_command)
-            ->addArguments(['-E', ENVIRONMENT])
-            ->addArguments($commands ? Arrays::force($commands, ' ') : null);
+             ->addArguments([
+                                '-E',
+                                ENVIRONMENT,
+                            ])
+             ->addArguments($commands ? Arrays::force($commands, ' ') : null);
     }
 
 
@@ -46,7 +49,8 @@ class PhoCommand extends WorkersCore implements PhoCommandCoreInterface
      * Create a new process factory for a specific Phoundation command
      *
      * @param array|string|null $commands
-     * @param bool $which_command
+     * @param bool              $which_command
+     *
      * @return static
      */
     public static function new(array|string|null $commands, bool $which_command = true): static

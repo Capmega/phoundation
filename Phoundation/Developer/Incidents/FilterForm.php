@@ -10,10 +10,10 @@ namespace Phoundation\Developer\Incidents;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
@@ -26,15 +26,15 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 
         $this->definitions = [
             'type[]'   => [
-                'label'    => tr('Type'),
-                'element'  => 'select',
-                'source'   => [
+                'label'   => tr('Type'),
+                'element' => 'select',
+                'source'  => [
                     'email'  => tr('Email'),
-                    'phones' => tr('Phone number')
+                    'phones' => tr('Phone number'),
                 ],
             ],
             'filter[]' => [
-                'label'    => tr('Filter'),
+                'label' => tr('Filter'),
 
             ],
         ];

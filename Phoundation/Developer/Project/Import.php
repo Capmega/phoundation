@@ -13,10 +13,10 @@ use Exception;
  * This is the prototype import class that contains the basic methods for all other import classes in all other
  * libraries
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 abstract class Import
 {
@@ -46,14 +46,15 @@ abstract class Import
      * Import class constructor
      *
      * @param bool|null $demo
-     * @param int|null $min
-     * @param int|null $max
+     * @param int|null  $min
+     * @param int|null  $max
+     *
      * @throws Exception
      */
     public function __construct(?bool $demo = null, ?int $min = null, ?int $max = null)
     {
         $this->demo  = $demo;
-        $this->count = random_int((int) $min, (int) $max);
+        $this->count = random_int((int)$min, (int)$max);
     }
 
 
@@ -61,8 +62,9 @@ abstract class Import
      * Returns a new Import object
      *
      * @param bool|null $demo
-     * @param int|null $min
-     * @param int|null $max
+     * @param int|null  $min
+     * @param int|null  $max
+     *
      * @return static
      * @throws Exception
      */

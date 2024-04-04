@@ -13,10 +13,10 @@ use Phoundation\Utils\Arrays;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class ListOperations implements ListOperationsInterface
 {
@@ -36,27 +36,28 @@ class ListOperations implements ListOperationsInterface
         $this->parent = $parent_class;
     }
 
-
     /**
-     * Returns a new ListOperations object
+     * Delete the specified entries
      *
-     * @param string $parent_class
-     * @return static
+     * @param array|string $ids
+     * @param string|null  $comments
+     *
+     * @return int
      */
-    public static function new(string $parent_class): static
+    public function deleteKeys(array|string $ids, ?string $comments = null): int
     {
-        return new static($parent_class);
+        return $this->setStatusKeys($ids, 'deleted', $comments);
     }
-
 
     /**
      * Set the specified status for the specified entries
      *
-     * @todo Optimize this function
      * @param array|string $ids
-     * @param string|null $status
-     * @param string|null $comments
+     * @param string|null  $status
+     * @param string|null  $comments
+     *
      * @return int
+     * @todo Optimize this function
      */
     public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): int
     {
@@ -71,24 +72,23 @@ class ListOperations implements ListOperationsInterface
         return $count;
     }
 
-
     /**
-     * Delete the specified entries
+     * Returns a new ListOperations object
      *
-     * @param array|string $ids
-     * @param string|null $comments
-     * @return int
+     * @param string $parent_class
+     *
+     * @return static
      */
-    public function deleteKeys(array|string $ids, ?string $comments = null): int
+    public static function new(string $parent_class): static
     {
-        return $this->setStatusKeys($ids, 'deleted', $comments);
+        return new static($parent_class);
     }
-
 
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
      *
      * @param array|string $ids
+     *
      * @return int
      */
     public function eraseKeys(array|string $ids): int
@@ -110,7 +110,9 @@ class ListOperations implements ListOperationsInterface
      * Undelete the specified entries
      *
      * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
+     *
      * @param string|null $comments
+     *
      * @return int
      */
     public function undeleteKeys(array|string $ids, ?string $comments = null): int

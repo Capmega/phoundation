@@ -5,10 +5,10 @@
  *
  * This page allows users to sign in using a sign-key through their email
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -19,13 +19,14 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
-throw new \Phoundation\Exception\UnderConstructionException();
+throw new UnderConstructionException();
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUser()->isGuest()) {
@@ -35,17 +36,17 @@ if (!Session::getUser()->isGuest()) {
 
 // Is email specified by URL?
 $get = GetValidator::new()
-    ->select('email')->isOptional()->isEmail()
-    ->select('redirect')->isOptional()->isUrl()
-    ->validate();
+                   ->select('email')->isOptional()->isEmail()
+                   ->select('redirect')->isOptional()->isUrl()
+                   ->validate();
 
 
 // Validate sign in data and sign in
 if (Request::isPostRequestMethod()) {
     try {
         $post = PostValidator::new()
-            ->select('email')->isEmail()
-            ->validate();
+                             ->select('email')->isEmail()
+                             ->validate();
 
         try {
             $user = User::get($post['email'], 'email');
@@ -70,11 +71,11 @@ if (Request::isPostRequestMethod()) {
             $mail->Body = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
                 ':user' => $user->getDisplayName(),
                 ':here' => tr('<a href=":url">here</a>', [':url' => $key->getUrl()]),
-                ':alt'  => $key->getUrl()
+                ':alt'  => $key->getUrl(),
             ]);
 
             $mail->Subject = tr('[:project] Lost password request', [
-                ':project' => Config::getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : '')
+                ':project' => Config::getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
             ]);
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
@@ -112,12 +113,14 @@ Response::setBuildBody(false);
 
 ?>
 <?= Request::getFlashMessages()->render() ?>
-    <body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+    <body class="hold-transition login-page"
+          style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-              <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
+                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>"
+                   class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link where you can re-establish your password') ?></p>
@@ -127,7 +130,8 @@ Response::setBuildBody(false);
                     if (Session::supports('email')) {
                         ?>
                         <div class="input-group mb-3">
-                            <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>"<?= isset_get($get['email']) ? 'value="' . $get['email'] . '"' : '' ?>>
+                            <input type="email" name="email" id="email" class="form-control"
+                                   placeholder="<?= tr('Email address') ?>"<?= isset_get($get['email']) ? 'value="' . $get['email'] . '"' : '' ?>>
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-envelope"></span>
@@ -137,13 +141,15 @@ Response::setBuildBody(false);
                         <div class="row mb-3">
                             <!-- /.col -->
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary btn-block"><?= tr('Request a new password') ?></button>
+                                <button type="submit"
+                                        class="btn btn-primary btn-block"><?= tr('Request a new password') ?></button>
                             </div>
                             <!-- /.col -->
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <a class="btn btn-outline-secondary btn-block" href="<?= UrlBuilder::getWww('/sign-in.html')->addQueries(isset_get($get['email']) ? 'email=' . $get['email'] : '', isset_get($get['redirect']) ? 'redirect=' . $get['redirect'] : '') ?>"><?= tr('Back to sign in') ?></a>
+                                <a class="btn btn-outline-secondary btn-block"
+                                   href="<?= UrlBuilder::getWww('/sign-in.html')->addQueries(isset_get($get['email']) ? 'email=' . $get['email'] : '', isset_get($get['redirect']) ? 'redirect=' . $get['redirect'] : '') ?>"><?= tr('Back to sign in') ?></a>
                             </div>
                         </div>
                         <?php

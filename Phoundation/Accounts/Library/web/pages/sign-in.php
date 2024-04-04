@@ -20,10 +20,10 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
@@ -36,9 +36,9 @@ if (!Session::getUser()->isGuest()) {
 // Is email specified by URL?
 try {
     $get = GetValidator::new()
-        ->select('email')->isOptional()->isEmail()
-        ->select('redirect')->isOptional()->isUrl()
-        ->validate();
+                       ->select('email')->isOptional()->isEmail()
+                       ->select('redirect')->isOptional()->isUrl()
+                       ->validate();
 
 } catch (ValidationFailedException $e) {
     // If validation failed, this means that either the specified email or redirect variables were invalid. Redirect to
@@ -60,7 +60,7 @@ if (Request::isPostRequestMethod()) {
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
             Request::getFlashMessages()->addWarningMessage(tr('Please specify at least ":count" characters for the password', [
-                ':count' => Config::getInteger('security.passwords.size.minimum', 10)
+                ':count' => Config::getInteger('security.passwords.size.minimum', 10),
             ]));
 
             break;
@@ -85,56 +85,60 @@ Response::setBuildBody(false);
 
 ?>
 <?= Request::getFlashMessages()->render() ?>
-<body class="hold-transition login-page" style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+    <body class="hold-transition login-page"
+          style="background: url(<?= UrlBuilder::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/signin.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
-      <!-- /.login-logo -->
-      <div class="card card-outline card-info">
-        <div class="card-header text-center">
-          <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>" class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
-        </div>
-        <div class="card-body">
-          <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
+        <!-- /.login-logo -->
+        <div class="card card-outline card-info">
+            <div class="card-header text-center">
+                <a href="<?= Config::getString('project.customer-url', 'https://phoundation.org'); ?>"
+                   class="h1"><?= Config::getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
+            </div>
+            <div class="card-body">
+                <p class="login-box-msg"><?= tr('Please sign in to start your session') ?></p>
 
-          <form action="<?= UrlBuilder::getWww() ?>" method="post">
-            <?php
-                if (Session::supports('email')) {
-                    ?>
-                    <div class="input-group mb-3">
-                        <input type="email" name="email" id="email" class="form-control" placeholder="<?= tr('Email address') ?>"<?= isset_get($get['email']) ? 'value="' . $get['email'] . '"' : '' ?>>
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input type="password" name="password" id="password" class="form-control" placeholder="<?= tr('Password') ?>">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="remember">
-                                <label for="remember">
-                                    <?= tr('Remember Me') ?>
-                                </label>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block"><?= tr('Sign In') ?></button>
-                        </div>
-                        <!-- /.col -->
-                    </div>
+                <form action="<?= UrlBuilder::getWww() ?>" method="post">
                     <?php
-                }
-            ?>
-          </form>
-          <?php
+                    if (Session::supports('email')) {
+                        ?>
+                        <div class="input-group mb-3">
+                            <input type="email" name="email" id="email" class="form-control"
+                                   placeholder="<?= tr('Email address') ?>"<?= isset_get($get['email']) ? 'value="' . $get['email'] . '"' : '' ?>>
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-envelope"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <input type="password" name="password" id="password" class="form-control"
+                                   placeholder="<?= tr('Password') ?>">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <span class="fas fa-lock"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8">
+                                <div class="icheck-primary">
+                                    <input type="checkbox" id="remember">
+                                    <label for="remember">
+                                        <?= tr('Remember Me') ?>
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-primary btn-block"><?= tr('Sign In') ?></button>
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <?php
+                    }
+                    ?>
+                </form>
+                <?php
                 $html = '';
 
                 if (Session::supports('facebook')) {
@@ -150,7 +154,7 @@ Response::setBuildBody(false);
                 }
 
                 if ($html) {
-                    echo  ' <div class="social-auth-links text-center mt-2 mb-3">
+                    echo ' <div class="social-auth-links text-center mt-2 mb-3">
                                 ' . $html . '
                             </div>';
                 }
@@ -166,16 +170,17 @@ Response::setBuildBody(false);
                                 <a href="' . UrlBuilder::getWww('/sign-in.html') . '" class="text-center">' . tr('Register a new membership') . '</a>
                             </p>';
                 }
-        ?>
-        <div class="login-footer text-center">
-            <?= 'Copyright © ' . Config::getString('project.copyright', '2023') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
-            All rights reserved        </div>
+                ?>
+                <div class="login-footer text-center">
+                    <?= 'Copyright © ' . Config::getString('project.copyright', '2023') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
+                    All rights reserved
+                </div>
+            </div>
+            <!-- /.card-body -->
         </div>
-        <!-- /.card-body -->
-      </div>
-      <!-- /.card -->
+        <!-- /.card -->
     </div>
-</body>
+    </body>
 <?php
 
 

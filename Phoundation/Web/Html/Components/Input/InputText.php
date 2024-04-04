@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Enums\EnumElementInputType;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputText extends Input
 {
@@ -47,6 +47,7 @@ class InputText extends Input
      * Returns the minimum length this text input
      *
      * @param int|null $minlength
+     *
      * @return $this
      */
     public function setMinLength(?int $minlength): static
@@ -70,6 +71,7 @@ class InputText extends Input
      * Returns the maximum length this text input
      *
      * @param int|null $maxlength
+     *
      * @return $this
      */
     public function setMaxLength(?int $maxlength): static
@@ -93,6 +95,7 @@ class InputText extends Input
      * Sets the auto complete setting
      *
      * @param bool $auto_complete
+     *
      * @return $this
      */
     public function setAutoComplete(bool $auto_complete): static

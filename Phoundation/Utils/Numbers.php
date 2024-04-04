@@ -15,20 +15,21 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * This is the standard Phoundation string functionality extension class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Class reference
- * @package Phoundation\Utils
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category  Class reference
+ * @package   Phoundation\Utils
  */
 class Numbers
 {
     /**
      * Ensure that the specified number is within the specified range
      *
-     * @param string|float|int $number
-     * @param string|float|int $max
+     * @param string|float|int      $number
+     * @param string|float|int      $max
      * @param string|float|int|null $min
+     *
      * @return string|float|int
      */
     public static function limitRange(string|float|int $number, string|float|int $max, string|float|int|null $min = null): string|float|int
@@ -53,9 +54,10 @@ class Numbers
      * Convert specified amount explicitly to specified multiplier
      *
      * @param string|float|int $amount
-     * @param string $unit
-     * @param int $precision
-     * @param bool $add_suffix
+     * @param string           $unit
+     * @param int              $precision
+     * @param bool             $add_suffix
+     *
      * @return string
      * @throws OutOfBoundsException
      */
@@ -79,7 +81,7 @@ class Numbers
                     $unit = 'mib';
                 }
 
-            } else if ($amount < 1000) {
+            } elseif ($amount < 1000) {
                 if (!$amount) {
                     return '0b';
                 }
@@ -104,7 +106,7 @@ class Numbers
                     $unit = 'mb';
                 }
 
-            } else if ($amount < 1000) {
+            } elseif ($amount < 1000) {
                 if (!$amount) {
                     return '0b';
                 }
@@ -164,7 +166,7 @@ class Numbers
 
             default:
                 throw new OutOfBoundsException(tr('Specified unit ":unit" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
-                    ':unit' => $unit
+                    ':unit' => $unit,
                 ]));
         }
 
@@ -177,7 +179,7 @@ class Numbers
         // Return amount with correct suffix.
         switch (strlen($unit)) {
             case 1:
-                return $amount.'b';
+                return $amount . 'b';
 
             case 2:
                 return $amount . strtoupper($unit);
@@ -187,7 +189,7 @@ class Numbers
         }
 
         throw new OutOfBoundsException(tr('Unknown selected unit ":unit", ensure that only correct abbreviations like b, B, KB, KiB, GiB, etc are used', [
-            ':unit' => $unit
+            ':unit' => $unit,
         ]));
     }
 
@@ -196,6 +198,7 @@ class Numbers
      * Reads a bytes string like "4MB" and returns the number of bytes
      *
      * @param string|float|int $amount
+     *
      * @return int
      * @throws OutOfBoundsException
      */
@@ -205,94 +208,59 @@ class Numbers
             $amount = 0;
         }
 
-        $amount = str_replace(',', '', (string) $amount);
+        $amount = str_replace(',', '', (string)$amount);
 
         if (!is_numeric($amount)) {
             // Calculate back to bytes
-            if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
+            if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches)) {
                 throw new NumbersException(tr('Specified amount ":amount" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc', [
-                    ':amount' => $amount
+                    ':amount' => $amount,
                 ]));
             }
 
             $amount = match (strtolower($matches[2])) {
-                'b'        => (float) $matches[1],
-                'kb'       => (float) $matches[1] * 1000,
-                'k', 'kib' => (float) $matches[1] * 1024,
-                'mb'       => (float) $matches[1] * 1000000,
-                'm', 'mib' => (float) $matches[1] * 1048576,
-                'gb'       => (float) $matches[1] * 1000000 * 1000,
-                'g', 'gib' => (float) $matches[1] * 1048576 * 1024,
-                'tb'       => (float) $matches[1] * 1000000 * 1000000,
-                't', 'tib' => (float) $matches[1] * 1048576 * 1048576,
+                'b'        => (float)$matches[1],
+                'kb'       => (float)$matches[1] * 1000,
+                'k', 'kib' => (float)$matches[1] * 1024,
+                'mb'       => (float)$matches[1] * 1000000,
+                'm', 'mib' => (float)$matches[1] * 1048576,
+                'gb'       => (float)$matches[1] * 1000000 * 1000,
+                'g', 'gib' => (float)$matches[1] * 1048576 * 1024,
+                'tb'       => (float)$matches[1] * 1000000 * 1000000,
+                't', 'tib' => (float)$matches[1] * 1048576 * 1048576,
                 default    => throw new OutOfBoundsException(tr('Specified suffix ":suffix" on amount ":amount" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc', [
                     ':suffix' => strtolower($matches[2]),
-                    ':amount' => $amount
+                    ':amount' => $amount,
                 ])),
             };
         }
 
         // We can only have an integer number of bytes
         // We can only have an integer number of bytes
-        return (int) ceil((float) $amount);
+        return (int)ceil((float)$amount);
     }
-
-
-    /**
-     * Make the specified number humand readable
-     *
-     * @param string|float|int $number
-     * @param int $thousand
-     * @param int $decimals
-     * @return string
-     */
-    function humanReadable(string|float|int $number, int $thousand = 1000, int $decimals = 0): string
-    {
-        if ($number > pow($thousand, 5)) {
-            return number_format($number / pow($thousand, 5), $decimals).'P';
-        }
-
-        if ($number > pow($thousand, 4)) {
-            return number_format($number / pow($thousand, 4), $decimals).'T';
-        }
-
-        if ($number > pow($thousand, 3)) {
-            return number_format($number / pow($thousand, 3), $decimals).'G';
-        }
-
-        if ($number > pow($thousand, 2)) {
-            return number_format($number / pow($thousand, 2), $decimals).'M';
-        }
-
-        if ($number > pow($thousand, 1)) {
-            return number_format($number / pow($thousand, 1), $decimals).'K';
-        }
-
-        return number_format($number, $decimals);
-    }
-
 
     /**
      * Return the "step" for use in HTML <input type="number"> tags from the specified list of numbers
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @return string The step that can be used in the html <input type="number">
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package numbers
-     * @version 2.2.7: Added function and documentation
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   numbers
+     * @version   2.2.7: Added function and documentation
      * @example
-     * code
-     * $result = numbers_get_step(1, 15, .1, 0.009);
-     * showdie($result);
-     * /code
+     *            code
+     *            $result = numbers_get_step(1, 15, .1, 0.009);
+     *            showdie($result);
+     *            /code
      *
      * This would return
      * code
      * 0.001
      * /code
      *
-     * @return string The step that can be used in the html <input type="number">
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     public static function getStep(): string
     {
@@ -304,10 +272,14 @@ class Numbers
             // Validate we have numeric values
             if (!is_numeric($value)) {
                 if (!is_scalar($value)) {
-                    throw new NumbersException(tr('Variable ":key" is not a numeric scalar value, it is an ":type"', [':key' => $key, ':type' => gettype($value)]));
+                    throw new NumbersException(tr('Variable ":key" is not a numeric scalar value, it is an ":type"', [':key'  => $key,
+                                                                                                                      ':type' => gettype($value),
+                    ]));
                 }
 
-                throw new NumbersException(tr('Variable ":key" has value ":value" which is not numeric', [':key' => $key, ':value' => $value]));
+                throw new NumbersException(tr('Variable ":key" has value ":value" which is not numeric', [':key'   => $key,
+                                                                                                          ':value' => $value,
+                ]));
             }
 
             // Cleanup the number
@@ -339,7 +311,6 @@ class Numbers
         return '1';
     }
 
-
     /**
      * Returns a random float number between 0 and 1
      *
@@ -360,12 +331,12 @@ class Numbers
         }
     }
 
-
     /**
      * Returns a random float number between $min and $max
      *
      * @param int $min
      * @param int $max
+     *
      * @return int
      */
     public static function getRandomInt(int $min = 0, int $max = PHP_INT_MAX): int
@@ -382,11 +353,11 @@ class Numbers
         }
     }
 
-
     /**
      * Returns the highest specified number
      *
      * @param float|int ...$numbers
+     *
      * @return float|int
      */
     public static function getHighest(float|int ...$numbers): float|int
@@ -402,11 +373,11 @@ class Numbers
         return $highest;
     }
 
-
     /**
      * Returns the lowest specified number
      *
      * @param float|int ...$numbers
+     *
      * @return float|int
      */
     public static function getLowest(float|int ...$numbers): float|int
@@ -420,5 +391,39 @@ class Numbers
         }
 
         return $lowest;
+    }
+
+    /**
+     * Make the specified number humand readable
+     *
+     * @param string|float|int $number
+     * @param int              $thousand
+     * @param int              $decimals
+     *
+     * @return string
+     */
+    function humanReadable(string|float|int $number, int $thousand = 1000, int $decimals = 0): string
+    {
+        if ($number > pow($thousand, 5)) {
+            return number_format($number / pow($thousand, 5), $decimals) . 'P';
+        }
+
+        if ($number > pow($thousand, 4)) {
+            return number_format($number / pow($thousand, 4), $decimals) . 'T';
+        }
+
+        if ($number > pow($thousand, 3)) {
+            return number_format($number / pow($thousand, 3), $decimals) . 'G';
+        }
+
+        if ($number > pow($thousand, 2)) {
+            return number_format($number / pow($thousand, 2), $decimals) . 'M';
+        }
+
+        if ($number > pow($thousand, 1)) {
+            return number_format($number / pow($thousand, 1), $decimals) . 'K';
+        }
+
+        return number_format($number, $decimals);
     }
 }

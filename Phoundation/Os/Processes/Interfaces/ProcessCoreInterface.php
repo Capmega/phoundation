@@ -7,7 +7,6 @@ namespace Phoundation\Os\Processes\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
 use Phoundation\Servers\Interfaces\ServerInterface;
-use Phoundation\Servers\Server;
 
 
 /**
@@ -15,11 +14,11 @@ use Phoundation\Servers\Server;
  *
  * This class embodies a process that will be executed
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
- * @uses \Phoundation\Os\Processes\ProcessVariables
+ * @package   Phoundation\Os
+ * @uses      \Phoundation\Os\Processes\ProcessVariables
  */
 interface ProcessCoreInterface
 {
@@ -34,6 +33,7 @@ interface ProcessCoreInterface
      * Sets the server on which this command should be executed
      *
      * @param ServerInterface|string|null $server
+     *
      * @return $this
      */
     public function setServer(ServerInterface|string|null $server): static;
@@ -70,6 +70,7 @@ interface ProcessCoreInterface
      * Execute the command and depending on specified method, return or log output
      *
      * @param EnumExecuteMethodInterface $method
+     *
      * @return IteratorInterface|array|string|int|bool|null
      */
     public function execute(EnumExecuteMethodInterface $method): IteratorInterface|array|string|int|bool|null;
@@ -106,6 +107,7 @@ interface ProcessCoreInterface
      * Kill this (backgroun) process
      *
      * @param int $signal
+     *
      * @return void
      */
     public function kill(int $signal = 15): void;
@@ -114,6 +116,7 @@ interface ProcessCoreInterface
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
+     *
      * @return string
      */
     public function getFullCommandLine(bool $background = false): string;

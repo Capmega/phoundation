@@ -10,10 +10,10 @@ namespace Phoundation\Web\Html\Components\Icons;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class FontAwesome extends Icon
 {
@@ -32,7 +32,8 @@ class FontAwesome extends Icon
      * Sets the icon for this object
      *
      * @param string|null $icon
-     * @param string $subclass
+     * @param string      $subclass
+     *
      * @return static
      */
     public function setIcon(?string $icon, string $subclass = 'far fas fab'): static

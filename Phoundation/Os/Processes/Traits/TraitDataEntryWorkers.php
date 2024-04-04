@@ -10,10 +10,10 @@ namespace Phoundation\Os\Processes\Traits;
  *
  * This trait contains methods for DataEntry objects that requires a url
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryWorkers
 {
@@ -32,6 +32,7 @@ trait TraitDataEntryWorkers
      * Sets the workers for this object
      *
      * @param int|null $workers
+     *
      * @return static
      */
     public function setMinimumWorkers(?int $workers): static
@@ -55,6 +56,7 @@ trait TraitDataEntryWorkers
      * Sets the workers for this object
      *
      * @param int|null $workers
+     *
      * @return static
      */
     public function setMaximumWorkers(?int $workers): static

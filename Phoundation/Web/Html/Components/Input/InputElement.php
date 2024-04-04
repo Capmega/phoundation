@@ -18,10 +18,10 @@ use Stringable;
  *
  * This trait adds functionality for HTML input elements
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 trait InputElement
 {
@@ -58,6 +58,7 @@ trait InputElement
      * Sets the type for the input element
      *
      * @param EnumInputTypeInterface|null $type
+     *
      * @return static
      */
     public function setType(?EnumInputTypeInterface $type): static
@@ -82,7 +83,8 @@ trait InputElement
      * Sets the value for the input element
      *
      * @param Stringable|string|float|int|null $value
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
@@ -101,6 +103,7 @@ trait InputElement
      * Sets if the element will auto submit
      *
      * @param bool $auto_submit
+     *
      * @return static
      */
     public function setAutoSubmit(bool $auto_submit): static
@@ -124,6 +127,7 @@ trait InputElement
      * Sets onchange functionality
      *
      * @param string|null $on_change
+     *
      * @return static
      */
     public function setOnChange(?string $on_change): static
@@ -153,8 +157,8 @@ trait InputElement
     protected function renderInputAttributes(): IteratorInterface
     {
         return Iterator::new()->setSource([
-            'type'  => $this->type?->value,
-            'value' => $this->value,
-        ]);
+                                              'type'  => $this->type?->value,
+                                              'value' => $this->value,
+                                          ]);
     }
 }

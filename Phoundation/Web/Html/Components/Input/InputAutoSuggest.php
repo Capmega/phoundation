@@ -19,10 +19,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputAutoSuggest extends InputText
 {
@@ -89,11 +89,12 @@ class InputAutoSuggest extends InputText
      * Sets the internal source URL for this auto suggest component
      *
      * @param Stringable|string|null $source_url
+     *
      * @return $this
      */
     public function setSourceUrl(Stringable|string|null $source_url): static
     {
-        $this->source_url = (string) $source_url;
+        $this->source_url = (string)$source_url;
         return $this;
     }
 
@@ -123,6 +124,7 @@ class InputAutoSuggest extends InputText
      * ]
      *
      * @param IteratorInterface|array|null $variables
+     *
      * @return $this
      */
     public function setVariables(IteratorInterface|array|null $variables): static
@@ -147,6 +149,7 @@ class InputAutoSuggest extends InputText
      * Sets the internal source URL for this auto suggest component
      *
      * @param int $min_suggest_length
+     *
      * @return $this
      */
     public function setMinSuggestLength(int $min_suggest_length): static
@@ -171,6 +174,7 @@ class InputAutoSuggest extends InputText
      * Sets the internal source URL for this auto suggest component
      *
      * @param int $delay
+     *
      * @return $this
      */
     public function setDelay(int $delay): static
@@ -198,7 +202,7 @@ class InputAutoSuggest extends InputText
 
         if (empty($this->source_url)) {
             throw new OutOfBoundsException(tr('No source URL specified for auto suggest component ":name"', [
-                ':name' => $this->name
+                ':name' => $this->name,
             ]));
         }
 

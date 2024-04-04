@@ -14,10 +14,10 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
  *
  * This interface describes the basic input class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface InputInterface extends ElementInterface
 {
@@ -46,7 +46,8 @@ interface InputInterface extends ElementInterface
      * Sets the description
      *
      * @param string|null $description
-     * @param bool $make_safe
+     * @param bool        $make_safe
+     *
      * @return static
      */
     public function setDescription(?string $description, bool $make_safe = true): static;
@@ -62,6 +63,7 @@ interface InputInterface extends ElementInterface
      * Sets the icon
      *
      * @param IconInterface|null $icon
+     *
      * @return static
      */
     public function setIcon(?IconInterface $icon): static;
@@ -77,6 +79,7 @@ interface InputInterface extends ElementInterface
      * Sets if the input element has a clear button or not
      *
      * @param bool $clear_button
+     *
      * @return static
      */
     public function setClearButton(bool $clear_button): static;

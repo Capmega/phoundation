@@ -8,10 +8,10 @@ namespace Phoundation\Web\Html\Components\Interfaces;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface DivInterface extends ElementInterface
 {
@@ -26,6 +26,7 @@ interface DivInterface extends ElementInterface
      * Sets the parent for this anchor
      *
      * @param ElementInterface|null $parent
+     *
      * @return $this
      */
     public function setChildElement(?ElementInterface $parent): static;

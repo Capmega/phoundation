@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataWidth
 {
@@ -42,6 +42,7 @@ trait TraitDataWidth
      * Sets the width
      *
      * @param int|null $width
+     *
      * @return static
      */
     public function setWidth(?int $width): static
@@ -49,7 +50,7 @@ trait TraitDataWidth
         if ($width) {
             if (($width < 0) or ($width > 65535)) {
                 throw new OutOfBoundsException(tr('Invalid width ":width" specified', [
-                    ':width' => $width
+                    ':width' => $width,
                 ]));
             }
         }

@@ -12,35 +12,24 @@ use Phoundation\Geo\Cities\City;
  *
  * This trait contains methods for DataEntry objects that require GEO city data
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryCity
 {
     /**
-     * Returns the cities_id for this user
-     *
-     * @return int|null
-     */
-    public function getCitiesId(): ?int
-    {
-        return $this->getValueTypesafe('int', 'cities_id');
-    }
-
-
-    /**
      * Sets the cities_id for this user
      *
      * @param int|null $cities_id
+     *
      * @return static
      */
     public function setCitiesId(?int $cities_id): static
     {
         return $this->setValue('cities_id', $cities_id);
     }
-
 
     /**
      * Returns the cities_id for this user
@@ -58,7 +47,6 @@ trait TraitDataEntryCity
         return null;
     }
 
-
     /**
      * Returns the cities_name for this user
      *
@@ -69,11 +57,21 @@ trait TraitDataEntryCity
         return $this->getValueTypesafe('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')?->getName();
     }
 
+    /**
+     * Returns the cities_id for this user
+     *
+     * @return int|null
+     */
+    public function getCitiesId(): ?int
+    {
+        return $this->getValueTypesafe('int', 'cities_id');
+    }
 
     /**
      * Sets the cities_name for this user
      *
      * @param string|null $cities_name
+     *
      * @return static
      */
     public function setCitiesName(?string $cities_name): static

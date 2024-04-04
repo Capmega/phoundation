@@ -13,18 +13,19 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * This class contains various "kill" commands
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Kill extends Command
 {
     /**
      * Sends the specified signal to the specified process ids
      *
-     * @param int $signal
+     * @param int       $signal
      * @param array|int $pids
+     *
      * @return void
      */
     public function pid(int $signal, array|int $pids): void
@@ -62,8 +63,9 @@ class Kill extends Command
     /**
      * Sends the specified signal to the specified process names
      *
-     * @param int $signal
+     * @param int          $signal
      * @param array|string $processes
+     *
      * @return void
      */
     public function processes(int $signal, array|string $processes): void

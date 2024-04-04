@@ -10,11 +10,11 @@ namespace Phoundation\Data\Library;
  *
  * This is the Init class for the Data library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -52,7 +52,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('categories')->drop();
 
             sql()->schema()->table('categories')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `meta_id` bigint NULL DEFAULT NULL,
@@ -77,13 +77,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.5', function () {
             // Modify the categories table.
             sql()->schema()->table('categories')->alter()
-                ->addColumn('
+                 ->addColumn('
                     `created_by` bigint DEFAULT NULL', 'AFTER `created_on`
                 ')
-                ->addIndices('
+                 ->addIndices('
                     KEY `created_by` (`created_by`)
                 ')
-                ->addForeignKeys('
+                 ->addForeignKeys('
                     CONSTRAINT `fk_categories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ');
         })->addUpdate('0.0.12', function () {
@@ -91,7 +91,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('entities')->drop();
 
             sql()->schema()->table('entities')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,

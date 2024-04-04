@@ -7,8 +7,8 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataNetworkConnection;
-use Phoundation\Data\Traits\TraitDataSourceString;
 use Phoundation\Data\Traits\TraitDataSourceServer;
+use Phoundation\Data\Traits\TraitDataSourceString;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Data\Traits\TraitDataTargetServer;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
@@ -24,10 +24,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Rsync extends Command implements RsyncInterface
 {
@@ -128,8 +128,8 @@ class Rsync extends Command implements RsyncInterface
      * Rsync class constructor
      *
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|null $operating_system
-     * @param string|null $packages
+     * @param Stringable|string|null                  $operating_system
+     * @param string|null                             $packages
      */
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
@@ -153,6 +153,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if destination files should be deleted if not existing on source
      *
      * @param bool $delete
+     *
      * @return static
      */
     public function setDelete(bool $delete): static
@@ -177,6 +178,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if file progress should be displayed or not
      *
      * @param bool $progress
+     *
      * @return static
      */
     public function setProgress(bool $progress): static
@@ -196,23 +198,24 @@ class Rsync extends Command implements RsyncInterface
         return $this->exclude;
     }
 
-
     /**
-     * Clears the "exclude path" list
+     * Sets the specified paths to the list that will be excluded
+     *
+     * @param array|string $paths
      *
      * @return static
      */
-    public function clearExclude(): static
+    public function setExclude(array|string $paths): static
     {
         $this->exclude = [];
-        return $this;
+        return $this->addExclude($paths);
     }
-
 
     /**
      * Adds the specified paths to the list that will be excluded
      *
      * @param array|string $paths
+     *
      * @return static
      */
     public function addExclude(array|string $paths): static
@@ -224,19 +227,16 @@ class Rsync extends Command implements RsyncInterface
         return $this;
     }
 
-
     /**
-     * Sets the specified paths to the list that will be excluded
+     * Clears the "exclude path" list
      *
-     * @param array|string $paths
      * @return static
      */
-    public function setExclude(array|string $paths): static
+    public function clearExclude(): static
     {
         $this->exclude = [];
-        return $this->addExclude($paths);
+        return $this;
     }
-
 
     /**
      * Returns if archive mode should be used
@@ -253,6 +253,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if archive mode should be used
      *
      * @param bool $archive
+     *
      * @return static
      */
     public function setArchive(bool $archive): static
@@ -277,6 +278,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if output should be more verbose
      *
      * @param bool $verbose
+     *
      * @return static
      */
     public function setVerbose(bool $verbose): static
@@ -301,6 +303,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if non-error messages should be  suppressed
      *
      * @param bool $quiet
+     *
      * @return static
      */
     public function setQuiet(bool $quiet): static
@@ -325,6 +328,7 @@ class Rsync extends Command implements RsyncInterface
      * Returns if rsync should be executed using sudo on the remote host
      *
      * @param string|bool|null $sudo
+     *
      * @return static
      */
     public function setRemoteSudo(string|bool|null $sudo): static
@@ -358,6 +362,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets the remote rsync command
      *
      * @param string|null $rsync_path
+     *
      * @return static
      */
     public function setRsyncPath(?string $rsync_path): static
@@ -382,6 +387,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if rsync will ignore symlinks that point outside the tree
      *
      * @param bool $safe_links
+     *
      * @return static
      */
     public function setSafeLink(bool $safe_links): static
@@ -406,6 +412,7 @@ class Rsync extends Command implements RsyncInterface
      * Sets if compression should be used during the transfer
      *
      * @param bool $compress
+     *
      * @return static
      */
     public function setCompress(bool $compress): static
@@ -419,6 +426,7 @@ class Rsync extends Command implements RsyncInterface
      * Returns the full command line
      *
      * @param bool $background
+     *
      * @return string
      */
     public function getFullCommandLine(bool $background = false): string
@@ -442,20 +450,20 @@ class Rsync extends Command implements RsyncInterface
         }
 
         // Build the process parameters, then execute
-        $this->addArgument($this->progress   ? '--progress'   : null)
-            ->addArgument($this->archive    ? '-a'           : null)
-            ->addArgument($this->quiet      ? '-q'           : null)
-            ->addArgument($this->verbose    ? '-v'           : null)
-            ->addArgument($this->compress   ? '-z'           : null)
-            ->addArgument($this->safe_links ? '--safe-links' : null)
-            ->addArgument($this->delete     ? '--delete'     : null)
-            ->addArgument($this->rsh        ? '-e'           : null)
-            ->addArgument($this->rsh)
-            ->addArgument($this->ssh_key    ? '-i'           : null)
-            ->addArgument($this->ssh_key)
-            ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false, false)
-            ->addArgument($this->source)
-            ->addArgument($this->target);
+        $this->addArgument($this->progress ? '--progress' : null)
+             ->addArgument($this->archive ? '-a' : null)
+             ->addArgument($this->quiet ? '-q' : null)
+             ->addArgument($this->verbose ? '-v' : null)
+             ->addArgument($this->compress ? '-z' : null)
+             ->addArgument($this->safe_links ? '--safe-links' : null)
+             ->addArgument($this->delete ? '--delete' : null)
+             ->addArgument($this->rsh ? '-e' : null)
+             ->addArgument($this->rsh)
+             ->addArgument($this->ssh_key ? '-i' : null)
+             ->addArgument($this->ssh_key)
+             ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false, false)
+             ->addArgument($this->source)
+             ->addArgument($this->target);
 
         foreach ($this->exclude as $exclude) {
             $this->addArgument('--exclude=' . escapeshellarg($exclude), false, false);
@@ -469,6 +477,7 @@ class Rsync extends Command implements RsyncInterface
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethodInterface $method
+     *
      * @return string|int|bool|array|null
      */
     public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null

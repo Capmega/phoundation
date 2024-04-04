@@ -14,10 +14,10 @@ use Phoundation\Web\Html\Enums\EnumElement;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
@@ -46,14 +46,14 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         $connector = Connector::new();
 
         $this->definitions = Definitions::new()
-            ->add(Definition::new(null, 'entry_status')
-                ->setLabel(tr('Status'))
-                ->setSize(4)
-                ->setOptional(true)
-                ->setElement(EnumElement::select)
-                ->setValue(isset_get($this->source['entry_status']))
-                ->setKey(true, 'auto_submit')
-                ->setDataSource($this->states))
-            ->add($connector->getDefinitionsObject()->get('type'));
+                                        ->add(Definition::new(null, 'entry_status')
+                                                        ->setLabel(tr('Status'))
+                                                        ->setSize(4)
+                                                        ->setOptional(true)
+                                                        ->setElement(EnumElement::select)
+                                                        ->setValue(isset_get($this->source['entry_status']))
+                                                        ->setKey(true, 'auto_submit')
+                                                        ->setDataSource($this->states))
+                                        ->add($connector->getDefinitionsObject()->get('type'));
     }
 }

@@ -10,11 +10,11 @@ namespace Phoundation\Storage\Library;
  *
  * This is the Init class for the Storage library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Storage
+ * @package   Phoundation\Storage
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -64,7 +64,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage collections
             sql()->schema()->table('storage_collections')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -100,7 +100,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage books
             sql()->schema()->table('storage_books')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -140,7 +140,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage chapters
             sql()->schema()->table('storage_chapters')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -182,7 +182,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage pages
             sql()->schema()->table('storage_pages')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -233,7 +233,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage comments
             sql()->schema()->table('storage_comments')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -266,7 +266,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage keywords
             sql()->schema()->table('storage_keywords')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -300,7 +300,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage ratings
             sql()->schema()->table('storage_ratings')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -334,7 +334,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage keywords
             sql()->schema()->table('storage_key_values')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -373,7 +373,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage keywords
             sql()->schema()->table('storage_file_limits')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -414,7 +414,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for storage files
             sql()->schema()->table('storage_files')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -461,7 +461,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for resources
             sql()->schema()->table('storage_resources')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -485,7 +485,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add table for page resources
             sql()->schema()->table('storage_page_resources')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,

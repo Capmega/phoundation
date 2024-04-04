@@ -13,20 +13,22 @@ use Phoundation\Date\DateTimeZone;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Date
+ * @package   Phoundation\Date
  */
 interface DateTimeInterface extends \DateTimeInterface
 {
     /**
      * Returns the difference between two DateTime objects
+     *
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
      * @param \DateTimeInterface $targetObject
-     * @param bool $absolute
-     * @param bool $roundup
+     * @param bool               $absolute
+     * @param bool               $roundup
+     *
      * @return DateInterval
      */
     public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval;
@@ -42,6 +44,7 @@ interface DateTimeInterface extends \DateTimeInterface
      * Wrapper around the PHP Datetime but with support for named formats, like "mysql"
      *
      * @param string|null $format
+     *
      * @return string
      */
     public function format(?string $format = null): string;

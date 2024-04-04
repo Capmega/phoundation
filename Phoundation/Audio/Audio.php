@@ -13,18 +13,18 @@ use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 
 /**
  * Class Audio
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Audio
+ * @package   Phoundation\Audio
  */
 class Audio extends File
 {
@@ -32,6 +32,7 @@ class Audio extends File
      * Play this audio file on the local computer
      *
      * @param bool $background
+     *
      * @return static
      */
     public function playLocal(bool $background): static
@@ -40,8 +41,8 @@ class Audio extends File
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
                     Mpg123::new(Restrictions::new(DIRECTORY_DATA . 'audio', true))
-                        ->setFile(Path::getAbsolute($this->path, DIRECTORY_DATA . 'audio'))
-                        ->play($background);
+                          ->setFile(Path::getAbsolute($this->path, DIRECTORY_DATA . 'audio'))
+                          ->play($background);
 
                 } catch (FileNotExistException|ProcessesException $e) {
                     if ((defined('NOWARNINGS') and NOWARNINGS) or !Config::getBoolean('debug.exceptions.warnings', true)) {
@@ -65,7 +66,9 @@ class Audio extends File
      *
      * @note This method will attach the specified audio file to the body of the web page
      * @note This method is only available on HTML web pages
+     *
      * @param string|null $class
+     *
      * @return static
      */
     public function playRemote(?string $class = null): static
@@ -76,9 +79,9 @@ class Audio extends File
                     // no break
                 case EnumRequestTypes::admin:
                     Response::addToFooter(\Phoundation\Web\Html\Components\Audio::new()
-                        ->addClass($class)
-                        ->setFile($this->path)
-                        ->render());
+                                                                                ->addClass($class)
+                                                                                ->setFile($this->path)
+                                                                                ->render());
                     break;
 
                 default:

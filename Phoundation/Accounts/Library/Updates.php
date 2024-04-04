@@ -16,11 +16,11 @@ use Phoundation\Seo\Seo;
  *
  * This is the Init class for the Accounts library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -65,7 +65,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users table.
             sql()->schema()->table('accounts_users')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -151,7 +151,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_rights table.
             sql()->schema()->table('accounts_rights')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -176,7 +176,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_roles table.
             sql()->schema()->table('accounts_roles')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -201,7 +201,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_groups table.
             sql()->schema()->table('accounts_groups')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -226,7 +226,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_rights_links table.
             sql()->schema()->table('accounts_users_rights')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -251,7 +251,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_roles_links table.
             sql()->schema()->table('accounts_users_roles')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -272,7 +272,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users_roles_rights_links table.
             sql()->schema()->table('accounts_roles_rights')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -300,7 +300,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create additional user tables.
             sql()->schema()->table('accounts_authentications')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -331,7 +331,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             sql()->schema()->table('accounts_password_resets')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -348,7 +348,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             sql()->schema()->table('accounts_old_passwords')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -362,7 +362,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             sql()->schema()->table('accounts_compromised_passwords')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -380,7 +380,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_signins')->drop();
 
             sql()->schema()->table('accounts_signins')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -422,7 +422,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_authentication_failures')->drop();
 
             sql()->schema()->table('accounts_authentication_failures')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -482,7 +482,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_phones')->drop();
 
             sql()->schema()->table('accounts_emails')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -511,7 +511,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             sql()->schema()->table('accounts_phones')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -541,23 +541,23 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.19', function () {
             sql()->schema()->table('accounts_users')->alter()
-                ->changeColumn('phones', '`phone` varchar(15) CHARACTER SET latin1 DEFAULT NULL')
-                ->dropIndex('phones')
-                ->addIndex('KEY `phone` (`phone`)');
+                 ->changeColumn('phones', '`phone` varchar(15) CHARACTER SET latin1 DEFAULT NULL')
+                 ->dropIndex('phones')
+                 ->addIndex('KEY `phone` (`phone`)');
 
         })->addUpdate('0.0.20', function () {
             sql()->schema()->table('accounts_phones')->alter()
-                ->dropForeignKey('fk_accounts_phones_users_id')
-                ->changeColumn('phone', '`phone` varchar(24) CHARACTER SET latin1 DEFAULT NULL')
-                ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
-                ->addForeignKey('CONSTRAINT `fk_accounts_phones_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT')
-                ->dropIndex('phone')
-                ->addIndex('KEY `phone` (`phone`)');
+                 ->dropForeignKey('fk_accounts_phones_users_id')
+                 ->changeColumn('phone', '`phone` varchar(24) CHARACTER SET latin1 DEFAULT NULL')
+                 ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
+                 ->addForeignKey('CONSTRAINT `fk_accounts_phones_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT')
+                 ->dropIndex('phone')
+                 ->addIndex('KEY `phone` (`phone`)');
 
             sql()->schema()->table('accounts_emails')->alter()
-                ->dropForeignKey('fk_accounts_emails_users_id')
-                ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
-                ->addForeignKey('CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+                 ->dropForeignKey('fk_accounts_emails_users_id')
+                 ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
+                 ->addForeignKey('CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
 
         })->addUpdate('0.0.21', function () {
             // Ensure that all roles and rights are lowercase
@@ -571,7 +571,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_settings')->drop();
 
             sql()->schema()->table('accounts_settings')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -601,7 +601,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_signin_keys')->drop();
 
             sql()->schema()->table('accounts_signin_keys')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -629,8 +629,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.1.1', function () {
             sql()->schema()->table('accounts_signin_keys')->alter()
-                ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
-                ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
+                 ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
+                 ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
 
         })->addUpdate('0.1.2', function () {
             // Since sign-in count and last_sign_in were all messed up, reset them to zero
@@ -638,12 +638,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.1.3', function () {
             sql()->schema()->table('accounts_rights')->alter()
-                ->dropIndex('name')
-                ->addIndex('UNIQUE KEY `name` (`name`)');
+                 ->dropIndex('name')
+                 ->addIndex('UNIQUE KEY `name` (`name`)');
 
             sql()->schema()->table('accounts_roles')->alter()
-                ->dropIndex('name')
-                ->addIndex('UNIQUE KEY `name` (`name`)');
+                 ->dropIndex('name')
+                 ->addIndex('UNIQUE KEY `name` (`name`)');
 
             // Fix rights / roles names
             sql()->query('UPDATE `accounts_roles`  SET `name` = REPLACE(LCASE(`name`), " ", "-");');
@@ -652,12 +652,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Fix all seo_name column entries
             $tables = [
                 'accounts_roles',
-                'accounts_rights'
+                'accounts_rights',
             ];
 
             foreach ($tables as $table) {
                 Log::action(tr('Fixing table ":table" seo_name', [
-                    ':table' => $table
+                    ':table' => $table,
                 ]));
 
                 $entries = sql()->query('SELECT `id`, `name` FROM ' . $table);
@@ -676,18 +676,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
                 sql()->update('accounts_users_rights', [
                     'name'     => $right->getName(),
-                    'seo_name' => $right->getSeoName()
-                ], [
-                    'id' => $entry['id']
-                ]);
+                    'seo_name' => $right->getSeoName(),
+                ],            [
+                                  'id' => $entry['id'],
+                              ]);
             }
 
         })->addUpdate('0.2.0', function () {
             // Add parents_id to roles table
             sql()->schema()->table('accounts_roles')->alter()
-                ->addColumn('`parents_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
-                ->addIndex('KEY `parents_id` (`parents_id`)')
-                ->addForeignKey('CONSTRAINT `fk_accounts_roles_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `accounts_roles` (`id`) ON DELETE RESTRICT');
+                 ->addColumn('`parents_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
+                 ->addIndex('KEY `parents_id` (`parents_id`)')
+                 ->addForeignKey('CONSTRAINT `fk_accounts_roles_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `accounts_roles` (`id`) ON DELETE RESTRICT');
 
         })->addUpdate('0.2.1', function () {
             // Ensure Guest user is available
@@ -695,47 +695,47 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create default rights and roles
             $god = Right::new('God', 'name')
-                ->setName('God')
-                ->setDescription('This right will give the user access to everything, everywhere')
-                ->save();
+                        ->setName('God')
+                        ->setDescription('This right will give the user access to everything, everywhere')
+                        ->save();
 
             $admin = Right::new('Admin', 'name')
-                ->setName('Admin')
-                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
-                ->save();
+                          ->setName('Admin')
+                          ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                          ->save();
 
             $developer = Right::new('Developer', 'name')
-                ->setName('Developer')
-                ->setDescription('This right will give the user access to the developer area of the site')
-                ->save();
+                              ->setName('Developer')
+                              ->setDescription('This right will give the user access to the developer area of the site')
+                              ->save();
 
             $accounts = Right::new('Accounts', 'name')
-                ->setName('Accounts')
-                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
-                ->save();
+                             ->setName('Accounts')
+                             ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
+                             ->save();
 
             $security = Right::new('Security', 'name')
-                ->setName('Security')
-                ->setDescription('This right will give the user access to the administrative security pages of the site')
-                ->save();
+                             ->setName('Security')
+                             ->setDescription('This right will give the user access to the administrative security pages of the site')
+                             ->save();
 
             $phoundation = Right::new('Phoundation', 'name')
-                ->setName('Phoundation')
-                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
-                ->save();
+                                ->setName('Phoundation')
+                                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
+                                ->save();
 
             $audit = Right::new('Audit', 'name')
-                ->setName('Audit')
-                ->setDescription('This right will give the user access to the audit information system of the site')
-                ->save();
+                          ->setName('Audit')
+                          ->setDescription('This right will give the user access to the audit information system of the site')
+                          ->save();
 
             $test = Right::new('Test', 'name')
-                ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
-                ->save();
+                         ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
+                         ->save();
 
             $demo = Right::new('Demo', 'name')
-                ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
-                ->save();
+                         ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
+                         ->save();
 
             Role::new('Test', 'name')
                 ->setDescription('This role gives the user the test right. See demo right for more information.')
@@ -826,8 +826,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             foreach ($rights as $right) {
                 if (!Right::exists($right, 'name')) {
                     Right::new($right, 'name')
-                        ->setName($right)
-                        ->save();
+                         ->setName($right)
+                         ->save();
                 }
             }
 
@@ -856,25 +856,25 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Data is a general storage of JSON data
             if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('data')) {
                 sql()->schema()->table('accounts_users')->alter()
-                    ->addColumn('`data` mediumtext NULL DEFAULT NULL', 'AFTER `description`');
+                     ->addColumn('`data` mediumtext NULL DEFAULT NULL', 'AFTER `description`');
             }
 
             // Remote id is the ID of the user in a different table and or database
             if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('remote_id')) {
                 sql()->schema()->table('accounts_users')->alter()
-                    ->addColumn('`remote_id` bigint NULL DEFAULT NULL', 'AFTER `meta_state`')
-                    ->addIndex('UNIQUE KEY `remote_id` (`remote_id`)');
+                     ->addColumn('`remote_id` bigint NULL DEFAULT NULL', 'AFTER `meta_state`')
+                     ->addIndex('UNIQUE KEY `remote_id` (`remote_id`)');
             }
 
         })->addUpdate('0.2.3', function () {
             // Codes can be UUID (36 characters) or much larger, so make it 64 characters
             sql()->schema()->table('accounts_users')->alter()
-                ->modifyColumn('`code`', ' varchar(64) CHARACTER SET latin1 DEFAULT NULL');
+                 ->modifyColumn('`code`', ' varchar(64) CHARACTER SET latin1 DEFAULT NULL');
 
             // The default page will send the user to that page right after signing in
             if (!sql()->schema()->table('accounts_users')->getColumns()->keyExists('default_page')) {
                 sql()->schema()->table('accounts_users')->alter()
-                    ->addColumn('`default_page` varchar(2048) DEFAULT NULL', 'AFTER `url`');
+                     ->addColumn('`default_page` varchar(2048) DEFAULT NULL', 'AFTER `url`');
             }
         });
     }

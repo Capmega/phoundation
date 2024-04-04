@@ -22,11 +22,11 @@ use Phoundation\Web\Html\Enums\EnumElement;
  *
  *
  *
- * @see DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Incident extends DataEntry
 {
@@ -74,43 +74,44 @@ class Incident extends DataEntry
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
      * @return void
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         $definitions
             ->add(Definition::new($this, 'type')
-                ->setReadonly(true)
-                ->setLabel('Type')
-                ->setSize(6)
-                ->setMaxlength(255)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isName(16);
-                }))
+                            ->setReadonly(true)
+                            ->setLabel('Type')
+                            ->setSize(6)
+                            ->setMaxlength(255)
+                            ->addValidationFunction(function (ValidatorInterface $validator) {
+                                $validator->isName(16);
+                            }))
             ->add(DefinitionFactory::getTitle($this)
-                ->setSize(6))
+                                   ->setSize(6))
             ->add(Definition::new($this, 'url')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setLabel('URL')
-                ->setSize(12)
-                ->setMaxlength(2048))
+                            ->setOptional(true)
+                            ->setReadonly(true)
+                            ->setLabel('URL')
+                            ->setSize(12)
+                            ->setMaxlength(2048))
             ->add(DefinitionFactory::getDescription($this))
             ->add(Definition::new($this, 'exception')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setLabel('Exception')
-                ->setSize(12)
-                ->setMaxlength(16_777_200)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isPrintable();
-                }))
+                            ->setOptional(true)
+                            ->setReadonly(true)
+                            ->setLabel('Exception')
+                            ->setSize(12)
+                            ->setMaxlength(16_777_200)
+                            ->addValidationFunction(function (ValidatorInterface $validator) {
+                                $validator->isPrintable();
+                            }))
             ->add(Definition::new($this, 'data')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setElement(EnumElement::textarea)
-                ->setLabel('Data')
-                ->setSize(12)
-                ->setMaxlength(16_777_200));
+                            ->setOptional(true)
+                            ->setReadonly(true)
+                            ->setElement(EnumElement::textarea)
+                            ->setLabel('Data')
+                            ->setSize(12)
+                            ->setMaxlength(16_777_200));
     }
 }

@@ -27,11 +27,11 @@ use Stringable;
  *
  *
  *
- * @see DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class Phones extends DataList implements PhonesInterface
 {
@@ -92,6 +92,7 @@ class Phones extends DataList implements PhonesInterface
      * Sets the parent
      *
      * @param DataEntryInterface $parent
+     *
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static
@@ -103,7 +104,7 @@ class Phones extends DataList implements PhonesInterface
         }
 
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
-            ':parent' => $parent
+            ':parent' => $parent,
         ]));
     }
 
@@ -112,11 +113,12 @@ class Phones extends DataList implements PhonesInterface
      * Returns Phones list object with phones for the specified user.
      *
      * @param bool $clear
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::get($this->parent,  'seo_name');
+        $this->parent  = User::get($this->parent, 'seo_name');
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -127,13 +129,14 @@ class Phones extends DataList implements PhonesInterface
      * Creates and returns an HTML for the phones
      *
      * @param string $name
-     * @param bool $meta_visible
+     * @param bool   $meta_visible
+     *
      * @return DataEntryFormInterface
      */
     public function getHtmlDataEntryForm(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
-        $phone = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryFormObject()->setMetaVisible($meta_visible);
+        $phone       = Phone::new()->setColumnPrefix($name)->getHtmlDataEntryFormObject()->setMetaVisible($meta_visible);
         $definitions = $phone->getDefinitions();
         $definitions->get('phone')->setSize(6);
         $definitions->get('account_type')->setSize(6);
@@ -151,62 +154,15 @@ class Phones extends DataList implements PhonesInterface
         }
 
         return DataEntryForm::new()
-            ->appendContent(implode('<hr>', $content))
-            ->setRenderContentsOnly(true);
+                            ->appendContent(implode('<hr>', $content))
+                            ->setRenderContentsOnly(true);
     }
-
-
-    /**
-     * Add the specified phone to the iterator array
-     *
-     * @param mixed $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
-     * @return static
-     */
-    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
-    {
-        if (!$value instanceof PhoneInterface) {
-            if (!is_string($value)) {
-                throw new OutOfBoundsException(tr('Invalid value ":value" specified, can only add "PhoneInterface" to Phones Iterator class', [
-                    ':value' => $value
-                ]));
-            }
-
-            $value = Phone::new()
-                ->setPhone($value)
-                ->setAccountType('other');
-        }
-
-        // Ensure that the phone list has a parent
-        if (empty($this->parent)) {
-            throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
-                ':phone' => $value->getLogId()
-            ]));
-        }
-
-        // Ensure that the phone has a users id and that the users id matches the id of the users parent
-        if ($value->getUsersId()) {
-            if ($value->getUsersId() !== $this->parent->getId()) {
-                throw new OutOfBoundsException(tr('Specified phone ":phone" has a different users id than the users id ":parent" for the phones in this list', [
-                    ':phone' => $value->getPhone(),
-                    ':parent' => $this->parent->getId()
-                ]));
-            }
-
-        } else {
-            $value->setUsersId($this->parent->getId())->save();
-        }
-
-        return parent::add($value, $key, $skip_null, $exception);
-    }
-
 
     /**
      * Apply all phone updates
      *
      * @param bool $clear_source
+     *
      * @return static
      * @throws Exception
      */
@@ -220,8 +176,8 @@ class Phones extends DataList implements PhonesInterface
 
         $phones = [];
         $post   = Validator::get()
-            ->select('phones')->isOptional()->sanitizeForceArray()
-            ->validate($clear_source);
+                           ->select('phones')->isOptional()->sanitizeForceArray()
+                           ->validate($clear_source);
 
         // Parse and sub validate
         if (isset($post['phones'])) {
@@ -237,17 +193,21 @@ class Phones extends DataList implements PhonesInterface
                     $phone = [
                         'phone'        => isset_get($phone[0]),
                         'account_type' => isset_get($phone[1]),
-                        'description'  => isset_get($phone[2])
+                        'description'  => isset_get($phone[2]),
                     ];
                 }
 
                 // Pre-validate the phone number because we need the phone numbers sanitized for comparison later!
                 $phone = ArrayValidator::new($phone)
-                    ->select('phone')->isOptional()->sanitizePhoneNumber()
-                    ->select('delete')->isOptional()->sanitizeToBoolean()
-                    ->select('account_type')->isOptional('other')->hasMaxCharacters(8)->sanitizeLowercase()->isInArray(['personal', 'business', 'other'])
-                    ->select('description')->isOptional()->isDescription()
-                    ->validate();
+                                       ->select('phone')->isOptional()->sanitizePhoneNumber()
+                                       ->select('delete')->isOptional()->sanitizeToBoolean()
+                                       ->select('account_type')->isOptional('other')->hasMaxCharacters(8)->sanitizeLowercase()->isInArray([
+                                                                                                                                              'personal',
+                                                                                                                                              'business',
+                                                                                                                                              'other',
+                                                                                                                                          ])
+                                       ->select('description')->isOptional()->isDescription()
+                                       ->validate();
 
                 // Ignore empty entries
                 if (empty($phone['phone'])) {
@@ -269,18 +229,18 @@ class Phones extends DataList implements PhonesInterface
             foreach ($diff['add'] as $phone) {
                 if ($phone) {
                     $this->add(Phone::new()
-                        ->apply(false, $phones[$phone])
-                        ->setUsersId($this->parent->getId())
-                        ->save());
+                                    ->apply(false, $phones[$phone])
+                                    ->setUsersId($this->parent->getId())
+                                    ->save());
                 }
             }
 
             // Update all other phone numbers
             foreach ($diff['keep'] as $id => $phone) {
                 Phone::get($id, 'id')
-                    ->apply(false, $phones[$phone])
-                    ->setUsersId($this->parent->getId())
-                    ->save();
+                     ->apply(false, $phones[$phone])
+                     ->setUsersId($this->parent->getId())
+                     ->save();
             }
         }
 
@@ -292,12 +252,12 @@ class Phones extends DataList implements PhonesInterface
         return $this;
     }
 
-
     /**
      * Save all the phones for this user
      *
-     * @param bool $force
+     * @param bool        $force
      * @param string|null $comments
+     *
      * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static
@@ -313,5 +273,52 @@ class Phones extends DataList implements PhonesInterface
         }
 
         return $this;
+    }
+
+    /**
+     * Add the specified phone to the iterator array
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
+     * @return static
+     */
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
+    {
+        if (!$value instanceof PhoneInterface) {
+            if (!is_string($value)) {
+                throw new OutOfBoundsException(tr('Invalid value ":value" specified, can only add "PhoneInterface" to Phones Iterator class', [
+                    ':value' => $value,
+                ]));
+            }
+
+            $value = Phone::new()
+                          ->setPhone($value)
+                          ->setAccountType('other');
+        }
+
+        // Ensure that the phone list has a parent
+        if (empty($this->parent)) {
+            throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
+                ':phone' => $value->getLogId(),
+            ]));
+        }
+
+        // Ensure that the phone has a users id and that the users id matches the id of the users parent
+        if ($value->getUsersId()) {
+            if ($value->getUsersId() !== $this->parent->getId()) {
+                throw new OutOfBoundsException(tr('Specified phone ":phone" has a different users id than the users id ":parent" for the phones in this list', [
+                    ':phone'  => $value->getPhone(),
+                    ':parent' => $this->parent->getId(),
+                ]));
+            }
+
+        } else {
+            $value->setUsersId($this->parent->getId())->save();
+        }
+
+        return parent::add($value, $key, $skip_null, $exception);
     }
 }

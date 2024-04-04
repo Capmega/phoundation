@@ -15,29 +15,29 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET
 $get = GetValidator::new()
-    ->select('id')->sanitizeForceArray('-')->each()->isDbId()
-    ->validate();
+                   ->select('id')->sanitizeForceArray('-')->each()->isDbId()
+                   ->validate();
 
 
 $meta  = MetaList::new($get['id']);
 $table = $meta->getHtmlDataTable();
 $card  = Card::new()
-    ->setTitle('Registered activities')
-    ->setSwitches('reload,maximize')
-    ->setContent($table->render());
+             ->setTitle('Registered activities')
+             ->setSwitches('reload,maximize')
+             ->setContent($table->render());
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($card->render(), EnumDisplaySize::nine)
-    ->addColumn($documentation->render(), EnumDisplaySize::three);
+            ->addColumn($card->render(), EnumDisplaySize::nine)
+            ->addColumn($documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
@@ -45,7 +45,7 @@ echo $grid->render();
 // Set page meta data
 Response::setHeaderTitle(tr('Audit information'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'           => tr('Home'),
-    '/audit.html' => tr('Audits'),
-    ''            => tr('Item')
-]));
+                                                           '/'           => tr('Home'),
+                                                           '/audit.html' => tr('Audits'),
+                                                           ''            => tr('Item'),
+                                                       ]));

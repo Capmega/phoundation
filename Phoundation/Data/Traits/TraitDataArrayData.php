@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataArrayData
 {
@@ -35,23 +35,11 @@ trait TraitDataArrayData
         return $this->data;
     }
 
-
-    /**
-     * Clears the data
-     *
-     * @return static
-     */
-    public function clearData(): static
-    {
-        $this->data = [];
-        return $this;
-    }
-
-
     /**
      * Sets the data
      *
      * @param array|null $data
+     *
      * @return static
      */
     public function setData(?array $data): static
@@ -60,12 +48,12 @@ trait TraitDataArrayData
         return $this->addData($data);
     }
 
-
     /**
      * Adds the specified data
      *
      * @param array|string|null $key
-     * @param string|int|null $value
+     * @param string|int|null   $value
+     *
      * @return static
      */
     public function addData(array|string|null $key, string|int|null $value = null): static
@@ -87,6 +75,17 @@ trait TraitDataArrayData
             $this->data[$key] = $value;
         }
 
+        return $this;
+    }
+
+    /**
+     * Clears the data
+     *
+     * @return static
+     */
+    public function clearData(): static
+    {
+        $this->data = [];
         return $this;
     }
 }

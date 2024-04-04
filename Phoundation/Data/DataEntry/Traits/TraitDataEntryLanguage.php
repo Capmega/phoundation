@@ -12,10 +12,10 @@ use Phoundation\Core\Locale\Language\Language;
  *
  * This trait contains methods for DataEntry objects that require a language
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryLanguage
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryLanguage
      * Sets the languages_id for this object
      *
      * @param int|null $languages_id
+     *
      * @return static
      */
     public function setLanguagesId(?int $languages_id): static
@@ -74,6 +75,7 @@ trait TraitDataEntryLanguage
      * Sets the languages_name for this user
      *
      * @param string|null $languages_name
+     *
      * @return static
      */
     public function setLanguagesName(?string $languages_name): static
@@ -97,6 +99,7 @@ trait TraitDataEntryLanguage
      * Sets the languages_code for this user
      *
      * @param string|null $languages_code
+     *
      * @return static
      */
     public function setLanguagesCode(?string $languages_code): static

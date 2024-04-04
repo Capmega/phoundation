@@ -16,10 +16,10 @@ use Phoundation\Web\Requests\Response;
  *
  * This class can create various HTML tables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class UploadDropZone extends ResourceElement
 {
@@ -95,20 +95,6 @@ class UploadDropZone extends ResourceElement
         $this->cancel_button_selector     = '.cancel';
     }
 
-
-    /**
-     * Sets the start upload button selector
-     *
-     * @param string|null $selector
-     * @return $this
-     */
-    public function setStartButtonSelector(?string $selector): static
-    {
-        $this->start_button_selector = $selector;
-        return $this;
-    }
-
-
     /**
      * Returns the start upload button selector
      *
@@ -119,19 +105,18 @@ class UploadDropZone extends ResourceElement
         return $this->start_button_selector;
     }
 
-
     /**
-     * Sets the add upload button selector
+     * Sets the start upload button selector
      *
      * @param string|null $selector
+     *
      * @return $this
      */
-    public function setAddButtonSelector(?string $selector): static
+    public function setStartButtonSelector(?string $selector): static
     {
-        $this->add_button_selector = $selector;
+        $this->start_button_selector = $selector;
         return $this;
     }
-
 
     /**
      * Returns the add upload button selector
@@ -143,6 +128,18 @@ class UploadDropZone extends ResourceElement
         return $this->add_button_selector;
     }
 
+    /**
+     * Sets the add upload button selector
+     *
+     * @param string|null $selector
+     *
+     * @return $this
+     */
+    public function setAddButtonSelector(?string $selector): static
+    {
+        $this->add_button_selector = $selector;
+        return $this;
+    }
 
     /**
      * @inheritDoc
@@ -153,8 +150,8 @@ class UploadDropZone extends ResourceElement
         Response::loadJavascript('plugins/dropzone/min/dropzone');
 
         return Script::new()
-            ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-            ->setContent('
+                     ->setJavascriptWrapper(EnumJavascriptWrappers::window)
+                     ->setContent('
               var myDropzone = new Dropzone(' . $this->selector . ', {
                 url: "' . not_empty($this->url, UrlBuilder::getWww()) . '",
                 thumbnailWidth: 80,
@@ -198,6 +195,6 @@ class UploadDropZone extends ResourceElement
                   myDropzone.removeAllFiles(true)
               }
             ')
-            ->render();
+                     ->render();
     }
 }

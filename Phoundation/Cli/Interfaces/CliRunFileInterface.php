@@ -16,10 +16,10 @@ namespace Phoundation\Cli\Interfaces;
  *
  * If PROCESS is "accounts/users/create" with PID 6345 then the run file is ROOT/system/run/accounts/users/create/6345
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Cli
+ * @package   Phoundation\Cli
  */
 interface CliRunFileInterface
 {
@@ -62,6 +62,7 @@ interface CliRunFileInterface
      * Returns the first found PID for the specified command, if it currently runs. NULL otherwise
      *
      * @param string $command
+     *
      * @return int|null
      */
     public function getPidForCommand(): ?int;

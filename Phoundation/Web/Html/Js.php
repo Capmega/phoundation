@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html;
 
-use Phoundation\Core\Core;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
@@ -17,43 +15,50 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
  *
  * This class contains various CSS processing methods
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Js
 {
     /**
      * Add specified javascript files to the $core->register[js_header] or $core->register[js_footer] tables
      *
-     * This function will add the specified list of javascript files to the $core register "js_header" and / or "js_footer" sections. These files will later be added as <script> tags in the <head> and <body> tags. For each file it is possible to specify independantly if it has to be loaded in the <head> tag (prefix it with "<") or "body" tag (prefix it with ">"). If the file has no prefix, the default will be used, configured in $_CONFIG[cdn][js][load_delayed]
+     * This function will add the specified list of javascript files to the $core register "js_header" and / or
+     * "js_footer" sections. These files will later be added as <script> tags in the <head> and <body> tags. For each
+     * file it is possible to specify independantly if it has to be loaded in the <head> tag (prefix it with "<") or
+     * "body" tag (prefix it with ">"). If the file has no prefix, the default will be used, configured in
+     * $_CONFIG[cdn][js][load_delayed]
      *
-     * When the page is generated, html_headers() will call html_generate_js() for both the required <script> tags inside the <head> and <body> tags
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_generate_js()
-     * @see html_load_css()
-     * @see html_headers()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * html_load_js();
-     * /code
+     * When the page is generated, html_headers() will call html_generate_js() for both the required <script> tags
+     * inside the <head> and <body> tags
      *
      * @param string|array $files The javascript files that should be loaded by the client for this page
-     * @param string $list What javascript file list it should be added to. Typical valid options are "" and "page". The "" list will be loaded before the "page" list
+     * @param string       $list  What javascript file list it should be added to. Typical valid options are "" and
+     *                            "page". The "" list will be loaded before the "page" list
+     *
      * @return void
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   html
+     * @see       html_generate_js()
+     * @see       html_load_css()
+     * @see       html_headers()
+     * @version   1.26.0: Added documentation
+     * @example
+     *            code
+     *            html_load_js();
+     *            /code
+     *
      */
     public static function loadFiles(string|array $files, $list = 'page'): void
     {
         if (!isset($core->register['js_header'])) {
             throw new WebException(tr('Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', [
-                ':files' => $files
+                ':files' => $files,
             ]));
         }
 
@@ -66,25 +71,25 @@ class Js
                     $file = substr($file, 0, -3);
 
                     Notification::new()
-                        ->setUrl('developer/incidents.html')
-                        ->setMode(EnumDisplayMode::exception)
-                        ->setCode('not-exists')
-                        ->setRoles('developer')
-                        ->setTitle(tr('html_load_js() issue detected'))
-                        ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
-                        ->send();
+                                ->setUrl('developer/incidents.html')
+                                ->setMode(EnumDisplayMode::exception)
+                                ->setCode('not-exists')
+                                ->setRoles('developer')
+                                ->setTitle(tr('html_load_js() issue detected'))
+                                ->setMessage(tr('File ":file" was specified with ".js"', [':file' => $file]))
+                                ->send();
 
                 } elseif (str_ends_with($file, '.min.js')) {
                     $file = substr($file, 0, -7);
 
                     Notification::new()
-                        ->setMode(EnumDisplayMode::exception)
-                        ->setUrl('developer/incidents.html')
-                        ->setCode('not-exists')
-                        ->setRoles('developer')
-                        ->setTitle(tr('html_load_js() issue detected'))
-                        ->setMessage(tr('File ":file" was specified with ".min.js', [':file' => $file]))
-                        ->send();
+                                ->setMode(EnumDisplayMode::exception)
+                                ->setUrl('developer/incidents.html')
+                                ->setCode('not-exists')
+                                ->setRoles('developer')
+                                ->setTitle(tr('html_load_js() issue detected'))
+                                ->setMessage(tr('File ":file" was specified with ".min.js', [':file' => $file]))
+                                ->send();
                 }
             }
 
@@ -92,12 +97,12 @@ class Js
             switch (substr($file, 0, 1)) {
                 case '<':
                     $file    = substr($file, 1);
-                    $delayed =  false;
+                    $delayed = false;
                     break;
 
                 case '>':
                     $file    = substr($file, 1);
-                    $delayed =  true;
+                    $delayed = true;
                     break;
 
                 default:
@@ -106,16 +111,16 @@ class Js
 
             // Determine if this file should be async or not
             $async = match (substr($file, -1, 1)) {
-                '&' => true,
+                '&'     => true,
                 default => false,
             };
 
             // Register the file to be loaded
             if ($delayed) {
-                $core->register['js_footer'.($list ? '_'.$list : '')][$file] = $async;
+                $core->register['js_footer' . ($list ? '_' . $list : '')][$file] = $async;
 
             } else {
-                $core->register['js_header'.($list ? '_'.$list : '')][$file] = $async;
+                $core->register['js_header' . ($list ? '_' . $list : '')][$file] = $async;
             }
         }
 
@@ -133,21 +138,21 @@ class Js
      *
      * This function typically should never have to be called by developers as it is a sub function of html_headers()
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package html
-     * @see html_load_js()
-     * @see html_generate_css()
-     * @see html_headers()
-     * @version 1.26.0: Added documentation
-     * @example
-     * code
-     * $result = html_generate_js();
-     * /code
-     *
      * @return string The HTML containing <script> tags that is to be included in the <head> tag
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   html
+     * @see       html_load_js()
+     * @see       html_generate_css()
+     * @see       html_headers()
+     * @version   1.26.0: Added documentation
+     * @example
+     *            code
+     *            $result = html_generate_js();
+     *            /code
+     *
      */
     public static function generateHtml($lists = null): string
     {

@@ -15,10 +15,10 @@ use Phoundation\Web\Requests\Routing\Interfaces\MappingInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Mapping implements MappingInterface
 {
@@ -51,29 +51,11 @@ class Mapping implements MappingInterface
         return $this->source;
     }
 
-
-    /**
-     * Returns the map for the specified regex
-     *
-     * @param string $regex
-     * @return MapInterface
-     */
-    public function getMap(string $regex): MapInterface
-    {
-        if (!array_key_exists($regex, $this->source)) {
-            throw new OutOfBoundsException(tr('Cannot return MapInterface object for the specified regex ":regex", the regex does not exist', [
-                ':regex' => $regex
-            ]));
-        }
-
-        return $this->source[$regex];
-    }
-
-
     /**
      * Sets source for these mappings
      *
      * @param array $source
+     *
      * @return static
      */
     public function setSource(array $source): static
@@ -86,19 +68,37 @@ class Mapping implements MappingInterface
         return $this;
     }
 
+    /**
+     * Returns the map for the specified regex
+     *
+     * @param string $regex
+     *
+     * @return MapInterface
+     */
+    public function getMap(string $regex): MapInterface
+    {
+        if (!array_key_exists($regex, $this->source)) {
+            throw new OutOfBoundsException(tr('Cannot return MapInterface object for the specified regex ":regex", the regex does not exist', [
+                ':regex' => $regex,
+            ]));
+        }
+
+        return $this->source[$regex];
+    }
 
     /**
      * Adds a new map
      *
-     * @param string $regex
+     * @param string       $regex
      * @param MapInterface ...$maps
+     *
      * @return $this
      */
     public function add(string $regex, MapInterface ...$maps): static
     {
         if (array_key_exists($regex, $this->source)) {
             throw new OutOfBoundsException(tr('Cannot register regex ":regex", it has already been registered', [
-                ':regex' => $regex
+                ':regex' => $regex,
             ]));
         }
 
@@ -117,6 +117,7 @@ class Mapping implements MappingInterface
      * Translates the given URL with the internal map
      *
      * @param $url
+     *
      * @return string
      */
     public function apply($url): string
@@ -138,7 +139,7 @@ class Mapping implements MappingInterface
                 if (!array_key_exists($matches[1][0], $maps)) {
                     Log::warning(tr('No URL mappings found for regex ":regex" value ":value"', [
                         ':regex' => $regex,
-                        ':value' => $matches[1][0]
+                        ':value' => $matches[1][0],
                     ]));
                     break;
                 }

@@ -13,10 +13,10 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class TemplatePage implements TemplatePageInterface
 {
@@ -51,12 +51,12 @@ abstract class TemplatePage implements TemplatePageInterface
         $footers = Response::renderHtmlFooters();
 
         if (Response::getBuildBodyWrapper()) {
-            return        $footers . '
+            return $footers . '
                       </body>
                   </html>';
         }
 
-        return     $footers . '
+        return $footers . '
                </html>';
     }
 
@@ -65,6 +65,7 @@ abstract class TemplatePage implements TemplatePageInterface
      * Build and send HTTP headers
      *
      * @param string $output
+     *
      * @return void
      */
     abstract public function renderHttpHeaders(string $output): void;

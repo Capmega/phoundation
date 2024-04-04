@@ -5,10 +5,10 @@
  *
  * This trait adds functionality for HTML input elements
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 declare(strict_types=1);
 
@@ -29,7 +29,6 @@ trait TraitInputElement
     use TraitDataDescription;
     use TraitDataIcon;
     use TraitMode;
-
 
 
     /**
@@ -61,155 +60,6 @@ trait TraitInputElement
      */
     protected ?string $value = null;
 
-
-    /**
-     * Returns if the input element has a clear button or not
-     *
-     * @return bool
-     */
-    public function getClearButton(): bool
-    {
-        return $this->clear_button;
-    }
-
-
-    /**
-     * Sets if the input element has a clear button or not
-     *
-     * @param bool $clear_button
-     * @return static
-     */
-    public function setClearButton(bool $clear_button): static
-    {
-        $this->clear_button = $clear_button;
-        return $this;
-    }
-
-
-    /**
-     * Returns the type for the input element
-     *
-     * @return EnumInputTypeInterface|null
-     */
-    public function getInputType(): ?EnumInputTypeInterface
-    {
-        return $this->input_type;
-    }
-
-
-    /**
-     * Sets the type for the input element
-     *
-     * @param EnumInputTypeInterface|null $input_type
-     * @return static
-     */
-    public function setInputType(?EnumInputTypeInterface $input_type): static
-    {
-        $this->input_type = $input_type;
-        return $this;
-    }
-
-
-    /**
-     * Returns if this input element is hidden or not
-     *
-     * @return bool
-     */
-    public function getHidden(): bool
-    {
-        return $this->hidden;
-    }
-
-
-    /**
-     * Returns if this input element is hidden or not
-     *
-     * @param bool $hidden
-     * @return static
-     */
-    public function setHidden(bool $hidden): static
-    {
-        $this->hidden = $hidden;
-        return $this;
-    }
-
-
-    /**
-     * Returns the value for the input element
-     *
-     * @return string|null
-     */
-    public function getValue(): ?string
-    {
-        return $this->value;
-    }
-
-
-    /**
-     * Sets the value for the input element
-     *
-     * @param Stringable|string|float|int|null $value
-     * @param bool $make_safe
-     * @return static
-     */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
-    {
-        if ($make_safe) {
-            $this->value = Html::safe($value);
-        } else {
-            $this->value = $value;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Sets if the element will auto submit
-     *
-     * @param bool $auto_submit
-     * @return static
-     */
-    public function setAutoSubmit(bool $auto_submit): static
-    {
-        return $this->setAttribute($auto_submit, 'auto_submit');
-    }
-
-
-    /**
-     * Returns if the element will auto submit
-     *
-     * @return bool
-     */
-    public function getAutoSubmit(): bool
-    {
-        return $this->attributes->get('auto_submit', false);
-    }
-
-
-    /**
-     * Sets onchange functionality
-     *
-     * @param string|null $on_change
-     * @return static
-     */
-    public function setOnChange(?string $on_change): static
-    {
-        return $this->setAttribute($on_change, 'on_change');
-    }
-
-
-    /**
-     * Returns onchange functionality
-     *
-     * @return string|null
-     */
-    public function getOnChange(): ?string
-    {
-        return $this->attributes->get('on_change', false);
-    }
-
-
     /**
      * Returns a new input element from the specified data entry field
      *
@@ -234,6 +84,147 @@ trait TraitInputElement
         return $element;
     }
 
+    /**
+     * Returns if the input element has a clear button or not
+     *
+     * @return bool
+     */
+    public function getClearButton(): bool
+    {
+        return $this->clear_button;
+    }
+
+    /**
+     * Sets if the input element has a clear button or not
+     *
+     * @param bool $clear_button
+     *
+     * @return static
+     */
+    public function setClearButton(bool $clear_button): static
+    {
+        $this->clear_button = $clear_button;
+        return $this;
+    }
+
+    /**
+     * Returns the type for the input element
+     *
+     * @return EnumInputTypeInterface|null
+     */
+    public function getInputType(): ?EnumInputTypeInterface
+    {
+        return $this->input_type;
+    }
+
+    /**
+     * Sets the type for the input element
+     *
+     * @param EnumInputTypeInterface|null $input_type
+     *
+     * @return static
+     */
+    public function setInputType(?EnumInputTypeInterface $input_type): static
+    {
+        $this->input_type = $input_type;
+        return $this;
+    }
+
+    /**
+     * Returns if this input element is hidden or not
+     *
+     * @return bool
+     */
+    public function getHidden(): bool
+    {
+        return $this->hidden;
+    }
+
+    /**
+     * Returns if this input element is hidden or not
+     *
+     * @param bool $hidden
+     *
+     * @return static
+     */
+    public function setHidden(bool $hidden): static
+    {
+        $this->hidden = $hidden;
+        return $this;
+    }
+
+    /**
+     * Returns the value for the input element
+     *
+     * @return string|null
+     */
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
+    /**
+     * Sets the value for the input element
+     *
+     * @param Stringable|string|float|int|null $value
+     * @param bool                             $make_safe
+     *
+     * @return static
+     */
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
+    {
+        if ($make_safe) {
+            $this->value = Html::safe($value);
+        } else {
+            $this->value = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets if the element will auto submit
+     *
+     * @param bool $auto_submit
+     *
+     * @return static
+     */
+    public function setAutoSubmit(bool $auto_submit): static
+    {
+        return $this->setAttribute($auto_submit, 'auto_submit');
+    }
+
+    /**
+     * Returns if the element will auto submit
+     *
+     * @return bool
+     */
+    public function getAutoSubmit(): bool
+    {
+        return $this->attributes->get('auto_submit', false);
+    }
+
+    /**
+     * Sets onchange functionality
+     *
+     * @param string|null $on_change
+     *
+     * @return static
+     */
+    public function setOnChange(?string $on_change): static
+    {
+        return $this->setAttribute($on_change, 'on_change');
+    }
+
+    /**
+     * Returns onchange functionality
+     *
+     * @return string|null
+     */
+    public function getOnChange(): ?string
+    {
+        return $this->attributes->get('on_change', false);
+    }
 
     /**
      * Add the system arguments to the arguments list
@@ -245,8 +236,8 @@ trait TraitInputElement
     protected function renderInputAttributes(): IteratorInterface
     {
         return Iterator::new()->setSource([
-            'type'  => $this->input_type?->value,
-            'value' => $this->value,
-        ]);
+                                              'type'  => $this->input_type?->value,
+                                              'value' => $this->value,
+                                          ]);
     }
 }

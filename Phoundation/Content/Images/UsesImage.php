@@ -13,11 +13,11 @@ use Phoundation\Filesystem\Traits\TraitDataRestrictions;
  *
  * This trait contains basic image architecture
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Content
+ * @category  Function reference
+ * @package   Phoundation\Content
  */
 trait UsesImage
 {
@@ -47,6 +47,7 @@ trait UsesImage
      * Sets the image for this File object
      *
      * @param ImageInterface|string|null $image
+     *
      * @return static
      */
     public function setImage(ImageInterface|string|null $image = null): static

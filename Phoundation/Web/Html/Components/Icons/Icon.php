@@ -15,10 +15,10 @@ use Phoundation\Web\Html\Traits\TraitMode;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Icon extends Element implements IconInterface
 {
@@ -39,7 +39,7 @@ class Icon extends Element implements IconInterface
                 // Icon names should only have letters, numbers and dashes and underscores. Multiple names may be
                 // needed, so also allow spaces
                 throw new OutOfBoundsException(tr('Invalid icon name ":icon" specified', [
-                    ':icon' => $content
+                    ':icon' => $content,
                 ]));
             }
         }
@@ -64,7 +64,8 @@ class Icon extends Element implements IconInterface
      * Sets the icon for this object
      *
      * @param string|null $icon
-     * @param string $subclass
+     * @param string      $subclass
+     *
      * @return static
      */
     public function setIcon(?string $icon, string $subclass = ''): static

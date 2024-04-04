@@ -12,10 +12,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class Logo extends Img
 {
@@ -40,7 +40,7 @@ class Logo extends Img
     public function getAlt(): ?string
     {
         return parent::getAlt() ?? tr('Logo for :project', [
-            ':project' => Config::getString('project.name', 'Phoundation')
+            ':project' => Config::getString('project.name', 'Phoundation'),
         ]);
     }
 }

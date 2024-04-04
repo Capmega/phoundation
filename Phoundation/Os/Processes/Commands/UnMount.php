@@ -18,11 +18,11 @@ use Stringable;
  * Class Mount
  *
  *
- * @note On Ubuntu requires packages nfs-utils cifs-utils psmisc
+ * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
  * * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class UnMount extends Command
 {
@@ -36,6 +36,18 @@ class UnMount extends Command
      */
     protected bool $lazy = false;
 
+    /**
+     * Mount class constructor
+     *
+     * @param RestrictionsInterface|array|string|null $restrictions
+     * @param string|null                             $operating_system
+     * @param string|null                             $packages
+     */
+    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    {
+        parent::__construct($restrictions, $operating_system, $packages);
+        $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
+    }
 
     /**
      * Returns if lazy should be used
@@ -47,11 +59,11 @@ class UnMount extends Command
         return $this->lazy;
     }
 
-
     /**
      * Sets if lazy should be used
      *
      * @param bool $lazy
+     *
      * @return static
      */
     public function setLazy(bool $lazy): static
@@ -60,26 +72,12 @@ class UnMount extends Command
         return $this;
     }
 
-
-    /**
-     * Mount class constructor
-     *
-     * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null $operating_system
-     * @param string|null $packages
-     */
-    public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
-    {
-        parent::__construct($restrictions, $operating_system, $packages);
-        $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
-    }
-
-
     /**
      * Unmount the specified target
      *
      * @param Stringable|string $target
-     * @param int|null $timeout
+     * @param int|null          $timeout
+     *
      * @return void
      */
     public function unmount(Stringable|string $target, ?int $timeout = null): void
@@ -95,7 +93,7 @@ class UnMount extends Command
         } else {
             if (!Mount::isMounted($target)) {
                 throw new NotMountedException(tr('Cannot unmount target ":target", it is not mounted', [
-                    ':target' => $target
+                    ':target' => $target,
                 ]));
             }
 
@@ -104,19 +102,19 @@ class UnMount extends Command
                 'target'      => $target,
                 'file-system' => $target,
                 'options'     => $target,
-                'timeout'     => $timeout
+                'timeout'     => $timeout,
             ]);
 
             // Build the process parameters, then execute
             try {
                 $this->clearArguments()
-                    ->setCommand('umount')
-                    ->setSudo(true)
-                    ->setTimeout($timeout)
-                    ->addArgument($this->force ? '-f' : null)
-                    ->addArgument($this->lazy  ? '-l' : null)
-                    ->addArgument($target)
-                    ->executeNoReturn();
+                     ->setCommand('umount')
+                     ->setSudo(true)
+                     ->setTimeout($timeout)
+                     ->addArgument($this->force ? '-f' : null)
+                     ->addArgument($this->lazy ? '-l' : null)
+                     ->addArgument($target)
+                     ->executeNoReturn();
 
             } catch (ProcessFailedException $e) {
                 if (!$e->dataContains('device is busy', key: 'output')) {
@@ -127,7 +125,7 @@ class UnMount extends Command
 
                 // The device is busy. Check by who and add it to the exception
                 throw UnmountBusyException::new(tr('Cannot unmount target ":target", it is busy', [
-                    ':target' => $target
+                    ':target' => $target,
                 ]))->addData(['processes' => $processes]);
             }
         }

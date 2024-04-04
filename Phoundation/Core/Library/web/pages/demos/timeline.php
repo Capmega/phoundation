@@ -9,10 +9,10 @@ use Phoundation\Web\Requests\Response;
  *
  * This is the main demonstration page showcasing possible uses of various components
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
@@ -20,10 +20,10 @@ use Phoundation\Web\Requests\Response;
 Response::setHeaderTitle(tr('Package timeline'));
 Response::setHeaderSubTitle(tr('demo'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-'/'           => tr('Home'),
-'/demos.html' => tr('Demos'),
-''            => tr('Package timeline')
-]));
+                                                           '/'           => tr('Home'),
+                                                           '/demos.html' => tr('Demos'),
+                                                           ''            => tr('Package timeline'),
+                                                       ]));
 ?>
 <!-- Main content -->
 <section class="content">
@@ -64,7 +64,8 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <i class="fas fa-user bg-green"></i>
                         <div class="timeline-item">
                             <span class="time"><i class="fas fa-clock"></i> 5 mins ago</span>
-                            <h3 class="timeline-header no-border"><a href="#">Meredith Bramham</a> Assigned package to Lauren Alderson</h3>
+                            <h3 class="timeline-header no-border"><a href="#">Meredith Bramham</a> Assigned package to
+                                Lauren Alderson</h3>
                         </div>
                     </div>
                     <!-- END timeline item -->
@@ -130,7 +131,8 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
                             <div class="timeline-body">
                                 <div class="embed-responsive embed-responsive-16by9">
-                                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/tMWkeBIohBs" allowfullscreen></iframe>
+                                    <iframe class="embed-responsive-item"
+                                            src="https://www.youtube.com/embed/tMWkeBIohBs" allowfullscreen></iframe>
                                 </div>
                             </div>
                             <div class="timeline-footer">
@@ -149,5 +151,4 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     </div>
     <!-- /.timeline -->
 
-</section>
-<!-- /.content -->
+</section><!-- /.content -->

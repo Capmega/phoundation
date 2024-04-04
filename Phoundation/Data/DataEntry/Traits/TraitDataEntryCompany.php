@@ -12,10 +12,10 @@ use Phoundation\Business\Companies\Company;
  *
  * This trait contains methods for DataEntry objects that require a company
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryCompany
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryCompany
      * Sets the companies_id for this object
      *
      * @param int|null $companies_id
+     *
      * @return static
      */
     public function setCompaniesId(?int $companies_id): static
@@ -74,6 +75,7 @@ trait TraitDataEntryCompany
      * Sets the companies_name for this object
      *
      * @param string|null $companies_name
+     *
      * @return static
      */
     public function setCompaniesName(?string $companies_name): static

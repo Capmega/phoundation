@@ -6,7 +6,6 @@ namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
@@ -19,11 +18,11 @@ use Throwable;
  * GeoIp class
  *
  *
- * @note See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @note      See https://linklyhq.com/blog/list-of-5-free-geoip-databases-2020
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Geo
+ * @package   Phoundation/Geo
  */
 class GeoIp
 {
@@ -39,6 +38,7 @@ class GeoIp
      * Returns a GeoIp object for the specified IP address
      *
      * @param string|null $ip_address
+     *
      * @return static|null
      */
     public static function detect(?string $ip_address): ?static
@@ -48,8 +48,8 @@ class GeoIp
 
         } catch (Throwable $e) {
             throw new GeoIpException(tr('Failed to detect Geo location from IP ":ip"', [
-                ':ip' => $ip_address
-            ]), $e);
+                ':ip' => $ip_address,
+            ]),                      $e);
         }
     }
 
@@ -58,6 +58,7 @@ class GeoIp
      * Returns the class for the specified provider
      *
      * @param string|null $provider
+     *
      * @return static|null
      */
     public static function getProvider(?string $provider = null): ?static
@@ -81,7 +82,7 @@ class GeoIp
 
                 default:
                     throw new OutOfBoundsException(tr('Unknown GeoIP provider ":provider" specified', [
-                        ':provider' => $provider
+                        ':provider' => $provider,
                     ]));
             }
 
@@ -112,6 +113,7 @@ class GeoIp
      * Sets the ip address for this user
      *
      * @param string|null $ip_address
+     *
      * @return static
      */
     public function setIpAddress(?string $ip_address): static
@@ -126,8 +128,5 @@ class GeoIp
      *
      * @return bool
      */
-    public function isEuropean(): bool
-    {
-
-    }
+    public function isEuropean(): bool {}
 }

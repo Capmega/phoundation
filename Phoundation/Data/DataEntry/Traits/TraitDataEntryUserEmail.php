@@ -10,10 +10,10 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * This trait contains methods for DataEntry objects that require a email
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryUserEmail
 {
@@ -32,6 +32,7 @@ trait TraitDataEntryUserEmail
      * Sets the email for this object
      *
      * @param string|null $email
+     *
      * @return static
      */
     public function setUserEmail(?string $email): static

@@ -7,8 +7,6 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
@@ -20,10 +18,10 @@ use Plugins\Phoundation\Phoundation\Components\Menu;
  *
  * This class contains basic template functionalities. All template classes must extend this class!
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class Template implements TemplateInterface
 {
@@ -70,11 +68,20 @@ abstract class Template implements TemplateInterface
 
         if (empty($this->menus_class)) {
             throw new OutOfBoundsException(tr('Cannot start template ":name", the menus class was not defined', [
-                ':name' => $this->getName()
+                ':name' => $this->getName(),
             ]));
         }
     }
 
+    /**
+     * Returns the name for this template
+     *
+     * @return string
+     */
+    public function getName(): string
+    {
+        return Strings::from(Strings::fromReverse(get_class($this), '\\'), '\\');
+    }
 
     /**
      * Returns a new Template object
@@ -86,24 +93,23 @@ abstract class Template implements TemplateInterface
         return new static();
     }
 
-
     /**
      * This function checks if this template is the required template
      *
      * This is in case a specific site requires a specific template
      *
      * @param string $name
+     *
      * @return void
      */
     public function requires(string $name): void
     {
         if (strtolower($name) !== strtolower($this->name)) {
             throw new TemplateException(tr('This page requires the ":name" template', [
-                ':name' => $name
+                ':name' => $name,
             ]));
         }
     }
-
 
     /**
      * Returns a new TemplatePage for this template
@@ -119,7 +125,7 @@ abstract class Template implements TemplateInterface
             if (!($page instanceof TemplatePageInterface)) {
                 throw new OutOfBoundsException(tr('Cannot instantiate ":template" template page object, specified class ":class" is not a sub class of "TemplatePage"', [
                     ':template' => $this->name,
-                    'class'     => $this->page_class
+                    'class'     => $this->page_class,
                 ]));
             }
 
@@ -129,22 +135,11 @@ abstract class Template implements TemplateInterface
         return $this->page;
     }
 
-
-    /**
-     * Returns the name for this template
-     *
-     * @return string
-     */
-    public function getName(): string
-    {
-        return Strings::from(Strings::fromReverse(get_class($this), '\\'), '\\');
-    }
-
-
     /**
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
      *
      * @param RenderInterface|string $class
+     *
      * @return string|null
      */
     public function getRendererClass(RenderInterface|string $class): ?string
@@ -172,7 +167,7 @@ abstract class Template implements TemplateInterface
 
                     if (!$parent) {
                         throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
-                            ':class' => $class
+                            ':class' => $class,
                         ]));
                     }
 
@@ -192,7 +187,7 @@ abstract class Template implements TemplateInterface
 
                 // Find the class path in the file, we will return this as the class that should be used for
                 // rendering
-                $include_class  = Strings::untilReverse(get_class($this), '\\');
+                $include_class = Strings::untilReverse(get_class($this), '\\');
                 $include_class .= '\\Html\\' . $class_path;
             }
 
@@ -221,6 +216,12 @@ abstract class Template implements TemplateInterface
         return null;
     }
 
+    /**
+     * Returns the root path for this template
+     *
+     * @return string
+     */
+    abstract public function getDirectory(): string;
 
     /**
      * Returns the description for this template
@@ -228,12 +229,4 @@ abstract class Template implements TemplateInterface
      * @return string
      */
     abstract public function getDescription(): string;
-
-
-    /**
-     * Returns the root path for this template
-     *
-     * @return string
-     */
-    abstract public function getDirectory(): string;
 }

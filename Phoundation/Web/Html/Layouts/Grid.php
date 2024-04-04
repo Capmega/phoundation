@@ -14,19 +14,20 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Grid extends Container
 {
     /**
      * Set the rows for this grid
      *
-     * @param array $rows
+     * @param array                         $rows
      * @param EnumDisplaySizeInterface|null $column_size
-     * @param bool $use_form
+     * @param bool                          $use_form
+     *
      * @return static
      */
     public function setRows(array $rows, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
@@ -39,9 +40,10 @@ class Grid extends Container
     /**
      * Add the specified row to this grid
      *
-     * @param array $rows
+     * @param array                         $rows
      * @param EnumDisplaySizeInterface|null $column_size
-     * @param bool $use_form
+     * @param bool                          $use_form
+     *
      * @return static
      */
     public function addRows(array $rows, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
@@ -50,7 +52,7 @@ class Grid extends Container
         foreach ($rows as $row) {
             if (!is_object($row) or !($row instanceof GridRow)) {
                 throw new OutOfBoundsException(tr('Invalid datatype for specified row. The row should be a GridRow object, but is a ":datatype"', [
-                    ':datatype' => (is_object($row) ? get_class($row) : gettype($row))
+                    ':datatype' => (is_object($row) ? get_class($row) : gettype($row)),
                 ]));
             }
 
@@ -65,8 +67,9 @@ class Grid extends Container
      * Add the specified row to this grid
      *
      * @param GridRow|GridColumn|ElementsBlock|null $row
-     * @param EnumDisplaySizeInterface|null $column_size
-     * @param bool $use_form
+     * @param EnumDisplaySizeInterface|null         $column_size
+     * @param bool                                  $use_form
+     *
      * @return static
      */
     public function addRow(GridRow|GridColumn|ElementsBlock|null $row = null, ?EnumDisplaySizeInterface $column_size = null, bool $use_form = false): static
@@ -93,46 +96,13 @@ class Grid extends Container
         return $this;
     }
 
-
-    /**
-     * Set the columns for the current row in this grid
-     *
-     * @param array $columns
-     * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool $use_form
-     * @return static
-     */
-    public function setColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
-    {
-        $this->getCurrentRow()->clear();
-        return $this->addColumns($columns, $size, $use_form);
-    }
-
-
     /**
      * Add the specified column to the current row in this grid
      *
-     * @param array $columns
+     * @param object|string|null                $column
      * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool $use_form
-     * @return static
-     */
-    public function addColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
-    {
-        foreach ($columns as $column) {
-            $this->addColumn($column, $size, $use_form);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Add the specified column to the current row in this grid
+     * @param bool                              $use_form
      *
-     * @param object|string|null $column
-     * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool $use_form
      * @return static
      */
     public function addColumn(object|string|null $column, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
@@ -168,7 +138,21 @@ class Grid extends Container
         return $this;
     }
 
-    
+    /**
+     * Set the columns for the current row in this grid
+     *
+     * @param array                             $columns
+     * @param EnumDisplaySizeInterface|int|null $size $size
+     * @param bool                              $use_form
+     *
+     * @return static
+     */
+    public function setColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    {
+        $this->getCurrentRow()->clear();
+        return $this->addColumns($columns, $size, $use_form);
+    }
+
     /**
      * Returns the current row for this grid
      *
@@ -184,5 +168,23 @@ class Grid extends Container
         }
 
         return $row;
+    }
+
+    /**
+     * Add the specified column to the current row in this grid
+     *
+     * @param array                             $columns
+     * @param EnumDisplaySizeInterface|int|null $size $size
+     * @param bool                              $use_form
+     *
+     * @return static
+     */
+    public function addColumns(array $columns, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
+    {
+        foreach ($columns as $column) {
+            $this->addColumn($column, $size, $use_form);
+        }
+
+        return $this;
     }
 }

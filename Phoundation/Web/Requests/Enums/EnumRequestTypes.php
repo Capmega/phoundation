@@ -33,12 +33,12 @@ namespace Phoundation\Web\Requests\Enums;
  *
  * UNSUPPORTED: Any kind of request that isn't covered by the above list and is not supported by the system
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
-enum EnumRequestTypes : string
+enum EnumRequestTypes: string
 {
     case api         = 'api';
     case admin       = 'admin';

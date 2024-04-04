@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Pages\Template;
  *
  * This trait contains methods for DataEntry objects that require a template
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryTemplate
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryTemplate
      * Sets the templates_id for this object
      *
      * @param int|null $templates_id
+     *
      * @return static
      */
     public function setTemplatesId(?int $templates_id): static
@@ -75,6 +76,7 @@ trait TraitDataEntryTemplate
      * Sets the templates_name for this object
      *
      * @param string|null $templates_name
+     *
      * @return static
      */
     public function setTemplatesName(?string $templates_name): static

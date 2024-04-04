@@ -25,38 +25,38 @@ if (!Session::getUser()->isGuest()) {
 
 // Is email specified by URL?
 $get = GetValidator::new()
-    ->select('email')->isOptional()->isEmail()
-    ->select('redirect')->isOptional()->isUrl()
-    ->validate();
+                   ->select('email')->isOptional()->isEmail()
+                   ->select('redirect')->isOptional()->isUrl()
+                   ->validate();
 
 
 // Validate sign in data and sign in
 if (Request::isPostRequestMethod()) {
     try {
         $post = PostValidator::new()
-            ->select('email')->isEmail()
-            ->validate();
+                             ->select('email')->isEmail()
+                             ->validate();
 
         $user = User::get($post['email'], 'email');
 
         if ($user->isLocked() or $user->isDeleted()) {
             // Yikes, this cannot be impersonated!
             Incident::new()
-                ->setType('Lost password request denied')
-                ->setSeverity(Severity::medium)
-                ->setTitle(tr('Cannot perform a lost password process for user ":user", this user account is locked or deleted', [
-                    ':user' => $user->getLogId(),
-                ]))
-                ->setDetails([
-                    'user'   => $user->getLogId(),
-                    'status' => $user->getStatus(),
-                ])
-                ->notifyRoles('security')
-                ->save()
-                ->throw(AccessDeniedException::class);
+                    ->setType('Lost password request denied')
+                    ->setSeverity(Severity::medium)
+                    ->setTitle(tr('Cannot perform a lost password process for user ":user", this user account is locked or deleted', [
+                        ':user' => $user->getLogId(),
+                    ]))
+                    ->setDetails([
+                                     'user'   => $user->getLogId(),
+                                     'status' => $user->getStatus(),
+                                 ])
+                    ->notifyRoles('security')
+                    ->save()
+                    ->throw(AccessDeniedException::class);
         }
 
-        $key  = $user->getSigninKey()->generate(UrlBuilder::getWww('/update-lost-password.html'));
+        $key = $user->getSigninKey()->generate(UrlBuilder::getWww('/update-lost-password.html'));
 
         $mail = new PHPMailer();
         $mail->isSMTP();
@@ -77,11 +77,11 @@ if (Request::isPostRequestMethod()) {
         $mail->Body = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
             ':user' => $user->getDisplayName(),
             ':here' => tr('<a href=":url">here</a>', [':url' => $key->getUrl()]),
-            ':alt'  => $key->getUrl()
+            ':alt'  => $key->getUrl(),
         ]);
 
         $mail->Subject = tr('[:project] Lost password request', [
-            ':project' => Config::getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : '')
+            ':project' => Config::getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
         ]);
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
@@ -100,15 +100,15 @@ if (Request::isPostRequestMethod()) {
 
         // Register a security incident
         Incident::new()
-            ->setSeverity(Severity::low)
-            ->setType(tr('User lost password request'))
-            ->setTitle(tr('A lost password request was sent to user ":user"', [
-                ':user' => Session::getUser()->getLogId()
-            ]))
-            ->setDetails([
-                ':user' => Session::getUser()->getLogId()
-            ])
-            ->save();
+                ->setSeverity(Severity::low)
+                ->setType(tr('User lost password request'))
+                ->setTitle(tr('A lost password request was sent to user ":user"', [
+                    ':user' => Session::getUser()->getLogId(),
+                ]))
+                ->setDetails([
+                                 ':user' => Session::getUser()->getLogId(),
+                             ])
+                ->save();
 
         Request::getFlashMessages()->addSuccessMessage(tr('We sent a lost password email to the specified address if it exists'));
 
@@ -128,5 +128,5 @@ Response::setPageTitle(tr('Request a new password'));
 
 // Render the page
 LostPasswordPage::new()
-    ->setEmail(isset_get($get['email']))
-        ->render();
+                ->setEmail(isset_get($get['email']))
+                ->render();

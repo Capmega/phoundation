@@ -16,10 +16,10 @@ use Phoundation\Web\Html\Enums\EnumElementInputType;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Emails
+ * @package   Plugins\Emails
  */
 class EmailAddress extends DataEntry
 {
@@ -57,36 +57,36 @@ class EmailAddress extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getUsersEmail($this)
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getUsersId($this)
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getRolesId($this, 'view_roles_id')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getRolesName($this, 'view_roles_name')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getRolesId($this, 'send_roles_id')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getRolesName($this, 'send_roles_name')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getHost($this, 'smtp_host')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getPort($this, 'smtp_port')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(Definition::new($this, 'smtp_auth')
-                ->setInputType(EnumElementInputType::checkbox)
-                ->setRender(false))
+                            ->setInputType(EnumElementInputType::checkbox)
+                            ->setRender(false))
             ->add(Definition::new($this, 'smtp_secure')
-                ->setInputType(EnumElementInputType::text)
-                ->setDataSource(['tls' => tr('TLS')])
-                ->setRender(false))
+                            ->setInputType(EnumElementInputType::text)
+                            ->setDataSource(['tls' => tr('TLS')])
+                            ->setRender(false))
             ->add(DefinitionFactory::getName($this)
-                ->setSize(3))
+                                   ->setSize(3))
             ->add(DefinitionFactory::getSeoName($this)
-                ->setSize(3))
+                                   ->setSize(3))
             ->add(DefinitionFactory::getUsername($this)
-                ->setSize(3))
+                                   ->setSize(3))
             ->add(DefinitionFactory::getPassword($this)
-                ->setSize(3))
+                                   ->setSize(3))
             ->add(DefinitionFactory::getDescription($this));
     }
 }

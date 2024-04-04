@@ -11,8 +11,8 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Os\Processes\Commands\PhoCommand;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
-use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
+use Phoundation\Web\Html\Pages\Template;
 use PHPMailer\PHPMailer\PHPMailer;
 
 
@@ -21,10 +21,10 @@ use PHPMailer\PHPMailer\PHPMailer;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Emails
+ * @package   Plugins\Emails
  */
 class Email extends DataEntry
 {
@@ -75,6 +75,7 @@ class Email extends DataEntry
      * Sends the email
      *
      * @param bool $background
+     *
      * @return $this
      */
     public function send(bool $background = true): static
@@ -181,50 +182,50 @@ class Email extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getUsersEmail($this)
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getUsersId($this)
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(Definition::new($this, 'parents_id')
-                ->setRender(false)
-                ->setInputType(EnumElementInputType::dbid)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [
-                        ':id' => '$parents_id'
-                    ]);
-                }))
+                            ->setRender(false)
+                            ->setInputType(EnumElementInputType::dbid)
+                            ->addValidationFunction(function (ValidatorInterface $validator) {
+                                // Ensure the specified parents_id exists
+                                $validator->isOptional()->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [
+                                    ':id' => '$parents_id',
+                                ]);
+                            }))
             ->add(Definition::new($this, 'main')
-                ->setRender(false)
-                ->setInputType(EnumElementInputType::checkbox))
+                            ->setRender(false)
+                            ->setInputType(EnumElementInputType::checkbox))
             ->add(Definition::new($this, 'read')
-                ->setRender(false)
-                ->setInputType(EnumElementInputType::checkbox))
+                            ->setRender(false)
+                            ->setInputType(EnumElementInputType::checkbox))
             ->add(Definition::new($this, 'categories_id')
-                ->setRender(false)
-                ->setInputType(EnumElementInputType::dbid)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [
-                        ':id' => '$categories'
-                    ]);
-                }))
+                            ->setRender(false)
+                            ->setInputType(EnumElementInputType::dbid)
+                            ->addValidationFunction(function (ValidatorInterface $validator) {
+                                // Ensure the specified parents_id exists
+                                $validator->isOptional()->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [
+                                    ':id' => '$categories',
+                                ]);
+                            }))
             ->add(Definition::new($this, 'templates_id')
-                ->setRender(false)
-                ->setInputType(EnumElementInputType::dbid)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure the specified parents_id exists
-                    $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [
-                        ':id' => '$templates_id'
-                    ]);
-                }))
+                            ->setRender(false)
+                            ->setInputType(EnumElementInputType::dbid)
+                            ->addValidationFunction(function (ValidatorInterface $validator) {
+                                // Ensure the specified parents_id exists
+                                $validator->isOptional()->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [
+                                    ':id' => '$templates_id',
+                                ]);
+                            }))
             ->add(DefinitionFactory::getCode($this)
-                ->setSize(3))
+                                   ->setSize(3))
             ->add(Definition::new($this, 'subject')
-                ->setSize(3)
-                ->setMaxlength(255))
+                            ->setSize(3)
+                            ->setMaxlength(255))
             ->add(Definition::new($this, 'body')
-                ->setSize(3)
-                ->setSize(12)
-                ->setMaxlength(16_777_215));
+                            ->setSize(3)
+                            ->setSize(12)
+                            ->setMaxlength(16_777_215));
     }
 }

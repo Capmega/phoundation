@@ -15,11 +15,11 @@ use Phoundation\Developer\Project\Project;
  * This script will copy changed files back to your phoundation installation. The script will assume your phoundation
  * installation is in ~/projects/phoundation
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Development
+ * @category  Function reference
+ * @package   Phoundation\Development
  */
 
 CliDocumentation::setUsage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
@@ -43,25 +43,22 @@ TARGET_ENVIRONMENT                      The target environment where to deploy t
                                         will be used');
 
 
-
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-t,--tag', true)->isOptional()->isPrintable()
-    ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
-    ->select('target_environment')->isPrintable()
-    ->validate();
-
+                     ->select('-t,--tag', true)->isOptional()->isPrintable()
+                     ->select('-m,--message', true)->isOptional()->isPrintable()->hasMinCharacters(10)->hasMaxCharacters(1024)
+                     ->select('target_environment')->isPrintable()
+                     ->validate();
 
 
 Log::information(tr('Deploying project ":project" to environment ":environment"', [
-        ':project'     => PROJECT,
-        ':environment' => $argv['target_environment']
+    ':project'     => PROJECT,
+    ':environment' => $argv['target_environment'],
 ]));
 
 
-
 Project::deploy()
-    ->setTag($argv['tag'])
-    ->sendMessage($argv['message'])
-    ->setTargetEnvironment($argv['target_environment'])
-    ->execute();
+       ->setTag($argv['tag'])
+       ->sendMessage($argv['message'])
+       ->setTargetEnvironment($argv['target_environment'])
+       ->execute();

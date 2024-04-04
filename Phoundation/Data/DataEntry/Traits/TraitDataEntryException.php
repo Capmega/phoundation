@@ -13,10 +13,10 @@ use Throwable;
  *
  * This trait contains methods for DataEntry objects that require a exception
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryException
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryException
      * Sets the exception for this object
      *
      * @param Throwable|string|null $exception
+     *
      * @return static
      */
     public function setException(Throwable|string|null $exception): static

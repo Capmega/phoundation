@@ -4,18 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataListInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Enums\EnumMatchMode;
-use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
 use Stringable;
-use Throwable;
-use UnitEnum;
 
 
 /**
@@ -23,12 +13,13 @@ use UnitEnum;
  *
  * This is the standard Utils class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @package Phoundation\Utils
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @package   Phoundation\Utils
  */
-class Utils {
+class Utils
+{
     const MATCH_ALL      = 1;
     const MATCH_ANY      = 2;
     const MATCH_BEGIN    = 4;
@@ -63,19 +54,20 @@ class Utils {
      * Decodes and checks the match flags and returns array with all match options
      *
      * @param int $options
+     *
      * @return array
      */
     protected static function decodeMatchOptions(int $options, bool $allow_recurse): array
     {
         // Decode options
         $return                   = [];
-        $return['match_no_case']  = (bool) ($options & self::MATCH_NO_CASE);
-        $return['match_all']      = (bool) ($options & self::MATCH_ALL);
-        $return['match_any']      = (bool) ($options & self::MATCH_ANY);
-        $return['match_begin']    = (bool) ($options & self::MATCH_BEGIN);
-        $return['match_end']      = (bool) ($options & self::MATCH_END);
-        $return['match_anywhere'] = (bool) ($options & self::MATCH_ANYWHERE);
-        $return['recurse']        = (bool) ($options & self::MATCH_RECURSE);
+        $return['match_no_case']  = (bool)($options & self::MATCH_NO_CASE);
+        $return['match_all']      = (bool)($options & self::MATCH_ALL);
+        $return['match_any']      = (bool)($options & self::MATCH_ANY);
+        $return['match_begin']    = (bool)($options & self::MATCH_BEGIN);
+        $return['match_end']      = (bool)($options & self::MATCH_END);
+        $return['match_anywhere'] = (bool)($options & self::MATCH_ANYWHERE);
+        $return['recurse']        = (bool)($options & self::MATCH_RECURSE);
 
         // Validate options
         if ($return['match_begin']) {
@@ -116,7 +108,8 @@ class Utils {
      * Checks specified needles that they have content and will ensure they are specified as an array
      *
      * @param array|Stringable|string $needles
-     * @param bool $lowercase
+     * @param bool                    $lowercase
+     *
      * @return array
      */
     protected static function checkRequiredNeedles(array|Stringable|string $needles, bool $lowercase = false): array
@@ -130,7 +123,7 @@ class Utils {
         if ($lowercase) {
             // Make all needles lowercase strings
             foreach ($needles as &$needle) {
-                $needle = strtolower((string) $needle);
+                $needle = strtolower((string)$needle);
             }
 
             unset($needle);
@@ -146,16 +139,17 @@ class Utils {
      * Caseless compares always compare lowercase
      *
      * @param string|float|int|null $haystack
-     * @param bool $match_no_case
+     * @param bool                  $match_no_case
+     *
      * @return string
      */
     protected static function getTestValue(string|float|int|null $haystack, bool $match_no_case): string
     {
         if ($match_no_case) {
-            return strtolower((string) $haystack);
+            return strtolower((string)$haystack);
         }
 
-        return (string) $haystack;
+        return (string)$haystack;
     }
 
 
@@ -163,8 +157,9 @@ class Utils {
      * Returns true if the given haystack matches the given needles with the specified match flags
      *
      * @param Stringable|string|float|int $haystack
-     * @param array $needles
-     * @param array $flags
+     * @param array                       $needles
+     * @param array                       $flags
+     *
      * @return bool
      */
     protected static function testStringMatchesNeedles(Stringable|string|float|int $haystack, array $needles, array $flags): bool

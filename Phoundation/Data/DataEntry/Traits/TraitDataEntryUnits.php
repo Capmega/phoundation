@@ -12,10 +12,10 @@ use Stringable;
  *
  * This trait contains methods for DataEntry objects that requires units
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryUnits
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryUnits
      * Sets the units for this object
      *
      * @param Stringable|string|null $units
+     *
      * @return static
      */
     public function setUnits(Stringable|string|null $units): static
     {
-        return $this->setValue('units', (string) $units);
+        return $this->setValue('units', (string)$units);
     }
 }

@@ -39,18 +39,6 @@ use ValueError;
 class Definition implements DefinitionInterface
 {
     /**
-     * The data entry where this definition belongs to
-     *
-     * @var DataEntryInterface|null $data_entry
-     */
-    protected ?DataEntryInterface $data_entry;
-
-    /**
-     * Validations to execute to ensure
-     */
-    protected array $validations = [];
-
-    /**
      * Supported input element types
      *
      * @var array[] $supported_input_types
@@ -82,7 +70,16 @@ class Definition implements DefinitionInterface
         'auto-suggest',
         'array_json',
     ];
-
+    /**
+     * The data entry where this definition belongs to
+     *
+     * @var DataEntryInterface|null $data_entry
+     */
+    protected ?DataEntryInterface $data_entry;
+    /**
+     * Validations to execute to ensure
+     */
+    protected array $validations = [];
     /**
      * Definitions for this Definition
      *
@@ -141,99 +138,6 @@ class Definition implements DefinitionInterface
         $this->setColumn($column);
     }
 
-
-    /**
-     * Returns a new static object
-     *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function new(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
-    {
-        return new static($data_entry, $column);
-    }
-
-
-    /**
-     * Returns the default meta data for DataEntry object
-     *
-     * @return array
-     */
-    final public function getMetaColumns(): array
-    {
-        if ($this->data_entry) {
-            // Return the meta colums from the data entry
-            return $this->data_entry->getMetaColumns();
-        }
-
-        // There is no data entry specified, we don't know anything about meta columns!
-        return [];
-    }
-
-
-    /**
-     * Returns the query builder from the data entry
-     *
-     * @return QueryBuilderInterface
-     */
-    public function getQueryBuilder(): QueryBuilderInterface
-    {
-        return $this->data_entry->getQueryBuilderObject();
-    }
-
-
-    /**
-     * Modify the contents of the query builder through a callback function
-     *
-     * @param callable $callback
-     *
-     * @return $this
-     */
-    public function modifyQueryBuilder(callable $callback): static
-    {
-        $callback($this->data_entry->getQueryBuilderObject());
-        return $this;
-    }
-
-
-    /**
-     * Returns the internal definitions for this column
-     *
-     * @return array
-     */
-    public function getSource(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Sets all the internal definitions for this column in one go
-     *
-     * @param array $source
-     *
-     * @return static
-     */
-    public function setSource(array $source): static
-    {
-        $this->source = $source;
-        return $this;
-    }
-
-
-    /**
-     * Sets the column name for this definition
-     *
-     * @return string|null
-     */
-    public function getColumn(): ?string
-    {
-        return isset_get_typed('string', $this->source['column']);
-    }
-
-
     /**
      * Sets the column name for this definition
      *
@@ -245,92 +149,6 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey($column, 'column');
     }
-
-
-    /**
-     * Returns the prefix automatically added to this value, after validation
-     *
-     * @return string|null
-     */
-    public function getPrefix(): ?string
-    {
-        return isset_get_typed('string', $this->source['prefix']);
-    }
-
-
-    /**
-     * Sets the prefix automatically added to this value, after validation
-     *
-     * @param string|null $prefix
-     *
-     * @return static
-     */
-    public function setPrefix(?string $prefix): static
-    {
-        return $this->setKey($prefix, 'prefix');
-    }
-
-
-    /**
-     * Returns the additional content for this component
-     *
-     * @return RenderInterface|callable|string|null
-     */
-    public function getAdditionalContent(): RenderInterface|callable|string|null
-    {
-        return isset_get_typed('Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface|callable|string|null', $this->source['additional_content']);
-    }
-
-
-    /**
-     * Sets the additional content for this component
-     *
-     * @param RenderInterface|callable|string|null $prefix
-     *
-     * @return static
-     */
-    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static
-    {
-        return $this->setKey($prefix, 'additional_content');
-    }
-
-
-    /**
-     * Returns the postfix automatically added to this value, after validation
-     *
-     * @return string|null
-     */
-    public function getPostfix(): ?string
-    {
-        return isset_get_typed('string', $this->source['postfix']);
-    }
-
-
-    /**
-     * Sets the postfix automatically added to this value, after validation
-     *
-     * @param string|null $postfix
-     *
-     * @return static
-     */
-    public function setPostfix(?string $postfix): static
-    {
-        return $this->setKey($postfix, 'postfix');
-    }
-
-
-    /**
-     * Add specified value for the specified key for this DataEntry column
-     *
-     * @param string $key
-     *
-     * @return mixed
-     */
-    public function getKey(string $key): mixed
-    {
-        return isset_get($this->source[$key]);
-    }
-
 
     /**
      * Add specified value for the specified key for this DataEntry column
@@ -351,6 +169,107 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
+    /**
+     * Returns a new static object
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function new(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
+    {
+        return new static($data_entry, $column);
+    }
+
+    /**
+     * Returns the query builder from the data entry
+     *
+     * @return QueryBuilderInterface
+     */
+    public function getQueryBuilder(): QueryBuilderInterface
+    {
+        return $this->data_entry->getQueryBuilderObject();
+    }
+
+    /**
+     * Modify the contents of the query builder through a callback function
+     *
+     * @param callable $callback
+     *
+     * @return $this
+     */
+    public function modifyQueryBuilder(callable $callback): static
+    {
+        $callback($this->data_entry->getQueryBuilderObject());
+        return $this;
+    }
+
+    /**
+     * Returns the prefix automatically added to this value, after validation
+     *
+     * @return string|null
+     */
+    public function getPrefix(): ?string
+    {
+        return isset_get_typed('string', $this->source['prefix']);
+    }
+
+    /**
+     * Sets the prefix automatically added to this value, after validation
+     *
+     * @param string|null $prefix
+     *
+     * @return static
+     */
+    public function setPrefix(?string $prefix): static
+    {
+        return $this->setKey($prefix, 'prefix');
+    }
+
+    /**
+     * Returns the additional content for this component
+     *
+     * @return RenderInterface|callable|string|null
+     */
+    public function getAdditionalContent(): RenderInterface|callable|string|null
+    {
+        return isset_get_typed('Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface|callable|string|null', $this->source['additional_content']);
+    }
+
+    /**
+     * Sets the additional content for this component
+     *
+     * @param RenderInterface|callable|string|null $prefix
+     *
+     * @return static
+     */
+    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static
+    {
+        return $this->setKey($prefix, 'additional_content');
+    }
+
+    /**
+     * Returns the postfix automatically added to this value, after validation
+     *
+     * @return string|null
+     */
+    public function getPostfix(): ?string
+    {
+        return isset_get_typed('string', $this->source['postfix']);
+    }
+
+    /**
+     * Sets the postfix automatically added to this value, after validation
+     *
+     * @param string|null $postfix
+     *
+     * @return static
+     */
+    public function setPostfix(?string $postfix): static
+    {
+        return $this->setKey($postfix, 'postfix');
+    }
 
     /**
      * Returns if this column is rendered as HTML or not
@@ -366,7 +285,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['render'], true);
     }
-
 
     /**
      * Returns if this column is rendered as HTML or not
@@ -391,7 +309,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'render');
     }
 
-
     /**
      * Returns if this column is visible in HTML clients
      *
@@ -405,7 +322,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['visible'], true);
     }
-
 
     /**
      * Sets if this column is visible in HTML clients
@@ -429,7 +345,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'visible');
     }
 
-
     /**
      * Returns if this column is displayed in HTML clients
      *
@@ -443,7 +358,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['display'], true);
     }
-
 
     /**
      * Sets if this column is displayed in HTML clients
@@ -467,6 +381,23 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'display');
     }
 
+    /**
+     * Adds the specified HTML classes to the DataEntryForm object
+     *
+     * @note When specifying multiple classes in a string, make sure they are space separated!
+     *
+     * @param array|string $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function addClasses(array|string $value): static
+    {
+        $value = Arrays::force($value, ' ');
+        $value = array_merge($this->getClasses(), $value);
+
+        return $this->setKey($value, 'classes');
+    }
 
     /**
      * Returns the extra HTML classes for this DataEntryForm object
@@ -488,25 +419,15 @@ class Definition implements DefinitionInterface
         return $classes;
     }
 
-
     /**
-     * Adds the specified HTML classes to the DataEntryForm object
+     * Sets the column name for this definition
      *
-     * @note When specifying multiple classes in a string, make sure they are space separated!
-     *
-     * @param array|string $value
-     *
-     * @return static
-     * @see  Definition::setVirtual()
+     * @return string|null
      */
-    public function addClasses(array|string $value): static
+    public function getColumn(): ?string
     {
-        $value = Arrays::force($value, ' ');
-        $value = array_merge($this->getClasses(), $value);
-
-        return $this->setKey($value, 'classes');
+        return isset_get_typed('string', $this->source['column']);
     }
-
 
     /**
      * Sets specified HTML classes to the DataEntryForm object
@@ -527,6 +448,28 @@ class Definition implements DefinitionInterface
         return $this->setKey(Arrays::force($value, ' '), 'classes');
     }
 
+    /**
+     * Returns the internal definitions for this column
+     *
+     * @return array
+     */
+    public function getSource(): array
+    {
+        return $this->source;
+    }
+
+    /**
+     * Sets all the internal definitions for this column in one go
+     *
+     * @param array $source
+     *
+     * @return static
+     */
+    public function setSource(array $source): static
+    {
+        $this->source = $source;
+        return $this;
+    }
 
     /**
      * Returns the extra HTML data for this DataEntryForm object
@@ -537,7 +480,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['data'], []);
     }
-
 
     /**
      * Adds the specified HTML data to the DataEntryForm object
@@ -558,7 +500,6 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
-
     /**
      * Sets specified HTML data to the DataEntryForm object
      *
@@ -575,7 +516,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'data');
     }
 
-
     /**
      * Returns the extra HTML data for this DataEntryForm object
      *
@@ -585,7 +525,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['scripts'], []);
     }
-
 
     /**
      * @param ScriptInterface $script
@@ -603,7 +542,6 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
-
     /**
      * Returns the extra HTML aria for this DataEntryForm object
      *
@@ -613,7 +551,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('array', $this->source['aria'], []);
     }
-
 
     /**
      * Adds the specified HTML aria to the DataEntryForm object
@@ -634,7 +571,6 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
-
     /**
      * Sets specified HTML aria to the DataEntryForm object
      *
@@ -651,7 +587,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'aria');
     }
 
-
     /**
      * Returns if this column will not set the DataEntry to "modified" state when changed
      *
@@ -662,7 +597,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['ignore_modify'], false);
     }
-
 
     /**
      * Sets if this column will not set the DataEntry to "modified" state when changed
@@ -677,22 +611,6 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey((bool)$value, 'ignore_modify');
     }
-
-
-    /**
-     * Return if this column is a meta column
-     *
-     * If this column is a meta column, it will be readonly for user actions
-     *
-     * @note Defaults to false
-     * @return bool
-     * @see  Definition::getRender()
-     */
-    public function isMeta(): bool
-    {
-        return in_array($this->getColumn(), static::getMetaColumns());
-    }
-
 
     /**
      * Returns if this column is virtual
@@ -709,7 +627,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['virtual'], false);
     }
-
 
     /**
      * Sets if this column is virtual
@@ -730,7 +647,6 @@ class Definition implements DefinitionInterface
         return $this->setKey((bool)$value, 'virtual');
     }
 
-
     /**
      * Returns if this column is ignored
      *
@@ -746,7 +662,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['ignored'], false);
     }
-
 
     /**
      * Sets if this column is ignored
@@ -767,7 +682,6 @@ class Definition implements DefinitionInterface
         return $this->setKey((bool)$value, 'ignored');
     }
 
-
     /**
      * Returns if this column updates directly, bypassing DataEntry::setSourceValue()
      *
@@ -779,7 +693,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['direct_update'], false);
     }
-
 
     /**
      * Sets if this column updates directly, bypassing DataEntry::setSourceValue()
@@ -795,18 +708,6 @@ class Definition implements DefinitionInterface
     {
         return $this->setKey((bool)$value, 'direct_update');
     }
-
-
-    /**
-     * Returns the static value for this column
-     *
-     * @return callable|string|float|int|bool|null
-     */
-    public function getValue(): callable|string|float|int|bool|null
-    {
-        return isset_get($this->source['value']);
-    }
-
 
     /**
      * Sets static value for this column
@@ -830,7 +731,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'value');
     }
 
-
     /**
      * Returns the autofocus for this column
      *
@@ -840,7 +740,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed('bool', $this->source['auto_focus'], false);
     }
-
 
     /**
      * Sets the autofocus for this column
@@ -854,7 +753,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($auto_focus, 'auto_focus');
     }
 
-
     /**
      * Returns the HTML client element to be used for this column
      *
@@ -865,20 +763,6 @@ class Definition implements DefinitionInterface
         return isset_get_typed('string', $this->source['element']);
     }
 
-
-    /**
-     * Sets the HTML client element to be used for this column
-     *
-     * @param EnumElementInterface|null $value
-     *
-     * @return static
-     */
-    public function setElement(EnumElementInterface|null $value): static
-    {
-        return $this->setKey($value?->value, 'element');
-    }
-
-
     /**
      * Returns the HTML client element to be used for this column
      *
@@ -888,7 +772,6 @@ class Definition implements DefinitionInterface
     {
         return isset_get_typed(RenderInterface::class . '|callable|string', $this->source['content']);
     }
-
 
     /**
      * Sets the HTML client element to be used for this column
@@ -907,7 +790,6 @@ class Definition implements DefinitionInterface
         return $this->setKey($value, 'content');
     }
 
-
     /**
      * Returns true if the input type is scalar, false if it is not
      *
@@ -923,7 +805,6 @@ class Definition implements DefinitionInterface
                 return true;
         }
     }
-
 
     /**
      * Sets the type of input element.
@@ -952,6 +833,17 @@ class Definition implements DefinitionInterface
         }
     }
 
+    /**
+     * Add specified value for the specified key for this DataEntry column
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getKey(string $key): mixed
+    {
+        return isset_get($this->source[$key]);
+    }
 
     /**
      * Sets the type of input element.
@@ -1405,891 +1297,17 @@ class Definition implements DefinitionInterface
         return $this->setKey($value->value, 'type');
     }
 
-
     /**
-     * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     * @return bool|null
-     */
-    public function getReadonly(): ?bool
-    {
-        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['readonly'], false);
-    }
-
-
-    /**
-     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setReadonly(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'readonly');
-    }
-
-
-    /**
-     * Returns if the entry is hidden (and will be rendered as a hidden element)
-     *
-     * @note Defaults to false
-     * @return bool|null
-     */
-    public function getHidden(): ?bool
-    {
-        return isset_get_typed('bool', $this->source['hidden'], false);
-    }
-
-
-    /**
-     * Sets if the entry is hidden (and will be rendered as a hidden element)
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setHidden(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'hidden');
-    }
-
-
-    /**
-     * If true, will enable browser auto suggest for this input control
-     *
-     * @note Defaults to false
-     * @return bool
-     */
-    public function getAutoComplete(): bool
-    {
-        return isset_get_typed('bool', $this->source['autocomplete'], true);
-    }
-
-
-    /**
-     * If true, will enable browser auto suggest for this input control
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setAutoComplete(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'autocomplete');
-    }
-
-
-    /**
-     * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     * @return bool|null
-     */
-    public function getDisabled(): ?bool
-    {
-        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['disabled'], false);
-    }
-
-
-    /**
-     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setDisabled(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'disabled');
-    }
-
-
-    /**
-     * The label to be shown on HTML clients
-     *
-     * @return string|null $value
-     */
-    public function getLabel(): ?string
-    {
-        return isset_get_typed('string', $this->source['label']);
-    }
-
-
-    /**
-     * The label to be shown on HTML clients
-     *
-     * @param string|null $value
-     *
-     * @return static
-     */
-    public function setLabel(?string $value): static
-    {
-        return $this->setKey($value, 'label');
-    }
-
-
-    /**
-     * Returns the boilerplate col size for this column, must be integer number between 1 and 12
-     *
-     * @return int|null
-     */
-    public function getSize(): ?int
-    {
-        return isset_get_typed('int', $this->source['size'], 12);
-    }
-
-
-    /**
-     * Sets the boilerplate col size for this column, must be integer number between 1 and 12
-     *
-     * @param int|null $value
-     *
-     * @return static
-     */
-    public function setSize(?int $value): static
-    {
-        if ($value) {
-            if (($value < 1) or ($value > 12)) {
-                throw new OutOfBoundsException(tr('Invalid size ":value" specified for column ":column", it must be an integer number between 1 and 12', [
-                    ':column' => $this->getColumn(),
-                    ':value'  => $value,
-                ]));
-            }
-        }
-
-        return $this->setKey($value, 'size');
-    }
-
-
-    /**
-     * Returns if changes to the field result into an auto-submit
-     *
-     * @return bool
-     */
-    public function getAutoSubmit(): bool
-    {
-        return (bool)isset_get_typed('bool', $this->source['auto_submit']);
-    }
-
-
-    /**
-     * Returns if changes to the field result into an auto-submit
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setAutoSubmit(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'auto_submit');
-    }
-
-
-    /**
-     * Returns a data source for the HTML client element contents of this column
-     *
-     * The data source may be specified as a query string or a key => value array
-     *
-     * @return array|PDOStatement|Stringable|string|null
-     */
-    public function getDataSource(): array|PDOStatement|Stringable|string|null
-    {
-        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['source']);
-    }
-
-
-    /**
-     * Sets a data source for the HTML client element contents of this column
-     *
-     * The data source may be specified as a query string or a key => value array
-     *
-     * @param array|PDOStatement|Stringable|string|null $value
-     *
-     * @return static
-     */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $value): static
-    {
-        return $this->setKey($value, 'source');
-    }
-
-
-    /**
-     * Returns variables for the component
-     *
-     * Format should be like
-     *
-     * [
-     *     'countries_id' => '$("#countries_id").val()',
-     *     'states_id'    => '$("#states_id").val()'
-     * ]
-     *
-     * @return array|null
-     */
-    public function getVariables(): array|null
-    {
-        return isset_get_typed('array', $this->source['variables']);
-    }
-
-
-    /**
-     * Sets variables for the component
-     *
-     * Format should be like
-     *
-     * [
-     *     'countries_id' => '$("#countries_id").val()',
-     *     'states_id'    => '$("#states_id").val()'
-     * ]
-     *
-     * @param array|null $value
-     *
-     * @return static
-     */
-    public function setVariables(array|null $value): static
-    {
-        return $this->setKey($value, 'variables');
-    }
-
-
-    /**
-     * Returns a query execute bound variables execute array for the specified query string source
-     *
-     * @note Requires "source" to be a query string
-     * @return array|null
-     */
-    public function getExecute(): ?array
-    {
-        return isset_get_typed('array', $this->source['execute']);
-    }
-
-
-    /**
-     * Sets a query execute bound variables execute array for the specified query string source
-     *
-     * @note Requires "source" to be a query string
-     *
-     * @param array|string|null $value
-     *
-     * @return static
-     */
-    public function setExecute(array|string|null $value): static
-    {
-        if (!array_key_exists('source', $this->source)) {
-            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", a data query string source must be specified first', [
-                ':column' => $this->getColumn(),
-                ':value'  => $value,
-            ]));
-        }
-
-        if (is_array($this->source['source'])) {
-            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", the "source" must be a string query but is an array instead', [
-                ':column' => $this->getColumn(),
-                ':value'  => $value,
-            ]));
-        }
-
-        return $this->setKey($value, 'execute');
-    }
-
-
-    /**
-     * Returns the cli auto-completion queries for this column
-     *
-     * @return array|bool|null
-     */
-    public function getCliAutoComplete(): array|bool|null
-    {
-        return isset_get_typed('array|bool', $this->source['cli_auto_complete']);
-    }
-
-
-    /**
-     * Sets the cli auto-completion queries for this column
-     *
-     * @param array|bool|null $value
-     *
-     * @return static
-     */
-    public function setCliAutoComplete(array|bool|null $value): static
-    {
-        if ($value === false) {
-            throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
-                ':column' => $this->getColumn(),
-            ]));
-        }
-
-        if (is_array($value)) {
-            if (count($value) !== 2) {
-                $fail = true;
-            }
-
-            if (!array_key_exists('word', $value) or !array_key_exists('noword', $value)) {
-                $fail = true;
-            }
-
-            if (isset($fail)) {
-                throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
-                    ':column' => $this->getColumn(),
-                    ':value'  => $value,
-                ]));
-            }
-        }
-
-        return $this->setKey($value, 'cli_auto_complete');
-    }
-
-
-    /**
-     * Returns the alternative CLI column names for this column
-     *
-     * @return string|null
-     */
-    public function getCliColumn(): ?string
-    {
-        if (PLATFORM_WEB or !$this->data_entry->isApplying()) {
-            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
-            return $this->getColumn();
-        }
-
-        // We're on the command line and data is being applied. We're working with data from the $argv command line
-        if (empty($this->source['cli_column'])) {
-            // This column cannot be modified on the command line, no definition available
-            return null;
-        }
-
-        $return = isset_get_typed('string', $this->source['cli_column']);
-
-        if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
-            // Strip the []
-            $return = substr($return, 1, -1);
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Sets the alternative CLI column names for this column
-     *
-     * @param string|null $value
-     *
-     * @return static
-     */
-    public function setCliColumn(?string $value): static
-    {
-        return $this->setKey($value, 'cli_column');
-    }
-
-
-    /**
-     * Returns if this column is optional or not
-     *
-     * @note Defaults to false
-     * @return bool
-     */
-    public function getOptional(): bool
-    {
-        return isset_get_typed('bool', $this->source['optional'], false);
-    }
-
-
-    /**
-     * Returns if this column is required or not
-     *
-     * @note Is the exact opposite of Definition::getOptional()
-     * @note Defaults to true
-     * @return bool
-     */
-    public function getRequired(): bool
-    {
-        return !$this->getOptional();
-    }
-
-
-    /**
-     * Sets if this column is optional or not
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     * @param mixed     $initial_default
-     *
-     * @return static
-     */
-    public function setOptional(?bool $value, mixed $initial_default = null): static
-    {
-        if (!$value and $initial_default) {
-            // If not optional, we cannot have a default value
-            throw new OutOfBoundsException(tr('Cannot assign default value ":value" when the definition is not optional', [
-                ':value' => $initial_default,
-            ]));
-        }
-
-        $this->setKey($initial_default, 'default');
-        $this->setKey((bool)$value, 'optional');
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the placeholder for this column
-     *
-     * @return string|null
-     */
-    public function getPlaceholder(): ?string
-    {
-        return isset_get_typed('string', $this->source['placeholder']);
-    }
-
-
-    /**
-     * Sets the placeholder for this column
-     *
-     * @param string|null $value
-     *
-     * @return static
-     */
-    public function setPlaceholder(?string $value): static
-    {
-        $this->validateTextTypeElement('placeholder', $value);
-        return $this->setKey($value, 'placeholder');
-    }
-
-
-    /**
-     * Returns the display_callback for this column
-     *
-     * @return callable|null
-     */
-    public function getDisplayCallback(): ?callable
-    {
-        return isset_get_typed('object|callable', $this->source['display_callback']);
-    }
-
-
-    /**
-     * Sets the display_callback for this column
-     *
-     * @param callable|null $value
-     *
-     * @return static
-     */
-    public function setDisplayCallback(?callable $value): static
-    {
-        return $this->setKey($value, 'display_callback');
-    }
-
-
-    /**
-     * Returns the minlength for this textarea or text input column
-     *
-     * @return int|null
-     */
-    public function getMinlength(): ?int
-    {
-        return isset_get_typed('int', $this->source['minlength']);
-    }
-
-
-    /**
-     * Sets the minlength for this textarea or text input column
-     *
-     * @param int|null $value
-     *
-     * @return static
-     */
-    public function setMinlength(?int $value): static
-    {
-        $this->validateTextTypeElement('minlength', $value);
-        return $this->setKey($value, 'minlength');
-    }
-
-
-    /**
-     * Returns the maxlength for this textarea or text ibput column
-     *
-     * @return int|null
-     */
-    public function getMaxlength(): ?int
-    {
-        return isset_get_typed('int', $this->source['maxlength']);
-    }
-
-
-    /**
-     * Sets the maxlength for this textarea or text input column
-     *
-     * @param int|null $value
-     *
-     * @return static
-     */
-    public function setMaxlength(?int $value): static
-    {
-        return $this->setKey($value, 'maxlength');
-    }
-
-
-    /**
-     * Returns the pattern for this textarea or text input column
-     *
-     * @return string|null
-     */
-    public function getPattern(): ?string
-    {
-        return isset_get_typed('string', $this->source['pattern']);
-    }
-
-
-    /**
-     * Sets the pattern for this textarea or text input column
-     *
-     * @param string|null $value
-     *
-     * @return static
-     */
-    public function setPattern(?string $value): static
-    {
-        $this->validateTextTypeElement('pattern', $value);
-        return $this->setKey($value, 'pattern');
-    }
-
-
-    /**
-     * Returns the tooltip for this column
-     *
-     * @return string|null
-     */
-    public function getTooltip(): ?string
-    {
-        return isset_get_typed('string', $this->source['tooltip']);
-    }
-
-
-    /**
-     * Sets  the tooltip for this column
-     *
-     * @param string|null $value
-     *
-     * @return static
-     */
-    public function setTooltip(?string $value): static
-    {
-        return $this->setKey($value, 'tooltip');
-    }
-
-
-    /**
-     * Returns the minimum value for number input elements
-     *
-     * @return float|int|null
-     */
-    public function getMin(): float|int|null
-    {
-        return isset_get_typed('float|int', $this->source['min']);
-    }
-
-
-    /**
-     * Set the minimum value for number input elements
-     *
-     * @param float|int|null $value
-     *
-     * @return static
-     */
-    public function setMin(float|int|null $value): static
-    {
-        $this->validateNumberTypeInput('min', $value);
-        return $this->setKey($value, 'min');
-    }
-
-
-    /**
-     * Returns the maximum value for number input elements
-     *
-     * @return float|int|null
-     */
-    public function getMax(): float|int|null
-    {
-        return isset_get_typed('float|int', $this->source['max']);
-    }
-
-
-    /**
-     * Set the maximum value for number input elements
-     *
-     * @param float|int|null $value
-     *
-     * @return static
-     */
-    public function setMax(float|int|null $value): static
-    {
-        $this->validateNumberTypeInput('max', $value);
-        return $this->setKey($value, 'max');
-    }
-
-
-    /**
-     * Return the step value for number input elements
-     *
-     * @return string|float|int|null
-     */
-    public function getStep(): string|float|int|null
-    {
-        return isset_get_typed('string|float|int', $this->source['step']);
-    }
-
-
-    /**
-     * Set the step value for number input elements
-     *
-     * @param string|float|int|null $value
-     *
-     * @return static
-     */
-    public function setStep(string|float|int|null $value): static
-    {
-        $this->validateNumberTypeInput('step', $value);
-        return $this->setKey($value, 'step');
-    }
-
-
-    /**
-     * Returns the rows value for textarea elements
-     *
-     * @return int|null
-     */
-    public function getRows(): int|null
-    {
-        return isset_get_typed('int', $this->source['rows']);
-    }
-
-
-    /**
-     * Sets the rows value for textarea elements
-     *
-     * @param int|null $value
-     *
-     * @return static
-     */
-    public function setRows(?int $value): static
-    {
-        if (isset_get($this->source['element']) !== 'textarea') {
-            throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
-                ':column'  => $this->getColumn(),
-                ':element' => $value,
-            ]));
-        }
-
-        return $this->setKey($value, 'rows');
-    }
-
-
-    /**
-     * Returns the default value for this column
-     *
-     * @return mixed
-     */
-    public function getDefault(): mixed
-    {
-        return isset_get($this->source['default']);
-    }
-
-
-    /**
-     * Sets the default value for this column
-     *
-     * @param mixed $value
-     *
-     * @return static
-     */
-    public function setDefault(mixed $value): static
-    {
-        return $this->setKey($value, 'default');
-    }
-
-
-    /**
-     * Returns the initial default value for this column
-     *
-     * @return mixed
-     */
-    public function getInitialDefault(): mixed
-    {
-        return isset_get($this->source['initial_default']);
-    }
-
-
-    /**
-     * Sets the initial default value for this column
-     *
-     * @param mixed $value
-     *
-     * @return static
-     */
-    public function setInitialDefault(mixed $value): static
-    {
-        return $this->setKey($value, 'initial_default');
-    }
-
-
-    /**
-     * Returns if this column should be stored with NULL in the database if empty
-     *
-     * @note Defaults to false
-     * @return bool
-     */
-    public function getNullDb(): bool
-    {
-        return isset_get_typed('bool', $this->source['null_db'], true);
-    }
-
-
-    /**
-     * Sets if this column should be stored with NULL in the database if empty
-     *
-     * @note Defaults to false
-     *
-     * @param bool                       $value
-     * @param string|float|int|bool|null $default
-     *
-     * @return static
-     */
-    public function setNullDb(bool $value, string|float|int|bool|null $default = null): static
-    {
-        $this->setKey($value, 'null_db');
-        $this->setKey($default, 'default');
-
-        return $this;
-    }
-
-
-    /**
-     * Returns what element should be displayed if the value of this entry is NULL
-     *
-     * @return EnumElementInterface|null
-     */
-    public function getNullElement(): EnumElementInterface|null
-    {
-        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface|null', $this->source['null_element']);
-    }
-
-
-    /**
-     * Sets what element should be displayed if the value of this entry is NULL
+     * Sets the HTML client element to be used for this column
      *
      * @param EnumElementInterface|null $value
      *
      * @return static
      */
-    public function setNullElement(EnumElementInterface|null $value): static
+    public function setElement(EnumElementInterface|null $value): static
     {
-        return $this->setKey($value, 'null_element');
+        return $this->setKey($value?->value, 'element');
     }
-
-
-    /**
-     * Returns if this column should be disabled if the value is NULL
-     *
-     * @note Defaults to false
-     * @return bool
-     */
-    public function getNullDisabled(): bool
-    {
-        return isset_get_typed('bool', $this->source['null_disabled'], false);
-    }
-
-
-    /**
-     * Sets if this column should be disabled if the value is NULL
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setNullDisabled(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'null_disabled');
-    }
-
-
-    /**
-     * Returns if this column should be readonly if the value is NULL
-     *
-     * @note Defaults to false
-     * @return bool
-     */
-    public function getNullReadonly(): bool
-    {
-        return isset_get_typed('bool', $this->source['null_readonly'], false);
-    }
-
-
-    /**
-     * Sets if this column should be readonly if the value is NULL
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setNullReadonly(?bool $value): static
-    {
-        return $this->setKey((bool)$value, 'null_readonly');
-    }
-
-
-    /**
-     * Returns the type for this element if the value is NULL
-     *
-     * @return string|null
-     */
-    public function getNullInputType(): ?string
-    {
-        return isset_get_typed('string', $this->source['null_type']);
-    }
-
-
-    /**
-     * Sets the type for this element if the value is NULL
-     *
-     * @param EnumElementInputType|null $value
-     *
-     * @return static
-     */
-    public function setNullInputType(?EnumElementInputType $value): static
-    {
-        if (empty($this->source['element'])) {
-            $this->source['element'] = 'input';
-        }
-
-        return $this->setKey($value->value, 'type');
-    }
-
-
-    /**
-     * Returns the type for this element if the value is NULL
-     *
-     * @return array|null
-     */
-    public function getValidationFunctions(): ?array
-    {
-        return isset_get_typed('array', $this->source['validation_functions']);
-    }
-
 
     /**
      * Clears all currently existing validation functions for this definition
@@ -2301,7 +1319,6 @@ class Definition implements DefinitionInterface
         $this->validations = [];
         return $this;
     }
-
 
     /**
      * Adds the specified validation function to the validation functions list for this definition
@@ -2316,180 +1333,50 @@ class Definition implements DefinitionInterface
         return $this;
     }
 
-
     /**
-     * Returns the help text for this column
+     * Sets the maxlength for this textarea or text input column
      *
-     * @return string|null
-     */
-    public function getHelpText(): ?string
-    {
-        return isset_get_typed('string', $this->source['help_text']);
-    }
-
-
-    /**
-     * Sets the help text for this column
-     *
-     * @param string|null $value
+     * @param int|null $value
      *
      * @return static
      */
-    public function setHelpText(?string $value): static
+    public function setMaxlength(?int $value): static
     {
-        $this->setKey(trim($value), 'help_text');
-
-        if (!$this->getKey('tooltip')) {
-            // Default tooltip to help text
-            return $this->setTooltip($value);
-        }
-
-        return $this;
+        return $this->setKey($value, 'maxlength');
     }
 
-
     /**
-     * Returns the help text group for this column
+     * Returns the minimum value for number input elements
      *
-     * @return string|null
+     * @return float|int|null
      */
-    public function getHelpGroup(): ?string
+    public function getMin(): float|int|null
     {
-        return isset_get_typed('string', $this->source['help_group']);
+        return isset_get_typed('float|int', $this->source['min']);
     }
 
+    /**
+     * Returns the maximum value for number input elements
+     *
+     * @return float|int|null
+     */
+    public function getMax(): float|int|null
+    {
+        return isset_get_typed('float|int', $this->source['max']);
+    }
 
     /**
-     * Sets the help text group for this column
+     * Set the minimum value for number input elements
      *
-     * @param string|null $value
+     * @param float|int|null $value
      *
      * @return static
      */
-    public function setHelpGroup(?string $value): static
+    public function setMin(float|int|null $value): static
     {
-        return $this->setKey($value, 'help_group');
+        $this->validateNumberTypeInput('min', $value);
+        return $this->setKey($value, 'min');
     }
-
-
-    /**
-     * Validate this column according to the column definitions
-     *
-     * @param ValidatorInterface $validator
-     * @param string|null        $prefix
-     *
-     * @return bool
-     */
-    public function validate(ValidatorInterface $validator, ?string $prefix): bool
-    {
-        if ($this->isMeta()) {
-            // This column is metadata and should not be modified or validated, plain ignore it.
-            return false;
-        }
-
-        if ($this->getReadonly() or $this->getDisabled()) {
-            // This column cannot be modified and should not be validated, unless its new or has a static value
-            if (!$this->data_entry->isNew() and !$this->getValue()) {
-                return false;
-            }
-        }
-
-        // Checkbox inputs always are boolean and does this column have a prefix?
-        $bool = ($this->getInputType()?->value === 'checkbox');
-        $column = $this->getCliColumn();
-
-        if (!$column) {
-            // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT be
-            // validated
-            return false;
-        }
-
-        // Column name prefix is an HTML form array prefix? Then close the array
-        if (str_ends_with((string)$prefix, '[')) {
-            $column .= ']';
-        }
-
-        if ($this->getValue()) {
-            // This column has a static value, force the value
-            $value = $this->getValue();
-
-            if (is_callable($this->getValue())) {
-                $value = $this->getValue()($validator->getSource(), $prefix);
-            }
-
-            $validator->set($value, $prefix . $column);
-        }
-
-        // Set the column prefix and select the column
-        $validator
-            ->setColumnPrefix($prefix)
-            ->select($column, !$bool);
-
-        // Apply default validations
-        if ($this->getOptional()) {
-            $validator->isOptional($this->getDefault());
-        }
-
-        // Apply all other validations
-        foreach ($this->validations as $validation) {
-            $validation($validator);
-        }
-
-        return true;
-    }
-
-
-    /**
-     * Ensures that the current column uses a text type input element or textarea element
-     *
-     * @param string                $key
-     * @param string|float|int|null $value
-     *
-     * @return void
-     */
-    protected function validateTextTypeElement(string $key, string|float|int|null $value): void
-    {
-        if (is_callable(isset_get($this->source['element']))) {
-            // We can't validate data types for this since it's a callback function
-            return;
-        }
-
-        switch (isset_get($this->source['element'])) {
-            case 'textarea':
-                // no break
-            case 'select':
-                // no break
-            case 'div':
-                // no break
-            case 'span':
-                // no break
-            case 'tooltip': // This is a pseudo-element
-                break;
-
-            case null:
-                // This is the default, so "input"
-            case 'input':
-                if (!array_key_exists('type', $this->source) or in_array($this->source['type'], ['text', 'email', 'url', 'password'])) {
-                    break;
-                }
-
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
-                    ':attribute' => $key,
-                    ':column'    => $this->getColumn(),
-                    ':type'      => $this->source['type'] ?? 'text',
-                    ':value'     => $value,
-                ]));
-
-            default:
-                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
-                    ':attribute' => $key,
-                    ':column'    => $this->getColumn(),
-                    ':element'   => $this->source['element'],
-                    ':value'     => $value,
-                ]));
-        }
-    }
-
 
     /**
      * Ensures that the current column uses a number type input element
@@ -2542,5 +1429,998 @@ class Definition implements DefinitionInterface
                     ':value'     => $value,
                 ]));
         }
+    }
+
+    /**
+     * Returns the minlength for this textarea or text input column
+     *
+     * @return int|null
+     */
+    public function getMinlength(): ?int
+    {
+        return isset_get_typed('int', $this->source['minlength']);
+    }
+
+    /**
+     * Returns the maxlength for this textarea or text ibput column
+     *
+     * @return int|null
+     */
+    public function getMaxlength(): ?int
+    {
+        return isset_get_typed('int', $this->source['maxlength']);
+    }
+
+    /**
+     * Returns a data source for the HTML client element contents of this column
+     *
+     * The data source may be specified as a query string or a key => value array
+     *
+     * @return array|PDOStatement|Stringable|string|null
+     */
+    public function getDataSource(): array|PDOStatement|Stringable|string|null
+    {
+        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['source']);
+    }
+
+    /**
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setReadonly(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'readonly');
+    }
+
+    /**
+     * Returns if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getHidden(): ?bool
+    {
+        return isset_get_typed('bool', $this->source['hidden'], false);
+    }
+
+    /**
+     * Sets if the entry is hidden (and will be rendered as a hidden element)
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setHidden(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'hidden');
+    }
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getAutoComplete(): bool
+    {
+        return isset_get_typed('bool', $this->source['autocomplete'], true);
+    }
+
+    /**
+     * If true, will enable browser auto suggest for this input control
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setAutoComplete(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'autocomplete');
+    }
+
+    /**
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setDisabled(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'disabled');
+    }
+
+    /**
+     * The label to be shown on HTML clients
+     *
+     * @return string|null $value
+     */
+    public function getLabel(): ?string
+    {
+        return isset_get_typed('string', $this->source['label']);
+    }
+
+    /**
+     * The label to be shown on HTML clients
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setLabel(?string $value): static
+    {
+        return $this->setKey($value, 'label');
+    }
+
+    /**
+     * Returns the boilerplate col size for this column, must be integer number between 1 and 12
+     *
+     * @return int|null
+     */
+    public function getSize(): ?int
+    {
+        return isset_get_typed('int', $this->source['size'], 12);
+    }
+
+    /**
+     * Sets the boilerplate col size for this column, must be integer number between 1 and 12
+     *
+     * @param int|null $value
+     *
+     * @return static
+     */
+    public function setSize(?int $value): static
+    {
+        if ($value) {
+            if (($value < 1) or ($value > 12)) {
+                throw new OutOfBoundsException(tr('Invalid size ":value" specified for column ":column", it must be an integer number between 1 and 12', [
+                    ':column' => $this->getColumn(),
+                    ':value'  => $value,
+                ]));
+            }
+        }
+
+        return $this->setKey($value, 'size');
+    }
+
+    /**
+     * Returns if changes to the field result into an auto-submit
+     *
+     * @return bool
+     */
+    public function getAutoSubmit(): bool
+    {
+        return (bool)isset_get_typed('bool', $this->source['auto_submit']);
+    }
+
+    /**
+     * Returns if changes to the field result into an auto-submit
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setAutoSubmit(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'auto_submit');
+    }
+
+    /**
+     * Sets a data source for the HTML client element contents of this column
+     *
+     * The data source may be specified as a query string or a key => value array
+     *
+     * @param array|PDOStatement|Stringable|string|null $value
+     *
+     * @return static
+     */
+    public function setDataSource(array|PDOStatement|Stringable|string|null $value): static
+    {
+        return $this->setKey($value, 'source');
+    }
+
+    /**
+     * Returns variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @return array|null
+     */
+    public function getVariables(): array|null
+    {
+        return isset_get_typed('array', $this->source['variables']);
+    }
+
+    /**
+     * Sets variables for the component
+     *
+     * Format should be like
+     *
+     * [
+     *     'countries_id' => '$("#countries_id").val()',
+     *     'states_id'    => '$("#states_id").val()'
+     * ]
+     *
+     * @param array|null $value
+     *
+     * @return static
+     */
+    public function setVariables(array|null $value): static
+    {
+        return $this->setKey($value, 'variables');
+    }
+
+    /**
+     * Returns a query execute bound variables execute array for the specified query string source
+     *
+     * @note Requires "source" to be a query string
+     * @return array|null
+     */
+    public function getExecute(): ?array
+    {
+        return isset_get_typed('array', $this->source['execute']);
+    }
+
+    /**
+     * Sets a query execute bound variables execute array for the specified query string source
+     *
+     * @note Requires "source" to be a query string
+     *
+     * @param array|string|null $value
+     *
+     * @return static
+     */
+    public function setExecute(array|string|null $value): static
+    {
+        if (!array_key_exists('source', $this->source)) {
+            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", a data query string source must be specified first', [
+                ':column' => $this->getColumn(),
+                ':value'  => $value,
+            ]));
+        }
+
+        if (is_array($this->source['source'])) {
+            throw new OutOfBoundsException(tr('Cannot specify execute array ":value" for column ":column", the "source" must be a string query but is an array instead', [
+                ':column' => $this->getColumn(),
+                ':value'  => $value,
+            ]));
+        }
+
+        return $this->setKey($value, 'execute');
+    }
+
+    /**
+     * Returns the cli auto-completion queries for this column
+     *
+     * @return array|bool|null
+     */
+    public function getCliAutoComplete(): array|bool|null
+    {
+        return isset_get_typed('array|bool', $this->source['cli_auto_complete']);
+    }
+
+    /**
+     * Sets the cli auto-completion queries for this column
+     *
+     * @param array|bool|null $value
+     *
+     * @return static
+     */
+    public function setCliAutoComplete(array|bool|null $value): static
+    {
+        if ($value === false) {
+            throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
+                ':column' => $this->getColumn(),
+            ]));
+        }
+
+        if (is_array($value)) {
+            if (count($value) !== 2) {
+                $fail = true;
+            }
+
+            if (!array_key_exists('word', $value) or !array_key_exists('noword', $value)) {
+                $fail = true;
+            }
+
+            if (isset($fail)) {
+                throw new OutOfBoundsException(tr('Invalid value ":value" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [
+                    ':column' => $this->getColumn(),
+                    ':value'  => $value,
+                ]));
+            }
+        }
+
+        return $this->setKey($value, 'cli_auto_complete');
+    }
+
+    /**
+     * Sets the alternative CLI column names for this column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setCliColumn(?string $value): static
+    {
+        return $this->setKey($value, 'cli_column');
+    }
+
+    /**
+     * Returns if this column is required or not
+     *
+     * @note Is the exact opposite of Definition::getOptional()
+     * @note Defaults to true
+     * @return bool
+     */
+    public function getRequired(): bool
+    {
+        return !$this->getOptional();
+    }
+
+    /**
+     * Returns if this column is optional or not
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getOptional(): bool
+    {
+        return isset_get_typed('bool', $this->source['optional'], false);
+    }
+
+    /**
+     * Sets if this column is optional or not
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     * @param mixed     $initial_default
+     *
+     * @return static
+     */
+    public function setOptional(?bool $value, mixed $initial_default = null): static
+    {
+        if (!$value and $initial_default) {
+            // If not optional, we cannot have a default value
+            throw new OutOfBoundsException(tr('Cannot assign default value ":value" when the definition is not optional', [
+                ':value' => $initial_default,
+            ]));
+        }
+
+        $this->setKey($initial_default, 'default');
+        $this->setKey((bool)$value, 'optional');
+
+        return $this;
+    }
+
+    /**
+     * Returns the placeholder for this column
+     *
+     * @return string|null
+     */
+    public function getPlaceholder(): ?string
+    {
+        return isset_get_typed('string', $this->source['placeholder']);
+    }
+
+    /**
+     * Sets the placeholder for this column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setPlaceholder(?string $value): static
+    {
+        $this->validateTextTypeElement('placeholder', $value);
+        return $this->setKey($value, 'placeholder');
+    }
+
+    /**
+     * Ensures that the current column uses a text type input element or textarea element
+     *
+     * @param string                $key
+     * @param string|float|int|null $value
+     *
+     * @return void
+     */
+    protected function validateTextTypeElement(string $key, string|float|int|null $value): void
+    {
+        if (is_callable(isset_get($this->source['element']))) {
+            // We can't validate data types for this since it's a callback function
+            return;
+        }
+
+        switch (isset_get($this->source['element'])) {
+            case 'textarea':
+                // no break
+            case 'select':
+                // no break
+            case 'div':
+                // no break
+            case 'span':
+                // no break
+            case 'tooltip': // This is a pseudo-element
+                break;
+
+            case null:
+                // This is the default, so "input"
+            case 'input':
+                if (
+                    !array_key_exists('type', $this->source) or in_array($this->source['type'], [
+                        'text',
+                        'email',
+                        'url',
+                        'password',
+                    ])
+                ) {
+                    break;
+                }
+
+                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":type" type input element, :attribute can only be used for textarea elements or input elements with "text" type', [
+                    ':attribute' => $key,
+                    ':column'    => $this->getColumn(),
+                    ':type'      => $this->source['type'] ?? 'text',
+                    ':value'     => $value,
+                ]));
+
+            default:
+                throw new OutOfBoundsException(tr('Cannot set :attribute ":value" for column ":column", it is an ":element" element, :attribute can only be used for textarea elements or input elements with "text" type', [
+                    ':attribute' => $key,
+                    ':column'    => $this->getColumn(),
+                    ':element'   => $this->source['element'],
+                    ':value'     => $value,
+                ]));
+        }
+    }
+
+    /**
+     * Returns the display_callback for this column
+     *
+     * @return callable|null
+     */
+    public function getDisplayCallback(): ?callable
+    {
+        return isset_get_typed('object|callable', $this->source['display_callback']);
+    }
+
+    /**
+     * Sets the display_callback for this column
+     *
+     * @param callable|null $value
+     *
+     * @return static
+     */
+    public function setDisplayCallback(?callable $value): static
+    {
+        return $this->setKey($value, 'display_callback');
+    }
+
+    /**
+     * Sets the minlength for this textarea or text input column
+     *
+     * @param int|null $value
+     *
+     * @return static
+     */
+    public function setMinlength(?int $value): static
+    {
+        $this->validateTextTypeElement('minlength', $value);
+        return $this->setKey($value, 'minlength');
+    }
+
+    /**
+     * Returns the pattern for this textarea or text input column
+     *
+     * @return string|null
+     */
+    public function getPattern(): ?string
+    {
+        return isset_get_typed('string', $this->source['pattern']);
+    }
+
+    /**
+     * Sets the pattern for this textarea or text input column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setPattern(?string $value): static
+    {
+        $this->validateTextTypeElement('pattern', $value);
+        return $this->setKey($value, 'pattern');
+    }
+
+    /**
+     * Returns the tooltip for this column
+     *
+     * @return string|null
+     */
+    public function getTooltip(): ?string
+    {
+        return isset_get_typed('string', $this->source['tooltip']);
+    }
+
+    /**
+     * Set the maximum value for number input elements
+     *
+     * @param float|int|null $value
+     *
+     * @return static
+     */
+    public function setMax(float|int|null $value): static
+    {
+        $this->validateNumberTypeInput('max', $value);
+        return $this->setKey($value, 'max');
+    }
+
+    /**
+     * Return the step value for number input elements
+     *
+     * @return string|float|int|null
+     */
+    public function getStep(): string|float|int|null
+    {
+        return isset_get_typed('string|float|int', $this->source['step']);
+    }
+
+    /**
+     * Set the step value for number input elements
+     *
+     * @param string|float|int|null $value
+     *
+     * @return static
+     */
+    public function setStep(string|float|int|null $value): static
+    {
+        $this->validateNumberTypeInput('step', $value);
+        return $this->setKey($value, 'step');
+    }
+
+    /**
+     * Returns the rows value for textarea elements
+     *
+     * @return int|null
+     */
+    public function getRows(): int|null
+    {
+        return isset_get_typed('int', $this->source['rows']);
+    }
+
+    /**
+     * Sets the rows value for textarea elements
+     *
+     * @param int|null $value
+     *
+     * @return static
+     */
+    public function setRows(?int $value): static
+    {
+        if (isset_get($this->source['element']) !== 'textarea') {
+            throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
+                ':column'  => $this->getColumn(),
+                ':element' => $value,
+            ]));
+        }
+
+        return $this->setKey($value, 'rows');
+    }
+
+    /**
+     * Sets the default value for this column
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    public function setDefault(mixed $value): static
+    {
+        return $this->setKey($value, 'default');
+    }
+
+    /**
+     * Returns the initial default value for this column
+     *
+     * @return mixed
+     */
+    public function getInitialDefault(): mixed
+    {
+        return isset_get($this->source['initial_default']);
+    }
+
+    /**
+     * Sets the initial default value for this column
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    public function setInitialDefault(mixed $value): static
+    {
+        return $this->setKey($value, 'initial_default');
+    }
+
+    /**
+     * Returns if this column should be stored with NULL in the database if empty
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getNullDb(): bool
+    {
+        return isset_get_typed('bool', $this->source['null_db'], true);
+    }
+
+    /**
+     * Sets if this column should be stored with NULL in the database if empty
+     *
+     * @note Defaults to false
+     *
+     * @param bool                       $value
+     * @param string|float|int|bool|null $default
+     *
+     * @return static
+     */
+    public function setNullDb(bool $value, string|float|int|bool|null $default = null): static
+    {
+        $this->setKey($value, 'null_db');
+        $this->setKey($default, 'default');
+
+        return $this;
+    }
+
+    /**
+     * Returns what element should be displayed if the value of this entry is NULL
+     *
+     * @return EnumElementInterface|null
+     */
+    public function getNullElement(): EnumElementInterface|null
+    {
+        return isset_get_typed('Phoundation\Web\Html\Components\Interfaces\EnumInputElementInterface|null', $this->source['null_element']);
+    }
+
+    /**
+     * Sets what element should be displayed if the value of this entry is NULL
+     *
+     * @param EnumElementInterface|null $value
+     *
+     * @return static
+     */
+    public function setNullElement(EnumElementInterface|null $value): static
+    {
+        return $this->setKey($value, 'null_element');
+    }
+
+    /**
+     * Returns if this column should be disabled if the value is NULL
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getNullDisabled(): bool
+    {
+        return isset_get_typed('bool', $this->source['null_disabled'], false);
+    }
+
+    /**
+     * Sets if this column should be disabled if the value is NULL
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setNullDisabled(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'null_disabled');
+    }
+
+    /**
+     * Returns if this column should be readonly if the value is NULL
+     *
+     * @note Defaults to false
+     * @return bool
+     */
+    public function getNullReadonly(): bool
+    {
+        return isset_get_typed('bool', $this->source['null_readonly'], false);
+    }
+
+    /**
+     * Sets if this column should be readonly if the value is NULL
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setNullReadonly(?bool $value): static
+    {
+        return $this->setKey((bool)$value, 'null_readonly');
+    }
+
+    /**
+     * Returns the type for this element if the value is NULL
+     *
+     * @return string|null
+     */
+    public function getNullInputType(): ?string
+    {
+        return isset_get_typed('string', $this->source['null_type']);
+    }
+
+    /**
+     * Sets the type for this element if the value is NULL
+     *
+     * @param EnumElementInputType|null $value
+     *
+     * @return static
+     */
+    public function setNullInputType(?EnumElementInputType $value): static
+    {
+        if (empty($this->source['element'])) {
+            $this->source['element'] = 'input';
+        }
+
+        return $this->setKey($value->value, 'type');
+    }
+
+    /**
+     * Returns the type for this element if the value is NULL
+     *
+     * @return array|null
+     */
+    public function getValidationFunctions(): ?array
+    {
+        return isset_get_typed('array', $this->source['validation_functions']);
+    }
+
+    /**
+     * Returns the help text for this column
+     *
+     * @return string|null
+     */
+    public function getHelpText(): ?string
+    {
+        return isset_get_typed('string', $this->source['help_text']);
+    }
+
+    /**
+     * Sets the help text for this column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setHelpText(?string $value): static
+    {
+        $this->setKey(trim($value), 'help_text');
+
+        if (!$this->getKey('tooltip')) {
+            // Default tooltip to help text
+            return $this->setTooltip($value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets  the tooltip for this column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setTooltip(?string $value): static
+    {
+        return $this->setKey($value, 'tooltip');
+    }
+
+    /**
+     * Returns the help text group for this column
+     *
+     * @return string|null
+     */
+    public function getHelpGroup(): ?string
+    {
+        return isset_get_typed('string', $this->source['help_group']);
+    }
+
+    /**
+     * Sets the help text group for this column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setHelpGroup(?string $value): static
+    {
+        return $this->setKey($value, 'help_group');
+    }
+
+    /**
+     * Validate this column according to the column definitions
+     *
+     * @param ValidatorInterface $validator
+     * @param string|null        $prefix
+     *
+     * @return bool
+     */
+    public function validate(ValidatorInterface $validator, ?string $prefix): bool
+    {
+        if ($this->isMeta()) {
+            // This column is metadata and should not be modified or validated, plain ignore it.
+            return false;
+        }
+
+        if ($this->getReadonly() or $this->getDisabled()) {
+            // This column cannot be modified and should not be validated, unless its new or has a static value
+            if (!$this->data_entry->isNew() and !$this->getValue()) {
+                return false;
+            }
+        }
+
+        // Checkbox inputs always are boolean and does this column have a prefix?
+        $bool   = ($this->getInputType()?->value === 'checkbox');
+        $column = $this->getCliColumn();
+
+        if (!$column) {
+            // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT be
+            // validated
+            return false;
+        }
+
+        // Column name prefix is an HTML form array prefix? Then close the array
+        if (str_ends_with((string)$prefix, '[')) {
+            $column .= ']';
+        }
+
+        if ($this->getValue()) {
+            // This column has a static value, force the value
+            $value = $this->getValue();
+
+            if (is_callable($this->getValue())) {
+                $value = $this->getValue()($validator->getSource(), $prefix);
+            }
+
+            $validator->set($value, $prefix . $column);
+        }
+
+        // Set the column prefix and select the column
+        $validator
+            ->setColumnPrefix($prefix)
+            ->select($column, !$bool);
+
+        // Apply default validations
+        if ($this->getOptional()) {
+            $validator->isOptional($this->getDefault());
+        }
+
+        // Apply all other validations
+        foreach ($this->validations as $validation) {
+            $validation($validator);
+        }
+
+        return true;
+    }
+
+    /**
+     * Return if this column is a meta column
+     *
+     * If this column is a meta column, it will be readonly for user actions
+     *
+     * @note Defaults to false
+     * @return bool
+     * @see  Definition::getRender()
+     */
+    public function isMeta(): bool
+    {
+        return in_array($this->getColumn(), static::getMetaColumns());
+    }
+
+    /**
+     * Returns the default meta data for DataEntry object
+     *
+     * @return array
+     */
+    final public function getMetaColumns(): array
+    {
+        if ($this->data_entry) {
+            // Return the meta colums from the data entry
+            return $this->data_entry->getMetaColumns();
+        }
+
+        // There is no data entry specified, we don't know anything about meta columns!
+        return [];
+    }
+
+    /**
+     * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getReadonly(): ?bool
+    {
+        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['readonly'], false);
+    }
+
+    /**
+     * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getDisabled(): ?bool
+    {
+        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['disabled'], false);
+    }
+
+    /**
+     * Returns the static value for this column
+     *
+     * @return callable|string|float|int|bool|null
+     */
+    public function getValue(): callable|string|float|int|bool|null
+    {
+        return isset_get($this->source['value']);
+    }
+
+    /**
+     * Returns the alternative CLI column names for this column
+     *
+     * @return string|null
+     */
+    public function getCliColumn(): ?string
+    {
+        if (PLATFORM_WEB or !$this->data_entry->isApplying()) {
+            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
+            return $this->getColumn();
+        }
+
+        // We're on the command line and data is being applied. We're working with data from the $argv command line
+        if (empty($this->source['cli_column'])) {
+            // This column cannot be modified on the command line, no definition available
+            return null;
+        }
+
+        $return = isset_get_typed('string', $this->source['cli_column']);
+
+        if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
+            // Strip the []
+            $return = substr($return, 1, -1);
+        }
+
+        return $return;
+    }
+
+    /**
+     * Returns the default value for this column
+     *
+     * @return mixed
+     */
+    public function getDefault(): mixed
+    {
+        return isset_get($this->source['default']);
     }
 }

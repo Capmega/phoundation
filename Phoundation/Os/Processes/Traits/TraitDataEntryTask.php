@@ -13,10 +13,10 @@ use Phoundation\Os\Processes\Task;
  *
  * This trait contains methods for DataEntry objects that require a task
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryTask
 {
@@ -26,21 +26,10 @@ trait TraitDataEntryTask
     protected ?TaskInterface $task;
 
     /**
-     * Returns the tasks_id for this object
-     *
-     * @return int|null
-     */
-    public function getTasksId(): ?int
-    {
-        return $this->getValueTypesafe('int', 'tasks_id');
-
-    }
-
-
-    /**
      * Sets the tasks_id for this object
      *
      * @param int|null $tasks_id
+     *
      * @return static
      */
     public function setTasksId(?int $tasks_id): static
@@ -49,6 +38,15 @@ trait TraitDataEntryTask
         return $this->setValue('tasks_id', $tasks_id);
     }
 
+    /**
+     * Returns the tasks hostname for this object
+     *
+     * @return string|null
+     */
+    public function getTasksCode(): ?string
+    {
+        return $this->getTask()?->getCode();
+    }
 
     /**
      * Returns the TaskInterface object for this object
@@ -69,6 +67,7 @@ trait TraitDataEntryTask
      * Sets the TaskInterface object for this object
      *
      * @param TaskInterface|null $task
+     *
      * @return static
      */
     public function setTask(?TaskInterface $task): static
@@ -81,22 +80,22 @@ trait TraitDataEntryTask
         return $this->setTasksId(null);
     }
 
-
     /**
-     * Returns the tasks hostname for this object
+     * Returns the tasks_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getTasksCode(): ?string
+    public function getTasksId(): ?int
     {
-        return $this->getTask()?->getCode();
-    }
+        return $this->getValueTypesafe('int', 'tasks_id');
 
+    }
 
     /**
      * Sets the task code for this object
      *
      * @param string|null $code
+     *
      * @return static
      */
     public function setTasksCode(?string $code): static

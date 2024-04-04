@@ -12,10 +12,10 @@ use Phoundation\Utils\Enums\Interfaces\EnumMatchModeInterface;
  *
  * This enum contains the possible match modes when trying to find or filter data on keys
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @package Phoundation\Utils
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @package   Phoundation\Utils
  */
 enum EnumMatchMode: string implements EnumMatchModeInterface
 {

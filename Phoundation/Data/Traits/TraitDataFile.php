@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataFile
 {
@@ -42,11 +42,12 @@ trait TraitDataFile
      * Sets the file
      *
      * @param Stringable|string|null $file
+     *
      * @return static
      */
     public function setFile(Stringable|string|null $file): static
     {
-        $this->file = get_null((string) $file);
+        $this->file = get_null((string)$file);
         return $this;
     }
 }

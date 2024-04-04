@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataHeight
 {
@@ -42,6 +42,7 @@ trait TraitDataHeight
      * Sets the height
      *
      * @param int|null $height
+     *
      * @return static
      */
     public function setHeight(?int $height): static
@@ -49,7 +50,7 @@ trait TraitDataHeight
         if ($height) {
             if (($height < 0) or ($height > 65535)) {
                 throw new OutOfBoundsException(tr('Invalid height ":height" specified', [
-                    ':height' => $height
+                    ':height' => $height,
                 ]));
             }
         }

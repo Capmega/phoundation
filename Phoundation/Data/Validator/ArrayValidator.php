@@ -16,10 +16,10 @@ use Phoundation\Utils\Strings;
  *
  * $_REQUEST will be cleared automatically as this array should not  be used.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class ArrayValidator extends Validator
 {
@@ -29,31 +29,19 @@ class ArrayValidator extends Validator
      * @note Keys that do not exist in $data that are validated will automatically be created
      * @note Keys in $data that are not validated will automatically be removed
      *
-     * @param array &$source The data array that must be validated.
+     * @param array &                 $source The data array that must be validated.
      * @param ValidatorInterface|null $parent If specified, this is actually a child validator to the specified parent
      */
-    public function __construct(array &$source = [], ?ValidatorInterface $parent = null) {
+    public function __construct(array &$source = [], ?ValidatorInterface $parent = null)
+    {
         $this->construct($parent, $source);
     }
-
-
-    /**
-     * Returns a new array data Validator object
-     *
-     * @param array $source
-     * @param ValidatorInterface|null &$parent
-     * @return static
-     */
-    public static function new(array &$source, ?ValidatorInterface $parent = null): static
-    {
-        return new static($source, $parent);
-    }
-
 
     /**
      * Selects the specified key within the array that we are validating
      *
      * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
+     *
      * @return static
      */
     public function select(string|int $field): static
@@ -61,11 +49,11 @@ class ArrayValidator extends Validator
         return $this->standardSelect($field);
     }
 
-
     /**
      * Throws an exception if there are still arguments left in the POST source
      *
      * @param bool $apply
+     *
      * @return static
      */
     public function noArgumentsLeft(bool $apply = true): static
@@ -86,13 +74,26 @@ class ArrayValidator extends Validator
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
                 $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field
+                    ':field' => $field,
                 ]);
             }
         }
 
         throw ValidatorException::new(tr('Unknown ARRAY fields ":fields" encountered', [
-            ':fields' => Strings::force($fields, ', ')
+            ':fields' => Strings::force($fields, ', '),
         ]))->addData($messages)->makeWarning()->log();
+    }
+
+    /**
+     * Returns a new array data Validator object
+     *
+     * @param array                    $source
+     * @param ValidatorInterface|null &$parent
+     *
+     * @return static
+     */
+    public static function new(array &$source, ?ValidatorInterface $parent = null): static
+    {
+        return new static($source, $parent);
     }
 }

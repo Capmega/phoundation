@@ -12,10 +12,10 @@ use Phoundation\Filesystem\Interfaces\PathInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataPath
 {
@@ -42,6 +42,7 @@ trait TraitDataPath
      * Sets the path
      *
      * @param PathInterface|string|null $path
+     *
      * @return static
      */
     public function setPath(PathInterface|string|null $path): static

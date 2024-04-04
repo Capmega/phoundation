@@ -5,8 +5,6 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Servers\Server;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
@@ -15,10 +13,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This script can delete servers
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho servers delete USER_EMAIL');
 
@@ -34,12 +32,10 @@ ARGUMENTS
 USER_EMAIL                              The email address for the server to delete');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('server')->isEmail()
-    ->validate();
-
+                     ->select('server')->isEmail()
+                     ->validate();
 
 
 // Display server data

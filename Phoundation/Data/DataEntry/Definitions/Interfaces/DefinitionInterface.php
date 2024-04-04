@@ -21,10 +21,10 @@ use Stringable;
  *
  * Contains the definitions for a single DataEntry object column
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 interface DefinitionInterface
 {
@@ -39,6 +39,7 @@ interface DefinitionInterface
      * Modify the contents of the query builder through a callback function
      *
      * @param callable $callback
+     *
      * @return $this
      */
     public function modifyQueryBuilder(callable $callback): static;
@@ -54,6 +55,7 @@ interface DefinitionInterface
      * Sets all the internal definitions for this column in one go
      *
      * @param array $rules
+     *
      * @return static
      */
     public function setSource(array $rules): static;
@@ -69,6 +71,7 @@ interface DefinitionInterface
      * Sets the prefix that is automatically added to this value, after validation
      *
      * @param string|null $prefix
+     *
      * @return static
      */
     public function setPrefix(?string $prefix): static;
@@ -84,6 +87,7 @@ interface DefinitionInterface
      * Sets the postfix that is automatically added to this value, after validation
      *
      * @param string|null $postfix
+     *
      * @return static
      */
     public function setPostfix(?string $postfix): static;
@@ -92,6 +96,7 @@ interface DefinitionInterface
      * Add specified value for the specified key for this DataEntry column
      *
      * @param string $key
+     *
      * @return mixed
      */
     public function getKey(string $key): mixed;
@@ -99,8 +104,9 @@ interface DefinitionInterface
     /**
      * Add specified value for the specified key for this DataEntry column
      *
-     * @param mixed $value
+     * @param mixed  $value
      * @param string $key
+     *
      * @return static
      */
     public function setKey(mixed $value, string $key): static;
@@ -113,7 +119,7 @@ interface DefinitionInterface
      *
      * @note Defaults to true
      * @return bool|null
-     * @see Definition::getVirtual()
+     * @see  Definition::getVirtual()
      */
     public function getRender(): ?bool;
 
@@ -124,9 +130,11 @@ interface DefinitionInterface
      * virtual column instead.
      *
      * @note Defaults to true
+     *
      * @param bool|null $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setRender(?bool $value): static;
 
@@ -137,7 +145,7 @@ interface DefinitionInterface
      *
      * @note Defaults to true
      * @return bool|null
-     * @see Definition::getVirtual()
+     * @see  Definition::getVirtual()
      */
     public function getVisible(): ?bool;
 
@@ -147,9 +155,11 @@ interface DefinitionInterface
      * If false, the column will have the "invisible" class added
      *
      * @note Defaults to true
+     *
      * @param bool|null $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setVisible(?bool $value): static;
 
@@ -160,7 +170,7 @@ interface DefinitionInterface
      *
      * @note Defaults to true
      * @return bool|null
-     * @see Definition::getVirtual()
+     * @see  Definition::getVirtual()
      */
     public function getDisplay(): ?bool;
 
@@ -170,9 +180,11 @@ interface DefinitionInterface
      * If false, the column will have the "d-none" class added
      *
      * @note Defaults to true
+     *
      * @param bool|null $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setDisplay(?bool $value): static;
 
@@ -180,6 +192,7 @@ interface DefinitionInterface
      * Returns the extra HTML classes for this DataEntryForm object
      *
      * @param bool $add_prefixless_names
+     *
      * @return array
      * @see Definition::getVirtual()
      */
@@ -191,8 +204,9 @@ interface DefinitionInterface
      * @note When specifying multiple classes in a string, make sure they are space separated!
      *
      * @param array|string $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function addClasses(array|string $value): static;
 
@@ -202,8 +216,9 @@ interface DefinitionInterface
      * @note When specifying multiple classes in a string, make sure they are space separated!
      *
      * @param array|string $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setClasses(array|string $value): static;
 
@@ -233,8 +248,9 @@ interface DefinitionInterface
      * @note When specifying multiple data in a string, make sure they are space separated!
      *
      * @param IteratorInterface|array $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setData(IteratorInterface|array $value): static;
 
@@ -278,8 +294,9 @@ interface DefinitionInterface
      * @note When specifying multiple aria in a string, make sure they are space separated!
      *
      * @param IteratorInterface|array $value
+     *
      * @return static
-     * @see Definition::setVirtual()
+     * @see  Definition::setVirtual()
      */
     public function setAria(IteratorInterface|array $value): static;
 
@@ -295,7 +312,9 @@ interface DefinitionInterface
      * Sets if this column will not set the DataEntry to "modified" state when changed
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setIgnoreModify(?bool $value): static;
@@ -307,7 +326,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool
-     * @see Definition::getRender()
+     * @see  Definition::getRender()
      */
     public function isMeta(): bool;
 
@@ -320,7 +339,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     * @see Definition::getRender()
+     * @see  Definition::getRender()
      */
     public function getVirtual(): ?bool;
 
@@ -332,9 +351,11 @@ interface DefinitionInterface
      * will be invisible whilst the virtual column "country" will modify countries_id
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
-     * @see Definition::setRender()
+     * @see  Definition::setRender()
      */
     public function setVirtual(?bool $value): static;
 
@@ -343,7 +364,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     * @see Definition::getRender()
+     * @see  Definition::getRender()
      */
     public function getDirectUpdate(): ?bool;
 
@@ -351,9 +372,11 @@ interface DefinitionInterface
      * Sets if this column updates directly, bypassing DataEntry::setSourceValue()
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
-     * @see Definition::setRender()
+     * @see  Definition::setRender()
      */
     public function setDirectUpdate(?bool $value): static;
 
@@ -368,7 +391,8 @@ interface DefinitionInterface
      * Sets static value for this column
      *
      * @param RenderInterface|callable|string|float|int|bool|null $value
-     * @param bool $only_when_new = false
+     * @param bool                                                $only_when_new = false
+     *
      * @return static
      */
     public function setValue(RenderInterface|callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
@@ -384,6 +408,7 @@ interface DefinitionInterface
      * Sets the autofocus for this column
      *
      * @param bool $auto_focus
+     *
      * @return static
      */
     public function setAutoFocus(bool $auto_focus): static;
@@ -415,7 +440,8 @@ interface DefinitionInterface
      * Sets the HTML client element to be used for this column
      *
      * @param RenderInterface|callable|string|null $value
-     * @param bool $make_safe
+     * @param bool                                 $make_safe
+     *
      * @return static
      */
     public function setContent(RenderInterface|callable|string|null $value, bool $make_safe = false): static;
@@ -431,6 +457,7 @@ interface DefinitionInterface
      * Sets the type of input element.
      *
      * @param EnumInputTypeInterface|string $value
+     *
      * @return static
      */
     public function setInputType(EnumInputTypeInterface|string $value): static;
@@ -447,7 +474,9 @@ interface DefinitionInterface
      * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setReadonly(?bool $value): static;
@@ -464,7 +493,9 @@ interface DefinitionInterface
      * Sets if the entry is hidden (and will be rendered as a hidden element)
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setHidden(?bool $value): static;
@@ -481,7 +512,9 @@ interface DefinitionInterface
      * If true, will enable browser auto suggest for this input control
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setAutoComplete(?bool $value): static;
@@ -498,7 +531,9 @@ interface DefinitionInterface
      * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setDisabled(?bool $value): static;
@@ -514,6 +549,7 @@ interface DefinitionInterface
      * The label to be shown on HTML clients
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setLabel(?string $value): static;
@@ -529,6 +565,7 @@ interface DefinitionInterface
      * Sets the boilerplate col size for this column, must be integer number between 1 and 12
      *
      * @param int|null $value
+     *
      * @return static
      */
     public function setSize(?int $value): static;
@@ -548,6 +585,7 @@ interface DefinitionInterface
      * The data source may be specified as a query string or a key => value array
      *
      * @param array|PDOStatement|Stringable|string|null $value
+     *
      * @return static
      */
     public function setDataSource(array|PDOStatement|Stringable|string|null $value): static;
@@ -577,6 +615,7 @@ interface DefinitionInterface
      * ]
      *
      * @param array|null $value
+     *
      * @return static
      */
     public function setVariables(array|null $value): static;
@@ -593,7 +632,9 @@ interface DefinitionInterface
      * Sets a query execute bound variables execute array for the specified query string source
      *
      * @note Requires "source" to be a query string
+     *
      * @param array|string|null $value
+     *
      * @return static
      */
     public function setExecute(array|string|null $value): static;
@@ -609,6 +650,7 @@ interface DefinitionInterface
      * Sets the cli auto-completion queries for this column
      *
      * @param array|bool|null $value
+     *
      * @return static
      */
     public function setCliAutoComplete(array|bool|null $value): static;
@@ -624,6 +666,7 @@ interface DefinitionInterface
      * Sets the alternative CLI column names for this column
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setCliColumn(?string $value): static;
@@ -649,8 +692,10 @@ interface DefinitionInterface
      * Sets if this column is optional or not
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
-     * @param mixed $initial_default
+     * @param mixed     $initial_default
+     *
      * @return static
      */
     public function setOptional(?bool $value, mixed $initial_default = null): static;
@@ -666,6 +711,7 @@ interface DefinitionInterface
      * Sets the placeholder for this column
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setPlaceholder(?string $value): static;
@@ -681,6 +727,7 @@ interface DefinitionInterface
      * Sets the display_callback for this column
      *
      * @param callable|null $value
+     *
      * @return static
      */
     public function setDisplayCallback(?callable $value): static;
@@ -696,6 +743,7 @@ interface DefinitionInterface
      * Sets the minlength for this textarea or text input column
      *
      * @param int|null $value
+     *
      * @return static
      */
     public function setMinlength(?int $value): static;
@@ -711,6 +759,7 @@ interface DefinitionInterface
      * Sets the maxlength for this textarea or text input column
      *
      * @param int|null $value
+     *
      * @return static
      */
     public function setMaxlength(?int $value): static;
@@ -726,6 +775,7 @@ interface DefinitionInterface
      * Sets the pattern for this textarea or text input column
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setPattern(?string $value): static;
@@ -741,6 +791,7 @@ interface DefinitionInterface
      * Sets  the tooltip for this column
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setTooltip(?string $value): static;
@@ -756,6 +807,7 @@ interface DefinitionInterface
      * Set the minimum value for number input elements
      *
      * @param float|int|null $value
+     *
      * @return static
      */
     public function setMin(float|int|null $value): static;
@@ -771,6 +823,7 @@ interface DefinitionInterface
      * Set the maximum value for number input elements
      *
      * @param float|int|null $value
+     *
      * @return static
      */
     public function setMax(float|int|null $value): static;
@@ -786,6 +839,7 @@ interface DefinitionInterface
      * Set the step value for number input elements
      *
      * @param string|float|int|null $value
+     *
      * @return static
      */
     public function setStep(string|float|int|null $value): static;
@@ -801,6 +855,7 @@ interface DefinitionInterface
      * Sets the rows value for textarea elements
      *
      * @param int|null $value
+     *
      * @return static
      */
     public function setRows(?int $value): static;
@@ -816,6 +871,7 @@ interface DefinitionInterface
      * Sets the default value for this column
      *
      * @param mixed $value
+     *
      * @return static
      */
     public function setDefault(mixed $value): static;
@@ -831,6 +887,7 @@ interface DefinitionInterface
      * Sets the initial default value for this column
      *
      * @param mixed $value
+     *
      * @return static
      */
     public function setInitialDefault(mixed $value): static;
@@ -847,8 +904,10 @@ interface DefinitionInterface
      * Sets if this column should be stored with NULL in the database if empty
      *
      * @note Defaults to false
-     * @param bool $value
+     *
+     * @param bool                       $value
      * @param string|float|int|bool|null $default
+     *
      * @return static
      */
     public function setNullDb(bool $value, string|float|int|bool|null $default = null): static;
@@ -865,7 +924,9 @@ interface DefinitionInterface
      * Sets if this column should be disabled if the value is NULL
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setNullDisabled(?bool $value): static;
@@ -882,7 +943,9 @@ interface DefinitionInterface
      * Sets if this column should be readonly if the value is NULL
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setNullReadonly(?bool $value): static;
@@ -921,6 +984,7 @@ interface DefinitionInterface
      * Adds the specified validation function to the validation functions list for this definition
      *
      * @param callable $function
+     *
      * @return static
      */
     public function addValidationFunction(callable $function): static;
@@ -936,6 +1000,7 @@ interface DefinitionInterface
      * Sets the help text for this column
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setHelpText(?string $value): static;
@@ -951,6 +1016,7 @@ interface DefinitionInterface
      * Sets the help text group for this column
      *
      * @param string|null $value
+     *
      * @return static
      */
     public function setHelpGroup(?string $value): static;
@@ -959,7 +1025,8 @@ interface DefinitionInterface
      * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
-     * @param string|null $prefix
+     * @param string|null        $prefix
+     *
      * @return bool
      */
     public function validate(ValidatorInterface $validator, ?string $prefix): bool;
@@ -973,7 +1040,7 @@ interface DefinitionInterface
      *
      * @note Defaults to false
      * @return bool|null
-     *@see Definition::getRender()
+     * @see  Definition::getRender()
      */
     public function getIgnored(): ?bool;
 
@@ -985,9 +1052,11 @@ interface DefinitionInterface
      * stored in the source
      *
      * @note Defaults to false
+     *
      * @param bool|null $value
+     *
      * @return static
-     * @see Definition::setRender()
+     * @see  Definition::setRender()
      */
     public function setIgnored(?bool $value): static;
 
@@ -1002,6 +1071,7 @@ interface DefinitionInterface
      * Returns if changes to the field result into an auto-submit
      *
      * @param bool|null $value
+     *
      * @return static
      */
     public function setAutoSubmit(?bool $value): static;
@@ -1017,6 +1087,7 @@ interface DefinitionInterface
      * Sets the column
      *
      * @param string|null $column
+     *
      * @return static
      */
     public function setColumn(?string $column): static;
@@ -1048,6 +1119,7 @@ interface DefinitionInterface
      * Sets the additional content for this component
      *
      * @param RenderInterface|callable|string|null $prefix
+     *
      * @return static
      */
     public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static;

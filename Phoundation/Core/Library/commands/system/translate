@@ -17,11 +17,11 @@ use Phoundation\Translator\Translations;
  *
  * This script can manage your translated copies of your project, remove them, re-translate them, and much more.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Core
+ * @category  Function reference
+ * @package   Phoundation\Core
  */
 CliDocumentation::setUsage('./pho system translate [OPTIONS]
 ./pho system translate --all
@@ -45,9 +45,9 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('--clear')->isOptional(false)->isBoolean()
-    ->select('-l,--languages', true)->isOptional()->sanitizeForceArray(',')->each()->hasCharacters(2)
-    ->validate();
+                     ->select('--clear')->isOptional(false)->isBoolean()
+                     ->select('-l,--languages', true)->isOptional()->sanitizeForceArray(',')->each()->hasCharacters(2)
+                     ->validate();
 
 
 // Clear all translations

@@ -18,18 +18,19 @@ use UnitEnum;
  *
  * This class validates data from untrusted arrays
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 interface ValidatorInterface
 {
     /**
      * Forcibly set the specified key of this validator source to the specified value
      *
-     * @param mixed $value
+     * @param mixed            $value
      * @param string|float|int $key
+     *
      * @return static
      */
     public function set(mixed $value, string|float|int $key): static;
@@ -38,6 +39,7 @@ interface ValidatorInterface
      * Forcibly remove the specified source key
      *
      * @param string|float|int $key
+     *
      * @return static
      */
     public function removeSourceKey(string|float|int $key): static;
@@ -117,6 +119,7 @@ interface ValidatorInterface
      * This method ensures that the specified array key is positive
      *
      * @param bool $allow_zero
+     *
      * @return static
      */
     public function isPositive(bool $allow_zero = false): static;
@@ -127,6 +130,7 @@ interface ValidatorInterface
      * This method ensures that the specified array key is a valid natural number (integer, 1 and above)
      *
      * @param bool $allow_zero
+     *
      * @return static
      */
     public function isNatural(bool $allow_zero = true): static;
@@ -155,6 +159,7 @@ interface ValidatorInterface
      * This method ensures that the specified array key is a valid database id (integer, 1 and above)
      *
      * @param bool $allow_zero
+     *
      * @return static
      */
     public function isDbId(bool $allow_zero = false): static;
@@ -165,7 +170,8 @@ interface ValidatorInterface
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
-     * @param int $max_characters
+     * @param int         $max_characters
+     *
      * @return static
      */
     public function isCode(?string $until = null, int $max_characters = 64): static;
@@ -176,7 +182,8 @@ interface ValidatorInterface
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
-     * @param bool $equal If true, it is more than or equal to, instead of only more than
+     * @param bool      $equal If true, it is more than or equal to, instead of only more than
+     *
      * @return static
      */
     public function isMoreThan(int|float $amount, bool $equal = false): static;
@@ -187,7 +194,8 @@ interface ValidatorInterface
      * This method ensures that the specified array key is positive
      *
      * @param int|float $amount
-     * @param bool $equal If true, it is less than or equal to, instead of only less than
+     * @param bool      $equal If true, it is less than or equal to, instead of only less than
+     *
      * @return static
      */
     public function isLessThan(int|float $amount, bool $equal = false): static;
@@ -199,6 +207,7 @@ interface ValidatorInterface
      *
      * @param int|float $minimum
      * @param int|float $maximum
+     *
      * @return static
      */
     public function isBetween(int|float $minimum, int|float $maximum): static;
@@ -209,6 +218,7 @@ interface ValidatorInterface
      * This method ensures that the specified array key is negative
      *
      * @param bool $allow_zero
+     *
      * @return static
      */
     public function isNegative(bool $allow_zero = false): static;
@@ -237,6 +247,7 @@ interface ValidatorInterface
      * This method ensures that the specified array key is a scalar value
      *
      * @param IteratorInterface|array $array
+     *
      * @return static
      */
     public function isInArray(IteratorInterface|array $array): static;
@@ -247,6 +258,7 @@ interface ValidatorInterface
      * This method ensures that the specified array key is a scalar value
      *
      * @param UnitEnum $enum
+     *
      * @return static
      */
     public function isInEnum(UnitEnum $enum): static;
@@ -257,7 +269,8 @@ interface ValidatorInterface
      * This method ensures that the specified array key contains the specified string
      *
      * @param string $string
-     * @param bool $regex
+     * @param bool   $regex
+     *
      * @return static
      */
     public function contains(string $string, bool $regex = false): static;
@@ -268,7 +281,8 @@ interface ValidatorInterface
      * This method ensures that the specified array key contains the specified string
      *
      * @param string $string
-     * @param bool $regex
+     * @param bool   $regex
+     *
      * @return static
      */
     public function containsNot(string $string, bool $regex = false): static;
@@ -279,8 +293,9 @@ interface ValidatorInterface
      * This method ensures that the specified key is the same as the column value in the specified query
      *
      * @param PDOStatement|string $query
-     * @param array|null $execute
-     * @param bool $ignore_case
+     * @param array|null          $execute
+     * @param bool                $ignore_case
+     *
      * @return static
      */
     public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false): static;
@@ -290,11 +305,12 @@ interface ValidatorInterface
      *
      * This method ensures that the specified key is the same as the column value in the specified query
      *
-     * @param string $column
+     * @param string              $column
      * @param PDOStatement|string $query
-     * @param array|null $execute
-     * @param bool $ignore_case
-     * @param bool $fail_on_null = true
+     * @param array|null          $execute
+     * @param bool                $ignore_case
+     * @param bool                $fail_on_null = true
+     *
      * @return static
      */
     public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true): static;
@@ -305,7 +321,8 @@ interface ValidatorInterface
      * This method ensures that the specified key value contains the column value in the specified query
      *
      * @param PDOStatement|string $query
-     * @param array|null $execute
+     * @param array|null          $execute
+     *
      * @return static
      */
     public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null): static;
@@ -316,7 +333,8 @@ interface ValidatorInterface
      * This method ensures that the value is in the results from the specified query
      *
      * @param PDOStatement|string $query
-     * @param array|null $execute
+     * @param array|null          $execute
+     *
      * @return static
      */
     public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null): static;
@@ -334,6 +352,7 @@ interface ValidatorInterface
      * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
+     *
      * @return static
      */
     public function hasCharacters(int $characters): static;
@@ -342,6 +361,7 @@ interface ValidatorInterface
      * Validates that the selected field is equal or larger than the specified number of characters
      *
      * @param int $characters
+     *
      * @return static
      */
     public function hasMinCharacters(int $characters): static;
@@ -350,6 +370,7 @@ interface ValidatorInterface
      * Validates that the selected field is equal or shorter than the specified number of characters
      *
      * @param int|null $characters
+     *
      * @return static
      */
     public function hasMaxCharacters(?int $characters = null): static;
@@ -358,6 +379,7 @@ interface ValidatorInterface
      * Validates that the selected field matches the specified regex
      *
      * @param string $regex
+     *
      * @return static
      */
     public function matchesRegex(string $regex): static;
@@ -366,6 +388,7 @@ interface ValidatorInterface
      * Validates that the selected field NOT matches the specified regex
      *
      * @param string $regex
+     *
      * @return static
      */
     public function matchesNotRegex(string $regex): static;
@@ -374,6 +397,7 @@ interface ValidatorInterface
      * Validates that the selected field starts with the specified string
      *
      * @param string $string
+     *
      * @return static
      */
     public function startsWith(string $string): static;
@@ -382,6 +406,7 @@ interface ValidatorInterface
      * Validates that the selected field ends with the specified string
      *
      * @param string $string
+     *
      * @return static
      */
     public function endsWith(string $string): static;
@@ -468,9 +493,10 @@ interface ValidatorInterface
      * Validates that the selected field is the specified value
      *
      * @param mixed $validate_value
-     * @param bool $strict If true, will perform a strict check
-     * @param bool $secret If specified the $validate_value will not be shown
-     * @param bool $ignore_case
+     * @param bool  $strict If true, will perform a strict check
+     * @param bool  $secret If specified the $validate_value will not be shown
+     * @param bool  $ignore_case
+     *
      * @return static
      * @todo Change these individual flag parameters to one bit flag parameter
      */
@@ -504,6 +530,7 @@ interface ValidatorInterface
      * Validates that the selected field is in the past
      *
      * @param DateTime|null $before
+     *
      * @return static
      */
     public function isBefore(?DateTime $before = null): static;
@@ -512,6 +539,7 @@ interface ValidatorInterface
      * Validates that the selected field is in the past
      *
      * @param DateTime|null $after
+     *
      * @return static
      */
     public function isAfter(?DateTime $after = null): static;
@@ -556,6 +584,7 @@ interface ValidatorInterface
      * Validates that the selected field array has a minimal number of elements
      *
      * @param int $count
+     *
      * @return static
      */
     public function hasElements(int $count): static;
@@ -564,6 +593,7 @@ interface ValidatorInterface
      * Validates that the selected field array has a minimal number of elements
      *
      * @param int $count
+     *
      * @return static
      */
     public function hasMinimumElements(int $count): static;
@@ -572,6 +602,7 @@ interface ValidatorInterface
      * Validates that the selected field array has a maximum number of elements
      *
      * @param int $count
+     *
      * @return static
      */
     public function hasMaximumElements(int $count): static;
@@ -594,6 +625,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid multiple phones field
      *
      * @param string $separator
+     *
      * @return static
      */
     public function isPhoneNumbers(string $separator = ','): static;
@@ -609,6 +641,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid name
      *
      * @param int $characters
+     *
      * @return static
      */
     public function isName(int $characters = 128): static;
@@ -617,6 +650,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid name
      *
      * @param int $characters
+     *
      * @return static
      */
     public function isUsername(int $characters = 64): static;
@@ -639,8 +673,9 @@ interface ValidatorInterface
      * Validates if the selected field is a valid path
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null $restrictions
-     * @param bool $exists
+     * @param RestrictionsInterface|null   $restrictions
+     * @param bool                         $exists
+     *
      * @return static
      */
     public function isPath(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
@@ -649,8 +684,9 @@ interface ValidatorInterface
      * Validates if the selected field is a valid directory
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null $restrictions
-     * @param bool $exists
+     * @param RestrictionsInterface|null   $restrictions
+     * @param bool                         $exists
+     *
      * @return static
      */
     public function isDirectory(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
@@ -659,8 +695,9 @@ interface ValidatorInterface
      * Validates if the selected field is a valid file
      *
      * @param array|Stringable|string|null $exists_in_directories
-     * @param RestrictionsInterface|null $restrictions
-     * @param bool $exists
+     * @param RestrictionsInterface|null   $restrictions
+     * @param bool                         $exists
+     *
      * @return static
      */
     public function isFile(array|Stringable|string|null $exists_in_directories = null, RestrictionsInterface|null $restrictions = null, bool $exists = true): static;
@@ -669,6 +706,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid description
      *
      * @param int $characters
+     *
      * @return static
      */
     public function isDescription(int $characters = 16_777_200): static;
@@ -691,6 +729,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid email address
      *
      * @param int $characters
+     *
      * @return static
      */
     public function isColor(int $characters = 6): static;
@@ -699,6 +738,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid email address
      *
      * @param int $characters
+     *
      * @return static
      */
     public function isEmail(int $characters = 2048): static;
@@ -707,6 +747,7 @@ interface ValidatorInterface
      * Validates if the selected field is a valid email address
      *
      * @param int $max_size
+     *
      * @return static
      */
     public function isUrl(int $max_size = 2048): static;
@@ -730,11 +771,11 @@ interface ValidatorInterface
      *
      * @return static
      * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
-     * @see static::isCsv()
-     * @see static::isBase58()
-     * @see static::isBase64()
-     * @see static::isSerialized()
-     * @see static::sanitizeDecodeJson()
+     * @see       static::isCsv()
+     * @see       static::isBase58()
+     * @see       static::isBase64()
+     * @see       static::isSerialized()
+     * @see       static::sanitizeDecodeJson()
      */
     public function isJson(): static;
 
@@ -744,6 +785,7 @@ interface ValidatorInterface
      * @param string $separator The separation character, defaults to comma
      * @param string $enclosure
      * @param string $escape
+     *
      * @return static
      * @see static::isBase58()
      * @see static::isBase64()
@@ -790,7 +832,8 @@ interface ValidatorInterface
      * Validates if the specified function returns TRUE for this value
      *
      * @param callable $function
-     * @param string $failure
+     * @param string   $failure
+     *
      * @return static
      */
     public function isTrue(callable $function, string $failure): static;
@@ -799,7 +842,8 @@ interface ValidatorInterface
      * Validates if the specified function returns FALSE for this value
      *
      * @param callable $function
-     * @param string $failure
+     * @param string   $failure
+     *
      * @return static
      */
     public function isFalse(callable $function, string $failure): static;
@@ -809,7 +853,9 @@ interface ValidatorInterface
      *
      * @note This requires Validator::$id to be set with an entry id through Validator::setId()
      * @note This requires Validator::setTable() to be set with a valid, existing table
+     *
      * @param string|null $failure
+     *
      * @return static
      */
     public function isUnique(?string $failure = null): static;
@@ -834,6 +880,7 @@ interface ValidatorInterface
      * Sanitize the selected value by trimming whitespace
      *
      * @param string $characters
+     *
      * @return static
      * @see trim()
      */
@@ -843,6 +890,7 @@ interface ValidatorInterface
      * Sanitize the selected value by starting the value from the specified needle
      *
      * @param string $needle
+     *
      * @return static
      * @see String::from()
      * @see Validator::sanitizeUntil()
@@ -854,6 +902,7 @@ interface ValidatorInterface
      * Sanitize the selected value by ending the value at the specified needle
      *
      * @param string $needle
+     *
      * @return static
      * @see String::until()
      * @see Validator::sanitizeFrom()
@@ -866,6 +915,7 @@ interface ValidatorInterface
      * the string
      *
      * @param string $needle
+     *
      * @return static
      * @see String::fromReverse()
      * @see Validator::sanitizeFrom()
@@ -878,6 +928,7 @@ interface ValidatorInterface
      * string
      *
      * @param string $needle
+     *
      * @return static
      * @see String::untilReverse()
      * @see Validator::sanitizeUntil()
@@ -907,8 +958,9 @@ interface ValidatorInterface
      * Sanitize the selected value with a search / replace
      *
      * @param array $replace A key => value map of all items that should be searched / replaced
-     * @param bool $regex If true, all keys in the $replace array will be treated as a regex instead of a normal string
-     *                    This is slower and more memory intensive, but more flexible as well.
+     * @param bool  $regex   If true, all keys in the $replace array will be treated as a regex instead of a normal
+     *                       string This is slower and more memory intensive, but more flexible as well.
+     *
      * @return static
      * @see trim()
      */
@@ -918,6 +970,7 @@ interface ValidatorInterface
      * Sanitize the selected value by decoding the JSON
      *
      * @param bool $array If true, will return the data in associative arrays instead of generic objects
+     *
      * @return static
      * @see static::isJson()
      * @see static::sanitizeDecodeCsv()
@@ -941,6 +994,7 @@ interface ValidatorInterface
      * @param string $separator The separation character, defaults to comma
      * @param string $enclosure
      * @param string $escape
+     *
      * @return static
      * @see static::isCsv()
      * @see static::sanitizeDecodeBase58()
@@ -977,6 +1031,7 @@ interface ValidatorInterface
      * Sanitize the selected value by converting it to an array
      *
      * @param string $characters
+     *
      * @return static
      * @see trim()
      * @see static::sanitizeForceString()
@@ -1026,15 +1081,16 @@ interface ValidatorInterface
      * Sanitize the selected value by making it a string
      *
      * @param string $characters
+     *
      * @return static
      * @todo KNOWN BUG: THIS DOESNT WORK
-     * @see static::sanitizeDecodeBase58()
-     * @see static::sanitizeDecodeBase64()
-     * @see static::sanitizeDecodeCsv()
-     * @see static::sanitizeDecodeJson()
-     * @see static::sanitizeDecodeSerialized()
-     * @see static::sanitizeDecodeUrl()
-     * @see static::sanitizeForceArray()
+     * @see  static::sanitizeDecodeBase58()
+     * @see  static::sanitizeDecodeBase64()
+     * @see  static::sanitizeDecodeCsv()
+     * @see  static::sanitizeDecodeJson()
+     * @see  static::sanitizeDecodeSerialized()
+     * @see  static::sanitizeDecodeUrl()
+     * @see  static::sanitizeForceArray()
      */
     public function sanitizeForceString(string $characters = ','): static;
 
@@ -1043,6 +1099,7 @@ interface ValidatorInterface
      *
      * @param string|null $pre
      * @param string|null $post
+     *
      * @return static
      */
     public function sanitizePrePost(?string $pre, ?string $post): static;
@@ -1051,6 +1108,7 @@ interface ValidatorInterface
      * Sanitize the selected value by applying the specified transformation callback
      *
      * @param callable $callback
+     *
      * @return static
      */
     public function sanitizeTransform(callable $callback): static;
@@ -1066,6 +1124,7 @@ interface ValidatorInterface
      * Sets the field prefix value
      *
      * @param string|null $field_prefix
+     *
      * @return $this
      */
     public function setColumnPrefix(?string $field_prefix): static;
@@ -1081,6 +1140,7 @@ interface ValidatorInterface
      * Sets the table value
      *
      * @param string|null $table
+     *
      * @return $this
      */
     public function setTable(?string $table): static;
@@ -1089,6 +1149,7 @@ interface ValidatorInterface
      * Selects the specified key within the array that we are validating
      *
      * @param string|int $field The array key (or HTML form field) that needs to be validated / sanitized
+     *
      * @return static
      */
     public function standardSelect(string|int $field): static;
@@ -1098,8 +1159,9 @@ interface ValidatorInterface
      *
      * @param string|float|int $from_key
      * @param string|float|int $to_key
-     * @param bool $exception
-     * @param bool $overwrite
+     * @param bool             $exception
+     * @param bool             $overwrite
+     *
      * @return static
      */
     public function renameKey(string|float|int $from_key, string|float|int $to_key, bool $exception = true, bool $overwrite = false): static;

@@ -12,7 +12,6 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
 use Throwable;
 
 
@@ -21,10 +20,10 @@ use Throwable;
  *
  * This class contains the HTTP CSRF checks
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Csrf
 {
@@ -32,6 +31,7 @@ class Csrf
      * Generate a CSRF code and set it in the $_SESSION[csrf] array
      *
      * @param string|null $prefix
+     *
      * @return string|null
      */
     function set(?string $prefix = null): ?string
@@ -62,7 +62,7 @@ class Csrf
         $csrf = $prefix . Strings::unique('sha256');
 
         if (empty($_SESSION['csrf'])) {
-            $_SESSION['csrf'] = array();
+            $_SESSION['csrf'] = [];
         }
 
         $_SESSION['csrf'][$csrf] = new DateTime();
@@ -114,13 +114,13 @@ class Csrf
 
             if (empty($_SESSION['csrf'][$_POST['csrf']])) {
                 throw OutOfBoundsException::new(tr('Specified CSRF ":code" does not exist', [
-                    ':code' => $_POST['csrf']
+                    ':code' => $_POST['csrf'],
                 ]))->makeWarning();
             }
 
             // Get the code from $_SESSION and delete it so it won't be used twice
             $timestamp = $_SESSION['csrf'][$_POST['csrf']];
-            $now = new DateTime();
+            $now       = new DateTime();
 
             unset($_SESSION['csrf'][$_POST['csrf']]);
 
@@ -128,7 +128,7 @@ class Csrf
             if (Config::get('security.csrf.timeout', 3600)) {
                 if (($timestamp + Config::get('security.csrf.timeout')) < $now->getTimestamp()) {
                     throw OutOfBoundsException::new(tr('Specified CSRF ":code" timed out', [
-                        ':code' => $_POST['csrf']
+                        ':code' => $_POST['csrf'],
                     ]))->makeWarning();
                 }
             }

@@ -13,13 +13,37 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryUuid
 {
+    /**
+     * Sets the uuid for this object
+     *
+     * @param Stringable|string|null $uuid
+     *
+     * @return static
+     */
+    public function setUuid(Stringable|string|null $uuid): static
+    {
+        return $this->setValue('uuid', (string)$uuid);
+    }
+
+    /**
+     * Generates a uuid for this object
+     *
+     * @param Stringable|string|null $data
+     *
+     * @return static
+     */
+    public function generateUuid(Stringable|string|null $data = null): static
+    {
+        return $this->setValue('uuid', Strings::getUuid($data));
+    }
+
     /**
      * Returns the uuid for this object
      *
@@ -28,29 +52,5 @@ trait TraitDataEntryUuid
     public function getUuid(): ?string
     {
         return $this->getValueTypesafe('string', 'uuid');
-    }
-
-
-    /**
-     * Sets the uuid for this object
-     *
-     * @param Stringable|string|null $uuid
-     * @return static
-     */
-    public function setUuid(Stringable|string|null $uuid): static
-    {
-        return $this->setValue('uuid', (string) $uuid);
-    }
-
-
-    /**
-     * Generates a uuid for this object
-     *
-     * @param Stringable|string|null $data
-     * @return static
-     */
-    public function generateUuid(Stringable|string|null $data = null): static
-    {
-        return $this->setValue('uuid', Strings::getUuid($data));
     }
 }

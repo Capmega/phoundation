@@ -10,11 +10,11 @@ namespace Phoundation\Developer\Library;
  *
  * This is the Init class for the Developer library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -53,7 +53,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create the users table.
             sql()->schema()->table('developer_incidents')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -80,7 +80,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.20', function () {
             sql()->schema()->table('developer_incidents')->alter()
-                ->renameColumn('details', 'data');
+                 ->renameColumn('details', 'data');
         });
     }
 }

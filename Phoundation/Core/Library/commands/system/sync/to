@@ -16,10 +16,10 @@ use Phoundation\Developer\Sync;
  *
  * With this, a production environment can easily be tested locally, for example
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho system sync ENVIRONMENT
 ./pho system sync -l -i --to ENVIRONMENT');
@@ -42,10 +42,10 @@ ENVIRONMENT                             The single source environment from which
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('environment', true)->isVariable()
-    ->select('-l,--lock')->isOptional(false)->isBoolean()
-    ->select('-i,--no-init')->isOptional(false)->isBoolean()
-    ->validate();
+                     ->select('environment', true)->isVariable()
+                     ->select('-l,--lock')->isOptional(false)->isBoolean()
+                     ->select('-i,--no-init')->isOptional(false)->isBoolean()
+                     ->validate();
 
 
 // Sync environments
@@ -57,5 +57,5 @@ Sync::new()
 
 // Done!
 Log::Success(tr('Finished syncing process to environment ":environment"', [
-    ':environment' => $argv['environment']
+    ':environment' => $argv['environment'],
 ]));

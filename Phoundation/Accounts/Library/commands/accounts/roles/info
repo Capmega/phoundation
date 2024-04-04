@@ -19,19 +19,19 @@ use Phoundation\Utils\Arrays;
  *
  * This script displays information about the specified role.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setAutoComplete([
-    'positions' => [
-        0 => [
-            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL',
-            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Paging::getLimit()
-        ]
-    ],
-]);
+                                      'positions' => [
+                                          0 => [
+                                              'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL',
+                                              'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Paging::getLimit(),
+                                          ],
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho accounts roles info USER');
 
@@ -46,12 +46,10 @@ ARGUMENTS
 USER                                    The role to display information about. Specify either by role id or seo-name');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('role')->hasMinCharacters(2)->hasMaxCharacters(255)
-    ->validate();
-
+                     ->select('role')->hasMinCharacters(2)->hasMaxCharacters(255)
+                     ->validate();
 
 
 try {
@@ -65,6 +63,6 @@ try {
 
     Cli::displayTable(Arrays::listKeepKeys($role->getRights(), 'id,name'), id_column: null);
 
-}catch (DataEntryNotExistsException $e) {
+} catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }

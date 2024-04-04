@@ -31,12 +31,14 @@ use Phoundation\Web\Html\Enums\EnumElement;
  *
  *
  *
- * @see DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Security
- * @todo Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for example, should be thrown from here so that it is no longer required for the developer to both register the incident AND throw the exception
+ * @package   Phoundation\Security
+ * @todo      Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for
+ *            example, should be thrown from here so that it is no longer required for the developer to both register
+ *            the incident AND throw the exception
  */
 class Incident extends DataEntry implements IncidentInterface
 {
@@ -109,6 +111,7 @@ class Incident extends DataEntry implements IncidentInterface
      * Sets if this incident will be logged in the text log
      *
      * @param bool $log
+     *
      * @return static
      */
     public function setLog(bool $log): static
@@ -122,6 +125,7 @@ class Incident extends DataEntry implements IncidentInterface
      * Sets who will be notified about this incident directly without accessing the roles object
      *
      * @param IteratorInterface|array|string|null $roles
+     *
      * @return Incident
      */
     public function notifyRoles(IteratorInterface|array|string|null $roles): static
@@ -155,6 +159,7 @@ class Incident extends DataEntry implements IncidentInterface
      * Sets the roles iterator containing who will be notified about this incident
      *
      * @param IteratorInterface|array $notify_roles
+     *
      * @return static
      */
     public function setNotifyRoles(IteratorInterface|array $notify_roles): static
@@ -163,22 +168,11 @@ class Incident extends DataEntry implements IncidentInterface
         return $this;
     }
 
-
-    /**
-     * Returns the severity for this object
-     *
-     * @return string
-     */
-    public function getSeverity(): string
-    {
-        return $this->getValueTypesafe('string', 'severity', Severity::unknown->value);
-    }
-
-
     /**
      * Sets the severity for this object
      *
      * @param SeverityInterface|string $severity
+     *
      * @return static
      */
     public function setSeverity(SeverityInterface|string $severity): static
@@ -190,12 +184,12 @@ class Incident extends DataEntry implements IncidentInterface
         return $this->setValue('severity', $severity->value);
     }
 
-
     /**
      * Saves the incident to a database
      *
-     * @param bool $force
+     * @param bool        $force
      * @param string|null $comments
+     *
      * @return static
      */
     public function save(bool $force = false, ?string $comments = null): static
@@ -203,10 +197,10 @@ class Incident extends DataEntry implements IncidentInterface
         $severity = strtolower($this->getSeverity());
 
         if ($this->log) {
-            switch ($severity){
+            switch ($severity) {
                 case 'notice':
                     Log::warning(tr('Security notice: :message', [
-                        ':message'  => $this->getTitle()
+                        ':message' => $this->getTitle(),
                     ]));
 
                     break;
@@ -216,7 +210,7 @@ class Incident extends DataEntry implements IncidentInterface
                 case 'severe':
                     Log::error(tr('Security incident (:severity): :message', [
                         ':severity' => $severity,
-                        ':message'  => $this->getTitle()
+                        ':message'  => $this->getTitle(),
                     ]));
 
                     break;
@@ -224,7 +218,7 @@ class Incident extends DataEntry implements IncidentInterface
                 default:
                     Log::warning(tr('Security incident (:severity): :message', [
                         ':severity' => $severity,
-                        ':message'  => $this->getTitle()
+                        ':message'  => $this->getTitle(),
                     ]));
             }
         }
@@ -265,11 +259,21 @@ class Incident extends DataEntry implements IncidentInterface
         return $incident;
     }
 
+    /**
+     * Returns the severity for this object
+     *
+     * @return string
+     */
+    public function getSeverity(): string
+    {
+        return $this->getValueTypesafe('string', 'severity', Severity::unknown->value);
+    }
 
     /**
      * Throw an incidents exception
      *
      * @param string|null $exception
+     *
      * @return never
      */
     #[NoReturn] public function throw(?string $exception = null): never
@@ -291,59 +295,59 @@ class Incident extends DataEntry implements IncidentInterface
     {
         $definitions
             ->add(Definition::new($this, 'type')
-                ->setLabel(tr('Incident type'))
-                ->setDisabled(true)
-                ->setDefault(tr('Unknown'))
-                ->setSize(6)
-                ->setMaxlength(6))
+                            ->setLabel(tr('Incident type'))
+                            ->setDisabled(true)
+                            ->setDefault(tr('Unknown'))
+                            ->setSize(6)
+                            ->setMaxlength(6))
             ->add(Definition::new($this, 'severity')
-                ->setElement(EnumElement::select)
-                ->setLabel(tr('Severity'))
-                ->setDisabled(true)
-                ->setSize(6)
-                ->setMaxlength(6)
-                ->setDataSource([
-                    Severity::notice->value => tr('Notice'),
-                    Severity::low->value    => tr('Low'),
-                    Severity::medium->value => tr('Medium'),
-                    Severity::high->value   => tr('High'),
-                    Severity::severe->value => tr('Severe')
-                ]))
+                            ->setElement(EnumElement::select)
+                            ->setLabel(tr('Severity'))
+                            ->setDisabled(true)
+                            ->setSize(6)
+                            ->setMaxlength(6)
+                            ->setDataSource([
+                                                Severity::notice->value => tr('Notice'),
+                                                Severity::low->value    => tr('Low'),
+                                                Severity::medium->value => tr('Medium'),
+                                                Severity::high->value   => tr('High'),
+                                                Severity::severe->value => tr('Severe'),
+                                            ]))
             ->add(Definition::new($this, 'title')
-                ->setLabel(tr('Title'))
-                ->setDisabled(true)
-                ->setSize(12)
-                ->setMaxlength(4)
-                ->setMaxlength(255))
+                            ->setLabel(tr('Title'))
+                            ->setDisabled(true)
+                            ->setSize(12)
+                            ->setMaxlength(4)
+                            ->setMaxlength(255))
             ->add(Definition::new($this, 'details')
-                ->setElement(EnumElement::textarea)
-                ->setLabel(tr('Details'))
-                ->setDisabled(true)
-                ->setSize(12)
-                ->setMaxlength(65_535)
-                ->setDisplayCallback(function(mixed $value, array $source) {
-                    // Since the details almost always have an array encoded in JSON, decode it and display it using
-                    // print_r
-                    if (!$value) {
-                        return null;
-                    }
+                            ->setElement(EnumElement::textarea)
+                            ->setLabel(tr('Details'))
+                            ->setDisabled(true)
+                            ->setSize(12)
+                            ->setMaxlength(65_535)
+                            ->setDisplayCallback(function (mixed $value, array $source) {
+                                // Since the details almost always have an array encoded in JSON, decode it and display it using
+                                // print_r
+                                if (!$value) {
+                                    return null;
+                                }
 
-                    try {
-                        $return  = '';
-                        $details = Json::decode($value);
-                        $largest = Arrays::getLongestKeyLength($details);
+                                try {
+                                    $return  = '';
+                                    $details = Json::decode($value);
+                                    $largest = Arrays::getLongestKeyLength($details);
 
-                        foreach ($details as $key => $value) {
-                            $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
-                        }
+                                    foreach ($details as $key => $value) {
+                                        $return .= Strings::size($key, $largest) . ' : ' . $value . PHP_EOL;
+                                    }
 
-                        return $return;
+                                    return $return;
 
-                    } catch (JsonException $e) {
-                        // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
-                        Log::warning($e);
-                        return $value;
-                    }
-                }));
+                                } catch (JsonException $e) {
+                                    // We couldn't decode it! Why? No idea, but lets just move on, its not THAT important.. yet.
+                                    Log::warning($e);
+                                    return $value;
+                                }
+                            }));
     }
 }

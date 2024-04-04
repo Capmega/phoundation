@@ -12,10 +12,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryVendor
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryVendor
      * Sets the vendor for this object
      *
      * @param Stringable|string|null $vendor
+     *
      * @return static
      */
     public function setVendor(Stringable|string|null $vendor): static
     {
-        return $this->setValue('vendor', (string) $vendor);
+        return $this->setValue('vendor', (string)$vendor);
     }
 }

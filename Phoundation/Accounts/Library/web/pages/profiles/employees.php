@@ -14,20 +14,20 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Employees'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/profiles.html' => tr('Profiles'),
-    ''               => tr('Employees')
-]));
+                                                           '/'              => tr('Home'),
+                                                           '/profiles.html' => tr('Profiles'),
+                                                           ''               => tr('Employees'),
+                                                       ]));
 
 
 $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
@@ -48,11 +48,11 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                         </div>
                         <div class="col-5 text-center">
                         ' . Session::getUser()->getPicture()
-                                ->getHtmlElement()
-                                ->setSrc(UrlBuilder::getImg("img/profiles/default.png"))
-                                ->setClass("img-circle img-fluid")
-                                ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUser()->getDisplayName())]))
-                                ->render() . '                          
+                                   ->getHtmlElement()
+                                   ->setSrc(UrlBuilder::getImg("img/profiles/default.png"))
+                                   ->setClass("img-circle img-fluid")
+                                   ->setAlt(tr("Profile picture for :user", [":user" => Html::safe(Session::getUser()->getDisplayName())]))
+                                   ->render() . '                          
                         </div>
                       </div>
                     </div>
@@ -75,19 +75,19 @@ $content = '';
 
 foreach ($users as $user) {
     $user_content = $template;
-    $user_content = str_replace(':role'   , (null                    ?? '-'), $user_content);
-    $user_content = str_replace(':id'     , ($user->getId())                , $user_content);
-    $user_content = str_replace(':name'   , ($user->getDisplayName() ?? '-'), $user_content);
-    $user_content = str_replace(':address', ($user->getAddress()     ?? '-'), $user_content);
-    $user_content = str_replace(':about'  , (tr('Not available'))      , $user_content);
-    $user_content = str_replace(':email'  , ($user->getEmail()       ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a>' : '-'), $user_content);
-    $user_content = str_replace(':phone'  , ($user->getPhone()       ? '<a href="tel:'    . $user->getPhone() . '">' . $user->getPhone() . '</a>' : '-'), $user_content);
+    $user_content = str_replace(':role', (null ?? '-'), $user_content);
+    $user_content = str_replace(':id', ($user->getId()), $user_content);
+    $user_content = str_replace(':name', ($user->getDisplayName() ?? '-'), $user_content);
+    $user_content = str_replace(':address', ($user->getAddress() ?? '-'), $user_content);
+    $user_content = str_replace(':about', (tr('Not available')), $user_content);
+    $user_content = str_replace(':email', ($user->getEmail() ? '<a href="mailto:' . $user->getEmail() . '">' . $user->getEmail() . '</a>' : '-'), $user_content);
+    $user_content = str_replace(':phone', ($user->getPhone() ? '<a href="tel:' . $user->getPhone() . '">' . $user->getPhone() . '</a>' : '-'), $user_content);
 
-    $content     .= $user_content;
+    $content .= $user_content;
 }
 
 
 // Build card
 echo $card = Card::new()
-    ->setContent('<div class="row">' . $content . '</div>')
-    ->render();
+                 ->setContent('<div class="row">' . $content . '</div>')
+                 ->render();

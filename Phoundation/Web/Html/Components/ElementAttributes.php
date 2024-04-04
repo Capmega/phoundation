@@ -41,110 +41,95 @@ trait ElementAttributes
 
 
     /**
+     * The HTML autofocus attribute
+     *
+     * @var string|null $autofocus
+     */
+    static protected ?string $autofocus = null;
+    /**
      * The HTML id element attribute
      *
      * @var string|null $id
      */
     protected ?string $id = null;
-
     /**
      * The real HTML id element attribute. If id contains "element[]", this will contain "element"
      *
      * @var string|null $real_id
      */
     protected ?string $real_id = null;
-
     /**
      * The HTML name element attribute
      *
      * @var string|null $name
      */
     protected ?string $name = null;
-
     /**
      * The real HTML name element attribute. If name contains "element[]", this will contain "element"
      *
      * @var string|null $real_name
      */
     protected ?string $real_name = null;
-
     /**
      * The HTML element attributes store
      *
      * @var IteratorInterface $attributes
      */
     protected IteratorInterface $attributes;
-
     /**
      * The HTML data-* element attribute store
      *
      * @var IteratorInterface $data
      */
     protected IteratorInterface $data;
-
     /**
      * The HTML element aria-* attribute store
      *
      * @var IteratorInterface $aria
      */
     protected IteratorInterface $aria;
-
     /**
      * The HTML class element attribute store
      *
      * @var IteratorInterface $classes
      */
     protected IteratorInterface $classes;
-
     /**
      * The HTML class element attribute cache
      *
      * @var string|null $class
      */
     protected ?string $class = null;
-
     /**
      * The HTML readonly attribute
      *
      * @var bool $readonly
      */
     protected bool $readonly = false;
-
     /**
      * The HTML disabled attribute
      *
      * @var bool $disabled
      */
     protected bool $disabled = false;
-
     /**
      * The HTML visible attribute
      *
      * @var bool $visible
      */
     protected bool $visible = false;
-
     /**
      * The HTML required attribute
      *
      * @var bool $required
      */
     protected bool $required = false;
-
     /**
      * The tabindex for this element
      *
      * @var int|null
      */
     protected ?int $tabindex = null;
-
-    /**
-     * The HTML autofocus attribute
-     *
-     * @var string|null $autofocus
-     */
-    static protected ?string $autofocus = null;
-
     /**
      * Extra attributes or element content can be added through the "extra" variable
      *
@@ -216,34 +201,11 @@ trait ElementAttributes
      */
     public function __construct(?string $content = null)
     {
-        $this->classes = new Iterator();
+        $this->classes    = new Iterator();
         $this->attributes = new Iterator();
 
         $this->setContent($content);
     }
-
-
-    /**
-     * Sets the HTML id element attribute
-     *
-     * @param string|null $id
-     * @param bool        $name_too
-     *
-     * @return static
-     */
-    public function setId(?string $id, bool $name_too = true): static
-    {
-        $this->id = $id;
-        $this->real_id = Strings::until($id, '[');
-
-        // By default, name and id should be equal
-        if ($name_too) {
-            $this->setName($id, false);
-        }
-
-        return $this;
-    }
-
 
     /**
      * Returns the HTML id element attribute
@@ -255,6 +217,26 @@ trait ElementAttributes
         return $this->id;
     }
 
+    /**
+     * Sets the HTML id element attribute
+     *
+     * @param string|null $id
+     * @param bool        $name_too
+     *
+     * @return static
+     */
+    public function setId(?string $id, bool $name_too = true): static
+    {
+        $this->id      = $id;
+        $this->real_id = Strings::until($id, '[');
+
+        // By default, name and id should be equal
+        if ($name_too) {
+            $this->setName($id, false);
+        }
+
+        return $this;
+    }
 
     /**
      * Returns the (optional) anchor for this element
@@ -288,8 +270,7 @@ trait ElementAttributes
             }
 
             $this->anchor = $anchor->setChildElement($this);
-        }
-        else {
+        } else {
             $this->anchor = null;
         }
 
@@ -336,14 +317,36 @@ trait ElementAttributes
         if ($outer_div) {
             $this->outer_div = $outer_div->setChildElement($this);
 
-        }
-        else {
+        } else {
             unset($this->outer_div);
         }
 
         return $this;
     }
 
+    /**
+     * Returns the tooltip title
+     *
+     * @return string|null
+     */
+    public function getTooltipTitle(): ?string
+    {
+        return $this->tooltip->getTitle();
+    }
+
+    /**
+     * Returns the tooltip title
+     *
+     * @param string|null $title
+     *
+     * @return static
+     */
+    public function setTooltipTitle(?string $title): static
+    {
+        $this->getTooltip()
+             ->setTitle($title);
+        return $this;
+    }
 
     /**
      * Returns the tooltip object for this element
@@ -360,97 +363,6 @@ trait ElementAttributes
         return $this->tooltip;
     }
 
-
-    /**
-     * Returns the tooltip title
-     *
-     * @return string|null
-     */
-    public function getTooltipTitle(): ?string
-    {
-        return $this->tooltip->getTitle();
-    }
-
-
-    /**
-     * Returns the tooltip title
-     *
-     * @param string|null $title
-     *
-     * @return static
-     */
-    public function setTooltipTitle(?string $title): static
-    {
-        $this->getTooltip()
-             ->setTitle($title);
-        return $this;
-    }
-
-
-    /**
-     * Sets the HTML name element attribute
-     *
-     * @param string|null $name
-     * @param bool        $id_too
-     *
-     * @return static
-     */
-    public function setName(?string $name, bool $id_too = false): static
-    {
-        $this->name = $name;
-        $this->real_name = Strings::until($name, '[');
-
-        // By default, name and id should be equal
-        if ($id_too) {
-            $this->setId($name, false);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML name element attribute
-     *
-     * @return string|null
-     */
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-
-    /**
-     * Sets the HTML element class attribute
-     *
-     * @param array|string|null $classes
-     *
-     * @return static
-     */
-    public function setClasses(array|string|null $classes): static
-    {
-        $this->classes = new Iterator();
-        return $this->addClasses($classes);
-    }
-
-
-    /**
-     * Adds the specified classes to the HTML element class attribute
-     *
-     * @param IteratorInterface|array|string|null $classes
-     *
-     * @return static
-     */
-    public function addClasses(IteratorInterface|array|string|null $classes): static
-    {
-        foreach (Arrays::force($classes, ' ') as $class) {
-            $this->classes->add(true, $class, exception: false);
-        }
-
-        return $this;
-    }
-
-
     /**
      * Adds a class to the HTML class element attribute
      *
@@ -463,7 +375,6 @@ trait ElementAttributes
         $this->classes->add(true, $class, exception: false);
         return $this;
     }
-
 
     /**
      * Adds a data-KEY(=VALUE) attribute
@@ -480,19 +391,39 @@ trait ElementAttributes
         return $this;
     }
 
+    /**
+     * Returns the HTML element data-* attribute store
+     *
+     * @return IteratorInterface
+     */
+    public function getData(): IteratorInterface
+    {
+        if (!isset($this->data)) {
+            // Lazy initialization
+            $this->data = new Iterator();
+        }
+
+        return $this->data;
+    }
 
     /**
-     * Adds a class to the HTML class element attribute
+     * Sets the HTML element data-* attribute store
      *
-     * @param array|string|null $classes
+     * @param IteratorInterface|array|null $data
      *
      * @return static
      */
-    public function setClass(array|string|null $classes): static
+    public function setData(IteratorInterface|array|null $data): static
     {
-        return $this->setClasses(Arrays::force($classes, ' '));
-    }
+        if (!$data) {
+            unset($this->data);
 
+        } else {
+            $this->data = new Iterator($data);
+        }
+
+        return $this;
+    }
 
     /**
      * Returns the HTML class element attribute store
@@ -503,33 +434,6 @@ trait ElementAttributes
     {
         return $this->attributes;
     }
-
-
-    /**
-     * Adds the specified attribute
-     *
-     * @param string|float|int|null $value
-     * @param string                $key
-     *
-     * @return static
-     */
-    public function addAttribute(string|float|int|null $value, string $key): static
-    {
-        $this->attributes->add($value, $key);
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML attributes as a string
-     *
-     * @return string|null
-     */
-    public function getAttributesString(): ?string
-    {
-        return Arrays::implodeWithKeys($this->attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
-    }
-
 
     /**
      * Sets all HTML element attributes
@@ -545,6 +449,29 @@ trait ElementAttributes
         return $this;
     }
 
+    /**
+     * Adds the specified attribute
+     *
+     * @param string|float|int|null $value
+     * @param string                $key
+     *
+     * @return static
+     */
+    public function addAttribute(string|float|int|null $value, string $key): static
+    {
+        $this->attributes->add($value, $key);
+        return $this;
+    }
+
+    /**
+     * Returns the HTML attributes as a string
+     *
+     * @return string|null
+     */
+    public function getAttributesString(): ?string
+    {
+        return Arrays::implodeWithKeys($this->attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+    }
 
     /**
      * Sets a single HTML element attributes
@@ -561,43 +488,20 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
-     * Returns the HTML element data-* attribute store
+     * Adds an aria-KEY(=VALUE) attribute
      *
-     * @return IteratorInterface
-     */
-    public function getData(): IteratorInterface
-    {
-        if (!isset($this->data)) {
-            // Lazy initialization
-            $this->data = new Iterator();
-        }
-
-        return $this->data;
-    }
-
-
-    /**
-     * Sets the HTML element data-* attribute store
-     *
-     * @param IteratorInterface|array|null $data
+     * @param string|float|int|null $value
+     * @param string                $key
      *
      * @return static
      */
-    public function setData(IteratorInterface|array|null $data): static
+    public function addAria(string|float|int|null $value, string $key): static
     {
-        if (!$data) {
-            unset($this->data);
-
-        }
-        else {
-            $this->data = new Iterator($data);
-        }
-
+        $this->getAria()
+             ->add($value, $key, skip_null: false);
         return $this;
     }
-
 
     /**
      * Returns the HTML element aria-* attribute store
@@ -614,7 +518,6 @@ trait ElementAttributes
         return $this->aria;
     }
 
-
     /**
      * Sets the HTML element aria-* attribute store
      *
@@ -627,41 +530,12 @@ trait ElementAttributes
         if (!$aria) {
             unset($this->aria);
 
-        }
-        else {
+        } else {
             $this->aria = new Iterator($aria);
         }
 
         return $this;
     }
-
-
-    /**
-     * Adds an aria-KEY(=VALUE) attribute
-     *
-     * @param string|float|int|null $value
-     * @param string                $key
-     *
-     * @return static
-     */
-    public function addAria(string|float|int|null $value, string $key): static
-    {
-        $this->getAria()
-             ->add($value, $key, skip_null: false);
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML class element attribute store
-     *
-     * @return IteratorInterface
-     */
-    public function getClasses(): IteratorInterface
-    {
-        return $this->classes;
-    }
-
 
     /**
      * Returns the HTML class element attribute
@@ -677,6 +551,27 @@ trait ElementAttributes
         return get_null($this->class);
     }
 
+    /**
+     * Adds a class to the HTML class element attribute
+     *
+     * @param array|string|null $classes
+     *
+     * @return static
+     */
+    public function setClass(array|string|null $classes): static
+    {
+        return $this->setClasses(Arrays::force($classes, ' '));
+    }
+
+    /**
+     * Returns the HTML tabindex element attribute
+     *
+     * @return int|null
+     */
+    public function getTabIndex(): ?int
+    {
+        return ($this->disabled ? null : $this->tabindex);
+    }
 
     /**
      * Set the HTML tabindex element attribute
@@ -691,18 +586,6 @@ trait ElementAttributes
         return $this;
     }
 
-
-    /**
-     * Returns the HTML tabindex element attribute
-     *
-     * @return int|null
-     */
-    public function getTabIndex(): ?int
-    {
-        return ($this->disabled ? null : $this->tabindex);
-    }
-
-
     /**
      * Clears all the extra element attribute code
      *
@@ -714,6 +597,15 @@ trait ElementAttributes
         return $this;
     }
 
+    /**
+     * Returns the extra element attribute code
+     *
+     * @return string
+     */
+    public function getExtra(): string
+    {
+        return $this->extra;
+    }
 
     /**
      * Sets all the extra element attribute code
@@ -728,7 +620,6 @@ trait ElementAttributes
         return $this->addExtra($extra);
     }
 
-
     /**
      * Adds more to the extra element attribute code
      *
@@ -742,17 +633,246 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
-     * Returns the extra element attribute code
+     * Appends the specified content to the content of the element
      *
-     * @return string
+     * @param Stringable|string|float|int|null $content
+     * @param bool                             $make_safe
+     *
+     * @return static
      */
-    public function getExtra(): string
+    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
-        return $this->extra;
+        if (is_object($content)) {
+            // This object must be able to render HTML. Check this and then render.
+            static::canRenderHtml($content);
+            $content   = $content->render();
+            $make_safe = false;
+        }
+
+        if ($make_safe) {
+            $content = Html::safe($content);
+        }
+
+        $this->content .= $content;
+        return $this;
     }
 
+    /**
+     * Prepends the specified content to the content of the element
+     *
+     * @param Stringable|string|float|int|null $content
+     * @param bool                             $make_safe
+     *
+     * @return static
+     */
+    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    {
+        if (is_object($content)) {
+            // This object must be able to render HTML. Check this and then render.
+            static::canRenderHtml($content);
+            $content   = $content->render();
+            $make_safe = false;
+        }
+
+        if ($make_safe) {
+            $content = Html::safe($content);
+        }
+
+        $this->content = $content . $this->content;
+        return $this;
+    }
+
+    /**
+     * Ensures that the specified object has ElementAttributes
+     *
+     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
+     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
+     *
+     * @param object|string $class
+     *
+     * @return void
+     * @see  ElementAttributes::ensureElementAttributesTrait()
+     */
+    public static function canRenderHtml(object|string $class): void
+    {
+        // TODO Replace this with a RenderInterface check
+        static::ensureElementAttributesTrait($class);
+    }
+
+    /**
+     * Ensures that the specified object has ElementAttributes
+     *
+     * @param object|string $class
+     *
+     * @return void
+     */
+    protected static function ensureElementAttributesTrait(object|string $class): void
+    {
+        if (!has_trait(ElementAttributes::class, $class)) {
+            if (is_object($class)) {
+                $class = get_class($class);
+            }
+
+            throw new OutOfBoundsException(tr('Specified object or class ":class" is not using ElementAttributes trait and thus cannot render HTML', [
+                ':class' => $class,
+            ]));
+        }
+    }
+
+    /**
+     * Returns the content of the element to display
+     *
+     * @return string|null
+     */
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    /**
+     * Sets the content of the element
+     *
+     * @param Stringable|string|float|int|null $content
+     * @param bool                             $make_safe
+     *
+     * @return static
+     */
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    {
+        $this->content = null;
+        return $this->appendContent($content, $make_safe);
+    }
+
+    /**
+     * Returns the height of the element to display
+     *
+     * @return int|null
+     */
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    /**
+     * Sets the height of the element to display
+     *
+     * @param int|null $height
+     *
+     * @return static
+     */
+    public function setHeight(?int $height): static
+    {
+        if ($height < 0) {
+            throw new OutOfBoundsException(tr('Invalid element height ":value" specified, it should be 0 or above', [
+                ':value' => $height,
+            ]));
+        }
+
+        $this->height = $height;
+        return $this;
+    }
+
+    /**
+     * Returns the width of the element to display
+     *
+     * @return int|null
+     */
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    /**
+     * Sets the width of the element to display
+     *
+     * @param int|null $width
+     *
+     * @return static
+     */
+    public function setWidth(?int $width): static
+    {
+        if ($width < 0) {
+            throw new OutOfBoundsException(tr('Invalid element width ":value" specified, it should be 0 or above', [
+                ':value' => $width,
+            ]));
+        }
+
+        $this->width = $width;
+        return $this;
+    }
+
+    /**
+     * Set if the button is right aligned or not
+     *
+     * @param bool $right
+     *
+     * @return static
+     */
+    public function setFloatRight(bool $right): static
+    {
+        if ($right) {
+            $this->classes->add(true, 'float-right');
+        } else {
+            $this->classes->removeKeys('float-right');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Returns if the button is right aligned or not
+     *
+     * @return bool
+     */
+    public function getFloatRight(): bool
+    {
+        return $this->getClasses()
+                    ->keyExists('float-right');
+    }
+
+    /**
+     * Returns the HTML class element attribute store
+     *
+     * @return IteratorInterface
+     */
+    public function getClasses(): IteratorInterface
+    {
+        return $this->classes;
+    }
+
+    /**
+     * Sets the HTML element class attribute
+     *
+     * @param array|string|null $classes
+     *
+     * @return static
+     */
+    public function setClasses(array|string|null $classes): static
+    {
+        $this->classes = new Iterator();
+        return $this->addClasses($classes);
+    }
+
+    /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinition(): ?DefinitionInterface
+    {
+        if (!$this->definition) {
+            $this->__setDefinition(Definition::new(null, $this->getName())
+                                             ->setClasses($this->getClasses())
+                                             ->setDisabled($this->getDisabled())
+                                             ->setReadOnly($this->getReadonly())
+                                             ->setAutoFocus($this->getAutoFocus()));
+        }
+
+        return $this->__getDefinition();
+    }
 
     /**
      * Sets the HTML class element attribute
@@ -779,8 +899,7 @@ trait ElementAttributes
 
             static::$autofocus = $this->name;
 
-        }
-        else {
+        } else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
                 // Some element has auto-focus, is it this one?
@@ -798,43 +917,36 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
-     * Returns the HTML class element attribute
+     * Returns the HTML name element attribute
      *
-     * @note Returns true if the static autofocus variable was set and is equal to the ID of this specific element
-     * @return bool
+     * @return string|null
      */
-    public function getAutofocus(): bool
+    public function getName(): ?string
     {
-        return static::$autofocus and (static::$autofocus === $this->name);
+        return $this->name;
     }
 
-
     /**
-     * Returns the HTML "required" element attribute
+     * Sets the HTML name element attribute
      *
-     * @return bool
-     */
-    public function getRequired(): bool
-    {
-        return $this->required;
-    }
-
-
-    /**
-     * Set the HTML "required" element attribute
-     *
-     * @param bool $required
+     * @param string|null $name
+     * @param bool        $id_too
      *
      * @return static
      */
-    public function setRequired(bool $required): static
+    public function setName(?string $name, bool $id_too = false): static
     {
-        $this->required = $required;
+        $this->name      = $name;
+        $this->real_name = Strings::until($name, '[');
+
+        // By default, name and id should be equal
+        if ($id_too) {
+            $this->setId($name, false);
+        }
+
         return $this;
     }
-
 
     /**
      * Returns the HTML disabled element attribute
@@ -845,42 +957,6 @@ trait ElementAttributes
     {
         return $this->disabled;
     }
-
-
-    /**
-     * Set the HTML visible element attribute
-     *
-     * @param bool $visible
-     * @param bool $parent_only
-     *
-     * @return static
-     */
-    public function setVisible(bool $visible, bool $parent_only = true): static
-    {
-        if ($parent_only) {
-            if ($visible) {
-                $this->classes->removeKeys('d-none');
-            }
-            else {
-                $this->classes->add(true, 'd-none');
-            }
-        }
-
-        $this->visible = $visible;
-        return $this;
-    }
-
-
-    /**
-     * Returns the HTML visible element attribute
-     *
-     * @return bool
-     */
-    public function getVisible(): bool
-    {
-        return $this->visible;
-    }
-
 
     /**
      * Set the HTML disabled element attribute
@@ -894,15 +970,13 @@ trait ElementAttributes
         if ($disabled) {
             $this->classes->add(true, 'disabled');
 
-        }
-        else {
+        } else {
             $this->classes->removeKeys('disabled');
         }
 
         $this->disabled = $disabled;
         return $this;
     }
-
 
     /**
      * Returns the HTML readonly element attribute
@@ -913,7 +987,6 @@ trait ElementAttributes
     {
         return $this->readonly;
     }
-
 
     /**
      * Set the HTML readonly element attribute
@@ -927,8 +1000,7 @@ trait ElementAttributes
         if ($readonly) {
             $this->classes->add(true, 'readonly');
 
-        }
-        else {
+        } else {
             $this->classes->removeKeys('readonly');
         }
 
@@ -936,217 +1008,16 @@ trait ElementAttributes
         return $this;
     }
 
-
     /**
-     * Sets the content of the element
+     * Returns the HTML class element attribute
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        $this->content = null;
-        return $this->appendContent($content, $make_safe);
-    }
-
-
-    /**
-     * Appends the specified content to the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        if (is_object($content)) {
-            // This object must be able to render HTML. Check this and then render.
-            static::canRenderHtml($content);
-            $content = $content->render();
-            $make_safe = false;
-        }
-
-        if ($make_safe) {
-            $content = Html::safe($content);
-        }
-
-        $this->content .= $content;
-        return $this;
-    }
-
-
-    /**
-     * Prepends the specified content to the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        if (is_object($content)) {
-            // This object must be able to render HTML. Check this and then render.
-            static::canRenderHtml($content);
-            $content = $content->render();
-            $make_safe = false;
-        }
-
-        if ($make_safe) {
-            $content = Html::safe($content);
-        }
-
-        $this->content = $content . $this->content;
-        return $this;
-    }
-
-
-    /**
-     * Returns the content of the element to display
-     *
-     * @return string|null
-     */
-    public function getContent(): ?string
-    {
-        return $this->content;
-    }
-
-
-    /**
-     * Sets the height of the element to display
-     *
-     * @param int|null $height
-     *
-     * @return static
-     */
-    public function setHeight(?int $height): static
-    {
-        if ($height < 0) {
-            throw new OutOfBoundsException(tr('Invalid element height ":value" specified, it should be 0 or above', [
-                ':value' => $height,
-            ]));
-        }
-
-        $this->height = $height;
-        return $this;
-    }
-
-
-    /**
-     * Returns the height of the element to display
-     *
-     * @return int|null
-     */
-    public function getHeight(): ?int
-    {
-        return $this->height;
-    }
-
-
-    /**
-     * Sets the width of the element to display
-     *
-     * @param int|null $width
-     *
-     * @return static
-     */
-    public function setWidth(?int $width): static
-    {
-        if ($width < 0) {
-            throw new OutOfBoundsException(tr('Invalid element width ":value" specified, it should be 0 or above', [
-                ':value' => $width,
-            ]));
-        }
-
-        $this->width = $width;
-        return $this;
-    }
-
-
-    /**
-     * Returns the width of the element to display
-     *
-     * @return int|null
-     */
-    public function getWidth(): ?int
-    {
-        return $this->width;
-    }
-
-
-    /**
-     * Set if the button is right aligned or not
-     *
-     * @param bool $right
-     *
-     * @return static
-     */
-    public function setFloatRight(bool $right): static
-    {
-        if ($right) {
-            $this->classes->add(true, 'float-right');
-        }
-        else {
-            $this->classes->removeKeys('float-right');
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Returns if the button is right aligned or not
-     *
+     * @note Returns true if the static autofocus variable was set and is equal to the ID of this specific element
      * @return bool
      */
-    public function getFloatRight(): bool
+    public function getAutofocus(): bool
     {
-        return $this->getClasses()
-                    ->keyExists('float-right');
+        return static::$autofocus and (static::$autofocus === $this->name);
     }
-
-
-    /**
-     * Ensures that the specified object has ElementAttributes
-     *
-     * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
-     *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
-     *
-     * @param object|string $class
-     *
-     * @return void
-     * @see  ElementAttributes::ensureElementAttributesTrait()
-     */
-    public static function canRenderHtml(object|string $class): void
-    {
-        // TODO Replace this with a RenderInterface check
-        static::ensureElementAttributesTrait($class);
-    }
-
-
-    /**
-     * Returns the DataEntry Definition on this element
-     *
-     * If no Definition object was set, one will be created using the data in this object
-     *
-     * @return DefinitionInterface|null
-     */
-    public function getDefinition(): ?DefinitionInterface
-    {
-        if (!$this->definition) {
-            $this->__setDefinition(Definition::new(null, $this->getName())
-                                             ->setClasses($this->getClasses())
-                                             ->setDisabled($this->getDisabled())
-                                             ->setReadOnly($this->getReadonly())
-                                             ->setAutoFocus($this->getAutoFocus()));
-        }
-
-        return $this->__getDefinition();
-    }
-
 
     /**
      * Set the DataEntry Definition on this element
@@ -1173,24 +1044,74 @@ trait ElementAttributes
         return $this->__setDefinition($definition);
     }
 
+    /**
+     * Adds the specified classes to the HTML element class attribute
+     *
+     * @param IteratorInterface|array|string|null $classes
+     *
+     * @return static
+     */
+    public function addClasses(IteratorInterface|array|string|null $classes): static
+    {
+        foreach (Arrays::force($classes, ' ') as $class) {
+            $this->classes->add(true, $class, exception: false);
+        }
+
+        return $this;
+    }
 
     /**
-     * Ensures that the specified object has ElementAttributes
+     * Returns the HTML visible element attribute
      *
-     * @param object|string $class
-     *
-     * @return void
+     * @return bool
      */
-    protected static function ensureElementAttributesTrait(object|string $class): void
+    public function getVisible(): bool
     {
-        if (!has_trait(ElementAttributes::class, $class)) {
-            if (is_object($class)) {
-                $class = get_class($class);
-            }
+        return $this->visible;
+    }
 
-            throw new OutOfBoundsException(tr('Specified object or class ":class" is not using ElementAttributes trait and thus cannot render HTML', [
-                ':class' => $class,
-            ]));
+    /**
+     * Set the HTML visible element attribute
+     *
+     * @param bool $visible
+     * @param bool $parent_only
+     *
+     * @return static
+     */
+    public function setVisible(bool $visible, bool $parent_only = true): static
+    {
+        if ($parent_only) {
+            if ($visible) {
+                $this->classes->removeKeys('d-none');
+            } else {
+                $this->classes->add(true, 'd-none');
+            }
         }
+
+        $this->visible = $visible;
+        return $this;
+    }
+
+    /**
+     * Returns the HTML "required" element attribute
+     *
+     * @return bool
+     */
+    public function getRequired(): bool
+    {
+        return $this->required;
+    }
+
+    /**
+     * Set the HTML "required" element attribute
+     *
+     * @param bool $required
+     *
+     * @return static
+     */
+    public function setRequired(bool $required): static
+    {
+        $this->required = $required;
+        return $this;
     }
 }

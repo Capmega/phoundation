@@ -13,10 +13,10 @@ use Phoundation\Filesystem\Directory;
  * This class can check and remove the Unicode Byte Order Mark from multiple PHP files in the specified path. This is
  * important as PHP can choke on this BOM
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class BomDirectory extends Directory
 {

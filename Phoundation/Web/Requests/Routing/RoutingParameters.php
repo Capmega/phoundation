@@ -25,10 +25,10 @@ use Templates\AdminLte\AdminLte;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class RoutingParameters implements RoutingParametersInterface
 {
@@ -120,19 +120,6 @@ class RoutingParameters implements RoutingParametersInterface
         $this->pattern = $pattern;
     }
 
-
-    /**
-     * Returns a new RouteParameters object
-     *
-     * @param string|null $pattern
-     * @return static
-     */
-    public static function new(?string $pattern = null): static
-    {
-        return new static($pattern);
-    }
-
-
     /**
      * Returns the template as an object
      *
@@ -143,6 +130,17 @@ class RoutingParameters implements RoutingParametersInterface
         return $this->template::new();
     }
 
+    /**
+     * Returns a new RouteParameters object
+     *
+     * @param string|null $pattern
+     *
+     * @return static
+     */
+    public static function new(?string $pattern = null): static
+    {
+        return new static($pattern);
+    }
 
     /**
      * Returns the template to use
@@ -164,6 +162,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the template to use
      *
      * @param string $template
+     *
      * @return static
      */
     public function setTemplate(string $template): static
@@ -171,7 +170,7 @@ class RoutingParameters implements RoutingParametersInterface
         if (!is_subclass_of($template, TemplateInterface::class)) {
             throw new OutOfBoundsException(tr('Cannot construct new Route object: Specified template class ":class" is not a sub class of ":interface"', [
                 ':class'     => $template,
-                ':interface' => TemplateInterface::class
+                ':interface' => TemplateInterface::class,
             ]));
         }
 
@@ -184,6 +183,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Returns what rights are required to access the specified target by specified rights and required directory rights
      *
      * @param string $target
+     *
      * @return array
      */
     public function getRequiredRights(string $target): array
@@ -241,31 +241,6 @@ class RoutingParameters implements RoutingParametersInterface
         return $this->require_directory_rights;
     }
 
-
-    /**
-     * Returns filename exceptions to required directory rights
-     *
-     * @return array|null
-     */
-    public function getRightsExceptions(): ?array
-    {
-        return $this->rights_exceptions;
-    }
-
-
-    /**
-     * Returns filename exceptions to required directory rights
-     *
-     * @param array|string $exceptions
-     * @return static
-     */
-    public function setRightsExceptions(array|string $exceptions): static
-    {
-        $this->rights_exceptions = Arrays::force($exceptions);
-        return $this;
-    }
-
-
     /**
      * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
      *
@@ -273,8 +248,9 @@ class RoutingParameters implements RoutingParametersInterface
      * the specified directory, and each subsequent directory below it until the file itself will be a required right
      * for the user to access that page
      *
-     * @param string $require_directory_rights
+     * @param string            $require_directory_rights
      * @param array|string|null $rights_exceptions
+     *
      * @return static
      */
     public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
@@ -288,6 +264,28 @@ class RoutingParameters implements RoutingParametersInterface
         return $this;
     }
 
+    /**
+     * Returns filename exceptions to required directory rights
+     *
+     * @return array|null
+     */
+    public function getRightsExceptions(): ?array
+    {
+        return $this->rights_exceptions;
+    }
+
+    /**
+     * Returns filename exceptions to required directory rights
+     *
+     * @param array|string $exceptions
+     *
+     * @return static
+     */
+    public function setRightsExceptions(array|string $exceptions): static
+    {
+        $this->rights_exceptions = Arrays::force($exceptions);
+        return $this;
+    }
 
     /**
      * Returns the URI being processed
@@ -304,6 +302,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the URI being processed
      *
      * @param string $uri
+     *
      * @return static
      */
     public function setUri(string $uri): static
@@ -328,6 +327,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Returns the matches for the URI being processed
      *
      * @param array $matches
+     *
      * @return static
      */
     public function setMatches(array $matches): static
@@ -365,6 +365,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the directory to use for the router so that it knows where to find the scripts to route to
      *
      * @param string $root_directory
+     *
      * @return static
      */
     public function setRootDirectory(string $root_directory): static
@@ -389,6 +390,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the server restrictions
      *
      * @param RestrictionsInterface|array|string|null $restrictions
+     *
      * @return static
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions): static
@@ -421,12 +423,13 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the default base url for links generated by these pages
      *
      * @param string $root_url
+     *
      * @return static
      */
     public function setRootUrl(string $root_url): static
     {
         // Make it a correct local URL
-        $this->root_url = (string) UrlBuilder::getWww($root_url, true);
+        $this->root_url = (string)UrlBuilder::getWww($root_url, true);
         return $this;
     }
 
@@ -450,6 +453,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the regex that selects on what scripts these parameters will be applied
      *
      * @param string $pattern
+     *
      * @return static
      */
     public function setPattern(string $pattern): static
@@ -474,6 +478,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets if these parameters can only be used for system pages
      *
      * @param bool $system_pages_only
+     *
      * @return static
      */
     public function setSystemPagesOnly(bool $system_pages_only): static
@@ -498,7 +503,9 @@ class RoutingParameters implements RoutingParametersInterface
      * Sets the required rights to access this page
      *
      * @note Rights may be specified as a string, array, Right object, or Rights list. All should work fine
+     *
      * @param Rights|Right|array|string|null $rights
+     *
      * @return static
      */
     public function setRights(Rights|Right|array|string|null $rights): static
@@ -513,6 +520,7 @@ class RoutingParameters implements RoutingParametersInterface
      * Adds multiple required rights to access this page
      *
      * @param Rights|Right|array|string|null $rights
+     *
      * @return static
      */
     public function addRights(Rights|Right|array|string|null $rights): static
@@ -526,33 +534,14 @@ class RoutingParameters implements RoutingParametersInterface
         return $this;
     }
 
-
-    /**
-     * Adds a required right to access this page
-     *
-     * @param Right|string|null $right
-     * @return static
-     */
-    public function add(Right|string|null $right): static
-    {
-        if ($right) {
-            if (is_object($right)) {
-                $right = $right->getSeoName();
-            }
-
-            $this->rights[] = $right;
-        }
-
-        return $this;
-    }
-
-
     /**
      * Returns an array of rights from whatever is specified
      *
      * @note This is an experimental function to see how we can have functions accept multiple formats
      * @todo See what we're going to do with this
+     *
      * @param Rights|Right|array|string|null $rights
+     *
      * @return array
      */
     protected function getRightsArray(Rights|Right|array|string|null $rights): array
@@ -568,5 +557,25 @@ class RoutingParameters implements RoutingParametersInterface
         }
 
         return $rights;
+    }
+
+    /**
+     * Adds a required right to access this page
+     *
+     * @param Right|string|null $right
+     *
+     * @return static
+     */
+    public function add(Right|string|null $right): static
+    {
+        if ($right) {
+            if (is_object($right)) {
+                $right = $right->getSeoName();
+            }
+
+            $this->rights[] = $right;
+        }
+
+        return $this;
     }
 }

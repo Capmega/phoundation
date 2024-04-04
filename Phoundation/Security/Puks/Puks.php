@@ -14,10 +14,10 @@ use Phoundation\Utils\Json;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-* @package Phoundation\Security
+ * @package   Phoundation\Security
  */
 class Puks
 {
@@ -46,11 +46,22 @@ class Puks
         unset($user_key);
     }
 
+    /**
+     * @param string      $key
+     * @param string|null $encryption_key
+     *
+     * @return string
+     */
+    protected function encryptKey(string $key, ?string $encryption_key = null): string
+    {
+        return $key;
+    }
 
     /**
      * Returns a new Puks type object
      *
      * @param string $user_key
+     *
      * @return static
      */
     public static function new(string $user_key): static
@@ -58,35 +69,20 @@ class Puks
         return new static($user_key);
     }
 
-
     /**
      * Encrypts and returns the specified data string
      *
      * @param array|string $data
+     *
      * @return string
      */
     public function decrypt(array|string $data): string
     {
         $data = Json::encode($data);
-        $key = $this->getKey();
+        $key  = $this->getKey();
 
         return $data;
     }
-
-
-    /**
-     * Encrypts and returns the specified data string
-     *
-     * @param array|string $data
-     * @return string
-     */
-    public function encrypt(array|string $data): string
-    {
-        $key = $this->getKey();
-
-        return Json::decode($data);
-    }
-
 
     /**
      * Returns the database stored key
@@ -96,7 +92,7 @@ class Puks
     protected function getKey(): ?string
     {
         $key = sql()->getColumn('SELECT `key` FROM `security_puks_keys` WHERE `created_by` = :created_by', [
-            ':created_by' => Session::getUser()->getId()
+            ':created_by' => Session::getUser()->getId(),
         ]);
 
         if ($key) {
@@ -106,25 +102,28 @@ class Puks
         return null;
     }
 
-
     /**
-     * @param string $key
+     * @param string      $data
      * @param string|null $encryption_key
-     * @return string
-     */
-    protected function encryptKey(string $key, ?string $encryption_key = null): string
-    {
-        return $key;
-    }
-
-
-    /**
-     * @param string $data
-     * @param string|null $encryption_key
+     *
      * @return string
      */
     protected function decryptKey(string $data, ?string $encryption_key = null): string
     {
         return $key;
+    }
+
+    /**
+     * Encrypts and returns the specified data string
+     *
+     * @param array|string $data
+     *
+     * @return string
+     */
+    public function encrypt(array|string $data): string
+    {
+        $key = $this->getKey();
+
+        return Json::decode($data);
     }
 }

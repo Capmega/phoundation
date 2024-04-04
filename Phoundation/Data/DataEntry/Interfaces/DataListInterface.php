@@ -16,10 +16,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 interface DataListInterface
 {
@@ -27,6 +27,7 @@ interface DataListInterface
      * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
+     *
      * @return bool
      */
     public function keyExists(DataEntryInterface|Stringable|string|float|int $key): bool;
@@ -42,6 +43,7 @@ interface DataListInterface
      * Sets if the DataEntry entries are stored with ID or key
      *
      * @param bool $keys_are_unique_column
+     *
      * @return static
      */
     public function setKeysareUniqueColumn(bool $keys_are_unique_column): static;
@@ -56,8 +58,9 @@ interface DataListInterface
     /**
      * Set the query for this object when generating internal content
      *
-     * @param string $query
+     * @param string     $query
      * @param array|null $execute
+     *
      * @return static
      */
     public function setQuery(string $query, ?array $execute = null): static;
@@ -73,7 +76,8 @@ interface DataListInterface
      * Returns the item with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return DataEntry|null
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface;
@@ -81,9 +85,10 @@ interface DataListInterface
     /**
      * Sets the value for the specified key
      *
-     * @param DataEntryInterface $value
+     * @param DataEntryInterface          $value
      * @param Stringable|string|float|int $key
-     * @param bool $skip_null
+     * @param bool                        $skip_null
+     *
      * @return static
      */
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static;
@@ -99,6 +104,7 @@ interface DataListInterface
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;
@@ -107,6 +113,7 @@ interface DataListInterface
      * Creates and returns a fancy HTML data table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlDataTableInterface
      */
     public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface;
@@ -114,11 +121,12 @@ interface DataListInterface
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
@@ -127,8 +135,9 @@ interface DataListInterface
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|string|null $columns
-     * @param array $filters
-     * @param string|null $id_column
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
      * @return static
      */
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static;
@@ -138,6 +147,7 @@ interface DataListInterface
      *
      * @param string|null $status
      * @param string|null $comments
+     *
      * @return int
      */
     public function setStatus(?string $status, ?string $comments = null): int;
@@ -146,6 +156,7 @@ interface DataListInterface
      * Delete all the entries in this list
      *
      * @param string|null $comments
+     *
      * @return int
      */
     public function delete(?string $comments = null): int;
@@ -161,7 +172,9 @@ interface DataListInterface
      * Undelete the specified entries
      *
      * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
+     *
      * @param string|null $comments
+     *
      * @return int
      */
     public function undelete(?string $comments = null): int;
@@ -170,6 +183,7 @@ interface DataListInterface
      * Returns an array with all id's for the specified entry identifiers
      *
      * @param array $identifiers
+     *
      * @return array
      */
     public function listIds(array $identifiers): array;
@@ -177,10 +191,11 @@ interface DataListInterface
     /**
      * Add the specified data entry to the data list
      *
-     * @param mixed $value
+     * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
      * @return static
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static;
@@ -211,6 +226,7 @@ interface DataListInterface
      *
      * @param bool $clear
      * @param bool $only_if_empty
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static;
@@ -226,6 +242,7 @@ interface DataListInterface
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source
+     *
      * @return $this
      */
     public function addSources(IteratorInterface|array|string|null $source): static;
@@ -234,6 +251,7 @@ interface DataListInterface
      * Sets the parent
      *
      * @param DataEntryInterface $parent
+     *
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static;
@@ -242,6 +260,7 @@ interface DataListInterface
      * Returns an array of
      *
      * @param string|null $word
+     *
      * @return array
      */
     public function autoCompleteFind(?string $word = null): array;

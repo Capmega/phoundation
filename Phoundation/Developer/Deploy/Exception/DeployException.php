@@ -13,10 +13,10 @@ use Throwable;
  *
  * This is the default exception to be thrown by the Developer\Deploy class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 class DeployException extends DeveloperException
 {
@@ -24,7 +24,7 @@ class DeployException extends DeveloperException
      * DeployException __constructor
      *
      * @param Throwable|array|string|null $messages The exception messages
-     * @param Throwable|null $previous A previous exception, if available.
+     * @param Throwable|null              $previous A previous exception, if available.
      */
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {

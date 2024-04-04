@@ -16,10 +16,10 @@ use Stringable;
  *
  * This class manages Curl POST request functionality
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Network
+ * @package   Phoundation\Network
  */
 class Post extends Get
 {
@@ -82,6 +82,7 @@ class Post extends Get
      * Sets the content type header
      *
      * @param string|null $content_type
+     *
      * @return static
      */
     public function setContentType(?string $content_type): static
@@ -106,6 +107,7 @@ class Post extends Get
      * Sets if the POST data will be URL encoded or not
      *
      * @param bool $post_url_encoded
+     *
      * @return static
      */
     public function setPostUrlEncoded(bool $post_url_encoded): static
@@ -142,6 +144,7 @@ class Post extends Get
      * Sets POST values
      *
      * @param array $values
+     *
      * @return static
      */
     public function setPostValues(array $values): static
@@ -155,6 +158,7 @@ class Post extends Get
      * Adds POST values
      *
      * @param array $values
+     *
      * @return static
      */
     public function addPostValues(array $values): static
@@ -171,7 +175,8 @@ class Post extends Get
      * Adds another POST data key value
      *
      * @param string|int $key
-     * @param mixed $value
+     * @param mixed      $value
+     *
      * @return static
      */
     public function addPostValue(string|int $key, mixed $value): static
@@ -208,6 +213,7 @@ class Post extends Get
      * Sets all files that will be uploaded over POST
      *
      * @param array $files
+     *
      * @return static
      */
     public function setPostFileUploads(array $files): static
@@ -221,6 +227,7 @@ class Post extends Get
      * Adds POST values
      *
      * @param array $files
+     *
      * @return static
      */
     public function addPostFileUploads(array $files): static
@@ -237,11 +244,12 @@ class Post extends Get
      * Adds another POST data key value
      *
      * @param CURLFile $file
+     *
      * @return static
      */
     public function addPostFileUpload(CURLFile $file): static
     {
-        $this->multipart = true;
+        $this->multipart   = true;
         $this->post_data[] = $file;
         return $this;
     }

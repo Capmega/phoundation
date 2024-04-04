@@ -14,10 +14,10 @@ use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
  *
  * This trait contains methods for DataEntry objects that require a icon
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryIcon
 {
@@ -48,6 +48,7 @@ trait TraitDataEntryIcon
      * Sets the icon for this object
      *
      * @param IconInterface|string|null $icon
+     *
      * @return static
      */
     public function setIcon(IconInterface|string|null $icon): static
@@ -56,9 +57,9 @@ trait TraitDataEntryIcon
             $icon = $icon->getContent();
         }
 
-        if (strlen((string) $icon) > 32) {
+        if (strlen((string)$icon) > 32) {
             throw new OutOfBoundsException(tr('Specified icon name ":icon" is invalid, the string should be no longer than 32 characters', [
-                ':icon' => $icon
+                ':icon' => $icon,
             ]));
         }
 

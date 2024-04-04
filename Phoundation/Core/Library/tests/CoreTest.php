@@ -18,7 +18,7 @@ class CoreTest extends TestCase
         // Test normal operation
 
         // Write value to core register and read it back
-        Core::writeRegister('abcde', '+_)(*&^%$#@!', '{}[]');;
+        Core::writeRegister('abcde', '+_)(*&^%$#@!', '{}[]');
         $this->assertEquals('abcde', Core::readRegister('+_)(*&^%$#@!', '{}[]'));
 
         // Test failures

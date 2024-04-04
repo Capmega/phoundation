@@ -10,8 +10,8 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\File;
-use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
+use Phoundation\Filesystem\Path;
 use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Wget;
 use Phoundation\Utils\Config;
@@ -23,18 +23,18 @@ use Throwable;
  * Import class
  *
  *
- * @note See http://download.geonames.org/export/dump/readme.txt
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @note      See http://download.geonames.org/export/dump/readme.txt
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Geo
+ * @package   Phoundation/Geo
  */
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
      * Import class constructor
      *
-     * @param bool $demo
+     * @param bool     $demo
      * @param int|null $min
      * @param int|null $max
      */
@@ -43,13 +43,6 @@ class Import extends \Phoundation\Developer\Project\Import
         parent::__construct($demo, $min, $max);
         $this->name = 'Geo / GeoNames';
     }
-
-    public function execute(): int
-    {
-        // TODO: Implement execute() method.
-        return -1;
-    }
-
 
     /**
      * Download the GeoIP files
@@ -60,20 +53,21 @@ class Import extends \Phoundation\Developer\Project\Import
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @param string|null $directory
+     * @param string|null                             $directory
      * @param RestrictionsInterface|array|string|null $restrictions
+     *
      * @return Directory
      */
     public static function download(string $directory = null, RestrictionsInterface|array|string|null $restrictions = null): Directory
     {
         // Default restrictions are default path writable
-        $directory         = $directory ?? DIRECTORY_DATA . 'sources/geo';
+        $directory    = $directory ?? DIRECTORY_DATA . 'sources/geo';
         $restrictions = $restrictions ?? new Restrictions(DIRECTORY_DATA . 'sources/geo', true);
 
         // Ensure target path can be written and is non-existent
         $directory = Directory::new($directory, $restrictions)
-            ->ensureWritable()
-            ->delete();
+                              ->ensureWritable()
+                              ->delete();
 
         $wget     = Wget::new();
         $tmp_path = $wget->setExecutionDirectoryToTemp()->getExecutionDirectory();
@@ -97,12 +91,68 @@ class Import extends \Phoundation\Developer\Project\Import
         return $directory;
     }
 
+    /**
+     * Returns a list of MaxMind files that will be downloaded
+     *
+     * @note Using this functionality requires an account on https://www.maxmind.com/
+     *
+     * @note The list of these files can be found on https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/geoip/downloads
+     *
+     * @return array
+     */
+    protected static function getGeoNamesFiles(): array
+    {
+        return [
+            'allCountries.zip'     => [
+                'files' => ['allCountries.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/allCountries.zip',
+            ],
+            'alternateNames.zip'   => [
+                'files' => [
+                    'alternateNames.txt',
+                    'iso-languagecodes.txt',
+                ],
+                'url'   => 'https://download.geonames.org/export/dump/alternateNames.zip',
+            ],
+            'hierarchy.zip'        => [
+                'files' => ['hierarchy.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/hierarchy.zip',
+            ],
+            'admin1CodesASCII.txt' => [
+                'files' => ['admin1CodesASCII.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/admin1CodesASCII.txt',
+            ],
+            'admin2Codes.txt'      => [
+                'files' => ['admin2Codes.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/admin2Codes.txt',
+            ],
+            'featureCodes_en.txt'  => [
+                'files' => ['featureCodes_en.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/featureCodes_en.txt',
+            ],
+            'timeZones.txt'        => [
+                'files' => ['timeZones.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/timeZones.txt',
+            ],
+            'countryInfo.txt'      => [
+                'files' => ['countryInfo.txt'],
+                'url'   => 'https://download.geonames.org/export/dump/countryInfo.txt',
+            ],
+        ];
+    }
+
+    public function execute(): int
+    {
+        // TODO: Implement execute() method.
+        return -1;
+    }
 
     /**
      * Process downloaded Geo files
      *
-     * @param Stringable|string $source_path
+     * @param Stringable|string      $source_path
      * @param Stringable|string|null $target_path
+     *
      * @return string
      */
     public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, RestrictionsInterface|array|string|null $restrictions = null): string
@@ -157,72 +207,24 @@ class Import extends \Phoundation\Developer\Project\Import
         return $target_path;
     }
 
-
-    /**
-     * Returns a list of MaxMind files that will be downloaded
-     *
-     * @note Using this functionality requires an account on https://www.maxmind.com/
-     *
-     * @note The list of these files can be found on https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/geoip/downloads
-     *
-     * @return array
-     */
-    protected static function getGeoNamesFiles(): array
-    {
-        return [
-            'allCountries.zip' => [
-                'files' => ['allCountries.txt'],
-                'url'   => 'https://download.geonames.org/export/dump/allCountries.zip',
-            ],
-            'alternateNames.zip' => [
-                'files' => ['alternateNames.txt', 'iso-languagecodes.txt'],
-                'url'  => 'https://download.geonames.org/export/dump/alternateNames.zip',
-            ],
-            'hierarchy.zip' => [
-                'files' => ['hierarchy.txt'],
-                'url'  => 'https://download.geonames.org/export/dump/hierarchy.zip',
-            ],
-            'admin1CodesASCII.txt' => [
-                'files' => ['admin1CodesASCII.txt'],
-                'url'  => 'https://download.geonames.org/export/dump/admin1CodesASCII.txt',
-            ],
-            'admin2Codes.txt' => [
-                'files' => ['admin2Codes.txt'],
-                'url'  => 'https://download.geonames.org/export/dump/admin2Codes.txt',
-            ],
-            'featureCodes_en.txt' => [
-                'files' => ['featureCodes_en.txt'],
-                'url'  => 'https://download.geonames.org/export/dump/featureCodes_en.txt',
-            ],
-            'timeZones.txt' => [
-                'files' => ['timeZones.txt'],
-                'url'  => 'https://download.geonames.org/export/dump/timeZones.txt',
-            ],
-            'countryInfo.txt' => [
-                'files' => ['countryInfo.txt'],
-                'url' => 'https://download.geonames.org/export/dump/countryInfo.txt',
-            ],
-        ];
-    }
-
-
     /**
      * Import the GeoNames data
      *
-     * @param string $directory
+     * @param string      $directory
      * @param string|null $database
+     *
      * @return void
      */
     public static function load(string $directory, ?string $database = null): void
     {
-return;
+        return;
         if (!$database) {
             // Default to geonames database
             $database = 'geonames';
         }
 
         Log::action(tr('Starting data import from directory ":directory"', [
-            ':directory' => $directory
+            ':directory' => $directory,
         ]));
 
         // Get the system SQL configuration, so we can use the user and password from there
@@ -232,7 +234,7 @@ return;
             'name'           => 'geonames',
             'user'           => $config['user'],
             'pass'           => $config['pass'],
-            'pdo_attributes' => [PDO::MYSQL_ATTR_LOCAL_INFILE => true]
+            'pdo_attributes' => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
         ]);
 
         // Create database
@@ -462,13 +464,14 @@ return;
 
         // Disable local_infile for security
         sql('geonames')->query('SET GLOBAL local_infile=false;');
-   }
+    }
 
 
     /**
      * Import the geonames data from the specified database
      *
      * @param string|null $database
+     *
      * @return void
      */
     public static function import(string $database = null): void

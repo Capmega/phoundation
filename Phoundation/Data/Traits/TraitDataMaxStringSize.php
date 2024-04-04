@@ -12,10 +12,10 @@ use Phoundation\Core\Log\Log;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataMaxStringSize
 {
@@ -31,6 +31,7 @@ trait TraitDataMaxStringSize
      * Returns the maximum strings size we're able to handle
      *
      * @param int|null $characters
+     *
      * @return int
      */
     public function getMaxStringSize(?int $characters = null): int
@@ -46,7 +47,7 @@ trait TraitDataMaxStringSize
         if ($characters > $this->max_string_size) {
             Log::warning(tr('The specified number of maximum characters ":specified" surpasses the configured maximum number of ":configured". Forcing configured maximum amount instead', [
                 ':specified'  => $characters,
-                ':configured' => $this->max_string_size
+                ':configured' => $this->max_string_size,
             ]));
 
             return $this->max_string_size;
@@ -61,6 +62,7 @@ trait TraitDataMaxStringSize
      * Sets the maximum strings size we're able to handle
      *
      * @param int|null $max_string_size
+     *
      * @return static
      */
     public function setMaxStringSize(?int $max_string_size): static

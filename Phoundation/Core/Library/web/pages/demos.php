@@ -14,16 +14,16 @@ use Phoundation\Web\Requests\Response;
  *
  * This is the main demonstration page showcasing possible uses of various components
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
 echo Card::new()
-    ->setTitle(tr('Demo page links'))
-    ->setContent('                  <a href="' . UrlBuilder::getWww('/demos/timeline.html') . '">' . tr('Package timeline') . '</a><br>
+         ->setTitle(tr('Demo page links'))
+         ->setContent('                  <a href="' . UrlBuilder::getWww('/demos/timeline.html') . '">' . tr('Package timeline') . '</a><br>
                   <a href="' . UrlBuilder::getWww('/demos/calendar.html') . '">' . tr('User calendar') . '</a><br>
                   <a href="' . UrlBuilder::getWww('/demos/contact-us.html') . '">' . tr('Contact us') . '</a><br>
                   <a href="' . UrlBuilder::getWww('/demos/contacts.html') . '">' . tr('Contacts') . '</a><br>
@@ -39,7 +39,7 @@ echo Card::new()
                   <a href="' . UrlBuilder::getWww('/demos/readmail.html') . '">' . tr('Read mail') . '</a><br>
                   <a href="' . UrlBuilder::getWww('/demos/compose.html') . '">' . tr('Compose mail') . '</a><br>
                   <a href="' . UrlBuilder::getWww('/demos/scanner/gallery.html') . '">' . tr('Scanner gallery') . '</a>')
-    ->render();
+         ->render();
 ?>
     <div class="row">
         <div class="col-lg-3 col-6">
@@ -110,20 +110,21 @@ echo Card::new()
 
                     <h3 class="card-title">
                         <i class="far fa-calendar-alt"></i>
-                        Calendar
-                    </h3>
+                        Calendar </h3>
                     <!-- tools card -->
                     <div class="card-tools">
                         <!-- button with a dropdown -->
                         <div class="btn-group">
-                            <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" data-offset="-52">
+                            <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown"
+                                    data-offset="-52">
                                 <i class="fas fa-bars"></i>
                             </button>
                             <div class="dropdown-menu" role="menu">
                                 <a href="#" class="dropdown-item">Add new event</a>
                                 <a href="#" class="dropdown-item">Clear events</a>
                                 <div class="dropdown-divider"></div>
-                                <a href="<?= UrlBuilder::getWww('calendar/calendar.html'); ?>" class="dropdown-item">View calendar</a>
+                                <a href="<?= UrlBuilder::getWww('calendar/calendar.html'); ?>" class="dropdown-item">View
+                                    calendar</a>
                             </div>
                         </div>
                         <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">
@@ -159,8 +160,8 @@ Response::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-
 Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 
 Script::new()
-    ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-    ->setContent(' 
+      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
+      ->setContent(' 
           $("#calendar").datetimepicker({
             format: "L",
             inline: true
@@ -172,6 +173,6 @@ Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUser()->getDisplayName()]));
 Response::setDescription(tr(''));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Demos')
-]));
+                                                           '/' => tr('Home'),
+                                                           ''  => tr('Demos'),
+                                                       ]));

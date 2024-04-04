@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCategory;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
@@ -28,11 +27,11 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Business
+ * @package   Phoundation\Business
  */
 class Provider extends DataEntry
 {
@@ -97,6 +96,7 @@ class Provider extends DataEntry
      * Sets the address2 for this object
      *
      * @param string|null $address2
+     *
      * @return static
      */
     public function setAddress2(?string $address2): static
@@ -120,6 +120,7 @@ class Provider extends DataEntry
      * Sets the address3 for this object
      *
      * @param string|null $address3
+     *
      * @return static
      */
     public function setAddress3(?string $address3): static
@@ -132,6 +133,7 @@ class Provider extends DataEntry
      * Sets the available data keys for the User class
      *
      * @param DefinitionsInterface $definitions
+     *
      * @return void
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
@@ -142,48 +144,48 @@ class Provider extends DataEntry
             ->add(DefinitionFactory::getCompaniesId($this))
             ->add(DefinitionFactory::getCompany($this))
             ->add(DefinitionFactory::getName($this)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isFalse(function($value, $source) {
-                        Provider::exists($value, 'name', isset_get($source['id']));
-                    }, tr('already exists'));
-                }))
+                                   ->addValidationFunction(function (ValidatorInterface $validator) {
+                                       $validator->isFalse(function ($value, $source) {
+                                           Provider::exists($value, 'name', isset_get($source['id']));
+                                       }, tr('already exists'));
+                                   }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(DefinitionFactory::getCode($this))
             ->add(DefinitionFactory::getEmail($this))
             ->add(DefinitionFactory::getLanguagesId($this))
             ->add(DefinitionFactory::getLanguage($this))
             ->add(Definition::new($this, 'address1')
-                ->setOptional(true)
-                ->setCliAutoComplete(true)
-                ->setCliColumn('--address1 ADDRESS')
-                ->setMaxlength(64)
-                ->setSize(12)
-                ->setLabel(tr('Address 1'))
-                ->setHelpText(tr('Address information for this provider')))
+                            ->setOptional(true)
+                            ->setCliAutoComplete(true)
+                            ->setCliColumn('--address1 ADDRESS')
+                            ->setMaxlength(64)
+                            ->setSize(12)
+                            ->setLabel(tr('Address 1'))
+                            ->setHelpText(tr('Address information for this provider')))
             ->add(Definition::new($this, 'address2')
-                ->setOptional(true)
-                ->setCliAutoComplete(true)
-                ->setCliColumn('--address2 ADDRESS')
-                ->setMaxlength(64)
-                ->setSize(12)
-                ->setLabel(tr('Address 2'))
-                ->setHelpText(tr('Additional address information for this provider')))
+                            ->setOptional(true)
+                            ->setCliAutoComplete(true)
+                            ->setCliColumn('--address2 ADDRESS')
+                            ->setMaxlength(64)
+                            ->setSize(12)
+                            ->setLabel(tr('Address 2'))
+                            ->setHelpText(tr('Additional address information for this provider')))
             ->add(Definition::new($this, 'address3')
-                ->setOptional(true)
-                ->setCliAutoComplete(true)
-                ->setCliColumn('--address3 ADDRESS')
-                ->setMaxlength(64)
-                ->setSize(12)
-                ->setLabel(tr('Address 3'))
-                ->setHelpText(tr('Additional address information for this provider')))
+                            ->setOptional(true)
+                            ->setCliAutoComplete(true)
+                            ->setCliColumn('--address3 ADDRESS')
+                            ->setMaxlength(64)
+                            ->setSize(12)
+                            ->setLabel(tr('Address 3'))
+                            ->setHelpText(tr('Additional address information for this provider')))
             ->add(Definition::new($this, 'zipcode')
-                ->setOptional(true)
-                ->setCliAutoComplete(true)
-                ->setCliColumn('--zip-code ZIPCODE (POSTAL CODE)')
-                ->setMaxlength(8)
-                ->setSize(6)
-                ->setLabel(tr('Postal code / Zipcode'))
-                ->setHelpText(tr('Postal code (zipcode) information for this provider')))
+                            ->setOptional(true)
+                            ->setCliAutoComplete(true)
+                            ->setCliColumn('--zip-code ZIPCODE (POSTAL CODE)')
+                            ->setMaxlength(8)
+                            ->setSize(6)
+                            ->setLabel(tr('Postal code / Zipcode'))
+                            ->setHelpText(tr('Postal code (zipcode) information for this provider')))
             ->add(DefinitionFactory::getCountriesId($this))
             ->add(DefinitionFactory::getCountry($this))
             ->add(DefinitionFactory::getStatesId($this))
@@ -194,7 +196,7 @@ class Provider extends DataEntry
             ->add(DefinitionFactory::getUrl($this))
             ->add(DefinitionFactory::getDescription($this))
             ->add(Definition::new($this, 'picture')
-                ->setVirtual(true)
-                ->setRender(false));
+                            ->setVirtual(true)
+                            ->setRender(false));
     }
 }

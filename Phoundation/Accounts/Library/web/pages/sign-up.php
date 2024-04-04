@@ -15,10 +15,10 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 Request::execute('system/404');
 
@@ -30,15 +30,15 @@ if (!Session::getUser()->isGuest()) {
 
 // Get arguments
 $get = GetValidator::new()
-    ->select('email')->isOptional()->isEmail()
-    ->validate();
+                   ->select('email')->isOptional()->isEmail()
+                   ->validate();
 
 
 // Validate sign in data and sign in
 if (Request::isPostRequestMethod()) {
     try {
         $post = Session::validateSignUp();
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
         Response::redirect('prev');
 
     } catch (ValidationFailedException) {
@@ -55,5 +55,5 @@ Response::setPageTitle(tr('Please sign in'));
 
 // Render the sign-up page
 echo SignUpPage::new()
-    ->setEmail($post['email'])
-    ->render();
+               ->setEmail($post['email'])
+               ->render();

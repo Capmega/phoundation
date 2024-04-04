@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumPagingTypeInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface HtmlDataTableInterface extends HtmlTableInterface
 {
@@ -31,6 +31,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets table top-buttons
      *
      * @param ArrayableInterface|array|string|null $buttons
+     *
      * @return $this
      */
     public function setButtons(ArrayableInterface|array|string|null $buttons): static;
@@ -46,6 +47,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if responsive table is enabled or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setResponsiveEnabled(?bool $enabled): static;
@@ -61,6 +63,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets responsive breakpoints
      *
      * @param array|null $breakpoints
+     *
      * @return $this
      */
     public function setResponsiveBreakpoints(?array $breakpoints): static;
@@ -76,6 +79,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if table information display field is enabled or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setInfoEnabled(?bool $enabled): static;
@@ -91,6 +95,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if search (filtering) abilities are enabled or disabled
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setSearchingEnabled(?bool $enabled): static;
@@ -106,6 +111,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Returns if escaping of regular expression characters in the search term is enabled or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setSearchCaseInsensitiveEnabled(?bool $enabled): static;
@@ -121,6 +127,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if escaping of regular expression characters in the search term is enabled or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setSearchRegexEnabled(?bool $enabled): static;
@@ -136,6 +143,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if DataTables' smart filtering is enabled or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setSearchSmartEnabled(?bool $enabled): static;
@@ -151,6 +159,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if search on return is enabled or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setSearchReturnEnabled(?bool $enabled): static;
@@ -166,6 +175,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets the initial filtering condition on the table
      *
      * @param string|null $search
+     *
      * @return $this
      */
     public function setSearch(?string $search): static;
@@ -181,6 +191,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if paging is enabled or disabled
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setPagingEnabled(?bool $enabled): static;
@@ -196,6 +207,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets pagination button display options
      *
      * @param EnumPagingTypeInterface $type
+     *
      * @return $this
      */
     public function setPagingType(EnumPagingTypeInterface $type): static;
@@ -211,6 +223,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets the menu available to the user displaying the optional paging lengths
      *
      * @param array|null $length_menu
+     *
      * @return $this
      */
     public function setLengthMenu(?array $length_menu): static;
@@ -226,6 +239,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if the length menu is displayed or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setLengthChangeEnabled(?bool $enabled): static;
@@ -241,6 +255,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets the default page length
      *
      * @param int $length
+     *
      * @return $this
      */
     public function setPageLength(int $length): static;
@@ -256,6 +271,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets the feature control DataTables' smart column width handling
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setAutoWidthEnabled(?bool $enabled): static;
@@ -271,6 +287,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if deferred rendering for additional speed of initialisation is used
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setDeferRenderEnabled(?bool $enabled): static;
@@ -286,6 +303,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets initial paging start point.
      *
      * @param int $start
+     *
      * @return $this
      */
     public function setDisplayStart(int $start): static;
@@ -301,6 +319,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets initial order (sort) to apply to the table
      *
      * @param array|null $order
+     *
      * @return $this
      */
     public function setOrder(?array $order): static;
@@ -316,6 +335,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets ordering to always be applied to the table
      *
      * @param array|null $order
+     *
      * @return $this
      */
     public function setOrderFixed(?array $order): static;
@@ -331,6 +351,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets the columns that can be ordered
      *
      * @param array|null $columns
+     *
      * @return $this
      */
     public function setColumnsOrderable(?array $columns): static;
@@ -346,6 +367,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if ordering (sorting) abilities are available in DataTables
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setOrderingEnabled(?bool $enabled): static;
@@ -361,6 +383,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if the columns being ordered in the table's body is highlighted
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setOrderClassesEnabled(?bool $enabled): static;
@@ -376,6 +399,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * Sets if multiple column ordering ability is available or not
      *
      * @param bool|null $enabled
+     *
      * @return $this
      */
     public function setOrderMultiEnabled(?bool $enabled): static;
@@ -541,7 +565,9 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *      Timestamp
      *
      * @see https://momentjs.com/docs/#/displaying/format/
+     *
      * @param string|null $date_format
+     *
      * @return $this
      */
     public function setJsDateFormat(?string $date_format): static;

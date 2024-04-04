@@ -12,10 +12,10 @@ use Phoundation\Enums\Interfaces\EnumOrientationInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataOrientation
 {
@@ -40,6 +40,7 @@ trait TraitDataOrientation
      * Sets the orientation
      *
      * @param EnumOrientationInterface|null $orientation
+     *
      * @return static
      */
     public function setOrientation(?EnumOrientationInterface $orientation): static

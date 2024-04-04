@@ -13,10 +13,10 @@ use Phoundation\Web\Html\Components\ElementsBlock;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Modals extends ElementsBlock
 {
@@ -32,7 +32,8 @@ class Modals extends ElementsBlock
      * Add a new modal
      *
      * @param string $identifier
-     * @param Modal $modal
+     * @param Modal  $modal
+     *
      * @return $this
      */
     public function addModal(string $identifier, Modal $modal): static
@@ -72,7 +73,7 @@ class Modals extends ElementsBlock
             foreach ($this->required as $required) {
                 if (!array_key_exists($required, $this->source)) {
                     throw new OutOfBoundsException(tr('Cannot render modals, the required modal ":modal" is not set', [
-                        ':modal' => $required
+                        ':modal' => $required,
                     ]));
                 }
             }

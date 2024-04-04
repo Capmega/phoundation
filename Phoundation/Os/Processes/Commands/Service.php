@@ -14,10 +14,10 @@ use Phoundation\Os\Processes\Commands\Exception\CommandsException;
  *
  * service (Linux services management) command
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Service extends Command
 {
@@ -37,63 +37,6 @@ class Service extends Command
         return $this->executeService('status');
     }
 
-
-    /**
-     * Execute the service restart command operation and return the specified service status
-     *
-     * @return static
-     */
-    public function restart(): static
-    {
-        $this->validateService();
-
-        Log::action(tr('Restarting service ":service"', [
-            ':service' => $this->service_name
-        ]));
-
-        // Restart the service
-        $this->executeService('restart');
-        return $this;
-    }
-
-
-    /**
-     * Execute the service restart command operation and return the specified service status
-     *
-     * @return static
-     */
-    public function start(): static
-    {
-        $this->validateService();
-
-        Log::action(tr('Starting service ":service"', [
-            ':service' => $this->service_name
-        ]));
-
-        // Start the service
-        $this->executeService('start');
-        return $this;
-    }
-
-
-    /**
-     * Execute the service restart command operation and return the specified service status
-     *
-     * @return static
-     */
-    public function stop(): static
-    {
-        $this->validateService();
-
-        Log::action(tr('Stopping service ":service"', [
-            ':service' => $this->service_name
-        ]));
-
-        $this->executeService('stop');
-        return $this;
-    }
-
-
     /**
      * Ensures all is fine before we execute the service command
      *
@@ -106,11 +49,11 @@ class Service extends Command
         }
     }
 
-
     /**
      * Execute the service command
      *
      * @param string $action
+     *
      * @return array
      */
     protected function executeService(string $action): array
@@ -123,5 +66,58 @@ class Service extends Command
             ->addArgument($this->service_name)
             ->addArgument($action)
             ->executeReturnArray();
+    }
+
+    /**
+     * Execute the service restart command operation and return the specified service status
+     *
+     * @return static
+     */
+    public function restart(): static
+    {
+        $this->validateService();
+
+        Log::action(tr('Restarting service ":service"', [
+            ':service' => $this->service_name,
+        ]));
+
+        // Restart the service
+        $this->executeService('restart');
+        return $this;
+    }
+
+    /**
+     * Execute the service restart command operation and return the specified service status
+     *
+     * @return static
+     */
+    public function start(): static
+    {
+        $this->validateService();
+
+        Log::action(tr('Starting service ":service"', [
+            ':service' => $this->service_name,
+        ]));
+
+        // Start the service
+        $this->executeService('start');
+        return $this;
+    }
+
+    /**
+     * Execute the service restart command operation and return the specified service status
+     *
+     * @return static
+     */
+    public function stop(): static
+    {
+        $this->validateService();
+
+        Log::action(tr('Stopping service ":service"', [
+            ':service' => $this->service_name,
+        ]));
+
+        $this->executeService('stop');
+        return $this;
     }
 }

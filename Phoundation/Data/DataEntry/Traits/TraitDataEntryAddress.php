@@ -10,10 +10,10 @@ namespace Phoundation\Data\DataEntry\Traits;
  *
  * This trait contains methods for DataEntry objects that require a address
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryAddress
 {
@@ -32,13 +32,13 @@ trait TraitDataEntryAddress
      * Sets the address for this object
      *
      * @param string|null $address
+     *
      * @return static
      */
     public function setAddress(?string $address): static
     {
         return $this->setValue('address', $address);
     }
-
 
 
     /**
@@ -56,6 +56,7 @@ trait TraitDataEntryAddress
      * Sets the zipcode for this object
      *
      * @param string|null $zipcode
+     *
      * @return static
      */
     public function setZipcode(?string $zipcode): static

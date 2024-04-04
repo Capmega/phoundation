@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Directory;
-use Phoundation\Filesystem\Restrictions;
+use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
-use Phoundation\Os\Processes\Process;
 use Phoundation\Os\Processes\ProcessVariables;
 use Stringable;
 
@@ -19,10 +17,10 @@ use Stringable;
  *
  * Manages all process variables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 interface ProcessVariablesInterface
 {
@@ -51,6 +49,7 @@ interface ProcessVariablesInterface
      * Sets the process to execute before the main process
      *
      * @param ProcessCoreInterface|null $process
+     *
      * @return static
      */
     public function setPreExecution(?ProcessCoreInterface $process): static;
@@ -66,6 +65,7 @@ interface ProcessVariablesInterface
      * Sets the process to execute after the main process
      *
      * @param ProcessCoreInterface|null $process
+     *
      * @return static
      */
     public function setPostExecution(?ProcessCoreInterface $process): static;
@@ -74,6 +74,7 @@ interface ProcessVariablesInterface
      * Returns the exact time that a process took to execute
      *
      * @param bool $require_stop
+     *
      * @return float|null
      */
     public function getExecutionTime(bool $require_stop = true): ?float;
@@ -96,6 +97,7 @@ interface ProcessVariablesInterface
      * Sets if  the log files will be cleared after this object is destroyed or not
      *
      * @param bool $clear_logs
+     *
      * @return static
      */
     public function setClearLogs(bool $clear_logs): static;
@@ -111,6 +113,7 @@ interface ProcessVariablesInterface
      * Sets if this process will register pid information or not
      *
      * @param bool $register_run_file
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setRegisterRunfile(bool $register_run_file): static;
@@ -125,8 +128,9 @@ interface ProcessVariablesInterface
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param Directory|Stringable|string|null $execution_directory
+     * @param Directory|Stringable|string|null        $execution_directory
      * @param RestrictionsInterface|array|string|null $restrictions
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setExecutionDirectory(Directory|Stringable|string|null $execution_directory, RestrictionsInterface|array|string|null $restrictions = null): static;
@@ -135,6 +139,7 @@ interface ProcessVariablesInterface
      * Sets the execution path to private temp dir
      *
      * @param bool $public
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static;
@@ -164,6 +169,7 @@ interface ProcessVariablesInterface
      * Sets if a runfile should be used
      *
      * @param bool $use_run_file
+     *
      * @return static This process so that multiple methods can be chained
      * @throws ProcessException
      */
@@ -181,6 +187,7 @@ interface ProcessVariablesInterface
      * Sets the terminal to execute this command
      *
      * @param string|null $term
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setTerm(string $term = null, bool $only_if_empty = false): static;
@@ -209,6 +216,7 @@ interface ProcessVariablesInterface
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
      * @param string|bool|null $sudo
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setSudo(string|bool|null $sudo): static;
@@ -231,6 +239,7 @@ interface ProcessVariablesInterface
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @param array $exit_codes
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setAcceptedExitCodes(array $exit_codes): static;
@@ -239,6 +248,7 @@ interface ProcessVariablesInterface
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @param array $exit_codes
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function addAcceptedExitCodes(array $exit_codes): static;
@@ -247,6 +257,7 @@ interface ProcessVariablesInterface
      * Sets the CLI return values that are accepted as "success" and won't cause an exception
      *
      * @param int $exit_code
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function addAcceptedExitCode(int $exit_code): static;
@@ -263,9 +274,11 @@ interface ProcessVariablesInterface
      * Set the server on which the command should be executed for this process
      *
      * @note NULL means this local server
+     *
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param bool $write
-     * @param string|null $label
+     * @param bool                                    $write
+     * @param string|null                             $label
+     *
      * @return static
      */
     public function setRestrictions(RestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
@@ -295,8 +308,10 @@ interface ProcessVariablesInterface
      * Sets the arguments for the command that will be executed
      *
      * @note This will reset the currently existing list of arguments.
+     *
      * @param array|null $arguments
-     * @param bool $escape
+     * @param bool       $escape
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setArguments(?array $arguments, bool $escape = true): static;
@@ -305,7 +320,8 @@ interface ProcessVariablesInterface
      * Adds multiple arguments to the existing list of arguments for the command that will be executed
      *
      * @param array|null $arguments
-     * @param bool $escape_arguments
+     * @param bool       $escape_arguments
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function addArguments(array|null $arguments, bool $escape_arguments = true): static;
@@ -314,8 +330,10 @@ interface ProcessVariablesInterface
      * Adds an argument to the existing list of arguments for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
+     *
      * @param Stringable|array|string|float|int|null $argument
-     * @param bool $escape_argument
+     * @param bool                                   $escape_argument
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true): static;
@@ -324,7 +342,9 @@ interface ProcessVariablesInterface
      * Sets a single argument for the command that will be executed
      *
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
+     *
      * @param string|null $argument
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setArgument(?string $argument): static;
@@ -340,7 +360,9 @@ interface ProcessVariablesInterface
      * Sets the variables for the command that will be executed
      *
      * @note This will reset the currently existing list of variables.
+     *
      * @param array $variables
+     *
      * @return static This process so that multiple methods can be chained
      */
     public function setVariables(array $variables): static;
@@ -348,8 +370,9 @@ interface ProcessVariablesInterface
     /**
      * Adds a variable to the existing list of Variables for the command that will be executed
      *
-     * @param string $key
+     * @param string           $key
      * @param string|float|int $value
+     *
      * @return static
      */
     public function setVariable(string $key, string|float|int $value): static;
@@ -365,6 +388,7 @@ interface ProcessVariablesInterface
      * Sets the process where the output of this command will be piped to, IF specified
      *
      * @param ProcessCoreInterface|string|null $pipe
+     *
      * @return static
      */
     public function setPipe(ProcessCoreInterface|string|null $pipe): static;
@@ -373,8 +397,9 @@ interface ProcessVariablesInterface
      * Sets the output redirection for this process
      *
      * @param string|null $redirect
-     * @param int $channel
-     * @param bool $append
+     * @param int         $channel
+     * @param bool        $append
+     *
      * @return static
      */
     public function setOutputRedirect(?string $redirect, int $channel = 1, bool $append = false): static;
@@ -397,7 +422,8 @@ interface ProcessVariablesInterface
      * Sets the input redirection for this process
      *
      * @param Stringable|string|null $redirect
-     * @param int $channel
+     * @param int                    $channel
+     *
      * @return static
      */
     public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static;
@@ -431,6 +457,7 @@ interface ProcessVariablesInterface
      * Defaults to 0, the process will NOT wait and start immediately
      *
      * @param int $wait
+     *
      * @return static
      */
     public function setWait(int $wait): static;
@@ -446,7 +473,8 @@ interface ProcessVariablesInterface
      * Sets the packages that should be installed automatically if the command for this process cannot be found
      *
      * @param Stringable|string $operating_system
-     * @param array|string $packages
+     * @param array|string      $packages
+     *
      * @return static
      */
     public function setPackages(Stringable|string $operating_system, array|string $packages): static;
@@ -468,6 +496,7 @@ interface ProcessVariablesInterface
      * 0 seconds  to disable, defaults to 30 seconds
      *
      * @param int $timeout
+     *
      * @return static
      */
     public function setTimeout(int $timeout): static;
@@ -492,6 +521,7 @@ interface ProcessVariablesInterface
      * Sets debug mode on or off
      *
      * @param bool $debug
+     *
      * @return static
      */
     public function setDebug(bool $debug): static;

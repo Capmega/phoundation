@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 use Phoundation\Exception\PhpModuleNotAvailableException;
 
@@ -12,18 +12,19 @@ use Phoundation\Exception\PhpModuleNotAvailableException;
  *    mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1');
  *    mb_convert_encoding((string) $string, 'ISO-8859-1', 'UTF-8');
  *
- * @todo Maybe get rid of this library file?
- * @note Taken from https://code.google.com/archive/p/mbfunctions/downloads, code updated to PHP8 standards by Sven Olaf Oostenbrink
- * @see https://code.google.com/archive/p/mbfunctions/downloads
- * @see https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://www.gnu.org/licenses/gpl.html GNU GPL v3
+ * @todo      Maybe get rid of this library file?
+ * @note      Taken from https://code.google.com/archive/p/mbfunctions/downloads, code updated to PHP8 standards by
+ *            Sven Olaf Oostenbrink
+ * @see       https://code.google.com/archive/p/mbfunctions/downloads
+ * @see       https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://www.gnu.org/licenses/gpl.html GNU GPL v3
  * @copyright Copyright(c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 
 
-define('UTF8_ENCODED_CHARLIST','ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
+define('UTF8_ENCODED_CHARLIST', 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ');
 define('UTF8_DECODED_CHARLIST', mb_convert_encoding('ÀÁÂÃÄÅàáâãäåÒÓÔÕÖØòóôõöøÈÉÊËéèêëÇçÌÍÎÏìíîïÙÚÛÜùúûüÿÑñ', 'UTF-8', 'ISO-8859-1'));
 
 
@@ -50,7 +51,7 @@ if (!function_exists('mb_init')) {
         }
 
         // Setting the Content-Type header with charset
-        setlocale(LC_CTYPE, $locale.'.UTF-8');
+        setlocale(LC_CTYPE, $locale . '.UTF-8');
         mb_internal_encoding('UTF-8');
         mb_regex_encoding('UTF-8');
         //header('Content-Type: text/html; charset = utf-8');
@@ -108,11 +109,9 @@ if (!function_exists('mb_strip_accents')) {
 if (!function_exists('mb_strtr')) {
     function mb_strtr(string $source, array|string $from, $to = null): string
     {
-        if (is_array($from))
-        {
-            foreach($from as $key => $value)
-            {
-                $utf8_from[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
+        if (is_array($from)) {
+            foreach ($from as $key => $value) {
+                $utf8_from[mb_convert_encoding((string)$key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string)$value, 'UTF-8', 'ISO-8859-1');
             }
             return mb_convert_encoding(strtr(mb_convert_encoding($source, 'UTF-8', 'ISO-8859-1'), $utf8_from), 'ISO-8859-1', 'UTF-8');
         }
@@ -131,7 +130,7 @@ if (!function_exists('mb_preg_replace')) {
             $utf8_pattern = [];
 
             foreach ($pattern as $key => $value) {
-                $utf8_pattern[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
+                $utf8_pattern[mb_convert_encoding((string)$key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string)$value, 'UTF-8', 'ISO-8859-1');
             }
         } else {
             $utf8_pattern = mb_convert_encoding($pattern, 'UTF-8', 'ISO-8859-1');
@@ -140,8 +139,9 @@ if (!function_exists('mb_preg_replace')) {
         if (is_array($replacement)) {
             $utf8_replacement = [];
 
-            foreach ($replacement as $key => $value)
-                $utf8_replacement[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
+            foreach ($replacement as $key => $value) {
+                $utf8_replacement[mb_convert_encoding((string)$key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string)$value, 'UTF-8', 'ISO-8859-1');
+            }
         } else {
             $utf8_replacement = mb_convert_encoding($replacement, 'UTF-8', 'ISO-8859-1');
         }
@@ -150,11 +150,11 @@ if (!function_exists('mb_preg_replace')) {
             $utf8_subject = [];
 
             foreach ($subject as $key => $value) {
-                $utf8_subject[mb_convert_encoding((string) $key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string) $value, 'UTF-8', 'ISO-8859-1');
+                $utf8_subject[mb_convert_encoding((string)$key, 'UTF-8', 'ISO-8859-1')] = mb_convert_encoding((string)$value, 'UTF-8', 'ISO-8859-1');
             }
 
         } else {
-            $utf8_subject = mb_convert_encoding((string) $subject, 'UTF-8', 'ISO-8859-1');
+            $utf8_subject = mb_convert_encoding((string)$subject, 'UTF-8', 'ISO-8859-1');
         }
 
         $r = preg_replace($utf8_pattern, $utf8_replacement, $utf8_subject, $limit, $count);
@@ -163,7 +163,7 @@ if (!function_exists('mb_preg_replace')) {
             $return = [];
 
             foreach ($r as $key => $value) {
-                $return[mb_convert_encoding((string) $key, 'ISO-8859-1', 'UTF-8')] = mb_convert_encoding((string) $value, 'ISO-8859-1', 'UTF-8');
+                $return[mb_convert_encoding((string)$key, 'ISO-8859-1', 'UTF-8')] = mb_convert_encoding((string)$value, 'ISO-8859-1', 'UTF-8');
             }
 
         } else {
@@ -186,15 +186,13 @@ if (!function_exists('mb_str_word_count')) {
         // 1 - returns an array containing all the words found inside the string
         // 2 - returns an associative array, where the key is the numeric position of the word inside the string and the
         //     value is the actual word itself
-        $r = str_word_count(mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1'), $format, $charlist);
+        $r = str_word_count(mb_convert_encoding((string)$string, 'UTF-8', 'ISO-8859-1'), $format, $charlist);
 
-        if ($format == 1 || $format == 2)
-        {
+        if ($format == 1 || $format == 2) {
             $u = [];
 
-            foreach($r as $k => $v)
-            {
-                $u[$k] = mb_convert_encoding((string) $v, 'ISO-8859-1', 'UTF-8');
+            foreach ($r as $k => $v) {
+                $u[$k] = mb_convert_encoding((string)$v, 'ISO-8859-1', 'UTF-8');
             }
 
             return $u;
@@ -234,10 +232,10 @@ if (!function_exists('mb_trim')) {
     function mb_trim(string $string, ?string $charlist = null): string
     {
         if (!$charlist) {
-            return mb_convert_encoding(trim(mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
+            return mb_convert_encoding(trim(mb_convert_encoding((string)$string, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
         }
 
-        return mb_convert_encoding(trim(mb_convert_encoding((string) $string, 'UTF-8', 'ISO-8859-1'), mb_convert_encoding((string) $charlist, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
+        return mb_convert_encoding(trim(mb_convert_encoding((string)$string, 'UTF-8', 'ISO-8859-1'), mb_convert_encoding((string)$charlist, 'UTF-8', 'ISO-8859-1')), 'ISO-8859-1', 'UTF-8');
     }
 }
 
@@ -248,15 +246,18 @@ if (!function_exists('mb_trim')) {
 /**
  *
  */
-if (!function_exists('mb_strip_tags_all'))
-{
+if (!function_exists('mb_strip_tags_all')) {
     function mb_strip_tags_all(array|string $document, array|string $replace = ''): array|string
     {
         $search = [
-            '@<script[^>]*?>.*?</script>@si',  // Strip out javascript
-            '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
-            '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
-            '@<![\s\S]*?--[ \t\n\r]*>@'         // Strip multi-line comments including CDATA
+            '@<script[^>]*?>.*?</script>@si',
+            // Strip out javascript
+            '@<[\/\!]*?[^<>]*?>@si',
+            // Strip out HTML tags
+            '@<style[^>]*?>.*?</style>@siU',
+            // Strip style tags properly
+            '@<![\s\S]*?--[ \t\n\r]*>@',
+            // Strip multi-line comments including CDATA
         ];
 
         return mb_preg_replace($search, $replace, $document);
@@ -271,10 +272,14 @@ if (!function_exists('mb_strip_tags')) {
     function mb_strip_tags(array|string $document, array|string $replace = ''): array|string
     {
         $search = [
-            '@<script[^>]*?>.*?</script>@si',  // Strip out javascript
-            '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
-            '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
-            '@<![\s\S]*?--[ \t\n\r]*>@'         // Strip multi-line comments including CDATA
+            '@<script[^>]*?>.*?</script>@si',
+            // Strip out javascript
+            '@<[\/\!]*?[^<>]*?>@si',
+            // Strip out HTML tags
+            '@<style[^>]*?>.*?</style>@siU',
+            // Strip style tags properly
+            '@<![\s\S]*?--[ \t\n\r]*>@',
+            // Strip multi-line comments including CDATA
         ];
 
         return mb_preg_replace($search, $replace, $document);
@@ -303,8 +308,8 @@ if (!function_exists('mb_string_url')) {
     {
         $string = mb_strtolower($string);
         $string = mb_strip_accents($string);
-        $string = preg_replace('@[^a-z0-9]@',' ', $string);
-        $string = preg_replace('@\s+@','-', $string);
+        $string = preg_replace('@[^a-z0-9]@', ' ', $string);
+        $string = preg_replace('@\s+@', '-', $string);
 
         return $string;
     }

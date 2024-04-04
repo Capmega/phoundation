@@ -13,10 +13,10 @@ use Phoundation\Servers\SshAccounts;
  *
  * This script will list the available accounts on this system
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho servers accounts list [OPTIONS]
 ./pho system servers accounts list -D');
@@ -31,14 +31,12 @@ ARGUMENTS
 [-D / --deleted]                       Will also show deleted accounts');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->validate();
-
+                     ->validate();
 
 
 // Display the available SSH accounts
 SshAccounts::new()
-    ->addFilter('status', (DELETED ? 'deleted' : null))
-    ->CliDisplayTable();
+           ->addFilter('status', (DELETED ? 'deleted' : null))
+           ->CliDisplayTable();

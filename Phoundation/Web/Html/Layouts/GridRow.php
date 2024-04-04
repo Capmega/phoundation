@@ -13,19 +13,20 @@ use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class GridRow extends Layout
 {
     /**
      * Set the source for this row
      *
-     * @param array $source
+     * @param array                             $source
      * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool $use_form
+     * @param bool                              $use_form
+     *
      * @return static
      */
     public function setColumns(array $source, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
@@ -38,9 +39,10 @@ class GridRow extends Layout
     /**
      * Add the specified source to this row
      *
-     * @param array $source
+     * @param array                             $source
      * @param EnumDisplaySizeInterface|int|null $size
-     * @param bool $use_form
+     * @param bool                              $use_form
+     *
      * @return static
      */
     public function addColumns(array $source, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static
@@ -49,7 +51,7 @@ class GridRow extends Layout
         foreach ($source as $column) {
             if (!is_object($column) and !is_string($column)) {
                 throw new OutOfBoundsException(tr('Invalid datatype for specified column. The column should be an object or a string, but is a ":datatype"', [
-                    ':datatype' => gettype($column)
+                    ':datatype' => gettype($column),
                 ]));
             }
 
@@ -63,9 +65,10 @@ class GridRow extends Layout
     /**
      * Add the specified column to this row
      *
-     * @param object|string|null $column
+     * @param object|string|null                $column
      * @param EnumDisplaySizeInterface|int|null $size $size
-     * @param bool $use_form
+     * @param bool                              $use_form
+     *
      * @return static
      */
     public function addColumn(object|string|null $column, EnumDisplaySizeInterface|int|null $size = null, bool $use_form = false): static

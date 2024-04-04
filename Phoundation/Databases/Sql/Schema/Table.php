@@ -16,10 +16,10 @@ use Phoundation\Utils\Arrays;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Table extends SchemaAbstract
 {
@@ -55,8 +55,8 @@ class Table extends SchemaAbstract
     /**
      * Table constructor
      *
-     * @param string $name
-     * @param Sql $sql
+     * @param string                $name
+     * @param Sql                   $sql
      * @param SchemaAbstract|Schema $parent
      */
     public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
@@ -69,6 +69,16 @@ class Table extends SchemaAbstract
         }
     }
 
+    /**
+     * Load the table parameters from the database
+     *
+     * @return void
+     */
+    protected function load(): void
+    {
+        // Load columns & indices data
+        // TODO Implement
+    }
 
     /**
      * Define and create the table
@@ -80,7 +90,6 @@ class Table extends SchemaAbstract
         return new TableDefine($this->name, $this->sql, $this);
     }
 
-
     /**
      * Define and create the table
      *
@@ -91,18 +100,17 @@ class Table extends SchemaAbstract
         return new TableAlter($this->name, $this->sql, $this);
     }
 
-
     /**
      * Renames this table
      *
      * @param string $table_name
+     *
      * @return void
      */
     public function rename(string $table_name): void
     {
         sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
     }
-
 
     /**
      * Returns if the table exists in the database or not
@@ -112,9 +120,8 @@ class Table extends SchemaAbstract
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
+        return (bool)sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
     }
-
 
     /**
      * Will drop this table
@@ -126,14 +133,13 @@ class Table extends SchemaAbstract
         Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
             ':instance' => $this->sql->getConnector(),
-            ':database' => $this->sql->getDatabase()
-        ]),3);
+            ':database' => $this->sql->getDatabase(),
+        ]),          3);
 
         sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
 
         return $this;
     }
-
 
     /**
      * Will truncate this table
@@ -146,7 +152,6 @@ class Table extends SchemaAbstract
         sql()->query('TRUNCATE `' . $this->name . '`');
     }
 
-
     /**
      * Returns the number of records in this table
      *
@@ -157,7 +162,6 @@ class Table extends SchemaAbstract
         return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
     }
 
-
     /**
      * Returns the table name
      *
@@ -167,7 +171,6 @@ class Table extends SchemaAbstract
     {
         return $this->name;
     }
-
 
     /**
      * Returns the table columns
@@ -186,7 +189,6 @@ class Table extends SchemaAbstract
         return Iterator::new($columns);
     }
 
-
     /**
      * Returns the table indices
      *
@@ -197,7 +199,6 @@ class Table extends SchemaAbstract
         return $this->indices;
     }
 
-
     /**
      * Returns the table foreign_keys
      *
@@ -206,17 +207,5 @@ class Table extends SchemaAbstract
     public function getForeignKeys(): array
     {
         return $this->foreign_keys;
-    }
-
-
-    /**
-     * Load the table parameters from the database
-     *
-     * @return void
-     */
-    protected function load(): void
-    {
-        // Load columns & indices data
-        // TODO Implement
     }
 }

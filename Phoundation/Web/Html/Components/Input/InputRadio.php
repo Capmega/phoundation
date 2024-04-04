@@ -53,7 +53,8 @@ class InputRadio extends Input
      *
      * @return $this
      */
-    public function setName(?string $name, bool $id_too = true): static {
+    public function setName(?string $name, bool $id_too = true): static
+    {
         static $names = [];
 
         if (!isset($names[$name])) {

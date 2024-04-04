@@ -15,11 +15,11 @@ use Phoundation\Utils\Traits\TraitVersion;
  *
  * This class is a File class specifically for version files
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Filesystem
+ * @category  Function reference
+ * @package   Phoundation\Filesystem
  */
 class Version
 {
@@ -46,10 +46,11 @@ class Version
     /**
      * Version class constructor
      *
-     * @param FileInterface|string $file
+     * @param FileInterface|string       $file
      * @param RestrictionsInterface|null $restrictions
      */
-    public function __construct(FileInterface|string $file, ?RestrictionsInterface $restrictions = null) {
+    public function __construct(FileInterface|string $file, ?RestrictionsInterface $restrictions = null)
+    {
         $this->file    = new File($file, $restrictions);
         $this->version = $this->file->getContentsAsString();
 

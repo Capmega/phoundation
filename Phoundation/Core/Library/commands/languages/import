@@ -13,10 +13,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This script will import data into the languages table from the data/sources/languages/languages file
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho languages import');
 
@@ -38,14 +38,12 @@ ARGUMENTS
                                         quickly show actual functionality');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('--min', true)->isOptional(10)->isNatural()
-    ->select('--max', true)->isOptional(1000)->isNatural()
-    ->select('-d,--demo')->isOptional()->isBoolean()
-    ->validate();
-
+                     ->select('--min', true)->isOptional(10)->isNatural()
+                     ->select('--max', true)->isOptional(1000)->isNatural()
+                     ->select('-d,--demo')->isOptional()->isBoolean()
+                     ->validate();
 
 
 Import::new($argv['demo'], $argv['min'], $argv['max'])->execute();

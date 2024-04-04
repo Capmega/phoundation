@@ -28,10 +28,10 @@ use Phoundation\Web\Requests\Routing\Route;
  *
  * This class represents a single non HTTP-200 URL
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2023 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Non200Url extends DataEntry
 {
@@ -78,6 +78,7 @@ class Non200Url extends DataEntry
      *
      * @param int $http_code
      * @param string|null $reason
+     *
      * @return $this
      */
     public function generate(int $http_code, ?string $reason = null): static
@@ -100,7 +101,7 @@ class Non200Url extends DataEntry
      */
     public function process(): static
     {
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
     }
 
 
@@ -111,54 +112,64 @@ throw new UnderConstructionException();
     {
         $definitions
             ->add(Definition::new($this, 'ip_address')
-                ->setRender(false))
+                            ->setRender(false))
             ->add(Definition::new($this, 'net_len')
-                ->setRender(false))
+                            ->setRender(false))
             ->add(DefinitionFactory::getIpAddress($this, 'ip_address_human')
-                ->setReadonly(true))
+                                   ->setReadonly(true))
             ->add(Definition::new($this, 'method')
-                ->setReadonly(true)
-                ->setInputType(EnumElementInputType::variable)
-                ->setSize(4)
-                ->setMaxlength(12)
-                ->setHelpText(tr('The HTTP method used for this request'))
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->sanitizeLowercase()->isInArray(['get', 'head', 'post', 'put', 'delete', 'connect', 'options', 'trace', 'patch']);
-                }))
+                            ->setReadonly(true)
+                            ->setInputType(EnumElementInputType::variable)
+                            ->setSize(4)
+                            ->setMaxlength(12)
+                            ->setHelpText(tr('The HTTP method used for this request'))
+                            ->addValidationFunction(function (ValidatorInterface $validator) {
+                                $validator->sanitizeLowercase()->isInArray([
+                                                                               'get',
+                                                                               'head',
+                                                                               'post',
+                                                                               'put',
+                                                                               'delete',
+                                                                               'connect',
+                                                                               'options',
+                                                                               'trace',
+                                                                               'patch',
+                                                                           ]);
+                            }))
             ->add(Definition::new($this, 'http_code')
-                ->setReadonly(true)
-                ->setInputType(EnumElementInputType::number)
-                ->setSize(4)
-                ->setMin(100)
-                ->setMax(599)
-                ->setHelpText(tr('The HTTP method used for this request')))
+                            ->setReadonly(true)
+                            ->setInputType(EnumElementInputType::number)
+                            ->setSize(4)
+                            ->setMin(100)
+                            ->setMax(599)
+                            ->setHelpText(tr('The HTTP method used for this request')))
             ->add(DefinitionFactory::getComments($this, 'reason')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setSize(12)
-                ->setMaxlength(255)
-                ->setHelpText(tr('Reason why this request failed')))
+                                   ->setOptional(true)
+                                   ->setReadonly(true)
+                                   ->setSize(12)
+                                   ->setMaxlength(255)
+                                   ->setHelpText(tr('Reason why this request failed')))
             ->add(DefinitionFactory::getUrl($this)
-                ->setReadonly(true)
-                ->setSize(12)
-                ->setHelpText(tr('Request URL that failed')))
+                                   ->setReadonly(true)
+                                   ->setSize(12)
+                                   ->setHelpText(tr('Request URL that failed')))
             ->add(DefinitionFactory::getData($this, 'headers')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setLabel(tr('Request headers'))
-                ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
+                                   ->setOptional(true)
+                                   ->setReadonly(true)
+                                   ->setLabel(tr('Request headers'))
+                                   ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
             ->add(DefinitionFactory::getData($this, 'cookies')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setLabel(tr('Request cookies'))
-                ->setHelpText(tr('The cookies that were received from the client for this request')))
+                                   ->setOptional(true)
+                                   ->setReadonly(true)
+                                   ->setLabel(tr('Request cookies'))
+                                   ->setHelpText(tr('The cookies that were received from the client for this request')))
             ->add(DefinitionFactory::getData($this, 'post')
-                ->setOptional(true)
-                ->setReadonly(true)
-                ->setLabel(tr('Request POST data'))
-                ->setHelpText(tr('The POST data that was  received from the client for this request')))
+                                   ->setOptional(true)
+                                   ->setReadonly(true)
+                                   ->setLabel(tr('Request POST data'))
+                                   ->setHelpText(tr('The POST data that was  received from the client for this request')))
             ->add(DefinitionFactory::getComments($this)
-                ->setOptional(true)
-                ->setHelpText(tr('Comments on this failed request')));
+                                   ->setOptional(true)
+                                   ->setHelpText(tr('Comments on this failed request')));
     }
 }

@@ -7,8 +7,8 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Exception\PasswordFailedException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\Cli;
-use Phoundation\Cli\CliDocumentation;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
@@ -18,10 +18,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This command will create a new user with the specified properties
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 // Documentation
@@ -53,7 +53,6 @@ EXTRA INFORMATION
                                                             types');
 
 
-
 // Set up values
 $retries           = 3;
 $password          = '';
@@ -63,9 +62,9 @@ $user              = User::new()->apply(false);
 
 // Validate user roles
 $argv = ArgvValidator::new()
-    ->select('--no-password')->isOptional(false)->isBoolean()
-    ->select('--roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
-    ->validate(false);
+                     ->select('--no-password')->isOptional(false)->isBoolean()
+                     ->select('--roles', true)->isOptional()->sanitizeForceArray()->each()->isName()
+                     ->validate(false);
 
 
 // Ensure that specified roles exist

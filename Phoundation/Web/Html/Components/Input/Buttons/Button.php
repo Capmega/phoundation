@@ -5,10 +5,10 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
@@ -38,6 +38,7 @@ class Button extends Input implements ButtonInterface
      * Button class constructor
      *
      * @param string|null $content
+     *
      * @todo Get rid of the web.defaults.elements.classes.button path as this was an idea before the templating system
      */
     public function __construct(?string $content = null)
@@ -50,20 +51,6 @@ class Button extends Input implements ButtonInterface
         $this->setType(EnumButtonType::submit);
     }
 
-
-    /**
-     * Set if the button is floating or not
-     *
-     * @param bool $floating
-     * @return Button
-     */
-    public function setFloating(bool $floating): static
-    {
-        $this->floating = $floating;
-        return $this;
-    }
-
-
     /**
      * Returns if the button is floating or not
      *
@@ -74,33 +61,25 @@ class Button extends Input implements ButtonInterface
         return $this->floating;
     }
 
-
     /**
-     * Set the content for this button
+     * Set if the button is floating or not
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
-     * @return static
-     * @todo add documentation for when button is floating as it is unclear what is happening there
+     * @param bool $floating
+     *
+     * @return Button
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    public function setFloating(bool $floating): static
     {
-        if ($this->floating) {
-            // What does this do?????????????
-            $this->addClass('btn-floating');
-            Icons::new()->setContent($this->content, $make_safe)->render();
-            return $this;
-        }
-
-        return parent::setContent($content, $make_safe);
+        $this->floating = $floating;
+        return $this;
     }
-
 
     /**
      * Set the content for this button
      *
      * @param Stringable|string|float|int|null $value
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
@@ -117,6 +96,23 @@ class Button extends Input implements ButtonInterface
         return parent::setContent($value, $make_safe);
     }
 
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        $this->resetButtonClasses();
+        $this->attributes->set($this->input_type?->value, 'type');
+
+        if ($this->anchor_url) {
+            $this->attributes->removeKeys('type');
+            $this->attributes->set($this->anchor_url, 'href');
+        }
+
+        return parent::render();
+    }
 
     /**
      * Set the classes for this button
@@ -166,22 +162,24 @@ class Button extends Input implements ButtonInterface
         }
     }
 
-
     /**
-     * Renders and returns the HTML for this object
+     * Set the content for this button
      *
-     * @return string|null
+     * @param Stringable|string|float|int|null $content
+     * @param bool                             $make_safe
+     *
+     * @return static
+     * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function render(): ?string
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
-        $this->resetButtonClasses();
-        $this->attributes->set($this->input_type?->value, 'type');
-
-        if ($this->anchor_url) {
-            $this->attributes->removeKeys('type');
-            $this->attributes->set($this->anchor_url, 'href');
+        if ($this->floating) {
+            // What does this do?????????????
+            $this->addClass('btn-floating');
+            Icons::new()->setContent($this->content, $make_safe)->render();
+            return $this;
         }
 
-        return parent::render();
+        return parent::setContent($content, $make_safe);
     }
 }

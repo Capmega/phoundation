@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  * This trait contains methods for Data objects that require a users_id
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataUsersId
 {
@@ -38,6 +38,7 @@ trait TraitDataUsersId
      * Sets the users_id for this object
      *
      * @param int|null $users_id
+     *
      * @return static
      */
     public function setUsersId(?int $users_id): static

@@ -15,10 +15,10 @@ use Phoundation\Web\Interfaces\BootstrapInterface;
  *
  * This class manages anything bootstrap related
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Bootstrap implements BootstrapInterface
 {
@@ -26,6 +26,7 @@ class Bootstrap implements BootstrapInterface
      * Returns the default configured bootstrap grid container tier
      *
      * @param EnumContainerTierInterface|string|null $default_to
+     *
      * @return EnumContainerTierInterface
      */
     public static function getGridContainerTier(EnumContainerTierInterface|string|null $default_to = null): EnumContainerTierInterface

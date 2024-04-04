@@ -19,10 +19,10 @@ use Plugins\Scanners\Exception\ScannersException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class ScanImage extends Command
 {
@@ -53,7 +53,10 @@ class ScanImage extends Command
     {
         $output = $this
             ->setCommand('scanimage')
-            ->addArguments(['--formatted-device-list', '%d^^^%v^^^%m^^^%t^^^%i%n'])
+            ->addArguments([
+                               '--formatted-device-list',
+                               '%d^^^%v^^^%m^^^%t^^^%i%n',
+                           ])
             ->setTimeout(120)
             ->executeReturnArray();
 
@@ -75,82 +78,11 @@ class ScanImage extends Command
         return $return;
     }
 
-
-    /**
-     * Loads the options through the scanimage command
-     *
-     * @param string $device
-     * @param int $tries
-     * @return array
-     */
-    protected function loadOptions(string $device, int $tries = 5): array
-    {
-        // Try reading the device information multiple times as scanimage is rather finicky
-        while (--$tries > 0) {
-            $skip   = true;
-            $return = [];
-
-            if (TEST) {
-                // Get test options
-                $output = $this->getTestOptions();
-
-            } else {
-                // Get real options
-                $output = $this
-                    ->setCommand('scanimage')
-                    ->addArguments(['--help', '--device-name', $device])
-                    ->setTimeout(120)
-                    ->executeReturnArray();
-            }
-
-            // Pre-parse output
-            foreach ($output as $line) {
-                $line = trim($line);
-
-                if (!$line) {
-                    continue;
-                }
-
-                if (str_contains($line, 'failed: Invalid argument')) {
-                    Log::warning(tr('Failed to find device ":device", retrying as "scanimage" sometimes fails to find the device', [
-                        ':device' => $device
-                    ]), 4);
-                    break;
-                }
-
-                if (str_contains($line, 'Options specific to device')) {
-                    // Here we start with device options
-                    $skip = false;
-                    continue;
-                }
-
-                if (str_contains($line, 'to get list of all options for DEVICE.')) {
-                    // Done!
-                    break;
-                }
-
-                if ($skip) {
-                    continue;
-                }
-
-                $return[] = $line;
-            }
-
-            if (!$skip) {
-                return $return;
-            }
-        }
-
-        throw new ScannersException(tr('Failed to load device options for scanner device ":device", it may not exist', [
-            ':device' => $device
-        ]));
-    }
-
-
     /**
      * Returns a list of all available hardware devices
      *
      * @param string $device
+     *
      * @return array
      */
     public function listOptions(string $device): array
@@ -160,7 +92,7 @@ class ScanImage extends Command
         $return = [];
         $entry  = [
             'category'    => null,
-            'description' => ''
+            'description' => '',
         ];
 
         // Parse scanimage options output
@@ -179,7 +111,7 @@ class ScanImage extends Command
 
                     $entry = [
                         'category'    => $entry['category'],
-                        'description' => ''
+                        'description' => '',
                     ];
                 }
 
@@ -223,7 +155,7 @@ class ScanImage extends Command
                                 $value = null;
 
                                 Log::warning(tr('Failed to parse options section found in line ":line", ignoring', [
-                                    ':line' => $line
+                                    ':line' => $line,
                                 ]));
                             }
                         }
@@ -236,7 +168,7 @@ class ScanImage extends Command
 
                 } else {
                     Log::warning(tr('Unknown options section found in line ":line", ignoring', [
-                        ':line' => $line
+                        ':line' => $line,
                     ]));
                 }
 
@@ -263,111 +195,86 @@ class ScanImage extends Command
         if (isset($entry['key']) and $entry['description']) {
             // Add the option entry, make a new entry
             $entry['description'] = trim($entry['description']);
-            $return[] = $entry;
+            $return[]             = $entry;
         }
 
         return $return;
     }
 
-
     /**
-     * Returns the profile used to scan images
+     * Loads the options through the scanimage command
      *
-     * @param ProfileInterface $profile
-     * @return ProfileInterface|null
+     * @param string $device
+     * @param int    $tries
+     *
+     * @return array
      */
-    public function getProfile(ProfileInterface $profile): ?ProfileInterface
+    protected function loadOptions(string $device, int $tries = 5): array
     {
-        return $this->profile;
-    }
+        // Try reading the device information multiple times as scanimage is rather finicky
+        while (--$tries > 0) {
+            $skip   = true;
+            $return = [];
 
+            if (TEST) {
+                // Get test options
+                $output = $this->getTestOptions();
 
-    /**
-     * Applies the specified scanner profile to this ScanImage object so that the scan() call knows what to do
-     *
-     * @param ProfileInterface $profile
-     * @return $this
-     */
-    public function setProfile(ProfileInterface $profile): static
-    {
-        $this->profile = $profile;
-        return $this;
-    }
-
-
-    /**
-     * Returns the command line options
-     *
-     * @return array|null
-     */
-    public function getCommandLineOptions(): ?array
-    {
-        return $this->options;
-    }
-
-
-    /**
-     * Sets  the command line options directly instead of through a profile
-     *
-     *
-     * @param array|null $options
-     * @return ScanImage
-     */
-    public function setCommandLineOptions(?array $options): static
-    {
-        $this->options = $options;
-        return $this;
-    }
-
-
-    /**
-     * Applies the specified profile
-     *
-     * @param ProfileInterface $profile
-     * @return $this
-     */
-    public function applyProfile(ProfileInterface $profile): static
-    {
-        $this->options = [];
-
-        foreach ($profile->getOptions() as $option) {
-            if (!$option->getValue()) {
-                // Only apply options that have a value
-                continue;
+            } else {
+                // Get real options
+                $output = $this
+                    ->setCommand('scanimage')
+                    ->addArguments([
+                                       '--help',
+                                       '--device-name',
+                                       $device,
+                                   ])
+                    ->setTimeout(120)
+                    ->executeReturnArray();
             }
 
-            $this->options[] = $option->getKey();
-            $this->options[] = $option->getValue() . $option->getUnits();
+            // Pre-parse output
+            foreach ($output as $line) {
+                $line = trim($line);
+
+                if (!$line) {
+                    continue;
+                }
+
+                if (str_contains($line, 'failed: Invalid argument')) {
+                    Log::warning(tr('Failed to find device ":device", retrying as "scanimage" sometimes fails to find the device', [
+                        ':device' => $device,
+                    ]),          4);
+                    break;
+                }
+
+                if (str_contains($line, 'Options specific to device')) {
+                    // Here we start with device options
+                    $skip = false;
+                    continue;
+                }
+
+                if (str_contains($line, 'to get list of all options for DEVICE.')) {
+                    // Done!
+                    break;
+                }
+
+                if ($skip) {
+                    continue;
+                }
+
+                $return[] = $line;
+            }
+
+            if (!$skip) {
+                return $return;
+            }
         }
 
-        $this->profile = $profile;
-        return $this;
+        throw new ScannersException(tr('Failed to load device options for scanner device ":device", it may not exist', [
+            ':device' => $device,
+        ]));
     }
-
-
-    /**
-     * Execute the configured scan
-     *
-     * @param string $path
-     * @param EnumExecuteMethodInterface $method
-     * @return static
-     */
-    public function scan(string $path, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): static
-    {
-        if (empty($this->profile)) {
-            throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
-        }
-
-        $this->setCommand('scanimage')
-             ->addArguments(['-d', $this->profile->getDevice()->getUrl()])
-             ->addArguments($this->options)
-             ->addArguments($this->batch ? ['--batch=' . $path] : ['-o', $path])
-             ->setTimeout(120)
-             ->execute($method);
-
-        return $this;
-    }
-
 
     /**
      * Returns test device options
@@ -376,7 +283,7 @@ class ScanImage extends Command
      */
     protected function getTestOptions(): array
     {
-                $output = "Usage: scanimage [OPTION]...
+        $output = "Usage: scanimage [OPTION]...
 
         Start image acquisition on a scanner device and write image data to
         standard output.
@@ -499,5 +406,109 @@ class ScanImage extends Command
           Sensors:";
 
         return Arrays::force($output, PHP_EOL);
+    }
+
+    /**
+     * Returns the profile used to scan images
+     *
+     * @param ProfileInterface $profile
+     *
+     * @return ProfileInterface|null
+     */
+    public function getProfile(ProfileInterface $profile): ?ProfileInterface
+    {
+        return $this->profile;
+    }
+
+    /**
+     * Applies the specified scanner profile to this ScanImage object so that the scan() call knows what to do
+     *
+     * @param ProfileInterface $profile
+     *
+     * @return $this
+     */
+    public function setProfile(ProfileInterface $profile): static
+    {
+        $this->profile = $profile;
+        return $this;
+    }
+
+    /**
+     * Returns the command line options
+     *
+     * @return array|null
+     */
+    public function getCommandLineOptions(): ?array
+    {
+        return $this->options;
+    }
+
+    /**
+     * Sets  the command line options directly instead of through a profile
+     *
+     *
+     * @param array|null $options
+     *
+     * @return ScanImage
+     */
+    public function setCommandLineOptions(?array $options): static
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    /**
+     * Applies the specified profile
+     *
+     * @param ProfileInterface $profile
+     *
+     * @return $this
+     */
+    public function applyProfile(ProfileInterface $profile): static
+    {
+        $this->options = [];
+
+        foreach ($profile->getOptions() as $option) {
+            if (!$option->getValue()) {
+                // Only apply options that have a value
+                continue;
+            }
+
+            $this->options[] = $option->getKey();
+            $this->options[] = $option->getValue() . $option->getUnits();
+        }
+
+        $this->profile = $profile;
+        return $this;
+    }
+
+    /**
+     * Execute the configured scan
+     *
+     * @param string                     $path
+     * @param EnumExecuteMethodInterface $method
+     *
+     * @return static
+     */
+    public function scan(string $path, EnumExecuteMethodInterface $method = EnumExecuteMethod::noReturn): static
+    {
+        if (empty($this->profile)) {
+            throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
+        }
+
+        $this->setCommand('scanimage')
+             ->addArguments([
+                                '-d',
+                                $this->profile->getDevice()->getUrl(),
+                            ])
+             ->addArguments($this->options)
+             ->addArguments($this->batch ? ['--batch=' . $path] : [
+                 '-o',
+                 $path,
+             ])
+             ->setTimeout(120)
+             ->execute($method);
+
+        return $this;
     }
 }

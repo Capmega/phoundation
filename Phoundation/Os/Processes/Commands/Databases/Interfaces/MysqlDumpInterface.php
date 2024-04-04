@@ -13,10 +13,10 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 interface MysqlDumpInterface
 {
@@ -31,6 +31,7 @@ interface MysqlDumpInterface
      * Sets the databases that will be dumped
      *
      * @param array|string $databases
+     *
      * @return static
      */
     public function setDatabases(array|string $databases): static;
@@ -52,6 +53,7 @@ interface MysqlDumpInterface
      * tables.
      *
      * @param bool $disable_keys
+     *
      * @return static
      */
     public function setDisableKeys(bool $disable_keys): static;
@@ -69,6 +71,7 @@ interface MysqlDumpInterface
      * option requires the global SELECT privilege.
      *
      * @param bool $routines
+     *
      * @return static
      */
     public function setRoutines(bool $routines): static;
@@ -86,6 +89,7 @@ interface MysqlDumpInterface
      * EVENT privileges for those databases.
      *
      * @param bool $events
+     *
      * @return static
      */
     public function setEvents(bool $events): static;
@@ -101,6 +105,7 @@ interface MysqlDumpInterface
      * Sets if the output file will contain CREATE DATABASE statements
      *
      * @param bool $create_databases
+     *
      * @return static
      */
     public function setCreateDatabases(bool $create_databases): static;
@@ -116,6 +121,7 @@ interface MysqlDumpInterface
      * Sets if the output file will contain CREATE TABLE statements
      *
      * @param bool $create_tables
+     *
      * @return static
      */
     public function setCreateTables(bool $create_tables): static;
@@ -133,6 +139,7 @@ interface MysqlDumpInterface
      * in a smaller dump file and speeds up inserts when the file is reloaded.
      *
      * @param bool $extended_insert
+     *
      * @return static
      */
     public function setExtendedInsert(bool $extended_insert): static;
@@ -150,6 +157,7 @@ interface MysqlDumpInterface
      * and host.
      *
      * @param bool $comments
+     *
      * @return static
      */
     public function setComments(bool $comments): static;
@@ -165,6 +173,7 @@ interface MysqlDumpInterface
      * Sets if mysqldump produces a comment at the end of the dump, only if the comments option is enabled too
      *
      * @param bool $dump_date
+     *
      * @return static
      */
     public function setDumpDate(bool $dump_date): static;
@@ -180,6 +189,7 @@ interface MysqlDumpInterface
      * Sets if dump file will be gzipped
      *
      * @param bool $gzip
+     *
      * @return static
      */
     public function setGzip(bool $gzip): static;
@@ -187,8 +197,9 @@ interface MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param string|null $file
+     * @param string|null                $file
      * @param EnumExecuteMethodInterface $method
+     *
      * @return string
      */
     public function dump(?string $file, EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string;

@@ -14,10 +14,10 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  * This class contains various easy-to-use and ready-to-go command line commands in static methods to manage Linux
  * processes.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Pgrep extends Command
 {
@@ -25,7 +25,9 @@ class Pgrep extends Command
      * Returns the process id for the specified command
      *
      * @note Returns NULL if the process wasn't found
+     *
      * @param string $process
+     *
      * @return ?int
      */
     public function do(string $process): ?int
@@ -43,7 +45,7 @@ class Pgrep extends Command
                 return null;
             }
 
-            return (integer) $output;
+            return (integer)$output;
 
         } catch (ProcessFailedException $e) {
             static::handleException('pgrep', $e);
@@ -55,7 +57,9 @@ class Pgrep extends Command
      * Returns the process id's for all children of the specified parent process id
      *
      * @note This method will also return the PID for the pgrep command that was used to create this list!
+     *
      * @param int $pid
+     *
      * @return array
      */
     public function getChildren(int $pid): array
@@ -67,7 +71,10 @@ class Pgrep extends Command
 
             $output = $this
                 ->setCommand('pgrep')
-                ->addArguments(['-P', $pid])
+                ->addArguments([
+                                   '-P',
+                                   $pid,
+                               ])
                 ->setTimeout(1)
                 ->executeReturnArray();
 

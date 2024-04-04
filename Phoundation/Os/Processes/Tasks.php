@@ -23,10 +23,10 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class Tasks extends DataList implements TasksInterface
 {
@@ -59,18 +59,6 @@ class Tasks extends DataList implements TasksInterface
         parent::__construct($source);
     }
 
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    public static function getTable(): string
-    {
-        return 'os_tasks';
-    }
-
-
     /**
      * Returns the name of this DataEntry class
      *
@@ -81,7 +69,6 @@ class Tasks extends DataList implements TasksInterface
         return Task::class;
     }
 
-
     /**
      * Returns the field that is unique for this object
      *
@@ -91,7 +78,6 @@ class Tasks extends DataList implements TasksInterface
     {
         return 'code';
     }
-
 
     /**
      * Returns the date since when this object is executing tasks, or false instead
@@ -107,15 +93,15 @@ class Tasks extends DataList implements TasksInterface
         return false;
     }
 
-
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = '', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
@@ -125,16 +111,25 @@ class Tasks extends DataList implements TasksInterface
         }
 
         return InputSelect::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
+                          ->setConnector(static::getDefaultConnectorName())
+                          ->setSourceQuery('SELECT   `' . $key_column . '`, ' . $value_column . ' 
                                          FROM     `' . static::getTable() . '` 
                                          WHERE    `status` IS NULL 
                                          ORDER BY `created_on` ASC')
-            ->setName('tasks_id')
-            ->setNone(tr('Select a task'))
-            ->setObjectEmpty(tr('No tasks available'));
+                          ->setName('tasks_id')
+                          ->setNone(tr('Select a task'))
+                          ->setObjectEmpty(tr('No tasks available'));
     }
 
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    public static function getTable(): string
+    {
+        return 'os_tasks';
+    }
 
     /**
      * Execute the tasks in this list
@@ -157,17 +152,20 @@ class Tasks extends DataList implements TasksInterface
 
         Log::action(tr('Executing ":count" pending tasks with ":workers" child worker', [
             ':count'   => count($keys),
-            ':workers' => static::$max_task_workers
+            ':workers' => static::$max_task_workers,
         ]));
 
         try {
             PhoCommand::new('tasks,execute')
-                ->setLabel(tr('task'))
-                ->addArguments(['-t', ':TASKSID'])
-                ->setKey(':TASKSID')
-                ->setValues($keys)
-                ->setMaximumWorkers(static::$max_task_workers)
-                ->start();
+                      ->setLabel(tr('task'))
+                      ->addArguments([
+                                         '-t',
+                                         ':TASKSID',
+                                     ])
+                      ->setKey(':TASKSID')
+                      ->setValues($keys)
+                      ->setMaximumWorkers(static::$max_task_workers)
+                      ->start();
 
         } catch (TasksException $e) {
             Log::error(tr('Execution of pending tasks failed'));

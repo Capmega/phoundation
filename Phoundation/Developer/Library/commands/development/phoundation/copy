@@ -7,7 +7,6 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Plugins;
-use Phoundation\Filesystem\Directory;
 use Phoundation\Filesystem\Restrictions;
 
 
@@ -16,11 +15,11 @@ use Phoundation\Filesystem\Restrictions;
  *
  * This script will copy the specified file back to your phoundation development installation
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Development
+ * @category  Function reference
+ * @package   Phoundation\Development
  */
 
 CliDocumentation::setUsage('./pho project copy FILE');
@@ -43,10 +42,10 @@ FILE                                    The file to copy
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('-b,--branch', true)->isOptional()->isVariableName()
-    ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
-    ->selectAll('files')->each()->isPath(DIRECTORY_ROOT, Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source path')))
-    ->validate();
+                     ->select('-b,--branch', true)->isOptional()->isVariableName()
+                     ->select('-c,--allow-changes')->isOptional(false)->isBoolean()
+                     ->selectAll('files')->each()->isPath(DIRECTORY_ROOT, Restrictions::readonly(DIRECTORY_ROOT, tr('Development copy script source path')))
+                     ->validate();
 
 
 // Copy the file to either Phoundation install or Phoundation plugins install

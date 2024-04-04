@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Requests;
 
+use finfo;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
@@ -16,7 +17,6 @@ use Phoundation\Filesystem\Interfaces\RestrictionsInterface;
 use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Exception;
-use Phoundation\Web\Requests\Interfaces\RequestInterface;
 
 
 /**
@@ -26,10 +26,10 @@ use Phoundation\Web\Requests\Interfaces\RequestInterface;
  *
  * To clients this is the "download file X" functionality
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
 
@@ -87,7 +87,7 @@ class FileResponse extends File
      *
      * @note If the mimetype is specified manually, this will be sent. If no mimetype was specified, the mimetype will
      *       be detected from the file or data
-     * @var string|null $this->mimetype
+     * @var string|null $this ->mimetype
      */
     protected ?string $mimetype = null;
 
@@ -106,28 +106,6 @@ class FileResponse extends File
         $this->compression = Config::get('web.http.download.compression', 'auto');
     }
 
-
-    /**
-     * Sets if files are transferred using compression
-     *
-     * @param bool $compression
-     * @return FileResponse
-     */
-    public function setCompression(string|bool $compression): FileResponse
-    {
-        if (is_string($compression)) {
-            if ($compression !== 'auto') {
-                throw new OutOfBoundsException(tr('Unknown value ":value" specified for $compression, please use true, false, or "auto"', [
-                    ':value' => $compression
-                ]));
-            }
-        }
-
-        $this->compression = $compression;
-        return $this;
-    }
-
-
     /**
      *      * Returns if files will be transferred using compression
      *
@@ -138,19 +116,26 @@ class FileResponse extends File
         return $this->compression;
     }
 
-
     /**
-     * Sets if the process will be terminated once the HTTP file transfer has been completed
+     * Sets if files are transferred using compression
      *
-     * @param bool $die
+     * @param bool $compression
+     *
      * @return FileResponse
      */
-    public function setDie(bool $die): FileResponse
+    public function setCompression(string|bool $compression): FileResponse
     {
-        $this->die = $die;
+        if (is_string($compression)) {
+            if ($compression !== 'auto') {
+                throw new OutOfBoundsException(tr('Unknown value ":value" specified for $compression, please use true, false, or "auto"', [
+                    ':value' => $compression,
+                ]));
+            }
+        }
+
+        $this->compression = $compression;
         return $this;
     }
-
 
     /**
      * Returns if the process will be terminated once the HTTP file transfer has been completed
@@ -162,19 +147,18 @@ class FileResponse extends File
         return $this->die;
     }
 
-
     /**
-     * Sets if the file is transferred as an attachment
+     * Sets if the process will be terminated once the HTTP file transfer has been completed
      *
-     * @param bool $attachment
+     * @param bool $die
+     *
      * @return FileResponse
      */
-    public function setAttachment(bool $attachment): FileResponse
+    public function setDie(bool $die): FileResponse
     {
-        $this->attachment = $attachment;
+        $this->die = $die;
         return $this;
     }
-
 
     /**
      * Returns if the file will be transferred as an attachment
@@ -186,30 +170,18 @@ class FileResponse extends File
         return $this->attachment;
     }
 
-
     /**
-     * Sets the file (locally on this server)
+     * Sets if the file is transferred as an attachment
      *
-     * @param string $file
-     * @return static
+     * @param bool $attachment
+     *
+     * @return FileResponse
      */
-    public function setFile(string $file): static
+    public function setAttachment(bool $attachment): FileResponse
     {
-        if ($this->data) {
-            throw new OutOfBoundsException(tr('Cannot set the file property, file data has already been specified'));
-        }
-
-        // Ensure the specified file is valid and readable
-        \Phoundation\Filesystem\File::new($file, $this->restrictions)->checkReadable();
-        $this->restrictions->check($file, false);
-
-        $this->file     = $file;
-        $this->size     = filesize($file);
-        $this->filename = basename($file);
-
+        $this->attachment = $attachment;
         return $this;
     }
-
 
     /**
      * Returns the file (locally on this server)
@@ -221,19 +193,29 @@ class FileResponse extends File
         return $this->file;
     }
 
-
     /**
-     * Sets the name of the file so that the client knows with what name to save it
+     * Sets the file (locally on this server)
      *
-     * @param string $filename
+     * @param string $file
+     *
      * @return static
      */
-    public function setFilename(string $filename): static
+    public function setFile(string $file): static
     {
-        $this->filename = $filename;
+        if ($this->data) {
+            throw new OutOfBoundsException(tr('Cannot set the file property, file data has already been specified'));
+        }
+
+        // Ensure the specified file is valid and readable
+        File::new($file, $this->restrictions)->checkReadable();
+        $this->restrictions->check($file, false);
+
+        $this->file     = $file;
+        $this->size     = filesize($file);
+        $this->filename = basename($file);
+
         return $this;
     }
-
 
     /**
      * Returns the name of the file so that the client knows with what name to save it
@@ -245,11 +227,34 @@ class FileResponse extends File
         return $this->filename;
     }
 
+    /**
+     * Sets the name of the file so that the client knows with what name to save it
+     *
+     * @param string $filename
+     *
+     * @return static
+     */
+    public function setFilename(string $filename): static
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+
+    /**
+     * Returns the raw data for the file to send, in case no file on disk should be sent
+     *
+     * @return string
+     */
+    public function getData(): string
+    {
+        return $this->data;
+    }
 
     /**
      * Sets the raw data for the file to send, in case no file on disk should be sent
      *
      * @param string $data
+     *
      * @return static
      */
     public function setData(string $data): static
@@ -263,22 +268,11 @@ class FileResponse extends File
         return $this;
     }
 
-
-    /**
-     * Returns the raw data for the file to send, in case no file on disk should be sent
-     *
-     * @return string
-     */
-    public function getData(): string
-    {
-        return $this->data;
-    }
-
-
     /**
      * Sets the mimetype for the file to be sent
      *
      * @param string|null $mimetype
+     *
      * @return static
      */
     public function setMimetype(?string $mimetype): static
@@ -291,8 +285,8 @@ class FileResponse extends File
     /**
      * Send the specified file to the client as a download using the HTTP protocol with correct headers
      *
-     * @version 2.5.89: Rewrote function and added documentation
      * @return never
+     * @version 2.5.89: Rewrote function and added documentation
      */
     #[NoReturn] public function send(): never
     {
@@ -300,12 +294,12 @@ class FileResponse extends File
         Log::action(tr('HTTP sending file ":file" with ":bytes" bytes to client as attachment with filename ":filename"', [
             ':bytes'    => $this->size,
             ':filename' => $this->filename,
-            ':file'     => $this->file
+            ':file'     => $this->file,
         ]));
 
         if ($this->data) {
             // Send data directly from memory
-            $this->mimetype = (new \finfo)->buffer($this->data);
+            $this->mimetype = (new finfo)->buffer($this->data);
 
             // Configure compression, send headers and transfer contents
             $this->configureCompression();
@@ -327,7 +321,7 @@ class FileResponse extends File
             // Configure compression, send headers
             $this->configureCompression();
             $this->sendHeaders();
-throw new UnderConstructionException('Check HTTP headers before continuing!');
+            throw new UnderConstructionException('Check HTTP headers before continuing!');
 //            $mimetype = mime_content_type($target);
 //            $bytes    = $target->getSize();
 //
@@ -351,98 +345,6 @@ throw new UnderConstructionException('Check HTTP headers before continuing!');
 
         exit();
     }
-
-
-    /**
-     * Download the specified single file to the specified path
-     *
-     * If the path is not specified then by default the function will download to the DIRECTORY_TMP directory;
-     * DIRECTORY_ROOT/data/tmp
-     *
-     * @param string $url             The URL of the file to be downloaded
-     * @param callable|null $callback If specified, download will execute this callback with either the filename or file
-     *                                contents (depending on $section)
-     * @return FileInterface|null     The path to the downloaded file or NULL if a callback was specified
-     */
-    public function download(string $url, callable $callback = null): FileInterface|null
-    {
-        // Set temp file and download data
-        $file = FileResponse::getTemporary()->getPath();
-        $data = file_get_contents($url);
-
-        // Write data to the temp file
-        file_put_contents($file, $data);
-
-        if (!$callback) {
-            return \Phoundation\Filesystem\File::new($file, $this->restrictions);
-        }
-
-        // Execute the callbacks before returning the data, delete the temporary file after
-        $file = $callback($file);
-        \Phoundation\Filesystem\File::new($file, $this->restrictions)->delete();
-
-        return $file;
-    }
-
-
-    /**
-     * If the object file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
-     *
-     * @param string $url
-     * @param bool $is_downloaded
-     * @param ?array $context
-     * @return string
-     */
-    public function getLocal(string $url, bool &$is_downloaded = false, ?array $context = null): string
-    {
-        // TODO Replace with function download();
-        throw new UnderConstructionException();
-        try {
-            $context = $this->createStreamContext($context);
-            $url     = trim($url);
-
-            if (str_contains($url, 'http:') and str_contains($url, 'https:') and str_contains($url, 'ftp:')) {
-                if (!file_exists($url)) {
-                    throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $url]));
-                }
-
-                if (is_uploaded_file($url)) {
-                    $tmp  = file_get_uploaded($url);
-                    $this->files = $this->temp($url, null, false);
-
-                    rename($tmp, $this->files);
-                    return $this->files;
-                }
-
-                return $url;
-            }
-
-            // First download the file to a temporary location
-            $this->files          = str_replace(array('://', '/'), '-', $url);
-            $this->files          = $this->temp();
-            $is_downloaded = true;
-
-            $this->directory()->ensure(dirname($this->files));
-            file_put_contents(file_get_contents($url, false, $context));
-
-            return $this->files;
-
-        }catch(Exception $e) {
-            $message = $e->getMessage();
-            $message = strtolower($message);
-
-            if (str_contains($message, '404 not found')) {
-                throw new FilesystemException(tr('URL ":file" does not exist', [':file' => $url]));
-            }
-
-            if (str_contains($message, '400 bad request')) {
-                throw new FilesystemException(tr('URL ":file" is invalid', [':file' => $url]));
-            }
-
-            throw new FilesystemException(tr('Failed for file ":file"', [':file' => $url]), $e);
-        }
-    }
-
 
     /**
      * Checks data and configures compression setting if needed
@@ -476,8 +378,6 @@ throw new UnderConstructionException('Check HTTP headers before continuing!');
         }
     }
 
-
-
     /**
      * Sends HTTP headers before transferring the file
      *
@@ -494,7 +394,101 @@ throw new UnderConstructionException('Check HTTP headers before continuing!');
         if ($this->attachment) {
             // Instead of sending the file to the browser to display directly, send it as a file attachement that will
             // be downloaded to their disk
-            header('Content-Disposition: attachment; filename="' . $this->filename.'"');
+            header('Content-Disposition: attachment; filename="' . $this->filename . '"');
+        }
+    }
+
+    /**
+     * Download the specified single file to the specified path
+     *
+     * If the path is not specified then by default the function will download to the DIRECTORY_TMP directory;
+     * DIRECTORY_ROOT/data/tmp
+     *
+     * @param string        $url      The URL of the file to be downloaded
+     * @param callable|null $callback If specified, download will execute this callback with either the filename or file
+     *                                contents (depending on $section)
+     *
+     * @return FileInterface|null     The path to the downloaded file or NULL if a callback was specified
+     */
+    public function download(string $url, callable $callback = null): FileInterface|null
+    {
+        // Set temp file and download data
+        $file = FileResponse::getTemporary()->getPath();
+        $data = file_get_contents($url);
+
+        // Write data to the temp file
+        file_put_contents($file, $data);
+
+        if (!$callback) {
+            return File::new($file, $this->restrictions);
+        }
+
+        // Execute the callbacks before returning the data, delete the temporary file after
+        $file = $callback($file);
+        File::new($file, $this->restrictions)->delete();
+
+        return $file;
+    }
+
+    /**
+     * If the object file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
+     *
+     * @param string $url
+     * @param bool   $is_downloaded
+     * @param ?array $context
+     *
+     * @return string
+     */
+    public function getLocal(string $url, bool &$is_downloaded = false, ?array $context = null): string
+    {
+        // TODO Replace with function download();
+        throw new UnderConstructionException();
+        try {
+            $context = $this->createStreamContext($context);
+            $url     = trim($url);
+
+            if (str_contains($url, 'http:') and str_contains($url, 'https:') and str_contains($url, 'ftp:')) {
+                if (!file_exists($url)) {
+                    throw new FileNotExistException(tr('Specified file ":file" does not exist', [':file' => $url]));
+                }
+
+                if (is_uploaded_file($url)) {
+                    $tmp         = file_get_uploaded($url);
+                    $this->files = $this->temp($url, null, false);
+
+                    rename($tmp, $this->files);
+                    return $this->files;
+                }
+
+                return $url;
+            }
+
+            // First download the file to a temporary location
+            $this->files   = str_replace([
+                                             '://',
+                                             '/',
+                                         ], '-', $url);
+            $this->files   = $this->temp();
+            $is_downloaded = true;
+
+            $this->directory()->ensure(dirname($this->files));
+            file_put_contents(file_get_contents($url, false, $context));
+
+            return $this->files;
+
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            $message = strtolower($message);
+
+            if (str_contains($message, '404 not found')) {
+                throw new FilesystemException(tr('URL ":file" does not exist', [':file' => $url]));
+            }
+
+            if (str_contains($message, '400 bad request')) {
+                throw new FilesystemException(tr('URL ":file" is invalid', [':file' => $url]));
+            }
+
+            throw new FilesystemException(tr('Failed for file ":file"', [':file' => $url]), $e);
         }
     }
 }

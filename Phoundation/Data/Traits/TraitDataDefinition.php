@@ -12,10 +12,10 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataDefinition
 {
@@ -42,6 +42,7 @@ trait TraitDataDefinition
      * Sets the definition
      *
      * @param DefinitionInterface|null $definition
+     *
      * @return static
      */
     public function setDefinition(DefinitionInterface|null $definition): static

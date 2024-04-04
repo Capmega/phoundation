@@ -10,10 +10,10 @@ namespace Phoundation\Core\Libraries\Interfaces;
  *
  * This library can initialize all other libraries
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Developer
+ * @package   Phoundation\Developer
  */
 interface LibraryInterface
 {
@@ -21,6 +21,7 @@ interface LibraryInterface
      * Initialize this library
      *
      * @param string|null $comments
+     *
      * @return bool True if the library had updates applied
      */
     public function init(?string $comments): bool;
@@ -29,6 +30,7 @@ interface LibraryInterface
      * Executes POST init files for this library
      *
      * @param string|null $comments
+     *
      * @return bool True if the library had updates applied
      */
     public function initPost(?string $comments): bool;
@@ -127,8 +129,9 @@ interface LibraryInterface
     /**
      * Update the version registration for this version to be the specified version
      *
-     * @param string $version
+     * @param string      $version
      * @param string|null $comments
+     *
      * @return void
      */
     public function setVersion(string $version, ?string $comments = null): void;

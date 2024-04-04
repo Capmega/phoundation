@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class CoreLocale
 {
@@ -96,6 +96,23 @@ class CoreLocale
      * @param optional $string LC_MESSAGES Default value for LC_MESSAGES parameter
      * @return string the LC_ALL locale
      */
+    /**
+     * Returns a formatted version of the specified phone number
+     *
+     * @param string|int|null $phone_number
+     * @param bool            $international
+     *
+     * @return string|null
+     */
+    public static function formatPhoneNumber(string|int|null $phone_number, bool $international = true): ?string
+    {
+        if (!$phone_number) {
+            return null;
+        }
+
+        return preg_replace('~(.*)(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', ($international ? '$1 ' : '') . '($2) $3-$4', $phone_number);
+    }
+
     function set($data = null)
     {
         global $_CONFIG;
@@ -164,22 +181,5 @@ class CoreLocale
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns a formatted version of the specified phone number
-     *
-     * @param string|int|null $phone_number
-     * @param bool $international
-     * @return string|null
-     */
-    public static function formatPhoneNumber(string|int|null $phone_number, bool $international = true): ?string
-    {
-        if (!$phone_number) {
-            return null;
-        }
-
-        return preg_replace('~(.*)(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', ($international ? '$1 ' : '') . '($2) $3-$4', $phone_number);
     }
 }

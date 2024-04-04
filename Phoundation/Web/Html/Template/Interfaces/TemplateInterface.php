@@ -3,8 +3,6 @@
 namespace Phoundation\Web\Html\Template\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 
 /**
@@ -12,10 +10,10 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
  *
  * This class contains basic template functionalities. All template classes must extend this class!
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface TemplateInterface
 {
@@ -25,6 +23,7 @@ interface TemplateInterface
      * This is in case a specific site requires a specific template
      *
      * @param string $name
+     *
      * @return void
      */
     public function requires(string $name): void;
@@ -47,6 +46,7 @@ interface TemplateInterface
      * Returns a Renderer class for the specified component in the current Template, or NULL if none available
      *
      * @param RenderInterface|string $class
+     *
      * @return string|null
      */
     public function getRendererClass(RenderInterface|string $class): ?string;

@@ -12,10 +12,10 @@ use Stringable;
  *
  * This trait contains methods for DataEntry objects that requires a redirect
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryRedirect
 {
@@ -34,10 +34,11 @@ trait TraitDataEntryRedirect
      * Sets the redirect for this object
      *
      * @param Stringable|string|null $redirect
+     *
      * @return static
      */
     public function setRedirect(Stringable|string|null $redirect): static
     {
-        return $this->setValue('redirect', (string) $redirect);
+        return $this->setValue('redirect', (string)$redirect);
     }
 }

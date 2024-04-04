@@ -4,11 +4,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Tests\BomFile;
-use Phoundation\Developer\Tests\Exception\BomException;
-use Phoundation\Filesystem\Restrictions;
 use Phoundation\Os\Processes\Commands\Composer;
 use Phoundation\Utils\Strings;
 
@@ -18,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  * This command will execute "composer update"
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 
@@ -31,7 +27,10 @@ command
 
 ARGUMENTS
 
-' . Strings::from(Composer::new()->addArguments(['help', 'update'])->executeReturnString(), 'Arguments:'));
+' . Strings::from(Composer::new()->addArguments([
+                                                                              'help',
+                                                                              'update',
+                                                                          ])->executeReturnString(), 'Arguments:'));
 
 CliDocumentation::setUsage('./pho composer update
 ./pho composer update vendor/package1

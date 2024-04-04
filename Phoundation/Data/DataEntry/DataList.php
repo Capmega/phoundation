@@ -36,10 +36,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 abstract class DataList extends Iterator implements DataListInterface
 {
@@ -98,63 +98,17 @@ abstract class DataList extends Iterator implements DataListInterface
      */
     protected string $input_select_class = InputSelect::class;
 
-
     /**
-     * Return the object source contents in JSON string format
+     * Returns true if the ID column is the specified column
      *
-     * @return string
+     * @param string $column
+     *
+     * @return bool
      */
-    public function __toString(): string
+    public static function idColumnIs(string $column): bool
     {
-        return Json::encode($this->source);
+        return static::getIdColumn() === $column;
     }
-
-
-    /**
-     * Return the object contents in JSON string format
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string
-     */
-    abstract public static function getTable(): string;
-
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    abstract public static function getEntryClass(): string;
-
-
-    /**
-     * Returns the column that is unique for this object
-     *
-     * @return string|null
-     */
-    abstract public static function getUniqueColumn(): ?string;
-
-
-    /**
-     * Returns the default database connector to use for this table
-     *
-     * @return string
-     */
-    public static function getDefaultConnectorName(): string
-    {
-        return 'system';
-    }
-
 
     /**
      * Returns the column considered the "id" column
@@ -166,23 +120,41 @@ abstract class DataList extends Iterator implements DataListInterface
         return 'id';
     }
 
-
     /**
-     * Returns true if the ID column is the specified column
+     * Access the direct list operations for this class
      *
-     * @param string $column
-     * @return bool
+     * @return ListOperationsInterface
      */
-    public static function idColumnIs(string $column): bool
+    public static function directOperations(): ListOperationsInterface
     {
-        return static::getIdColumn() === $column;
+        return new ListOperations(static::class);
     }
 
+    /**
+     * Return the object source contents in JSON string format
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return Json::encode($this->source);
+    }
+
+    /**
+     * Return the object contents in JSON string format
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return $this->source;
+    }
 
     /**
      * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
+     *
      * @return bool
      */
     public function keyExists(DataEntryInterface|Stringable|string|float|int $key): bool
@@ -194,7 +166,6 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::keyExists($key);
     }
 
-
     /**
      * Returns if the DataEntry entries are stored with ID or key
      *
@@ -205,11 +176,11 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->keys_are_unique_column;
     }
 
-
     /**
      * Sets if the DataEntry entries are stored with ID or key
      *
      * @param bool $keys_are_unique_column
+     *
      * @return static
      */
     public function setKeysareUniqueColumn(bool $keys_are_unique_column): static
@@ -217,7 +188,6 @@ abstract class DataList extends Iterator implements DataListInterface
         $this->keys_are_unique_column = $keys_are_unique_column;
         return $this;
     }
-
 
     /**
      * Returns the query for this object when generating internal content
@@ -230,12 +200,12 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->query;
     }
 
-
     /**
      * Set the query for this object when generating internal content
      *
-     * @param string $query
+     * @param string     $query
      * @param array|null $execute
+     *
      * @return static
      */
     public function setQuery(string $query, ?array $execute = null): static
@@ -246,6 +216,35 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this;
     }
 
+    /**
+     * Selects if we use the default query or a query from the QueryBuilder
+     *
+     * @return void
+     * @throws OutOfBoundsException
+     */
+    protected function selectQuery(): void
+    {
+        // Use the default html_query and html_execute or QueryBuilder html_query and html_execute?
+        if (isset($this->query_builder)) {
+            $this->query   = $this->query_builder->getQuery();
+            $this->execute = $this->query_builder->getExecute();
+
+        } elseif (!isset($this->query)) {
+            // Create query with optional filtering for parents_id
+            if ($this->parent) {
+                $parent_filter               = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
+                $this->execute['parents_id'] = $this->parent->getId();
+
+            } else {
+                $parent_filter = null;
+            }
+
+            // Set default query
+            $this->query = 'SELECT                        ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+                            FROM                         `' . static::getTable() . '`
+                            WHERE  ' . $parent_filter . '`' . static::getTable() . '`.`status` IS NULL';
+        }
+    }
 
     /**
      * Returns the execute array for the query for this object when generating internal content
@@ -258,12 +257,48 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->execute;
     }
 
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string
+     */
+    abstract public static function getTable(): string;
+
+    /**
+     * Returns the column that (by default) is used for keys
+     *
+     * @return string
+     */
+    protected function getKeyColumn(): string
+    {
+        if ($this->keys_are_unique_column) {
+            $column = static::getUniqueColumn();
+
+            if (!$column) {
+                throw new OutOfBoundsException(tr('The DataList type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
+                    ':class' => get_class($this),
+                ]));
+            }
+
+            return '`' . static::getTable() . '`.`' . $column . '`';
+        }
+
+        return '`' . static::getTable() . '`.`id`';
+    }
+
+    /**
+     * Returns the column that is unique for this object
+     *
+     * @return string|null
+     */
+    abstract public static function getUniqueColumn(): ?string;
 
     /**
      * Returns the item with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return DataEntry|null
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface
@@ -273,7 +308,7 @@ abstract class DataList extends Iterator implements DataListInterface
             if ($exception) {
                 throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataList', [
                     ':key'   => $key,
-                    ':class' => get_class($this)
+                    ':class' => get_class($this),
                 ]));
             }
 
@@ -283,13 +318,47 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->ensureDataEntry($key);
     }
 
+    /**
+     * Ensure the entry we're going to return is from DataEntryInterface interface
+     *
+     * @param string|float|int $key
+     *
+     * @return DataEntryInterface
+     */
+    #[ReturnTypeWillChange] protected function ensureDataEntry(string|float|int $key): DataEntryInterface
+    {
+        // Ensure the source key is of DataEntryInterface
+        if (!$this->source[$key] instanceof DataEntryInterface) {
+            // Okay, interesting problem! When we loaded entries through QueryBuilder, we allowed to use whatever hell
+            // columns we wanted with whatever hell datatype. For example, a column that normally would be an integer
+            // now might be a string which will make the DataEntry setValue methods crash. To avoid this, we cannot rely
+            // on the data available in the datalist, we'll have to load the DataEntry manually
+            if (isset($this->query_builder)) {
+                // Load the DataEntry separately from the database (will require an extra query)
+                $this->source[$key] = static::getEntryClass()::get($key);
+
+            } else {
+                $this->source[$key] = static::getEntryClass()::new()->setSource($this->source[$key]);
+            }
+        }
+
+        return $this->source[$key];
+    }
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    abstract public static function getEntryClass(): string;
 
     /**
      * Sets the value for the specified key
      *
-     * @param DataEntryInterface $value
+     * @param DataEntryInterface          $value
      * @param Stringable|string|float|int $key
-     * @param bool $skip_null
+     * @param bool                        $skip_null
+     *
      * @return static
      */
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null = true): static
@@ -301,10 +370,9 @@ abstract class DataList extends Iterator implements DataListInterface
         throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", it does not have a DataEntryInterface', [
             ':list'  => get_class($this),
             ':key'   => $key,
-            ':value' => $value
+            ':value' => $value,
         ]));
     }
-
 
     /**
      * Returns a QueryBuilder object to modify the internal query for this object
@@ -320,11 +388,11 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->query_builder;
     }
 
-
     /**
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
@@ -333,28 +401,38 @@ abstract class DataList extends Iterator implements DataListInterface
             // Source is already loaded, use this instead
             // Create and return the table
             return HtmlTable::new()
-                ->setId(static::getTable())
-                ->setSource($this->getAllRowsMultipleColumns($columns))
-                ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+                            ->setId(static::getTable())
+                            ->setSource($this->getAllRowsMultipleColumns($columns))
+                            ->setCallbacks($this->callbacks)
+                            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
 
         $this->selectQuery();
 
         // Create and return the table
         return HtmlTable::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setId(static::getTable())
-            ->setSourceQuery($this->query, $this->execute)
-            ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+                        ->setConnector(static::getDefaultConnectorName())
+                        ->setId(static::getTable())
+                        ->setSourceQuery($this->query, $this->execute)
+                        ->setCallbacks($this->callbacks)
+                        ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
 
+    /**
+     * Returns the default database connector to use for this table
+     *
+     * @return string
+     */
+    public static function getDefaultConnectorName(): string
+    {
+        return 'system';
+    }
 
     /**
      * Creates and returns a fancy HTML data table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlDataTableInterface
      */
     public function getHtmlDataTable(array|string|null $columns = null): HtmlDataTableInterface
@@ -363,32 +441,32 @@ abstract class DataList extends Iterator implements DataListInterface
             // Source is already loaded, use this instead
             // Create and return the table
             return HtmlDataTable::new()
-                ->setId(static::getTable())
-                ->setSource($this->getAllRowsMultipleColumns($columns))
-                ->setCallbacks($this->callbacks)
-                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+                                ->setId(static::getTable())
+                                ->setSource($this->getAllRowsMultipleColumns($columns))
+                                ->setCallbacks($this->callbacks)
+                                ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
         }
 
         $this->selectQuery();
 
         // Create and return the table
         return HtmlDataTable::new()
-            ->setConnector(static::getDefaultConnectorName())
-            ->setId(static::getTable())
-            ->setSourceQuery($this->query, $this->execute)
-            ->setCallbacks($this->callbacks)
-            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
+                            ->setConnector(static::getDefaultConnectorName())
+                            ->setId(static::getTable())
+                            ->setSourceQuery($this->query, $this->execute)
+                            ->setCallbacks($this->callbacks)
+                            ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
-
 
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
@@ -441,13 +519,13 @@ abstract class DataList extends Iterator implements DataListInterface
         return $select;
     }
 
-
     /**
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|string|null $columns
-     * @param array $filters
-     * @param string|null $id_column
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
      * @return static
      */
     public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
@@ -461,12 +539,24 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::displayCliTable($columns, $filters, $id_column);
     }
 
+    /**
+     * Delete all the entries in this list
+     *
+     * @param string|null $comments
+     *
+     * @return int
+     */
+    public function delete(?string $comments = null): int
+    {
+        return $this->setStatus('deleted', $comments);
+    }
 
     /**
      * Set the specified status for the specified entries
      *
      * @param string|null $status
      * @param string|null $comments
+     *
      * @return int
      */
     public function setStatus(?string $status, ?string $comments = null): int
@@ -477,30 +567,6 @@ abstract class DataList extends Iterator implements DataListInterface
 
         return count($this->source);
     }
-
-
-    /**
-     * Delete all the entries in this list
-     *
-     * @param string|null $comments
-     * @return int
-     */
-    public function delete(?string $comments = null): int
-    {
-        return $this->setStatus('deleted', $comments);
-    }
-
-
-    /**
-     * Access the direct list operations for this class
-     *
-     * @return ListOperationsInterface
-     */
-    public static function directOperations(): ListOperationsInterface
-    {
-        return new ListOperations(static::class);
-    }
-
 
     /**
      * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
@@ -537,12 +603,25 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this;
     }
 
+    /**
+     * This method will load ALL database entries into this object
+     *
+     * @return $this
+     */
+    public function loadAll(): static
+    {
+        $this->source = sql(static::getDefaultConnectorName())->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
+                                                                                     FROM  `' . static::getTable() . '`');
+        return $this;
+    }
 
     /**
      * Undelete the specified entries
      *
      * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
+     *
      * @param string|null $comments
+     *
      * @return int
      */
     public function undelete(?string $comments = null): int
@@ -550,11 +629,11 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->setStatus(null, $comments);
     }
 
-
     /**
      * Returns an array with all id's for the specified entry identifiers
      *
      * @param array $identifiers
+     *
      * @return array
      */
     public function listIds(array $identifiers): array
@@ -570,14 +649,14 @@ abstract class DataList extends Iterator implements DataListInterface
         return [];
     }
 
-
     /**
      * Add the specified data entry to the data list
      *
-     * @param mixed $value
+     * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool $skip_null
-     * @param bool $exception
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
      * @return static
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
@@ -586,7 +665,7 @@ abstract class DataList extends Iterator implements DataListInterface
             // Value might be NULL if we skip NULLs?
             if (($value !== null) or !$skip_null) {
                 throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
-                    ':value' => $value
+                    ':value' => $value,
                 ]));
             }
         }
@@ -600,7 +679,7 @@ abstract class DataList extends Iterator implements DataListInterface
                         ':unique' => $value::getUniqueColumn(),
                         ':type'   => $value::getDataEntryName(),
                         ':id'     => $value->getId() ?? 'N/A',
-                        ':key'    => $key
+                        ':key'    => $key,
                     ]));
                 }
 
@@ -614,7 +693,7 @@ abstract class DataList extends Iterator implements DataListInterface
             if (!$key) {
                 throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataList object should uses unique columns as keys, but has no unique column configured', [
                     ':value' => $value,
-                    ':class' => get_class($this)
+                    ':class' => get_class($this),
                 ]));
             }
 
@@ -625,7 +704,7 @@ abstract class DataList extends Iterator implements DataListInterface
                     throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
                         ':type' => $value::getDataEntryName(),
                         ':id'   => $value->getId(),
-                        ':key'  => $key
+                        ':key'  => $key,
                     ]));
                 }
 
@@ -639,7 +718,6 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::add($value, $key, $skip_null, $exception);
     }
 
-
     /**
      * Returns the current item
      *
@@ -649,7 +727,6 @@ abstract class DataList extends Iterator implements DataListInterface
     {
         return $this->ensureDataEntry(key($this->source));
     }
-
 
     /**
      * Returns the first element contained in this object without changing the internal pointer
@@ -661,7 +738,6 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->ensureDataEntry(array_key_first($this->source));
     }
 
-
     /**
      * Returns the last element contained in this object without changing the internal pointer
      *
@@ -672,124 +748,12 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->ensureDataEntry(array_key_last($this->source));
     }
 
-
-    /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
-     *
-     * @param string|float|int $key
-     * @return DataEntryInterface
-     */
-    #[ReturnTypeWillChange] protected function ensureDataEntry(string|float|int $key): DataEntryInterface
-    {
-        // Ensure the source key is of DataEntryInterface
-        if (!$this->source[$key] instanceof DataEntryInterface) {
-            // Okay, interesting problem! When we loaded entries through QueryBuilder, we allowed to use whatever hell
-            // columns we wanted with whatever hell datatype. For example, a column that normally would be an integer
-            // now might be a string which will make the DataEntry setValue methods crash. To avoid this, we cannot rely
-            // on the data available in the datalist, we'll have to load the DataEntry manually
-            if (isset($this->query_builder)) {
-                // Load the DataEntry separately from the database (will require an extra query)
-                $this->source[$key] = static::getEntryClass()::get($key);
-
-            } else {
-                $this->source[$key] = static::getEntryClass()::new()->setSource($this->source[$key]);
-            }
-        }
-
-        return $this->source[$key];
-    }
-
-
-    /**
-     * Ensures that all objects in the source are DataEntry objects
-     *
-     * @return $this
-     */
-    protected function ensureDataEntries(): static
-    {
-        foreach ($this->source as $key => $value) {
-            $this->ensureDataEntry($key);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Will throw an OutOfBoundsException exception if no parent was set for this list
-     *
-     * @param string $action
-     * @return static
-     */
-    protected function ensureParent(string $action): static
-    {
-        if (!$this->parent) {
-            throw new OutOfBoundsException(tr('Cannot ":action", no parent specified', [':action' => $action]));
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Selects if we use the default query or a query from the QueryBuilder
-     *
-     * @return void
-     * @throws OutOfBoundsException
-     */
-    protected function selectQuery(): void
-    {
-        // Use the default html_query and html_execute or QueryBuilder html_query and html_execute?
-        if (isset($this->query_builder)) {
-            $this->query   = $this->query_builder->getQuery();
-            $this->execute = $this->query_builder->getExecute();
-
-        } elseif (!isset($this->query)) {
-            // Create query with optional filtering for parents_id
-            if ($this->parent) {
-                $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
-                $this->execute['parents_id'] = $this->parent->getId();
-
-            } else {
-                $parent_filter = null;
-            }
-
-            // Set default query
-            $this->query = 'SELECT                        ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
-                            FROM                         `' . static::getTable() . '`
-                            WHERE  ' . $parent_filter . '`' . static::getTable() . '`.`status` IS NULL';
-        }
-    }
-
-
-    /**
-     * Returns the column that (by default) is used for keys
-     *
-     * @return string
-     */
-    protected function getKeyColumn(): string
-    {
-        if ($this->keys_are_unique_column) {
-            $column = static::getUniqueColumn();
-
-            if (!$column) {
-                throw new OutOfBoundsException(tr('The DataList type class ":class" is configured to use its unique column as keys, but no unique column has been defined', [
-                    ':class' => get_class($this)
-                ]));
-            }
-
-            return '`' . static::getTable() . '`.`' . $column . '`';
-        }
-
-        return '`' . static::getTable() . '`.`id`';
-    }
-
-
     /**
      * Load the id list from the database
      *
      * @param bool $clear
      * @param bool $only_if_empty
+     *
      * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false): static
@@ -810,24 +774,11 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this;
     }
 
-
-    /**
-     * This method will load ALL database entries into this object
-     *
-     * @return $this
-     */
-    public function loadAll(): static
-    {
-        $this->source = sql(static::getDefaultConnectorName())->listKeyValues('SELECT ' . static::getKeyColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.*
-                                                                                     FROM  `' . static::getTable() . '`');
-        return $this;
-    }
-
-
     /**
      * Adds the specified source to the internal source
      *
      * @param IteratorInterface|array|string|null $source
+     *
      * @return $this
      */
     public function addSources(IteratorInterface|array|string|null $source): static
@@ -835,11 +786,11 @@ abstract class DataList extends Iterator implements DataListInterface
         return parent::addSources($source);
     }
 
-
     /**
      * Sets the parent
      *
      * @param DataEntryInterface $parent
+     *
      * @return static
      */
     public function setParent(DataEntryInterface $parent): static
@@ -849,19 +800,49 @@ abstract class DataList extends Iterator implements DataListInterface
         return $this->__setParent($parent);
     }
 
-
     /**
      * Returns an array of
      *
      * @param string|null $word
+     *
      * @return array
      */
     public function autoCompleteFind(?string $word = null): array
     {
         return sql(static::getDefaultConnectorName())->listKeyValue('SELECT `id`, `' . static::getUniqueColumn() . '`
                                                                            FROM   `' . static::getTable() . '`'
-                                                              . ($word ? ' WHERE  `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
+                                                                    . ($word ? ' WHERE  `' . static::getUniqueColumn() . '` LIKE :like' : null) . '
                                                                            LIMIT   ' . CliAutoComplete::getLimit(),
-            $word ? [':like' => $word. '%'] : null);
+                                                                    $word ? [':like' => $word . '%'] : null);
+    }
+
+    /**
+     * Ensures that all objects in the source are DataEntry objects
+     *
+     * @return $this
+     */
+    protected function ensureDataEntries(): static
+    {
+        foreach ($this->source as $key => $value) {
+            $this->ensureDataEntry($key);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Will throw an OutOfBoundsException exception if no parent was set for this list
+     *
+     * @param string $action
+     *
+     * @return static
+     */
+    protected function ensureParent(string $action): static
+    {
+        if (!$this->parent) {
+            throw new OutOfBoundsException(tr('Cannot ":action", no parent specified', [':action' => $action]));
+        }
+
+        return $this;
     }
 }

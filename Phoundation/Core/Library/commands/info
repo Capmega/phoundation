@@ -22,10 +22,10 @@ use Phoundation\Utils\Strings;
  *
  * This script will display detailed information about the current framework, project, database ,etc.
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho info');
 CliDocumentation::setHelp('The info script will show detailed information about the current framework, project, database and more
@@ -38,7 +38,7 @@ ARGUMENTS
 
 
 $argv  = ArgvValidator::new()->validate();
-$no_db =  false;
+$no_db = false;
 
 try {
     Sql()->query('SELECT 1');
@@ -47,13 +47,13 @@ try {
     $no_db = tr('Database does not exist');
 
     define('FRAMEWORKDBVERSION', tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
-    define('PROJECTDBVERSION'  , tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
+    define('PROJECTDBVERSION', tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
 
 } catch (SqlAccessDeniedException $e) {
     $no_db = tr('Access denied');
 
     define('FRAMEWORKDBVERSION', tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
-    define('PROJECTDBVERSION'  , tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
+    define('PROJECTDBVERSION', tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
 }
 
 $system_size    = 0;
@@ -63,11 +63,11 @@ $templates_size = 0;
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
 //$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
 
-Log::cli(CliColor::apply(Strings::size(tr('Project name:') , 28), 'white') . ' ' . PROJECT);
-Log::cli(CliColor::apply(Strings::size(tr('Platform:')     , 28), 'white') . ' ' . PLATFORM);
-Log::cli(CliColor::apply(Strings::size(tr('Environment:')  , 28), 'white') . ' ' . ENVIRONMENT);
-Log::cli(CliColor::apply(Strings::size(tr('Production:')   , 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
-Log::cli(CliColor::apply(Strings::size(tr('Debug:')        , 28), 'white') . ' ' . Strings::fromBoolean(Debug::getEnabled()));
+Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 28), 'white') . ' ' . PROJECT);
+Log::cli(CliColor::apply(Strings::size(tr('Platform:'), 28), 'white') . ' ' . PLATFORM);
+Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 28), 'white') . ' ' . ENVIRONMENT);
+Log::cli(CliColor::apply(Strings::size(tr('Production:'), 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
+Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 28), 'white') . ' ' . Strings::fromBoolean(Debug::getEnabled()));
 Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
 Log::cli();
@@ -96,9 +96,9 @@ foreach (Libraries::listLibraries(false, false, true) as $library) {
 
 Log::cli();
 Log::cli(CliColor::apply(Strings::size(tr('Statistics:'), 28), 'white'));
-Log::cli(CliColor::apply(Strings::size(tr('Total library size:')    , 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size));
-Log::cli(CliColor::apply(Strings::size(tr('Plugins library size:')  , 28), 'white') . ' ' . Numbers::getHumanReadableBytes($plugins_size));
+Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size));
+Log::cli(CliColor::apply(Strings::size(tr('Plugins library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($plugins_size));
 Log::cli(CliColor::apply(Strings::size(tr('Templates library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($templates_size));
-Log::cli(CliColor::apply(Strings::size(tr('Total library size:')    , 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size + $plugins_size + $templates_size));
+Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size + $plugins_size + $templates_size));
 
 Log::cli();

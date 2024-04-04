@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Phoundation\Utils\Strings;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
 use PHPUnit\Framework\TestCase;
 
 

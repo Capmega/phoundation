@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * This trait contains methods for DataEntry objects that require a priority
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryPriority
 {
@@ -34,13 +34,14 @@ trait TraitDataEntryPriority
      * Sets the priority for this object
      *
      * @param int|null $priority
+     *
      * @return static
      */
     public function setPriority(?int $priority): static
     {
         if (is_numeric($priority) and (($priority < 0) or ($priority > 100))) {
             throw new OutOfBoundsException(tr('Specified priority ":priority" is invalid, it should be a number from 0 to 100', [
-                ':priority' => $priority
+                ':priority' => $priority,
             ]));
         }
 

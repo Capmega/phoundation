@@ -21,48 +21,48 @@ use Phoundation\Web\Requests\Response;
 $filters_content = FilterForm::new();
 
 $filters = Card::new()
-    ->setTitle('Customers filters')
-    ->setCollapseSwitch(true)
-    ->setContent($filters_content->render())
-    ->useForm(true);
+               ->setTitle('Customers filters')
+               ->setCollapseSwitch(true)
+               ->setContent($filters_content->render())
+               ->useForm(true);
 
 
 // Build customers table
 $table = Customers::new()->getHtmlDataTable()
-    ->setRowUrl('/business/customer+:ROW.html');
+                  ->setRowUrl('/business/customer+:ROW.html');
 
 $customers = Card::new()
-    ->setTitle('Active customers')
-    ->setSwitches('reload')
-    ->setContent($table->render())
-    ->useForm(true);
+                 ->setTitle('Active customers')
+                 ->setSwitches('reload')
+                 ->setContent($table->render())
+                 ->useForm(true);
 
 $customers->getForm()
-        ->setAction(UrlBuilder::getCurrent())
-        ->setMethod('POST');
+          ->setAction(UrlBuilder::getCurrent())
+          ->setMethod('POST');
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setCollapseSwitch(true)
-    ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
+                ->setMode(EnumDisplayMode::info)
+                ->setTitle(tr('Relevant links'))
+                ->setCollapseSwitch(true)
+                ->setContent('<a href="' . UrlBuilder::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setCollapseSwitch(true)
-    ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setCollapseSwitch(true)
+                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $customers->render(), EnumDisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($filters->render() . $customers->render(), EnumDisplaySize::nine)
+            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
@@ -70,6 +70,6 @@ echo $grid->render();
 // Set page meta data
 Response::setHeaderTitle(tr('Customers'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Customers')
-]));
+                                                           '/' => tr('Home'),
+                                                           ''  => tr('Customers'),
+                                                       ]));

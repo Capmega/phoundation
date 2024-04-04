@@ -12,10 +12,10 @@ use Phoundation\Business\Companies\Departments\Department;
  *
  * This trait contains methods for DataEntry objects that require a department
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryDepartment
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryDepartment
      * Sets the departments_id for this object
      *
      * @param int|null $departments_id
+     *
      * @return static
      */
     public function setDepartmentsId(?int $departments_id): static
@@ -74,6 +75,7 @@ trait TraitDataEntryDepartment
      * Sets the departments_id for this object
      *
      * @param string|null $departments_name
+     *
      * @return static
      */
     public function setDepartmentsName(?string $departments_name): static

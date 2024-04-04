@@ -15,59 +15,13 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 class Audio extends Element
 {
-    /**
-     * Returns how audio should be preloaded
-     *
-     * @return EnumAudioPreloadInterface|null
-     */
-    public function getPreload(): ?EnumAudioPreloadInterface
-    {
-        return EnumAudioPreload::from($this->attributes->get('preload', false));
-    }
-
-
-    /**
-     * Sets how audio should be preloaded
-     *
-     * @param EnumAudioPreloadInterface $value
-     * @return static
-     */
-    public function setPreload(EnumAudioPreloadInterface $value): static
-    {
-        return $this->setAttribute($value, 'preload');
-    }
-
-
-    /**
-     * Returns how audio should be preloaded
-     *
-     * @return ?string
-     */
-    public function getFile(): ?string
-    {
-        return $this->attributes->get('src', false);
-    }
-
-
-    /**
-     * Sets how audio should be preloaded
-     *
-     * @param Stringable|string|null $file
-     * @return static
-     */
-    public function setFile(Stringable|string|null $file): static
-    {
-        return $this->setAttribute((string) $file, 'src');
-    }
-
-
     /**
      * Audio class constructor
      *
@@ -79,6 +33,49 @@ class Audio extends Element
         $this->setElement('audio');
     }
 
+    /**
+     * Returns how audio should be preloaded
+     *
+     * @return EnumAudioPreloadInterface|null
+     */
+    public function getPreload(): ?EnumAudioPreloadInterface
+    {
+        return EnumAudioPreload::from($this->attributes->get('preload', false));
+    }
+
+    /**
+     * Sets how audio should be preloaded
+     *
+     * @param EnumAudioPreloadInterface $value
+     *
+     * @return static
+     */
+    public function setPreload(EnumAudioPreloadInterface $value): static
+    {
+        return $this->setAttribute($value, 'preload');
+    }
+
+    /**
+     * Returns how audio should be preloaded
+     *
+     * @return ?string
+     */
+    public function getFile(): ?string
+    {
+        return $this->attributes->get('src', false);
+    }
+
+    /**
+     * Sets how audio should be preloaded
+     *
+     * @param Stringable|string|null $file
+     *
+     * @return static
+     */
+    public function setFile(Stringable|string|null $file): static
+    {
+        return $this->setAttribute((string)$file, 'src');
+    }
 
     /**
      * Renders and returns the HTML for this object

@@ -14,10 +14,10 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 interface TaskInterface extends DataEntryInterface
 {
@@ -32,6 +32,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the parents_id for this object
      *
      * @param int|null $parents_id
+     *
      * @return static
      */
     public function setParentsId(?int $parents_id): static;
@@ -47,6 +48,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the datetime after which this task should be executed
      *
      * @param DateTimeInterface|string|null $execute_after
+     *
      * @return static
      */
     public function setExecuteAfter(DateTimeInterface|string|null $execute_after): static;
@@ -62,6 +64,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the datetime after which this task should be executed
      *
      * @param DateTimeInterface|string|null $start
+     *
      * @return static
      */
     public function setStart(DateTimeInterface|string|null $start): static;
@@ -77,6 +80,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the datetime after which this task should be executed
      *
      * @param DateTimeInterface|string|null $stop
+     *
      * @return static
      */
     public function setStop(DateTimeInterface|string|null $stop): static;
@@ -92,6 +96,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the send_to_id for where this task should be executed
      *
      * @param int|null $send_to_id
+     *
      * @return static
      */
     public function setSendToId(int|null $send_to_id): static;
@@ -107,6 +112,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the roles_id for where this task should be executed
      *
      * @param int|null $roles_id
+     *
      * @return static
      */
     public function setRolesId(int|null $roles_id): static;
@@ -136,6 +142,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the nocache for where this task should be executed
      *
      * @param int|null $nocache
+     *
      * @return static
      */
     public function setNocache(int|null $nocache): static;
@@ -151,6 +158,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the ionice for where this task should be executed
      *
      * @param int|null $ionice
+     *
      * @return static
      */
     public function setIonice(int|null $ionice): static;
@@ -166,6 +174,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the ionice_level for where this task should be executed
      *
      * @param int|null $ionice_level
+     *
      * @return static
      */
     public function setIoniceLevel(int|null $ionice_level): static;
@@ -181,6 +190,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the nice for where this task should be executed
      *
      * @param int|null $nice
+     *
      * @return static
      */
     public function setNice(int|null $nice): static;
@@ -196,6 +206,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the timeout for where this task should be executed
      *
      * @param int|null $timeout
+     *
      * @return static
      */
     public function setTimeout(int|null $timeout): static;
@@ -211,6 +222,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the wait for where this task should be executed
      *
      * @param int|null $wait
+     *
      * @return static
      */
     public function setWait(int|null $wait): static;
@@ -226,6 +238,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the background for where this task should be executed
      *
      * @param bool|null $background
+     *
      * @return static
      */
     public function setBackground(int|bool|null $background): static;
@@ -241,6 +254,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets the clear_logs for where this task should be executed
      *
      * @param bool|null $clear_logs
+     *
      * @return static
      */
     public function setClearLogs(int|bool|null $clear_logs): static;
@@ -256,6 +270,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets if this task should escape quotes in the arguments
      *
      * @param bool|null $escape_quotes
+     *
      * @return static
      */
     public function setEscapeQuotes(int|bool|null $escape_quotes): static;
@@ -285,6 +300,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets if this task should use sudo
      *
      * @param string|null $sudo
+     *
      * @return static
      */
     public function setSudo(?string $sudo): static;
@@ -300,6 +316,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets if this task should use term
      *
      * @param string|null $term
+     *
      * @return static
      */
     public function setTerm(?string $term): static;
@@ -315,6 +332,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets where the ouput of this command should be piped to
      *
      * @param string|null $pipe
+     *
      * @return static
      */
     public function setPipe(?string $pipe): static;
@@ -330,6 +348,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets where the input should be redirected from
      *
      * @param string|null $input_redirect
+     *
      * @return static
      */
     public function setInputRedirect(?string $input_redirect): static;
@@ -345,6 +364,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets where the output should be redirected from
      *
      * @param string|null $output_redirect
+     *
      * @return static
      */
     public function setOutputRedirect(?string $output_redirect): static;
@@ -360,6 +380,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets access restrictions for this task
      *
      * @param string|null $restrictions
+     *
      * @return static
      */
     public function setRestrictions(?string $restrictions): static;
@@ -375,6 +396,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets packages required for this task
      *
      * @param string|null $packages
+     *
      * @return static
      */
     public function setPackages(?string $packages): static;
@@ -390,6 +412,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets pre_exec for this task
      *
      * @param string|null $pre_exec
+     *
      * @return static
      */
     public function setPreExec(?string $pre_exec): static;
@@ -405,6 +428,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets post_exec for this task
      *
      * @param string|null $post_exec
+     *
      * @return static
      */
     public function setPostExec(?string $post_exec): static;
@@ -420,6 +444,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets comments for this task
      *
      * @param string|null $comments
+     *
      * @return static
      */
     public function setComments(?string $comments): static;
@@ -442,6 +467,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets execution_directory for this task
      *
      * @param string|null $execution_directory
+     *
      * @return static
      */
     public function setExecutionDirectory(?string $execution_directory): static;
@@ -457,6 +483,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets command for this task
      *
      * @param string|null $command
+     *
      * @return static
      */
     public function setCommand(?string $command): static;
@@ -479,6 +506,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets arguments for this task
      *
      * @param array|null $arguments
+     *
      * @return static
      */
     public function setArguments(?array $arguments): static;
@@ -494,6 +522,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets variables for this task
      *
      * @param array|null $variables
+     *
      * @return static
      */
     public function setVariables(array|null $variables): static;
@@ -509,6 +538,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets environment_variables for this task
      *
      * @param array|null $environment_variables
+     *
      * @return static
      */
     public function setEnvironmentVariables(array|null $environment_variables): static;
@@ -524,6 +554,7 @@ interface TaskInterface extends DataEntryInterface
      * Sets accepted_exit_codes for this task
      *
      * @param array|null $accepted_exit_codes
+     *
      * @return static
      */
     public function setAcceptedExitCodes(array|null $accepted_exit_codes): static;
@@ -545,8 +576,9 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Apply the given source
      *
-     * @param bool $clear_source
+     * @param bool                          $clear_source
      * @param array|ValidatorInterface|null $source
+     *
      * @return $this
      * @throws \Exception
      */

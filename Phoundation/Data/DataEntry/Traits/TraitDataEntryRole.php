@@ -13,10 +13,10 @@ use Phoundation\Accounts\Roles\Role;
  *
  * This trait contains methods for DataEntry objects that require a role
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryRole
 {
@@ -26,21 +26,10 @@ trait TraitDataEntryRole
     protected ?RoleInterface $role;
 
     /**
-     * Returns the roles_id for this object
-     *
-     * @return int|null
-     */
-    public function getRolesId(): ?int
-    {
-        return $this->getValueTypesafe('int', 'roles_id');
-
-    }
-
-
-    /**
      * Sets the roles_id for this object
      *
      * @param int|null $roles_id
+     *
      * @return static
      */
     public function setRolesId(?int $roles_id): static
@@ -49,6 +38,15 @@ trait TraitDataEntryRole
         return $this->setValue('roles_id', $roles_id);
     }
 
+    /**
+     * Returns the role name for this object
+     *
+     * @return string|null
+     */
+    public function getRolesName(): ?string
+    {
+        return $this->getRole()?->getname();
+    }
 
     /**
      * Returns the RoleInterface object for this object
@@ -69,6 +67,7 @@ trait TraitDataEntryRole
      * Sets the RoleInterface object for this object
      *
      * @param RoleInterface|null $role
+     *
      * @return static
      */
     public function setRole(?RoleInterface $role): static
@@ -81,22 +80,22 @@ trait TraitDataEntryRole
         return $this->setRolesId(null);
     }
 
-
     /**
-     * Returns the role name for this object
+     * Returns the roles_id for this object
      *
-     * @return string|null
+     * @return int|null
      */
-    public function getRolesName(): ?string
+    public function getRolesId(): ?int
     {
-        return $this->getRole()?->getname();
-    }
+        return $this->getValueTypesafe('int', 'roles_id');
 
+    }
 
     /**
      * Sets the role name for this object
      *
      * @param string|null $name
+     *
      * @return static
      */
     public function setRolesName(?string $name): static

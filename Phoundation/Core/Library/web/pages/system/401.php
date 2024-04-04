@@ -6,16 +6,16 @@
  * This page will be executed when a guest user accesses a resource that requires authentication first. The sign-in page
  * will be shown with an HTTP 401 error code
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
 
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 Response::setHttpCode(401);
 Request::execute('pages/system/401');

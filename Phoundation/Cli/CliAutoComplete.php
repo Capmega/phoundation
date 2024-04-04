@@ -20,7 +20,6 @@ use Phoundation\Geo\Timezones\Timezones;
 use Phoundation\Os\Processes\Commands\Grep;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 
 
@@ -38,39 +37,45 @@ use Phoundation\Utils\Strings;
  *     'positions' => [
  *         0 => [
  *             'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL',
- *             'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion()
+ *             'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' .
+ *             Limit::shellAutoCompletion()
  *         ]
  *     ],
  *     'arguments' => [
  *         '--file' => [
- *             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir($word . '*.csv'); },
- *             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')->scandir('*.csv'); },
+ *             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA .
+ *             'sources/')->scandir($word . '*.csv'); },
+ *             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA .
+ *             'sources/')->scandir('*.csv'); },
  *         ],
  *         '--user' => [
- *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'), $word); },
+ *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'),
+ *             $word); },
  *             'noword' => function ()      { return Users::new()->load()->getSourceColumn('email'); },
  *         ]
  *     ]
  * ]);
  *
- * @note Bash autocompletion has no man page and complete --help is of little, well, help. Search engines were also
+ * @note      Bash autocompletion has no man page and complete --help is of little, well, help. Search engines were
+ *            also
  *       uncharacteristically unhelpful, so see the following links for more information
  *
- * @see https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts#831184
- * @see https://github.com/scop/bash-completion/blob/master/README.md
- * @see https://www.thegeekstuff.com/2013/12/bash-completion-complete/
- * @see https://dev.to/iridakos/adding-bash-completion-to-your-scripts-50da
- * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
- * @see https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts
- * @see https://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion#11536437
+ * @see       https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts#831184
+ * @see       https://github.com/scop/bash-completion/blob/master/README.md
+ * @see       https://www.thegeekstuff.com/2013/12/bash-completion-complete/
+ * @see       https://dev.to/iridakos/adding-bash-completion-to-your-scripts-50da
+ * @see       https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
+ * @see       https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts
+ * @see       https://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion#11536437
  *
- * @todo Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
- * @todo Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and "bar"
+ * @todo      Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
+ * @todo      Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and
+ *            "bar"
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Cli
+ * @package   Phoundation\Cli
  */
 class CliAutoComplete
 {
@@ -106,18 +111,6 @@ class CliAutoComplete
         return static::$position !== null;
     }
 
-
-    /**
-     * Set the word location for auto complete
-     *
-     * @param int $position
-     */
-    public static function setPosition(int $position): void
-    {
-        static::$position = $position;
-    }
-
-
     /**
      * Initializes system arguments
      */
@@ -130,7 +123,18 @@ class CliAutoComplete
             '-E,--environment'         => true,
             '-F,--force'               => false,
             '-H,--help'                => false,
-            '-L,--log-level'           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            '-L,--log-level'           => [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+            ],
             '-O,--order-by'            => true,
             '-P,--page'                => true,
             '-Q,--quiet'               => false,
@@ -140,22 +144,21 @@ class CliAutoComplete
             '-V,--verbose'             => false,
             '-W,--no-warnings'         => false,
             '--system-language'        => [
-                'word'   => function($word) { return Languages::new()->getMatchingKeys($word); },
-                'noword' => function()      { return Languages::new()->getSource(); },
+                'word'   => function ($word) { return Languages::new()->getMatchingKeys($word); },
+                'noword' => function () { return Languages::new()->getSource(); },
             ],
             '--deleted'                => false,
             '--version'                => false,
             '--limit'                  => true,
             '--timezone'               => [
-                'word'   => function($word) { return Timezones::new()->getMatchingKeys($word); },
-                'noword' => function()      { return Timezones::new()->getSource(); },
+                'word'   => function ($word) { return Timezones::new()->getMatchingKeys($word); },
+                'noword' => function () { return Timezones::new()->getSource(); },
             ],
             '--show-passwords'         => false,
             '--no-validation'          => false,
             '--no-password-validation' => false,
         ];
     }
-
 
     /**
      * Get the word location for auto complete
@@ -167,13 +170,24 @@ class CliAutoComplete
         return static::$position;
     }
 
+    /**
+     * Set the word location for auto complete
+     *
+     * @param int $position
+     */
+    public static function setPosition(int $position): void
+    {
+        static::$position = $position;
+    }
 
     /**
      * Process the auto complete for command line commands
      *
      * @see https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
+     *
      * @param array|null $cli_commands
-     * @param array $data
+     * @param array      $data
+     *
      * @return never
      */
     #[NoReturn] public static function processCommands(?array $cli_commands, array $data): never
@@ -185,7 +199,7 @@ class CliAutoComplete
             $words = ArgvValidator::getArguments();
             $word  = array_shift($words);
 
-            if (str_starts_with((string) $word, '-')) {
+            if (str_starts_with((string)$word, '-')) {
                 static::processArguments(static::$system_arguments);
 
             } else {
@@ -196,9 +210,9 @@ class CliAutoComplete
 
         } elseif (static::$position > count($cli_commands)) {
             // Invalid situation, supposedly the location was beyond, after the number of arguments?
-            Log::error(tr('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
+            Log::error(      tr('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
                 ':position' => static::$position,
-                ':count'    => count($cli_commands)
+                ':count'    => count($cli_commands),
             ]), echo_screen: false);
             echo 'Invalid-auto-complete-arguments' . PHP_EOL;
             exit(1);
@@ -278,243 +292,11 @@ class CliAutoComplete
         exit();
     }
 
-
-    /**
-     * Displays multiple auto complete matches on screen
-     *
-     * @param array $matches
-     * @return void
-     */
-    protected static function displayMultipleMatches(array $matches): void
-    {
-        // We have multiple matches. Check if any of the matches
-        foreach ($matches as $command) {
-            echo $command . PHP_EOL;
-        }
-    }
-
-
-    /**
-     * Returns the commands starting with the specified word
-     *
-     * @param array $commands
-     * @param string $word
-     * @return array
-     */
-    protected static function getCommandsStartingWith(array $commands, string $word): array
-    {
-        $return = [];
-
-        foreach ($commands as $command) {
-            if (str_starts_with($command, $word)) {
-                // A command contains the word we try to auto complete
-                $return[] = $command;
-            }
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Process auto complete for this command from the definitions specified by the command
-     *
-     * @param array|null $definitions
-     * @return void
-     */
-    public static function processCommandPositions(?array $definitions) {
-        if (!$definitions) {
-            return;
-        }
-
-        // Get the word where we're <TAB>bing on
-        $word = isset_get(ArgvValidator::getArguments()[static::$position]);
-        $word = strtolower(trim((string) $word));
-
-        // First check position!
-        static::processCommandPosition($definitions, $word, static::$position);
-
-        // Do we have an "all other positions" entry?
-        static::processCommandPosition($definitions, $word, -1);
-    }
-
-
-    /**
-     * Process auto complete for this command from the definitions specified by the command
-     *
-     * @param array $definitions
-     * @param string $word
-     * @param int $position
-     * @return void
-     */
-    protected static function processCommandPosition(array $definitions, string $word, int $position): void
-    {
-        if (array_key_exists($position, isset_get($definitions))) {
-            // Get position specific data
-            $position_data = $definitions[$position];
-
-            // We may have a word or not, check if position_data allows word (or not) and process
-            if ($word) {
-                if (array_key_exists('word', $position_data)) {
-                    $results = static::processDefinition($position_data['word'], $word);
-                }
-
-            } else {
-                if (array_key_exists('noword', $position_data)) {
-                    $results = static::processDefinition($position_data['noword'], null);
-                }
-            }
-
-            // Process results only if we have any
-            if (isset($results)) {
-                // Sort the results, either array or Iterator
-                if (is_array($results)) {
-                    asort($results);
-
-                } elseif ($results instanceof IteratorInterface) {
-                    $results->sort();
-
-                } else {
-                    // The given result is neither array nor Iterator
-                    throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
-                        ':word' => $word ? 'word' : 'noword',
-                    ]));
-                }
-
-                foreach ($results as $result) {
-                    if (!$result) {
-                        continue;
-                    }
-
-                    if (!is_scalar($result)) {
-                        if (!$result instanceof DataEntryInterface) {
-                            throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
-                                ':word'    => $word ? 'word' : 'noword',
-                                ':result'  => $result,
-                                ':results' => $results,
-                            ]))->addData([
-                                'results' => $results
-                            ])->makeWarning();
-                        }
-
-                        $result = $result->getAutoCompleteValue();
-                    }
-
-                    echo ((string) $result) . PHP_EOL;
-                }
-
-                // Die here as we have echoed the results!
-                exit();
-            }
-        }
-    }
-
-
-    /**
-     * Process command arguments
-     *
-     * @param array|null $definitions
-     * @return void
-     */
-    #[NoReturn] public static function processCommandArguments(?array $definitions): void
-    {
-        if ($definitions) {
-            static::processArguments(array_merge($definitions, static::$system_arguments));
-
-        } else {
-            static::processArguments(static::$system_arguments);
-        }
-    }
-
-
-    /**
-     * Returns true if the specified command has auto complete support available
-     *
-     * @param string $command
-     * @return bool
-     * @todo Add caching for this
-     */
-    public static function hasSupport(string $command): bool
-    {
-        static::$command = $command;
-
-        // Update the location to the first argument (argument 0) after the command
-        $command = Strings::from(static::$command, DIRECTORY_COMMANDS);
-        $command = explode('/', $command);
-
-        static::$position = static::$position - count($command);
-
-        return !empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['Documentation::setAutoComplete('], 100));
-    }
-
-
-    /**
-     * Checks if autocomplete has been correctly setup
-     *
-     * @return void
-     */
-    public static function ensureAvailable(): void
-    {
-        $file = Path::getAbsolute('~/.bash_completion', must_exist: false);
-
-        if (file_exists($file)) {
-            // Check if it contains the setup for Phoundation
-            // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-            $results = Grep::new(Restrictions::new($file, true))
-                ->setValue('complete -F _phoundation pho')
-                ->setFile($file)
-                ->grep(EnumExecuteMethod::returnArray);
-
-            if ($results) {
-                // bash_completion contains rule for phoundation
-                return;
-            }
-        }
-
-        // Phoundation command line auto complete has not yet been set up, do so now.
-        File::new('~/.bash_completion')
-            ->setRestrictions('~/.bash_completion', true)
-            ->append('#/usr/bin/env bash
-_phoundation()
-{
-PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
-COMPREPLY+=($(compgen -W "$PHO"));
-}
-
-complete -F _phoundation pho');
-
-        Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
-        Log::information('You may need to logout and login again for auto complete to work correctly');
-    }
-
-
-    /**
-     * Automatically limit the specified result set to the configured auto complete limit
-     *
-     * @param array $source
-     * @return array
-     */
-    public static function limit(array $source): array
-    {
-        return Arrays::limit($source, static::getLimit());
-    }
-
-
-    /**
-     * Returns the limit for auto complete
-     *
-     * @return int
-     */
-    public static function getLimit(): int
-    {
-        return Limit::shellAutoCompletion();
-    }
-
-
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
      * @param array $argument_definitions
+     *
      * @return void
      */
     #[NoReturn] public static function processArguments(array $argument_definitions): void
@@ -523,7 +305,7 @@ complete -F _phoundation pho');
         if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
-            $word          = strtolower(trim((string) $word));
+            $word          = strtolower(trim((string)$word));
 
             // Check if the previous key was a modifier argument that requires a value
             foreach ($argument_definitions as $key => $value) {
@@ -546,7 +328,12 @@ complete -F _phoundation pho');
                 // non-suggestible value, the user will have to type this themselves...
             } else {
                 if (is_array($requires_value)) {
-                    if (array_keys($requires_value) === ['word', 'noword']) {
+                    if (
+                        array_keys($requires_value) === [
+                            'word',
+                            'noword',
+                        ]
+                    ) {
                         // The $requires_value contains queries for if there is a partial word, or when there is no
                         // partial word
                         if ($word) {
@@ -589,12 +376,12 @@ complete -F _phoundation pho');
         }
     }
 
-
     /**
      * Process the specified definition
      *
-     * @param mixed $definition
+     * @param mixed       $definition
      * @param string|null $word
+     *
      * @return IteratorInterface|array|string|null
      */
     protected static function processDefinition(mixed $definition, ?string $word): IteratorInterface|array|string|null
@@ -648,7 +435,238 @@ complete -F _phoundation pho');
 
         throw new CliAutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
             ':command'    => static::$command,
-            ':definition' => $definition
+            ':definition' => $definition,
         ]));
+    }
+
+    /**
+     * Automatically limit the specified result set to the configured auto complete limit
+     *
+     * @param array $source
+     *
+     * @return array
+     */
+    public static function limit(array $source): array
+    {
+        return Arrays::limit($source, static::getLimit());
+    }
+
+    /**
+     * Returns the limit for auto complete
+     *
+     * @return int
+     */
+    public static function getLimit(): int
+    {
+        return Limit::shellAutoCompletion();
+    }
+
+    /**
+     * Returns the commands starting with the specified word
+     *
+     * @param array  $commands
+     * @param string $word
+     *
+     * @return array
+     */
+    protected static function getCommandsStartingWith(array $commands, string $word): array
+    {
+        $return = [];
+
+        foreach ($commands as $command) {
+            if (str_starts_with($command, $word)) {
+                // A command contains the word we try to auto complete
+                $return[] = $command;
+            }
+        }
+
+        return $return;
+    }
+
+    /**
+     * Displays multiple auto complete matches on screen
+     *
+     * @param array $matches
+     *
+     * @return void
+     */
+    protected static function displayMultipleMatches(array $matches): void
+    {
+        // We have multiple matches. Check if any of the matches
+        foreach ($matches as $command) {
+            echo $command . PHP_EOL;
+        }
+    }
+
+    /**
+     * Process auto complete for this command from the definitions specified by the command
+     *
+     * @param array|null $definitions
+     *
+     * @return void
+     */
+    public static function processCommandPositions(?array $definitions)
+    {
+        if (!$definitions) {
+            return;
+        }
+
+        // Get the word where we're <TAB>bing on
+        $word = isset_get(ArgvValidator::getArguments()[static::$position]);
+        $word = strtolower(trim((string)$word));
+
+        // First check position!
+        static::processCommandPosition($definitions, $word, static::$position);
+
+        // Do we have an "all other positions" entry?
+        static::processCommandPosition($definitions, $word, -1);
+    }
+
+    /**
+     * Process auto complete for this command from the definitions specified by the command
+     *
+     * @param array  $definitions
+     * @param string $word
+     * @param int    $position
+     *
+     * @return void
+     */
+    protected static function processCommandPosition(array $definitions, string $word, int $position): void
+    {
+        if (array_key_exists($position, isset_get($definitions))) {
+            // Get position specific data
+            $position_data = $definitions[$position];
+
+            // We may have a word or not, check if position_data allows word (or not) and process
+            if ($word) {
+                if (array_key_exists('word', $position_data)) {
+                    $results = static::processDefinition($position_data['word'], $word);
+                }
+
+            } else {
+                if (array_key_exists('noword', $position_data)) {
+                    $results = static::processDefinition($position_data['noword'], null);
+                }
+            }
+
+            // Process results only if we have any
+            if (isset($results)) {
+                // Sort the results, either array or Iterator
+                if (is_array($results)) {
+                    asort($results);
+
+                } elseif ($results instanceof IteratorInterface) {
+                    $results->sort();
+
+                } else {
+                    // The given result is neither array nor Iterator
+                    throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
+                        ':word' => $word ? 'word' : 'noword',
+                    ]));
+                }
+
+                foreach ($results as $result) {
+                    if (!$result) {
+                        continue;
+                    }
+
+                    if (!is_scalar($result)) {
+                        if (!$result instanceof DataEntryInterface) {
+                            throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
+                                ':word'    => $word ? 'word' : 'noword',
+                                ':result'  => $result,
+                                ':results' => $results,
+                            ]))->addData([
+                                             'results' => $results,
+                                         ])->makeWarning();
+                        }
+
+                        $result = $result->getAutoCompleteValue();
+                    }
+
+                    echo ((string)$result) . PHP_EOL;
+                }
+
+                // Die here as we have echoed the results!
+                exit();
+            }
+        }
+    }
+
+    /**
+     * Process command arguments
+     *
+     * @param array|null $definitions
+     *
+     * @return void
+     */
+    #[NoReturn] public static function processCommandArguments(?array $definitions): void
+    {
+        if ($definitions) {
+            static::processArguments(array_merge($definitions, static::$system_arguments));
+
+        } else {
+            static::processArguments(static::$system_arguments);
+        }
+    }
+
+    /**
+     * Returns true if the specified command has auto complete support available
+     *
+     * @param string $command
+     *
+     * @return bool
+     * @todo Add caching for this
+     */
+    public static function hasSupport(string $command): bool
+    {
+        static::$command = $command;
+
+        // Update the location to the first argument (argument 0) after the command
+        $command = Strings::from(static::$command, DIRECTORY_COMMANDS);
+        $command = explode('/', $command);
+
+        static::$position = static::$position - count($command);
+
+        return !empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['Documentation::setAutoComplete('], 100));
+    }
+
+    /**
+     * Checks if autocomplete has been correctly setup
+     *
+     * @return void
+     */
+    public static function ensureAvailable(): void
+    {
+        $file = Path::getAbsolute('~/.bash_completion', must_exist: false);
+
+        if (file_exists($file)) {
+            // Check if it contains the setup for Phoundation
+            // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
+            $results = Grep::new(Restrictions::new($file, true))
+                           ->setValue('complete -F _phoundation pho')
+                           ->setFile($file)
+                           ->grep(EnumExecuteMethod::returnArray);
+
+            if ($results) {
+                // bash_completion contains rule for phoundation
+                return;
+            }
+        }
+
+        // Phoundation command line auto complete has not yet been set up, do so now.
+        File::new('~/.bash_completion')
+            ->setRestrictions('~/.bash_completion', true)
+            ->append('#/usr/bin/env bash
+_phoundation()
+{
+PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
+COMPREPLY+=($(compgen -W "$PHO"));
+}
+
+complete -F _phoundation pho');
+
+        Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
+        Log::information('You may need to logout and login again for auto complete to work correctly');
     }
 }

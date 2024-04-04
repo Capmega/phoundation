@@ -12,10 +12,10 @@ use Phoundation\Servers\Interfaces\ServerInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource_server.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource_server.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataSourceServer
 {
@@ -40,6 +40,7 @@ trait TraitDataSourceServer
      * Sets the source_server
      *
      * @param ServerInterface|null $source_server
+     *
      * @return static
      */
     public function setSourceServer(?ServerInterface $source_server): static

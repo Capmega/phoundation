@@ -18,10 +18,10 @@ use Throwable;
 /**
  * Relays web requests
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Grafana
+ * @package   Plugins\Grafana
  */
 class Relay
 {
@@ -55,6 +55,7 @@ class Relay
      * Returns a new Relay object
      *
      * @param Stringable|string $url
+     *
      * @return static
      */
     public static function new(Stringable|string $url): static
@@ -89,6 +90,7 @@ class Relay
      * Sets how the page URL's should be searched / replaced (from key to value)
      *
      * @param array $page_replace
+     *
      * @return static
      */
     public function setPageReplace(array $page_replace): static
@@ -97,22 +99,11 @@ class Relay
         return $this;
     }
 
-
-    /**
-     * Returns the URL that will be relayed
-     *
-     * @return string|null
-     */
-    public function getUrl(): ?string
-    {
-        return $this->curl->getUrl();
-    }
-
-
     /**
      * Sets the URL that will be relayed
      *
      * @param Stringable|string|null $url
+     *
      * @return static
      */
     public function setUrl(Stringable|string|null $url): static
@@ -120,7 +111,6 @@ class Relay
         $this->curl->setUrl($url);
         return $this;
     }
-
 
     /**
      * Relays the current request directly to the given URL
@@ -137,7 +127,7 @@ class Relay
                 ->addRequestHeaders(Arrays::extractPrefix($_SERVER, 'HTTP_'))
                 ->execute();
 
-        } catch (Throwable $e){
+        } catch (Throwable $e) {
             switch ($this->curl->getHttpCode()) {
                 case null:
                     throw new OutOfBoundsException(tr('Relay request has not yet been executed, somehow?'));
@@ -191,5 +181,15 @@ class Relay
 
         echo $data;
         exit();
+    }
+
+    /**
+     * Returns the URL that will be relayed
+     *
+     * @return string|null
+     */
+    public function getUrl(): ?string
+    {
+        return $this->curl->getUrl();
     }
 }

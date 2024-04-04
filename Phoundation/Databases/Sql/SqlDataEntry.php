@@ -33,10 +33,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class SqlDataEntry implements SqlDataEntryInterface
 {
@@ -70,56 +70,20 @@ class SqlDataEntry implements SqlDataEntryInterface
     /**
      * SqlDataEntry class constructor
      *
-     * @param SqlInterface $sql
+     * @param SqlInterface       $sql
      * @param DataEntryInterface $data_entry
      */
-    public function __construct(SqlInterface $sql, DataEntryInterface $data_entry) {
+    public function __construct(SqlInterface $sql, DataEntryInterface $data_entry)
+    {
         $this->setSql($sql)
              ->setDataEntry($data_entry);
     }
-
-
-    /**
-     * Returns a new SqlDataEntry object
-     *
-     * @param SqlInterface $sql
-     * @param DataEntryInterface $data_entry
-     * @return static
-     */
-    public static function new(SqlInterface $sql, DataEntryInterface $data_entry): static
-    {
-        return new static($sql, $data_entry);
-    }
-
-
-    /**
-     * Returns the Sql object used by this SqlDataEntry object
-     *
-     * @return SqlInterface
-     */
-    public function getSql(): SqlInterface
-    {
-        return $this->sql;
-    }
-
-
-    /**
-     * Sets the Sql object used by this SqlDataEntry object
-     *
-     * @param SqlInterface $sql
-     * @return static
-     */
-    public function setSql(SqlInterface $sql): static
-    {
-        $this->sql = $sql;
-        return $this;
-    }
-
 
     /**
      * Sets the data entry
      *
      * @param DataEntryInterface $data_entry
+     *
      * @return static
      */
     public function setDataEntry(DataEntryInterface $data_entry): static
@@ -134,7 +98,6 @@ class SqlDataEntry implements SqlDataEntryInterface
         return $this->__setDataEntry($data_entry);
     }
 
-
     /**
      * Returns whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
      *
@@ -145,11 +108,11 @@ class SqlDataEntry implements SqlDataEntryInterface
         return $this->max_id_retries;
     }
 
-
     /**
      * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
      *
      * @param int $max_id_retries
+     *
      * @return static
      */
     public function setMaxIdRetries(int $max_id_retries): static
@@ -158,6 +121,41 @@ class SqlDataEntry implements SqlDataEntryInterface
         return $this;
     }
 
+    /**
+     * Returns a new SqlDataEntry object
+     *
+     * @param SqlInterface       $sql
+     * @param DataEntryInterface $data_entry
+     *
+     * @return static
+     */
+    public static function new(SqlInterface $sql, DataEntryInterface $data_entry): static
+    {
+        return new static($sql, $data_entry);
+    }
+
+    /**
+     * Returns the Sql object used by this SqlDataEntry object
+     *
+     * @return SqlInterface
+     */
+    public function getSql(): SqlInterface
+    {
+        return $this->sql;
+    }
+
+    /**
+     * Sets the Sql object used by this SqlDataEntry object
+     *
+     * @param SqlInterface $sql
+     *
+     * @return static
+     */
+    public function setSql(SqlInterface $sql): static
+    {
+        $this->sql = $sql;
+        return $this;
+    }
 
     /**
      * Write the specified data row in the specified table
@@ -167,10 +165,12 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param array $insert_row
-     * @param array $update_row
+     *
+     * @param array       $insert_row
+     * @param array       $update_row
      * @param string|null $comments
      * @param string|null $diff
+     *
      * @return int
      */
     public function write(array $insert_row, array $update_row, ?string $comments, ?string $diff): int
@@ -209,33 +209,81 @@ class SqlDataEntry implements SqlDataEntryInterface
                 if ($column === $this->id_column) {
                     // Duplicate ID, try with a different random number
                     Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":rowid" encountered for insert in table ":table", retrying', [
-                        ':rowid' => $insert_row[$this->id_column],
-                        ':table' => $this->table
-                    ]));
+                                     ':rowid' => $insert_row[$this->id_column],
+                                     ':table' => $this->table,
+                                 ]));
 
                     continue;
                 }
 
                 // Duplicate another column, continue throwing
                 throw new SqlDuplicateException(tr('Duplicate entry encountered for column ":column"', [
-                    ':column' => $column
-                ]), $e);
+                    ':column' => $column,
+                ]),                             $e);
             }
         }
 
         // If the randomly selected ID already exists, try again
         throw new SqlException(tr('Could not find a unique id in ":retries" retries', [
-            ':retries' => $this->max_id_retries
+            ':retries' => $this->max_id_retries,
         ]));
     }
 
+    /**
+     * Insert the specified data row in the specified table
+     *
+     * This is a simplified insert method to speed up writing basic insert queries
+     *
+     * @note : PDO::lastInsertId() returns string|false, this method will return int
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     *
+     * @param array       $insert_row
+     * @param array       $update_row
+     * @param string|null $comments
+     * @param string|null $diff
+     * @param string      $meta_action
+     *
+     * @return int|null
+     */
+    public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
+    {
+        Core::checkReadonly('sql data-entry-insert-update');
+
+        // Filter row and set meta fields for insert
+        $insert_row = static::initializeInsertRow($insert_row, $comments, $diff);
+        $update_row = static::initializeUpdateRow($update_row, $comments, $diff, $meta_action);
+
+        // Build variables for the insert part of the query
+        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->data_entry->getColumnPrefix());
+        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->data_entry->getColumnPrefix(), true);
+        $keys           = SqlQueries::getBoundKeys($insert_row);
+
+        // Build variables for the update part of the query
+        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), $this->id_column);
+        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), false, [$this->id_column]);
+        $execute       = array_merge($insert_values, $update_values);
+
+        $this->sql->query('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
+                                 VALUES                                        (' . $keys . ')
+                                 ON DUPLICATE KEY UPDATE ' . $updates, $execute);
+
+        if (empty($insert_row[$this->id_column])) {
+            // No row id specified, get the insert id from SQL driver
+            return $this->sql->getInsertId();
+        }
+
+        // Use the given row id
+        return $insert_row[$this->id_column];
+    }
 
     /**
      * Initializes the specified row for an INSERT operation
      *
-     * @param array $row
+     * @param array       $row
      * @param string|null $comments
      * @param string|null $diff
+     *
      * @return array
      */
     protected function initializeInsertRow(array $row, ?string $comments, ?string $diff): array
@@ -261,14 +309,14 @@ class SqlDataEntry implements SqlDataEntryInterface
         return $row;
     }
 
-
     /**
      * Initializes the specified row for an UPDATE operation
      *
-     * @param array $row
+     * @param array       $row
      * @param string|null $comments
      * @param string|null $diff
-     * @param string $meta_action
+     * @param string      $meta_action
+     *
      * @return array
      */
     protected function initializeUpdateRow(array $row, ?string $comments, ?string $diff, string $meta_action): array
@@ -300,18 +348,19 @@ class SqlDataEntry implements SqlDataEntryInterface
         return $row;
     }
 
-
     /**
      * Insert the specified data row in the specified table
      *
      * This is a simplified insert method to speed up writing basic insert queries
      *
-     * @note: PDO::lastInsertId() returns string|false, this method will return int
+     * @note : PDO::lastInsertId() returns string|false, this method will return int
      * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param array $row
+     *
+     * @param array       $row
      * @param string|null $comments
      * @param string|null $diff
+     *
      * @return int|null
      * @throws Exception
      */
@@ -328,7 +377,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         $keys    = SqlQueries::getBoundKeys($row);
 
         $this->sql->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
-                                 VALUES                             (' . $keys    . ')', $values);
+                                 VALUES                             (' . $keys . ')', $values);
 
         if (empty($row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
@@ -339,64 +388,19 @@ class SqlDataEntry implements SqlDataEntryInterface
         return $row[$this->id_column];
     }
 
-
-    /**
-     * Insert the specified data row in the specified table
-     *
-     * This is a simplified insert method to speed up writing basic insert queries
-     *
-     * @note: PDO::lastInsertId() returns string|false, this method will return int
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param array $insert_row
-     * @param array $update_row
-     * @param string|null $comments
-     * @param string|null $diff
-     * @param string $meta_action
-     * @return int|null
-     */
-    public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
-    {
-        Core::checkReadonly('sql data-entry-insert-update');
-
-        // Filter row and set meta fields for insert
-        $insert_row = static::initializeInsertRow($insert_row, $comments, $diff);
-        $update_row = static::initializeUpdateRow($update_row, $comments, $diff, $meta_action);
-
-        // Build variables for the insert part of the query
-        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->data_entry->getColumnPrefix());
-        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->data_entry->getColumnPrefix(), true);
-        $keys           = SqlQueries::getBoundKeys($insert_row);
-
-        // Build variables for the update part of the query
-        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), $this->id_column);
-        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), false, [$this->id_column]);
-        $execute       = array_merge($insert_values, $update_values);
-
-        $this->sql->query('INSERT INTO            `' . $this->table . '` (' . $insert_columns . ')
-                                 VALUES                                        (' . $keys           . ')
-                                 ON DUPLICATE KEY UPDATE ' . $updates, $execute);
-
-        if (empty($insert_row[$this->id_column])) {
-            // No row id specified, get the insert id from SQL driver
-            return $this->sql->getInsertId();
-        }
-
-        // Use the given row id
-        return $insert_row[$this->id_column];
-    }
-
-
     /**
      * Update the specified data row in the specified table
      *
      * This is a simplified insert method to speed up writing basic insert queries
+     *
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param array $row
+     *
+     * @param array       $row
      * @param string|null $comments
      * @param string|null $diff
-     * @param string $meta_action
+     * @param string      $meta_action
+     *
      * @return int|null
      */
     public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
@@ -404,14 +408,14 @@ class SqlDataEntry implements SqlDataEntryInterface
         Core::checkReadonly('sql data-entry-update');
 
         // Filter row and set meta fields for update
-        $row    = static::initializeUpdateRow($row, $comments, $diff, $meta_action);
+        $row = static::initializeUpdateRow($row, $comments, $diff, $meta_action);
 
         // Build bound variables for the query
         $update = SqlQueries::getUpdateKeyValues($row, id_column: $this->id_column);
         $values = SqlQueries::getBoundValues($row);
 
         $this->sql->query('UPDATE `' . $this->table . '`
-                                 SET     ' . $update  . '
+                                 SET     ' . $update . '
                                  WHERE  `' . $this->id_column . '` = :' . $this->id_column, $values);
 
         return $row[$this->id_column];
@@ -425,8 +429,10 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
-     * @param array $row
+     *
+     * @param array       $row
      * @param string|null $comments
+     *
      * @return int
      */
     public function delete(array $row, ?string $comments = null): int
@@ -448,6 +454,7 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * @param string|null $status
      * @param string|null $comments
+     *
      * @return int
      */
     public function setStatus(?string $status, ?string $comments = null): int
@@ -463,8 +470,8 @@ class SqlDataEntry implements SqlDataEntryInterface
         // Update the meta data
         if ($this->meta_enabled) {
             Meta::get($entry->getMetaId(), false)->action(tr('Changed status'), $comments, Json::encode([
-                'status' => $status
-            ]));
+                                                                                                            'status' => $status,
+                                                                                                        ]));
         }
 
         // Update the row status
@@ -472,7 +479,7 @@ class SqlDataEntry implements SqlDataEntryInterface
                                    SET     `status`             = :status
                                    WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
             ':status'              => $status,
-            ':' . $this->id_column => $entry->getId()
+            ':' . $this->id_column => $entry->getId(),
         ])->rowCount();
     }
 
@@ -480,21 +487,22 @@ class SqlDataEntry implements SqlDataEntryInterface
     /**
      * Simple "Does a row with this value exist in that table" method
      *
-     * @param string $column
+     * @param string          $column
      * @param string|int|null $value
-     * @param int|null $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT select the
-     *                     row with this id
+     * @param int|null        $id ONLY WORKS WITH TABLES HAVING `id` column! (almost all do) If specified, will NOT
+     *                            select the row with this id
+     *
      * @return bool
      */
     public function exists(string $column, string|int|null $value, ?int $id = null): bool
     {
         if ($id) {
-            return (bool) $this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $this->id_column . '` != :' . $this->id_column, [
+            return (bool)$this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $this->id_column . '` != :' . $this->id_column, [
                 ':' . $column          => $value,
-                ':' . $this->id_column => $id
+                ':' . $this->id_column => $id,
             ]);
         }
 
-        return (bool) $this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool)$this->get('SELECT `id` FROM `' . $this->table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
 }

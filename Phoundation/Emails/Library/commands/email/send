@@ -8,7 +8,6 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Emails\Email;
 use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
@@ -20,28 +19,28 @@ use PHPMailer\PHPMailer\PHPMailer;
  *
  * This script can send out emails
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 
 
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-f,--from'  => [
-            'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
-            'noword' => function ()      { return Users::new()->load()->limitAutoComplete(); },
-        ],
-        '-t,--to'  => [
-            'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
-            'noword' => function ()      { return Users::new()->load()->limitAutoComplete(); },
-        ],
-        '-s,--to'   => true,
-        '-b,--body' => true,
-        '-h,--html' => false,
-    ]
-]);
+                                      'arguments' => [
+                                          '-f,--from' => [
+                                              'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
+                                              'noword' => function () { return Users::new()->load()->limitAutoComplete(); },
+                                          ],
+                                          '-t,--to'   => [
+                                              'word'   => function ($word) { return Users::new()->load()->getMatchingKeys($word)->limitAutoComplete(); },
+                                              'noword' => function () { return Users::new()->load()->limitAutoComplete(); },
+                                          ],
+                                          '-s,--to'   => true,
+                                          '-b,--body' => true,
+                                          '-h,--html' => false,
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho email send');
 
@@ -64,12 +63,12 @@ ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-f,--from'   , true)->isOptional()->isEmail()
-    ->select('-t,--to'     , true)->isEmail()
-    ->select('-s,--subject', true)->hasMaxCharacters(255)
-    ->select('-b,--body'   , true)->hasMaxCharacters(16_777_200)
-    ->select('-h,--html')->isOptional()->isBoolean()
-    ->validate();
+                     ->select('-f,--from', true)->isOptional()->isEmail()
+                     ->select('-t,--to', true)->isEmail()
+                     ->select('-s,--subject', true)->hasMaxCharacters(255)
+                     ->select('-b,--body', true)->hasMaxCharacters(16_777_200)
+                     ->select('-h,--html')->isOptional()->isBoolean()
+                     ->validate();
 
 
 // TODO Use the Email library for sending emails, once its ready
@@ -114,5 +113,5 @@ if (!$mail->send()) {
 
 Log::success(tr('Sent email ":subject" to ":user"', [
     ':subject' => $argv['subject'],
-    ':user'    => $to->getLogId()
+    ':user'    => $to->getLogId(),
 ]));

@@ -24,17 +24,17 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 
 
 // Validate
 $get = GetValidator::new()
-    ->select('id')->isOptional()->isDbId()
-    ->validate();
+                   ->select('id')->isOptional()->isDbId()
+                   ->validate();
 
 
 // Build the page content
@@ -79,53 +79,53 @@ if (Request::isPostRequestMethod()) {
 // Audit button.
 if (!$right->isNew()) {
     $audit = Button::new()
-        ->setFloatRight(true)
-        ->setMode(EnumDisplayMode::information)
-        ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
-        ->setFloatRight(true)
-        ->setValue(tr('Audit'))
-        ->setContent(tr('Audit'));
+                   ->setFloatRight(true)
+                   ->setMode(EnumDisplayMode::information)
+                   ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
+                   ->setFloatRight(true)
+                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'));
 
     $delete = Button::new()
-        ->setFloatRight(true)
-        ->setMode(EnumDisplayMode::warning)
-        ->setOutlined(true)
-        ->setValue(tr('Delete'))
-        ->setContent(tr('Delete'));
+                    ->setFloatRight(true)
+                    ->setMode(EnumDisplayMode::warning)
+                    ->setOutlined(true)
+                    ->setValue(tr('Delete'))
+                    ->setContent(tr('Delete'));
 }
 
 
 // Build the right card
-$form  = $right->getHtmlDataEntryFormObject();
-$card  = Card::new()
-    ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-    ->setContent($form->render())
-    ->setButtons(Buttons::new()
-        ->addButton(tr('Save'))
-        ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/rights.html'), true)
-        ->addButton(isset_get($delete))
-        ->addButton(isset_get($audit)));
+$form = $right->getHtmlDataEntryFormObject();
+$card = Card::new()
+            ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
+            ->setContent($form->render())
+            ->setButtons(Buttons::new()
+                                ->addButton(tr('Save'))
+                                ->addButton(tr('Back'), EnumDisplayMode::secondary, UrlBuilder::getPrevious('/accounts/rights.html'), true)
+                                ->addButton(isset_get($delete))
+                                ->addButton(isset_get($audit)));
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
+                ->setMode(EnumDisplayMode::info)
+                ->setTitle(tr('Relevant links'))
+                ->setContent('<a href="' . UrlBuilder::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
                          <a href="' . UrlBuilder::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($card, EnumDisplaySize::nine, true)
-    ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
+            ->addColumn($card, EnumDisplaySize::nine, true)
+            ->addColumn($relevant->render() . $documentation->render(), EnumDisplaySize::three);
 
 echo $grid->render();
 
@@ -134,7 +134,7 @@ echo $grid->render();
 Response::setHeaderTitle(tr('Right'));
 Response::setHeaderSubTitle($right->getName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getName() ?? tr('[NEW]')
-]));
+                                                           '/'                     => tr('Home'),
+                                                           '/accounts/rights.html' => tr('Rights'),
+                                                           ''                      => $right->getName() ?? tr('[NEW]'),
+                                                       ]));

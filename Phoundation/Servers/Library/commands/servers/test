@@ -15,10 +15,10 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  * This script can be used to test the authentication for the specified server
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho servers authenticate USER');
 
@@ -33,23 +33,20 @@ ARGUMENTS
 -');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('server')->hasMinCharacters(2)->hasMaxCharacters(255)
-    ->validate();
-
+                     ->select('server')->hasMinCharacters(2)->hasMaxCharacters(255)
+                     ->validate();
 
 
 try {
     // Get a password and try to authenticate
     $password = Cli::readPassword(tr('Password:'));
-    $server     = Server::authenticate($argv['server'], $password);
+    $server   = Server::authenticate($argv['server'], $password);
 
-}catch (DataEntryNotExistsException $e) {
+} catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }
-
 
 
 Log::success(tr('Server ":server" was authenticated successfully', [':server' => $server->getDisplayName()]));

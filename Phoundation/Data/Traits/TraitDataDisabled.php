@@ -13,10 +13,10 @@ use Phoundation\Utils\Strings;
  *
  * This adds disabled state registration to objects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataDisabled
 {
@@ -32,6 +32,7 @@ trait TraitDataDisabled
      * Throws an exception for the given action if the object is disabled
      *
      * @param string $action
+     *
      * @return static
      * @throws DataEntryDisabledException
      */
@@ -40,7 +41,7 @@ trait TraitDataDisabled
         if ($this->disabled) {
             throw new DataEntryDisabledException(tr('Unable to perform action ":action", the ":object" object is disabled', [
                 ':action' => $action,
-                ':object' => Strings::fromReverse(get_class($this), '\\')
+                ':object' => Strings::fromReverse(get_class($this), '\\'),
             ]));
         }
 
@@ -63,6 +64,7 @@ trait TraitDataDisabled
      * Sets if this object is disabled or not
      *
      * @param bool $disabled
+     *
      * @return static
      */
     public function setDisabled(bool $disabled): static

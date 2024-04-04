@@ -12,10 +12,10 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  *
  * This trait contains methods for DataEntry objects that require a company
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryParent
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryParent
      * Sets the parents_id for this object
      *
      * @param int|null $parents_id
+     *
      * @return static
      */
     public function setParentsId(?int $parents_id): static
@@ -74,6 +75,7 @@ trait TraitDataEntryParent
      * Sets the parents_name for this object
      *
      * @param string|null $parents_name
+     *
      * @return static
      */
     public function setParentsName(?string $parents_name): static

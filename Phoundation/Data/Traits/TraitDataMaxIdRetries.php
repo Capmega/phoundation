@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openmax_id_retries.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openmax_id_retries.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataMaxIdRetries
 {
@@ -42,13 +42,14 @@ trait TraitDataMaxIdRetries
      * Sets how many random id retries to perform
      *
      * @param int $max_id_retries
+     *
      * @return static
      */
     public function setMaxIdRetries(int $max_id_retries): static
     {
         if ($max_id_retries < 0) {
             throw new OutOfBoundsException(tr('Specified value ":value" for max id retries is invalid, it must be a positive integer number', [
-                ':value' => $max_id_retries
+                ':value' => $max_id_retries,
             ]));
         }
 

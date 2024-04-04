@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Web\Html\Components\A;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -17,10 +16,10 @@ use Stringable;
  *
  * This class is an abstract HTML element object class
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface ElementInterface extends RenderInterface
 {
@@ -28,6 +27,7 @@ interface ElementInterface extends RenderInterface
      * Sets the type of element to display
      *
      * @param EnumElement|string|null $element
+     *
      * @return static
      */
     public function setElement(EnumElement|string|null $element): static;
@@ -43,7 +43,8 @@ interface ElementInterface extends RenderInterface
      * Adds the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
@@ -52,7 +53,8 @@ interface ElementInterface extends RenderInterface
      * Adds the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
@@ -68,6 +70,7 @@ interface ElementInterface extends RenderInterface
      * Sets the definition
      *
      * @param DefinitionInterface|null $definition
+     *
      * @return static
      */
     public function setDefinition(DefinitionInterface|null $definition): static;
@@ -83,6 +86,7 @@ interface ElementInterface extends RenderInterface
      * Sets the anchor for this element
      *
      * @param AInterface|null $anchor
+     *
      * @return Span
      */
     public function setAnchor(?AInterface $anchor): static;

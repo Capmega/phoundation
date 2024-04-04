@@ -13,10 +13,10 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
  *
  * This class contains various "tar" commands
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Tar extends Command
 {
@@ -24,6 +24,7 @@ class Tar extends Command
      * Untars the specified file
      *
      * @param string $file The file to be untarred. Must be a tar file (doh)
+     *
      * @return string
      */
     public function untar(string $file, ?string $target_path = null): string
@@ -36,7 +37,10 @@ class Tar extends Command
             $this
                 ->setExecutionDirectory($target_path)
                 ->setCommand('tar')
-                ->addArguments(['-x', '-f'])
+                ->addArguments([
+                                   '-x',
+                                   '-f',
+                               ])
                 ->addArguments($file)
                 ->setTimeout(120)
                 ->executeNoReturn();
@@ -45,7 +49,7 @@ class Tar extends Command
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('tar', $e, function() use ($file) {
+            static::handleException('tar', $e, function () use ($file) {
                 File::new($file)->checkReadable();
             });
         }
@@ -58,6 +62,7 @@ class Tar extends Command
      * @param string $directory
      * @param string|null $target_file
      * @param bool $compression
+     *
      * @return string
      */
     public function tar(string $directory, ?string $target_file = null, bool $compression = true): string
@@ -70,7 +75,11 @@ class Tar extends Command
             $this
                 ->setExecutionDirectory(dirname($directory))
                 ->setCommand('tar')
-                ->addArguments(['-c', ($compression ? 'j' : null), '-f'])
+                ->addArguments([
+                                   '-c',
+                                   ($compression ? 'j' : null),
+                                   '-f',
+                               ])
                 ->addArguments($target_file)
                 ->addArguments($directory)
                 ->setTimeout(120)
@@ -80,7 +89,7 @@ class Tar extends Command
 
         } catch (ProcessFailedException $e) {
             // The command tar failed, most of the time either $file doesn't exist, or we don't have access
-            static::handleException('tar', $e, function() use ($directory) {
+            static::handleException('tar', $e, function () use ($directory) {
                 File::new($directory)->checkReadable();
             });
         }

@@ -18,10 +18,10 @@ use Phoundation\Web\Http\Exception\HttpException;
  *
  * This class contains various HTTP processing methods
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Http
 {
@@ -49,50 +49,54 @@ class Http
 
 
     /**
-     * Set the default context for SSL requests that phoundation has to make when using (for example) file_get_contents()
+     * Set the default context for SSL requests that phoundation has to make when using (for example)
+     * file_get_contents()
      *
      * @param bool|null $verify_peer
      * @param bool|null $verify_peer_name
      * @param bool|null $allow_self_signed
+     *
      * @return resource
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     * @version 2.8.29: Added function and documentation
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     * @version   2.8.29: Added function and documentation
      *
      */
     public static function setSslDefaultContext(?bool $verify_peer = null, ?bool $verify_peer_name = null, ?bool $allow_self_signed = null)
     {
-        $verify_peer = not_null($verify_peer, Config::get('security.ssl.verify.peer', true));
-        $verify_peer_name = not_null($verify_peer, Config::get('security.ssl.verify.peer_name', true));
+        $verify_peer       = not_null($verify_peer, Config::get('security.ssl.verify.peer', true));
+        $verify_peer_name  = not_null($verify_peer, Config::get('security.ssl.verify.peer_name', true));
         $allow_self_signed = not_null($verify_peer, Config::get('security.ssl.verify.self_signed', true));
 
         return stream_context_set_default([
-            'ssl' => [
-                'verify_peer'       => $verify_peer,
-                'verify_peer_name'  => $verify_peer_name,
-                'allow_self_signed' => $allow_self_signed
-            ]
-        ]);
+                                              'ssl' => [
+                                                  'verify_peer'       => $verify_peer,
+                                                  'verify_peer_name'  => $verify_peer_name,
+                                                  'allow_self_signed' => $allow_self_signed,
+                                              ],
+                                          ]);
     }
 
 
     /**
      * Validates the $_GET array and ensures that all values are scalar
      *
-     * This function will walk over the $_GET array and test each value. If a value is found that is not scalar, a 400 code exception will be thrown, which would lead to an HTTP 400 BAD REQUEST
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     * @note This function is called by all HTTP type startup sequences, there should be no need to run this anywhere else
-     * @version 1.26.1: Added function and documentation
+     * This function will walk over the $_GET array and test each value. If a value is found that is not scalar, a 400
+     * code exception will be thrown, which would lead to an HTTP 400 BAD REQUEST
      *
      * @return void
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     * @note      This function is called by all HTTP type startup sequences, there should be no need to run this
+     *            anywhere else
+     * @version   1.26.1: Added function and documentation
+     *
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     public static function validateGet()
     {
@@ -101,7 +105,7 @@ class Http
                 if ($value) {
                     throw new ValidationFailedException(tr('The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', [
                         ':key'     => $key,
-                        ':content' => $value
+                        ':content' => $value,
                     ]));
                 }
 
@@ -135,6 +139,7 @@ class Http
      * @param $url
      * @param $key
      * @param $value
+     *
      * @return mixed|string
      * @throws HttpException
      */
@@ -145,10 +150,10 @@ class Http
         }
 
         if (str_contains($url, '?')) {
-            return $url.'&'.urlencode($key) . '='.urlencode($value);
+            return $url . '&' . urlencode($key) . '=' . urlencode($value);
         }
 
-        return $url.'?'.urlencode($key) . '='.urlencode($value);
+        return $url . '?' . urlencode($key) . '=' . urlencode($value);
     }
 
 
@@ -157,6 +162,7 @@ class Http
      *
      * @param string $url
      * @param string $key
+     *
      * @return string
      * @throws HttpException
      */
@@ -288,7 +294,8 @@ class Http
      * Redirect if the session redirector is set
      *
      * @param string $method
-     * @param false $force
+     * @param false  $force
+     *
      * @throws HttpException
      */
     public static function sessionRedirect(string $method = 'http', bool $force = false)
@@ -335,7 +342,7 @@ class Http
 
             default:
                 throw new HttpException(tr('Unknown method ":method" specified. Please speficy one of "json", or "http"', [
-                    ':method' => $method
+                    ':method' => $method,
                 ]));
         }
     }
@@ -344,15 +351,16 @@ class Http
     /**
      * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     *
      * @return mixed The value found in $_POST['dosubmit']
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     *
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
-    public static function getSubmit() {
+    public static function getSubmit()
+    {
         static $submit;
 
         if ($submit !== null) {
@@ -522,24 +530,15 @@ class Http
 //    }
 //
 
-    /**
-     * Limit the HTTP request to the specified request type, typically GET or POST
-     *
-     * If the HTTP request is not of the specified type, this function will throw an exception
-     *
-     * @version 2.7.98: Added function and documentation
-     *
-     * @param string $method
-     * @return void
-     */
-    function limitRequestMethod(string $method): void
+    public static function encodePostVariable(string $key)
     {
-        if ($_SERVER['REQUEST_METHOD'] !== $method) {
-            throw new OutOfBoundsException(tr('This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', [
-                ':method'        => $method,
-                ':server_method' => $_SERVER['REQUEST_METHOD']
-            ]));
+        static $translations = [];
+
+        if (!isset($translations[$name])) {
+            $translations[$name] = '__HT' . $name . '__' . substr(unique_code('sha256'), 0, 16);
         }
+
+        return $translations[$name];
     }
 
 
@@ -549,22 +548,35 @@ class Http
      * Generate and return a randon name for the specified $name, and store the
      * link between the two under "group"
      */
-    public static function encodePostVariable(string $key)
+
+    /**
+     * Limit the HTTP request to the specified request type, typically GET or POST
+     *
+     * If the HTTP request is not of the specified type, this function will throw an exception
+     *
+     * @param string $method
+     *
+     * @return void
+     * @version 2.7.98: Added function and documentation
+     *
+     */
+    function limitRequestMethod(string $method): void
     {
-        static $translations = [];
-
-        if (!isset($translations[$name])) {
-            $translations[$name] = '__HT'.$name.'__'.substr(unique_code('sha256'), 0, 16);
+        if ($_SERVER['REQUEST_METHOD'] !== $method) {
+            throw new OutOfBoundsException(tr('This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', [
+                ':method'        => $method,
+                ':server_method' => $_SERVER['REQUEST_METHOD'],
+            ]));
         }
-
-        return $translations[$name];
     }
 
 
     /*
      * Return the $_POST value for the translated specified key
      */
-    function untranslate() {
+
+    function untranslate()
+    {
         $count = 0;
 
         foreach ($_POST as $key => $value) {

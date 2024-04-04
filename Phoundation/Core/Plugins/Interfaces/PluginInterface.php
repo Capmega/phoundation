@@ -10,11 +10,11 @@ namespace Phoundation\Core\Plugins\Interfaces;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 interface PluginInterface
 {
@@ -29,6 +29,7 @@ interface PluginInterface
      * Sets if this plugin is enabled or not
      *
      * @param int|bool|null $enabled
+     *
      * @return static
      */
     public function setEnabled(int|bool|null $enabled): static;
@@ -44,6 +45,7 @@ interface PluginInterface
      * Sets if this plugin is disabled or not
      *
      * @param int|bool|null $disabled
+     *
      * @return static
      */
     public function setDisabled(int|bool|null $disabled): static;
@@ -59,6 +61,7 @@ interface PluginInterface
      * Sets the main class for this plugin
      *
      * @param string|null $class
+     *
      * @return static
      */
     public function setClass(?string $class): static;
@@ -67,6 +70,7 @@ interface PluginInterface
      * Sets the priority for this plugin
      *
      * @param int|null $priority
+     *
      * @return static
      */
     public function setPriority(?int $priority): static;
@@ -96,6 +100,7 @@ interface PluginInterface
      * Delete the plugin from the plugin registry
      *
      * @param string|null $comments
+     *
      * @return void
      */
     public function unregister(?string $comments = null): void;
@@ -104,6 +109,7 @@ interface PluginInterface
      * Enable this plugin
      *
      * @param string|null $comments
+     *
      * @return void
      */
     public function enable(?string $comments = null): void;
@@ -112,6 +118,7 @@ interface PluginInterface
      * Disable this plugin
      *
      * @param string|null $comments
+     *
      * @return void
      */
     public function disable(?string $comments = null): void;

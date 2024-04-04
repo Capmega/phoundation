@@ -16,10 +16,10 @@ use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
  *
  * This class helps building queries with multiple variables
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
 {
@@ -34,11 +34,33 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     protected QueryDefinitionsInterface $definitions;
 
+    /**
+     * Returns the bound variables execute array
+     *
+     * @return array|null
+     */
+    public function getExecute(): ?array
+    {
+        return $this->execute;
+    }
+
+    /**
+     * Executes the query and returns a PDO statement
+     *
+     * @param bool $debug
+     *
+     * @return PDOStatement
+     */
+    public function execute(bool $debug = false): PDOStatement
+    {
+        return sql($this->database_connector)->query($this->getQuery($debug), $this->execute);
+    }
 
     /**
      * Returns the complete query that can be executed
      *
      * @param bool $debug
+     *
      * @return string
      */
     public function getQuery(bool $debug = false): string
@@ -87,34 +109,11 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
         return $query;
     }
 
-
-    /**
-     * Returns the bound variables execute array
-     *
-     * @return array|null
-     */
-    public function getExecute(): ?array
-    {
-        return $this->execute;
-    }
-
-
-    /**
-     * Executes the query and returns a PDO statement
-     *
-     * @param bool $debug
-     * @return PDOStatement
-     */
-    public function execute(bool $debug = false): PDOStatement
-    {
-        return sql($this->database_connector)->query($this->getQuery($debug), $this->execute);
-    }
-
-
     /**
      * Executes the query and returns the single result
      *
      * @param bool $debug
+     *
      * @return array|null
      */
     public function get(bool $debug = false): ?array
@@ -126,7 +125,8 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * Executes the query and returns the single column from the single result
      *
      * @param string|null $column
-     * @param bool $debug
+     * @param bool        $debug
+     *
      * @return string|float|int|bool|null
      */
     public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null
@@ -139,6 +139,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * Executes the query and returns the list of results
      *
      * @param bool $debug
+     *
      * @return array
      */
     public function list(bool $debug = false): array

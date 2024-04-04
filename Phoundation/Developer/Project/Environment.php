@@ -19,10 +19,10 @@ use Throwable;
  *
  * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 class Environment
 {
@@ -61,12 +61,42 @@ class Environment
         $this->config  = new Configuration($project);
     }
 
+    /**
+     * Returns if the specified environment name is valid or not
+     *
+     * @param string $environment
+     *
+     * @return string
+     */
+    public static function sanitize(string $environment): string
+    {
+        if (!$environment) {
+            throw OutOfBoundsException::new(tr('No environment specified'))->makeWarning();
+        }
+
+        if (strlen($environment) > 32) {
+            throw OutOfBoundsException::new(tr('Specified environment is ":size" characters long, please specify an environment equal or less than 32 characters', [
+                ':size' => strlen($environment),
+            ]))->makeWarning();
+        }
+
+        $environment = strtoupper($environment);
+
+        if (!preg_match('/[A-Z0-9_]+/', $environment)) {
+            throw OutOfBoundsException::new(tr('Specified environment ":environment" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
+                ':environment' => $environment,
+            ]))->makeWarning();
+        }
+
+        return $environment;
+    }
 
     /**
      * Returns a new environment with the specified name
      *
      * @param string $project
      * @param string $environment
+     *
      * @return static
      */
     public static function new(string $project, string $environment): static
@@ -75,32 +105,58 @@ class Environment
 
         if (static::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" already exist', [
-                ':environment' => $environment
+                ':environment' => $environment,
             ]));
         }
 
         return new static($project, $environment);
     }
 
+    /**
+     * Returns if the specified environment exists or not
+     *
+     * For an environment to exist, a configuration file must be available
+     *
+     * @param string $environment
+     *
+     * @return bool
+     */
+    public static function exists(string $environment): bool
+    {
+        $environment = static::sanitize($environment);
+        return file_exists(static::getConfigurationFile($environment));
+    }
+
+    /**
+     * Returns the configuration file for the specified environment
+     *
+     * @param string $environment
+     *
+     * @return string
+     */
+    public static function getConfigurationFile(string $environment): string
+    {
+        return DIRECTORY_ROOT . 'config/' . strtolower($environment) . '.yaml';
+    }
 
     /**
      * Returns the specified environment
      *
      * @param string $project
      * @param string $environment
+     *
      * @return Environment
      */
     public static function get(string $project, string $environment): Environment
     {
         if (!static::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" does not exist', [
-                ':environment' => $environment
+                ':environment' => $environment,
             ]));
         }
 
         return new Environment($project, $environment);
     }
-
 
     /**
      * Returns the name for this environment
@@ -112,79 +168,11 @@ class Environment
         return $this->name;
     }
 
-
-    /**
-     * Returns if the specified environment name is valid or not
-     *
-     * @param string $environment
-     * @return string
-     */
-    public static function sanitize(string $environment): string
-    {
-        if (!$environment) {
-            throw OutOfBoundsException::new(tr('No environment specified'))->makeWarning();
-        }
-
-        if (strlen($environment) > 32) {
-            throw OutOfBoundsException::new(tr('Specified environment is ":size" characters long, please specify an environment equal or less than 32 characters', [
-                ':size' => strlen($environment)
-            ]))->makeWarning();
-        }
-
-        $environment = strtoupper($environment);
-
-        if (!preg_match('/[A-Z0-9_]+/', $environment)) {
-            throw OutOfBoundsException::new(tr('Specified environment ":environment" contains invalid characters, please ensure it has only A-Z, 0-9 or _', [
-                ':environment' => $environment
-            ]))->makeWarning();
-        }
-
-        return $environment;
-    }
-
-
-    /**
-     * Returns if the specified environment exists or not
-     *
-     * For an environment to exist, a configuration file must be available
-     *
-     * @param string $environment
-     * @return bool
-     */
-    public static function exists(string $environment): bool
-    {
-        $environment = static::sanitize($environment);
-        return file_exists(static::getConfigurationFile($environment));
-    }
-
-
-    /**
-     * Returns the configuration file for the specified environment
-     *
-     * @param string $environment
-     * @return string
-     */
-    public static function getConfigurationFile(string $environment): string
-    {
-        return DIRECTORY_ROOT  . 'config/' . strtolower($environment) . '.yaml';
-    }
-
-
-    /**
-     * Returns the configuration for this environment
-     *
-     * @return Configuration
-     */
-    public function getConfiguration(): Configuration
-    {
-        return $this->config;
-    }
-
-
     /**
      * Remove this environment
      *
      * This will remove all databases and configuration files for this environment
+     *
      * @return bool
      */
     public function remove(): bool
@@ -200,7 +188,7 @@ class Environment
         } catch (Throwable $e) {
             Log::warning(tr('Failed to drop system database for environment ":env" because ":message", continuing...', [
                 ':env'     => strtolower($this->name),
-                ':message' => $e->getMessage() . ($e->getPrevious() ? ', ' . $e->getPrevious()->getMessage() : null)
+                ':message' => $e->getMessage() . ($e->getPrevious() ? ', ' . $e->getPrevious()->getMessage() : null),
             ]));
         }
 
@@ -215,7 +203,6 @@ class Environment
         return true;
     }
 
-
     /**
      * Create this environment
      *
@@ -225,7 +212,7 @@ class Environment
     {
         try {
             Log::action(tr('Generating configuration for environment ":env"...', [
-                ':env' => strtolower($this->name)
+                ':env' => strtolower($this->name),
             ]));
 
             // Create production configuration
@@ -245,7 +232,7 @@ class Environment
             }
 
             throw new EnvironmentException(tr('Failed to generate new environment configuration because ":e"', [
-                ':e' => $e->getMessage()
+                ':e' => $e->getMessage(),
             ]));
         }
 
@@ -254,5 +241,15 @@ class Environment
 
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
+    }
+
+    /**
+     * Returns the configuration for this environment
+     *
+     * @return Configuration
+     */
+    public function getConfiguration(): Configuration
+    {
+        return $this->config;
     }
 }

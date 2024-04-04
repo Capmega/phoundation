@@ -7,18 +7,17 @@ namespace Phoundation\Web\Html\Components\Widgets\Panels;
 use Phoundation\Web\Html\Components\Widgets\Modals\SignInModal;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
 
 
 /**
  * SidePanel class
  *
- * 
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class SidePanel extends Panel
 {
@@ -43,13 +42,13 @@ class SidePanel extends Panel
         $sign_in
             ->useForm(true)
             ->getForm()
-                ->setId('form-sign-in')
-                ->setMethod('post')
-                ->setAction(UrlBuilder::getAjax('sign-in'));
+            ->setId('form-sign-in')
+            ->setMethod('post')
+            ->setAction(UrlBuilder::getAjax('sign-in'));
 
         $this->setMenu(Request::getMenusObject()->getPrimaryMenu())
              ->getModals()
-                 ->addModal('sign-in', $sign_in);
+             ->addModal('sign-in', $sign_in);
 
         return parent::render();
     }

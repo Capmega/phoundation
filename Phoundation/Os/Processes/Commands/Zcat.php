@@ -15,10 +15,10 @@ use Phoundation\Os\Processes\Enum\Interfaces\EnumExecuteMethodInterface;
  *
  * This class manages the "zcat" command
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Zcat extends Command
 {
@@ -29,8 +29,8 @@ class Zcat extends Command
      * Zcat class constructor
      *
      * @param RestrictionsInterface|array|string|null $restrictions
-     * @param string|null $operating_system
-     * @param string|null $packages
+     * @param string|null                             $operating_system
+     * @param string|null                             $packages
      */
     public function __construct(RestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null)
     {
@@ -43,6 +43,7 @@ class Zcat extends Command
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
+     *
      * @return string
      */
     public function getFullCommandLine(bool $background = false): string
@@ -60,6 +61,7 @@ class Zcat extends Command
      * Cats the output unzipped to the specified output
      *
      * @param EnumExecuteMethodInterface $method
+     *
      * @return string|int|bool|array|null
      */
     public function execute(EnumExecuteMethodInterface $method = EnumExecuteMethod::passthru): string|int|bool|array|null

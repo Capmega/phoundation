@@ -13,10 +13,10 @@ use Phoundation\Accounts\Users\User;
  *
  * This trait contains methods for DataEntry objects that require a users_id
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryUser
 {
@@ -35,6 +35,7 @@ trait TraitDataEntryUser
      * Sets the users_id for this object
      *
      * @param int|null $users_id
+     *
      * @return static
      */
     public function setUsersId(?int $users_id): static
@@ -53,7 +54,7 @@ trait TraitDataEntryUser
         $users_id = $this->getValueTypesafe('int', 'users_id');
 
         if ($users_id) {
-            return User::get($users_id,  'id');
+            return User::get($users_id, 'id');
         }
 
         return null;
@@ -75,6 +76,7 @@ trait TraitDataEntryUser
      * Sets the users_email for this user
      *
      * @param string|null $users_email
+     *
      * @return static
      */
     public function setUsersEmail(?string $users_email): static

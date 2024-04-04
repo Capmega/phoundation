@@ -16,10 +16,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class RoutingParametersList
 {
@@ -49,6 +49,7 @@ class RoutingParametersList
      * Add the specified parameters
      *
      * @param RoutingParametersInterface $parameters
+     *
      * @return $this
      */
     public function add(RoutingParametersInterface $parameters): static
@@ -56,7 +57,7 @@ class RoutingParametersList
         if ($parameters->getSystemPagesOnly()) {
             $this->system_list[$parameters->getPattern()] = $parameters;
         } else {
-            $this->list[$parameters->getPattern()]        = $parameters;
+            $this->list[$parameters->getPattern()] = $parameters;
         }
 
         $this->ordered = false;
@@ -82,6 +83,7 @@ class RoutingParametersList
      * Returns all normal routing parameters
      *
      * @param bool $system
+     *
      * @return array
      */
     public function list(bool $system = false): array
@@ -98,7 +100,8 @@ class RoutingParametersList
      * Add the specified parameters
      *
      * @param Stringable|string $uri
-     * @param bool $system
+     * @param bool              $system
+     *
      * @return RoutingParameters
      */
     public function select(Stringable|string $uri, bool $system = false): RoutingParameters
@@ -107,7 +110,7 @@ class RoutingParametersList
             $this->order();
         }
 
-        $uri     = (string) $uri;
+        $uri     = (string)$uri;
         $pattern = null;
 
         // Search in the system or normal pages list for the parameters
@@ -125,8 +128,8 @@ class RoutingParametersList
             } catch (Exception $e) {
                 throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
                     ':e'     => $e->getMessage(),
-                    ':regex' => $pattern
-                ]), $e)->addData(['failed_pattern' => $pattern]);
+                    ':regex' => $pattern,
+                ]),                       $e)->addData(['failed_pattern' => $pattern]);
             }
 
             $parameters
@@ -139,7 +142,7 @@ class RoutingParametersList
                 ':uri'       => $uri,
                 ':directory' => $parameters->getRootDirectory(),
                 ':template'  => $parameters->getTemplate(),
-                ':pattern'   => $pattern
+                ':pattern'   => $pattern,
             ]));
 
             return $parameters;
@@ -147,7 +150,7 @@ class RoutingParametersList
 
         if (!isset($parameters)) {
             throw new RouteException(tr('Cannot find routing parameters for target ":target", no routing parameters available', [
-                ':target' => $uri
+                ':target' => $uri,
             ]));
         }
 
@@ -159,7 +162,7 @@ class RoutingParametersList
             ':uri'       => $uri,
             ':directory' => $parameters->getRootDirectory(),
             ':template'  => $parameters->getTemplate(),
-            ':pattern'   => $pattern
+            ':pattern'   => $pattern,
         ]));
 
         return $parameters;

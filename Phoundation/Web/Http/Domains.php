@@ -22,40 +22,37 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
-class Domains {
-    /**
-     * The domain with which this object will work
-     *
-     * @var string $domain
-     */
-    protected string $domain;
-
+class Domains
+{
     /**
      * Configuration cache for all domains
      *
      * @var array $domains_configuration
      */
     protected static array $domains_configuration;
-
     /**
      * Configuration cache for all whitelisted domains
      *
      * @var array $whitelist_domains
      */
     protected static array $whitelist_domains;
-
     /**
      * The configured primary domain
      *
      * @var string|null $primary_domain
      */
     protected static ?string $primary_domain = null;
-
+    /**
+     * The domain with which this object will work
+     *
+     * @var string $domain
+     */
+    protected string $domain;
 
     /**
      * Domains class constructor
@@ -76,46 +73,17 @@ class Domains {
         $this->domain = strtolower($domain);
     }
 
-
     /**
-     * Returns a Domains object which will work from the specified domain
+     * Returns true if the specified domain is the current domain
      *
-     * @param string|null $domain
-     * @return Domains
-     */
-    public static function from(?string $domain = null): Domains
-    {
-        return new Domains($domain);
-    }
-
-
-    /**
-     * Returns the primary domain
+     * @param string $domain
      *
-     * @return string
+     * @return bool
      */
-    public static function getPrimary(): string
+    public static function isCurrent(string $domain): bool
     {
-        if (!static::$primary_domain) {
-            // Build cache
-            static::loadConfiguration();
-            static::$primary_domain = (string) UrlBuilder::getDomainFromUrl((string) isset_get(static::$domains_configuration['primary']['web']));
-
-            if (!static::$primary_domain) {
-                // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
-                // Assume the current domain is the primary domain instead
-                static::$primary_domain = Domains::getCurrent();
-
-                Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
-                    ':domain' => static::$primary_domain
-                ]));
-            }
-        }
-
-        // Return cache
-        return static::$primary_domain;
+        return static::getCurrent() === $domain;
     }
-
 
     /**
      * Returns the current domain
@@ -137,18 +105,113 @@ class Domains {
         return $domain;
     }
 
-
     /**
-     * Returns true if the specified domain is the current domain
+     * Returns a Domains object which will work from the specified domain
      *
-     * @param string $domain
-     * @return bool
+     * @param string|null $domain
+     *
+     * @return Domains
      */
-    public static function isCurrent(string $domain): bool
+    public static function from(?string $domain = null): Domains
     {
-        return static::getCurrent() === $domain;
+        return new Domains($domain);
     }
 
+    /**
+     * Returns true if the specified domain is configured either as primary or whitelisted domain
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    public static function isConfigured(string $domain): bool
+    {
+        if (static::isPrimary($domain)) {
+            return true;
+        }
+
+        return static::isWhitelist($domain);
+    }
+
+    /**
+     * Returns true if the specified domain is the primary domain
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    public static function isPrimary(string $domain): bool
+    {
+        return static::getPrimary() === $domain;
+    }
+
+    /**
+     * Returns the primary domain
+     *
+     * @return string
+     */
+    public static function getPrimary(): string
+    {
+        if (!static::$primary_domain) {
+            // Build cache
+            static::loadConfiguration();
+            static::$primary_domain = (string)UrlBuilder::getDomainFromUrl((string)isset_get(static::$domains_configuration['primary']['web']));
+
+            if (!static::$primary_domain) {
+                // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
+                // Assume the current domain is the primary domain instead
+                static::$primary_domain = Domains::getCurrent();
+
+                Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
+                    ':domain' => static::$primary_domain,
+                ]));
+            }
+        }
+
+        // Return cache
+        return static::$primary_domain;
+    }
+
+    /**
+     * Ensures that the domains configuration is loaded
+     *
+     * @return void
+     */
+    protected static function loadConfiguration(): void
+    {
+        if (!isset(static::$domains_configuration)) {
+            $configuration = Config::get('web.domains');
+
+            if ($configuration === null) {
+                if (!Core::isState('setup')) {
+                    // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
+                    // so fine
+                    throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
+                }
+
+                // Core has already failed, yet we are here, likely this is the setup page
+                Log::warning(tr('The configuration path "web.domains" does not exist'));
+                static::$domains_configuration = [];
+
+            } else {
+                static::$domains_configuration = &$configuration;
+            }
+
+            static::$whitelist_domains = [];
+        }
+    }
+
+    /**
+     * Returns true if the specified domain is whitelisted
+     *
+     * @param string $domain
+     *
+     * @return bool
+     */
+    public static function isWhitelist(string $domain): bool
+    {
+        return in_array($domain, static::getWhitelist());
+    }
 
     /**
      * Returns a list of all whitelist domains
@@ -174,104 +237,13 @@ class Domains {
         return static::$whitelist_domains;
     }
 
-
-    /**
-     * Returns true if the specified domain is the primary domain
-     *
-     * @param string $domain
-     * @return bool
-     */
-    public static function isPrimary(string $domain): bool
-    {
-        return static::getPrimary() === $domain;
-    }
-
-
-    /**
-     * Returns true if the specified domain is whitelisted
-     *
-     * @param string $domain
-     * @return bool
-     */
-    public static function isWhitelist(string $domain): bool
-    {
-        return in_array($domain, static::getWhitelist());
-    }
-
-
-    /**
-     * Returns true if the specified domain is configured either as primary or whitelisted domain
-     *
-     * @param string $domain
-     * @return bool
-     */
-    public static function isConfigured(string $domain): bool
-    {
-        if (static::isPrimary($domain)) {
-            return true;
-        }
-
-        return static::isWhitelist($domain);
-    }
-
-
-    /**
-     * Returns the configuration for the specified domain
-     *
-     * @param string $domain
-     * @return array
-     */
-    public static function getConfiguration(string $domain): array
-    {
-        if (!static::isPrimary($domain)) {
-            if (!static::isWhitelist($domain)) {
-                throw ConfigPathDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
-                    ':domain' => $domain
-                ]));
-            }
-        } else {
-            $domain = 'primary';
-        }
-
-        $domain_config = &static::$domains_configuration[$domain];
-
-        // Validate configuration
-        try {
-            Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
-            Arrays::default($domain_config, 'index'  , '/');
-            Arrays::default($domain_config, 'cloaked', false);
-        } catch (ConfigPathDoesNotExistsException $e) {
-            if (!Core::isState('setup')) {
-                // In setup mode, we won't have any configuration, but we will be able to continue
-                throw $e;
-            }
-        }
-
-        return $domain_config;
-    }
-
-
-    /**
-     * Returns the value for the specified domain key
-     *
-     * @param string $domain
-     * @param string $key
-     * @param mixed|null $default
-     * @return mixed
-     */
-    public static function getConfigurationKey(string $domain, string $key, mixed $default = null): mixed
-    {
-        $domain_config = static::getConfiguration($domain);
-        return isset_get($domain_config[$key], $default);
-    }
-
-
     /**
      * Returns the base URL for the specified domain and its type (web or cdn)
      *
      * @param string|null $domain
-     * @param string $type
+     * @param string      $type
      * @param string|null $language
+     *
      * @return string
      * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
@@ -286,13 +258,13 @@ class Domains {
         return $uri;
     }
 
-
     /**
      * Returns the base URL for the specified domain and its type (web or cdn)
      *
      * @param string|null $domain
-     * @param string $type
+     * @param string      $type
      * @param string|null $language
+     *
      * @return string
      * @throws ConfigPathDoesNotExistsException If the specified domain does not exist
      */
@@ -323,7 +295,7 @@ class Domains {
                 // This MIGHT be caused by "http://phoundation.org./foobar" instead of "http://phoundation.org/foobar"
                 // Log this, and redirect to main-domain/current-url
                 Log::warning(tr('The current domain ":domain" is not configured. Redirecting', [
-                    ':domain' => $domain
+                    ':domain' => $domain,
                 ]));
 
                 Response::redirect(UrlBuilder::getRootDomainUrl());
@@ -331,11 +303,61 @@ class Domains {
 
             // The specified domain isn't configured
             throw new ConfigPathDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
-                ':domain' => $domain
+                ':domain' => $domain,
             ]));
         }
     }
 
+    /**
+     * Returns the value for the specified domain key
+     *
+     * @param string     $domain
+     * @param string     $key
+     * @param mixed|null $default
+     *
+     * @return mixed
+     */
+    public static function getConfigurationKey(string $domain, string $key, mixed $default = null): mixed
+    {
+        $domain_config = static::getConfiguration($domain);
+        return isset_get($domain_config[$key], $default);
+    }
+
+    /**
+     * Returns the configuration for the specified domain
+     *
+     * @param string $domain
+     *
+     * @return array
+     */
+    public static function getConfiguration(string $domain): array
+    {
+        if (!static::isPrimary($domain)) {
+            if (!static::isWhitelist($domain)) {
+                throw ConfigPathDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
+                    ':domain' => $domain,
+                ]));
+            }
+        } else {
+            $domain = 'primary';
+        }
+
+        $domain_config = &static::$domains_configuration[$domain];
+
+        // Validate configuration
+        try {
+            Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
+            Arrays::default($domain_config, 'index', '/');
+            Arrays::default($domain_config, 'cloaked', false);
+        } catch (ConfigPathDoesNotExistsException $e) {
+            if (!Core::isState('setup')) {
+                // In setup mode, we won't have any configuration, but we will be able to continue
+                throw $e;
+            }
+        }
+
+        return $domain_config;
+    }
 
     /**
      * Returns the current object domain
@@ -346,7 +368,6 @@ class Domains {
     {
         return $this->domain;
     }
-
 
     /**
      * Returns the parent domain for the object domain
@@ -368,7 +389,6 @@ class Domains {
         return $return;
     }
 
-
     /**
      * Returns the root domain for the object domain
      *
@@ -380,35 +400,5 @@ class Domains {
     public function getRoot(): string
     {
         return Strings::skip($this->domain, '.', 1);
-    }
-
-
-    /**
-     * Ensures that the domains configuration is loaded
-     *
-     * @return void
-     */
-    protected static function loadConfiguration(): void
-    {
-        if (!isset(static::$domains_configuration)) {
-            $configuration = Config::get('web.domains');
-
-            if ($configuration === null) {
-                if (!Core::isState('setup')) {
-                    // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
-                    // so fine
-                    throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
-                }
-
-                // Core has already failed, yet we are here, likely this is the setup page
-                Log::warning(tr('The configuration path "web.domains" does not exist'));
-                static::$domains_configuration = [];
-
-            } else {
-                static::$domains_configuration = &$configuration;
-            }
-
-            static::$whitelist_domains = [];
-        }
     }
 }

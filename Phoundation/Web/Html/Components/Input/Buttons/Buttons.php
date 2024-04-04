@@ -5,10 +5,10 @@
  *
  * This class manages and can render a set of multiple buttons
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
@@ -43,6 +43,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
      * Sets the buttons list
      *
      * @param ArrayableInterface|array $buttons
+     *
      * @return static
      */
     public function setButtons(ArrayableInterface|array $buttons): static
@@ -56,6 +57,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
      * Adds multiple buttons to button list
      *
      * @param ArrayableInterface|array $buttons
+     *
      * @return static
      */
     public function addButtons(ArrayableInterface|array $buttons): static
@@ -71,11 +73,12 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
     /**
      * Adds a single button to button list
      *
-     * @param Button|string|null $button
-     * @param EnumDisplayMode $mode
+     * @param Button|string|null                       $button
+     * @param EnumDisplayMode                          $mode
      * @param EnumInputTypeInterface|Stringable|string $type_or_anchor_url
-     * @param bool $outline
-     * @param bool $right
+     * @param bool                                     $outline
+     * @param bool                                     $right
+     *
      * @return static
      */
     public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumInputTypeInterface|Stringable|string $type_or_anchor_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
@@ -92,22 +95,22 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
 
             // Button was specified as string, create a button first
             $button = Button::new()
-                ->setWrapping($this->wrapping)
-                ->setOutlined($this->outlined)
-                ->setRounded($this->rounded)
-                ->addClasses($this->classes)
-                ->setOutlined($outline)
-                ->setContent($button)
-                ->setValue($button)
-                ->setFloatRight($right)
-                ->setMode($mode)
-                ->setName('submit');
+                            ->setWrapping($this->wrapping)
+                            ->setOutlined($this->outlined)
+                            ->setRounded($this->rounded)
+                            ->addClasses($this->classes)
+                            ->setOutlined($outline)
+                            ->setContent($button)
+                            ->setValue($button)
+                            ->setFloatRight($right)
+                            ->setMode($mode)
+                            ->setName('submit');
 
             switch ($type_or_anchor_url) {
                 case EnumButtonType::submit:
-                // no break
+                    // no break
                 case EnumButtonType::button:
-                // no break
+                    // no break
                 case EnumButtonType::reset:
                     // One of the submit, reset, or button buttons
                     $button->setType($type_or_anchor_url);
@@ -123,7 +126,7 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
         if (empty($button->getValue())) {
             if (empty($button->getContent())) {
                 throw new OutOfBoundsException(tr('No name specified for button ":button"', [
-                    ':button' => $button
+                    ':button' => $button,
                 ]));
             }
 
@@ -146,20 +149,6 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
         return $this->source;
     }
 
-
-    /**
-     * Sets the button grouping
-     *
-     * @param bool $group
-     * @return static
-     */
-    public function setGroup(bool $group): static
-    {
-        $this->group = $group;
-        return $this;
-    }
-
-
     /**
      * Returns the button grouping
      *
@@ -170,6 +159,18 @@ class Buttons extends ElementsBlock implements Iterator, ButtonsInterface
         return $this->group;
     }
 
+    /**
+     * Sets the button grouping
+     *
+     * @param bool $group
+     *
+     * @return static
+     */
+    public function setGroup(bool $group): static
+    {
+        $this->group = $group;
+        return $this;
+    }
 
     /**
      * Returns the current button

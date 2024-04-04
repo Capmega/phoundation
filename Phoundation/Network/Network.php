@@ -17,10 +17,10 @@ use Phoundation\Os\Processes\Process;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Network
+ * @package   Phoundation\Network
  */
 class Network
 {
@@ -33,10 +33,10 @@ class Network
     {
         try {
             return Process::new('dig')
-                ->addArgument('+short')
-                ->addArgument('myip.opendns.com')
-                ->addArgument('@resolver1.opendns.com')
-                ->executeReturnString();
+                          ->addArgument('+short')
+                          ->addArgument('myip.opendns.com')
+                          ->addArgument('@resolver1.opendns.com')
+                          ->executeReturnString();
 
         } catch (ProcessFailedException $e) {
             try {

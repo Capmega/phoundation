@@ -10,9 +10,7 @@ use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
 use Phoundation\Business\Companies\Interfaces\CompanyInterface;
 use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
 
@@ -21,11 +19,11 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Companies
+ * @package   Phoundation\Companies
  */
 class Company extends DataEntry implements CompanyInterface
 {

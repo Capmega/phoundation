@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace Phoundation\Date\Interfaces;
 
 
+use DateTimeZone;
+
 /**
  * Class DateTimeZone
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Date
+ * @package   Phoundation\Date
  */
 interface DateTimeZoneInterface
 {
@@ -22,5 +24,5 @@ interface DateTimeZoneInterface
      *
      * @return \DateTimeZone
      */
-    public function getPhpDateTimeZone(): \DateTimeZone;
+    public function getPhpDateTimeZone(): DateTimeZone;
 }

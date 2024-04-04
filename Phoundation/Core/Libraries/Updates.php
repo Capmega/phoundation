@@ -18,10 +18,10 @@ use Phoundation\Utils\Strings;
  *
  * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 abstract class Updates implements UpdatesInterface
 {
@@ -83,21 +83,21 @@ abstract class Updates implements UpdatesInterface
 
         if (!$code_version) {
             throw new OutOfBoundsException(tr('No code version specified for library ":library" init file', [
-                ':library' => $library
+                ':library' => $library,
             ]));
         }
 
         if (!strings::isVersion($code_version)) {
             throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file', [
                 ':version' => $code_version,
-                ':library' => $library
+                ':library' => $library,
             ]));
         }
 
         if ($code_version === '0.0.0') {
             throw new OutOfBoundsException(tr('Invalid code version ":version" specified for library ":library" init file. The minimum version is "0.0.1"', [
                 ':version' => $code_version,
-                ':library' => $library
+                ':library' => $library,
             ]));
         }
 
@@ -106,6 +106,19 @@ abstract class Updates implements UpdatesInterface
         $this->code_version = $code_version;
     }
 
+    /**
+     * Adds the list of updates
+     *
+     * @return void
+     */
+    abstract public function updates(): void;
+
+    /**
+     * Returns the library version
+     *
+     * @return string
+     */
+    abstract public function version(): string;
 
     /**
      * Returns the file for this library
@@ -117,7 +130,6 @@ abstract class Updates implements UpdatesInterface
         return $this->file;
     }
 
-
     /**
      * Returns the current code version for this library
      *
@@ -128,57 +140,96 @@ abstract class Updates implements UpdatesInterface
         return $this->code_version;
     }
 
-
     /**
-     * Returns the current database version for this library
+     * Registers the specified version and the function containing all tasks that should be executed to get to that
+     * version
      *
-     * @return string|null
+     * @param string   $version
+     * @param callable $function
+     *
+     * @return Updates
      */
-    public function getDatabaseVersion(): ?string
+    public function addUpdate(string $version, callable $function): Updates
     {
-        if (!$this->versionsTableExists()) {
-            return null;
+        if (array_key_exists($version, $this->updates)) {
+            throw new DoubleVersionException(tr('The version ":version" is specified twice in the init file ":file"', [
+                ':version' => $version,
+                ':file'    => $this->file,
+            ]));
         }
 
-        $version = sql()->getColumn('SELECT MAX(`version`) 
-                                           FROM   `core_versions` 
-                                           WHERE  `library` = :library', [':library' => $this->library]);
+        $this->updates[$version] = $function;
 
-        return Version::getString($version);
+        // Make sure the updates table is ordered by versions
+        uksort($this->updates, function ($a, $b) {
+            return version_compare($a, $b);
+        });
+
+        return $this;
     }
 
-
     /**
-     * Returns if the specified database version exists for this library, or not
+     * Update to the specified version
      *
-     * @param string|int $version
-     * @return bool
+     * @param string|null $comments
+     *
+     * @return string|null The next version available for this init, or NULL if none are available
      */
-    public function databaseVersionExists(string|int $version): bool
+    public function init(?string $comments = null): ?string
     {
-        if (!$this->versionsTableExists()) {
-            return false;
+        $version = $this->getNextInitVersion();
+
+        // Execute this init, register the version as executed, and return the next version
+        switch ($version) {
+            case 'post_once':
+                // no break
+
+            case 'post_always':
+                Log::action(tr('Executing ":library" ":version" init', [
+                    ':library' => $this->library,
+                    ':version' => $version,
+                ]));
+                break;
+
+            default:
+                Log::action(tr('Updating ":library" library to version ":version"', [
+                    ':library' => $this->library,
+                    ':version' => $version,
+                ]));
         }
 
-        if (!is_int($version)) {
-            // Get the integer version of the version
-            $version = Version::getInteger($version);
+        // Execute the update and clear the versions_exists as after any update, the versions table should exist
+        try {
+            if (
+                !TEST or (in_array($this->library, [
+                    'accounts',
+                    'core',
+                    'meta',
+                    'geo',
+                ]))
+            ) {
+                // In TEST mode only execute Core, Geo, Accounts, and Meta libraries
+                $this->updates[$version]();
+            }
+
+            unset($this->versions_exists);
+
+        } catch (Exception $e) {
+            // In init mode, we don't do warnings, only full exceptions
+            $e->setWarning(false);
+            throw $e;
         }
 
-        return (bool) sql()->getColumn('SELECT `version`
-                                              FROM   `core_versions`
-                                              WHERE  `library` = :library
-                                              AND    `version` = :version', [
-                                                  ':library' => $this->library,
-                                                  ':version' => $version
-        ]);
+        // Register the version update and return the next available init
+        $this->addVersion($version, $comments);
+        return $this->getNextInitVersion($version);
     }
-
 
     /**
      * Returns the next version available for execution, if any
      *
      * @param string|null $version
+     *
      * @return string|null The next version available for init execution, or NULL if none.
      */
     public function getNextInitVersion(?string $version = null): ?string
@@ -213,12 +264,44 @@ abstract class Updates implements UpdatesInterface
         return $next_version;
     }
 
+    /**
+     * Returns the current database version for this library
+     *
+     * @return string|null
+     */
+    public function getDatabaseVersion(): ?string
+    {
+        if (!$this->versionsTableExists()) {
+            return null;
+        }
+
+        $version = sql()->getColumn('SELECT MAX(`version`) 
+                                           FROM   `core_versions` 
+                                           WHERE  `library` = :library', [':library' => $this->library]);
+
+        return Version::getString($version);
+    }
+
+    /**
+     * Returns true if the versions table exists, false otherwise
+     *
+     * @return bool
+     */
+    protected function versionsTableExists(): bool
+    {
+        if (!isset($this->versions_exists)) {
+            $this->versions_exists = (bool)sql()->get('SHOW TABLES LIKE "core_versions"');
+        }
+
+        return $this->versions_exists;
+    }
 
     /**
      * Returns the next key right after specified $key
      *
-     * @param array $source
+     * @param array      $source
      * @param string|int $current_version
+     *
      * @return string|null
      * @throws OutOfBoundsException Thrown if the specified $current_version does not exist
      * @throws OutOfBoundsException Thrown if the specified $current_version does exist, but only at the end of the
@@ -256,93 +339,81 @@ abstract class Updates implements UpdatesInterface
         // Return the found version. Versions post_* will always be ignored here
         return match ($found) {
             'post_once', 'post_always' => null,
-            default => $found
+            default                    => $found
         };
     }
 
-
     /**
-     * Registers the specified version and the function containing all tasks that should be executed to get to that
-     * version
+     * Returns true if this init file has a version above the current version (and should not yet be executed)
      *
      * @param string $version
-     * @param callable $function
-     * @return Updates
-     */
-    public function addUpdate(string $version, callable $function): Updates
-    {
-        if (array_key_exists($version, $this->updates)) {
-            throw new DoubleVersionException(tr('The version ":version" is specified twice in the init file ":file"', [
-                ':version' => $version,
-                ':file'    => $this->file
-            ]));
-        }
-
-        $this->updates[$version] = $function;
-
-        // Make sure the updates table is ordered by versions
-        uksort($this->updates, function($a, $b) {
-            return version_compare($a, $b);
-        });
-
-        return $this;
-    }
-
-
-    /**
-     * Update to the specified version
      *
-     * @param string|null $comments
-     * @return string|null The next version available for this init, or NULL if none are available
+     * @return bool
      */
-    public function init(?string $comments = null): ?string
+    protected function isFuture(string $version): bool
     {
-        $version = $this->getNextInitVersion();
-
-        // Execute this init, register the version as executed, and return the next version
         switch ($version) {
             case 'post_once':
                 // no break
 
             case 'post_always':
-                Log::action(tr('Executing ":library" ":version" init', [
-                    ':library' => $this->library,
-                    ':version' => $version
-                ]));
-                break;
-
-            default:
-                Log::action(tr('Updating ":library" library to version ":version"', [
-                    ':library' => $this->library,
-                    ':version' => $version
-                ]));
+                // These are never future versions
+                return false;
         }
 
-        // Execute the update and clear the versions_exists as after any update, the versions table should exist
-        try {
-            if (!TEST or (in_array($this->library, ['accounts', 'core', 'meta', 'geo']))) {
-                // In TEST mode only execute Core, Geo, Accounts, and Meta libraries
-                $this->updates[$version]();
-            }
+        $result = Version::compare($version, $this->code_version);
 
-            unset($this->versions_exists);
+        switch ($result) {
+            case -1:
+                // The init version is newer than the specified version and may be executed
+                return false;
 
-        } catch (Exception $e) {
-            // In init mode, we don't do warnings, only full exceptions
-            $e->setWarning(false);
-            throw $e;
+            case 0:
+                // The init version is the same as the current version and may be executed
+                return false;
+
+            case 1:
+                // The file version is later than the specified version
+                Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
+                    ':library' => $this->library,
+                    ':version' => $version,
+                ]),          9);
+
+                return true;
         }
 
-        // Register the version update and return the next available init
-        $this->addVersion($version, $comments);
-        return $this->getNextInitVersion($version);
+        throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
+            ':output' => $result,
+        ]));
     }
 
+    /**
+     * Add a new version data row in the versions table
+     *
+     * @param string      $version
+     * @param string|null $comments
+     *
+     * @return void
+     */
+    protected function addVersion(string $version, ?string $comments = null): void
+    {
+        if ($version === 'post_always') {
+            // Never register this in the versions table as this one is ALWAYS executed
+            return;
+        }
+
+        sql()->insert('core_versions', [
+            'library'  => $this->library,
+            'version'  => Version::getInteger($version),
+            'comments' => $comments,
+        ]);
+    }
 
     /**
      * Execute the post init files
      *
      * @param string|null $comments
+     *
      * @return bool True if any post_* files were executed
      */
     public function initPost(?string $comments = null): bool
@@ -377,33 +448,45 @@ abstract class Updates implements UpdatesInterface
         return $result;
     }
 
-
     /**
-     * Add a new version data row in the versions table
+     * Returns if the specified database version exists for this library, or not
      *
-     * @param string $version
-     * @param string|null $comments
-     * @return void
+     * @param string|int $version
+     *
+     * @return bool
      */
-    protected function addVersion(string $version, ?string $comments = null): void
+    public function databaseVersionExists(string|int $version): bool
     {
-        if ($version === 'post_always') {
-            // Never register this in the versions table as this one is ALWAYS executed
-            return;
+        if (!$this->versionsTableExists()) {
+            return false;
         }
 
-        sql()->insert('core_versions', [
-            'library'  => $this->library,
-            'version'  => Version::getInteger($version),
-            'comments' => $comments
+        if (!is_int($version)) {
+            // Get the integer version of the version
+            $version = Version::getInteger($version);
+        }
+
+        return (bool)sql()->getColumn('SELECT `version`
+                                              FROM   `core_versions`
+                                              WHERE  `library` = :library
+                                              AND    `version` = :version', [
+            ':library' => $this->library,
+            ':version' => $version,
         ]);
     }
 
+    /**
+     * Returns the library description
+     *
+     * @return string
+     */
+    abstract public function description(): string;
 
     /**
      * Returns true if this init file has already been executed before (and should not be executed again)
      *
      * @param string $version
+     *
      * @return bool
      */
     protected function hasBeenExecuted(string $version): bool
@@ -429,97 +512,14 @@ abstract class Updates implements UpdatesInterface
                 // The file version is newer than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
                     ':library' => $this->library,
-                    ':version' => $version
-                ]), 5);
+                    ':version' => $version,
+                ]),          5);
 
                 return true;
         }
 
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
-            ':output' => $result
+            ':output' => $result,
         ]));
     }
-
-
-    /**
-     * Returns true if this init file has a version above the current version (and should not yet be executed)
-     *
-     * @param string $version
-     * @return bool
-     */
-    protected function isFuture(string $version): bool
-    {
-        switch ($version) {
-            case 'post_once':
-                // no break
-
-            case 'post_always':
-                // These are never future versions
-                return false;
-        }
-
-        $result = Version::compare($version, $this->code_version);
-
-        switch ($result) {
-            case -1:
-                // The init version is newer than the specified version and may be executed
-                return false;
-
-            case 0:
-                // The init version is the same as the current version and may be executed
-                return false;
-
-            case 1:
-                // The file version is later than the specified version
-                Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
-                    ':library' => $this->library,
-                    ':version' => $version
-                ]), 9);
-
-                return true;
-        }
-
-        throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
-            ':output' => $result
-        ]));
-    }
-
-
-    /**
-     * Returns true if the versions table exists, false otherwise
-     *
-     * @return bool
-     */
-    protected function versionsTableExists(): bool
-    {
-        if (!isset($this->versions_exists)) {
-            $this->versions_exists = (bool) sql()->get('SHOW TABLES LIKE "core_versions"');
-        }
-
-        return $this->versions_exists;
-    }
-
-
-    /**
-     * Returns the library version
-     *
-     * @return string
-     */
-    abstract public function version(): string;
-
-
-    /**
-     * Returns the library description
-     *
-     * @return string
-     */
-    abstract public function description(): string;
-
-
-    /**
-     * Adds the list of updates
-     *
-     * @return void
-     */
-    abstract public function updates(): void;
 }

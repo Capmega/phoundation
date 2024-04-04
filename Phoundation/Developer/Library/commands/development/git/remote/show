@@ -14,11 +14,11 @@ use Phoundation\Developer\Versioning\Git\Git;
  * This script is an interface to the git command through Phoundation. Its not really needed -nor useful- beyond testing
  * the git library
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @category Function reference
- * @package Phoundation\Development
+ * @category  Function reference
+ * @package   Phoundation\Development
  */
 CliDocumentation::setUsage('./pho development git remote
 ./pho system dev git remote');
@@ -26,11 +26,10 @@ CliDocumentation::setHelp('This command is an interface to the git command throu
 useful- beyond testing the git library');
 
 
-
 // Get command line arguments
 $argv = ArgvValidator::new()
-    ->select('repository')->isVariable()
-    ->validate();
+                     ->select('repository')->isVariable()
+                     ->validate();
 
 
 Git::new(DIRECTORY_ROOT)->getRepositoriesObject()->get($argv['repository'])->CliDisplayForm();

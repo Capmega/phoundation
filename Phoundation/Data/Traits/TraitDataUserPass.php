@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataUserPass
 {
@@ -47,6 +47,7 @@ trait TraitDataUserPass
      * Sets the user for this object
      *
      * @param string|null $user
+     *
      * @return static
      */
     public function setUser(?string $user): static
@@ -71,6 +72,7 @@ trait TraitDataUserPass
      * Sets the pass for this object
      *
      * @param string|null $pass
+     *
      * @return static
      */
     public function setPass(?string $pass): static

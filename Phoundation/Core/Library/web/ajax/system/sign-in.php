@@ -12,10 +12,10 @@ use Plugins\Phoundation\Phoundation\Components\Menu;
  *
  * This call can sign a user in and start a session
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 
 $post = Session::validateSignIn();
@@ -24,16 +24,16 @@ $post = Session::validateSignIn();
 $user  = Session::signIn($post['email'], $post['password']);
 $menu  = Menu::getPrimaryMenu();
 $image = ProfileImage::new()
-    ->setImage(Session::getUser()->getPicture())
-    ->setMenu(null)
-    ->setUrl(null);
+                     ->setImage(Session::getUser()->getPicture())
+                     ->setMenu(null)
+                     ->setUrl(null);
 
 Log::printr([
-    'topMenu'      => $menu->render(),
-    'profileImage' => $image->render()
-]);
+                'topMenu'      => $menu->render(),
+                'profileImage' => $image->render(),
+            ]);
 
 Json::reply([
-    'topMenu'      => $menu->render(),
-    'profileImage' => $image->render()
-]);
+                'topMenu'      => $menu->render(),
+                'profileImage' => $image->render(),
+            ]);

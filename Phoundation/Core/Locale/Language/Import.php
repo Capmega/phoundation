@@ -15,17 +15,17 @@ use Phoundation\Utils\Strings;
  *
  * This class can import language data from the ROOT/data/sources/languages path
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Core
+ * @package   \Phoundation\Core
  */
 class Import extends \Phoundation\Developer\Project\Import
 {
     /**
      * Import class constructor
      *
-     * @param bool $demo
+     * @param bool     $demo
      * @param int|null $min
      * @param int|null $max
      */
@@ -65,7 +65,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         Log::action(tr('Importing languages, this may take a few seconds...'));
 
-        while($line = $file->readLine($buffer)) {
+        while ($line = $file->readLine($buffer)) {
             $count++;
 
             // Parse the line

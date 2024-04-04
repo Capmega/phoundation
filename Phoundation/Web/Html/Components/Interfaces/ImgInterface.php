@@ -11,10 +11,10 @@ use Stringable;
  *
  * This class generates <img> elements
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface ImgInterface
 {
@@ -22,6 +22,7 @@ interface ImgInterface
      * Sets the HTML alt element attribute
      *
      * @param bool $lazy_load
+     *
      * @return Img
      */
     public function setLazyLoad(?bool $lazy_load): static;
@@ -37,6 +38,7 @@ interface ImgInterface
      * Sets the HTML alt element attribute
      *
      * @param string|null $alt
+     *
      * @return Img
      */
     public function setAlt(?string $alt): static;
@@ -59,6 +61,7 @@ interface ImgInterface
      * Sets the HTML src element attribute
      *
      * @param Stringable|string|null $src
+     *
      * @return Img
      */
     public function setSrc(Stringable|string|null $src): static;

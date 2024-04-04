@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
@@ -23,7 +22,6 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterfac
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Requests\Response;
 
 class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnInterface
 {
@@ -75,7 +73,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
             throw new OutOfBoundsException(tr('Cannot render form component, no component specified'));
         }
 
-        $scripts = '';
+        $scripts    = '';
         $definition = $this->definition;
 
         // Add scripts?
@@ -92,8 +90,8 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
 
         if ($this->column_component->hasOuterDiv()) {
             // Get attributes and properties for the outer div
-            $outer = $this->column_component->getOuterDiv();
-            $class = $outer->getClass();
+            $outer      = $this->column_component->getOuterDiv();
+            $class      = $outer->getClass();
             $attributes = $outer->getAttributes();
         }
 

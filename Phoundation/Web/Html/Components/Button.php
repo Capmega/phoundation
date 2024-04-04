@@ -32,6 +32,18 @@ class Button extends Span
              ->addClass('btn');
     }
 
+    /**
+     * Sets the type for this element block
+     *
+     * @param EnumElementButtonType|null $type
+     *
+     * @return static
+     */
+    public function setType(?EnumElementButtonType $type): static
+    {
+        $this->attributes->set($type->value, 'type');
+        return $this;
+    }
 
     /**
      * Returns the type for this element block
@@ -47,18 +59,5 @@ class Button extends Span
         }
 
         return null;
-    }
-
-
-    /**
-     * Sets the type for this element block
-     *
-     * @param EnumElementButtonType|null $type
-     * @return static
-     */
-    public function setType(?EnumElementButtonType $type): static
-    {
-        $this->attributes->set($type->value, 'type');
-        return $this;
     }
 }

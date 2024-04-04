@@ -14,10 +14,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class TableAlter extends SchemaAbstract
 {
@@ -25,13 +25,14 @@ class TableAlter extends SchemaAbstract
      * Sets the table name
      *
      * @param string $name
+     *
      * @return static
      */
     public function setName(string $name): static
     {
         $this->sql->query('RENAME TABLE :from TO :to', [
             ':from' => $this->name,
-            ':tp'   => $name
+            ':tp'   => $name,
         ]);
 
         $this->name = $name;
@@ -43,8 +44,10 @@ class TableAlter extends SchemaAbstract
      * Add the array of columns to the table
      *
      * @note This will clear the current columns array
+     *
      * @param string|array $columns
-     * @param string $after
+     * @param string       $after
+     *
      * @return static
      */
     public function addColumns(string|array $columns, string $after): static
@@ -66,8 +69,10 @@ class TableAlter extends SchemaAbstract
      * Add a single column to the table
      *
      * @note This will clear the current columns array
+     *
      * @param string $column
      * @param string $after
+     *
      * @return static
      */
     public function addColumn(string $column, string $after): static
@@ -80,7 +85,7 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No after column specified'));
         }
 
-        $this->sql->query('ALTER TABLE `' . $this->name .  '` ADD COLUMN ' . Strings::endsNotWith($column, ',') . ' ' . $after);
+        $this->sql->query('ALTER TABLE `' . $this->name . '` ADD COLUMN ' . Strings::endsNotWith($column, ',') . ' ' . $after);
 
         return $this;
     }
@@ -90,6 +95,7 @@ class TableAlter extends SchemaAbstract
      * Drop the specified column from the table
      *
      * @param string $column
+     *
      * @return static
      */
     public function dropColumn(string $column): static
@@ -99,9 +105,9 @@ class TableAlter extends SchemaAbstract
         }
 
         $column = Strings::startsNotWith($column, '`');
-        $column = Strings::EndsNotWith($column  , '`');
+        $column = Strings::EndsNotWith($column, '`');
 
-        $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP COLUMN `' . $column . '`');
+        $this->sql->query('ALTER TABLE ' . $this->name . ' DROP COLUMN `' . $column . '`');
 
         return $this;
     }
@@ -112,6 +118,7 @@ class TableAlter extends SchemaAbstract
      *
      * @param string $column
      * @param string $to_definition
+     *
      * @return static
      */
     public function modifyColumn(string $column, string $to_definition): static
@@ -125,9 +132,9 @@ class TableAlter extends SchemaAbstract
         }
 
         $column = Strings::startsNotWith($column, '`');
-        $column = Strings::EndsNotWith($column  , '`');
+        $column = Strings::EndsNotWith($column, '`');
 
-        $this->sql->query('ALTER TABLE `' . $this->name .  '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
+        $this->sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
     }
@@ -138,6 +145,7 @@ class TableAlter extends SchemaAbstract
      *
      * @param string $column
      * @param string $to_definition
+     *
      * @return static
      */
     public function changeColumn(string $column, string $to_definition): static
@@ -151,7 +159,7 @@ class TableAlter extends SchemaAbstract
         }
 
         $column = Strings::startsNotWith($column, '`');
-        $column = Strings::EndsNotWith($column  , '`');
+        $column = Strings::EndsNotWith($column, '`');
 
         $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
 
@@ -164,6 +172,7 @@ class TableAlter extends SchemaAbstract
      *
      * @param string $from_column
      * @param string $to_column
+     *
      * @return static
      */
     public function renameColumn(string $from_column, string $to_column): static
@@ -177,10 +186,10 @@ class TableAlter extends SchemaAbstract
         }
 
         $from_column = Strings::startsNotWith($from_column, '`');
-        $from_column = Strings::EndsNotWith($from_column  , '`');
+        $from_column = Strings::EndsNotWith($from_column, '`');
 
         $to_column = Strings::startsNotWith($to_column, '`');
-        $to_column = Strings::EndsNotWith($to_column  , '`');
+        $to_column = Strings::EndsNotWith($to_column, '`');
 
         $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
 
@@ -192,6 +201,7 @@ class TableAlter extends SchemaAbstract
      * Add the array of indices to the table
      *
      * @param string|array $indices
+     *
      * @return static
      */
     public function addIndices(string|array $indices): static
@@ -213,12 +223,13 @@ class TableAlter extends SchemaAbstract
      * Add a single index to the table
      *
      * @param string $index
+     *
      * @return static
      */
     public function addIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD ' . Strings::endsNotWith($index, ','));
+            $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . Strings::endsNotWith($index, ','));
         }
 
         return $this;
@@ -229,12 +240,13 @@ class TableAlter extends SchemaAbstract
      * Drop the specified index from the table
      *
      * @param string $index
+     *
      * @return static
      */
     public function dropIndex(string $index): static
     {
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP KEY `' . Strings::endsNotWith(Strings::startsNotWith($index, '`'), '`') . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . Strings::endsNotWith(Strings::startsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;
@@ -245,6 +257,7 @@ class TableAlter extends SchemaAbstract
      * Add the array of foreign_keys to the table
      *
      * @param string|array $foreign_keys
+     *
      * @return static
      */
     public function addForeignKeys(string|array $foreign_keys): static
@@ -266,12 +279,13 @@ class TableAlter extends SchemaAbstract
      * Add a single foreign_key to the table
      *
      * @param string $foreign_key
+     *
      * @return static
      */
     public function addForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' ADD ' . $foreign_key);
+            $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $foreign_key);
         }
 
         return $this;
@@ -282,12 +296,13 @@ class TableAlter extends SchemaAbstract
      * Drop the specified foreign_key from the table
      *
      * @param string $foreign_key
+     *
      * @return static
      */
     public function dropForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name .  ' DROP FOREIGN KEY `' . Strings::endsNotWith(Strings::startsNotWith($foreign_key, '`'), '`') . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::endsNotWith(Strings::startsNotWith($foreign_key, '`'), '`') . '`');
         }
 
         return $this;

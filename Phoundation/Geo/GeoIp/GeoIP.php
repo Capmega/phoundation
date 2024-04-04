@@ -8,10 +8,10 @@ declare(strict_types=1);
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Geo
+ * @package   Phoundation/Geo
  */
 class GeoIP
 {
@@ -33,6 +33,7 @@ class GeoIP
      * Returns a new GeoIp object
      *
      * @param string|null $ip
+     *
      * @return static
      */
     public static function new(?string $ip = null): static
@@ -46,8 +47,5 @@ class GeoIP
      *
      * @return bool
      */
-    public function isEuropean(): bool
-    {
-
-    }
+    public function isEuropean(): bool {}
 }

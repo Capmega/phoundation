@@ -22,10 +22,10 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class NotificationsDropDown extends ElementsBlock
 {
@@ -60,7 +60,9 @@ class NotificationsDropDown extends ElementsBlock
      * Sets status and clears the notification cache
      *
      * @note: Overrides the trait setStatus()
+     *
      * @param string|null $status
+     *
      * @return $this
      */
     public function setStatus(?string $status): static
@@ -72,6 +74,71 @@ class NotificationsDropDown extends ElementsBlock
         return $this->setStatusTrait($status);
     }
 
+    /**
+     * Returns the notifications page URL
+     *
+     * @return UrlBuilderInterface|null
+     */
+    public function getNotificationsUrl(): ?UrlBuilderInterface
+    {
+        return $this->notifications_url;
+    }
+
+    /**
+     * Sets the notifications page URL
+     *
+     * @param Stringable|string|null $notifications_url
+     *
+     * @return static
+     */
+    public function setNotificationsUrl(Stringable|string|null $notifications_url): static
+    {
+        $this->notifications_url = UrlBuilder::getWww($notifications_url);
+        return $this;
+    }
+
+    /**
+     * Returns the notifications page URL
+     *
+     * @return UrlBuilderInterface
+     */
+    public function getAllNotificationsUrl(): UrlBuilderInterface
+    {
+        return $this->notifications_all_url;
+    }
+
+    /**
+     * Sets the notifications page URL
+     *
+     * @param Stringable|string|null $notifications_url
+     *
+     * @return static
+     */
+    public function setAllNotificationsUrl(Stringable|string|null $notifications_url): static
+    {
+        $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
+        return $this;
+    }
+
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        // Link the users notifications hash and see if we need to ping
+        $ping = $this->getNotifications()->linkHash();
+
+        if ($ping) {
+            Script::new()
+                  ->setJavascriptWrapper(EnumJavascriptWrappers::window)
+                  ->setContent('console.log("Initial ping!"); $("audio.notification").trigger("play");')
+                  ->render();
+        }
+
+        return parent::render();
+    }
 
     /**
      * Returns the notifications object
@@ -87,7 +154,7 @@ class NotificationsDropDown extends ElementsBlock
             if ($this->status) {
                 $this->notifications->getQueryBuilder()->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status, 'status'), [
                     ':users_id' => Session::getUser()->getId(),
-                    ':status'   => $this->status
+                    ':status'   => $this->status,
                 ]);
             }
 
@@ -97,85 +164,16 @@ class NotificationsDropDown extends ElementsBlock
         return $this->notifications;
     }
 
-
     /**
      * Sets the notifications object
      *
      * @param Notifications|null $notifications
+     *
      * @return static
      */
     public function setNotifications(?Notifications $notifications): static
     {
         $this->notifications = $notifications;
         return $this;
-    }
-
-
-    /**
-     * Returns the notifications page URL
-     *
-     * @return UrlBuilderInterface|null
-     */
-    public function getNotificationsUrl(): ?UrlBuilderInterface
-    {
-        return $this->notifications_url;
-    }
-
-
-    /**
-     * Sets the notifications page URL
-     *
-     * @param Stringable|string|null $notifications_url
-     * @return static
-     */
-    public function setNotificationsUrl(Stringable|string|null $notifications_url): static
-    {
-        $this->notifications_url = UrlBuilder::getWww($notifications_url);
-        return $this;
-    }
-
-
-    /**
-     * Returns the notifications page URL
-     *
-     * @return UrlBuilderInterface
-     */
-    public function getAllNotificationsUrl(): UrlBuilderInterface
-    {
-        return $this->notifications_all_url;
-    }
-
-
-    /**
-     * Sets the notifications page URL
-     *
-     * @param Stringable|string|null $notifications_url
-     * @return static
-     */
-    public function setAllNotificationsUrl(Stringable|string|null $notifications_url): static
-    {
-        $this->notifications_all_url = UrlBuilder::getWww($notifications_url);
-        return $this;
-    }
-
-
-    /**
-     * Renders and returns the HTML for this object
-     *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        // Link the users notifications hash and see if we need to ping
-        $ping = $this->getNotifications()->linkHash();
-
-        if ($ping) {
-            Script::new()
-                ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-                ->setContent('console.log("Initial ping!"); $("audio.notification").trigger("play");')
-                ->render();
-        }
-
-        return parent::render();
     }
 }

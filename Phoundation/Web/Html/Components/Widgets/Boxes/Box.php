@@ -16,10 +16,10 @@ use Phoundation\Web\Html\Html;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class Box extends Widget
 {
@@ -85,6 +85,7 @@ abstract class Box extends Widget
      * Returns the icon for this infobox
      *
      * @param string|null $icon
+     *
      * @return static
      */
     public function setIcon(?string $icon): static
@@ -109,6 +110,7 @@ abstract class Box extends Widget
      * Sets the URL for this infobox
      *
      * @param string|null $url
+     *
      * @return static
      */
     public function setUrl(?string $url): static
@@ -134,6 +136,7 @@ abstract class Box extends Widget
      * Sets the type of shadow to display with the infobox, if any
      *
      * @param string|null $shadow
+     *
      * @return static
      */
     public function setShadow(#[ExpectedValues(null, 'shadow-sm', 'shadow', 'shadow-lg')] ?string $shadow): static
@@ -158,7 +161,8 @@ abstract class Box extends Widget
      * Sets the value for this infobox
      *
      * @param string $value
-     * @param bool $make_safe
+     * @param bool   $make_safe
+     *
      * @return static
      */
     public function setValue(string $value, bool $make_safe = true): static
@@ -188,13 +192,14 @@ abstract class Box extends Widget
      * Sets the value for the progress bar in %, if shown
      *
      * @param int|null $progress
+     *
      * @return static
      */
     public function setProgress(?int $progress): static
     {
         if (($progress < 0) or ($progress > 100)) {
             throw new OutOfBoundsException(tr('The progress bar value ":value" is invalid, it should be between 0 and 100', [
-                ':value' => $progress
+                ':value' => $progress,
             ]));
         }
 
@@ -218,6 +223,7 @@ abstract class Box extends Widget
      * Sets the description for this infobox
      *
      * @param string|null $description
+     *
      * @return static
      */
     public function setDescription(?string $description): static

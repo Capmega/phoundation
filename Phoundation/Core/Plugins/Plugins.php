@@ -132,169 +132,6 @@ class Plugins extends DataList implements PluginsInterface
                      ->load();
     }
 
-
-    /**
-     * Starts all enabled plugins
-     *
-     * @return void
-     */
-    public static function start(): void
-    {
-        foreach (static::getEnabled() as $plugin) {
-            try {
-                if ($plugin['enabled']) {
-                    Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
-                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
-                    $plugin['class']::start();
-                }
-            } catch (Throwable $e) {
-                Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
-                    ':plugin' => $plugin['name'],
-                ]));
-
-                Log::error($e);
-
-                if (Config::getBoolean('plugins.error.startup.disable', true)) {
-                    Log::warning(tr('Disabling plugin ":plugin" because it failed to startup', [
-                        ':plugin' => $plugin['name'],
-                    ]));
-
-                    Plugin::new($plugin['id'])
-                          ->disable();
-                }
-            }
-        }
-    }
-
-
-    //    /**
-    //     * Starts CLI all enabled plugins
-    //     *
-    //     * @return void
-    //     */
-    //    public static function startCli(): void
-    //    {
-    //        foreach (static::getEnabled() as $name => $plugin) {
-    //            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
-    //            $plugin['class']::startCli();
-    //        }
-    //    }
-    //
-    //
-    //
-    //    /**
-    //     * Starts HTTP for all enabled plugins
-    //     *
-    //     * @return void
-    //     */
-    //    public static function startHttp(): void
-    //    {
-    //        foreach (static::getEnabled() as $name => $plugin) {
-    //            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
-    //            $plugin['class']::startHttp();
-    //        }
-    //    }
-
-
-    /**
-     * Loads all plugins from the database and returns them in an array
-     *
-     * @return IteratorInterface
-     */
-    public static function getAvailable(): IteratorInterface
-    {
-        $return = sql()->list('SELECT   `id`, 
-                                              `name`, 
-                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
-                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
-                                              `priority`, 
-                                              `vendor`, 
-                                              `class`, 
-                                              `path`
-                                     FROM     `core_plugins`
-                                     WHERE    `name` != "Phoundation" 
-                                     ORDER BY `priority` ASC');
-
-        if (!$return) {
-            // Phoundation plugin is ALWAYS enabled
-            return new Iterator([static::getPhoundationPluginEntry()]);
-        }
-
-        // Push Phoundation plugin to the front of the list
-        array_unshift($return, static::getPhoundationPluginEntry());
-        return new Iterator($return);
-    }
-
-
-    /**
-     * Returns an array with all enabled plugins from the database
-     *
-     * @return IteratorInterface
-     */
-    public static function getEnabled(): IteratorInterface
-    {
-        $return = sql()->list('SELECT   `id`, 
-                                              `name`, 
-                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
-                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
-                                              `priority`, 
-                                              `vendor`, 
-                                              `class`, 
-                                              `path`
-                                     FROM     `core_plugins` 
-                                     WHERE    `name`    != "Phoundation"
-                                     AND      `status`  IS NULL 
-                                     ORDER BY `priority` ASC');
-
-        if (!$return) {
-            // Phoundation plugin is ALWAYS enabled
-            return new Iterator([static::getPhoundationPluginEntry()]);
-        }
-
-        // Push Phoundation plugin to the front of the list
-        array_unshift($return, static::getPhoundationPluginEntry());
-        return new Iterator($return);
-    }
-
-
-    /**
-     * Returns the phoundation plugin entry
-     *
-     * @return array[]
-     */
-    protected static function getPhoundationPluginEntry(): array
-    {
-        return [
-            'vendor'   => 'Phoundation',
-            'name'     => 'Phoundation',
-            'status'   => tr('Ok'),
-            'enabled'  => tr('Enabled'),
-            'priority' => 0,
-            'class'    => 'Plugins\Phoundation\Phoundation\Library\Plugin',
-            'path'     => 'Plugins/Phoundation/',
-        ];
-    }
-
-
-    /**
-     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
-     *
-     * @return static
-     */
-    public function purge(): static
-    {
-        // Delete all plugins from disk
-        $directory = DIRECTORY_ROOT . 'Plugins/';
-
-        File::new($directory)
-            ->delete();
-        Directory::new($directory)
-                 ->ensure();
-
-        return $this;
-    }
-
-
     /**
      * Returns all available plugins in the Plugins/ path
      *
@@ -303,8 +140,8 @@ class Plugins extends DataList implements PluginsInterface
     protected static function scanPluginsPath(): array
     {
         $directory = DIRECTORY_ROOT . 'Plugins/';
-        $return = [];
-        $vendors = scandir($directory);
+        $return    = [];
+        $vendors   = scandir($directory);
 
         foreach ($vendors as $vendor) {
             // Filter . .. and hidden files
@@ -376,6 +213,34 @@ class Plugins extends DataList implements PluginsInterface
     }
 
 
+    //    /**
+    //     * Starts CLI all enabled plugins
+    //     *
+    //     * @return void
+    //     */
+    //    public static function startCli(): void
+    //    {
+    //        foreach (static::getEnabled() as $name => $plugin) {
+    //            Log::action(tr('Starting CLI on plugin ":plugin"', [':plugin' => $name]), 3);
+    //            $plugin['class']::startCli();
+    //        }
+    //    }
+    //
+    //
+    //
+    //    /**
+    //     * Starts HTTP for all enabled plugins
+    //     *
+    //     * @return void
+    //     */
+    //    public static function startHttp(): void
+    //    {
+    //        foreach (static::getEnabled() as $name => $plugin) {
+    //            Log::action(tr('Starting HTTP on plugin ":plugin"', [':plugin' => $name]));
+    //            $plugin['class']::startHttp();
+    //        }
+    //    }
+
     /**
      * Returns true if the specified class path matches the file path
      *
@@ -392,6 +257,133 @@ class Plugins extends DataList implements PluginsInterface
         return $class === $file;
     }
 
+    /**
+     * Starts all enabled plugins
+     *
+     * @return void
+     */
+    public static function start(): void
+    {
+        foreach (static::getEnabled() as $plugin) {
+            try {
+                if ($plugin['enabled']) {
+                    Log::action(tr('Starting plugin ":plugin"', [':plugin' => $plugin['name']]), 9);
+                    include_once(DIRECTORY_ROOT . $plugin['path'] . 'Library/Plugin.php');
+                    $plugin['class']::start();
+                }
+            } catch (Throwable $e) {
+                Log::error(tr('Failed to start plugin ":plugin" because of next exception', [
+                    ':plugin' => $plugin['name'],
+                ]));
+
+                Log::error($e);
+
+                if (Config::getBoolean('plugins.error.startup.disable', true)) {
+                    Log::warning(tr('Disabling plugin ":plugin" because it failed to startup', [
+                        ':plugin' => $plugin['name'],
+                    ]));
+
+                    Plugin::new($plugin['id'])
+                          ->disable();
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns an array with all enabled plugins from the database
+     *
+     * @return IteratorInterface
+     */
+    public static function getEnabled(): IteratorInterface
+    {
+        $return = sql()->list('SELECT   `id`, 
+                                              `name`, 
+                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
+                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                              `priority`, 
+                                              `vendor`, 
+                                              `class`, 
+                                              `path`
+                                     FROM     `core_plugins` 
+                                     WHERE    `name`    != "Phoundation"
+                                     AND      `status`  IS NULL 
+                                     ORDER BY `priority` ASC');
+
+        if (!$return) {
+            // Phoundation plugin is ALWAYS enabled
+            return new Iterator([static::getPhoundationPluginEntry()]);
+        }
+
+        // Push Phoundation plugin to the front of the list
+        array_unshift($return, static::getPhoundationPluginEntry());
+        return new Iterator($return);
+    }
+
+    /**
+     * Returns the phoundation plugin entry
+     *
+     * @return array[]
+     */
+    protected static function getPhoundationPluginEntry(): array
+    {
+        return [
+            'vendor'   => 'Phoundation',
+            'name'     => 'Phoundation',
+            'status'   => tr('Ok'),
+            'enabled'  => tr('Enabled'),
+            'priority' => 0,
+            'class'    => 'Plugins\Phoundation\Phoundation\Library\Plugin',
+            'path'     => 'Plugins/Phoundation/',
+        ];
+    }
+
+    /**
+     * Loads all plugins from the database and returns them in an array
+     *
+     * @return IteratorInterface
+     */
+    public static function getAvailable(): IteratorInterface
+    {
+        $return = sql()->list('SELECT   `id`, 
+                                              `name`, 
+                                              IF(`status` IS NULL, "' . tr('Ok') . '"     , "' . tr('Failed') . '")   AS `status`, 
+                                              IF(`enabled` = 1   , "' . tr('Enabled') . '", "' . tr('Disabled') . '") AS `enabled`, 
+                                              `priority`, 
+                                              `vendor`, 
+                                              `class`, 
+                                              `path`
+                                     FROM     `core_plugins`
+                                     WHERE    `name` != "Phoundation" 
+                                     ORDER BY `priority` ASC');
+
+        if (!$return) {
+            // Phoundation plugin is ALWAYS enabled
+            return new Iterator([static::getPhoundationPluginEntry()]);
+        }
+
+        // Push Phoundation plugin to the front of the list
+        array_unshift($return, static::getPhoundationPluginEntry());
+        return new Iterator($return);
+    }
+
+    /**
+     * Purges all plugins from the DIRECTORY_ROOT/Plugins path
+     *
+     * @return static
+     */
+    public function purge(): static
+    {
+        // Delete all plugins from disk
+        $directory = DIRECTORY_ROOT . 'Plugins/';
+
+        File::new($directory)
+            ->delete();
+        Directory::new($directory)
+                 ->ensure();
+
+        return $this;
+    }
 
     /**
      * Returns an HTML <select> for the available object entries

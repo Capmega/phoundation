@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Interfaces;
 
 
-use Phoundation\Business\Companies\Branches\Branches;
 use Phoundation\Business\Companies\Branches\Interfaces\BranchesInterface;
-use Phoundation\Business\Companies\Departments\Departments;
 use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
 
 /**
@@ -15,11 +13,11 @@ use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Companies
+ * @package   Phoundation\Companies
  */
 interface CompanyInterface
 {

@@ -18,10 +18,10 @@ use Phoundation\Emails\Enums\Interfaces\EnumEmailAddressTypeInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Plugins\Emails
+ * @package   Plugins\Emails
  */
 class EmailAddressLinked extends DataEntry
 {
@@ -129,18 +129,18 @@ class EmailAddressLinked extends DataEntry
     {
         $definitions
             ->add(DefinitionFactory::getDatabaseId($this, 'emails_id')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(DefinitionFactory::getDatabaseId($this, 'address_id')
-                ->setRender(false))
+                                   ->setRender(false))
             ->add(Definition::new($this, 'type')
-                ->setRender(false)
-                ->setDataSource([
-                    'from' => tr('From'),
-                    'to'   => tr('To'),
-                    'cc'   => tr('Cc'),
-                    'bcc'  => tr('Bcc')
-                ])
-                ->setMaxlength(4))
+                            ->setRender(false)
+                            ->setDataSource([
+                                                'from' => tr('From'),
+                                                'to'   => tr('To'),
+                                                'cc'   => tr('Cc'),
+                                                'bcc'  => tr('Bcc'),
+                                            ])
+                            ->setMaxlength(4))
             ->add(DefinitionFactory::getEmail($this))
             ->add(DefinitionFactory::getName($this));
     }

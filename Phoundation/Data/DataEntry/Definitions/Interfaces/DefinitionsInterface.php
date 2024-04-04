@@ -14,10 +14,10 @@ use Stringable;
  *
  * Contains a collection of Definition objects for a DataEntry class and can validate the values
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 interface DefinitionsInterface extends IteratorInterface
 {
@@ -32,6 +32,7 @@ interface DefinitionsInterface extends IteratorInterface
      * Sets the column prefix
      *
      * @param string|null $prefix
+     *
      * @return static
      */
     public function setColumnPrefix(?string $prefix): static;
@@ -47,6 +48,7 @@ interface DefinitionsInterface extends IteratorInterface
      * Sets the data entry
      *
      * @param DataEntryInterface $data_entry
+     *
      * @return static
      */
     public function setDataEntry(DataEntryInterface $data_entry): static;
@@ -62,7 +64,8 @@ interface DefinitionsInterface extends IteratorInterface
      * Returns the specified column
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return DefinitionInterface
      */
     public function get(Stringable|string|float|int $key, bool $exception = false): DefinitionInterface;
@@ -85,7 +88,8 @@ interface DefinitionsInterface extends IteratorInterface
      * Direct method to hide entries
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return static
      */
     public function hide(Stringable|string|float|int $key, bool $exception = true): static;
@@ -94,7 +98,8 @@ interface DefinitionsInterface extends IteratorInterface
      * Direct method to unhide entries
      *
      * @param Stringable|string|float|int $key
-     * @param bool $exception
+     * @param bool                        $exception
+     *
      * @return static
      */
     public function show(Stringable|string|float|int $key, bool $exception = true): static;

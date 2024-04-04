@@ -15,11 +15,11 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Business
+ * @package   Phoundation\Business
  */
 class Companies extends DataList
 {
@@ -74,6 +74,7 @@ class Companies extends DataList
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
@@ -88,18 +89,19 @@ class Companies extends DataList
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
-            ->setName('companies_id')
-            ->setNone(tr('Select a company'))
-            ->setObjectEmpty(tr('No companies available'));
+                     ->setName('companies_id')
+                     ->setNone(tr('Select a company'))
+                     ->setObjectEmpty(tr('No companies available'));
     }
 }

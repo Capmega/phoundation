@@ -6,7 +6,6 @@ namespace Phoundation\Web\Html\Components\Forms;
 
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormRowsInterface;
@@ -18,10 +17,10 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class DataEntryFormRows implements DataEntryFormRowsInterface
 {
@@ -64,19 +63,6 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         $this->render_object = $render_object;
     }
 
-
-    /**
-     * Returns the component
-     *
-     * @param DataEntryFormInterface|null $render_object
-     * @return static
-     */
-    public static function new(DataEntryFormInterface|null $render_object): static
-    {
-        return new static($render_object);
-    }
-
-
     /**
      *  Returns if the renderer will automatically force a row each time the size 12 is passed
      *
@@ -87,18 +73,17 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         return static::$force_rows;
     }
 
-
     /**
      *  Sets if the renderer will automatically force a row each time the size 12 is passed
      *
      * @param bool $force_rows
+     *
      * @return void
      */
     public static function setForceRows(bool $force_rows): void
     {
         static::$force_rows = $force_rows;
     }
-
 
     /**
      * Returns the maximum number of columns per row
@@ -110,18 +95,18 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         return $this->column_count;
     }
 
-
     /**
      * Sets the maximum number of columns per row
      *
      * @param int $count
+     *
      * @return $this
      */
     public function setColumnCount(int $count): static
     {
         if (($count < 1) or ($count > 12)) {
             throw new OutOfBoundsException(tr('Invalid column count ":count" specified, must be an integer number between 1 and 12', [
-                ':count' => $count
+                ':count' => $count,
             ]));
         }
 
@@ -129,12 +114,12 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         return $this;
     }
 
-
     /**
      * Adds the column component and its definition as a DataEntryFormColumn
      *
      * @param DefinitionInterface|null $definition
-     * @param RenderInterface|null $component
+     * @param RenderInterface|null     $component
+     *
      * @return $this
      */
     public function add(?DefinitionInterface $definition = null, RenderInterface|null $component = null): static
@@ -142,11 +127,11 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         return $this->addColumn(DataEntryFormColumn::new()->setDefinition($definition)->setColumnComponent($component));
     }
 
-
     /**
      * Adds the specified DataEntryFormColumn to this DataEntryFormRow
      *
      * @param DataEntryFormColumnInterface $column
+     *
      * @return $this
      */
     public function addColumn(DataEntryFormColumnInterface $column): static
@@ -155,6 +140,17 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         return $this;
     }
 
+    /**
+     * Returns the component
+     *
+     * @param DataEntryFormInterface|null $render_object
+     *
+     * @return static
+     */
+    public static function new(DataEntryFormInterface|null $render_object): static
+    {
+        return new static($render_object);
+    }
 
     /**
      * Renders and returns the HTML for this component
@@ -188,7 +184,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                     throw new OutOfBoundsException(tr('Cannot render DataEntryForm ":class" because the definition for column ":column" has invalid size ":size", it must be an integer number between 1 and 12', [
                         ':size'   => $definition->getSize(),
                         ':column' => $column,
-                        ':class'  => get_class($this->render_object)
+                        ':class'  => get_class($this->render_object),
                     ]));
                 }
 
@@ -202,7 +198,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
 
                     } elseif ($definition->getSize() > $column_count) {
                         // This item is going to overflow the row, close the current row and open a new one.
-                        $render      .= '</div><div class="row">';
+                        $render       .= '</div><div class="row">';
                         $column_count = $this->column_count;
                     }
                 }
@@ -217,16 +213,16 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                         ':size'  => abs($definition->getSize()),
                         ':count' => abs($column_count),
                     ]))->setData([
-                        'Columns on this row' => $cols,
-                        'HTML so far'         => $render
-                    ]);
+                                     'Columns on this row' => $cols,
+                                     'HTML so far'         => $render,
+                                 ]);
                 }
             }
 
             if ($column_count == 0) {
                 // Close the row
                 $column_count = $this->column_count;
-                $cols = [];
+                $cols         = [];
 
                 if (static::$force_rows) {
                     $render .= '</div>';

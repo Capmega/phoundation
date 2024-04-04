@@ -15,10 +15,10 @@ use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class ImageMenu extends ElementsBlock
 {
@@ -77,6 +77,7 @@ abstract class ImageMenu extends ElementsBlock
      * Sets the menu items
      *
      * @param MenuInterface|null $menu
+     *
      * @return static
      */
     public function setMenu(?MenuInterface $menu): static
@@ -105,6 +106,7 @@ abstract class ImageMenu extends ElementsBlock
      * Sets the URL
      *
      * @param string|null $url
+     *
      * @return static
      */
     public function setUrl(?string $url): static
@@ -133,6 +135,7 @@ abstract class ImageMenu extends ElementsBlock
      * Sets the modal selector
      *
      * @param string|null $modal_selector
+     *
      * @return static
      */
     public function setModalSelector(?string $modal_selector): static

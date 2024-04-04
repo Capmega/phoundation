@@ -12,11 +12,11 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  *
  * This class manages a single server
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Servers
+ * @package   Phoundation\Servers
  */
 interface ServerInterface extends DataEntryInterface
 {
@@ -31,6 +31,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the cost for this object
      *
      * @param float|null $cost
+     *
      * @return static
      */
     public function setCost(?float $cost): static;
@@ -46,6 +47,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the bill_due_date for this object
      *
      * @param string|null $bill_due_date
+     *
      * @return static
      */
     public function setBillDueDate(?string $bill_due_date): static;
@@ -61,6 +63,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the interval for this object
      *
      * @param string|null $interval
+     *
      * @return static
      */
     public function setInterval(?string $interval): static;
@@ -76,6 +79,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the os_name for this object
      *
      * @param string|null $os_name
+     *
      * @return static
      */
     public function setOsName(?string $os_name): static;
@@ -91,6 +95,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the os_version for this object
      *
      * @param string|null $os_version
+     *
      * @return static
      */
     public function setOsVersion(?string $os_version): static;
@@ -106,6 +111,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the web_services for this object
      *
      * @param bool|null $web_services
+     *
      * @return static
      */
     public function setWebServices(?bool $web_services): static;
@@ -121,6 +127,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the mail_services for this object
      *
      * @param bool|null $mail_services
+     *
      * @return static
      */
     public function setMailServices(?bool $mail_services): static;
@@ -136,6 +143,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the database_services for this object
      *
      * @param bool|null $database_services
+     *
      * @return static
      */
     public function setDatabaseServices(?bool $database_services): static;
@@ -151,6 +159,7 @@ interface ServerInterface extends DataEntryInterface
      * Sets the allow_sshd_modifications for this object
      *
      * @param bool|null $allow_sshd_modifications
+     *
      * @return static
      */
     public function setAllowSshdModifications(?bool $allow_sshd_modifications): static;
@@ -166,6 +175,7 @@ interface ServerInterface extends DataEntryInterface
      * Returns the command line as it should be executed for this server
      *
      * @param string $command_line
+     *
      * @return string
      */
     public function getSshCommandLine(string $command_line): string;

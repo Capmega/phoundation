@@ -14,10 +14,10 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 interface DataEntryFormInterface extends ElementsBlockInterface
 {
@@ -32,6 +32,7 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      * Sets the element that will receive autofocus
      *
      * @param string|null $auto_focus_id
+     *
      * @return $this
      */
     public function setAutoFocusId(?string $auto_focus_id): static;
@@ -47,6 +48,7 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      * Sets the optional class for input elements
      *
      * @param string $input_class
+     *
      * @return static
      */
     public function setInputClass(string $input_class): static;
@@ -62,6 +64,7 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      * Set the data source for this DataEntryForm
      *
      * @param Definitions $definitions
+     *
      * @return static
      */
     public function setDefinitions(Definitions $definitions): static;

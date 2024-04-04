@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Databases\Sql\SqlQuery;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Databases\Sql\SqlQuery;
 
 
 /**
@@ -13,10 +13,10 @@ use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntrySqlQuery
 {
@@ -41,6 +41,7 @@ trait TraitDataEntrySqlQuery
      * Sets the sql_queryes_id for this object
      *
      * @param SqlQueryInterface|string|null $sql_query
+     *
      * @return static
      */
     public function setSqlQuery(SqlQueryInterface|string|null $sql_query): static

@@ -17,10 +17,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation/Web
+ * @package   Phoundation/Web
  */
 class Menu extends ElementsBlock implements MenuInterface
 {
@@ -28,7 +28,8 @@ class Menu extends ElementsBlock implements MenuInterface
      * Set the menu source and ensure all URL's are absolute
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null $execute
+     * @param array|null                                       $execute
+     *
      * @return $this
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static

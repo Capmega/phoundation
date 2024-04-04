@@ -255,44 +255,6 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Returns the language used for this page
-     *
-     * @return LanguageInterface
-     */
-    public static function getLanguage(): LanguageInterface
-    {
-        if (empty(static::$language_code)) {
-            static::$language = Language::get(static::getLanguageCode());
-        }
-
-        return static::$language;
-    }
-
-
-    /**
-     * Returns the language used for this page in ISO 639-2-b format
-     *
-     * @return string
-     */
-    public static function getLanguageCode(): string
-    {
-        if (empty(static::$language)) {
-            if (PLATFORM_WEB) {
-                // Get requested language
-                static::$language_code = Request::detectRequestedLanguage();
-
-            }
-            else {
-                // Get requested language from core
-                static::$language_code = Core::readRegister('system', 'language');
-            }
-        }
-
-        return static::$language_code;
-    }
-
-
-    /**
      * Sets an alternative class for the <body> tag
      *
      * @param bool $build_body
@@ -304,7 +266,6 @@ class Response implements ResponseInterface
         static::$build_body = $build_body;
     }
 
-
     /**
      * Returns the alternative class for the <body> tag or if not preset, the default
      *
@@ -314,7 +275,6 @@ class Response implements ResponseInterface
     {
         return static::$build_body;
     }
-
 
     /**
      * Sets the class for the given page section
@@ -328,7 +288,6 @@ class Response implements ResponseInterface
     {
         static::$page_classes[$section] = $class;
     }
-
 
     /**
      * Sets the class for the given page section
@@ -345,7 +304,6 @@ class Response implements ResponseInterface
         }
     }
 
-
     /**
      * Returns the class for the given section, if available
      *
@@ -359,7 +317,6 @@ class Response implements ResponseInterface
         return isset_get(static::$page_classes[$section], $default);
     }
 
-
     /**
      * Returns the bread crumbs for this page
      *
@@ -369,7 +326,6 @@ class Response implements ResponseInterface
     {
         return static::$bread_crumbs;
     }
-
 
     /**
      * Sets the bread crumbs for this page
@@ -383,7 +339,6 @@ class Response implements ResponseInterface
         static::$bread_crumbs = $bread_crumbs;
     }
 
-
     /**
      * Returns the DOCTYPE value
      *
@@ -393,7 +348,6 @@ class Response implements ResponseInterface
     {
         return static::$doctype;
     }
-
 
     /**
      * Sets  the DOCTYPE value
@@ -407,31 +361,6 @@ class Response implements ResponseInterface
         static::$doctype = $doctype;
     }
 
-
-    /**
-     * Returns the browser page title
-     *
-     * @return string
-     */
-    public static function getPageTitle(): string
-    {
-        return static::$page_title;
-    }
-
-
-    /**
-     * Sets the browser page title
-     *
-     * @param Stringable|string|float|int|null $page_title
-     *
-     * @return void
-     */
-    public static function setPageTitle(Stringable|string|float|int|null $page_title): void
-    {
-        static::$page_title = strip_tags((string)$page_title);
-    }
-
-
     /**
      * Returns the browser page title
      *
@@ -441,7 +370,6 @@ class Response implements ResponseInterface
     {
         return static::$description;
     }
-
 
     /**
      * Sets the browser page description
@@ -455,7 +383,6 @@ class Response implements ResponseInterface
         static::$description = strip_tags($description);
     }
 
-
     /**
      * Returns the page header title
      *
@@ -465,7 +392,6 @@ class Response implements ResponseInterface
     {
         return static::$header_title;
     }
-
 
     /**
      * Sets the page header title
@@ -483,7 +409,6 @@ class Response implements ResponseInterface
         }
     }
 
-
     /**
      * Returns the page header subtitle
      *
@@ -493,7 +418,6 @@ class Response implements ResponseInterface
     {
         return static::$header_sub_title;
     }
-
 
     /**
      * Sets the page header subtitle
@@ -507,7 +431,6 @@ class Response implements ResponseInterface
         static::$header_sub_title = get_null((string)$header_sub_title);
     }
 
-
     /**
      * Returns the page charset
      *
@@ -517,7 +440,6 @@ class Response implements ResponseInterface
     {
         return isset_get(static::$page_headers['meta']['charset']);
     }
-
 
     /**
      * Sets the page charset
@@ -531,7 +453,6 @@ class Response implements ResponseInterface
         static::$page_headers['meta']['charset'] = $charset;
     }
 
-
     /**
      * Returns the page viewport
      *
@@ -541,7 +462,6 @@ class Response implements ResponseInterface
     {
         return isset_get(static::$page_headers['meta']['viewport']);
     }
-
 
     /**
      * Sets the page viewport
@@ -554,7 +474,6 @@ class Response implements ResponseInterface
     {
         static::$page_headers['meta']['viewport'] = $viewport;
     }
-
 
     /**
      * Add meta-information
@@ -569,7 +488,6 @@ class Response implements ResponseInterface
         static::$page_headers['meta'][$key] = $value;
     }
 
-
     /**
      * Returns the current page footers for this request
      *
@@ -579,7 +497,6 @@ class Response implements ResponseInterface
     {
         return static::$page_footers;
     }
-
 
     /**
      * Set the favicon for this page
@@ -592,8 +509,8 @@ class Response implements ResponseInterface
     {
         try {
             if (!$url) {
-                $url = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
-                $url = static::versionFile($url, 'img');
+                $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
+                $url  = static::versionFile($url, 'img');
                 $file = Path::getAbsolute(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
                 static::$page_headers['link'][$url] = [
@@ -602,8 +519,7 @@ class Response implements ResponseInterface
                     'type' => File::new($file)
                                   ->getMimetype(),
                 ];
-            }
-            else {
+            } else {
                 $url = static::versionFile($url, 'img');
 
                 // Unknown (likely remote?) link
@@ -620,77 +536,43 @@ class Response implements ResponseInterface
         }
     }
 
-
     /**
-     * Sets the output generated by the request
+     * Will automatically add the timestamp of the specified file as a versioning string
      *
-     * @param string|null $output
+     * This is done for efficient caching where you can pretty much set cache to 10 years as changes are picked up by
+     * updated versions of the files
      *
-     * @return void
+     * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
+     *
+     * @param string $url
+     * @param string $type
+     *
+     * @return string
      */
-    public static function setOutput(?string $output): void
+    public static function versionFile(string $url, string $type): string
     {
-        ob_clean();
-        static::addOutput($output);
-    }
+        static $minified;
 
+        // Ensure the extension is stripped
+        $url = Strings::until($url, '.' . $url);
 
-    /**
-     * Adds output generated by the request to the (possibly already existing) current output
-     *
-     * @param string|null $output
-     *
-     * @return void
-     */
-    public static function addOutput(?string $output): void
-    {
-        echo $output;
-    }
-
-
-    /**
-     * Returns the current length HTML output buffer for this page
-     *
-     * @return int
-     */
-    public static function getOutputLength(): int
-    {
-        return (int)ob_get_length();
-    }
-
-
-    /**
-     * Returns the current HTML output buffer for this page
-     *
-     * @param bool $clear
-     *
-     * @return string|null
-     */
-    public static function getOutput(bool $clear = true): ?string
-    {
-        if (ob_get_length()) {
-            if ($clear) {
-                return ob_get_clean();
+        // Should we load the minified version? This is optional as long as the file itself does not have .min specified
+        if (str_ends_with($url, '.min')) {
+            if (!isset($minified)) {
+                // All files are minified or none are
+                $minified = (Config::get('web.minified', true) ? '.min' : '');
             }
-
-            return ob_get_contents();
         }
 
-        // Output buffer is disabled or empty
-        return null;
+        if (Config::getBoolean('cache.version-files', true)) {
+            // Determine the absolute file path
+            // then get timestamp and inject it into the given file
+            $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
+            $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
+        }
+
+        return $url;
     }
-
-
-    /**
-     * Cleans the response output buffer
-     *
-     * @return void
-     */
-    public static function clean(): void
-    {
-        ob_clean();
-    }
-
 
     /**
      * Returns true if the specified HTTP code is the specified HTTP code
@@ -704,34 +586,6 @@ class Response implements ResponseInterface
         return static::$http_code === $code;
     }
 
-
-    /**
-     * Returns the status code that will be sent to the client
-     *
-     * @return int
-     */
-    public static function getHttpCode(): int
-    {
-        return static::$http_code;
-    }
-
-
-    /**
-     * Sets the status code that will be sent to the client
-     *
-     * @param int $code
-     *
-     * @return void
-     */
-    public static function setHttpCode(int $code): void
-    {
-        // Validate status code
-        // TODO implement
-
-        static::$http_code = $code;
-    }
-
-
     /**
      * Returns true if the HTTP headers have been sent
      *
@@ -742,32 +596,6 @@ class Response implements ResponseInterface
         return static::$http_headers_sent;
     }
 
-
-    /**
-     * Checks if HTTP headers have already been sent and logs warnings if so
-     *
-     * @param bool $sending_now
-     *
-     * @return bool
-     */
-    protected static function httpHeadersSent(bool $sending_now = false): bool
-    {
-        if (headers_sent($file, $line)) {
-            return true;
-        }
-
-        if (static::$http_headers_sent) {
-            return true;
-        }
-
-        if ($sending_now) {
-            static::$http_headers_sent = true;
-        }
-
-        return false;
-    }
-
-
     /**
      * Returns the HTTP headers for this response
      *
@@ -777,7 +605,6 @@ class Response implements ResponseInterface
     {
         return static::$http_headers;
     }
-
 
     /**
      * Sets the HTTP headers for this response
@@ -793,272 +620,6 @@ class Response implements ResponseInterface
         static::$http_headers = $http_headers;
     }
 
-
-    /**
-     * Builds and returns all the HTTP headers
-     *
-     * @return array|null
-     */
-    protected static function generateHttpHeaders(): ?array
-    {
-        if (static::httpHeadersSent()) {
-            return null;
-        }
-
-        $headers = [];
-
-        // Remove incorrect or insecure headers
-        header_remove('Expires');
-        header_remove('Pragma');
-
-        /*
-         * Ensure that from this point on we have a language configuration available
-         *
-         * The startup systems already configures languages but if the startup itself fails, or if a show() or showdie()
-         * was issued before the startup finished, then this could leave the system without defined language
-         */
-        if (!defined('LANGUAGE')) {
-            define('LANGUAGE', Config::get('http.language.default', 'en'));
-        }
-
-        // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
-        static::cacheEtag();
-
-        // What to do with the PHP signature?
-        $signature = Config::get('security.expose.php-signature', false);
-
-        if (!$signature) {
-            // Remove the PHP signature
-            header_remove('X-Powered-By');
-
-        }
-        elseif (!is_bool($signature)) {
-            // Send custom (fake) X-Powered-By header
-            $headers[] = 'X-Powered-By: ' . $signature;
-        }
-
-        // Add a powered-by header
-        switch (Config::getBoolString('security.expose.phoundation', 'limited')) {
-            case 'limited':
-                header('Powered-By: Phoundation');
-                break;
-
-            case 'full':
-                header(tr('Powered-By: Phoundation version ":version"', [
-                    ':version' => Core::FRAMEWORK_CODE_VERSION,
-                ]));
-                break;
-
-            case 'none':
-                // no-break
-            case '':
-                break;
-
-            default:
-                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
-                    ':value' => Config::getBoolString('security.expose.phoundation', 'limited'),
-                ]));
-        }
-
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
-        $headers[] = 'Content-Language: ' . LANGUAGE;
-        $headers[] = 'Content-Length: ' . ob_get_length();
-
-        if (static::$http_code == 200) {
-            if (empty($params['last_modified'])) {
-                $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
-
-            }
-            else {
-                $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
-            }
-        }
-
-        // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
-        // These pages should NEVER be indexed
-        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
-            $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
-        }
-
-        // CORS headers
-        if (Config::get('web.security.cors', true) or static::$cors) {
-            // Add CORS / Access-Control-Allow-.... headers
-            // TODO This will cause issues if configured web.cors is not an array!
-            static::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), static::$cors);
-
-            foreach (static::$cors as $key => $value) {
-                switch ($key) {
-                    case 'origin':
-                        if ($value == '*.') {
-                            // Origin is allowed from all subdomains
-                            $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
-                            $length = strlen(isset_get($_SESSION['domain']));
-
-                            if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
-                                // Sub domain matches. Since CORS does not support sub domains, just show the
-                                // current sub domain.
-                                $value = $_SERVER['HTTP_ORIGIN'];
-
-                            }
-                            else {
-                                // Sub domain does not match. Since CORS does not support sub domains, just show no
-                                // allowed origin domain at all
-                                $value = '';
-                            }
-                        }
-
-                    // no-break
-
-                    case 'methods':
-                        // no-break
-                    case 'headers':
-                        if ($value) {
-                            $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
-                        }
-
-                        break;
-
-                    default:
-                        throw new HttpException(tr('Unknown CORS header ":header" specified', [
-                            ':header' => $key,
-                        ]));
-                }
-            }
-        }
-
-        // Add cache headers and store headers in the object headers list
-        return static::addHttpCacheHeaders($headers);
-    }
-
-
-    /**
-     * Adds caching headers to the specified HTTP headers and returns the list
-     *
-     * Returns headers Cache-Control and ETag
-     *
-     * @param array $headers Any extra headers that are required
-     *
-     * @return array
-     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
-     * @see       htt_noCache()
-     * @see       https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
-     * @see       https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
-     * @version   2.5.92: Added function and documentation
-     */
-    protected static function addHttpCacheHeaders(array $headers): array
-    {
-        if (Config::get('web.cache.enabled', 'auto') === 'auto') {
-            // PHP will take care of the cache headers
-            return $headers;
-
-        }
-
-        if (Config::get('web.cache.enabled', 'auto') === true) {
-            // Place headers using phoundation algorithms
-            if (!Config::get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
-                // Non HTTP 200 / 304 pages should NOT have cache enabled! For example, 404, 503 etc...
-                $headers[] = 'Cache-Control: no-store, max-age=0';
-                static::$etag = null;
-
-            }
-            else {
-                // Send caching headers. Ajax, API, and admin calls do not have proxy caching
-                switch (Request::getRequestType()) {
-                    case EnumRequestTypes::api:
-                        // no-break
-                    case EnumRequestTypes::ajax:
-                        // no-break
-                    case EnumRequestTypes::admin:
-                        break;
-
-                    default:
-                        // Session pages for specific users should not be stored on proxy servers either
-                        if (!empty($_SESSION['user']['id'])) {
-                            Config::get('web.cache.cacheability', 'private');
-                        }
-
-                        $headers[] = 'Cache-Control: ' . Config::get('web.cache.cacheability', 'private') . ', ' . Config::get('web.cache.expiration', 'max-age=604800') . ', ' . Config::get('web.cache.revalidation', 'must-revalidate') . Config::get('web.cache.other', 'no-transform');
-
-                        if (!empty(static::$etag)) {
-                            $headers[] = 'ETag: "' . static::$etag . '"';
-                        }
-                }
-            }
-        }
-
-        return $headers;
-    }
-
-
-    /*
-     * Test HTTP caching headers
-     *
-     * Sends out 304 - Not modified header if ETag matches
-     *
-     * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
-     * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
-     */
-    protected static function cacheTest($etag = null): bool
-    {
-        static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
-
-        if (!Config::get('web.cache.enabled', 'auto')) {
-            return false;
-        }
-
-        if (Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
-            return false;
-        }
-
-        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
-            if (empty($core->register['flash'])) {
-                // The client sent an etag which is still valid, no body (or anything else) necesary
-                static::setHttpCode(304);
-                static::sendHttpHeaders();
-                exit();
-            }
-        }
-
-        return true;
-    }
-
-
-    /*
-     * Test HTTP caching headers
-     *
-     * Sends out 304 - Not modified header if ETag matches
-     *
-     * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
-     * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
-     */
-    protected static function cacheEtag(): bool
-    {
-        // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
-        if (!Config::get('web.cache.enabled', 'auto') or Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
-            static::$etag = null;
-            return false;
-        }
-
-        // Create local ETAG
-        static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
-
-        // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-        if (trim((string)isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
-            if (empty($core->register['flash'])) {
-                // The client sent an etag which is still valid, no body (or anything else) necessary
-                http_response_code(304);
-                exit();
-            }
-        }
-
-        return true;
-    }
-
-
     /**
      * Add the specified HTML to the HEAD tag
      *
@@ -1072,7 +633,6 @@ class Response implements ResponseInterface
     {
         static::$http_headers[$key][] = $entry;
     }
-
 
     /**
      * Sets the status code that will be sent to the client
@@ -1095,196 +655,6 @@ class Response implements ResponseInterface
         ];
     }
 
-
-    /**
-     * Returns NULL output if the request method was HEAD (don't return output, only headers)
-     *
-     * @return void
-     */
-    protected static function clearOutputForHttpCodesAndMethods(): void
-    {
-        // 304 requests indicate the browser to use its local cache, send nothing
-        // 429 Tell the client that it made too many requests, send nothing
-        switch (static::getHttpCode()) {
-            case 304:
-                // no break
-
-            case 429:
-                static::clean();
-                break;
-
-            default:
-                if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
-                    // HEAD request; do not send any HTML whatsoever
-                    static::clean();
-                }
-        }
-    }
-
-
-    /**
-     * Send the current buffer to the client
-     *
-     * @param bool $exit
-     *
-     * @return void
-     */
-    public static function send(bool $exit = true): void
-    {
-        if (PLATFORM_WEB) {
-            if (static::$page_headers) {
-                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
-                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                Cache::write([
-                                 'output' => static::getOutput(false),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          'headers' => static::$page_headers,
-                             ], 'WebResponse ' . Request::getUri());
-
-                $length = static::sendHttpHeaders();
-                Log::success(tr('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
-            }
-
-            // Filter output out for certain HTTP codes, then send headers & output
-            static::clearOutputForHttpCodesAndMethods();
-            static::generateHttpHeaders();
-            static::sendHttpHeaders();
-            static::sendOutput();
-        }
-
-        if ($exit) {
-            exit();
-        }
-    }
-
-
-    /**
-     * Send the required headers to ensure that the page will not be cached ever
-     *
-     * @return void
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category  Function reference
-     * @package   http
-     * @see       Http::cache()
-     * @version   2.5.92: Added function and documentation
-     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     */
-    protected static function sendNoCacheHttpHeaders(): void
-    {
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true);
-        header('Cache-Control: post-check=0, pre-check=0', true);
-        header('Pragma: no-cache', true);
-        header('Expires: Wed, 10 Jan 2000 07:00:00 GMT', true);
-    }
-
-
-    /**
-     * Send all the specified HTTP headers
-     *
-     * @note The number of sent bytes does NOT include the bytes sent for the HTTP response code header
-     * @return int The number of bytes sent. -1 if static::sendHeaders() was called for the second time.
-     * @throws ResponseNotFoundException
-     */
-    protected static function sendHttpHeaders(): int
-    {
-        if (static::httpHeadersSent(true)) {
-            // Headers already sent
-            return -1;
-        }
-
-        if (static::$page_headers === null) {
-            // Specified NULL for headers, which is what buildHeaders() returned, so there are no headers to send
-            return -1;
-        }
-
-        try {
-            $length = 0;
-
-            // Set correct headers
-            http_response_code(static::$http_code);
-
-            // Send all available headers
-            foreach (static::$http_headers as $header) {
-                $length += strlen($header);
-                header($header);
-            }
-
-            switch (static::getHttpCode()) {
-                case 200:
-                    // no break
-                case 301:
-                    // no break
-                case 302:
-                    // no break
-                case 304:
-                    Log::success(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
-                        ':length' => number_format($length),
-                        ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
-                    ]),          4);
-                    break;
-
-                default:
-                    Log::warning(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
-                        ':length' => number_format($length),
-                        ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
-                    ]));
-            }
-
-            static::$bytes_sent += $length;
-
-            return $length;
-
-        } catch (Throwable $e) {
-            Notification::new()
-                        ->setException($e)
-                        ->setTitle(tr('Failed to send headers to client'))
-                        ->send();
-
-            // static::sendHeaders() itself crashed. Since static::sendHeaders() would send out http 500, and since it
-            // crashed, it no longer can do this, send out the http 500 here.
-            try {
-                http_response_code(500);
-
-            } catch (Throwable) {
-                // Yeah, we can't set HTTP code either, body probably has already been sent then.
-            }
-
-            throw new ResponseHeadersException(tr('Failed to send HTTP headers'), $e);
-        }
-    }
-
-
-    /**
-     * Send the generated page output to the client
-     *
-     * @return void
-     */
-    protected static function sendOutput(): void
-    {
-        if (Request::getAttachment()) {
-            // Send download headers and send the $html payload
-            FileResponse::new()
-                        ->setAttachment(true)
-                        ->setData(static::getOutput())
-                        ->setFilename(basename(Request::getTarget()
-                                                      ->getPath()))
-                        ->send();
-        }
-
-        // Track data sizes
-        $length = static::getOutputLength();
-        static::$bytes_sent += $length;
-
-        // Send the page to the client
-        echo static::getOutput();
-
-        // Log how much we sent
-        Log::action(tr('Sent ":length" output data to client', [
-            ':length' => Numbers::getHumanReadableBytes($length),
-        ]),         4);
-    }
-
-
     /**
      * Returns if the HTML headers have been sent
      *
@@ -1294,7 +664,6 @@ class Response implements ResponseInterface
     {
         return static::$html_headers_sent;
     }
-
 
     /**
      * Load the specified javascript file(s)
@@ -1333,22 +702,18 @@ class Response implements ResponseInterface
         if ($header) {
             if ($prefix) {
                 static::$page_headers['javascript'] = array_merge($scripts, static::$page_headers['javascript']);
-            }
-            else {
+            } else {
                 static::$page_headers['javascript'] = array_merge(static::$page_headers['javascript'], $scripts);
             }
 
-        }
-        else {
+        } else {
             if ($prefix) {
                 static::$page_footers['javascript'] = array_merge($scripts, static::$page_footers['javascript']);
-            }
-            else {
+            } else {
                 static::$page_footers['javascript'] = array_merge(static::$page_footers['javascript'], $scripts);
             }
         }
     }
-
 
     /**
      * Load the specified CSS file(s)
@@ -1375,12 +740,10 @@ class Response implements ResponseInterface
         if ($prefix) {
             static::$page_headers['link'] = array_merge($scripts, static::$page_headers['link']);
 
-        }
-        else {
+        } else {
             static::$page_headers['link'] = array_merge(static::$page_headers['link'], $scripts);
         }
     }
-
 
     /**
      * Add the specified HTML to the footer
@@ -1396,7 +759,6 @@ class Response implements ResponseInterface
     {
         static::$page_footers[$key][] = $entry;
     }
-
 
     /**
      * Builds and return the HTML <head> tag
@@ -1431,6 +793,62 @@ class Response implements ResponseInterface
         return $return . '</head>';
     }
 
+    /**
+     * Returns the language used for this page
+     *
+     * @return LanguageInterface
+     */
+    public static function getLanguage(): LanguageInterface
+    {
+        if (empty(static::$language_code)) {
+            static::$language = Language::get(static::getLanguageCode());
+        }
+
+        return static::$language;
+    }
+
+    /**
+     * Returns the language used for this page in ISO 639-2-b format
+     *
+     * @return string
+     */
+    public static function getLanguageCode(): string
+    {
+        if (empty(static::$language)) {
+            if (PLATFORM_WEB) {
+                // Get requested language
+                static::$language_code = Request::detectRequestedLanguage();
+
+            } else {
+                // Get requested language from core
+                static::$language_code = Core::readRegister('system', 'language');
+            }
+        }
+
+        return static::$language_code;
+    }
+
+    /**
+     * Returns the browser page title
+     *
+     * @return string
+     */
+    public static function getPageTitle(): string
+    {
+        return static::$page_title;
+    }
+
+    /**
+     * Sets the browser page title
+     *
+     * @param Stringable|string|float|int|null $page_title
+     *
+     * @return void
+     */
+    public static function setPageTitle(Stringable|string|float|int|null $page_title): void
+    {
+        static::$page_title = strip_tags((string)$page_title);
+    }
 
     /**
      * Build and return the HTML page_footers
@@ -1453,58 +871,16 @@ class Response implements ResponseInterface
                 $footer = Arrays::implodeWithKeys($footer, ' ', '=', '"');
                 $return .= '<script ' . $footer . '></script>' . PHP_EOL;
 
-            }
-            elseif (isset($footer['content'])) {
+            } elseif (isset($footer['content'])) {
                 $return .= '<script>' . PHP_EOL . $footer['content'] . PHP_EOL . '</script>' . PHP_EOL;
 
-            }
-            else {
+            } else {
                 throw new OutOfBoundsException(tr('Invalid script footer specified, should contain at least "src" or "content"'));
             }
         }
 
         return $return;
     }
-
-
-    /**
-     * Will automatically add the timestamp of the specified file as a versioning string
-     *
-     * This is done for efficient caching where you can pretty much set cache to 10 years as changes are picked up by
-     * updated versions of the files
-     *
-     * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
-     *
-     * @param string $url
-     * @param string $type
-     *
-     * @return string
-     */
-    public static function versionFile(string $url, string $type): string
-    {
-        static $minified;
-
-        // Ensure the extension is stripped
-        $url = Strings::until($url, '.' . $url);
-
-        // Should we load the minified version? This is optional as long as the file itself does not have .min specified
-        if (str_ends_with($url, '.min')) {
-            if (!isset($minified)) {
-                // All files are minified or none are
-                $minified = (Config::get('web.minified', true) ? '.min' : '');
-            }
-        }
-
-        if (Config::getBoolean('cache.version-files', true)) {
-            // Determine the absolute file path
-            // then get timestamp and inject it into the given file
-            $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
-            $url = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
-        }
-
-        return $url;
-    }
-
 
     /**
      * Check if this user should be forcibly being redirected to a different page
@@ -1556,31 +932,14 @@ class Response implements ResponseInterface
     }
 
 
-    /**
-     * Returns true if redirecting for the specified URL should be skipped
+    /*
+     * Test HTTP caching headers
      *
-     * Currently, sign-out or index pages should not be redirected to
+     * Sends out 304 - Not modified header if ETag matches
      *
-     * @param Stringable|string|null $url
-     *
-     * @return bool
+     * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+     * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
      */
-    protected static function skipRedirect(Stringable|string|null $url = null): bool
-    {
-        if (!$url) {
-            // Default to current URL
-            $url = UrlBuilder::getCurrent();
-        }
-
-        // Compare URLs without queries
-        $url = Strings::until((string)$url, '?');
-        $skip = [
-            (string)UrlBuilder::getWww('sign-out'),
-        ];
-
-        return in_array($url, $skip);
-    }
-
 
     /**
      * Returns the redirect URL if it should not be skipped
@@ -1602,6 +961,40 @@ class Response implements ResponseInterface
         return (string)$redirect;
     }
 
+
+    /*
+     * Test HTTP caching headers
+     *
+     * Sends out 304 - Not modified header if ETag matches
+     *
+     * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+     * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+     */
+
+    /**
+     * Returns true if redirecting for the specified URL should be skipped
+     *
+     * Currently, sign-out or index pages should not be redirected to
+     *
+     * @param Stringable|string|null $url
+     *
+     * @return bool
+     */
+    protected static function skipRedirect(Stringable|string|null $url = null): bool
+    {
+        if (!$url) {
+            // Default to current URL
+            $url = UrlBuilder::getCurrent();
+        }
+
+        // Compare URLs without queries
+        $url  = Strings::until((string)$url, '?');
+        $skip = [
+            (string)UrlBuilder::getWww('sign-out'),
+        ];
+
+        return in_array($url, $skip);
+    }
 
     /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
@@ -1700,8 +1093,7 @@ class Response implements ResponseInterface
 
             header('Refresh: ' . $time_delay . ';' . $target, true, $http_code);
 
-        }
-        else {
+        } else {
             // Redirect immediately
             Log::action(tr('Redirecting with HTTP ":http" to url ":url"', [
                 ':http' => $http_code,
@@ -1712,5 +1104,545 @@ class Response implements ResponseInterface
         }
 
         exit();
+    }
+
+    protected static function cacheTest($etag = null): bool
+    {
+        static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
+
+        if (!Config::get('web.cache.enabled', 'auto')) {
+            return false;
+        }
+
+        if (Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
+            return false;
+        }
+
+        if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
+            if (empty($core->register['flash'])) {
+                // The client sent an etag which is still valid, no body (or anything else) necesary
+                static::setHttpCode(304);
+                static::sendHttpHeaders();
+                exit();
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Send all the specified HTTP headers
+     *
+     * @note The number of sent bytes does NOT include the bytes sent for the HTTP response code header
+     * @return int The number of bytes sent. -1 if static::sendHeaders() was called for the second time.
+     * @throws ResponseNotFoundException
+     */
+    protected static function sendHttpHeaders(): int
+    {
+        if (static::httpHeadersSent(true)) {
+            // Headers already sent
+            return -1;
+        }
+
+        if (static::$page_headers === null) {
+            // Specified NULL for headers, which is what buildHeaders() returned, so there are no headers to send
+            return -1;
+        }
+
+        try {
+            $length = 0;
+
+            // Set correct headers
+            http_response_code(static::$http_code);
+
+            // Send all available headers
+            foreach (static::$http_headers as $header) {
+                $length += strlen($header);
+                header($header);
+            }
+
+            switch (static::getHttpCode()) {
+                case 200:
+                    // no break
+                case 301:
+                    // no break
+                case 302:
+                    // no break
+                case 304:
+                    Log::success(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
+                        ':length' => number_format($length),
+                        ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                    ]),          4);
+                    break;
+
+                default:
+                    Log::warning(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
+                        ':length' => number_format($length),
+                        ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
+                    ]));
+            }
+
+            static::$bytes_sent += $length;
+
+            return $length;
+
+        } catch (Throwable $e) {
+            Notification::new()
+                        ->setException($e)
+                        ->setTitle(tr('Failed to send headers to client'))
+                        ->send();
+
+            // static::sendHeaders() itself crashed. Since static::sendHeaders() would send out http 500, and since it
+            // crashed, it no longer can do this, send out the http 500 here.
+            try {
+                http_response_code(500);
+
+            } catch (Throwable) {
+                // Yeah, we can't set HTTP code either, body probably has already been sent then.
+            }
+
+            throw new ResponseHeadersException(tr('Failed to send HTTP headers'), $e);
+        }
+    }
+
+    /**
+     * Checks if HTTP headers have already been sent and logs warnings if so
+     *
+     * @param bool $sending_now
+     *
+     * @return bool
+     */
+    protected static function httpHeadersSent(bool $sending_now = false): bool
+    {
+        if (headers_sent($file, $line)) {
+            return true;
+        }
+
+        if (static::$http_headers_sent) {
+            return true;
+        }
+
+        if ($sending_now) {
+            static::$http_headers_sent = true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the status code that will be sent to the client
+     *
+     * @return int
+     */
+    public static function getHttpCode(): int
+    {
+        return static::$http_code;
+    }
+
+    /**
+     * Sets the status code that will be sent to the client
+     *
+     * @param int $code
+     *
+     * @return void
+     */
+    public static function setHttpCode(int $code): void
+    {
+        // Validate status code
+        // TODO implement
+
+        static::$http_code = $code;
+    }
+
+    /**
+     * Send the current buffer to the client
+     *
+     * @param bool $exit
+     *
+     * @return void
+     */
+    public static function send(bool $exit = true): void
+    {
+        if (PLATFORM_WEB) {
+            if (static::$page_headers) {
+                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
+                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
+                Cache::write([
+                                 'output' => static::getOutput(false),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          'headers' => static::$page_headers,
+                             ], 'WebResponse ' . Request::getUri());
+
+                $length = static::sendHttpHeaders();
+                Log::success(tr('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
+            }
+
+            // Filter output out for certain HTTP codes, then send headers & output
+            static::clearOutputForHttpCodesAndMethods();
+            static::generateHttpHeaders();
+            static::sendHttpHeaders();
+            static::sendOutput();
+        }
+
+        if ($exit) {
+            exit();
+        }
+    }
+
+    /**
+     * Returns the current HTML output buffer for this page
+     *
+     * @param bool $clear
+     *
+     * @return string|null
+     */
+    public static function getOutput(bool $clear = true): ?string
+    {
+        if (ob_get_length()) {
+            if ($clear) {
+                return ob_get_clean();
+            }
+
+            return ob_get_contents();
+        }
+
+        // Output buffer is disabled or empty
+        return null;
+    }
+
+    /**
+     * Sets the output generated by the request
+     *
+     * @param string|null $output
+     *
+     * @return void
+     */
+    public static function setOutput(?string $output): void
+    {
+        ob_clean();
+        static::addOutput($output);
+    }
+
+    /**
+     * Adds output generated by the request to the (possibly already existing) current output
+     *
+     * @param string|null $output
+     *
+     * @return void
+     */
+    public static function addOutput(?string $output): void
+    {
+        echo $output;
+    }
+
+    /**
+     * Returns NULL output if the request method was HEAD (don't return output, only headers)
+     *
+     * @return void
+     */
+    protected static function clearOutputForHttpCodesAndMethods(): void
+    {
+        // 304 requests indicate the browser to use its local cache, send nothing
+        // 429 Tell the client that it made too many requests, send nothing
+        switch (static::getHttpCode()) {
+            case 304:
+                // no break
+
+            case 429:
+                static::clean();
+                break;
+
+            default:
+                if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
+                    // HEAD request; do not send any HTML whatsoever
+                    static::clean();
+                }
+        }
+    }
+
+    /**
+     * Cleans the response output buffer
+     *
+     * @return void
+     */
+    public static function clean(): void
+    {
+        ob_clean();
+    }
+
+    /**
+     * Builds and returns all the HTTP headers
+     *
+     * @return array|null
+     */
+    protected static function generateHttpHeaders(): ?array
+    {
+        if (static::httpHeadersSent()) {
+            return null;
+        }
+
+        $headers = [];
+
+        // Remove incorrect or insecure headers
+        header_remove('Expires');
+        header_remove('Pragma');
+
+        /*
+         * Ensure that from this point on we have a language configuration available
+         *
+         * The startup systems already configures languages but if the startup itself fails, or if a show() or showdie()
+         * was issued before the startup finished, then this could leave the system without defined language
+         */
+        if (!defined('LANGUAGE')) {
+            define('LANGUAGE', Config::get('http.language.default', 'en'));
+        }
+
+        // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
+        static::cacheEtag();
+
+        // What to do with the PHP signature?
+        $signature = Config::get('security.expose.php-signature', false);
+
+        if (!$signature) {
+            // Remove the PHP signature
+            header_remove('X-Powered-By');
+
+        } elseif (!is_bool($signature)) {
+            // Send custom (fake) X-Powered-By header
+            $headers[] = 'X-Powered-By: ' . $signature;
+        }
+
+        // Add a powered-by header
+        switch (Config::getBoolString('security.expose.phoundation', 'limited')) {
+            case 'limited':
+                header('Powered-By: Phoundation');
+                break;
+
+            case 'full':
+                header(tr('Powered-By: Phoundation version ":version"', [
+                    ':version' => Core::FRAMEWORK_CODE_VERSION,
+                ]));
+                break;
+
+            case 'none':
+                // no-break
+            case '':
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Invalid configuration value ":value" for "security.signature" Please use one of "none", "limited", or "full"', [
+                    ':value' => Config::getBoolString('security.expose.phoundation', 'limited'),
+                ]));
+        }
+
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
+        $headers[] = 'Content-Language: ' . LANGUAGE;
+        $headers[] = 'Content-Length: ' . ob_get_length();
+
+        if (static::$http_code == 200) {
+            if (empty($params['last_modified'])) {
+                $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
+
+            } else {
+                $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
+            }
+        }
+
+        // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+        // These pages should NEVER be indexed
+        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
+            $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
+        }
+
+        // CORS headers
+        if (Config::get('web.security.cors', true) or static::$cors) {
+            // Add CORS / Access-Control-Allow-.... headers
+            // TODO This will cause issues if configured web.cors is not an array!
+            static::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), static::$cors);
+
+            foreach (static::$cors as $key => $value) {
+                switch ($key) {
+                    case 'origin':
+                        if ($value == '*.') {
+                            // Origin is allowed from all subdomains
+                            $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
+                            $length = strlen(isset_get($_SESSION['domain']));
+
+                            if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
+                                // Sub domain matches. Since CORS does not support sub domains, just show the
+                                // current sub domain.
+                                $value = $_SERVER['HTTP_ORIGIN'];
+
+                            } else {
+                                // Sub domain does not match. Since CORS does not support sub domains, just show no
+                                // allowed origin domain at all
+                                $value = '';
+                            }
+                        }
+
+                    // no-break
+
+                    case 'methods':
+                        // no-break
+                    case 'headers':
+                        if ($value) {
+                            $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
+                        }
+
+                        break;
+
+                    default:
+                        throw new HttpException(tr('Unknown CORS header ":header" specified', [
+                            ':header' => $key,
+                        ]));
+                }
+            }
+        }
+
+        // Add cache headers and store headers in the object headers list
+        return static::addHttpCacheHeaders($headers);
+    }
+
+    protected static function cacheEtag(): bool
+    {
+        // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
+        if (!Config::get('web.cache.enabled', 'auto') or Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
+            static::$etag = null;
+            return false;
+        }
+
+        // Create local ETAG
+        static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
+
+        // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
+        if (trim((string)isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
+            if (empty($core->register['flash'])) {
+                // The client sent an etag which is still valid, no body (or anything else) necessary
+                http_response_code(304);
+                exit();
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Adds caching headers to the specified HTTP headers and returns the list
+     *
+     * Returns headers Cache-Control and ETag
+     *
+     * @param array $headers Any extra headers that are required
+     *
+     * @return array
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     * @see       htt_noCache()
+     * @see       https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+     * @see       https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+     * @version   2.5.92: Added function and documentation
+     */
+    protected static function addHttpCacheHeaders(array $headers): array
+    {
+        if (Config::get('web.cache.enabled', 'auto') === 'auto') {
+            // PHP will take care of the cache headers
+            return $headers;
+
+        }
+
+        if (Config::get('web.cache.enabled', 'auto') === true) {
+            // Place headers using phoundation algorithms
+            if (!Config::get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
+                // Non HTTP 200 / 304 pages should NOT have cache enabled! For example, 404, 503 etc...
+                $headers[]    = 'Cache-Control: no-store, max-age=0';
+                static::$etag = null;
+
+            } else {
+                // Send caching headers. Ajax, API, and admin calls do not have proxy caching
+                switch (Request::getRequestType()) {
+                    case EnumRequestTypes::api:
+                        // no-break
+                    case EnumRequestTypes::ajax:
+                        // no-break
+                    case EnumRequestTypes::admin:
+                        break;
+
+                    default:
+                        // Session pages for specific users should not be stored on proxy servers either
+                        if (!empty($_SESSION['user']['id'])) {
+                            Config::get('web.cache.cacheability', 'private');
+                        }
+
+                        $headers[] = 'Cache-Control: ' . Config::get('web.cache.cacheability', 'private') . ', ' . Config::get('web.cache.expiration', 'max-age=604800') . ', ' . Config::get('web.cache.revalidation', 'must-revalidate') . Config::get('web.cache.other', 'no-transform');
+
+                        if (!empty(static::$etag)) {
+                            $headers[] = 'ETag: "' . static::$etag . '"';
+                        }
+                }
+            }
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Send the generated page output to the client
+     *
+     * @return void
+     */
+    protected static function sendOutput(): void
+    {
+        if (Request::getAttachment()) {
+            // Send download headers and send the $html payload
+            FileResponse::new()
+                        ->setAttachment(true)
+                        ->setData(static::getOutput())
+                        ->setFilename(basename(Request::getTarget()
+                                                      ->getPath()))
+                        ->send();
+        }
+
+        // Track data sizes
+        $length             = static::getOutputLength();
+        static::$bytes_sent += $length;
+
+        // Send the page to the client
+        echo static::getOutput();
+
+        // Log how much we sent
+        Log::action(tr('Sent ":length" output data to client', [
+            ':length' => Numbers::getHumanReadableBytes($length),
+        ]),         4);
+    }
+
+    /**
+     * Returns the current length HTML output buffer for this page
+     *
+     * @return int
+     */
+    public static function getOutputLength(): int
+    {
+        return (int)ob_get_length();
+    }
+
+    /**
+     * Send the required headers to ensure that the page will not be cached ever
+     *
+     * @return void
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   http
+     * @see       Http::cache()
+     * @version   2.5.92: Added function and documentation
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     */
+    protected static function sendNoCacheHttpHeaders(): void
+    {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true);
+        header('Cache-Control: post-check=0, pre-check=0', true);
+        header('Pragma: no-cache', true);
+        header('Expires: Wed, 10 Jan 2000 07:00:00 GMT', true);
     }
 }

@@ -16,10 +16,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class TableDefine extends SchemaAbstract
 {
@@ -51,20 +51,6 @@ class TableDefine extends SchemaAbstract
      */
     protected array $foreign_keys = [];
 
-
-    /**
-     * Sets the table name
-     *
-     * @param string $name
-     * @return static
-     */
-    protected function setName(string $name): static
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-
     /**
      * Clears the table columns
      *
@@ -76,12 +62,13 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
-
     /**
      * Sets the table columns
      *
      * @note This will clear the current columns array
+     *
      * @param string|array $columns
+     *
      * @return TableDefine
      */
     public function setColumns(string|array $columns): TableDefine
@@ -90,12 +77,13 @@ class TableDefine extends SchemaAbstract
         return $this->addColumns($columns);
     }
 
-
     /**
      * Add the array of columns to the table
      *
      * @note This will clear the current columns array
+     *
      * @param string|array $columns
+     *
      * @return TableDefine
      */
     public function addColumns(string|array $columns): TableDefine
@@ -112,12 +100,13 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
-
     /**
      * Add a single column to the table
      *
      * @note This will clear the current columns array
+     *
      * @param string $column
+     *
      * @return TableDefine
      */
     public function addColumn(string $column): TableDefine
@@ -128,7 +117,6 @@ class TableDefine extends SchemaAbstract
 
         return $this;
     }
-
 
     /**
      * Clears the table indices
@@ -141,12 +129,13 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
-
     /**
      * Sets the table indices
      *
      * @note This will clear the current indices array
+     *
      * @param string|array $indices
+     *
      * @return TableDefine
      */
     public function setIndices(string|array $indices): TableDefine
@@ -155,11 +144,11 @@ class TableDefine extends SchemaAbstract
         return $this->addIndices($indices);
     }
 
-
     /**
      * Add the array of indices to the table
      *
      * @param string|array $indices
+     *
      * @return TableDefine
      */
     public function addIndices(string|array $indices): TableDefine
@@ -176,11 +165,11 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
-
     /**
      * Add a single index to the table
      *
      * @param string $index
+     *
      * @return TableDefine
      */
     public function addIndex(string $index): TableDefine
@@ -188,7 +177,6 @@ class TableDefine extends SchemaAbstract
         $this->indices[] = $index;
         return $this;
     }
-
 
     /**
      * Clears the table foreign_keys
@@ -201,12 +189,13 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
-
     /**
      * Sets the table foreign_keys
      *
      * @note This will clear the current foreign_keys array
+     *
      * @param string|array $foreign_keys
+     *
      * @return TableDefine
      */
     public function setForeignKeys(string|array $foreign_keys): TableDefine
@@ -215,11 +204,11 @@ class TableDefine extends SchemaAbstract
         return $this->addForeignKeys($foreign_keys);
     }
 
-
     /**
      * Add the array of foreign_keys to the table
      *
      * @param string|array $foreign_keys
+     *
      * @return TableDefine
      */
     public function addForeignKeys(string|array $foreign_keys): TableDefine
@@ -235,11 +224,11 @@ class TableDefine extends SchemaAbstract
         return $this;
     }
 
-
     /**
      * Add a single foreign_key to the table
      *
      * @param string $foreign_key
+     *
      * @return TableDefine
      */
     public function addForeignKey(string $foreign_key): TableDefine
@@ -247,7 +236,6 @@ class TableDefine extends SchemaAbstract
         $this->foreign_keys[] = $foreign_key;
         return $this;
     }
-
 
     /**
      * Create the specified table
@@ -265,7 +253,7 @@ class TableDefine extends SchemaAbstract
         $foreign_keys = implode(",\n", $this->foreign_keys) . "\n";
 
         // Build and execute query
-        $query  = 'CREATE TABLE `' . $this->name . '` (';
+        $query = 'CREATE TABLE `' . $this->name . '` (';
         $query .= Strings::endsNotWith(trim(implode(",\n", $this->columns)), ',');
 
         if ($this->indices) {
@@ -280,5 +268,18 @@ class TableDefine extends SchemaAbstract
 
         $this->sql->query($query);
         $this->parent->reload();
+    }
+
+    /**
+     * Sets the table name
+     *
+     * @param string $name
+     *
+     * @return static
+     */
+    protected function setName(string $name): static
+    {
+        $this->name = $name;
+        return $this;
     }
 }

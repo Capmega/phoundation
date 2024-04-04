@@ -14,11 +14,11 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class InputMultiButtonText extends ElementsBlock
 {
@@ -44,8 +44,8 @@ class InputMultiButtonText extends ElementsBlock
     public function __construct(?string $content = null)
     {
         $this->setButton(Button::new()
-            ->setMode(EnumDisplayMode::info)
-            ->setContent(tr('Action')));
+                               ->setMode(EnumDisplayMode::info)
+                               ->setContent(tr('Action')));
         return parent::__construct($content);
     }
 
@@ -65,11 +65,15 @@ class InputMultiButtonText extends ElementsBlock
      * Returns the internal button object
      *
      * @param Button $button
+     *
      * @return static
      */
     public function setButton(Button $button): static
     {
-        $button->addClasses(['btn', 'dropdown-toggle']);
+        $button->addClasses([
+                                'btn',
+                                'dropdown-toggle',
+                            ]);
         $button->getData()->add('toggle', 'dropdown');
         $button->getAria()->add('false', 'expanded');
 
@@ -98,6 +102,7 @@ class InputMultiButtonText extends ElementsBlock
      * Returns the internal input object
      *
      * @param Input $input
+     *
      * @return static
      */
     public function setInput(Input $input): static

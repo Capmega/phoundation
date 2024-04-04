@@ -20,10 +20,10 @@ use Phoundation\Web\Html\Traits\TraitMode;
  *
  * This class contains a single Flash message and can render it to HTML
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class FlashMessage extends ElementsBlock implements FlashMessageInterface
 {
@@ -96,6 +96,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets the flash message contents
      *
      * @param string $message
+     *
      * @return $this
      */
     public function setMessage(string $message): static
@@ -120,6 +121,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets the flash message subtitle
      *
      * @param string $sub_title
+     *
      * @return $this
      */
     public function setSubTitle(string $sub_title): static
@@ -144,6 +146,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets the flash icon contents
      *
      * @param string|null $icon
+     *
      * @return $this
      */
     public function setIcon(?string $icon): static
@@ -174,7 +177,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets the flash image contents
      *
      * @param ImageInterface|string|null $image
-     * @param string|null $alt
+     * @param string|null                $alt
+     *
      * @return $this
      */
     public function setImage(ImageInterface|string|null $image, ?string $alt = null): static
@@ -187,8 +191,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
             if (is_string($image)) {
                 // image was specified as a string, make an image object
                 $image = Image::new()
-                    ->setPath($image)
-                    ->setDescription($image);
+                              ->setPath($image)
+                              ->setDescription($image);
             }
         }
 
@@ -212,6 +216,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets if the flash message is shown on the right side of the screen
      *
      * @param bool $left
+     *
      * @return $this
      */
     public function setLeft(bool $left): static
@@ -236,6 +241,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets if the flash message is shown at the top of the screen
      *
      * @param bool $top
+     *
      * @return $this
      */
     public function setTop(bool $top): static
@@ -260,6 +266,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets if the flash message will close automatically after N milliseconds
      *
      * @param int|null $auto_close
+     *
      * @return $this
      */
     public function setAutoClose(?int $auto_close): static
@@ -284,6 +291,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Sets if the flash message can be closed
      *
      * @param bool $can_close
+     *
      * @return $this
      */
     public function setCanClose(bool $can_close): static
@@ -336,7 +344,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                 position: "' . $position . '",
                 ' . ($image ? 'image: "' . Strings::escape($image->getSrc()) . '", image-alt: "' . Strings::escape($image->getAlt()) . '",' : null) . '                           
                 ' . ($this->icon ? 'icon: "fas fa-' . Strings::escape($this->icon) . ' fa-lg",' : null) . '                           
-                ' . ($this->auto_close ? 'autohide: true, delay: ' . $this->auto_close . ',' .  PHP_EOL : null) . '
+                ' . ($this->auto_close ? 'autohide: true, delay: ' . $this->auto_close . ',' . PHP_EOL : null) . '
                 body: "' . Strings::escape($this->content) . '"
             });';
     }
@@ -346,21 +354,22 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * Import the flash message object data from the specified array
      *
      * @param array $source
+     *
      * @return $this
      */
     public function import(array $source): static
     {
         foreach ($source as $key => $value) {
             match ($key) {
-                'top'        => $this->top        = $value,
-                'left'       => $this->left       = $value,
-                'mode'       => $this->mode       = $this->mode::from($value),
-                'icon'       => $this->icon       = $value,
-                'image'      => $this->image      = $value,
-                'title'      => $this->title      = $value,
-                'message'    => $this->content    = $value,
-                'can_close'  => $this->can_close  = $value,
-                'auto_close' => $this->auto_close = $value
+                'top'        => $this->top = $value,
+                'left'       => $this->left = $value,
+                'mode'       => $this->mode = $this->mode::from($value),
+                'icon'       => $this->icon = $value,
+                'image'      => $this->image = $value,
+                'title'      => $this->title = $value,
+                'message'    => $this->content = $value,
+                'can_close'  => $this->can_close = $value,
+                'auto_close' => $this->auto_close = $value,
             };
         }
 
@@ -384,7 +393,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
             'title'      => $this->title,
             'message'    => $this->content,
             'can_close'  => $this->can_close,
-            'auto_close' => $this->auto_close
+            'auto_close' => $this->auto_close,
         ];
     }
 

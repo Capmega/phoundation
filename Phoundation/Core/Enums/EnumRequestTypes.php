@@ -37,12 +37,12 @@ use Phoundation\Core\Enums\Interfaces\EnumRequestTypesInterface;
  * UNKNOWN: System doesn't know yet what type of request we're currently handling, should only happen very early on at
  *          the startup phase
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
-enum EnumRequestTypes : string implements EnumRequestTypesInterface
+enum EnumRequestTypes: string implements EnumRequestTypesInterface
 {
     case api     = 'api';
     case admin   = 'admin';

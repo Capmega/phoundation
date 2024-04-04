@@ -21,45 +21,45 @@ use Phoundation\Web\Requests\Response;
 $filters_content = FilterForm::new();
 
 $filters = Card::new()
-    ->setCollapseSwitch(true)
-    ->setTitle('Non200Urls filters')
-    ->setContent($filters_content->render())
-    ->useForm(true);
+               ->setCollapseSwitch(true)
+               ->setTitle('Non200Urls filters')
+               ->setContent($filters_content->render())
+               ->useForm(true);
 
 
 // Build urls table
 $table = Non200Urls::new()->getHtmlDataTable()
-    ->setRowUrl('/security/non-200-url+:ROW.html');
+                   ->setRowUrl('/security/non-200-url+:ROW.html');
 
 $users = Card::new()
-    ->setTitle('Security Non-200 URL\'s')
-    ->setSwitches('reload')
-    ->setContent($table->render())
-    ->useForm(true);
+             ->setTitle('Security Non-200 URL\'s')
+             ->setSwitches('reload')
+             ->setContent($table->render())
+             ->useForm(true);
 
 $users->getForm()
-        ->setAction(UrlBuilder::getCurrent())
-        ->setMethod('POST');
+      ->setAction(UrlBuilder::getCurrent())
+      ->setMethod('POST');
 
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(DisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-    ->setContent('');
+                ->setMode(DisplayMode::info)
+                ->setTitle(tr('Relevant links'))
+                ->setContent('');
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(DisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+                     ->setMode(DisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build and render the page grid
 $grid = Grid::new()
-    ->addColumn($filters->render() . $users->render(), DisplaySize::nine)
-    ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
+            ->addColumn($filters->render() . $users->render(), DisplaySize::nine)
+            ->addColumn($relevant->render() . $documentation->render(), DisplaySize::three);
 
 echo $grid->render();
 
@@ -67,7 +67,7 @@ echo $grid->render();
 // Set page meta data
 Response::setHeaderTitle(tr('Non HTTP-200 URL\'s'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/security.html' => tr('Security'),
-    ''               => tr('Non HTTP-200 URL\'s'),
-]));
+                                                           '/'              => tr('Home'),
+                                                           '/security.html' => tr('Security'),
+                                                           ''               => tr('Non HTTP-200 URL\'s'),
+                                                       ]));

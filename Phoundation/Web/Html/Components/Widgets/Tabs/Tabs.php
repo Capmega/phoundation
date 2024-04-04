@@ -6,12 +6,12 @@ namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Traits\TraitDataOrientation;
+use Phoundation\Enums\EnumOrientation;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
-use Phoundation\Enums\EnumOrientation;
 use Phoundation\Web\Html\Enums\Interfaces\EnumDisplaySizeInterface;
 use Stringable;
 
@@ -21,15 +21,15 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Tabs extends ElementsBlock implements TabsInterface
 {
     use TraitDataOrientation {
-        setOrientation AS protected __setOrientation;
+        setOrientation as protected __setOrientation;
     }
 
 
@@ -68,6 +68,7 @@ class Tabs extends ElementsBlock implements TabsInterface
      * Sets the display size for tab contents (left and right orientation only)
      *
      * @param EnumDisplaySizeInterface $content_display_size
+     *
      * @return static
      */
     public function setContentDisplaySize(EnumDisplaySizeInterface $content_display_size): static
@@ -80,17 +81,18 @@ class Tabs extends ElementsBlock implements TabsInterface
     /**
      * Add tab to this Tabs object
      *
-     * @param mixed $value
+     * @param mixed                            $value
      * @param float|Stringable|int|string|null $key
-     * @param bool $skip_null
-     * @param bool $exception
+     * @param bool                             $skip_null
+     * @param bool                             $exception
+     *
      * @return $this
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null = true, bool $exception = true): static
     {
         if (!($value instanceof TabInterface)) {
             throw new OutOfBoundsException(tr('Specified tab ":value" should use a TabInterface', [
-                ':value' => $value
+                ':value' => $value,
             ]));
         }
 

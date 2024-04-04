@@ -19,11 +19,11 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataList
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataList
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Business
+ * @package   Phoundation\Business
  */
 class Servers extends DataList
 {
@@ -77,6 +77,7 @@ class Servers extends DataList
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface
@@ -91,19 +92,20 @@ class Servers extends DataList
     /**
      * Returns an HTML <select> for the available object entries
      *
-     * @param string $value_column
+     * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
-     * @param array|null $joins
-     * @param array|null $filters
+     * @param array|null  $joins
+     * @param array|null  $filters
+     *
      * @return InputSelectInterface
      */
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
-            ->setName('servers_id')
-            ->setNone(tr('Select a server'))
-            ->setObjectEmpty(tr('No servers available'));
+                     ->setName('servers_id')
+                     ->setNone(tr('Select a server'))
+                     ->setObjectEmpty(tr('No servers available'));
     }
 
 
@@ -128,7 +130,8 @@ class Servers extends DataList
      * Load the data for this right list
      *
      * @param array|string|null $columns
-     * @param array $filters
+     * @param array             $filters
+     *
      * @return array
      */
     public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
@@ -158,7 +161,7 @@ class Servers extends DataList
         }
 
         // Build filters
-        foreach ($filters as $key => $value){
+        foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'deleted':
                     $no_delete = true;

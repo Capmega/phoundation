@@ -19,10 +19,10 @@ use Phoundation\Web\Html\Traits\TraitInputElement;
  *
  * This class is an abstract HTML element object class that can display resource data
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 abstract class ResourceElement extends Element implements ResourceElementInterface, InputInterface
 {
@@ -104,20 +104,6 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         parent::__construct($content);
     }
 
-
-    /**
-     * Set the HTML none element attribute
-     *
-     * @param string|null $none
-     * @return static
-     */
-    public function setNone(?string $none): static
-    {
-        $this->none = $none;
-        return $this;
-    }
-
-
     /**
      * Returns the HTML none element attribute
      *
@@ -128,6 +114,18 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         return $this->none;
     }
 
+    /**
+     * Set the HTML none element attribute
+     *
+     * @param string|null $none
+     *
+     * @return static
+     */
+    public function setNone(?string $none): static
+    {
+        $this->none = $none;
+        return $this;
+    }
 
     /**
      * Returns the HTML empty element attribute
@@ -144,6 +142,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * Sets the HTML empty element attribute
      *
      * @param string|null $empty
+     *
      * @return static
      */
     public function setObjectEmpty(?string $empty): static
@@ -168,6 +167,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * Sets whether query sources will be cached or not
      *
      * @param bool $cache
+     *
      * @return static
      */
     public function setCache(bool $cache): static
@@ -175,20 +175,6 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         $this->cache = $cache;
         return $this;
     }
-
-
-    /**
-     * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
-     *
-     * @param bool $hide_empty
-     * @return static
-     */
-    public function setHideEmpty(bool $hide_empty): static
-    {
-        $this->hide_empty = $hide_empty;
-        return $this;
-    }
-
 
     /**
      * Returns if this element will be hidden (Element::render() will return an empty string) if the resource is empty
@@ -200,6 +186,18 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         return $this->hide_empty;
     }
 
+    /**
+     * Sets if this element will be hidden (Element::render() will return an empty string) if the resource is empty
+     *
+     * @param bool $hide_empty
+     *
+     * @return static
+     */
+    public function setHideEmpty(bool $hide_empty): static
+    {
+        $this->hide_empty = $hide_empty;
+        return $this;
+    }
 
     /**
      * Returns the array source
@@ -216,7 +214,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * Sets the array source
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|string|null $execute
+     * @param array|string|null                                $execute
+     *
      * @return static
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source, array|string|null $execute = null): static
@@ -245,7 +244,8 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
      * Sets a query source
      *
      * @param PDOStatement|string|null $source_query
-     * @param array|string|null $execute
+     * @param array|string|null        $execute
+     *
      * @return $this
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null, ?array $use_columns = null): static
@@ -262,23 +262,7 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         $this->source_query = $source_query;
         $this->use_columns  = $use_columns;
         return $this;
-     }
-
-
-    /**
-     * Sets the source for "data-*" attributes where the data key matches the source key
-     *
-     * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
-     *       then add the specified keys to each option where the value matches the id
-     * @param array $source_data
-     * @return static
-     */
-    public function setSourceData(array $source_data): static
-    {
-        $this->source_data = $source_data;
-        return $this;
     }
-
 
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
@@ -292,6 +276,21 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         return $this->source_data;
     }
 
+    /**
+     * Sets the source for "data-*" attributes where the data key matches the source key
+     *
+     * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
+     *       then add the specified keys to each option where the value matches the id
+     *
+     * @param array $source_data
+     *
+     * @return static
+     */
+    public function setSourceData(array $source_data): static
+    {
+        $this->source_data = $source_data;
+        return $this;
+    }
 
     /**
      * Generates and returns the HTML string for this resource element
@@ -311,6 +310,12 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
         return parent::render();
     }
 
+    /**
+     * Generates and returns the HTML body
+     *
+     * @return string|null
+     */
+    abstract public function renderBody(): ?string;
 
     /**
      * Add the system arguments to the arguments list
@@ -323,12 +328,4 @@ abstract class ResourceElement extends Element implements ResourceElementInterfa
     {
         return parent::renderAttributes();
     }
-
-
-    /**
-     * Generates and returns the HTML body
-     *
-     * @return string|null
-     */
-    abstract public function renderBody(): ?string;
 }

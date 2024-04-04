@@ -14,28 +14,32 @@ use Stringable;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Date
+ * @package   Phoundation\Date
  */
 class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interfaces\DateTimeInterface
 {
     /**
-     * Returns this DateTime object as a string in ISO 8601 format without switching timezone
+     * Returns a new DateTime object for today
      *
-     * @return string
+     * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     *
+     * @return static
+     * @throws Exception
      */
-    public function __toString() {
-        return $this->format('Y-m-d H:i:s.v');
+    public static function today(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('today 00:00:00', DateTimeZone::new($timezone));
     }
-
 
     /**
      * Returns a new DateTime object
      *
-     * @param Date|DateTime|string $datetime
+     * @param Date|DateTime|string                   $datetime
      * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     *
      * @return static
      * @throws Exception
      */
@@ -55,39 +59,11 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
         return new static($datetime, $timezone);
     }
 
-
-    /**
-     * Returns the difference between two DateTime objects
-     * @link https://secure.php.net/manual/en/datetime.diff.php
-     *
-     * @param \DateTimeInterface $targetObject
-     * @param bool $absolute
-     * @param bool $roundup
-     * @return DateInterval
-     */
-    public function diff(\DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval
-    {
-        return new DateInterval(parent::diff($targetObject, $absolute));
-    }
-
-
-    /**
-     * Returns a new DateTime object for today
-     *
-     * @param \DateTimeZone|DateTimeZone|string|null $timezone
-     * @return static
-     * @throws Exception
-     */
-    public static function today(\DateTimeZone|DateTimeZone|string|null $timezone = null): static
-    {
-        return new static('today 00:00:00', DateTimeZone::new($timezone));
-    }
-
-
     /**
      * Returns a new DateTime object for tomorrow
      *
      * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     *
      * @return static
      * @throws Exception
      */
@@ -96,11 +72,11 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
         return new static('tomorrow 00:00:00', DateTimeZone::new($timezone));
     }
 
-
     /**
      * Returns a new DateTime object for yesterday
      *
      * @param \DateTimeZone|DateTimeZone|string|null $timezone
+     *
      * @return static
      * @throws Exception
      */
@@ -109,6 +85,49 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
         return new static(' 00:00:00', DateTimeZone::new($timezone));
     }
 
+    /**
+     * Returns this DateTime object as a string in ISO 8601 format without switching timezone
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->format('Y-m-d H:i:s.v');
+    }
+
+    /**
+     * Wrapper around the PHP Datetime but with support for named formats, like "mysql"
+     *
+     * @param string|null $format
+     *
+     * @return string
+     */
+    public function format(?string $format = null): string
+    {
+        switch (strtolower($format)) {
+            case 'mysql':
+                $format = 'Y-m-d H:i:s';
+                break;
+        }
+
+        return parent::format($format);
+    }
+
+    /**
+     * Returns the difference between two DateTime objects
+     *
+     * @link https://secure.php.net/manual/en/datetime.diff.php
+     *
+     * @param \DateTimeInterface $targetObject
+     * @param bool               $absolute
+     * @param bool               $roundup
+     *
+     * @return DateInterval
+     */
+    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): DateInterval
+    {
+        return new DateInterval(parent::diff($targetObject, $absolute));
+    }
 
     /**
      * Returns a new DateTime object with the specified timezone
@@ -122,23 +141,5 @@ class DateTimeImmutable extends \DateTimeImmutable implements Stringable, Interf
         }
 
         return $this;
-    }
-
-
-    /**
-     * Wrapper around the PHP Datetime but with support for named formats, like "mysql"
-     *
-     * @param string|null $format
-     * @return string
-     */
-    public function format(?string $format = null): string
-    {
-        switch (strtolower($format)) {
-            case 'mysql':
-                $format = 'Y-m-d H:i:s';
-                break;
-        }
-
-        return parent::format($format);
     }
 }

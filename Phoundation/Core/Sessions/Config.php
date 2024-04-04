@@ -12,10 +12,10 @@ use Phoundation\Core\Sessions\Interfaces\ConfigInterface;
  *
  * This class will try to return configuration data from the user or if missing, the system
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class Config extends \Phoundation\Utils\Config implements ConfigInterface
 {
@@ -46,8 +46,9 @@ class Config extends \Phoundation\Utils\Config implements ConfigInterface
      * Gets session configuration if available, or default configuration if not
      *
      * @param string|array $path
-     * @param mixed|null $default
-     * @param mixed|null $specified
+     * @param mixed|null   $default
+     * @param mixed|null   $specified
+     *
      * @return mixed
      */
     public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed

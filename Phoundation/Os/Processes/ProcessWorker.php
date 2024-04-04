@@ -13,19 +13,20 @@ use Phoundation\Os\Processes\Interfaces\ProcessWorkerInterface;
  *
  * This class can manage worker processes running in the background
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
- * @uses ProcessVariables
+ * @package   Phoundation\Os
+ * @uses      ProcessVariables
  */
 class ProcessWorker extends WorkersCore implements ProcessWorkerInterface
 {
     /**
      * Returns a new Workers object
      *
-     * @param string|null $command
+     * @param string|null                             $command
      * @param RestrictionsInterface|array|string|null $restrictions
+     *
      * @return static
      */
     public static function new(?string $command = null, RestrictionsInterface|array|string|null $restrictions = null): static

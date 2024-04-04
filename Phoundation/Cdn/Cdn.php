@@ -16,10 +16,10 @@ use Phoundation\Utils\Strings;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Cdn
 {
@@ -30,6 +30,7 @@ class Cdn
      * @param $section
      * @param $group
      * @param $delete
+     *
      * @return void
      */
     public static function addFiles(string|array $files, string $section = 'pub', $group = null, bool $delete = true): void
@@ -54,20 +55,21 @@ class Cdn
     /**
      * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see domain()
-     * @see mapped_domain()
-     * @version 2.4.9: Added documentation
-     *
-     * @params string $file
-     * @params string $section
-     * @params string $default If specified, use this default image if the specified file has not been found
-     * @params boolean $force_cdn
      * @return string The result
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category  Function reference
+     * @package   system
+     * @see       domain()
+     * @see       mapped_domain()
+     * @version   2.4.9: Added documentation
+     *
+     * @params    string $file
+     * @params    string $section
+     * @params    string $default If specified, use this default image if the specified file has not been found
+     * @params    boolean $force_cdn
+     *
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false)
     {
@@ -104,10 +106,12 @@ class Cdn
                          * There are no CDN servers available!
                          * Switch to working without CDN servers
                          */
-                        Notification(array('code' => 'invalid',
-                            'groups' => 'developer',
-                            'title' => tr('Invalid configuration'),
-                            'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured')));
+                        Notification([
+                                         'code'    => 'invalid',
+                                         'groups'  => 'developer',
+                                         'title'   => tr('Invalid configuration'),
+                                         'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured'),
+                                     ]);
 
                         $_CONFIG['cdn']['enabled'] = false;
                         return cdn_domain($file, $section);
@@ -144,7 +148,7 @@ class Cdn
 
                         LIMIT     1',
 
-                array(':file' => $file));
+                           [':file' => $file]);
 
             if ($url) {
                 /*

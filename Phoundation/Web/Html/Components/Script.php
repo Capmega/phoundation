@@ -5,11 +5,11 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- * @see InputSelect
+ * @package   Phoundation\Web
+ * @see       InputSelect
  */
 
 declare(strict_types=1);
@@ -87,6 +87,7 @@ class Script extends Element implements ScriptInterface
      * Sets if this script is loaded async
      *
      * @param bool $async
+     *
      * @return static
      */
     public function setAsync(bool $async): static
@@ -111,6 +112,7 @@ class Script extends Element implements ScriptInterface
      * Sets if this script is loaded from a file instead of included internally
      *
      * @param bool $to_file
+     *
      * @return static
      */
     public function setToFile(bool $to_file): static
@@ -135,6 +137,7 @@ class Script extends Element implements ScriptInterface
      * Sets the script src
      *
      * @param string $src
+     *
      * @return static
      */
     public function setSrc(string $src): static
@@ -159,6 +162,7 @@ class Script extends Element implements ScriptInterface
      * Sets where this script is attached to the document
      *
      * @param EnumAttachJavascript $attach
+     *
      * @return static
      */
     public function setAttach(EnumAttachJavascript $attach): static
@@ -183,6 +187,7 @@ class Script extends Element implements ScriptInterface
      * Sets if this script is loaded defer
      *
      * @param bool $defer
+     *
      * @return static
      */
     public function setDefer(bool $defer): static
@@ -207,6 +212,7 @@ class Script extends Element implements ScriptInterface
      * Sets the event wrapper code for this script
      *
      * @param EnumJavascriptWrappersInterface $javascript_wrapper
+     *
      * @return static
      */
     public function setJavascriptWrapper(EnumJavascriptWrappersInterface $javascript_wrapper): static
@@ -256,7 +262,7 @@ class Script extends Element implements ScriptInterface
                 default:
                     // TODO: This should be impossible to reach, remove?
                     throw new OutOfBoundsException(tr('Unknown event wrapper ":value" specified', [
-                        ':value' => $this->javascript_wrapper
+                        ':value' => $this->javascript_wrapper,
                     ]));
             }
         } else {
@@ -271,26 +277,19 @@ class Script extends Element implements ScriptInterface
             case EnumAttachJavascript::header:
                 Response::addToHeader('javascript', [
                     'type'    => 'text/javascript',
-                    'content' => $render
+                    'content' => $render,
                 ]);
 
                 return null;
 
             case EnumAttachJavascript::footer:
                 Response::addToFooter([
-                    'type'    => 'text/javascript',
-                    'content' => $render
-                ], 'javascript');
+                                          'type' => 'text/javascript',
+                                                                                                                                                            'content' => $render,
+                                      ], 'javascript');
 
                 return null;
         }
-
-
-
-
-
-
-
 
 
 //        // TODO GARBAGE BELOW, CLEAN UP

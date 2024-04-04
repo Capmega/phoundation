@@ -12,10 +12,10 @@ use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
  *
  * This adds static readonly state registration to objects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataStaticReadonly
 {
@@ -31,6 +31,7 @@ trait TraitDataStaticReadonly
      * Throws an exception for the given action if the object is readonly
      *
      * @param string $action
+     *
      * @return void
      * @throws DataEntryReadonlyException
      */
@@ -59,6 +60,7 @@ trait TraitDataStaticReadonly
      * Sets if this object is readonly or not
      *
      * @param bool $readonly
+     *
      * @return void
      */
     public static function setReadonly(bool $readonly): void

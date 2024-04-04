@@ -10,10 +10,10 @@ namespace Phoundation\Developer\Project;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Developer
+ * @package   \Phoundation\Developer
  */
 class Configuration
 {
@@ -58,7 +58,8 @@ class Configuration
      *
      * @param string $project
      */
-    public function __construct(string $project) {
+    public function __construct(string $project)
+    {
         $this->project  = $project;
         $this->database = new Database();
     }
@@ -90,6 +91,7 @@ class Configuration
      * Sets the administrator email address
      *
      * @param string $email
+     *
      * @return static
      */
     public function setEmail(string $email): static
@@ -114,6 +116,7 @@ class Configuration
      * Sets the administrator password
      *
      * @param string $password
+     *
      * @return static
      */
     public function setPassword(string $password): static
@@ -138,6 +141,7 @@ class Configuration
      * Sets the project name
      *
      * @param string $project
+     *
      * @return static
      */
     public function setProject(string $project): static
@@ -162,6 +166,7 @@ class Configuration
      * Sets the project domain name
      *
      * @param string $domain
+     *
      * @return static
      */
     public function setDomain(string $domain): static

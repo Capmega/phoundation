@@ -12,35 +12,24 @@ use Phoundation\Business\Companies\Branches\Branch;
  *
  * This trait contains methods for DataEntry objects that require a branch
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryBranch
 {
     /**
-     * Returns the branches_id for this object
-     *
-     * @return int|null
-     */
-    public function getBranchesId(): ?int
-    {
-        return $this->getSourceValue('int', 'branches_id');
-    }
-
-
-    /**
      * Sets the branches_id for this object
      *
      * @param int|null $branches_id
+     *
      * @return static
      */
     public function setBranchesId(?int $branches_id): static
     {
         return $this->setSourceValue('branches_id', $branches_id);
     }
-
 
     /**
      * Returns the branch for this object
@@ -58,7 +47,6 @@ trait TraitDataEntryBranch
         return null;
     }
 
-
     /**
      * Returns the branches_name for this object
      *
@@ -69,11 +57,21 @@ trait TraitDataEntryBranch
         return $this->getSourceValue('string', 'branches_name') ?? Branch::new($this->getBranchesId(), 'id')?->getName();
     }
 
+    /**
+     * Returns the branches_id for this object
+     *
+     * @return int|null
+     */
+    public function getBranchesId(): ?int
+    {
+        return $this->getSourceValue('int', 'branches_id');
+    }
 
     /**
      * Sets the branches_id for this object
      *
      * @param string|null $branches_name
+     *
      * @return static
      */
     public function setBranchesName(?string $branches_name): static

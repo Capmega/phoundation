@@ -15,27 +15,24 @@ use Phoundation\Data\Validator\ArgvValidator;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho image info IMAGE_FILE_NAME');
 
 CliDocumentation::setHelp('This command will display basic information about the specified image');
 
 
-
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('file', true)->isFile(true)
-    ->validate();
-
+                     ->select('file', true)->isFile(true)
+                     ->validate();
 
 
 // Get image object
 $image = Image::new($argv['file'], DIRECTORY_DATA);
-
 
 
 // Display image information

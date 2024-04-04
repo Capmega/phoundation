@@ -15,10 +15,10 @@ use Phoundation\Utils\Config;
  * This script will create a default configuration file ROOT/config/default.yaml containing ALL possible configuration
  * paths and their default values
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho config create-default');
 
@@ -31,10 +31,8 @@ ARGUMENTS
 -');
 
 
-
 // Validate no arguments
 $argv = ArgvValidator::new()->validate();
-
 
 
 // Generate default yaml configuration file

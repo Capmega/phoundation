@@ -9,7 +9,6 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
 
 
 /**
@@ -17,10 +16,10 @@ use Phoundation\Web\Requests\Response;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class ProfileImage extends ImageMenu
 {
@@ -51,6 +50,7 @@ class ProfileImage extends ImageMenu
      * ProfileImage class constructor
      *
      * @param ImageInterface|string|null $image
+     *
      * @return ProfileImage
      */
     public function setImage(ImageInterface|string|null $image = null): static
@@ -73,6 +73,7 @@ class ProfileImage extends ImageMenu
      * Set the menu for this profile image
      *
      * @param Menu|null $menu
+     *
      * @return static
      */
     public function setMenu(?MenuInterface $menu): static
@@ -84,9 +85,9 @@ class ProfileImage extends ImageMenu
             // Default image menu
             if (!$menu) {
                 $menu = Menu::new()->setSource([
-                    tr('Profile')  => '/my/profile.html',
-                    tr('Sign out') => '/sign-out.html'
-                ]);
+                                                   tr('Profile')  => '/my/profile.html',
+                                                   tr('Sign out') => '/sign-out.html',
+                                               ]);
             }
         }
 

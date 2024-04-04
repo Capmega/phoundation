@@ -15,10 +15,10 @@ use Phoundation\Geo\GeoIp\Import;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Scripts
+ * @package   Phoundation\Scripts
  */
 CliDocumentation::setUsage('./pho geo ip import');
 
@@ -43,10 +43,13 @@ ARGUMENTS
 
 
 $argv = ArgvValidator::new()
-    ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray(['maxmind', 'ip2location'])
-    ->select('-s,--source_path', true)->isOptional()->isDirectory(DIRECTORY_DATA)
-    ->select('-t,--target_path', true)->isOptional()
-    ->validate();
+                     ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray([
+                                                                                                        'maxmind',
+                                                                                                        'ip2location',
+                                                                                                    ])
+                     ->select('-s,--source_path', true)->isOptional()->isDirectory(DIRECTORY_DATA)
+                     ->select('-t,--target_path', true)->isOptional()
+                     ->validate();
 
 
 // Get a provider
@@ -66,8 +69,11 @@ if ($argv['source_path']) {
 
 
 // Process the files
-$provider::process($directory, $argv['target_path'], Restrictions::new([$directory->getRestrictions(), DIRECTORY_DATA], true));
+$provider::process($directory, $argv['target_path'], Restrictions::new([
+                                                                           $directory->getRestrictions(),
+                                                                           DIRECTORY_DATA,
+                                                                       ], true));
 
 Log::success(tr('Finished importing all GeoIP data for provider ":provider"', [
-    ':provider' => $provider->getName()
+    ':provider' => $provider->getName(),
 ]));

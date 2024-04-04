@@ -12,10 +12,10 @@ use Phoundation\Utils\Strings;
  *
  * This trait contains methods for DataEntry objects that require phone numbers
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryPhones
 {
@@ -34,6 +34,7 @@ trait TraitDataEntryPhones
      * Sets the phones for this object
      *
      * @param array|string|null $phones
+     *
      * @return static
      */
     public function setPhones(array|string|null $phones): static

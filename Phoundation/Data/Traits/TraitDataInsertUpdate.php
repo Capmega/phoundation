@@ -10,10 +10,10 @@ namespace Phoundation\Data\Traits;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openrandom_id.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openrandom_id.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataInsertUpdate
 {
@@ -40,6 +40,7 @@ trait TraitDataInsertUpdate
      * Sets whether to use INSERT ON DUPLICATE KEY UPDATE queries instead of insert / update
      *
      * @param bool $insert_update
+     *
      * @return static
      */
     public function setInsertUpdate(bool $insert_update): static

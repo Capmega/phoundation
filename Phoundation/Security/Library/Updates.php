@@ -10,11 +10,11 @@ namespace Phoundation\Security\Library;
  *
  * This is the Init class for the Security library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Core
+ * @package   Phoundation\Core
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -50,7 +50,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         $this->addUpdate('0.0.5', function () {
             // Add security incidents table
             sql()->schema()->table('security_incidents')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -74,11 +74,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.6', function () {
-                sql()->schema()->table('security_puks_keys')->drop();
+            sql()->schema()->table('security_puks_keys')->drop();
 
-                // Add PUKS keys table
-                sql()->schema()->table('security_puks_keys')->define()
-                    ->setColumns('
+            // Add PUKS keys table
+            sql()->schema()->table('security_puks_keys')->define()
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -100,8 +100,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.15', function () {
             sql()->schema()
-                ->table('security_incidents')->alter()
-                    ->changeColumn('`severity`', '`severity` ENUM("notice", "low", "medium", "high", "severe") NULL');
+                 ->table('security_incidents')->alter()
+                 ->changeColumn('`severity`', '`severity` ENUM("notice", "low", "medium", "high", "severe") NULL');
         });
     }
 }

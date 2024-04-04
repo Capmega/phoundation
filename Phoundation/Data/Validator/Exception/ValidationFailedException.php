@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Traits\TraitDataData;
 use Phoundation\Data\Traits\TraitDataDataEntryClass;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Throwable;
@@ -16,10 +14,10 @@ use Throwable;
  *
  * This exception is thrown when a validator found validation failures
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
@@ -32,7 +30,7 @@ class ValidationFailedException extends ValidatorException implements Validation
      * Class ValidationFailedException constructor
      *
      * @param Throwable|array|string|null $messages
-     * @param Throwable|null $previous
+     * @param Throwable|null              $previous
      */
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {
@@ -45,6 +43,7 @@ class ValidationFailedException extends ValidatorException implements Validation
      * Sets the data entry object used to translate validation failed fields to human readable labels
      *
      * @param string|null $data_entry_class
+     *
      * @return $this
      */
     public function setDataEntryClass(?string $data_entry_class): static
@@ -54,19 +53,6 @@ class ValidationFailedException extends ValidatorException implements Validation
 
         return $this;
     }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function setData(mixed $data): static
-    {
-        parent::setData($data);
-        $this->applyLabels();
-
-        return $this;
-    }
-
 
     /**
      * Applies labels to keys to improve validation exception labels
@@ -91,5 +77,16 @@ class ValidationFailedException extends ValidatorException implements Validation
                 $this->data[$label] = $value;
             }
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setData(mixed $data): static
+    {
+        parent::setData($data);
+        $this->applyLabels();
+
+        return $this;
     }
 }

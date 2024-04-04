@@ -12,10 +12,10 @@ use Phoundation\Seo\Seo;
  *
  * This trait contains methods for DataEntry objects that require a name and description
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryNameLowercase
 {
@@ -29,20 +29,6 @@ trait TraitDataEntryNameLowercase
         return $this->getSourceFieldValue('string', 'seo_name');
     }
 
-
-    /**
-     * Sets the seo_name for this object
-     *
-     * @note This method is protected because it should only be called from within DataEntry objects
-     * @param string|null $seo_name
-     * @return static
-     */
-    protected function setSeoName(?string $seo_name): static
-    {
-        return $this->setSourceValue('seo_name', $seo_name);
-    }
-
-
     /**
      * Returns the name for this object
      *
@@ -53,11 +39,11 @@ trait TraitDataEntryNameLowercase
         return $this->getSourceFieldValue('string', 'name');
     }
 
-
     /**
      * Sets the name for this object
      *
      * @param string|null $name
+     *
      * @return static
      */
     public function setName(?string $name): static
@@ -74,5 +60,19 @@ trait TraitDataEntryNameLowercase
         }
 
         return $this->setSourceValue('name', $name);
+    }
+
+    /**
+     * Sets the seo_name for this object
+     *
+     * @note This method is protected because it should only be called from within DataEntry objects
+     *
+     * @param string|null $seo_name
+     *
+     * @return static
+     */
+    protected function setSeoName(?string $seo_name): static
+    {
+        return $this->setSourceValue('seo_name', $seo_name);
     }
 }

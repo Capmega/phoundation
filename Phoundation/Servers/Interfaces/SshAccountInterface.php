@@ -12,11 +12,11 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
  *
  *
  *
- * @see \Phoundation\Data\DataEntry\DataEntry
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Servers
+ * @package   Phoundation\Servers
  */
 interface SshAccountInterface extends DataEntryInterface
 {
@@ -31,6 +31,7 @@ interface SshAccountInterface extends DataEntryInterface
      * Sets the ssh_key for this object
      *
      * @param string|null $ssh_key
+     *
      * @return static
      */
     public function setSshKey(?string $ssh_key): static;

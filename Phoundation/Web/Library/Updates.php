@@ -10,11 +10,11 @@ namespace Phoundation\Web\Library;
  *
  * This is the Init class for the Accounts library
  *
- * @see \Phoundation\Core\Libraries\Updates
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @see       \Phoundation\Core\Libraries\Updates
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Accounts
+ * @package   Phoundation\Accounts
  */
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -51,7 +51,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('web_non200_urls')->drop();
 
             sql()->schema()->table('web_non200_urls')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -88,7 +88,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('web_routing_iplists')->drop();
 
             sql()->schema()->table('web_routing_iplists')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -116,7 +116,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->schema()->table('accounts_signin_keys')->drop();
 
             sql()->schema()->table('accounts_signin_keys')->define()
-                ->setColumns('
+                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
@@ -144,8 +144,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.1.1', function () {
             sql()->schema()->table('accounts_signin_keys')->alter()
-                ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
-                ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
+                 ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
+                 ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
 
         })->addUpdate('0.1.2', function () {
             // Since sign-in count and last_sign_in were all messed up, reset them to zero

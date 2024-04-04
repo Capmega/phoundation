@@ -25,10 +25,10 @@ use Phoundation\Web\Html\Enums\EnumElement;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Pages
+ * @package   Phoundation\Pages
  */
 class Page extends DataEntry implements PageInterface
 {
@@ -138,47 +138,45 @@ class Page extends DataEntry implements PageInterface
 //`is_template` tinyint DEFAULT NULL,
 
 
-
-
         $definitions
             ->add(DefinitionFactory::getParentsId($this)
-                ->setElement(EnumElement::select)
-                ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                    return Pages::new()->getHtmlSelect()
-                        ->setName($key)
-                        ->setSelected(isset_get($source[$key]));
-                })
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure categories id exists and that its or category
-                    $validator->orColumn('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
-                }))
+                                   ->setElement(EnumElement::select)
+                                   ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                       return Pages::new()->getHtmlSelect()
+                                                   ->setName($key)
+                                                   ->setSelected(isset_get($source[$key]));
+                                   })
+                                   ->addValidationFunction(function (ValidatorInterface $validator) {
+                                       // Ensure categories id exists and that its or category
+                                       $validator->orColumn('parents_name')->isDbId()->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                                   }))
             ->add(DefinitionFactory::getParent($this)
-                ->setCliAutoComplete([
-                    'word' => function ($word) {
-                        return Categories::new()->getMatchingKeys($word);
-                    },
-                    'noword' => function () {
-                        return Categories::new()->getSource();
-                    },
-                ])
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    // Ensure category exists and that it's a category id or category name
-                    $validator->orColumn('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
-                }))
+                                   ->setCliAutoComplete([
+                                                            'word'   => function ($word) {
+                                                                return Categories::new()->getMatchingKeys($word);
+                                                            },
+                                                            'noword' => function () {
+                                                                return Categories::new()->getSource();
+                                                            },
+                                                        ])
+                                   ->addValidationFunction(function (ValidatorInterface $validator) {
+                                       // Ensure category exists and that it's a category id or category name
+                                       $validator->orColumn('parents_id')->isName()->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
+                                   }))
             ->add(DefinitionFactory::getCategoriesId($this))
             ->add(DefinitionFactory::getCategory($this))
             ->add(DefinitionFactory::getCode($this)
-                ->setDefault(tr('-')))
+                                   ->setDefault(tr('-')))
             ->add(DefinitionFactory::getName($this)
-                ->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->isFalse(function($value, $source) {
-                        static::exists($value, 'name', isset_get($source['id']));
-                    }, tr('already exists'));
-                }))
+                                   ->addValidationFunction(function (ValidatorInterface $validator) {
+                                       $validator->isFalse(function ($value, $source) {
+                                           static::exists($value, 'name', isset_get($source['id']));
+                                       }, tr('already exists'));
+                                   }))
             ->add(DefinitionFactory::getSeoName($this))
             ->add(DefinitionFactory::getDescription($this)
-                ->setHelpText(tr('The description for this page')))
+                                   ->setHelpText(tr('The description for this page')))
             ->add(DefinitionFactory::getContent($this)
-                ->setHelpText(tr('The content for this page')));
+                                   ->setHelpText(tr('The content for this page')));
     }
 }

@@ -12,10 +12,10 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Os
+ * @package   Phoundation\Os
  */
 class Signals
 {
@@ -25,15 +25,15 @@ class Signals
      * @var array|string[] $signals
      */
     protected static array $signals = [
-        1 => 'SIGHUP',
-        2 => 'SIGINT',
-        3 => 'SIGQUIT',
-        4 => 'SIGILL',
-        5 => 'SIGTRAP',
-        6 => 'SIGABRT',
-        7 => 'SIGBUS',
-        8 => 'SIGFPE',
-        9 => 'SIGKILL',
+        1  => 'SIGHUP',
+        2  => 'SIGINT',
+        3  => 'SIGQUIT',
+        4  => 'SIGILL',
+        5  => 'SIGTRAP',
+        6  => 'SIGABRT',
+        7  => 'SIGBUS',
+        8  => 'SIGFPE',
+        9  => 'SIGKILL',
         10 => 'SIGUSR1',
         11 => 'SIGSEGV',
         12 => 'SIGUSR2',
@@ -89,11 +89,29 @@ class Signals
         64 => 'SIGRTMAX',
     ];
 
+    /**
+     * Throws an exception if the specified signal does not exist
+     *
+     * @param int|null $signal
+     *
+     * @return int|null
+     */
+    public static function check(?int $signal): ?int
+    {
+        if (!static::exists($signal)) {
+            throw new OutOfBoundsException(tr('The specified signal ":signal" does not exist', [
+                ':signal' => $signal,
+            ]));
+        }
+
+        return $signal;
+    }
 
     /**
      * Returns true if the specified signal exists
      *
      * @param int|null $signal
+     *
      * @return bool
      */
     public static function exists(?int $signal): bool
@@ -104,25 +122,6 @@ class Signals
 
         return array_key_exists($signal, static::$signals);
     }
-
-
-    /**
-     * Throws an exception if the specified signal does not exist
-     *
-     * @param int|null $signal
-     * @return int|null
-     */
-    public static function check(?int $signal): ?int
-    {
-        if (!static::exists($signal)) {
-            throw new OutOfBoundsException(tr('The specified signal ":signal" does not exist', [
-                ':signal' => $signal
-            ]));
-        }
-
-        return $signal;
-    }
-
 
     /**
      * Returns a list of all known process signals

@@ -7,7 +7,6 @@ namespace Phoundation\Web\Html\Components\Captcha;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Developer\Debug;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -20,10 +19,10 @@ use Phoundation\Web\Html\Components\Script;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 class ReCaptcha extends Captcha
 {
@@ -45,6 +44,23 @@ class ReCaptcha extends Captcha
         return $this->script;
     }
 
+    /**
+     * Returns true if the token is valid for the specified action
+     *
+     * @param string|null $response
+     * @param string|null $remote_ip
+     * @param string|null $secret
+     *
+     * @return void
+     */
+    public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
+    {
+        if (!$this->isValid($response, $remote_ip, $secret)) {
+            throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
+                ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR'],
+            ]));
+        }
+    }
 
     /**
      * Returns true if the token is valid for the specified action
@@ -52,6 +68,7 @@ class ReCaptcha extends Captcha
      * @param string|null $response
      * @param string|null $remote_ip
      * @param string|null $secret
+     *
      * @return bool
      */
     public function isValid(?string $response, string $remote_ip = null, string $secret = null): bool
@@ -81,12 +98,13 @@ class ReCaptcha extends Captcha
 
         // Check with Google if captcha passed or not
         $post = Post::new('https://www.google.com/recaptcha/api/siteverify')
-            ->setPostUrlEncoded(true)
-            ->addPostValues([
-                'secret'    => $secret,
-                'response'  => $response,
-                'remote_ip' => $remote_ip])
-            ->execute();
+                    ->setPostUrlEncoded(true)
+                    ->addPostValues([
+                                        'secret'    => $secret,
+                                        'response'  => $response,
+                                        'remote_ip' => $remote_ip,
+                                    ])
+                    ->execute();
 
         $response = $post->getResultData();
         $response = Json::decode($response);
@@ -100,25 +118,6 @@ class ReCaptcha extends Captcha
 
         return $response;
     }
-
-
-    /**
-     * Returns true if the token is valid for the specified action
-     *
-     * @param string|null $response
-     * @param string|null $remote_ip
-     * @param string|null $secret
-     * @return void
-     */
-    public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
-    {
-        if (!$this->isValid($response, $remote_ip, $secret)) {
-            throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
-                ':remote_ip' => $remote_ip ?? $_SERVER['REMOTE_ADDR']
-            ]));
-        }
-    }
-
 
     /**
      * Renders and returns the HTML for the google ReCAPTCHA
@@ -137,9 +136,9 @@ class ReCaptcha extends Captcha
         }
 
         return Script::new()
-            ->setAsync(true)
-            ->setDefer(true)
-            ->setSrc($this->script)
-            ->render() . '<div class="g-recaptcha" data-sitekey="' . $key . '"></div>';
+                     ->setAsync(true)
+                     ->setDefer(true)
+                     ->setSrc($this->script)
+                     ->render() . '<div class="g-recaptcha" data-sitekey="' . $key . '"></div>';
     }
 }

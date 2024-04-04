@@ -12,10 +12,10 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
  *
  * This class keeps track of metadata for database entries throughout phoundation projects
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package \Phoundation\Core
+ * @package   \Phoundation\Core
  */
 interface MetaInterface
 {
@@ -29,9 +29,10 @@ interface MetaInterface
     /**
      * Creates a new meta entry and returns the database id for it
      *
-     * @param string $action
+     * @param string      $action
      * @param string|null $comments
      * @param string|null $data
+     *
      * @return static
      */
     public function action(string $action, ?string $comments = null, ?string $data = null): static;
@@ -40,6 +41,7 @@ interface MetaInterface
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
+     *
      * @return HtmlTableInterface
      */
     public function getHtmlTable(array|string|null $columns = null): HtmlTableInterface;

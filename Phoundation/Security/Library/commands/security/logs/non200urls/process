@@ -13,17 +13,17 @@ use Phoundation\Web\Non200Urls\Non200Urls;
  *
  * This script will process Non HTTP-200 URL's and check for any illicit activities
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Security
+ * @package   Phoundation\Security
  */
 
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-a,--amount' => true
-    ]
-]);
+                                      'arguments' => [
+                                          '-a,--amount' => true,
+                                      ],
+                                  ]);
 
 CliDocumentation::setUsage('./pho security logs non200urls process');
 
@@ -32,8 +32,8 @@ CliDocumentation::setHelp('This command will process Non HTTP-200 URL\'s and che
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-a,--amount', true)->isNatural()->isMoreThan(1)
-    ->validate();
+                     ->select('-a,--amount', true)->isNatural()->isMoreThan(1)
+                     ->validate();
 
 
 // Start processing

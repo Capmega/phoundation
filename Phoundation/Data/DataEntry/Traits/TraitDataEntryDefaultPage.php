@@ -12,10 +12,10 @@ use Phoundation\Web\Http\UrlBuilder;
  *
  * This trait contains methods for DataEntry objects that require a default_page
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataEntryDefaultPage
 {
@@ -34,11 +34,12 @@ trait TraitDataEntryDefaultPage
      * Sets the default_page for this object
      *
      * @param string|null $default_page
+     *
      * @return static
      */
     public function setDefaultPage(?string $default_page): static
     {
 
-        return $this->setValue('default_page', $default_page ? (string) UrlBuilder::getWww($default_page) : null);
+        return $this->setValue('default_page', $default_page ? (string)UrlBuilder::getWww($default_page) : null);
     }
 }

@@ -15,10 +15,10 @@ use Phoundation\Utils\Config;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 class Schema
 {
@@ -65,11 +65,27 @@ class Schema
         $this->sql           = new Sql($instance_name, $use_database);
     }
 
+    /**
+     * Access a new Table object for the currently selected database
+     *
+     * @param string $name
+     *
+     * @return Table
+     */
+    public function table(string $name): Table
+    {
+        if (!$name) {
+            throw new OutOfBoundsException(tr('No table specified'));
+        }
+
+        return $this->database()->table($name);
+    }
 
     /**
      * Access a new Database object
      *
      * @param string|null $name
+     *
      * @return Database
      */
     public function database(?string $name = null): Database
@@ -88,23 +104,6 @@ class Schema
         $this->current_database = $name;
         return $this->databases[$name];
     }
-
-
-    /**
-     * Access a new Table object for the currently selected database
-     *
-     * @param string $name
-     * @return Table
-     */
-    public function table(string $name): Table
-    {
-        if (!$name) {
-            throw new OutOfBoundsException(tr('No table specified'));
-        }
-
-        return $this->database()->table($name);
-    }
-
 
     /**
      * Returns the current database

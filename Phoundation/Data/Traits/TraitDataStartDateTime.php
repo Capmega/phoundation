@@ -14,10 +14,10 @@ use Phoundation\Date\DateTime;
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://openstart.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://openstart.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Data
+ * @package   Phoundation\Data
  */
 trait TraitDataStartDateTime
 {
@@ -44,7 +44,8 @@ trait TraitDataStartDateTime
      * Sets the start datetime
      *
      * @param \DateTime|DateTimeInterface|string|null $start_datetime
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null                $timezone
+     *
      * @return static
      */
     public function setStartDateTime(\DateTime|DateTimeInterface|string|null $start_datetime, DateTimeZone|string|null $timezone = null): static
