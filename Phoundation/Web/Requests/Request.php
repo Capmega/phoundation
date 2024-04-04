@@ -66,7 +66,9 @@ use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Json\Interfaces\JsonInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Exception\PageNotFoundException;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
+use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
 use Phoundation\Web\Requests\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
@@ -1333,15 +1335,24 @@ abstract class Request implements RequestInterface
     #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, FileInterface|string $target): never
     {
         if (static::$stack_level >= 0) {
-            Log::warning(tr('Sub target ":target" does not exist, displaying 500 instead', [
-                ':target' => $target,
+            Log::warning(tr('Sub target ":target" does not exist, displaying 500 page instead', [
+                ':target' => $target
             ]));
 
             throw $e;
         }
 
-        Log::warning(tr('Main target ":target" does not exist, displaying 404 instead', [
-            ':target' => $target,
+        if (static::getSystem()) {
+            // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
+            // don't, hard fail because this method will normally execute a system page and we just saw those don't
+            // exist for some reason
+            throw new SystemPageNotFoundException(tr('The requested system page ":page" does not exist', [
+                ':page' => $target
+            ]));
+        }
+
+        Log::warning(tr('Main target ":target" does not exist, displaying 404 page instead', [
+            ':target' => $target
         ]));
 
         Request::executeSystem(404);
@@ -1517,7 +1528,7 @@ abstract class Request implements RequestInterface
      */
     public static function setSystem(bool $system): void
     {
-        if (static::$system) {
+        if (static::$system and ($system !== static::$system)) {
             throw new OutOfBoundsException(tr('This is now a system web request, this request cannot be changed into a non system web request'));
         }
 
