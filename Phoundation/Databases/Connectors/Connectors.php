@@ -7,15 +7,15 @@ namespace Phoundation\Databases\Connectors;
 use Phoundation\Data\DataEntry\DataList;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Config;
 
 
 /**
- * SqlConnectors class
+ * Connectors class
  *
- * This class represents a list of SqlConnector objects
+ * This class represents a list of Connectors objects
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -29,6 +29,7 @@ class Connectors extends DataList implements ConnectorsInterface
      */
     public function __construct(?array $ids = null)
     {
+        parent::__construct();
         $this->query = 'SELECT * FROM `databases_connectors`';
     }
 
@@ -62,15 +63,17 @@ class Connectors extends DataList implements ConnectorsInterface
      * Load the id list from the database
      *
      * @param bool $clear
+     * @param bool $only_if_empty
+     * @param bool $ignore_sql_exceptions
      *
-     * @return $this
+     * @return static
      */
     public function load(bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
             parent::load($clear, $only_if_empty);
 
-        } catch (SqlExceptionInterface $e) {
+        } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {
                 // In some cases we need access to configured connectors while database connectors are not available
                 // because the database may not exist, or a database version may be so old that the databases_connectors
