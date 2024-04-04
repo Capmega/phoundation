@@ -772,6 +772,7 @@ class Project implements ProjectInterface
              ->setSource($phoundation->getDirectory() . 'Phoundation/')
              ->setTarget(DIRECTORY_ROOT . 'Phoundation')
              ->setExclude([
+                              '.idea',
                               '.git',
                               '.gitignore',
                               '/Templates',
@@ -786,6 +787,7 @@ class Project implements ProjectInterface
              ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/Phoundation/')
              ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation/Phoundation')
              ->setExclude([
+                              '.idea',
                               '.git',
                               '.gitignore',
                           ])
@@ -798,6 +800,7 @@ class Project implements ProjectInterface
              ->setSource($phoundation->getDirectory() . 'pho')
              ->setTarget(DIRECTORY_ROOT . 'pho')
              ->setExclude([
+                              '.idea',
                               '.git',
                               '.gitignore',
                           ])
@@ -964,10 +967,11 @@ class Project implements ProjectInterface
                  ->setSource($plugins->getDirectory())
                  ->setTarget(DIRECTORY_ROOT)
                  ->setExclude([
-                                  '/Phoundation',
-                                  '/Plugins/Phoundation/Phoundation',
+                                  '.idea',
                                   '.git',
                                   '.gitignore',
+                                  '/Phoundation',
+                                  '/Plugins/Phoundation/Phoundation',
                               ])
                  ->execute();
 
