@@ -33,6 +33,13 @@ abstract class Updates implements UpdatesInterface
     protected ?string $library = null;
 
     /**
+     * The vendor name for this library
+     *
+     * @var string|null $vendor
+     */
+    protected ?string $vendor = null;
+
+    /**
      * The $file for this library
      *
      * @var string|null $file
@@ -68,6 +75,8 @@ abstract class Updates implements UpdatesInterface
     {
         // Detect the library name
         $library = strtolower(get_class($this));
+        $vendor  = Strings::from($library, 'plugins\\');
+        $vendor  = Strings::until($vendor, '\\');
 
         do {
             $library = Strings::untilReverse($library, '\\');
@@ -102,6 +111,7 @@ abstract class Updates implements UpdatesInterface
         }
 
         $this->file         = DIRECTORY_ROOT . str_replace('\\', '/', get_class($this)) . '.php';
+        $this->vendor       = $vendor;
         $this->library      = $library;
         $this->code_version = $code_version;
     }
@@ -186,14 +196,14 @@ abstract class Updates implements UpdatesInterface
 
             case 'post_always':
                 Log::action(tr('Executing ":library" ":version" init', [
-                    ':library' => $this->library,
+                    ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]));
                 break;
 
             default:
                 Log::action(tr('Updating ":library" library to version ":version"', [
-                    ':library' => $this->library,
+                    ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]));
         }
@@ -375,7 +385,7 @@ abstract class Updates implements UpdatesInterface
             case 1:
                 // The file version is later than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
-                    ':library' => $this->library,
+                    ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]),          9);
 
@@ -426,7 +436,7 @@ abstract class Updates implements UpdatesInterface
             if (!$this->databaseVersionExists('post_once')) {
                 // This post_once has not yet been executed, do so now and register
                 Log::action(tr('Executing "post_once" for library ":library"', [
-                    ':library' => $this->library,
+                    ':library' => $this->vendor . '/' . $this->library,
                 ]));
 
                 $this->updates['post_once']();
@@ -438,7 +448,7 @@ abstract class Updates implements UpdatesInterface
         // Execute the post_always
         if (array_key_exists('post_always', $this->updates)) {
             Log::action(tr('Executing "post_always" for library ":library"', [
-                ':library' => $this->library,
+                ':library' => $this->vendor . '/' . $this->library,
             ]));
 
             $this->updates['post_always']();
@@ -467,9 +477,11 @@ abstract class Updates implements UpdatesInterface
         }
 
         return (bool)sql()->getColumn('SELECT `version`
-                                              FROM   `core_versions`
-                                              WHERE  `library` = :library
-                                              AND    `version` = :version', [
+                                             FROM   `core_versions`
+                                             WHERE  `vendor`  = :vendor
+                                               AND  `library` = :library
+                                               AND  `version` = :version', [
+            ':vendor'  => $this->vendor,
             ':library' => $this->library,
             ':version' => $version,
         ]);
@@ -511,7 +523,7 @@ abstract class Updates implements UpdatesInterface
             case -1:
                 // The file version is newer than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
-                    ':library' => $this->library,
+                    ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]),          5);
 
