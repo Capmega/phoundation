@@ -32,7 +32,7 @@ use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\ResponseHeadersException;
-use Phoundation\Web\Requests\Exception\ResponseNotFoundException;
+use Phoundation\Web\Requests\Exception\PageNotFoundException;
 use Phoundation\Web\Requests\Exception\ResponseRedirectException;
 use Phoundation\Web\Requests\Interfaces\ResponseInterface;
 use Stringable;
@@ -1135,7 +1135,7 @@ class Response implements ResponseInterface
      *
      * @note The number of sent bytes does NOT include the bytes sent for the HTTP response code header
      * @return int The number of bytes sent. -1 if static::sendHeaders() was called for the second time.
-     * @throws ResponseNotFoundException
+     * @throws PageNotFoundException
      */
     protected static function sendHttpHeaders(): int
     {

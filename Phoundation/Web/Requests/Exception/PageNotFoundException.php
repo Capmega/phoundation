@@ -8,13 +8,13 @@ namespace Phoundation\Web\Requests\Exception;
 /**
  * Class PageNotFoundException
  *
- * This exception is thrown by the Page class
+ * This exception is thrown by the Page class when the specified page could not be found
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
-class ResponseNotFoundException extends ResponseException
+class PageNotFoundException extends ResponseException
 {
 }
