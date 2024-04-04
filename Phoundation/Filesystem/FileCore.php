@@ -314,9 +314,7 @@ class FileCore extends PathCore implements FileInterface
     public function isPhp(): bool
     {
         if (str_ends_with($this->path, '.php')) {
-            if ($this->isText()) {
-                return true;
-            }
+            return ($this->getMimetype() === 'text/x-php');
         }
 
         return false;
