@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 
 use Phoundation\Accounts\Users\User;
