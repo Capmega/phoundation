@@ -124,22 +124,6 @@ Class Html
     }
 
 
-    /**
-     * Add the specified footer to the HTML footers
-     *
-     * @param array|string $footer
-     * @return void
-     */
-    public static function addToFooter(array|string $footer): void
-    {
-        if (is_array($footer)){
-            static::$footers = array_merge(static::$footers, $footer);
-        } else {
-            static::$footers[] = $footer;
-        }
-    }
-
-
 
 
 
