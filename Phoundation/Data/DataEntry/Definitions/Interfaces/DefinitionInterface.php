@@ -10,6 +10,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Html\Enums\Interfaces\EnumElementInterface;
 use Phoundation\Web\Html\Enums\Interfaces\EnumInputTypeInterface;
@@ -155,7 +156,7 @@ interface DefinitionInterface
     /**
      * Returns if this column is displayed in HTML clients
      *
-     * If false, the column will have the "nodisplay" class added
+     * If false, the column will have the "d-none" class added
      *
      * @note Defaults to true
      * @return bool|null
@@ -166,7 +167,7 @@ interface DefinitionInterface
     /**
      * Sets if this column is displayed in HTML clients
      *
-     * If false, the column will have the "nodisplay" class added
+     * If false, the column will have the "d-none" class added
      *
      * @note Defaults to true
      * @param bool|null $value
@@ -236,6 +237,20 @@ interface DefinitionInterface
      * @see Definition::setVirtual()
      */
     public function setData(IteratorInterface|array $value): static;
+
+    /**
+     * Returns the extra HTML data for this DataEntryForm object
+     *
+     * @return array
+     */
+    public function getScripts(): array;
+
+    /**
+     * @param ScriptInterface $script
+     *
+     * @return $this
+     */
+    public function addScript(ScriptInterface $script): static;
 
     /**
      * Returns the extra HTML aria for this AriaEntryForm object

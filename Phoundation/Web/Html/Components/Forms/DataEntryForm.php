@@ -370,7 +370,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     // Default element for form items with a source is "select"
                     // TODO CHECK THIS! WHAT IF SOURCE IS A SINGLE STRING?
                     $definition->setElement(EnumElement::select);
-                } else {
+                }
+                else {
                     // Default element for form items "text input"
                     $definition->setElement(EnumElement::input);
                 }
@@ -432,7 +433,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     if ($definition->getDataSource() instanceof Stringable) {
                                         // This is a Stringable object
                                         $definition->setDataSource((string)$definition->getDataSource());
-                                    } else {
+                                    }
+                                    else {
                                         // The Only possibility left is instanceof PDOStatement
                                         $definition->setDataSource(sql()->getColumn($definition->getDataSource(), $execute));
                                     }
@@ -492,15 +494,15 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                 ->setRequired($definition->getRequired())
                                                                                 ->setValue('1')
                                                                                 ->setChecked((bool)$source[$column]),
-                            default                     => $element_class::new()
-                                                                         ->setDefinition($definition)
-                                                                         ->setHidden($definition->getHidden())
-                                                                         ->setRequired($definition->getRequired())
-                                                                         ->setMinLength($definition->getMinLength())
-                                                                         ->setMaxLength($definition->getMaxLength())
-                                                                         ->setAutoComplete($definition->getAutoComplete())
-                                                                         ->setAutoSubmit($definition->getAutoSubmit())
-                                                                         ->setValue($source[$column]),
+                            default                            => $element_class::new()
+                                                                                ->setDefinition($definition)
+                                                                                ->setHidden($definition->getHidden())
+                                                                                ->setRequired($definition->getRequired())
+                                                                                ->setMinLength($definition->getMinLength())
+                                                                                ->setMaxLength($definition->getMaxLength())
+                                                                                ->setAutoComplete($definition->getAutoComplete())
+                                                                                ->setAutoSubmit($definition->getAutoSubmit())
+                                                                                ->setValue($source[$column]),
                         };
 
                         $this->rows->add($definition, $component);
@@ -617,12 +619,14 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         // Execute this to get the element
                         $this->rows->add($definition, $definition->getElement()($column, $definition, $source));
                 }
-            } elseif (is_callable($definition->getContent())) {
+            }
+            elseif (is_callable($definition->getContent())) {
                 if ($definition->getHidden()) {
                     $this->rows->add($definition, InputHidden::new()
                                                              ->setName($column)
                                                              ->setValue(Strings::force($source[$column], ' - ')));
-                } else {
+                }
+                else {
                     $component = $definition->getContent()($definition, $column, $field_name, $source);
 
                     if (!$component instanceof RenderInterface) {
@@ -636,7 +640,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     $this->rows->add($definition, $definition->getContent()($definition, $column, $field_name, $source));
                 }
-            } else {
+            }
+            else {
                 // Content has already been rendered, display it
                 $this->rows->add($definition, $definition->getContent());
             }

@@ -26,6 +26,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 use Phoundation\Web\Html\Enums\Interfaces\EnumElementInterface;
@@ -432,7 +433,7 @@ class Definition implements DefinitionInterface
     /**
      * Returns if this column is displayed in HTML clients
      *
-     * If false, the column will have the "nodisplay" class added
+     * If false, the column will have the "d-none" class added
      *
      * @note Defaults to true
      * @return bool|null
@@ -447,7 +448,7 @@ class Definition implements DefinitionInterface
     /**
      * Sets if this column is displayed in HTML clients
      *
-     * If false, the column will have the "nodisplay" class added
+     * If false, the column will have the "d-none" class added
      *
      * @note Defaults to true
      *
@@ -572,6 +573,34 @@ class Definition implements DefinitionInterface
         }
 
         return $this->setKey($value, 'data');
+    }
+
+
+    /**
+     * Returns the extra HTML data for this DataEntryForm object
+     *
+     * @return array
+     */
+    public function getScripts(): array
+    {
+        return isset_get_typed('array', $this->source['scripts'], []);
+    }
+
+
+    /**
+     * @param ScriptInterface $script
+     *
+     * @return $this
+     */
+    public function addScript(ScriptInterface $script): static
+    {
+        if (!isset($this->source['scripts'])) {
+            $this->source['scripts'] = [];
+        }
+
+        $this->source['scripts'][] = $script;
+
+        return $this;
     }
 
 

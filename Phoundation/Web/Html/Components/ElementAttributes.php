@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Trait ElementAttributes
+ *
+ * This class is an abstract HTML element object class
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Web
+ */
+
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
@@ -15,24 +26,12 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
-use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlBuilderInterface;
 use Stringable;
 
-
-/**
- * Trait ElementAttributes
- *
- * This class is an abstract HTML element object class
- *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
- */
 trait ElementAttributes
 {
     use TraitDataDefinition {
@@ -117,6 +116,13 @@ trait ElementAttributes
      * @var bool $disabled
      */
     protected bool $disabled = false;
+
+    /**
+     * The HTML visible attribute
+     *
+     * @var bool $visible
+     */
+    protected bool $visible = false;
 
     /**
      * The HTML required attribute
@@ -210,7 +216,7 @@ trait ElementAttributes
      */
     public function __construct(?string $content = null)
     {
-        $this->classes    = new Iterator();
+        $this->classes = new Iterator();
         $this->attributes = new Iterator();
 
         $this->setContent($content);
@@ -221,12 +227,13 @@ trait ElementAttributes
      * Sets the HTML id element attribute
      *
      * @param string|null $id
-     * @param bool $name_too
+     * @param bool        $name_too
+     *
      * @return static
      */
     public function setId(?string $id, bool $name_too = true): static
     {
-        $this->id      = $id;
+        $this->id = $id;
         $this->real_id = Strings::until($id, '[');
 
         // By default, name and id should be equal
@@ -257,7 +264,8 @@ trait ElementAttributes
     public function getAnchor(): AInterface
     {
         if (empty($this->anchor)) {
-            $this->anchor = A::new()->setChildElement($this);
+            $this->anchor = A::new()
+                             ->setChildElement($this);
         }
 
         return $this->anchor;
@@ -268,17 +276,20 @@ trait ElementAttributes
      * Sets the anchor for this element
      *
      * @param UrlBuilderInterface|AInterface|null $anchor
+     *
      * @return Span
      */
     public function setAnchor(UrlBuilderInterface|AInterface|null $anchor): static
     {
         if ($anchor) {
             if ($anchor instanceof UrlBuilderInterface) {
-                $anchor = A::new()->setHref($anchor);
+                $anchor = A::new()
+                           ->setHref($anchor);
             }
 
             $this->anchor = $anchor->setChildElement($this);
-        } else {
+        }
+        else {
             $this->anchor = null;
         }
 
@@ -305,7 +316,8 @@ trait ElementAttributes
     public function getOuterDiv(): DivInterface
     {
         if (empty($this->outer_div)) {
-            $this->outer_div = Div::new()->setChildElement($this);
+            $this->outer_div = Div::new()
+                                  ->setChildElement($this);
         }
 
         return $this->outer_div;
@@ -316,6 +328,7 @@ trait ElementAttributes
      * Sets the outer_element for this element
      *
      * @param DivInterface|null $outer_div
+     *
      * @return Span
      */
     public function setOuterDiv(DivInterface|null $outer_div): static
@@ -323,7 +336,8 @@ trait ElementAttributes
         if ($outer_div) {
             $this->outer_div = $outer_div->setChildElement($this);
 
-        } else {
+        }
+        else {
             unset($this->outer_div);
         }
 
@@ -339,7 +353,8 @@ trait ElementAttributes
     public function getTooltip(): TooltipInterface
     {
         if (empty($this->tooltip)) {
-            $this->tooltip = Tooltip::new()->setSourceElement($this);
+            $this->tooltip = Tooltip::new()
+                                    ->setSourceElement($this);
         }
 
         return $this->tooltip;
@@ -361,11 +376,13 @@ trait ElementAttributes
      * Returns the tooltip title
      *
      * @param string|null $title
+     *
      * @return static
      */
     public function setTooltipTitle(?string $title): static
     {
-        $this->getTooltip()->setTitle($title);
+        $this->getTooltip()
+             ->setTitle($title);
         return $this;
     }
 
@@ -374,12 +391,13 @@ trait ElementAttributes
      * Sets the HTML name element attribute
      *
      * @param string|null $name
-     * @param bool $id_too
+     * @param bool        $id_too
+     *
      * @return static
      */
     public function setName(?string $name, bool $id_too = false): static
     {
-        $this->name      = $name;
+        $this->name = $name;
         $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
@@ -406,6 +424,7 @@ trait ElementAttributes
      * Sets the HTML element class attribute
      *
      * @param array|string|null $classes
+     *
      * @return static
      */
     public function setClasses(array|string|null $classes): static
@@ -419,6 +438,7 @@ trait ElementAttributes
      * Adds the specified classes to the HTML element class attribute
      *
      * @param IteratorInterface|array|string|null $classes
+     *
      * @return static
      */
     public function addClasses(IteratorInterface|array|string|null $classes): static
@@ -435,6 +455,7 @@ trait ElementAttributes
      * Adds a class to the HTML class element attribute
      *
      * @param string|null $class
+     *
      * @return static
      */
     public function addClass(?string $class): static
@@ -448,12 +469,14 @@ trait ElementAttributes
      * Adds a data-KEY(=VALUE) attribute
      *
      * @param string|float|int|null $value
-     * @param string $key
+     * @param string                $key
+     *
      * @return static
      */
     public function addData(string|float|int|null $value, string $key): static
     {
-        $this->getData()->add($value, $key, skip_null: false);
+        $this->getData()
+             ->add($value, $key, skip_null: false);
         return $this;
     }
 
@@ -462,6 +485,7 @@ trait ElementAttributes
      * Adds a class to the HTML class element attribute
      *
      * @param array|string|null $classes
+     *
      * @return static
      */
     public function setClass(array|string|null $classes): static
@@ -511,11 +535,13 @@ trait ElementAttributes
      * Sets all HTML element attributes
      *
      * @param array $attributes
+     *
      * @return static
      */
     public function setAttributes(array $attributes): static
     {
-        $this->attributes = Iterator::new()->add($attributes);
+        $this->attributes = Iterator::new()
+                                    ->add($attributes);
         return $this;
     }
 
@@ -523,9 +549,10 @@ trait ElementAttributes
     /**
      * Sets a single HTML element attributes
      *
-     * @param mixed $value
+     * @param mixed                 $value
      * @param string|float|int|null $key
-     * @param bool $skip_null
+     * @param bool                  $skip_null
+     *
      * @return static
      */
     public function setAttribute(mixed $value, string|float|int|null $key = null, bool $skip_null = true): static
@@ -563,7 +590,8 @@ trait ElementAttributes
         if (!$data) {
             unset($this->data);
 
-        } else {
+        }
+        else {
             $this->data = new Iterator($data);
         }
 
@@ -599,7 +627,8 @@ trait ElementAttributes
         if (!$aria) {
             unset($this->aria);
 
-        } else {
+        }
+        else {
             $this->aria = new Iterator($aria);
         }
 
@@ -611,12 +640,14 @@ trait ElementAttributes
      * Adds an aria-KEY(=VALUE) attribute
      *
      * @param string|float|int|null $value
-     * @param string $key
+     * @param string                $key
+     *
      * @return static
      */
     public function addAria(string|float|int|null $value, string $key): static
     {
-        $this->getAria()->add($value, $key, skip_null: false);
+        $this->getAria()
+             ->add($value, $key, skip_null: false);
         return $this;
     }
 
@@ -651,6 +682,7 @@ trait ElementAttributes
      * Set the HTML tabindex element attribute
      *
      * @param int|null $tabindex
+     *
      * @return static
      */
     public function setTabIndex(?int $tabindex): static
@@ -687,6 +719,7 @@ trait ElementAttributes
      * Sets all the extra element attribute code
      *
      * @param string|null $extra
+     *
      * @return static
      */
     public function setExtra(?string $extra): static
@@ -700,6 +733,7 @@ trait ElementAttributes
      * Adds more to the extra element attribute code
      *
      * @param string|null $extra
+     *
      * @return static
      */
     public function addExtra(?string $extra): static
@@ -724,6 +758,7 @@ trait ElementAttributes
      * Sets the HTML class element attribute
      *
      * @param bool $auto_focus
+     *
      * @return static
      */
     public function setAutofocus(bool $auto_focus): static
@@ -732,8 +767,8 @@ trait ElementAttributes
             if (static::$autofocus !== null) {
                 if (static::$autofocus !== $this->name) {
                     throw new OutOfBoundsException(tr('Cannot set autofocus on element ":name", its already being used by HTML element name ":already"', [
-                        ':name'      => $this->name,
-                        ':already' => static::$autofocus
+                        ':name'    => $this->name,
+                        ':already' => static::$autofocus,
                     ]));
                 }
             }
@@ -744,13 +779,14 @@ trait ElementAttributes
 
             static::$autofocus = $this->name;
 
-        } else {
+        }
+        else {
             // Unset autofocus? Only if this is the element that had it in the first place!
             if (static::$autofocus !== null) {
                 // Some element has auto-focus, is it this one?
                 if (static::$autofocus === $this->name) {
                     throw new OutOfBoundsException(tr('Cannot remove autofocus from element name ":name", it does not have autofocus', [
-                        ':name' => $this->name
+                        ':name' => $this->name,
                     ]));
                 }
 
@@ -790,6 +826,7 @@ trait ElementAttributes
      * Set the HTML "required" element attribute
      *
      * @param bool $required
+     *
      * @return static
      */
     public function setRequired(bool $required): static
@@ -811,9 +848,45 @@ trait ElementAttributes
 
 
     /**
+     * Set the HTML visible element attribute
+     *
+     * @param bool $visible
+     * @param bool $parent_only
+     *
+     * @return static
+     */
+    public function setVisible(bool $visible, bool $parent_only = true): static
+    {
+        if ($parent_only) {
+            if ($visible) {
+                $this->classes->removeKeys('d-none');
+            }
+            else {
+                $this->classes->add(true, 'd-none');
+            }
+        }
+
+        $this->visible = $visible;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML visible element attribute
+     *
+     * @return bool
+     */
+    public function getVisible(): bool
+    {
+        return $this->visible;
+    }
+
+
+    /**
      * Set the HTML disabled element attribute
      *
      * @param bool $disabled
+     *
      * @return static
      */
     public function setDisabled(bool $disabled): static
@@ -821,7 +894,8 @@ trait ElementAttributes
         if ($disabled) {
             $this->classes->add(true, 'disabled');
 
-        } else {
+        }
+        else {
             $this->classes->removeKeys('disabled');
         }
 
@@ -845,6 +919,7 @@ trait ElementAttributes
      * Set the HTML readonly element attribute
      *
      * @param bool $readonly
+     *
      * @return static
      */
     public function setReadonly(bool $readonly): static
@@ -852,7 +927,8 @@ trait ElementAttributes
         if ($readonly) {
             $this->classes->add(true, 'readonly');
 
-        } else {
+        }
+        else {
             $this->classes->removeKeys('readonly');
         }
 
@@ -865,7 +941,8 @@ trait ElementAttributes
      * Sets the content of the element
      *
      * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
@@ -879,7 +956,8 @@ trait ElementAttributes
      * Appends the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
@@ -887,7 +965,7 @@ trait ElementAttributes
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             static::canRenderHtml($content);
-            $content   = $content->render();
+            $content = $content->render();
             $make_safe = false;
         }
 
@@ -904,7 +982,8 @@ trait ElementAttributes
      * Prepends the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
-     * @param bool $make_safe
+     * @param bool                             $make_safe
+     *
      * @return static
      */
     public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
@@ -912,7 +991,7 @@ trait ElementAttributes
         if (is_object($content)) {
             // This object must be able to render HTML. Check this and then render.
             static::canRenderHtml($content);
-            $content   = $content->render();
+            $content = $content->render();
             $make_safe = false;
         }
 
@@ -940,13 +1019,14 @@ trait ElementAttributes
      * Sets the height of the element to display
      *
      * @param int|null $height
+     *
      * @return static
      */
     public function setHeight(?int $height): static
     {
         if ($height < 0) {
             throw new OutOfBoundsException(tr('Invalid element height ":value" specified, it should be 0 or above', [
-                ':value' => $height
+                ':value' => $height,
             ]));
         }
 
@@ -970,13 +1050,14 @@ trait ElementAttributes
      * Sets the width of the element to display
      *
      * @param int|null $width
+     *
      * @return static
      */
     public function setWidth(?int $width): static
     {
         if ($width < 0) {
             throw new OutOfBoundsException(tr('Invalid element width ":value" specified, it should be 0 or above', [
-                ':value' => $width
+                ':value' => $width,
             ]));
         }
 
@@ -1000,13 +1081,15 @@ trait ElementAttributes
      * Set if the button is right aligned or not
      *
      * @param bool $right
+     *
      * @return static
      */
     public function setFloatRight(bool $right): static
     {
         if ($right) {
             $this->classes->add(true, 'float-right');
-        } else {
+        }
+        else {
             $this->classes->removeKeys('float-right');
         }
 
@@ -1021,7 +1104,8 @@ trait ElementAttributes
      */
     public function getFloatRight(): bool
     {
-        return $this->getClasses()->keyExists('float-right');
+        return $this->getClasses()
+                    ->keyExists('float-right');
     }
 
 
@@ -1030,9 +1114,11 @@ trait ElementAttributes
      *
      * @note This is just a wrapper around ElementAttributes::ensureElementAttributesTrait(). While that function
      *       explains more clearly what it does, this one says more clearly WHY and as such is the public one.
+     *
      * @param object|string $class
+     *
      * @return void
-     * @see ElementAttributes::ensureElementAttributesTrait()
+     * @see  ElementAttributes::ensureElementAttributesTrait()
      */
     public static function canRenderHtml(object|string $class): void
     {
@@ -1052,10 +1138,10 @@ trait ElementAttributes
     {
         if (!$this->definition) {
             $this->__setDefinition(Definition::new(null, $this->getName())
-                ->setClasses($this->getClasses())
-                ->setDisabled($this->getDisabled())
-                ->setReadOnly($this->getReadonly())
-                ->setAutoFocus($this->getAutoFocus()));
+                                             ->setClasses($this->getClasses())
+                                             ->setDisabled($this->getDisabled())
+                                             ->setReadOnly($this->getReadonly())
+                                             ->setAutoFocus($this->getAutoFocus()));
         }
 
         return $this->__getDefinition();
@@ -1066,6 +1152,7 @@ trait ElementAttributes
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $definition
+     *
      * @return $this
      */
     public function setDefinition(?DefinitionInterface $definition): static
@@ -1073,13 +1160,14 @@ trait ElementAttributes
         if ($definition) {
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
-                ->setRequired($definition->getRequired())
-                ->addClasses($definition->getClasses())
-                ->setData($definition->getData())
-                ->setAria($definition->getAria())
-                ->setDisabled($definition->getDisabled())
-                ->setReadOnly($definition->getReadonly())
-                ->setAutoFocus($definition->getAutoFocus());
+                 ->setVisible($definition->getVisible())
+                 ->setRequired($definition->getRequired())
+                 ->addClasses($definition->getClasses())
+                 ->setData($definition->getData())
+                 ->setAria($definition->getAria())
+                 ->setDisabled($definition->getDisabled())
+                 ->setReadOnly($definition->getReadonly())
+                 ->setAutoFocus($definition->getAutoFocus());
         }
 
         return $this->__setDefinition($definition);
@@ -1090,6 +1178,7 @@ trait ElementAttributes
      * Ensures that the specified object has ElementAttributes
      *
      * @param object|string $class
+     *
      * @return void
      */
     protected static function ensureElementAttributesTrait(object|string $class): void
@@ -1100,7 +1189,7 @@ trait ElementAttributes
             }
 
             throw new OutOfBoundsException(tr('Specified object or class ":class" is not using ElementAttributes trait and thus cannot render HTML', [
-                ':class' => $class
+                ':class' => $class,
             ]));
         }
     }

@@ -5,16 +5,17 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
@@ -22,6 +23,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterfac
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Requests\Response;
 
 class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnInterface
 {
@@ -48,6 +50,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
      * Sets the component
      *
      * @param RenderInterface|string|null $column_component
+     *
      * @return static
      */
     public function setColumnComponent(RenderInterface|string|null $column_component): static
@@ -72,28 +75,36 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
             throw new OutOfBoundsException(tr('Cannot render form component, no component specified'));
         }
 
+        $scripts = '';
         $definition = $this->definition;
+
+        // Add scripts?
+        if ($definition->getScripts()) {
+            foreach ($definition->getScripts() as $script) {
+                $scripts .= $script->render();
+            }
+        }
 
         if ($definition->getHidden()) {
             // Hidden elements don't display anything beyond the hidden <input>
-            return $this->column_component;
+            return $this->column_component . $scripts;
         }
 
         if ($this->column_component->hasOuterDiv()) {
             // Get attributes and properties for the outer div
-            $outer      = $this->column_component->getOuterDiv();
-            $class      = $outer->getClass();
+            $outer = $this->column_component->getOuterDiv();
+            $class = $outer->getClass();
             $attributes = $outer->getAttributes();
         }
 
         $this->render .= match ($definition->getInputType()?->value) {
-            default    => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' nodisplay') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
+            default => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' d-none') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
                                  <div data-mdb-input-init class="form-outline">
-                                     ' . $this->column_component->render() . '
+                                     ' . $this->column_component->render() . $scripts . '
                                      <label class="form-label" for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
                                  </div>
                              </div>',
-//            ' . $this->renderTooltip($definition) . '
+            //            ' . $this->renderTooltip($definition) . '
         };
 
         return $this->render;
@@ -104,6 +115,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
      * Renders and returns the tooltip for the specified definition
      *
      * @param DefinitionInterface $definition
+     *
      * @return string|null
      */
     protected function renderTooltip(DefinitionInterface $definition): ?string
@@ -111,9 +123,9 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
         if ($definition->getTooltip()) {
             // Render and return the tooltip
             return Tooltip::new()
-                ->setTitle($definition->getTooltip())
-                ->setUseIcon(true)
-                ->render();
+                          ->setTitle($definition->getTooltip())
+                          ->setUseIcon(true)
+                          ->render();
         }
 
         return null;
