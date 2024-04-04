@@ -1389,7 +1389,6 @@ abstract class Request implements RequestInterface
             case EnumRequestTypes::ajax:
                 Log::information(tr('Executing page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), DIRECTORY_ROOT),
-                    ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE
                 ]));
