@@ -20,7 +20,9 @@ use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\UrlBuilder;
 use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Routing\Route;
+use Phoundation\Web\Web;
 use Throwable;
 
 
@@ -83,34 +85,113 @@ class SystemRequest
             exit();
 
         } catch (Throwable $e) {
-            if ($e->getCode() === 'not-exists') {
-                // We don't have a nice page for this system code
-                Log::warning(tr('The system/:code page does not exist, showing basic :code message instead', [
-                    ':code' => $variables['code'],
-                ]));
+            static::rebuildWebCacheAndReExecute($variables, $e);
+            static::displayTemplate($variables, $e);
+        }
+    }
 
-                echo Template::new('system/http-error')->setSource([
-                                                                       ':h2'     => $variables['code'],
-                                                                       ':h3'     => Strings::capitalize($variables['title']),
-                                                                       ':p'      => $variables['message'],
-                                                                       ':body'   => $variables['details'],
-                                                                       ':type'   => 'warning',
-                                                                       ':search' => tr('Search'),
-                                                                       ':action' => UrlBuilder::getWww('search/'),
-                                                                   ])->render();
-
-                exit();
-            }
-
-            // Something crashed whilst trying to execute the system page
-            Log::warning(tr('The ":code" page failed to show with an exception, showing basic ":code" message instead and logging exception below', [
+    /**
+     * Will try to display a template system page
+     *
+     * @param array      $variables
+     * @param \Throwable $e
+     *
+     * @return never
+     */
+    protected function displayTemplate(array $variables, Throwable $e): never
+    {
+        // System page failed to display? That is weird... Display an exception page template instead
+        try {
+            // We don't have a nice page for this system code
+            Log::warning(tr('The ":code" page failed to show with an exception, showing ":code" template message instead and logging exception below', [
                 ':code' => $variables['code'],
             ]));
 
             Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
             Log::error($e);
 
-            exit($variables['code'] . ' - ' . $variables['title']);
+            echo Template::new('system/http-error')->setSource([
+                                                                   ':h2'     => $variables['code'],
+                                                                   ':h3'     => Strings::capitalize($variables['title']),
+                                                                   ':p'      => $variables['message'],
+                                                                   ':body'   => $variables['details'],
+                                                                   ':type'   => 'warning',
+                                                                   ':search' => tr('Search'),
+                                                                   ':action' => UrlBuilder::getWww('search/'),
+                                                               ])->render();
+
+        } catch (Throwable $f) {
+            static::displayHardcoded500($e, $f);
+        }
+
+        exit();
+    }
+
+    /**
+     * Displays a hardcoded 500 page
+     *
+     * @param \Throwable $e
+     * @param \Throwable $f
+     *
+     * @return void
+     */
+    protected function displayHardcoded500(Throwable $e, Throwable $f): void
+    {
+        // Something crashed whilst executing the system page template as well. Display hardcoded 500 page.
+        try {
+            // TODO Add support for JSON 500 page fgor API and AJAX requests
+            echo '<!DOCTYPE html>
+                          <html lang="en">
+                            <body>
+                              <h1>500 - Internal Server Error</h1>
+                              <p>Something went wrong, please try again later</p>
+                            </body>
+                          </html>';
+
+            Log::error('System page template failed to display, see exception below');
+            Log::error($f);
+
+        } catch (Throwable $g) {
+            // Even this failed? Try to log to the system log as a last ditch effort
+            error_log('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . isset_get($variables['code']) . '" page, and the "' . isset_get($variables['code']) . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
+            error_log($e->getMessage());
+            error_log($f->getMessage());
+            error_log($g->getMessage());
+        }
+    }
+
+    /**
+     * Will rebuild the web cache and retry executing the system page
+     *
+     * @param array     $variables
+     * @param Throwable $e
+     *
+     * @return void
+     */
+    protected function rebuildWebCacheAndReExecute(array $variables, Throwable $e): void
+    {
+        static $rebuild = false;
+
+        if (($e instanceof SystemPageNotFoundException) and !$rebuild) {
+            // A system page doesn't exist? Has the web cache directory been built? Rebuild it once and try again.
+            $rebuild =  true;
+
+            try {
+                Log::warning(tr('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
+                    ':code' => $variables['code'],
+                ]));
+
+                Web::rebuildCache();
+                static::executePage($variables);
+
+            } catch (Throwable $e) {
+                // Nah, didn't solve the issue
+                if (!($e instanceof SystemPageNotFoundException)) {
+                    // A different issue?
+                    Log::error(tr('Rebuilding web cache failed with exception below'));
+                    Log::error($e);
+                }
+            }
         }
     }
 
@@ -212,6 +293,7 @@ class SystemRequest
             Log::warning(tr('Applying known hacking rules'));
 
             foreach (Config::get('web.route.known-hacks') as $hacks) {
+                // TODO Fix this. This is old code and the specified method doesn't even exist anymore
                 static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }
         }
