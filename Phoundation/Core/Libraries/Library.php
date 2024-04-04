@@ -637,8 +637,6 @@ class Library implements LibraryInterface
             return;
         }
 
-        show($this->directory);
-        show($path->getPath());
         $path->symlinkTreeToTarget($cache, $tmp, rename: true);
     }
 
