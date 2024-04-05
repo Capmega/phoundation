@@ -22,7 +22,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumElementInputType;
 
-
 /**
  * Class Plugin
  *
@@ -41,7 +40,6 @@ class Plugin extends DataEntry implements PluginInterface
     use TraitDataEntryPriority {
         setPriority as setTraitPriority;
     }
-
 
     /**
      * Returns the table name used by this object
@@ -84,6 +82,7 @@ class Plugin extends DataEntry implements PluginInterface
     // TODO Use hooks after startup!
     public static function start(): void {}
 
+
     /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
@@ -122,6 +121,7 @@ class Plugin extends DataEntry implements PluginInterface
         return $class::newFromSource($plugin->getSource());
     }
 
+
     /**
      * Returns if this plugin is disabled or not
      *
@@ -131,6 +131,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return !$this->getEnabled();
     }
+
 
     /**
      * Returns if this plugin is enabled or not
@@ -146,6 +147,7 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->getValueTypesafe('bool', 'enabled', false);
     }
 
+
     /**
      * Returns the plugin name
      *
@@ -155,6 +157,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return basename(dirname(dirname(Library::getClassFile($this))));
     }
+
 
     /**
      * Sets if this plugin is disabled or not
@@ -167,6 +170,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return $this->setEnabled(!$disabled);
     }
+
 
     /**
      * Sets if this plugin is enabled or not
@@ -183,8 +187,9 @@ class Plugin extends DataEntry implements PluginInterface
             }
         }
 
-        return $this->setValue('enabled', (bool)$enabled);
+        return $this->setValue('enabled', (bool) $enabled);
     }
+
 
     /**
      * Returns the menu_enabled for this object
@@ -196,6 +201,7 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->getValueTypesafe('int', 'menu_enabled', 50);
     }
 
+
     /**
      * Sets the menu_enabled for this object
      *
@@ -205,8 +211,9 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setMenuEnabled(int|bool|null $menu_enabled): static
     {
-        return $this->setValue('menu_enabled', (bool)$menu_enabled);
+        return $this->setValue('menu_enabled', (bool) $menu_enabled);
     }
+
 
     /**
      * Returns the menu_priority for this object
@@ -217,6 +224,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return $this->getValueTypesafe('int', 'menu_priority', 50);
     }
+
 
     /**
      * Sets the menu_priority for this object
@@ -236,6 +244,7 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->setValue('menu_priority', $menu_priority);
     }
 
+
     /**
      * Uninstalls this plugin
      *
@@ -245,6 +254,7 @@ class Plugin extends DataEntry implements PluginInterface
     {
         static::disable();
     }
+
 
     /**
      * Disable this plugin
@@ -258,6 +268,20 @@ class Plugin extends DataEntry implements PluginInterface
         $this->setStatus('disabled', $comments);
     }
 
+
+    /**
+     * Enable this plugin
+     *
+     * @param string|null $comments
+     *
+     * @return void
+     */
+    public function enable(?string $comments = null): void
+    {
+        $this->setStatus(null, $comments);
+    }
+
+
     /**
      * Register this plugin in the database
      *
@@ -269,27 +293,23 @@ class Plugin extends DataEntry implements PluginInterface
             Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
                 ':vendor' => $this->getVendor(),
                 ':plugin' => $this->getName(),
-            ]),          3);
+            ]), 3);
         }
-
         if (static::exists($this->getName(), 'name')) {
             // This plugin is already registered
             Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
                 ':vendor' => $this->getVendor(),
                 ':plugin' => $this->getName(),
-            ]),          3);
+            ]), 3);
 
             return;
         }
-
         // Only the Phoundation plugin is ALWAYS enabled
         $enabled = ($this->getName() === 'Phoundation');
-
         Log::action(tr('Registering new plugin ":vendor/:plugin"', [
             ':vendor' => $this->getVendor(),
-            ':plugin' => $this->getName()
+            ':plugin' => $this->getName(),
         ]));
-
         // Register the plugin
         $this->setPath($this->getPath())
              ->setVendor($this->getVendor())
@@ -299,6 +319,7 @@ class Plugin extends DataEntry implements PluginInterface
              ->setDescription($this->getDescription())
              ->save();
     }
+
 
     /**
      * Sets the priority for this plugin
@@ -327,6 +348,7 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->setTraitPriority($priority);
     }
 
+
     /**
      * Sets the main class for this plugin
      *
@@ -338,6 +360,78 @@ class Plugin extends DataEntry implements PluginInterface
     {
         return $this->setValue('class', $class);
     }
+
+
+    /**
+     * Returns if the commands of this plugin are enabled or not
+     *
+     * @return bool
+     */
+    public function getCommandsEnabled(): bool
+    {
+        return $this->getValueTypesafe('bool', 'commands_enabled', false);
+    }
+
+
+    /**
+     * Sets if the commands of this plugin are enabled or not
+     *
+     * @param int|bool|null $commands_enabled
+     *
+     * @return static
+     */
+    public function setCommandsEnabled(int|bool|null $commands_enabled): static
+    {
+        return $this->setValue('commands_enabled', (bool) $commands_enabled);
+    }
+
+
+    /**
+     * Returns if the web pages of this plugin are enabled or not
+     *
+     * @return bool
+     */
+    public function getWebEnabled(): bool
+    {
+        return $this->getValueTypesafe('bool', 'web_enabled', false);
+    }
+
+
+    /**
+     * Sets if the web pages of this plugin are enabled or not
+     *
+     * @param int|bool|null $web_enabled
+     *
+     * @return static
+     */
+    public function setWebEnabled(int|bool|null $web_enabled): static
+    {
+        return $this->setValue('web_enabled', (bool) $web_enabled);
+    }
+
+
+    /**
+     * Returns the vendor name for this plugin
+     *
+     * @return string|null
+     */
+    public function getVendor(): ?string
+    {
+        $vendor = $this->getValueTypesafe('string', 'vendor');
+
+        if ($vendor === null) {
+            $directory = $this->getPath();
+
+            if ($directory) {
+                return Strings::cut($directory, 'Plugins/', '/');
+            }
+
+            return null;
+        }
+
+        return $vendor;
+    }
+
 
     /**
      * Sets the main vendor for this plugin
@@ -351,6 +445,7 @@ class Plugin extends DataEntry implements PluginInterface
         return $this->setValue('vendor', $vendor);
     }
 
+
     /**
      * Returns the plugin path for this plugin
      *
@@ -359,14 +454,12 @@ class Plugin extends DataEntry implements PluginInterface
     public function getPath(): string
     {
         $path = $this->getValueTypesafe('string', 'path');
-
         if (!$path) {
             // Path hasn't been set yet? That is weird as it should always be set UNLESS its new.
             if ($this->isNew()) {
                 // New object, detect the path automatically
                 return dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT)) . '/';
             }
-
             throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class path set', [
                 ':vendor' => get_class($this),
                 ':plugin' => get_class($this),
@@ -376,21 +469,6 @@ class Plugin extends DataEntry implements PluginInterface
         return $path;
     }
 
-    /**
-     * Returns the vendor name for this plugin
-     *
-     * @return string|null
-     */
-    public function getVendor(): ?string
-    {
-        $directory = $this->getPath();
-
-        if ($directory) {
-            return Strings::cut($directory, 'Plugins/', '/');
-        }
-
-        return null;
-    }
 
     /**
      * Returns the class path for this plugin
@@ -400,13 +478,13 @@ class Plugin extends DataEntry implements PluginInterface
     public function getClass(): ?string
     {
         $directory = $this->getPath();
-
         if ($directory) {
             return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
         }
 
         return null;
     }
+
 
     /**
      * Delete the plugin from the plugin registry
@@ -421,17 +499,6 @@ class Plugin extends DataEntry implements PluginInterface
         sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
     }
 
-    /**
-     * Enable this plugin
-     *
-     * @param string|null $comments
-     *
-     * @return void
-     */
-    public function enable(?string $comments = null): void
-    {
-        $this->setStatus(null, $comments);
-    }
 
     /**
      * Sets the available data keys for the User class
@@ -440,97 +507,96 @@ class Plugin extends DataEntry implements PluginInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions
-            ->add(Definition::new($this, 'disabled')
-                            ->setInputType(EnumElementInputType::boolean)
-                            ->setOptional(true)
-                            ->setVirtual(true)
-                            ->setRender(false)
-                            ->setCliColumn('-d,--disable'))
-            ->add(Definition::new($this, 'vendor')
-                            ->setLabel(tr('Vendor'))
-                            ->setInputType(EnumElementInputType::text)
-                            ->setMaxlength(128)
-                            ->setSize(6)
-                            ->setHelpText(tr('The vendor that manages this plugin')))
-            ->add(DefinitionFactory::getName($this, 'seo_name')
-                                   ->setRender(false))
-            ->add(DefinitionFactory::getName($this)
-                                   ->setSize(6)
-                                   ->setHelpText(tr('The name of this plugin')))
-            ->add(Definition::new($this, 'priority')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setNullDb(false, 50)
-                            ->setSize(3)
-                            ->setCliColumn('--priority')
-                            ->setCliAutoComplete(true)
-                            ->setLabel(tr('Priority'))
-                            ->setMin(0)
-                            ->setMax(100)
-                            ->setHelpText(tr('The priority for loading this plugin, between 0 and 100. A lower value will load the plugin before others'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isInteger();
-                            }))
-            ->add(Definition::new($this, 'menu_priority')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::number)
-                            ->setNullDb(false, 50)
-                            ->setSize(3)
-                            ->setCliColumn('--menu-priority')
-                            ->setCliAutoComplete(true)
-                            ->setLabel(tr('Menu priority'))
-                            ->setMin(0)
-                            ->setMax(100)
-                            ->setHelpText(tr('The priority for where to display the menu of this plugin, between 0 and 100. A lower value will display the menu before others'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isInteger();
-                            }))
-            ->add(Definition::new($this, 'menu_enabled')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::checkbox)
-                            ->setNullDb(false, true)
-                            ->setSize(2)
-                            ->setCliColumn('--menu-enabled')
-                            ->setCliAutoComplete(true)
-                            ->setLabel(tr('Menu enabled'))
-                            ->setHelpText(tr('Sets if the menu of this plugin will be available and visible, or not')))
-            ->add(Definition::new($this, 'commands_enabled')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::checkbox)
-                            ->setNullDb(false, true)
-                            ->setSize(2)
-                            ->setCliColumn('--commands-enabled')
-                            ->setCliAutoComplete(true)
-                            ->setLabel(tr('Commands enabled'))
-                            ->setHelpText(tr('Sets if the command line commands of this plugin will be available, or not')))
-            ->add(Definition::new($this, 'enabled')
-                            ->setOptional(true)
-                            ->setInputType(EnumElementInputType::checkbox)
-                            ->setSize(3)
-                            ->setCliColumn('-e,--enabled')
-                            ->setLabel(tr('Enabled'))
-                            ->setDefault(true)
-                            ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or command execution'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->isBoolean();
-                            }))
-            ->add(Definition::new($this, 'class')
-                            ->setLabel(tr('Class'))
-                            ->setInputType(EnumElementInputType::text)
-                            ->setMaxlength(255)
-                            ->setSize(6)
-                            ->setHelpText(tr('The base class path of this plugin'))
-                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                $validator->hasMaxCharacters(1024)
-                                          ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
-                            }))
-            ->add(Definition::new($this, 'path')
-                            ->setLabel(tr('Directory'))
-                            ->setInputType(EnumElementInputType::path)
-                            ->setMaxlength(128)
-                            ->setSize(6)
-                            ->setHelpText(tr('The filesystem path where this plugin is located')))
-            ->add(DefinitionFactory::getDescription($this));
+        $definitions->add(Definition::new($this, 'disabled')
+                                    ->setInputType(EnumElementInputType::boolean)
+                                    ->setOptional(true)
+                                    ->setVirtual(true)
+                                    ->setRender(false)
+                                    ->setCliColumn('-d,--disable'))
+                    ->add(Definition::new($this, 'vendor')
+                                    ->setLabel(tr('Vendor'))
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setMaxlength(128)
+                                    ->setSize(6)
+                                    ->setHelpText(tr('The vendor that manages this plugin')))
+                    ->add(DefinitionFactory::getName($this, 'seo_name')
+                                           ->setRender(false))
+                    ->add(DefinitionFactory::getName($this)
+                                           ->setSize(6)
+                                           ->setHelpText(tr('The name of this plugin')))
+                    ->add(Definition::new($this, 'priority')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setNullDb(false, 50)
+                                    ->setSize(3)
+                                    ->setCliColumn('--priority')
+                                    ->setCliAutoComplete(true)
+                                    ->setLabel(tr('Priority'))
+                                    ->setMin(0)
+                                    ->setMax(100)
+                                    ->setHelpText(tr('The priority for loading this plugin, between 0 and 100. A lower value will load the plugin before others'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isInteger();
+                                    }))
+                    ->add(Definition::new($this, 'menu_priority')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::number)
+                                    ->setNullDb(false, 50)
+                                    ->setSize(3)
+                                    ->setCliColumn('--menu-priority')
+                                    ->setCliAutoComplete(true)
+                                    ->setLabel(tr('Menu priority'))
+                                    ->setMin(0)
+                                    ->setMax(100)
+                                    ->setHelpText(tr('The priority for where to display the menu of this plugin, between 0 and 100. A lower value will display the menu before others'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isInteger();
+                                    }))
+                    ->add(Definition::new($this, 'menu_enabled')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setNullDb(false, true)
+                                    ->setSize(2)
+                                    ->setCliColumn('--menu-enabled')
+                                    ->setCliAutoComplete(true)
+                                    ->setLabel(tr('Menu enabled'))
+                                    ->setHelpText(tr('Sets if the menu of this plugin will be available and visible, or not')))
+                    ->add(Definition::new($this, 'commands_enabled')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setNullDb(false, true)
+                                    ->setSize(2)
+                                    ->setCliColumn('--commands-enabled')
+                                    ->setCliAutoComplete(true)
+                                    ->setLabel(tr('Commands enabled'))
+                                    ->setHelpText(tr('Sets if the command line commands of this plugin will be available, or not')))
+                    ->add(Definition::new($this, 'enabled')
+                                    ->setOptional(true)
+                                    ->setInputType(EnumElementInputType::checkbox)
+                                    ->setSize(3)
+                                    ->setCliColumn('-e,--enabled')
+                                    ->setLabel(tr('Enabled'))
+                                    ->setDefault(true)
+                                    ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or command execution'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isBoolean();
+                                    }))
+                    ->add(Definition::new($this, 'class')
+                                    ->setLabel(tr('Class'))
+                                    ->setInputType(EnumElementInputType::text)
+                                    ->setMaxlength(255)
+                                    ->setSize(6)
+                                    ->setHelpText(tr('The base class path of this plugin'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->hasMaxCharacters(1024)
+                                                  ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
+                                    }))
+                    ->add(Definition::new($this, 'path')
+                                    ->setLabel(tr('Directory'))
+                                    ->setInputType(EnumElementInputType::path)
+                                    ->setMaxlength(128)
+                                    ->setSize(6)
+                                    ->setHelpText(tr('The filesystem path where this plugin is located')))
+                    ->add(DefinitionFactory::getDescription($this));
     }
 }

@@ -29,7 +29,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.2.8';
+        return '0.2.9';
     }
 
 
@@ -393,6 +393,14 @@ class Updates extends Libraries\Updates
                 sql()->schema()->table('core_plugins')->alter()
                      ->addColumn('`vendor` varchar(128) NOT NULL', 'AFTER `commands_enabled`')
                      ->addIndex('KEY `vendor` (`vendor`)');
+            }
+
+        })->addUpdate('0.2.9', function () {
+            if (!sql()->schema()->table('core_plugins')->getColumns()->keyExists('web_enabled')) {
+                sql()->schema()->table('core_plugins')->alter()
+                     ->renameColumn('enabled', 'web_enabled')
+                    ->dropIndex('web_enabled')
+                    ->addIndex('KEY `web_enabled` (`web_enabled`)');
             }
         });
     }

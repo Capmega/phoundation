@@ -40,7 +40,6 @@ $columns = [
     'vendor'   => tr('Vendor'),
     'name'     => tr('Name'),
     'status'   => tr('Status'),
-    'enabled'  => tr('Enabled'),
     'priority' => tr('Priority'),
     'path'     => tr('Path'),
 ];
