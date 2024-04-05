@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use Composer\Repository\PlatformRepository;
 use Exception;
+use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -970,6 +972,18 @@ class Config implements ConfigInterface
 
             if ($exception) {
                 throw $e;
+            }
+
+            if (Core::inStartupState()) {
+                error_log(static::$failed);
+                echo 'Failed to start, see framework and web server logs for more information';
+
+                if (PLATFORM_CLI) {
+                    echo PHP_EOL;
+                    exit(1);
+                }
+
+                exit();
             }
 
             echo static::$failed . PHP_EOL;
