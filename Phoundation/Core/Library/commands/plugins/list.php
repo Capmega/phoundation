@@ -35,10 +35,21 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
+// What columns are we going to display?
+$columns = [
+    'vendor'   => tr('Vendor'),
+    'name'     => tr('Name'),
+    'status'   => tr('Status'),
+    'enabled'  => tr('Enabled'),
+    'priority' => tr('Priority'),
+    'path'     => tr('Path'),
+];
+
+
 // Display the plugins
 if (ALL) {
-    Plugins::getAvailable()->displayCliTable();
+    Plugins::getAvailable()->displayCliTable($columns);
 
 } else {
-    Plugins::getEnabled()->displayCliTable();
+    Plugins::getEnabled()->displayCliTable($columns);
 }
