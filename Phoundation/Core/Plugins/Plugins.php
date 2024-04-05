@@ -355,7 +355,7 @@ class Plugins extends DataList implements PluginsInterface
             return new Iterator([static::getPhoundationPluginEntry()]);
         }
         // Push Phoundation plugin to the front of the list
-        array_unshift($return, static::getPhoundationPluginEntry());
+        $return = array_replace([static::getPhoundationPluginEntry()], $return);
 
         return new Iterator($return);
     }
