@@ -1183,6 +1183,28 @@ function get_object_class_or_data_type(mixed $value): string
 
 
 /**
+ * Strips the extension from the given file name
+ *
+ * @param string|null $filename
+ * @param bool        $all_extensions
+ *
+ * @return string|null
+ */
+function strip_extension(?string $filename, bool $all_extensions = false): ?string
+{
+    if (($filename === '.') or ($filename === '..')) {
+        return null;
+    }
+
+    if ($all_extensions) {
+        return Strings::until($filename, '.');
+    }
+
+    return Strings::untilReverse($filename, '.');
+}
+
+
+/**
  * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed
  */
 if (!function_exists('yaml_emit')) {

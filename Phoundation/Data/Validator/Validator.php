@@ -179,8 +179,8 @@ abstract class Validator implements ValidatorInterface
     /**
      * Allow the validator to check each element in a list of values.
      *
-     * Basically each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->each() actually will have a list of values, so puts that list directly into
+     * Basically, each method will expect to process a list always and ->select() will put the selected value in an
+     * artificial array because of this. ->Each() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
@@ -189,7 +189,7 @@ abstract class Validator implements ValidatorInterface
      */
     public function each(): static
     {
-        // This obviously only works on arrays
+        // This very obviously only works on arrays
         $this->isArray();
 
         if (!$this->process_value_failed) {

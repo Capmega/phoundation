@@ -92,16 +92,16 @@ class CliCommand
     protected static ?array $commands = null;
 
     /**
-     * The commands that were found in the commands cache path
+     * The commands that were found in the command cache path
      *
      * @var array $found_commands
      */
     protected static array $found_commands = [];
 
     /**
-     * Contains the data that was sent to this command over stdin
+     * Contains the data sent to this command over stdin
      *
-     * @var string $stdin
+     * @var string $stdin_data
      */
     protected static string $stdin_data;
 
@@ -222,7 +222,7 @@ class CliCommand
         // Execute the command and finish execution
         try {
             Request::setRestrictions(Restrictions::readonly(DIRECTORY_COMMANDS, 'CLI command execution'));
-            Request::execute(static::$command);
+            Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
             static::fixMysqlTimezoneException($e);
@@ -233,7 +233,7 @@ class CliCommand
 
         if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
-            if (static::readStdInStream()) {
+            if (static::getStdInStream()) {
                 Log::warning(tr('Warning: STDIN stream was specified but not used'));
             }
         }
@@ -245,7 +245,7 @@ class CliCommand
     /**
      * Startup the CLI command processor object
      *
-     * @return void
+     * @return array
      */
     protected static function startup(): array
     {
@@ -260,11 +260,11 @@ class CliCommand
         try {
             Core::startup();
 
-        } catch (SqlDatabaseDoesNotExistException $e) {
+        } catch (SqlDatabaseDoesNotExistException) {
             $return['limit']  = 'system/project/init';
             $return['reason'] = tr('Core database not found, please execute "./cli system project setup"');
 
-        } catch (NoProjectException $e) {
+        } catch (NoProjectException) {
             $return['limit']  = 'system/project/setup';
             $return['reason'] = tr('Project file not found, please execute "./cli system project setup"');
         }
@@ -286,9 +286,9 @@ class CliCommand
 
         // Define the readline completion function
         readline_completion_function([
-                                         '\Phoundation\Cli\CliCommand',
-                                         'completeReadline',
-                                     ]);
+            '\Phoundation\Cli\CliCommand',
+            'completeReadline',
+        ]);
 
         // Only allow this to be run by the command line interface
         // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
@@ -472,7 +472,7 @@ class CliCommand
                     ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
-                ]),          10);
+                ]), 10);
             } else {
                 $exit_code = $exit_code ?? 255;
 
@@ -482,7 +482,7 @@ class CliCommand
                     ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
-                ]),        10);
+                ]), 10);
             }
 
         } elseif ($exit_code) {
@@ -497,7 +497,7 @@ class CliCommand
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
-                    ]),          8);
+                    ]), 8);
                 }
 
             } else {
@@ -510,14 +510,15 @@ class CliCommand
                         ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
-                    ]),        8);
+                    ]), 8);
                 }
             }
 
         } else {
             // Give a "success!" sound for normally executed commands (so NOT auto complete actions!)
             if (!CliAutoComplete::isActive()) {
-                Audio::new('success.mp3')->playLocal(true);
+                Audio::new('success.mp3')
+                     ->playLocal(true);
             }
 
             if ($exit_message) {
@@ -530,7 +531,7 @@ class CliCommand
                 ':pid'     => getmypid(),
                 ':time'    => Time::difference(STARTTIME, microtime(true), 'auto', 5),
                 ':usage'   => Numbers::getHumanReadableBytes(memory_get_peak_usage()),
-            ]),          8);
+            ]), 8);
         }
 
         if (!CliAutoComplete::isActive()) {
@@ -559,7 +560,7 @@ class CliCommand
      *
      * @param bool $exclusive
      *
-     * @throws ScriptException
+     * @return void
      */
     public static function onlyCommandLine(bool $exclusive = false): void
     {
@@ -619,10 +620,10 @@ class CliCommand
                 }
 
                 file_delete([
-                                'patterns'     => $run_dir . $command,
-                                'restrictions' => DIRECTORY_ROOT . 'data/run/',
-                                'clean_path'   => false,
-                            ]);
+                    'patterns'     => $run_dir . $command,
+                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
+                    'clean_path'   => false,
+                ]);
                 $executed = false;
                 return;
             }
@@ -648,20 +649,20 @@ class CliCommand
 
                 } else {
                     $name = safe_exec([
-                                          'commands' => [
-                                              'ps',
-                                              [
-                                                  '-p',
-                                                  $pid,
-                                                  'connector' => '|',
-                                              ],
-                                              'tail',
-                                              [
-                                                  '-n',
-                                                  1,
-                                              ],
-                                          ],
-                                      ]);
+                        'commands' => [
+                            'ps',
+                            [
+                                '-p',
+                                $pid,
+                                'connector' => '|',
+                            ],
+                            'tail',
+                            [
+                                '-n',
+                                1,
+                            ],
+                        ],
+                    ]);
                     $name = array_pop($name);
 
                     if ($name) {
@@ -679,10 +680,10 @@ class CliCommand
                 // process. Remove the PID file
                 Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
                 file_delete([
-                                'patterns'     => $run_dir . $command,
-                                'restrictions' => DIRECTORY_ROOT . 'data/run/',
-                                'clean_path'   => false,
-                            ]);
+                    'patterns'     => $run_dir . $command,
+                    'restrictions' => DIRECTORY_ROOT . 'data/run/',
+                    'clean_path'   => false,
+                ]);
             }
 
             // No run file exists yet, create one now
@@ -746,17 +747,18 @@ class CliCommand
             if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
-                ]))->makeWarning()
+                ]))
+                                                  ->makeWarning()
                                                   ->addData([
-                                                                'position' => CliAutoComplete::getPosition(),
-                                                                'commands' => [basename($command)],
-                                                            ]);
+                                                      'position' => CliAutoComplete::getPosition(),
+                                                      'commands' => [basename($command)],
+                                                  ]);
             }
 
             // Check if this command has support for auto complete. If not
             if (!CliAutoComplete::hasSupport($command)) {
                 // This command has no auto complete support, so if we execute the command it won't go for auto
-                // complete but execute normally, which is not what we want. we're done here.
+                // complete but execute normally, which is not what we want. We're done here.
                 exit();
             }
 
@@ -780,6 +782,7 @@ class CliCommand
      */
     protected static function findCommand(): string
     {
+        $command  = null;
         $position = 0;
         $file     = DIRECTORY_COMMANDS;
         $commands = ArgvValidator::getCommands();
@@ -790,7 +793,7 @@ class CliCommand
         if (!file_exists($file)) {
             Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
                 ':path' => $file,
-            ]),          3);
+            ]), 3);
 
             // Rebuild the command cache
             Libraries::rebuildCommandCache();
@@ -798,12 +801,16 @@ class CliCommand
 
         // Is any command specified at all?
         if (!ArgvValidator::getCommandCount()) {
+            $commands = scandir(DIRECTORY_COMMANDS);
+            $commands = Arrays::each($commands, function ($key, $value) { return strip_extension($value); });
+            $commands = Arrays::removeValues($commands, '/^\./', match_mode: EnumMatchMode::regex);
+
             throw CliNoCommandSpecifiedException::new('No command specified!')
                                                 ->makeWarning()
                                                 ->addData([
-                                                              'position' => 0,
-                                                              'commands' => Arrays::removeValues(scandir(DIRECTORY_COMMANDS), '/^\./', match_mode: EnumMatchMode::regex),
-                                                          ]);
+                                                    'position' => 0,
+                                                    'commands' => $commands,
+                                                ]);
         }
 
         // Process commands
@@ -817,13 +824,14 @@ class CliCommand
 
             ArgvValidator::removeCommand($command);
 
-            if (!file_exists($file)) {
+            if (!file_exists($file) and !file_exists($file . '.php')) {
                 // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
                 try {
                     $files = Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex);
+                    $files = Arrays::each($files, function ($key, $value) { return strip_extension($value); });
                     $files = Arrays::getMatches($files, basename($file), Utils::MATCH_NO_CASE | Utils::MATCH_ALL | Utils::MATCH_BEGIN);
 
-                } catch (Throwable $e) {
+                } catch (Throwable) {
                     $files = [];
                 }
 
@@ -838,17 +846,22 @@ class CliCommand
                     }
                 }
 
+                $previous = scandir(dirname($file));
+                $previous = Arrays::each($previous, function ($key, $value) { return strip_extension($value); });
+                $previous = Arrays::removeValues($previous, '/^\./', match_mode: EnumMatchMode::regex);
+
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
                     ':file' => $file,
-                ]))->makeWarning()
+                ]))
+                                                  ->makeWarning()
                                                   ->addData([
-                                                                'position'          => $position,
-                                                                'commands'          => $files,
-                                                                'previous_commands' => Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex),
-                                                            ]);
+                                                      'position'          => $position,
+                                                      'commands'          => $files,
+                                                      'previous_commands' => $previous,
+                                                  ]);
             }
 
-            if (!is_dir($file)) {
+            if (file_exists($file . '.php')) {
                 // This is a file, should be PHP, found it! Update the arguments to remove all commands from them.
                 return $file;
             }
@@ -856,13 +869,13 @@ class CliCommand
             // This is a directory.
             $file .= '/';
 
-            // Does a file with the directory name exists inside? Only check if the NEXT command does not exist as a file
+            // Does a file with the directory name exist inside? Only check if the NEXT command does not exist as a file
             $next = isset_get($commands[$position + 1]);
 
-            if (!$next or !file_exists($file . $next)) {
+            if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
                 if (file_exists($file . $command)) {
                     if (!is_dir($file . $command)) {
-                        // This is the file! Adjust the CliAutoComplete position if its active because we'll be one
+                        // This is the file! Adjust the CliAutoComplete position if it's active because we'll be one
                         // position ahead of what is expected
                         if (CliAutoComplete::isActive()) {
                             CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
@@ -887,16 +900,25 @@ class CliCommand
             }
         }
 
+        $previous = scandir(dirname($file));
+        $previous = Arrays::each($previous, function ($key, $value) { return strip_extension($value); });
+        $previous = Arrays::removeValues($previous, '/^\./', match_mode: EnumMatchMode::regex);
+
+        $commands = scandir($file);
+        $commands = Arrays::each($commands, function ($key, $value) { return strip_extension($value); });
+        $commands = Arrays::removeValues($commands, '/^\./', match_mode: EnumMatchMode::regex);
+
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
         throw CliCommandNotFoundException::new(tr('The specified command file ":file" was not found', [
             ':file' => $file,
-        ]))->makeWarning()
+        ]))
+                                         ->makeWarning()
                                          ->addData([
-                                                       'position'          => $position + 1,
-                                                       'commands'          => Arrays::removeValues(scandir($file), '/^\./', match_mode: EnumMatchMode::regex),
-                                                       'previous_commands' => Arrays::removeValues(scandir(dirname($file)), '/^\./', match_mode: EnumMatchMode::regex),
-                                                   ]);
+                                             'position'          => $position + 1,
+                                             'commands'          => $commands,
+                                             'previous_commands' => $previous,
+                                         ]);
     }
 
     /**
@@ -928,14 +950,16 @@ class CliCommand
             // Commands can only have alphanumeric characters
             throw OutOfBoundsException::new(tr('The specified command ":command" contains invalid characters. only a-z, 0-9 and - are allowed', [
                 ':command' => $command,
-            ]))->makeWarning();
+            ]))
+                                      ->makeWarning();
         }
 
         if (str_starts_with($command, '-')) {
             // Commands can only have alphanumeric characters
             throw OutOfBoundsException::new(tr('The specified command ":command" starts with a - character which is not allowed', [
                 ':command' => $command,
-            ]))->makeWarning();
+            ]))
+                                      ->makeWarning();
         }
 
         return true;
@@ -1006,7 +1030,8 @@ class CliCommand
             throw ScriptException::new(tr('Cannot execute command ":command" because :reason', [
                 ':command' => $test,
                 ':reason'  => $reason,
-            ]))->makeWarning();
+            ]))
+                                 ->makeWarning();
         }
 
         return $command;
@@ -1022,10 +1047,14 @@ class CliCommand
         global $argv;
 
         if ($argv['usage']) {
-            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::setUsage('], 100))) {
+            if (
+                empty(File::new(static::$command, DIRECTORY_COMMANDS)
+                          ->grep(['CliDocumentation::setUsage('], 100))
+            ) {
                 throw CliCommandException::new(tr('The command ":command" has no usage information available', [
                     ':command' => static::getExecutedPath(true),
-                ]))->makeWarning();
+                ]))
+                                         ->makeWarning();
             }
         }
     }
@@ -1040,10 +1069,14 @@ class CliCommand
         global $argv;
 
         if ($argv['help']) {
-            if (empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['CliDocumentation::setHelp('], 100))) {
+            if (
+                empty(File::new(static::$command, DIRECTORY_COMMANDS)
+                          ->grep(['CliDocumentation::setHelp('], 100))
+            ) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
                     ':command' => static::getExecutedPath(true),
-                ]))->makeWarning();
+                ]))
+                                         ->makeWarning();
             }
         }
     }
@@ -1057,6 +1090,8 @@ class CliCommand
      */
     protected static function fixMysqlTimezoneException(Throwable $e): void
     {
+        $e = Exception::new($e);
+
         Log::warning(tr('MySQL does not yet have the required timezones loaded on connector ":connector". Attempting to load them now. If this is not what you want, please configure the configuration path ":config" to false', [
             ':connector' => $e->getDataKey('connector'),
             ':config'    => 'databases.connectors.' . $e->getDataKey('connector') . '.timezones-name',
@@ -1069,10 +1104,12 @@ class CliCommand
         $password = Cli::readPassword('Please specify the MySQL root password');
 
         if (!$password) {
-            throw OutOfBoundsException::new(tr('No MySQL root password specified'))->makeWarning();
+            throw OutOfBoundsException::new(tr('No MySQL root password specified'))
+                                      ->makeWarning();
         }
 
-        Mysql::new()->importTimezones($password);
+        Mysql::new()
+             ->importTimezones($password);
     }
 
     /**
@@ -1082,31 +1119,35 @@ class CliCommand
      *
      * @return string|null
      */
-    public static function readStdInStream(bool $binary_safe = true): ?string
+    public static function getStdInStream(bool $binary_safe = true): ?string
     {
-        if (stream_isatty(STDIN)) {
-            throw new CliStdInException(tr('Cannot read STDIN stream, the file descriptor is a TTY'));
-        }
-
-        $return = null;
-        $stdin  = File::new(STDIN);
-
-        while (!$stdin->isEof()) {
-            if ($binary_safe) {
-                $data = $stdin->read();
-            } else {
-                $data = $stdin->readLine();
+        if (empty(static::$stdin_data)) {
+            if (stream_isatty(STDIN)) {
+                throw new CliStdInException(tr('Cannot read STDIN stream, the file descriptor is a TTY'));
             }
 
-            if ($data === false) {
-                break;
+            $return = null;
+            $stdin  = File::new(STDIN);
+
+            while (!$stdin->isEof()) {
+                if ($binary_safe) {
+                    $data = $stdin->read();
+                } else {
+                    $data = $stdin->readLine();
+                }
+
+                if ($data === false) {
+                    break;
+                }
+
+                $return .= $data;
             }
 
-            $return .= $data;
+            static::$stdin_has_been_read = true;
+            static::$stdin_data          = $return;
         }
 
-        static::$stdin_has_been_read = true;
-        return $return;
+        return static::$stdin_data;
     }
 
     /**
@@ -1114,7 +1155,7 @@ class CliCommand
      *
      * @return array
      */
-    public static function getCommandsArray(): array
+    public static function getCommands(): array
     {
         return static::$commands;
     }

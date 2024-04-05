@@ -87,7 +87,7 @@ if ($argv['no_password']) {
 } else {
     // Read password from stdin stream?
     if (CliCommand::hasStdInStream()) {
-        $password          = CliCommand::readStdInStream();
+        $password          = CliCommand::getStdInStream();
         $password_validate = $password;
 
     } else {

@@ -22,7 +22,6 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
-
 /**
  * Class AutoComplete
  *
@@ -85,14 +84,12 @@ class CliAutoComplete
      * @var int|null $position
      */
     protected static ?int $position = null;
-
     /**
      * The command for which auto complete is running
      *
      * @var string $command
      */
     protected static string $command;
-
     /**
      * List of available system arguments
      *
@@ -110,6 +107,7 @@ class CliAutoComplete
     {
         return static::$position !== null;
     }
+
 
     /**
      * Initializes system arguments
@@ -144,21 +142,34 @@ class CliAutoComplete
             '-V,--verbose'             => false,
             '-W,--no-warnings'         => false,
             '--system-language'        => [
-                'word'   => function ($word) { return Languages::new()->getMatchingKeys($word); },
-                'noword' => function () { return Languages::new()->getSource(); },
+                'word'   => function ($word) {
+                    return Languages::new()
+                                    ->getMatchingKeys($word);
+                },
+                'noword' => function () {
+                    return Languages::new()
+                                    ->getSource();
+                },
             ],
             '--deleted'                => false,
             '--version'                => false,
             '--limit'                  => true,
             '--timezone'               => [
-                'word'   => function ($word) { return Timezones::new()->getMatchingKeys($word); },
-                'noword' => function () { return Timezones::new()->getSource(); },
+                'word'   => function ($word) {
+                    return Timezones::new()
+                                    ->getMatchingKeys($word);
+                },
+                'noword' => function () {
+                    return Timezones::new()
+                                    ->getSource();
+                },
             ],
             '--show-passwords'         => false,
             '--no-validation'          => false,
             '--no-password-validation' => false,
         ];
     }
+
 
     /**
      * Get the word location for auto complete
@@ -170,6 +181,7 @@ class CliAutoComplete
         return static::$position;
     }
 
+
     /**
      * Set the word location for auto complete
      *
@@ -179,6 +191,7 @@ class CliAutoComplete
     {
         static::$position = $position;
     }
+
 
     /**
      * Process the auto complete for command line commands
@@ -198,99 +211,82 @@ class CliAutoComplete
             // No CLI commands have been specified yet, so all arguments are assumed system arguments
             $words = ArgvValidator::getArguments();
             $word  = array_shift($words);
-
-            if (str_starts_with((string)$word, '-')) {
+            if (str_starts_with((string) $word, '-')) {
                 static::processArguments(static::$system_arguments);
-
             } else {
                 foreach ($data['commands'] as $command) {
                     echo $command . PHP_EOL;
                 }
             }
-
         } elseif (static::$position > count($cli_commands)) {
             // Invalid situation, supposedly the location was beyond, after the number of arguments?
-            Log::error(      tr('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
+            Log::error(tr('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
                 ':position' => static::$position,
                 ':count'    => count($cli_commands),
             ]), echo_screen: false);
             echo 'Invalid-auto-complete-arguments' . PHP_EOL;
             exit(1);
-
         } elseif ($data['position'] > static::$position) {
             // The findCommand() method already found this particular word, so we know it exists! However, there may be
             // other commands starting with this particular word, so we may have to display multiple options instead
             $matches = static::getCommandsStartingWith($data['previous_commands'], $cli_commands[static::$position]);
-
             switch (count($matches)) {
                 case 0:
                     // This shouldn't happen at all, there is a match or we wouldn't be here!
                     throw new CliAutoCompleteException(tr('Found no match while there should be a match'));
-
                 case 1:
                     echo $cli_commands[static::$position];
                     break;
-
                 default:
                     // Multiple options available, still, show all!
                     static::displayMultipleMatches($matches);
             }
-
         } else {
-            $matches          = [];
             $argument_command = isset_get($cli_commands[static::$position], '');
-
             if (!$argument_command) {
                 // There are no commands; Are there modifier arguments, perhaps?
                 $arguments = ArgvValidator::getArguments();
-
                 if ($arguments) {
                     // Get the argument from the modifier arguments list
                     $argument_command = array_shift($arguments);
                 }
             }
-
             if ($argument_command) {
                 // We have an argument command specified, likely it doesn't exist
                 if (str_starts_with($argument_command, '-')) {
                     // This is a system modifier argument, show the system modifier arguments instead.
                     $data['commands'] = [];
-
                     foreach (static::$system_arguments as $arguments => $definitions) {
                         $arguments = explode(',', $arguments);
-
                         foreach ($arguments as $argument) {
                             $data['commands'][] = $argument;
                         }
                     }
                 }
-
                 $matches = static::getCommandsStartingWith($data['commands'], $argument_command);
-
                 switch (count($matches)) {
                     case 0:
                         break;
-
                     case 1:
                         // We found a single command that contains the word we have, we'll use that
                         echo array_shift($matches);
                         break;
-
                     default:
                         static::displayMultipleMatches($matches);
                 }
-
             } else {
                 foreach ($data['commands'] as $command) {
+                    if (empty($command)) {
+                        continue;
+                    }
                     echo $command . PHP_EOL;
                 }
             }
-
         }
-
         // We're done,
         exit();
     }
+
 
     /**
      * Process auto complete for this command from the definitions specified by the command
@@ -305,24 +301,20 @@ class CliAutoComplete
         if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
-            $word          = strtolower(trim((string)$word));
-
+            $word          = strtolower(trim((string) $word));
             // Check if the previous key was a modifier argument that requires a value
             foreach ($argument_definitions as $key => $value) {
                 // Values may contain multiple arguments!
                 $keys = explode(',', Strings::until($key, ' '));
-
                 foreach ($keys as $key) {
                     if ($key === $previous_word) {
                         $requires_value = $value;
                     }
                 }
             }
-
         } else {
             $word = '';
         }
-
         if (isset_get($requires_value)) {
             if ($requires_value === true) {
                 // non-suggestible value, the user will have to type this themselves...
@@ -356,7 +348,6 @@ class CliAutoComplete
             foreach ($argument_definitions as $key => $value) {
                 // Values may contain multiple arguments!
                 $keys = explode(',', Strings::until($key, ' '));
-
                 foreach ($keys as $key) {
                     if (!$word or str_contains(strtolower(trim($key)), $word)) {
                         $results[] = $key;
@@ -364,17 +355,16 @@ class CliAutoComplete
                 }
             }
         }
-
         // Process results only if we have any
         if (isset($results)) {
             foreach ($results as $result) {
                 echo $result . PHP_EOL;
             }
-
             // Die here as we have echoed results!
             exit();
         }
     }
+
 
     /**
      * Process the specified definition
@@ -390,11 +380,9 @@ class CliAutoComplete
         if (is_null($definition)) {
             return null;
         }
-
         // If the given definition was a function, we can just return the result
         if (is_callable($definition)) {
             $results = $definition($word, ArgvValidator::getArguments());
-
             if (is_array($results)) {
                 // Limit the number of results
                 $results = static::limit($results);
@@ -402,10 +390,8 @@ class CliAutoComplete
 
             return $results;
         }
-
         if (is_string($definition)) {
             $definition = trim($definition);
-
             if (str_starts_with($definition, 'SELECT ')) {
                 if ($word) {
                     // Execute the query filtering on the specified word and limit the results
@@ -418,12 +404,10 @@ class CliAutoComplete
 
             return $definition;
         }
-
         // Process an array, return all entries that have partial match
         if (is_array($definition)) {
             $definition = static::limit($definition);
             $results    = [];
-
             foreach ($definition as $value) {
                 if (!$word or str_contains(strtolower(trim($value)), $word)) {
                     $results[] = $value;
@@ -432,12 +416,12 @@ class CliAutoComplete
 
             return $results;
         }
-
         throw new CliAutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
             ':command'    => static::$command,
             ':definition' => $definition,
         ]));
     }
+
 
     /**
      * Automatically limit the specified result set to the configured auto complete limit
@@ -451,6 +435,7 @@ class CliAutoComplete
         return Arrays::limit($source, static::getLimit());
     }
 
+
     /**
      * Returns the limit for auto complete
      *
@@ -460,6 +445,7 @@ class CliAutoComplete
     {
         return Limit::shellAutoCompletion();
     }
+
 
     /**
      * Returns the commands starting with the specified word
@@ -472,7 +458,6 @@ class CliAutoComplete
     protected static function getCommandsStartingWith(array $commands, string $word): array
     {
         $return = [];
-
         foreach ($commands as $command) {
             if (str_starts_with($command, $word)) {
                 // A command contains the word we try to auto complete
@@ -482,6 +467,7 @@ class CliAutoComplete
 
         return $return;
     }
+
 
     /**
      * Displays multiple auto complete matches on screen
@@ -498,6 +484,7 @@ class CliAutoComplete
         }
     }
 
+
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
@@ -510,17 +497,15 @@ class CliAutoComplete
         if (!$definitions) {
             return;
         }
-
         // Get the word where we're <TAB>bing on
         $word = isset_get(ArgvValidator::getArguments()[static::$position]);
-        $word = strtolower(trim((string)$word));
-
+        $word = strtolower(trim((string) $word));
         // First check position!
         static::processCommandPosition($definitions, $word, static::$position);
-
         // Do we have an "all other positions" entry?
         static::processCommandPosition($definitions, $word, -1);
     }
+
 
     /**
      * Process auto complete for this command from the definitions specified by the command
@@ -536,62 +521,55 @@ class CliAutoComplete
         if (array_key_exists($position, isset_get($definitions))) {
             // Get position specific data
             $position_data = $definitions[$position];
-
             // We may have a word or not, check if position_data allows word (or not) and process
             if ($word) {
                 if (array_key_exists('word', $position_data)) {
                     $results = static::processDefinition($position_data['word'], $word);
                 }
-
             } else {
                 if (array_key_exists('noword', $position_data)) {
                     $results = static::processDefinition($position_data['noword'], null);
                 }
             }
-
             // Process results only if we have any
             if (isset($results)) {
                 // Sort the results, either array or Iterator
                 if (is_array($results)) {
                     asort($results);
-
                 } elseif ($results instanceof IteratorInterface) {
                     $results->sort();
-
                 } else {
                     // The given result is neither array nor Iterator
                     throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
                         ':word' => $word ? 'word' : 'noword',
                     ]));
                 }
-
                 foreach ($results as $result) {
                     if (!$result) {
                         continue;
                     }
-
                     if (!is_scalar($result)) {
                         if (!$result instanceof DataEntryInterface) {
                             throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
                                 ':word'    => $word ? 'word' : 'noword',
                                 ':result'  => $result,
                                 ':results' => $results,
-                            ]))->addData([
-                                             'results' => $results,
-                                         ])->makeWarning();
+                            ]))
+                                                      ->addData([
+                                                          'results' => $results,
+                                                      ])
+                                                      ->makeWarning();
                         }
-
                         $result = $result->getAutoCompleteValue();
                     }
-
-                    echo ((string)$result) . PHP_EOL;
+                    echo ((string) $result) . PHP_EOL;
                 }
-
                 // Die here as we have echoed the results!
                 exit();
             }
         }
     }
+
 
     /**
      * Process command arguments
@@ -604,11 +582,11 @@ class CliAutoComplete
     {
         if ($definitions) {
             static::processArguments(array_merge($definitions, static::$system_arguments));
-
         } else {
             static::processArguments(static::$system_arguments);
         }
     }
+
 
     /**
      * Returns true if the specified command has auto complete support available
@@ -620,16 +598,16 @@ class CliAutoComplete
      */
     public static function hasSupport(string $command): bool
     {
-        static::$command = $command;
-
         // Update the location to the first argument (argument 0) after the command
-        $command = Strings::from(static::$command, DIRECTORY_COMMANDS);
-        $command = explode('/', $command);
-
+        static::$command  = $command;
+        $command          = Strings::from(static::$command, DIRECTORY_COMMANDS);
+        $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(File::new(static::$command, DIRECTORY_COMMANDS)->grep(['Documentation::setAutoComplete('], 100));
+        return !empty(File::new(static::$command . '.php', DIRECTORY_COMMANDS)
+                          ->grep(['Documentation::setAutoComplete('], 500));
     }
+
 
     /**
      * Checks if autocomplete has been correctly setup
@@ -639,7 +617,6 @@ class CliAutoComplete
     public static function ensureAvailable(): void
     {
         $file = Path::getAbsolute('~/.bash_completion', must_exist: false);
-
         if (file_exists($file)) {
             // Check if it contains the setup for Phoundation
             // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
@@ -647,13 +624,11 @@ class CliAutoComplete
                            ->setValue('complete -F _phoundation pho')
                            ->setFile($file)
                            ->grep(EnumExecuteMethod::returnArray);
-
             if ($results) {
                 // bash_completion contains rule for phoundation
                 return;
             }
         }
-
         // Phoundation command line auto complete has not yet been set up, do so now.
         File::new('~/.bash_completion')
             ->setRestrictions('~/.bash_completion', true)
@@ -665,7 +640,6 @@ COMPREPLY+=($(compgen -W "$PHO"));
 }
 
 complete -F _phoundation pho');
-
         Log::information('Setup auto complete for Phoundation in ~/.bash_completion');
         Log::information('You may need to logout and login again for auto complete to work correctly');
     }

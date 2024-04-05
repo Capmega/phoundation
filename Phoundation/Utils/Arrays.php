@@ -1840,10 +1840,38 @@ class Arrays extends Utils
     }
 
     /**
+     * Will replace each value in the source array with the output from the given callback function
+     *
+     * The callback function will contain arguments mixed $key, mixed $value
+     *
+     * Example:
+     * Arrays::each(array(1, 2, 3), function($key, $value) { return $value + 1; });
+     *
+     * @param array    $source   The array to check
+     * @param callable $function The function to execute
+     * @param bool     $unset_null_result
+     *
+     * @return array
+     */
+    public static function each(array $source, callable $function, bool $unset_null_result = true): array
+    {
+        foreach ($source as $key => &$value) {
+            $value = $function($key, $value);
+
+            if (($value === null) and $unset_null_result) {
+                unset($source[$key]);
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+    /**
      * Returns if the specified callback function returns true for all elements
      *
      * Example:
-     * Arrays::all(array(1, 2, 3), function($value) { return $value });
+     * Arrays::allExecuteTrue(array(1, 2, 3), function($value) { return $value; });
      *
      * @param array    $source   The array to check
      * @param callable $function The function to execute
@@ -1866,7 +1894,7 @@ class Arrays extends Utils
      * Returns if the specified callback function returns true for all elements
      *
      * Example:
-     * Arrays::any(array(0, 1, 2, 3), function($value) { return $value });
+     * Arrays::anyExecuteTrue(array(0, 1, 2, 3), function($value) { return $value; });
      *
      * @param array    $source   The array to check
      * @param callable $function The function to execute

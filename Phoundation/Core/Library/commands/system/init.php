@@ -22,6 +22,23 @@ use Phoundation\Utils\Strings;
  * @category  Function reference
  * @package   Phoundation\Core
  */
+
+CliDocumentation::setAutoComplete([
+    'arguments' => [
+        '--drop'           => false,
+        '--import'         => false,
+        '--min'            => true,
+        '--max'            => true,
+        '-c,--comments'    => true,
+        '-d,--demo'        => false,
+        '-l,--libraries'   => true,
+        '-p,--plugins'     => false,
+        '-s,--system'      => false,
+        '-t,--templates'   => false,
+        '-v,--set-version' => true,
+    ]
+]);
+
 CliDocumentation::setUsage('./pho system init [OPTIONS]
 ./pho system init --drop
 ./pho system init --import
@@ -30,9 +47,7 @@ CliDocumentation::setUsage('./pho system init [OPTIONS]
 CliDocumentation::setHelp('This command allows you to setup a new project
 
 
-
 ARGUMENTS
-
 
 
 [--drop]                                Drops the system database and start init from version 0.0.0

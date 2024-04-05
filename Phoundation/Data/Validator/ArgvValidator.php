@@ -73,6 +73,16 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     }
 
     /**
+     * Returns the entire source for this validator object
+     *
+     * @return array|null
+     */
+    public function getSource(): ?array
+    {
+        return static::$argv;
+    }
+
+    /**
      * Move all $argv data to internal array to ensure developers cannot access them until validation has been completed
      *
      * @param array $argv
@@ -206,12 +216,15 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         // Scan all arguments until named parameters start
         foreach (static::$argv as $argument) {
-            if (!trim($argument)) {
+            $argument = trim($argument);
+
+            if (!$argument) {
                 // Ignore empty items
                 continue;
             }
 
             if (str_starts_with($argument, '-')) {
+                // This is a modifier argument, not a command
                 break;
             }
 
@@ -622,7 +635,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 1       => current($results),
                 default => throw CliArgumentsException::new(tr('Multiple related command line arguments ":results" for the same option specified. Please specify only one', [
                     ':results' => $results,
-                ]))->makeWarning()
+                ]))
+                                                      ->makeWarning()
             };
         }
 
@@ -670,14 +684,17 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             } catch (OutOfBoundsException $e) {
                 // This argument requires another parameter. Make it an arguments exception!
-                throw CliArgumentsException::new($e)->makeWarning();
+                throw CliArgumentsException::new($e)
+                                           ->makeWarning();
             }
 
             if (str_starts_with((string)$value, '-')) {
                 throw CliArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
                     ':keys'  => $keys,
                     ':value' => $value,
-                ]))->addData(['keys' => $keys])->makeWarning();
+                ]))
+                                           ->addData(['keys' => $keys])
+                                           ->makeWarning();
             }
 
             return $value;
@@ -916,7 +933,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         throw CliInvalidArgumentsException::new(tr('Invalid command line arguments ":arguments" encountered', [
             ':arguments' => Strings::force(static::$argv, ', '),
-        ]))->makeWarning();
+        ]))
+                                          ->makeWarning();
     }
 
     /**
@@ -938,7 +956,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             static::$argv[] = $key;
-            static::$argv[] = CliCommand::readStdInStream();
+            static::$argv[] = CliCommand::getStdInStream();
         }
 
         return $this;
