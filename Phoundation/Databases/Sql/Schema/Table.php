@@ -38,13 +38,6 @@ class Table extends SchemaAbstract
     protected array $columns = [];
 
     /**
-     * The indices for this table
-     *
-     * @var array $indices
-     */
-    protected array $indices = [];
-
-    /**
      * The foreign keys for this table
      *
      * @var array $foreign_keys
@@ -179,24 +172,18 @@ class Table extends SchemaAbstract
      */
     public function getColumns(): IteratorInterface
     {
-        $columns = [];
-        $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+        if (empty($this->columns)) {
+            $columns = [];
+            $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
 
-        foreach ($results as $result) {
-            $columns[$result['field']] = Arrays::lowercaseKeys($result);
+            foreach ($results as $result) {
+                $columns[$result['field']] = Arrays::lowercaseKeys($result);
+            }
+
+            $this->columns = $columns;
         }
 
-        return Iterator::new($columns);
-    }
-
-    /**
-     * Returns the table indices
-     *
-     * @return array
-     */
-    public function getIndices(): array
-    {
-        return $this->indices;
+        return Iterator::new($this->columns);
     }
 
     /**
