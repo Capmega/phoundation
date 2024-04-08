@@ -6,6 +6,8 @@ namespace Phoundation\Cli;
 
 use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -168,6 +170,9 @@ class Cli
                 // Display all row cells
                 foreach ($headers as $column => $label) {
                     $value = isset_get($row[$column]);
+                    if ($column === 'status') {
+                        $value = DataEntry::getHumanReadableStatus($value);
+                    }
                     if (is_numeric($column) or array_key_exists($column, $headers)) {
                         Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
                     }
@@ -258,6 +263,9 @@ class Cli
                 }
                 // This is likely a resource or something
                 $value = gettype($value);
+            }
+            if ($key === 'status') {
+                $value = DataEntry::getHumanReadableStatus($value);
             }
             Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
         }
