@@ -9,7 +9,6 @@ use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Http\UrlBuilder;
 
-
 /**
  * TopPanel class
  *
@@ -30,22 +29,24 @@ class TopPanel extends Panel
     public function __construct(?string $content = null)
     {
         // Set the default menu for top panels
-        $this->source['menu'] = Menu::new()->addSources([
-                                                            tr('Home') => (string)UrlBuilder::getCurrentDomainRootUrl(),
-                                                        ]);
-
-        if (Session::getUser()->hasAllRights('demos')) {
-            $this->source['menu']->add((string)UrlBuilder::getWww('demos.html'), tr('Demos'));
+        $this->source['menu'] = Menu::new()
+                                    ->addSources([
+                                        tr('Home') => (string) UrlBuilder::getCurrentDomainRootUrl(),
+                                    ]);
+        if (
+            Session::getUser()
+                   ->hasAllRights('demos')
+        ) {
+            $this->source['menu']->add((string) UrlBuilder::getWww('demos.html'), tr('Demos'));
         }
-
         parent::__construct($content);
-
         $this->elements = Iterator::new([
-                                            'search',
-                                            'notifications',
-                                            'full-screen',
-                                            'sign-out',
-                                        ]);
+            'search',
+            'notifications',
+            'languages',
+            'full-screen',
+            'sign-out',
+        ]);
     }
 
 
@@ -61,13 +62,11 @@ class TopPanel extends Panel
                  ->setNotificationsUrl('/notifications/notification-:ID.html')
                  ->setAllNotificationsUrl('/notifications/unread.html');
         }
-
         if ($this->elements->valueExists('messages')) {
             $this->getMessagesDropDown()
                  ->setMessages(null)
                  ->setMessagesUrl('/messages/unread.html');
         }
-
         if ($this->elements->valueExists('languages')) {
             $this->getLanguagesDropDown()
                  ->setLanguages(null)
